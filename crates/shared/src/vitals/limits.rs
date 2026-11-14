@@ -19,12 +19,15 @@ pub struct Limits {
 }
 
 /// Health and Mana given back over time by bonuses, in thousandths of a point
-/// a second, while refilling, until a tick (when the effects giving it are
-/// worked out again) or for good.
+/// a second, while refilling, and taken away by draining ones (poison), waiting
+/// or not and never below 1 point, until a tick (when the effects giving them
+/// are worked out again) or for good.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Restore {
     pub health: u32,
     pub mana: u32,
+    pub drain_health: u32,
+    pub drain_mana: u32,
     pub until: Option<u64>,
 }
 
@@ -44,6 +47,10 @@ impl Limits {
             restore: match vital {
                 Vital::Health => self.restore.health,
                 Vital::Mana => self.restore.mana,
+            },
+            drain: match vital {
+                Vital::Health => self.restore.drain_health,
+                Vital::Mana => self.restore.drain_mana,
             },
             until: self.restore.until,
         }

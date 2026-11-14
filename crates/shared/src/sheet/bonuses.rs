@@ -3,7 +3,8 @@
 //! changing effects while keeping Health's and Mana's share.
 
 use super::{Attributes, Sheet};
-use crate::bonus::{Bonus, Cancel, Effect, Source, Stat, Totals, food_effect};
+use crate::bonus::{Bonus, Cancel, Effect, Source, Stat, Totals, eating};
+use crate::creature::CreatureKind;
 use crate::item::{Item, ItemKind};
 use crate::requirement::effective_bonuses;
 use crate::vitals::Limits;
@@ -86,13 +87,24 @@ impl Sheet {
         self.change_effects(situation, now, |effects| effects.add(effect));
     }
 
-    /// Eats one of these, if eating it does anything (`bonus::food_effect`).
+    /// Eats one of these as a creature of kind `eater`, if it may
+    /// (`bonus::eating`): healing if it suits it, poison if it poisons it.
     /// Whether it did.
-    pub fn eat(&mut self, kind: ItemKind, situation: Situation, now: u64) -> bool {
-        let Some(effect) = food_effect(kind, now) else {
+    pub fn eat(
+        &mut self,
+        kind: ItemKind,
+        eater: CreatureKind,
+        situation: Situation,
+        now: u64,
+    ) -> bool {
+        let Some(effects) = eating(kind, eater, now) else {
             return false;
         };
-        self.add_effect(effect, situation, now);
+        self.change_effects(situation, now, |on| {
+            for effect in effects {
+                on.add(effect);
+            }
+        });
         true
     }
 
@@ -137,5 +149,7 @@ impl Sheet {
     }
 }
 
+#[cfg(test)]
+mod food_tests;
 #[cfg(test)]
 mod tests;

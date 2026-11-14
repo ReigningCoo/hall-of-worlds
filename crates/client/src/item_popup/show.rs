@@ -1,19 +1,18 @@
-//! What an item's popup shows: its name in its quality's colour, anything
-//! about where it is, a line for each bonus, what it asks of its wearer (what
+//! What an item's popup shows: its name in its quality's colour, its
+//! description if it has one, anything about where it is, a line for each bonus, what it asks of its wearer (what
 //! the viewer falls short of as a warning), and its weight at the bottom.
 
-use bevy::prelude::*;
-use shared::id::Id;
-use shared::lang::Lang;
-use shared::sheet::Attributes;
-
-use super::needs::need_lines;
+use super::about::about;
+use super::needs::{Viewer, need_lines};
 use super::open::{FORM, ItemPopups};
 use super::words::bonus_lines;
 use crate::common::{NO_QUALITY_NAME, quality_colour};
 use crate::dom::{Dom, Template};
 use crate::html;
 use crate::widgets::{Pointed, TextSize, UiId, weight_words};
+use bevy::prelude::*;
+use shared::id::Id;
+use shared::lang::Lang;
 
 /// The popup: `name` is filled with the name in its colour once built; the
 /// rest are set as it opens.
@@ -23,6 +22,7 @@ pub(super) static ITEM_POPUP: Template = html!(
 <form id="item_popup">
   <popup id="box" hover>
     <canvas id="name" margin-right="20"/>
+    <p id="about" hidden>.</p>
     <p id="notes" hidden>.</p>
     <p id="bonuses" hidden>.</p>
     <p id="needs" hidden>.</p>
@@ -34,18 +34,21 @@ pub(super) static ITEM_POPUP: Template = html!(
 );
 
 /// Places the popup about `of` at `at` and writes what it says, its
-/// requirements against the `viewer`'s attributes (none: all met).
+/// requirements against the `viewer` (none: all met).
 pub(super) fn fill(
     dom: &mut Dom,
     of: Id,
     pointed: &Pointed,
     at: Vec2,
-    (lang, viewer): (&Lang, Option<&Attributes>),
+    (lang, viewer): (&Lang, Option<Viewer>),
 ) {
     let form = UiId::of(FORM, of, "box").form();
     let id = |name: &str| format!("{form}/{name}");
     dom.set(&id("box"), "left", &at.x.to_string());
     dom.set(&id("box"), "top", &at.y.to_string());
+    let about = about(&pointed.item, lang);
+    dom.set_flag(&id("about"), "hidden", about.is_none());
+    dom.set_text(&id("about"), about.unwrap_or_default());
     let notes = &pointed.notes;
     dom.set_flag(&id("notes"), "hidden", notes.is_empty());
     dom.set_text(&id("notes"), notes.clone());

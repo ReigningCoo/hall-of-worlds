@@ -2,7 +2,7 @@
 //! (`shared::bonus`), each worded through the language files (`item.ftl`).
 //! Only what the client's copy of the item knows goes in.
 
-use shared::bonus::{Amount, Bonus, Effect, Stat, food_effect, item_bonuses};
+use shared::bonus::{Amount, Bonus, Effect, Others, Stat, food, food_effect, item_bonuses, poison};
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::item::Item;
 use shared::lang::{Args, Lang, RenderError};
@@ -18,6 +18,13 @@ pub(super) fn bonus_lines(item: &Item, lang: &Lang) -> Vec<String> {
     let mut lines: Vec<String> = worn.map(|bonus| bonus_line(&bonus, lang)).collect();
     if let Some(effect) = food_effect(item.kind, 0) {
         lines.extend(effect_lines(&effect, lang));
+    }
+    if food(item.kind).is_some_and(|food| food.others == Others::Poisoned) {
+        // "Poisons other kinds: −1 Health a second for 60 s".
+        for line in effect_lines(&poison(0), lang) {
+            let args = Args::new().text("line", line);
+            lines.push(written(lang.render("item-poisons", &args)));
+        }
     }
     lines
 }
@@ -63,6 +70,12 @@ fn bonus_line(bonus: &Bonus, lang: &Lang) -> String {
             let args = Args::new().text("amount", amount).text("stat", stat);
             return written(lang.render("item-restores", &args));
         }
+        (Stat::Drain(_), Amount::Flat(milli)) => {
+            let args = Args::new()
+                .text("amount", signed(-milli))
+                .text("stat", stat);
+            return written(lang.render("item-drains", &args));
+        }
         (_, Amount::Flat(milli)) => ("item-bonus", milli),
         (_, Amount::Percent(milli)) => ("item-bonus-percent", milli),
     };
@@ -79,7 +92,7 @@ pub(super) fn stat_words(stat: Stat, lang: &Lang) -> String {
     let id = match stat {
         Stat::Attribute(attribute) => format!("stat-{}", attribute.name().to_lowercase()),
         Stat::Most(of) => format!("stat-most-{}", vital(of)),
-        Stat::Restore(of) => format!("stat-{}", vital(of)),
+        Stat::Restore(of) | Stat::Drain(of) => format!("stat-{}", vital(of)),
         Stat::Skill(skill) => {
             let args = Args::new().text("skill", skill.name());
             return written(lang.render("stat-skill", &args));

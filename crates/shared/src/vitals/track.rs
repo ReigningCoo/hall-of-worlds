@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::TICKS;
+use super::course::course;
 use super::points::{PER_POINT, Points};
 
 /// How much of one there is, and its practice. Refills in a straight line,
@@ -17,6 +17,9 @@ pub struct Track {
     /// The action tick it refills from: when it was last settled, or later
     /// while in combat.
     since: u64,
+    /// The action tick `value` is at: when it was last settled. Draining
+    /// (poison) runs from here, even while waiting to refill.
+    settled: u64,
     /// Practice gained by using it, which raises its most, in thousandths.
     pub practice: u32,
     /// Practice gained in the current hour of playtime, in thousandths.
@@ -28,6 +31,7 @@ impl Default for Track {
         Self {
             value: u32::MAX,
             since: 0,
+            settled: 0,
             practice: 0,
             this_hour: 0,
         }
@@ -44,6 +48,9 @@ struct TrackSave {
     this_hour: u32,
     #[serde(default)]
     milli: bool,
+    /// Missing from saves before draining: `since` then, as nothing drained.
+    #[serde(default)]
+    settled: Option<u64>,
 }
 
 impl From<TrackSave> for Track {
@@ -63,6 +70,7 @@ impl From<TrackSave> for Track {
                 scale(save.value)
             },
             since: save.since,
+            settled: save.settled.unwrap_or(save.since),
             practice: scale(save.practice),
             this_hour: scale(save.this_hour),
         }
@@ -77,18 +85,21 @@ impl From<Track> for TrackSave {
             practice: track.practice,
             this_hour: track.this_hour,
             milli: true,
+            settled: Some(track.settled),
         }
     }
 }
 
 /// How one comes back: refilling from nothing to `most` (whole points) in
 /// `refill` ticks, and `restore` thousandths of a point a second on top while
-/// refilling, until the tick `until` (or for good).
+/// refilling, until the tick `until` (or for good). `drain` thousandths a
+/// second are taken all the while until then, never below 1 point (poison).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Rate {
     pub most: u32,
     pub refill: u64,
     pub restore: u32,
+    pub drain: u32,
     pub until: Option<u64>,
 }
 
@@ -106,23 +117,29 @@ pub struct VitalNow {
     /// Thousandths of a point a second bonuses give back on top while refilling
     /// (`Limits::restore`).
     pub restore: u32,
-    /// Action ticks from now until that stops (`u32::MAX` for good).
+    /// Action ticks from now until that stops (`u32::MAX` for good), and
+    /// draining with it.
     pub restore_ends_in: u32,
+    /// Thousandths of a point a second taken away (poison), waiting or not,
+    /// never below 1 point (`Rate::drain`).
+    pub drain: u32,
 }
 
 impl VitalNow {
     /// How much there is this many action ticks after it was told.
     pub fn after(self, ticks: u64) -> Points {
-        let refills_in = u64::from(self.refills_in);
-        let restoring = ticks.min(self.restore_ends_in.into());
-        refilled(
-            self.value,
-            self.most,
-            self.refill.into(),
-            ticks.saturating_sub(refills_in),
-        )
-        .plus(restored(self.restore, restoring.saturating_sub(refills_in)))
-        .min(Points::whole(self.most))
+        let rate = Rate {
+            most: self.most,
+            refill: self.refill.into(),
+            restore: self.restore,
+            drain: self.drain,
+            until: None,
+        };
+        let stop = match self.restore_ends_in {
+            u32::MAX => u64::MAX,
+            ends_in => ends_in.into(),
+        };
+        course(self.value, rate, self.refills_in.into(), stop, ticks)
     }
 }
 
@@ -135,25 +152,18 @@ pub fn refilled(value: Points, most: u32, refill: u64, ticks: u64) -> Points {
     Points(value.saturating_add(gained).min(most) as u32)
 }
 
-/// What `restore` thousandths of a point a second give back in this many
-/// action ticks.
-fn restored(restore: u32, ticks: u64) -> Points {
-    let gained = ticks.saturating_mul(restore.into()) / TICKS;
-    Points(gained.min(u32::MAX.into()) as u32)
-}
-
 impl Track {
     /// How much there is at this tick, coming back at `rate`.
     pub fn at(&self, rate: Rate, now: u64) -> Points {
-        let restoring = rate.until.map_or(now, |until| now.min(until));
-        refilled(
+        let after = |tick: u64| tick.saturating_sub(self.settled);
+        let stop = rate.until.map_or(u64::MAX, after);
+        course(
             Points(self.value),
-            rate.most,
-            rate.refill,
-            now.saturating_sub(self.since),
+            rate,
+            after(self.since),
+            stop,
+            after(now),
         )
-        .plus(restored(rate.restore, restoring.saturating_sub(self.since)))
-        .min(Points::whole(rate.most))
     }
 
     /// What a client is told of it at this tick.
@@ -166,6 +176,7 @@ impl Track {
             refill: rate.refill.min(u32::MAX.into()) as u32,
             restore: rate.restore,
             restore_ends_in: rate.until.map_or(u32::MAX, ticks),
+            drain: rate.drain,
         }
     }
 
@@ -182,6 +193,7 @@ impl Track {
             };
         }
         self.since = self.since.max(now);
+        self.settled = self.settled.max(now);
     }
 
     /// Keeps its share (settled first) as its most goes from `old` to `new`,

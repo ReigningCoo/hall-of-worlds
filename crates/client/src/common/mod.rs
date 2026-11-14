@@ -9,6 +9,7 @@ pub mod controls;
 mod floors;
 mod hosting;
 mod hover;
+mod kind_words;
 mod local_time;
 mod login;
 mod quest_colours;
@@ -94,6 +95,7 @@ pub use items::{
     BandShift, GROUND, GaveItem, HeldGift, HeldOverGifts, HeldStock, HoveredBag, NO_QUALITY_NAME,
     StockCell, TakesGifts, TookItem, quality_colour,
 };
+pub use kind_words::kinds_words;
 pub use lightning::{BoltStruck, Lightning, LightningStrike};
 pub use local_time::local_date_time;
 pub use login::{AccountEmail, LoggingIn, LoginChoice, LoginProvider};

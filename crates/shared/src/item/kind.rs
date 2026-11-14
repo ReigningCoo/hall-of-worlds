@@ -8,6 +8,9 @@ use crate::blade::Family;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ItemKind {
     Apple,
+    Bread,
+    DwarvenBread,
+    RawMeat,
     ArmArmour,
     ArmingCap,
     ArmingVest,
@@ -97,7 +100,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 78] = [
+    pub const ALL: [Self; 81] = [
         Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -114,6 +117,7 @@ impl ItemKind {
         Self::Boomerang,
         Self::Boots,
         Self::Braies,
+        Self::Bread,
         Self::BreastBand,
         Self::Caparison,
         Self::Chausses,
@@ -126,6 +130,7 @@ impl ItemKind {
         Self::CuirassierTassets,
         Self::Dagger,
         Self::DemiGauntlets,
+        Self::DwarvenBread,
         Self::FingerlessGloves,
         Self::FootArmour,
         Self::FullArmour,
@@ -155,6 +160,7 @@ impl ItemKind {
         Self::Petticoat,
         Self::Polearm,
         Self::Pouch,
+        Self::RawMeat,
         Self::Remains,
         Self::Ring,
         Self::Sandals,

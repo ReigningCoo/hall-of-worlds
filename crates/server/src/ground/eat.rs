@@ -1,6 +1,6 @@
 //! Eating from the ground: the top one of food in a bag in the player's reach.
 
-use shared::bonus::is_food;
+use shared::bonus::{is_food, may_eat};
 use shared::id::Id;
 use shared::item::Item;
 
@@ -19,6 +19,9 @@ pub(crate) fn take_food(
     let mut found = lying(client, world, item)?;
     if !is_food(found.top().kind) {
         return Err("it can't be eaten");
+    }
+    if !may_eat(found.top().kind, client.inventory.creature) {
+        return Err("it isn't for its kind");
     }
     let top = found.take_top(&mut new_id);
     let rest = top.is_some().then(|| found.clone());

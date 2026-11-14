@@ -70,6 +70,14 @@ impl Totals {
             .clamp(0, i64::from(u32::MAX)) as u32
     }
 
+    /// Health or Mana taken away over time (poison), in thousandths of a point
+    /// a second (never below 0).
+    pub fn draining(&self, vital: Vital) -> u32 {
+        self.sum(Stat::Drain(vital))
+            .flat
+            .clamp(0, i64::from(u32::MAX)) as u32
+    }
+
     /// Whether there are no bonuses at all.
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()

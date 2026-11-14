@@ -22,6 +22,10 @@ pub enum Stat {
     /// Only from bonuses: Health or Mana given back over time, in points a
     /// second, on top of refilling and by the same formula (`vitals::Limits`).
     Restore(Vital),
+    /// Only from effects: Health or Mana taken away over time (poison), in
+    /// points a second, waiting to refill or not, never below 1 point
+    /// (`vitals::course`).
+    Drain(Vital),
     // New stats go at the end: messages carry one by its place in this list.
 }
 

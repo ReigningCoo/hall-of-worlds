@@ -70,3 +70,16 @@ fn a_hair_shirt_costs_five_percent_will() {
     shirt.form = Some(ItemForm::Under(form));
     assert_eq!(bonus_lines(&shirt, &lang), vec![format!("{MINUS}5% Will")]);
 }
+
+#[test]
+fn raw_meat_says_it_poisons_other_kinds() {
+    let lang = Lang::new(Language::English);
+    let meat = Item::new(Id::for_test(1), ItemKind::RawMeat);
+    assert_eq!(
+        bonus_lines(&meat, &lang),
+        vec![
+            "Restores 2 Health a second for 60 s; stops on moving or being hurt",
+            "Poisons other kinds: \u{2212}1 Health a second for 60 s",
+        ]
+    );
+}

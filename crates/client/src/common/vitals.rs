@@ -3,7 +3,7 @@
 
 use bevy::prelude::*;
 use shared::energy::ACTION_TICKS_PER_SECOND;
-use shared::vitals::{PER_POINT, VitalNow};
+use shared::vitals::{DRAIN_FLOOR, PER_POINT, VitalNow};
 
 /// The player's own Health and Mana (`ServerMessage::Vitals` with no `who`),
 /// and when they were told, by `Time` (which stops while single player is
@@ -42,16 +42,43 @@ impl OwnVitals {
     }
 }
 
-/// `VitalNow::after` with fractions: refilling, and what bonuses give back on
-/// top until they stop.
+/// `VitalNow::after` with fractions (`vitals::course`): refilling after any
+/// wait, what bonuses give back on top while refilling, and draining (poison)
+/// all the while, never below 1, until they stop.
 fn refilled(told: VitalNow, ticks: f32) -> f32 {
     let most = told.most as f32;
-    let refills_in = told.refills_in as f32;
-    let refilling = (ticks - refills_in).max(0.0);
-    let restoring = (ticks.min(told.restore_ends_in as f32) - refills_in).max(0.0);
-    let refill = told.refill.max(1) as f32;
-    let restore = told.restore as f32 / PER_POINT as f32 / ACTION_TICKS_PER_SECOND as f32;
-    (told.value.as_f32().min(most) + refilling * most / refill + restoring * restore).min(most)
+    let wait = told.refills_in as f32;
+    let stop = told.restore_ends_in as f32;
+    let per_tick = PER_POINT as f32 * ACTION_TICKS_PER_SECOND as f32;
+    let refill = most / told.refill.max(1) as f32;
+    let restore = told.restore as f32 / per_tick;
+    let drain = told.drain as f32 / per_tick;
+    let floor = DRAIN_FLOOR as f32 / PER_POINT as f32;
+    // The rates only change at `wait` and `stop`.
+    let mut cuts = [wait.min(ticks), stop.min(ticks), ticks];
+    cuts.sort_by(f32::total_cmp);
+    let (mut value, mut from) = (told.value.as_f32().min(most), 0.0);
+    for to in cuts {
+        if to <= from {
+            continue;
+        }
+        let middle = (from + to) / 2.0;
+        let refilling = if middle >= wait { refill } else { 0.0 };
+        let restoring = if middle >= wait && middle < stop {
+            restore
+        } else {
+            0.0
+        };
+        let draining = if middle < stop { drain } else { 0.0 };
+        let change = (refilling + restoring - draining) * (to - from);
+        value = if change >= 0.0 {
+            (value + change).min(most.max(value))
+        } else {
+            (value + change).max(value.min(floor))
+        };
+        from = to;
+    }
+    value
 }
 
 /// How much of the window's bottom, in interface pixels, the interface keeps
@@ -69,3 +96,6 @@ pub struct VitalsCircle {
     /// Its bottom edge, above the window's.
     pub bottom: f32,
 }
+
+#[cfg(test)]
+mod tests;

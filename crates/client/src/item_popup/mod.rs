@@ -6,6 +6,7 @@
 //! its padlock keeps it open. Whoever draws items says which one the pointer
 //! is on through `widgets::PointedItem`.
 
+mod about;
 mod needs;
 mod open;
 mod place;

@@ -3,13 +3,16 @@
 //! there is refused, here or by the server (`ServerMessage::NotWorn`).
 
 use bevy::prelude::*;
+use shared::bonus::{food, may_eat};
+use shared::creature::CreatureKind;
 use shared::id::Id;
 use shared::item::{Inventory, Item, StackLimits};
+use shared::lang::{Args, Lang};
 use shared::wear::{Fit, WearRefused};
 
 use super::hold::Target;
 use super::{Carried, Holding};
-use crate::common::{GROUND, GodMode};
+use crate::common::{GROUND, GodMode, Wording, kinds_words};
 use crate::widgets::{TextSize, WARNING_TEXT};
 
 /// How long a refusal stays said, in seconds.
@@ -27,7 +30,12 @@ pub(super) struct WearNote {
 impl WearNote {
     /// Says why, from now.
     pub(super) fn say(&mut self, why: WearRefused, carried: &Inventory, now: f64) {
-        self.words = explain(why, carried);
+        self.say_words(explain(why, carried), now);
+    }
+
+    /// Says this, from now.
+    pub(super) fn say_words(&mut self, words: String, now: f64) {
+        self.words = words;
         self.until = now + SHOWN_FOR;
     }
 }
@@ -73,7 +81,7 @@ pub(super) fn show_wear_note(
     carried: Res<Carried>,
     god: Res<GodMode>,
     stacks: Res<super::Stacks>,
-    note: Res<WearNote>,
+    (note, wording): (Res<WearNote>, Res<Wording>),
     mut texts: Query<&mut Text, With<WearNoteText>>,
 ) {
     let aiming = (holding.aim == Some(Target::Body { allowed: false }))
@@ -85,10 +93,16 @@ pub(super) fn show_wear_note(
                 .as_ref()
                 .filter(|(with, _)| *with == GROUND)
                 .map(|(_, item)| item);
-            try_wearing(&carried.0, (held.item.id, new), god.0, stacks.0).err()
+            let refused = new.or_else(|| carried.0.find(held.item.id));
+            let eater = carried.0.creature;
+            if let Some(why) = refused.and_then(|item| refusal(item, eater, &wording.0)) {
+                return Some(why);
+            }
+            let tried = try_wearing(&carried.0, (held.item.id, new), god.0, stacks.0);
+            tried.err().map(|why| explain(why, &carried.0))
         });
     let words = match aiming {
-        Some(why) => explain(why, &carried.0),
+        Some(why) => why,
         None if time.elapsed_secs_f64() < note.until => note.words.clone(),
         None => String::new(),
     };
@@ -97,6 +111,17 @@ pub(super) fn show_wear_note(
             text.0 = words.clone();
         }
     }
+}
+
+/// Why a creature of kind `eater` may not eat this (its top one), if it is
+/// food refused to its kind (`bonus::may_eat`), as the server will refuse it:
+/// "Only dwarves can eat that."
+pub(super) fn refusal(item: &Item, eater: CreatureKind, lang: &Lang) -> Option<String> {
+    let kind = item.top().kind;
+    let food = food(kind).filter(|_| !may_eat(kind, eater))?;
+    let args = Args::new().text("kinds", kinds_words(food.kinds, lang));
+    let words = lang.render("item-refused", &args);
+    Some(words.unwrap_or_else(|error| error.text))
 }
 
 /// The words for a refusal, naming what is in the way.

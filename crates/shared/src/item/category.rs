@@ -116,7 +116,7 @@ impl ItemKind {
             | Self::Trousers => Clothing,
             Self::Necklace | Self::Ring => Jewellery,
             Self::Backpack | Self::BagOfHolding | Self::Pouch | Self::SmallBox => Containers,
-            Self::Apple => Food,
+            Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat => Food,
             Self::CopperCoin | Self::SilverCoin | Self::GoldCoin | Self::Gem => Valuables,
             Self::Stone => Materials,
             Self::Lantern | Self::Key | Self::Keepsake | Self::Parcel | Self::Remains => Other,

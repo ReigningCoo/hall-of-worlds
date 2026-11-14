@@ -5,19 +5,19 @@ What an item asks of whoever uses it, and how well it works for someone who fall
 ## Files
 
 - `crates/shared/src/requirement.rs`: the module list, re-exports. Tests.
-- `requirement/kind.rs`: `Requirement::{Attribute { attribute, min }, Skill { id, min }, Kinds(..)}` (`met_by`), `item_requirements(item)`.
+- `requirement/kind.rs`: `Requirement::{Attribute { attribute, min }, Skill { id, min }, Kinds(..)}` (`met_by`, `suits(kind)`), `item_requirements(item)`.
 - `requirement/armour.rs`: armour's, by milligrams per cm² covered: `mg_at_reference`, `milligrams_per_cm2`, `needs_agility`, `requirement_for`, `REFERENCE_MG`, `AGILITY_AND_STRENGTH_ABOVE`, `NON_METAL_PLATE_MG`.
 - `requirement/effectiveness.rs`: `factor_for`, `effectiveness`, `effective_bonuses`, `FULL`.
 
 ## Public API
 
-- `item_requirements(item)`: armour's (below), nothing else yet. `Skill` and `Kinds` are for later (food for some kinds); `met_by` and `effectiveness` count them as met.
+- `item_requirements(item)`: armour's (below), and `Kinds` for food that suits only some kinds (`bonus::food`: Dwarven Bread, Raw Meat). `Skill` is for later. `met_by` and `effectiveness` count `Skill` and `Kinds` as met; `suits(kind)` checks `Kinds` (anyone suits the others).
 - `effectiveness(requirements, attributes)`: thousandths (`FULL` 1000); per attribute `factor_for(min, value)` = (value − min/2) ÷ (min/2), clamped 0..1000; the lowest counts.
 - `effective_bonuses(item, attributes)`: `bonus::item_bonuses` with every positive amount × the factor, negative ones in full. `Sheet::totals` uses it, so players (server `connections/bonuses.rs`), mobs (`entities/made.rs`) and the client's sheet all follow it.
 
 ## Depends on
 
-- `bonus` (`item_bonuses`, `Bonus`, `Amount`), `armour` (`Construction`), `item`, `item_form`, `material` (`density`, `Category`), `sheet` (`Attribute`, `Attributes`), `skill` (`SkillId`), `creature` (`CreatureKind`).
+- `bonus` (`item_bonuses`, `Bonus`, `Amount`, `food`), `armour` (`Construction`), `item`, `item_form`, `material` (`density`, `Category`), `sheet` (`Attribute`, `Attributes`), `skill` (`SkillId`), `creature` (`CreatureKind`).
 
 ## Used by
 
