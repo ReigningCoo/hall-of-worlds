@@ -51,10 +51,11 @@ What all armour shares, the pieces for each body location, and sets: single item
 
 ## Used by
 
-- `shared::item_form` (requests: "must be" style, construction, material, finish and dye, rolled again and given them where `allowed()` takes them: see `item.md`; `ItemForm::Hands`, `Shoulders`, `Torso`, `Head`, `Arms`, `Legs`, `Waist`, `Feet`, `Neck`, `Set`, `give_form`), `shared::item` (a form's cells and weight, a torso or arm form's padding: `Item::padded`), `shared::wear` (mittens fit any fingers), client `item_art` (the models of every location) and `debug_menu` (Item Pictures).
+- `shared::item_form` (requests: "must be" style, construction, material, finish and dye, rolled again and given them where `allowed()` takes them: see `item.md`; `ItemForm::Hands`, `Shoulders`, `Torso`, `Head`, `Arms`, `Legs`, `Waist`, `Feet`, `Neck`, `Set`, `give_form`), `shared::item` (a form's cells and weight, a torso or arm form's padding: `Item::padded`), `shared::wear` (mittens fit any fingers), `shared::requirement` (Strength or Agility by construction and material), client `item_art` (the models of every location) and `debug_menu` (Item Pictures).
 
 ## Notes
 
+- What a piece asks of its wearer goes by its construction and material only (`shared::requirement`), so every piece of a set asks the same.
 - Every piece is built in millimetres on `body::Frame`, in place on the body, so a set and a character's picture can use it unchanged.
 - A set's pieces share its construction, material, quality, size and style. A style narrows plate (owner's decision): Kastenbrust is mittens with long cuffs, Gothic pointed cuffs, Maximilian fingered with bells, Milanese mostly mittens, Greenwich bells, Dwarven never long. Each construction is made only in some styles (owner's decision; `Style::allows`): European harnesses in leather, mail, scale, plates in cloth, splint and plate; Japanese without scale or mirrors; Chinese, Steppe, Classical, Byzantine and Indo-Persian in their own; Elven and Dwarven in anything but mirrors; padding in any. So the style is rolled first, then a construction it allows.
 - Weight grows with the square of size (owner's decision): area grows, thickness stays (`grams_at`).

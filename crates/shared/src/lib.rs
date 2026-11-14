@@ -40,6 +40,7 @@ pub mod poi;
 pub mod protocol;
 pub mod quest;
 pub mod relief;
+pub mod requirement;
 pub mod river;
 pub mod rng;
 pub mod road;

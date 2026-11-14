@@ -1,10 +1,13 @@
 //! What an item's popup shows: its name in its quality's colour, anything
-//! about where it is, a line for each bonus, and its weight at the bottom.
+//! about where it is, a line for each bonus, what it asks of its wearer (what
+//! the viewer falls short of as a warning), and its weight at the bottom.
 
 use bevy::prelude::*;
 use shared::id::Id;
 use shared::lang::Lang;
+use shared::sheet::Attributes;
 
+use super::needs::need_lines;
 use super::open::{FORM, ItemPopups};
 use super::words::bonus_lines;
 use crate::common::{NO_QUALITY_NAME, quality_colour};
@@ -22,14 +25,23 @@ pub(super) static ITEM_POPUP: Template = html!(
     <canvas id="name" margin-right="20"/>
     <p id="notes" hidden>.</p>
     <p id="bonuses" hidden>.</p>
+    <p id="needs" hidden>.</p>
+    <p id="unmet" class="warning" hidden>.</p>
     <p id="weight">.</p>
   </popup>
 </form>
 "#
 );
 
-/// Places the popup about `of` at `at` and writes what it says.
-pub(super) fn fill(dom: &mut Dom, of: Id, pointed: &Pointed, at: Vec2, lang: &Lang) {
+/// Places the popup about `of` at `at` and writes what it says, its
+/// requirements against the `viewer`'s attributes (none: all met).
+pub(super) fn fill(
+    dom: &mut Dom,
+    of: Id,
+    pointed: &Pointed,
+    at: Vec2,
+    (lang, viewer): (&Lang, Option<&Attributes>),
+) {
     let form = UiId::of(FORM, of, "box").form();
     let id = |name: &str| format!("{form}/{name}");
     dom.set(&id("box"), "left", &at.x.to_string());
@@ -40,6 +52,11 @@ pub(super) fn fill(dom: &mut Dom, of: Id, pointed: &Pointed, at: Vec2, lang: &La
     let lines = bonus_lines(&pointed.item, lang);
     dom.set_flag(&id("bonuses"), "hidden", lines.is_empty());
     dom.set_text(&id("bonuses"), lines.join("\n"));
+    let (met, unmet) = need_lines(&pointed.item, viewer, lang);
+    for (name, lines) in [("needs", met), ("unmet", unmet)] {
+        dom.set_flag(&id(name), "hidden", lines.is_empty());
+        dom.set_text(&id(name), lines.join("\n"));
+    }
     let weight = weight_words(pointed.item.total_weight(), None);
     dom.set_text(&id("weight"), weight);
 }

@@ -3,8 +3,9 @@
 //! changing effects while keeping Health's and Mana's share.
 
 use super::{Attributes, Sheet};
-use crate::bonus::{Bonus, Cancel, Effect, Source, Stat, Totals, food_effect, item_bonuses};
+use crate::bonus::{Bonus, Cancel, Effect, Source, Stat, Totals, food_effect};
 use crate::item::{Item, ItemKind};
+use crate::requirement::effective_bonuses;
 use crate::vitals::Limits;
 
 /// What working out a sheet's limits needs besides the sheet itself.
@@ -20,9 +21,22 @@ pub struct Situation<'a> {
 
 impl Sheet {
     /// Every bonus from what is worn and the effects lasting at `now`, added up.
+    /// What is worn gives its good bonuses by how well it works for this
+    /// creature (`requirement::effective_bonuses`), judged by its attributes
+    /// with effects only.
     pub fn totals(&self, worn: &[Item], now: u64) -> Totals {
-        let from_items: Vec<Bonus> = worn.iter().flat_map(item_bonuses).collect();
+        let own = self.attributes_without_worn(now);
+        let from_items: Vec<Bonus> = worn
+            .iter()
+            .flat_map(|item| effective_bonuses(item, &own))
+            .collect();
         Totals::of(from_items.iter().chain(self.effects.bonuses(now)))
+    }
+
+    /// Its attributes with the effects lasting at `now` but nothing worn: what
+    /// items' requirements are checked against.
+    pub fn attributes_without_worn(&self, now: u64) -> Attributes {
+        Totals::of(self.effects.bonuses(now)).attributes(&self.attributes)
     }
 
     /// Its attributes with their bonuses: what rules should go by.

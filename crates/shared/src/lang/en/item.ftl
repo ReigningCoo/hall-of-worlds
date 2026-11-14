@@ -38,3 +38,10 @@ stat-most-mana = most Mana
 stat-health = Health
 stat-mana = Mana
 stat-skill = { $skill }
+
+## What wearing it asks of the wearer: an attribute at least this much
+## ("Needs 110 Strength"), and how well it works for the viewer when they fall
+## short ("Working at 49%": nothing at half, all at the requirement).
+
+item-needs = Needs { $min } { $stat }
+item-working = Working at { $percent }%

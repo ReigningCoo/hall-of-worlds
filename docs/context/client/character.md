@@ -22,7 +22,7 @@ What the character is like: the Character panel's Character tab, which `inventor
 
 ## Used by
 
-- `character_select` (`describe_listed`).
+- `character_select` (`describe_listed`), `item_popup` (`CharacterSheet`, `WithBonuses`: requirements against the player's attributes).
 
 ## Notes
 
