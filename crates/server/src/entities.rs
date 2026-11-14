@@ -50,6 +50,7 @@ mod remake_for_tests;
 mod run;
 mod scent;
 mod shove;
+mod suited;
 mod sync;
 mod target;
 mod tell;

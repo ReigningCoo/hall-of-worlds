@@ -35,7 +35,7 @@ fn mobs_only_get_blades_they_can_carry_and_lift() {
         let (mut armed, tries) = (0, 200);
         for _ in 0..tries {
             let gear = [(ItemKind::Sword, Some(Quality::Common))];
-            let carrying = dressed(kind, &gear, 0, made_at);
+            let carrying = dressed(kind, &Sheet::new(kind).attributes, &gear, 0, made_at);
             assert!(carrying.total_weight() <= lifting);
             // Held when it can be, carried otherwise.
             armed += !(carrying.items.is_empty() && carrying.worn.is_empty()) as u32;
@@ -56,9 +56,21 @@ fn mobs_wear_clothes_made_for_them_and_carry_ordinary_things() {
         (ItemKind::Stone, None),
     ];
     // A beggar's trousers are bigger than its inventory.
-    let beggar = dressed(CreatureKind::Beggar, &gear, 0, made_at);
+    let beggar = dressed(
+        CreatureKind::Beggar,
+        &Sheet::new(CreatureKind::Beggar).attributes,
+        &gear,
+        0,
+        made_at,
+    );
     assert_eq!(beggar.worn[0].kind, ItemKind::Trousers);
-    let giant = dressed(CreatureKind::Giant, &gear, 0, made_at);
+    let giant = dressed(
+        CreatureKind::Giant,
+        &Sheet::new(CreatureKind::Giant).attributes,
+        &gear,
+        0,
+        made_at,
+    );
     assert_eq!(giant.worn[0].made.size, Size::Giant);
     assert_eq!(giant.items[0].item.made.size, Size::Medium);
 }

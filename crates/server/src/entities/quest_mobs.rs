@@ -93,7 +93,13 @@ impl ServerWorld {
         // Its id is a new one, and what it carries rolled again with it.
         let id = new_id();
         let made_at = self.made_now();
-        let carrying = dressed(spawn.kind, &spawn.gear, spawn.coins, made_at);
+        let carrying = dressed(
+            spawn.kind,
+            &spawn.attributes,
+            &spawn.gear,
+            spawn.coins,
+            made_at,
+        );
         let saved = self.site_mut(site).levels.entry(index).or_default();
         saved.mobs.insert(BOSS_NUMBER, id);
         saved.records.entry(id).or_default().gear = Some(carrying.clone());
@@ -150,7 +156,7 @@ impl ServerWorld {
             number += 1;
             spawn.gear.clear();
             spawn.coins = 0;
-            let carrying = dressed(spawn.kind, &spawn.gear, 0, made_at);
+            let carrying = dressed(spawn.kind, &spawn.attributes, &spawn.gear, 0, made_at);
             population
                 .mobs
                 .push(Mob::new(new_id(), &spawn, &carrying, place.1));
