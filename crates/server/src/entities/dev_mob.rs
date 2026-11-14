@@ -113,7 +113,13 @@ fn create_mob(
     spawn.number = most
         .filter(|&n| n >= DEV_MOB_NUMBERS)
         .map_or(DEV_MOB_NUMBERS, |n| n + 1);
-    let carrying = dressed(spawn.kind, &spawn.gear, spawn.coins, made_at);
+    let carrying = dressed(
+        spawn.kind,
+        &spawn.attributes,
+        &spawn.gear,
+        spawn.coins,
+        made_at,
+    );
     let mut mob = Mob::new(new_id(), &spawn, &carrying, index);
     mob.still = order.still;
     // It faces whoever made it.

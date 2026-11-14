@@ -8,7 +8,7 @@ use shared::item::{Inventory, ItemKind, MadeAt, Quality, StackLimits, coin_items
 use shared::item_form::give_blade_within;
 use shared::mob::GIVE_REACH;
 use shared::protocol::CharacterId;
-use shared::sheet::Sheet;
+use shared::sheet::{Attributes, Sheet};
 
 use super::cells_apart;
 use crate::ServerWorld;
@@ -18,9 +18,11 @@ use crate::storage::{MobRecord, SiteId};
 
 /// A new mob's belongings: it wears what it can, and keeps the rest in its
 /// inventory while there is room, its money last as the fewest coins. Only what is
-/// worn or a blade is made to its size.
+/// worn or a blade is made to its size. Armour is made to suit its `attributes`
+/// where it can be (`suited`).
 pub(super) fn dressed(
     kind: CreatureKind,
+    attributes: &Attributes,
     gear: &[(ItemKind, Option<Quality>)],
     coins: u64,
     made_at: MadeAt,
@@ -36,7 +38,9 @@ pub(super) fn dressed(
     let lifting = Sheet::new(kind).capacity(kind.def().size) / 2;
     for &(item, quality) in gear {
         let quality = quality.unwrap_or_default();
-        let mut new = crate::connections::made_for(&carrying, item, None, false, quality, made_at);
+        let mut new = super::suited::suited(attributes, || {
+            crate::connections::made_for(&carrying, item, None, false, quality, made_at)
+        });
         if item.blade_family().is_some() {
             // A blade it can lift and that suits its size, or none at all.
             let spare = lifting.saturating_sub(carrying.total_weight());

@@ -32,7 +32,13 @@ pub(crate) fn escortee_mob(world: &ServerWorld, id: Id, spawn: &Spawn, escort: E
         number: ESCORT_NUMBER,
         ..spawn.clone()
     };
-    let carrying = dressed(spawn.kind, &spawn.gear, 0, world.made_now());
+    let carrying = dressed(
+        spawn.kind,
+        &spawn.attributes,
+        &spawn.gear,
+        0,
+        world.made_now(),
+    );
     Mob {
         memory: Memory::default(),
         escort: Some(escort),
@@ -42,7 +48,14 @@ pub(crate) fn escortee_mob(world: &ServerWorld, id: Id, spawn: &Spawn, escort: E
 
 /// What can be seen of what an escortee rolled as `spawn` wears.
 pub(crate) fn escortee_worn(world: &ServerWorld, spawn: &Spawn) -> Vec<shared::wear::WornLook> {
-    dressed(spawn.kind, &spawn.gear, 0, world.made_now()).shown()
+    dressed(
+        spawn.kind,
+        &spawn.attributes,
+        &spawn.gear,
+        0,
+        world.made_now(),
+    )
+    .shown()
 }
 
 /// What an escortee does now: going after its quester while it follows them

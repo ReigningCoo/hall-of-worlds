@@ -21,7 +21,7 @@ What an item asks of whoever uses it, and how well it works for someone who fall
 
 ## Used by
 
-- `sheet` (`Sheet::totals`, `attributes_without_worn`), client `item_popup` (requirement lines).
+- `sheet` (`Sheet::totals`, `attributes_without_worn`), client `item_popup` (requirement lines), server `entities/suited.rs` (mobs' armour made again when it works at under half for them).
 
 ## Notes
 

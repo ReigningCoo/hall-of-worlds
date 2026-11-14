@@ -75,7 +75,15 @@ impl ServerWorld {
                     .entry(id)
                     .or_default()
                     .gear
-                    .get_or_insert_with(|| dressed(spawn.kind, &spawn.gear, spawn.coins, made_at))
+                    .get_or_insert_with(|| {
+                        dressed(
+                            spawn.kind,
+                            &spawn.attributes,
+                            &spawn.gear,
+                            spawn.coins,
+                            made_at,
+                        )
+                    })
                     .clone();
                 if carried_on.is_some() {
                     due.insert((tick, id));
