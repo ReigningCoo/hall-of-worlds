@@ -96,4 +96,10 @@ Metal is finished bright, blackened, russet, blued, tinned, painted or lacquered
 
 The weights on these pages are for a piece made for an ordinary-sized person, in its usual material. Lighter materials such as mithril weigh less, heavier ones such as bronze more. A piece made for a bigger or smaller creature weighs more or less with the square of its size: twice the size, four times the weight.
 
+## Strength and Agility
+
+Armour asks something of whoever wears it, and its popup says what. Armour that bends with you (padding, leather, mail and ring mail) needs Agility; armour that holds its shape (plate, scale, lamellar and the rest) needs Strength. The heavier it is for what it covers, the more it needs, so every piece of a set asks the same: steel plate needs a little more Strength than most people have, mithril plate half as much. Heavy mail needs Strength as well as Agility.
+
+You can always wear it. If you fall short, its Toughness counts for less: nothing at half of what it needs, rising to all of it at the full amount. What it costs you in Agility and Mana stays the same. Food and potions that raise your Strength or Agility count; other armour you wear doesn't.
+
 Gem sockets in armour are planned.

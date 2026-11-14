@@ -38,4 +38,4 @@ Combat's rules, the same for players and mobs on both sides: what an attack cost
 
 - Integers only, factors per mille, so both sides agree; luck is rolled by the server alone, so a client predicts timings, never results.
 - Quality counts most, then metal, then weight (owner, 2026-11-07); all numbers are first guesses to balance by playing. `cargo xtask fight` prints how long fights between equals last with each weapon (about 20 s with fists, 15 to 16 s with weapons, 13 s for a master of two).
-- No hit or miss roll: every blow that lands does something; misses are to come from Parry and Dodge. Armour is 0 until armour pieces are given figures.
+- No hit or miss roll: every blow that lands does something; misses are to come from Parry and Dodge. Armour is 0 until armour pieces are given figures; armour reaches combat only through its Toughness bonus, which already works less well for a wearer short of its requirements (`shared::requirement`), and the same factor is to scale this stage once it has figures (owner, 2026-11-14).

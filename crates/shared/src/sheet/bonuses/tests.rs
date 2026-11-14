@@ -144,3 +144,40 @@ fn a_sheet_without_effects_loads_with_none() {
     let loaded: Sheet = ron::from_str(&without).unwrap();
     assert_eq!(loaded.effects, Effects::default());
 }
+
+#[test]
+fn worn_armour_works_by_the_wearers_own_strength_with_effects() {
+    use crate::armour::Construction;
+    use crate::bonus::{Bonus, Effect, EndsOn, Source, Stat};
+    use crate::item_form::ItemForm;
+    use crate::material::Material;
+    use crate::sheet::Attribute;
+
+    let mut plate = armour();
+    if let Some(ItemForm::Torso(form)) = plate.form.as_mut() {
+        form.construction = Construction::Plate;
+        form.material = Material::Steel;
+    }
+    let worn = [plate];
+    let mut weak = sheet();
+    weak.attributes.strength = 55; // half of plate's 110: no Toughness at all
+    let with = weak.attributes_with(&worn, 0);
+    assert_eq!(with.toughness, 100);
+    assert!(with.agility < 100, "its cost is paid in full");
+    // A strength effect (food, a potion) makes it work in full.
+    weak.effects.0.push(Effect {
+        source: Source::Dev,
+        bonuses: vec![Bonus::flat(Stat::Attribute(Attribute::Strength), 55_000)],
+        start: 0,
+        end: Some(100),
+        ends_on: EndsOn::NOTHING,
+    });
+    assert_eq!(weak.attributes_without_worn(0).strength, 110);
+    let mut strong = sheet();
+    strong.attributes.strength = 110;
+    assert_eq!(
+        weak.attributes_with(&worn, 0).toughness,
+        strong.attributes_with(&worn, 0).toughness
+    );
+    assert!(strong.attributes_with(&worn, 0).toughness > 100);
+}

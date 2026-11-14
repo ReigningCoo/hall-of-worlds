@@ -6,6 +6,7 @@ use shared::id::Id;
 use shared::item::Item;
 
 use super::show::{ITEM_POPUP, fill};
+use crate::character::{CharacterSheet, WithBonuses};
 use crate::common::Wording;
 use crate::dom::{DocumentOf, Dom, HeldObject, KeptOpen, Popup, UiEvent, UiValue, document};
 use crate::widgets::{PointedItem, UiId};
@@ -72,6 +73,7 @@ pub(super) fn follow_pointed(
     locks: Query<(&Popup, &UiId)>,
     mut kept: ResMut<KeptOpen>,
     (mut dom, wording): (Dom, Res<Wording>),
+    (sheet, told): (Res<CharacterSheet>, Res<WithBonuses>),
     mut commands: Commands,
 ) {
     let pointed = pointed.0.take().filter(|_| held.thing().is_none());
@@ -110,12 +112,15 @@ pub(super) fn follow_pointed(
         stays
     });
     let document = commands.spawn((document(&ITEM_POPUP), DocumentOf(of))).id();
+    // Requirements are checked against the player's own attributes with
+    // effects, once the server has said what they are.
+    let viewer = told.0.is_some().then(|| sheet.0.attributes_without_worn(0));
     fill(
         &mut dom,
         of,
         &pointed,
         (pointed.at + OFFSET).round(),
-        &wording.0,
+        (&wording.0, viewer.as_ref()),
     );
     kept.0.push(box_id(of));
     popups.open.push(OpenPopup {

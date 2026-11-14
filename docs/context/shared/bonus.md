@@ -12,7 +12,7 @@ Bonuses: what worn items and effects (food, potions, dev tools) add to a creatur
 - `bonus/effect.rs`: `Effect { source, bonuses, start, end, ends_on }` (`lasts`, `dev_bonus`), `Source::{Eaten(kind), Dev}`, `EndsOn { moving, hurt }` (`NOTHING`, `by`), `Cancel::{Moving, Hurt}`.
 - `bonus/effects.rs`: `Effects(Vec<Effect>)` (`add`, `cancel`, `cancelled_by`, `forget_ended`, `first_ended`, `next_end`, `bonuses(now)`).
 - `bonus/food.rs`: `food_effect(kind, now)`, `is_food(kind)`, `APPLE_RESTORE`, `APPLE_TICKS`.
-- On `Sheet` (`sheet/bonuses.rs`): `Situation { worn, playtime, refill }`, `totals`, `attributes_with`, `limits`, `rebase`, `change_effects`, `add_effect`, `eat`, `cancel_effects`, `forget_ended`; old saves' changes folded into effects by `settled`.
+- On `Sheet` (`sheet/bonuses.rs`): `Situation { worn, playtime, refill }`, `totals` (worn items through `requirement::effective_bonuses`), `attributes_without_worn`, `attributes_with`, `limits`, `rebase`, `change_effects`, `add_effect`, `eat`, `cancel_effects`, `forget_ended`; old saves' changes folded into effects by `settled`.
 
 ## Public API
 
@@ -25,10 +25,11 @@ Bonuses: what worn items and effects (food, potions, dev tools) add to a creatur
 
 ## Used by
 
-- `sheet` (`Sheet::effects`, `sheet/bonuses.rs`), `vitals` (`Totals` in `Vitals::most` and `limits_with`), `server` (`connections/vitals.rs`, `bonuses.rs`, `consume.rs`, `ground/eat.rs`, `entities/made.rs`), client `character` (the most's lines), `inventory` (`is_food`: eating on the clothes panel), `item_popup` (`item_bonuses`, `food_effect`: the popup's lines).
+- `requirement` (`item_bonuses`, `Bonus`, `Amount`), `sheet` (`Sheet::effects`, `sheet/bonuses.rs`), `vitals` (`Totals` in `Vitals::most` and `limits_with`), `server` (`connections/vitals.rs`, `bonuses.rs`, `consume.rs`, `ground/eat.rs`, `entities/made.rs`), client `character` (the most's lines), `inventory` (`is_food`: eating on the clothes panel), `item_popup` (`item_bonuses`, `food_effect`: the popup's lines).
 
 ## Notes
 
+- Worn items give their bonuses by how well they work for the wearer (`requirement::effective_bonuses`): positive ones × the factor, negative ones in full, judged by `Sheet::attributes_without_worn` (own attributes with effects, never other worn items).
 - Totals are always rebuilt from scratch from everything worn plus effects lasting at `now` (`Sheet::totals`), flat sum then percentage of the base, rounded once to the nearest (halves up); never added or taken away a piece at a time, so no rounding builds up. Attributes never go below 1.
 - Item bonuses are a pure function of the item. Armour gives (owner, 2026-11-14): per kg of the piece's own weight (its form's, without contents), +10 Toughness × quality factor × material factor, −2 Agility × material factor, −1 most Mana × material factor. Quality factors (first guesses): Poor 0.75, Common 1, +0.25 a step to Legendary 2, Artifact 2.5; no quality counts as Common. Material factors are a table, all 1 for now (later Mithril costing less Agility, Adamantine giving more Toughness). A hair shirt (an underclothes shirt of haircloth; not a horsehair petticoat) gives −5% Will (owner, 2026-11-14: "a light Will bonus", other positive ones later). Nothing else gives anything yet.
 - Effects: at most one per `Source`, so eating a second apple starts it again. They end at an action tick (real time, offline too) or by `Cancel` (`EndsOn`). `lasts` goes by the end only, so a client passing tick 0 counts everything the server still keeps. An apple: 1 Health a second for 30 s, ended by moving or being hurt (owner, 2026-11-14).

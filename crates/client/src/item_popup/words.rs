@@ -71,7 +71,7 @@ fn bonus_line(bonus: &Bonus, lang: &Lang) -> String {
 }
 
 /// What a stat is called: "Toughness", "most Mana".
-fn stat_words(stat: Stat, lang: &Lang) -> String {
+pub(super) fn stat_words(stat: Stat, lang: &Lang) -> String {
     let vital = |vital: Vital| match vital {
         Vital::Health => "health",
         Vital::Mana => "mana",
@@ -105,7 +105,7 @@ pub(super) fn number(value: f64) -> String {
 }
 
 /// What could be written, any part missing left in braces (and logged).
-fn written(words: Result<String, RenderError>) -> String {
+pub(super) fn written(words: Result<String, RenderError>) -> String {
     words.unwrap_or_else(|error| {
         bevy::log::warn!("Words missing in {}: {:?}", error.id, error.problems);
         error.text
