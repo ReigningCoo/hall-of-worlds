@@ -74,6 +74,7 @@ pub(super) struct Outbox<'w> {
         ResMut<'w, super::wear_note::WearNote>,
         Res<'w, crate::common::GodMode>,
         Res<'w, Time<Real>>,
+        Res<'w, crate::common::Wording>,
     ),
     /// A quest item let go of over the ground, asked about first.
     quest_drop: ResMut<'w, super::quest_drop::QuestDrop>,

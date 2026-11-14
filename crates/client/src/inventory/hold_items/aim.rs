@@ -1,7 +1,7 @@
 //! What letting go of what is held, where it is, would do.
 
 use bevy::prelude::*;
-use shared::bonus::is_food;
+use shared::bonus::{is_food, may_eat};
 use shared::item::StackLimits;
 
 use super::super::hold::{Held, Target};
@@ -83,8 +83,9 @@ pub(super) fn aim_at(
             return Target::Bin;
         }
         if from_ground && on_body && is_food(item.top().kind) {
-            // Its top one is eaten (`eat`).
-            return Target::Body { allowed: true };
+            // Its top one is eaten (`eat`), unless refused to the player's kind.
+            let allowed = may_eat(item.top().kind, carried.0.creature);
+            return Target::Body { allowed };
         }
         if from_ground && on_body {
             // Only the top of a stack goes on.
@@ -125,9 +126,11 @@ pub(super) fn aim_at(
         if carried.0.is_worn(held.id) {
             return Target::Nowhere;
         }
-        if super::eat::carried_food(&carried.0, holding, held.id).is_some() {
-            // Its top one is eaten (`eat`).
-            return Target::Body { allowed: true };
+        if let Some(stack) = super::eat::carried_food(&carried.0, holding, held.id) {
+            // Its top one is eaten (`eat`), unless refused to the player's kind.
+            let top = carried.0.find(stack).map(|item| item.top().kind);
+            let allowed = top.is_some_and(|kind| may_eat(kind, carried.0.creature));
+            return Target::Body { allowed };
         }
         // What is in its way comes off (owner, 2026-11-07).
         let tried = try_wearing(&carried.0, (held.id, None), god.0, stacks.0);

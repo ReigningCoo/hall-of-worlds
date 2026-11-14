@@ -1,5 +1,10 @@
 ### English: an item's popup: what it gives (its bonuses) and what it weighs.
 
+## Descriptions under an item's name, for kinds that have one:
+## `about-` and the kind in kebab case.
+
+about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
+
 ## A bonus: the amount with its sign ("+40", "−8"), then what it changes.
 
 item-bonus = { $amount } { $stat }
@@ -8,6 +13,14 @@ item-bonus-percent = { $amount }% { $stat }
 ## Health or Mana given back over time, unsigned ("1", "0.5").
 
 item-restores = Restores { $amount } { $stat } a second
+
+## Health or Mana taken away over time (poison), signed ("−1").
+
+item-drains = { $amount } { $stat } a second
+
+## What food that doesn't suit the eater's kind does to them, before its line.
+
+item-poisons = Poisons other kinds: { $line }
 
 ## How long an eaten thing's bonus lasts, after its line.
 
@@ -45,3 +58,13 @@ stat-skill = { $skill }
 
 item-needs = Needs { $min } { $stat }
 item-working = Working at { $percent }%
+
+## Who food is for, from creature names in the plural ("Dwarves only",
+## "Orcs and goblins only").
+
+item-kinds-only = { $kinds } only
+
+## Why food refused to the player's kind isn't eaten, under the clothes:
+## the kinds it is for in the plural ("dwarves").
+
+item-refused = Only { $kinds } can eat that.

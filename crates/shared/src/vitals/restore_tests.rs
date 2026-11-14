@@ -27,6 +27,8 @@ fn restoring_adds_to_refilling_until_it_stops() {
         100,
         20,
         Restore {
+            drain_health: 0,
+            drain_mana: 0,
             health: 1000,
             mana: 0,
             until: Some(start + 10 * SECOND),
@@ -60,6 +62,8 @@ fn a_client_restores_what_it_is_told_the_same_way() {
         50,
         20,
         Restore {
+            drain_health: 0,
+            drain_mana: 0,
             health: 1000,
             mana: 500,
             until: Some(900),
@@ -82,6 +86,8 @@ fn never_past_the_most() {
         20,
         20,
         Restore {
+            drain_health: 0,
+            drain_mana: 0,
             health: 50_000,
             mana: 0,
             until: None,

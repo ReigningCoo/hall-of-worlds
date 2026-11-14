@@ -3,14 +3,14 @@
 //! sure to agree with is shown at once.
 
 use bevy::prelude::*;
-use shared::bonus::is_food;
+use shared::bonus::may_eat;
 use shared::energy::handling_cost;
 use shared::item::Item;
 use shared::protocol::ClientMessage;
 
 use super::super::hold::{Target, stack_onto};
 use super::super::quest_drop::holds_quest_item;
-use super::super::wear_note::try_wearing;
+use super::super::wear_note::{refusal, try_wearing};
 use super::super::{Carried, HeldBy, Holding};
 use super::Outbox;
 use crate::common::{Dressing, GROUND, GaveItem, HeldOverGifts, HeldStock, SpentEnergy, TookItem};
@@ -32,15 +32,20 @@ pub(super) fn let_go_of(
         spent,
         dressing,
         stacks,
-        wear: (note, god, time),
+        wear: (note, god, time, wording),
         quest_drop,
         ..
     } = out;
     if aim == (Target::Body { allowed: false }) {
         let new = holding.stock.as_ref().map(|(_, item)| item);
-        let tried = try_wearing(&carried.0, (held.item.id, new), god.0, stacks.0);
-        if let Err(why) = tried {
-            note.say(why, &carried.0, time.elapsed_secs_f64());
+        let now = time.elapsed_secs_f64();
+        let item = new.or_else(|| carried.0.find(held.item.id));
+        let eater = carried.0.creature;
+        if let Some(why) = item.and_then(|item| refusal(item, eater, &wording.0)) {
+            // Food refused to the player's kind: the server would refuse it too.
+            note.say_words(why, now);
+        } else if let Err(why) = try_wearing(&carried.0, (held.item.id, new), god.0, stacks.0) {
+            note.say(why, &carried.0, now);
         }
     }
     if let Some((with, item)) = holding.stock.take() {
@@ -54,7 +59,9 @@ pub(super) fn let_go_of(
             carried.0.to_bin_new(item);
             to_server.write(ToServer(ClientMessage::BinFromGround { item: id }));
             took.write(TookItem { with, item: id });
-        } else if aim == (Target::Body { allowed: true }) && is_food(item.top().kind) {
+        } else if aim == (Target::Body { allowed: true })
+            && may_eat(item.top().kind, carried.0.creature)
+        {
             super::eat::eat_from_ground(held.item.id, item, with, out);
         } else if aim == (Target::Body { allowed: true }) {
             let id = held.item.id;

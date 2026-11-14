@@ -33,7 +33,7 @@ impl ItemKind {
                 Self::Boots | Self::Clogs | Self::Sandals | Self::Shoes | Self::Slippers => {
                     self.feet_def()
                 }
-                Self::Apple => plain("Apple", 150, square).without_quality(),
+                Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat => self.food_def(),
                 // Both arms, or one; its form says its name, cells and weight, and whether
                 // it is padded (kote).
                 Self::ArmArmour => plain("Arm Armour", 2000, Shape::rectangle(2, 3)).worn(wear(
@@ -259,7 +259,7 @@ impl ItemKind {
             };
         // First guesses at how much work each is beside the usual.
         def.taking(match self {
-            Self::Apple | Self::Stone => 10,
+            Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat | Self::Stone => 10,
             _ if self.coin_value().is_some() => 10,
             Self::Trousers | Self::Hat | Self::Tabard => 50,
             _ if self.is_under() => 50,

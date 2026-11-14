@@ -16,6 +16,11 @@ pub enum Source {
     /// The debug menu's Bonus (`protocol::DevVitals::Bonus`), and the changes
     /// older saves kept on `Vitals`.
     Dev,
+    /// Poison, from eating what doesn't suit its kind (`bonus::poison`): its
+    /// own source, so it runs alongside any healing, and poisoning again
+    /// starts it again.
+    Poison,
+    // New sources go at the end: messages carry one by its place in this list.
 }
 
 /// Something that ends an effect early (`EndsOn`).

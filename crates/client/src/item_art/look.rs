@@ -89,6 +89,8 @@ pub enum Look {
     Parcel,
     /// A quest's keepsake, whatever it is: a bundle in cloth, tied.
     Keepsake,
+    /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
+    Food(shared::item::ItemKind),
     /// An armour set: its pieces as worn together.
     Set {
         set: SetLook,
@@ -129,6 +131,7 @@ impl Look {
             Self::Gem { .. } | Self::Ring { .. } => (1, 1),
             Self::Parcel => (2, 2),
             Self::Keepsake => (1, 1),
+            Self::Food(_) => (2, 1),
             Self::Blade { blade, .. } => blade.cells,
             Self::Hands { hands, .. } => hands.cells,
             Self::Shoulders { shoulders, .. } => shoulders.cells,
@@ -200,6 +203,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
     match item.kind {
         shared::item::ItemKind::Parcel => return Some(Look::Parcel),
         shared::item::ItemKind::Keepsake => return Some(Look::Keepsake),
+        kind @ (shared::item::ItemKind::Bread
+        | shared::item::ItemKind::DwarvenBread
+        | shared::item::ItemKind::RawMeat) => return Some(Look::Food(kind)),
         _ => {}
     }
     let quality = item.quality;

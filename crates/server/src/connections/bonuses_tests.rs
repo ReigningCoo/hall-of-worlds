@@ -2,6 +2,7 @@
 //! what ends an apple's effect.
 
 use shared::bonus::Source;
+use shared::creature::CreatureKind;
 use shared::id::Id;
 use shared::item::{Item, ItemKind, Quality};
 use shared::poi::PoiKind;
@@ -137,4 +138,41 @@ fn armour_changes_attributes_and_keeps_healths_share() {
     assert!(test.client.keep_vitals(now));
     let told: Vec<_> = std::iter::from_fn(|| test.end.receive().unwrap()).collect();
     assert!(told.contains(&ServerMessage::Attributes(with)));
+}
+
+#[test]
+fn dwarven_bread_is_refused_to_other_kinds_and_left_where_it_was() {
+    let (mut test, _) = with_apples();
+    assert_ne!(test.client.inventory.creature, CreatureKind::Dwarf);
+    test.send(&[give(ItemKind::DwarvenBread, 1)]);
+    let bread = carried(&test, ItemKind::DwarvenBread).unwrap();
+    test.send(&[ClientMessage::Consume { item: bread }]);
+    assert!(test.client.inventory.find(bread).is_some());
+    assert!(test.client.sheet.effects.is_empty());
+}
+
+#[test]
+fn raw_meat_poisons_other_kinds_until_it_runs_out() {
+    let (mut test, _) = with_apples();
+    test.send(&[give(ItemKind::RawMeat, 1)]);
+    let meat = carried(&test, ItemKind::RawMeat).unwrap();
+    test.send(&[ClientMessage::Consume { item: meat }]);
+    assert!(test.client.inventory.find(meat).is_none());
+    let poisoned = |test: &TestClient| {
+        let effects = &test.client.sheet.effects.0;
+        effects.iter().any(|effect| effect.source == Source::Poison)
+    };
+    assert!(poisoned(&test));
+    assert!(!eating_any(&test, ItemKind::RawMeat), "no healing for them");
+    test.steps(&[(1, 0)]);
+    assert!(poisoned(&test), "moving doesn't end poison");
+    test.send(&[ClientMessage::DevVitals(DevVitals::Hurt(1))]);
+    assert!(poisoned(&test), "nor being hurt");
+}
+
+fn eating_any(test: &TestClient, kind: ItemKind) -> bool {
+    let effects = &test.client.sheet.effects.0;
+    effects
+        .iter()
+        .any(|effect| effect.source == Source::Eaten(kind))
 }

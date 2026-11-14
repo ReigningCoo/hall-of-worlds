@@ -8,6 +8,7 @@ mod character;
 mod colours;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
+mod food;
 mod footwear;
 mod gem;
 mod looks;

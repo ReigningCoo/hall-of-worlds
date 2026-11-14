@@ -1,39 +1,78 @@
-//! What eating gives.
+//! What each food is to eat: how much Health it gives back and for how long,
+//! and which kinds of creature it suits. What eating one does is `eating.rs`.
 
-use super::effect::{Effect, EndsOn, Source};
-use super::stat::{Bonus, Stat};
+use crate::creature::CreatureKind;
 use crate::energy::ACTION_TICKS_PER_SECOND;
 use crate::item::ItemKind;
-use crate::vitals::{PER_POINT, Vital};
+use crate::vitals::PER_POINT;
+
+/// What happens to a creature of a kind a food doesn't suit.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Others {
+    /// It won't eat it at all (Dwarven Bread).
+    Refused,
+    /// It eats it, gets no healing and is poisoned (`bonus::poison`): Raw Meat.
+    Poisoned,
+}
+
+/// One food: Health given back a second (thousandths of a point) for so many
+/// action ticks, ended by moving or being hurt, for the kinds it suits.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Food {
+    pub restore: u32,
+    pub ticks: u64,
+    /// The kinds it suits: empty for anyone.
+    pub kinds: &'static [CreatureKind],
+    /// What it does to other kinds.
+    pub others: Others,
+}
+
+impl Food {
+    /// Whether it suits a creature of this kind.
+    pub fn suits(self, eater: CreatureKind) -> bool {
+        self.kinds.is_empty() || self.kinds.contains(&eater)
+    }
+}
 
 /// Health an apple gives back a second, in thousandths of a point.
 pub const APPLE_RESTORE: u32 = PER_POINT;
 /// How long an apple keeps giving it back: 30 seconds of action ticks.
-pub const APPLE_TICKS: u64 = 30 * ACTION_TICKS_PER_SECOND as u64;
+pub const APPLE_TICKS: u64 = 30 * SECOND;
+const SECOND: u64 = ACTION_TICKS_PER_SECOND as u64;
 
-/// The effect of eating one of these at `now`, if it has one. An apple gives
-/// back 1 Health a second for 30 seconds, ended by moving or being hurt (owner,
-/// 2026-11-14).
-pub fn food_effect(kind: ItemKind, now: u64) -> Option<Effect> {
-    match kind {
-        ItemKind::Apple => Some(Effect {
-            source: Source::Eaten(kind),
-            bonuses: vec![Bonus::flat(
-                Stat::Restore(Vital::Health),
-                APPLE_RESTORE as i32,
-            )],
-            start: now,
-            end: Some(now + APPLE_TICKS),
-            ends_on: EndsOn {
-                moving: true,
-                hurt: true,
-            },
-        }),
-        _ => None,
-    }
+/// What eating this is like, if it can be eaten (owner, 2026-11-14): an apple
+/// gives back 1 Health a second for 30 s, bread for 45 s, Dwarven Bread for
+/// 60 s to dwarves only, Raw Meat 2 a second for 60 s to orcs and goblins and
+/// poisons anyone else.
+pub fn food(kind: ItemKind) -> Option<Food> {
+    let anyone = |restore, ticks| Food {
+        restore,
+        ticks,
+        kinds: &[],
+        others: Others::Refused,
+    };
+    Some(match kind {
+        ItemKind::Apple => anyone(APPLE_RESTORE, APPLE_TICKS),
+        ItemKind::Bread => anyone(PER_POINT, 45 * SECOND),
+        ItemKind::DwarvenBread => Food {
+            kinds: &[CreatureKind::Dwarf],
+            ..anyone(PER_POINT, 60 * SECOND)
+        },
+        ItemKind::RawMeat => Food {
+            kinds: &[CreatureKind::Orc, CreatureKind::Goblin],
+            others: Others::Poisoned,
+            ..anyone(2 * PER_POINT, 60 * SECOND)
+        },
+        _ => return None,
+    })
 }
 
-/// Whether eating one does anything: what can be eaten.
+/// Whether it can be eaten by someone: what can be dropped on the body.
 pub fn is_food(kind: ItemKind) -> bool {
-    food_effect(kind, 0).is_some()
+    food(kind).is_some()
+}
+
+/// Whether a creature of this kind may eat it: food, and not refused to it.
+pub fn may_eat(kind: ItemKind, eater: CreatureKind) -> bool {
+    food(kind).is_some_and(|food| food.suits(eater) || food.others != Others::Refused)
 }

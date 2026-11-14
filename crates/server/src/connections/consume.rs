@@ -2,7 +2,7 @@
 //! reach, is taken and eaten (`Sheet::eat`), in turn with the player's steps.
 
 use bevy::prelude::*;
-use shared::bonus::is_food;
+use shared::bonus::{is_food, may_eat};
 use shared::energy::handling_cost;
 use shared::id::Id;
 use shared::item::Item;
@@ -23,8 +23,9 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
     };
     let cost = match taken {
         Ok(eaten) => {
+            let eater = client.inventory.creature;
             let (sheet, situation) = client.sheet_and_situation();
-            sheet.eat(eaten.kind, situation, tick);
+            sheet.eat(eaten.kind, eater, situation, tick);
             client.unsaved = true;
             client.refresh_attributes(tick);
             handling_cost(eaten.total_weight())
@@ -49,6 +50,9 @@ fn take_carried(client: &mut Client, item: Id) -> Result<Item, &'static str> {
     let found = client.inventory.find(item).ok_or("it isn't carried")?;
     if !is_food(found.top().kind) {
         return Err("it can't be eaten");
+    }
+    if !may_eat(found.top().kind, client.inventory.creature) {
+        return Err("it isn't for its kind");
     }
     if found.holds_quest_item() || client.inventory.is_worn(item) {
         return Err("it can't be eaten from there");

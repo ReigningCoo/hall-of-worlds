@@ -13,12 +13,14 @@ use crate::bonus::{Stat, Totals};
 use crate::energy::ACTION_TICKS_PER_SECOND;
 use crate::sheet::{Attribute, Attributes};
 
+mod course;
 mod limits;
 mod old_change;
 mod points;
 mod rebase;
 mod track;
 
+pub use course::{DRAIN_FLOOR, course};
 pub use limits::{Limits, MostParts, Restore};
 pub(crate) use old_change::Change;
 pub use points::{PER_POINT, Points};
@@ -227,12 +229,16 @@ impl Vitals {
             restore: Restore {
                 health: totals.restoring(Vital::Health),
                 mana: totals.restoring(Vital::Mana),
+                drain_health: totals.draining(Vital::Health),
+                drain_mana: totals.draining(Vital::Mana),
                 until,
             },
         }
     }
 }
 
+#[cfg(test)]
+mod drain_tests;
 #[cfg(test)]
 mod restore_tests;
 #[cfg(test)]
