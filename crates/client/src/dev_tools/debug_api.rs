@@ -9,6 +9,7 @@ use server::debug_api::AddDebugMethod;
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod drawing;
+mod eat;
 mod items;
 mod login;
 mod mobs;
@@ -44,6 +45,7 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.reveal_pois", reveal_pois)
         .add_debug_method("client.give_item", give_item)
         .add_debug_method("client.wear_item", wear_item)
+        .add_debug_method("client.eat_item", eat::eat_item)
         .add_debug_method("client.set_creature", set_creature)
         // Moving.
         .add_debug_method("client.step", step)

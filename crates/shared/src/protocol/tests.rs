@@ -581,6 +581,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             y: 5,
         },
         ServerMessage::Sheet(Sheet::new(CreatureKind::Horse)),
+        ServerMessage::Clock { tick: 123_456 },
         ServerMessage::Vitals {
             who: None,
             health: crate::vitals::VitalNow {

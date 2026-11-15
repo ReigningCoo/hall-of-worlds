@@ -27,6 +27,7 @@ use bevy::prelude::*;
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod account_role;
+mod bonus_words;
 mod clock;
 mod creatures;
 mod debug;
@@ -66,6 +67,7 @@ mod wording;
 mod world;
 
 pub use account_role::{AccountRole, OpenAccounts};
+pub use bonus_words::{amount_of, bonus_line, effect_lines, stat_words, written};
 pub use browser::open_in_browser;
 pub use characters::{CharacterChoice, CharacterSelect, PlayFor, PlayableHere};
 pub use clock::{GameClock, HerbGrowthShift, NIGHT_LIGHT, ServerClock};

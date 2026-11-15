@@ -171,6 +171,25 @@ fn a_second_from_the_same_source_takes_the_firsts_place() {
 }
 
 #[test]
+fn only_the_latest_food_counts_while_poison_and_dev_stay() {
+    let mut effects = Effects::default();
+    effects.add(food_effect(ItemKind::Apple, 0).unwrap());
+    effects.add(poison(0));
+    effects.add(Effect::dev_bonus(5, 0, 50));
+    effects.add(food_effect(ItemKind::Bread, 10).unwrap());
+    let sources: Vec<Source> = effects.0.iter().map(|e| e.source).collect();
+    assert_eq!(sources.len(), 3);
+    assert!(sources.contains(&Source::Eaten(ItemKind::Bread)));
+    assert!(!sources.contains(&Source::Eaten(ItemKind::Apple)));
+    assert!(sources.contains(&Source::Poison) && sources.contains(&Source::Dev));
+    effects.add(poison(20));
+    assert_eq!(effects.0.len(), 3);
+    assert!(Source::Eaten(ItemKind::Apple).replaced_by(Source::Eaten(ItemKind::Bread)));
+    assert!(!Source::Poison.replaced_by(Source::Eaten(ItemKind::Bread)));
+    assert!(!Source::Eaten(ItemKind::Apple).replaced_by(Source::Poison));
+}
+
+#[test]
 fn effects_end_by_time_or_by_what_cancels_them() {
     let mut effects = Effects::default();
     effects.add(food_effect(ItemKind::Apple, 0).unwrap());

@@ -642,6 +642,7 @@ fn welcome_sends_the_level_after_the_world() {
         [
             ServerMessage::Welcome { x: 70, y: -3, .. },
             ServerMessage::Sheet(_),
+            ServerMessage::Clock { .. },
             ServerMessage::Attributes(_),
             ServerMessage::Vitals { .. },
             ServerMessage::ActionBar(_),
@@ -785,7 +786,7 @@ fn coming_back_to_a_changed_site_puts_the_player_out_with_the_map_sent() {
     assert!(test.client.visit.is_none());
     assert!(!test.client.character.memory.contains_key(&id));
     assert!(matches!(
-        test.welcome[8],
+        test.welcome[9],
         ServerMessage::OnWorldMap { x: 70, y: -3 }
     ));
     assert!(
@@ -810,7 +811,7 @@ fn coming_back_to_a_site_that_cannot_run_puts_the_player_out() {
 
     let test = TestClient::of(world);
     assert!(test.client.visit.is_none());
-    assert!(matches!(test.welcome[8], ServerMessage::OnWorldMap { .. }));
+    assert!(matches!(test.welcome[9], ServerMessage::OnWorldMap { .. }));
 }
 
 #[test]

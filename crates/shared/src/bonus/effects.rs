@@ -12,9 +12,11 @@ use super::stat::Bonus;
 pub struct Effects(pub Vec<Effect>);
 
 impl Effects {
-    /// Lays one on, in place of any from the same source.
+    /// Lays one on, in place of any from the same source. Only one food counts
+    /// at a time (owner, 2026-11-15): eating anything takes the place of
+    /// whatever was eaten before, of any kind. Poison and Dev stay apart.
     pub fn add(&mut self, effect: Effect) {
-        self.0.retain(|old| old.source != effect.source);
+        self.0.retain(|old| !old.source.replaced_by(effect.source));
         self.0.push(effect);
     }
 

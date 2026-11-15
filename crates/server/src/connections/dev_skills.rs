@@ -23,7 +23,7 @@ impl Client {
             return true;
         }
         let changed = self.change_skills(change, now);
-        let sheet = !changed || self.link.send(&ServerMessage::Sheet(self.sheet.as_sent()));
+        let sheet = !changed || self.send_sheet(now);
         sheet
             && self.link.send(&ServerMessage::DevSkillsOf {
                 who: None,

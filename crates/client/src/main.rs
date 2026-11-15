@@ -16,6 +16,7 @@ mod debug_menu;
 mod dev_tools;
 mod dom;
 mod dungeon_map;
+mod effect_bar;
 mod entities;
 mod fonts;
 mod ground;
@@ -142,6 +143,7 @@ fn main() {
     app.add_plugins(lightning::LightningPlugin);
     app.add_plugins(step_pad::StepPadPlugin);
     app.add_plugins(notices::NoticesPlugin);
+    app.add_plugins(effect_bar::EffectBarPlugin);
     app.add_plugins(accounts_panel::AccountsPanelPlugin);
     app.add_plugins(quests::QuestsPlugin);
     app.add_plugins(quest_log::QuestLogPlugin);

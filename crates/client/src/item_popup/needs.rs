@@ -10,8 +10,8 @@ use shared::lang::{Args, Lang};
 use shared::requirement::{FULL, Requirement, effectiveness, item_requirements};
 use shared::sheet::Attributes;
 
-use super::words::{stat_words, written};
 use crate::common::kinds_words;
+use crate::common::{stat_words, written};
 
 /// Who is looking at an item: the player's attributes with effects, and the
 /// kind of creature they are.

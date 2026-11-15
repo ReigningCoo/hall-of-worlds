@@ -11,7 +11,6 @@ use shared::movement::{
     RUN_PRACTICE, SNEAK_PRACTICE, SWIM_PRACTICE, Terrain, WildHeights, climb_practice, climbed,
     footing_on, weight_practice, world_step_time,
 };
-use shared::protocol::ServerMessage;
 use shared::spot::Spot;
 
 use crate::ServerWorld;
@@ -210,7 +209,7 @@ impl Client {
         if after.1 != before.1 {
             self.update_speed(now);
         }
-        self.link.send(&ServerMessage::Sheet(self.sheet.as_sent()))
+        self.send_sheet(now)
     }
 }
 
