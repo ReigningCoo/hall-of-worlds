@@ -9,7 +9,7 @@ use shared::body::{Frame, Joint, Side};
 use crate::item_art::body::trunk_half;
 
 /// A horizontal direction this far round from the front.
-pub(super) fn dir(angle: f32) -> Vec3 {
+pub(in crate::item_art) fn dir(angle: f32) -> Vec3 {
     Vec3::new(angle.sin(), 0.0, angle.cos())
 }
 
@@ -155,13 +155,13 @@ impl Around<'_> {
 }
 
 /// How far a direction is to the side: 0 straight ahead or behind, 1 to the side.
-pub(super) fn sideness(angle: f32) -> f32 {
+pub(in crate::item_art) fn sideness(angle: f32) -> f32 {
     angle.sin().powi(2)
 }
 
 /// A curtain at one angle: from its top, through a middle point, to its bottom.
 #[derive(Clone, Copy)]
-pub(super) struct Profile {
+pub(in crate::item_art) struct Profile {
     pub top: Vec3,
     pub middle: Vec3,
     pub bottom: Vec3,
@@ -198,7 +198,7 @@ impl Profile {
 
 /// The way out from a surface at a point, worked out from its neighbours: away from the
 /// middle of the neck.
-pub(super) fn out_at(point: impl Fn(f32, f32) -> Vec3, u: f32, v: f32) -> Vec3 {
+pub(in crate::item_art) fn out_at(point: impl Fn(f32, f32) -> Vec3, u: f32, v: f32) -> Vec3 {
     const STEP: f32 = 0.01;
     let (u0, u1) = ((u - STEP).max(0.0), (u + STEP).min(1.0));
     let (v0, v1) = ((v - STEP).max(0.0), (v + STEP).min(1.0));

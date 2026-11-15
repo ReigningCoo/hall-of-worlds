@@ -1,5 +1,5 @@
-//! What covers a character's hair: the lowest edge of everything on its head, an
-//! aventail hiding it all, a bevor over the chin.
+//! What covers a character's hair: the lowest edge of everything on its head (helmets
+//! and clothes), an aventail hiding it all, a bevor over the chin.
 
 use shared::armour::head::HeadForm;
 use shared::armour::neck::{NeckForm, NeckKind};
@@ -13,9 +13,13 @@ use crate::item_art::body::Cover;
 pub(super) fn cover_of(worn: &[Look], frame: &Frame, lift: f32) -> Cover {
     let mut heads: Vec<&HeadForm> = Vec::new();
     let mut necks: Vec<&NeckForm> = Vec::new();
+    let mut rims: Vec<[f32; 16]> = Vec::new();
     for look in worn {
         match look {
             Look::Head { head, .. } => heads.push(&head.form),
+            Look::Clothing { clothing, .. } => {
+                rims.extend(crate::item_art::clothing::hair_rim(&clothing.form, frame))
+            }
             Look::Neck { neck, .. } => necks.push(&neck.form),
             Look::Set { set, .. } => {
                 heads.extend(&set.form.head);
@@ -25,10 +29,13 @@ pub(super) fn cover_of(worn: &[Look], frame: &Frame, lift: f32) -> Cover {
         }
     }
     // The lowest edge at each angle of whatever is on the head.
-    let rim = heads.iter().fold(None, |lowest: Option<[f32; 16]>, form| {
+    rims.extend(heads.iter().map(|form| {
         let edge = form.rim(frame);
+        std::array::from_fn(|at| edge[at][1] as f32)
+    }));
+    let rim = rims.iter().fold(None, |lowest: Option<[f32; 16]>, edge| {
         Some(std::array::from_fn(|at| {
-            let y = edge[at][1] as f32 + lift;
+            let y = edge[at] + lift;
             lowest.map_or(y, |lowest| lowest[at].min(y))
         }))
     });

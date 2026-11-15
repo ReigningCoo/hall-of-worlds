@@ -1,7 +1,7 @@
-//! Item Pictures' Clothes page: rolled pieces of each kind drawn so far, two rows of
-//! tunics, robes, skirts and belts; then each playable people wearing one of each
-//! kind, and two rows of outfits (tunic, trousers, belt and gloves; bodice, skirt
-//! and belt).
+//! Item Pictures' Clothes page: rolled pieces of each kind, two rows of tunics, robes,
+//! skirts, belts, hoods, headcloths and hats; then each playable people wearing one of
+//! each kind, and three rows of outfits (tunic, trousers, belt and gloves; bodice,
+//! skirt and belt; robe, hood and hat).
 
 use bevy::prelude::*;
 use shared::clothing::{self, ClothingPiece};
@@ -26,14 +26,15 @@ pub(super) struct ClothesShown {
     with: &'static [ClothingPiece],
 }
 
-/// Outfits shown worn together: with a tunic, and with a bodice.
-const OUTFITS: [&[ClothingPiece]; 2] = [
+/// Outfits shown worn together: with a tunic, with a bodice, and with a robe.
+const OUTFITS: [&[ClothingPiece]; 3] = [
     &[
         ClothingPiece::Trousers,
         ClothingPiece::Belt,
         ClothingPiece::Gloves,
     ],
     &[ClothingPiece::Skirt, ClothingPiece::Belt],
+    &[ClothingPiece::Hood, ClothingPiece::Hat],
 ];
 
 impl ClothesShown {
@@ -63,8 +64,8 @@ impl ClothesShown {
     }
 }
 
-/// A row for each kind, two for tunics, robes, skirts and belts, then a row of each
-/// kind worn.
+/// A row for each kind, two for tunics, robes, skirts, belts, hoods, headcloths and
+/// hats, then a row of each kind worn.
 pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
     let rows = [
         ("Tunics", ClothingPiece::Tunic, 0),
@@ -80,6 +81,16 @@ pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
         ("Belts", ClothingPiece::Belt, 0),
         ("", ClothingPiece::Belt, 1),
         ("Gloves", ClothingPiece::Gloves, 0),
+        ("Hoods", ClothingPiece::Hood, 0),
+        ("", ClothingPiece::Hood, 1),
+        ("Caps", ClothingPiece::Cap, 0),
+        ("Headcloths", ClothingPiece::Headcloth, 0),
+        ("", ClothingPiece::Headcloth, 1),
+        ("Headdresses", ClothingPiece::Headdress, 0),
+        ("Neckwear", ClothingPiece::Neckwear, 0),
+        ("Shawls", ClothingPiece::Shawl, 0),
+        ("Hats", ClothingPiece::Hat, 0),
+        ("", ClothingPiece::Hat, 1),
     ];
     let columns = RING_COLUMNS as u64;
     for (label, piece, page) in rows {
@@ -107,8 +118,16 @@ pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
         ("Skirts worn", ClothingPiece::Skirt, &[][..]),
         ("Belts worn", ClothingPiece::Belt, &[][..]),
         ("Gloves worn", ClothingPiece::Gloves, &[][..]),
+        ("Hoods worn", ClothingPiece::Hood, &[][..]),
+        ("Caps worn", ClothingPiece::Cap, &[][..]),
+        ("Headcloths worn", ClothingPiece::Headcloth, &[][..]),
+        ("Headdresses worn", ClothingPiece::Headdress, &[][..]),
+        ("Neckwear worn", ClothingPiece::Neckwear, &[][..]),
+        ("Shawls worn", ClothingPiece::Shawl, &[][..]),
+        ("Hats worn", ClothingPiece::Hat, &[][..]),
         ("Outfits worn", ClothingPiece::Tunic, OUTFITS[0]),
         ("", ClothingPiece::Bodice, OUTFITS[1]),
+        ("", ClothingPiece::Robe, OUTFITS[2]),
     ];
     for (label, piece, with) in rows {
         let pictures = peoples

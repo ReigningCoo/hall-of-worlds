@@ -1,38 +1,57 @@
 //! Clothes on the Middle layer: tunics, robes, doublets, bodices and vests, trousers,
-//! skirts, belts and gloves so far.
+//! skirts, belts and gloves; hoods, caps, headcloths and turbans, headdresses,
+//! neckwear and shawls; and hats, on the Outer layer over them.
 //! Each is built in millimetres in place on a body frame, so its picture and a dressed
 //! character use the same parts. Alone it is drawn as loose as it is cut; worn
 //! (`Fit::Worn`) it lies over the underclothes and inside any armour over it, with
-//! openings for whoever wears it. Clothes for the head and neck aren't drawn yet.
+//! openings for whoever wears it: tail slits, horn slits, a longer face for a snout.
 
 mod belt;
 mod belt_ends;
 mod bodice;
+mod cap;
 mod colour;
 mod doublet;
+mod drape;
 mod gloves;
+mod hair;
+mod hat;
+mod headcloth;
+mod headdress;
+mod hood;
 mod legs;
+mod lofted;
 mod neck;
+mod neckwear;
 mod pattern;
 mod robe;
 mod shape;
+mod shawl;
 mod skirt;
+mod skull;
 mod sleeves;
 mod strips;
 mod trousers;
 mod tunic;
+mod turban;
 mod vest;
 mod wearer;
+mod worn_head;
 
+#[cfg(test)]
+mod head_tests;
 #[cfg(test)]
 mod tests;
 
 pub(in crate::item_art) use self::colour::material_of;
+pub(in crate::item_art) use self::hair::hair_rim;
 pub(in crate::item_art) use self::shape::Fit;
 pub(in crate::item_art) use self::wearer::Wearer;
 use bevy::prelude::*;
 use shared::body::Frame;
-use shared::clothing::{BeltForm, ClothingForm, ClothingPiece, Garment, RobeDecoration, VestMake};
+use shared::clothing::{
+    BeltForm, CapMake, ClothingForm, Garment, HatMake, RobeDecoration, VestMake,
+};
 use shared::creature::CreatureKind;
 use shared::item::Quality;
 
@@ -49,26 +68,11 @@ const MARGIN_PIXELS: f32 = OUTLINE_PIXELS + 2.0;
 const TURN: f32 = 0.45;
 const TILT: f32 = 0.12;
 const BELT_TILT: f32 = 0.7;
+/// Hats are seen from higher up, so their crowns and brims show.
+const HAT_TILT: f32 = 0.38;
 /// How thick cloth, and leather or padding, are drawn.
 const CLOTH: f32 = 1.3;
 const HEAVY: f32 = 2.4;
-
-/// Whether pieces of this kind are drawn yet: those worn on the torso, the legs, the
-/// waist and the hands.
-pub(in crate::item_art) fn drawn(piece: ClothingPiece) -> bool {
-    matches!(
-        piece,
-        ClothingPiece::Tunic
-            | ClothingPiece::Robe
-            | ClothingPiece::Doublet
-            | ClothingPiece::Bodice
-            | ClothingPiece::Vest
-            | ClothingPiece::Trousers
-            | ClothingPiece::Skirt
-            | ClothingPiece::Belt
-            | ClothingPiece::Gloves
-    )
-}
 
 /// What can be seen of a piece of clothing.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -105,6 +109,8 @@ fn thickness(form: &ClothingForm) -> f32 {
         }
         Garment::Belt(belt) => matches!(belt.form, BeltForm::Strap | BeltForm::Plates),
         Garment::Trousers(_) => form.material.category() == shared::material::Category::Leather,
+        Garment::Hat(hat) => hat.make != HatMake::Straw,
+        Garment::Cap(cap) => cap.make == CapMake::Fur,
         _ => false,
     };
     if heavy { HEAVY } else { CLOTH }
@@ -150,8 +156,13 @@ pub(in crate::item_art) fn build_for(
         Garment::Skirt(skirt) => wear.skirt(&mut model, skirt),
         Garment::Belt(belt) => wear.belt(&mut model, belt),
         Garment::Gloves(gloves) => wear.gloves(&mut model, gloves, digits),
-        // Drawn by later changes.
-        _ => {}
+        Garment::Hood(hood) => wear.hood(&mut model, hood),
+        Garment::Cap(cap) => wear.cap(&mut model, cap),
+        Garment::Headcloth(cloth) => wear.headcloth(&mut model, cloth),
+        Garment::Headdress(dress) => wear.headdress(&mut model, dress),
+        Garment::Neckwear(neckwear) => wear.neckwear(&mut model, neckwear),
+        Garment::Shawl(shawl) => wear.shawl(&mut model, shawl),
+        Garment::Hat(hat) => wear.hat(&mut model, hat),
     }
     pattern::apply(&mut model, form, all_over);
     model
@@ -186,6 +197,7 @@ fn fitted(look: &ClothingLook) -> Model {
             // A sash or obi is seen from higher up, so its round shows.
             let tilt = match garment {
                 Garment::Belt(_) => BELT_TILT,
+                Garment::Hat(_) => HAT_TILT,
                 _ => TILT,
             };
             let view = Quat::from_rotation_x(tilt) * Quat::from_rotation_y(TURN);
