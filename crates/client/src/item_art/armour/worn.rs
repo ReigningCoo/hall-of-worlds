@@ -74,7 +74,7 @@ pub(in crate::item_art) fn worn(
             clothing: l,
             quality,
         } => add(
-            clothing::build(&l.form, frame, clothing::Fit::Worn(*wearer)),
+            clothing::build_for(&l.form, frame, clothing::Fit::Worn(*wearer), l.digits),
             &|s| clothing::material_of(s, &l.form, *quality),
         ),
         Look::Necklace {

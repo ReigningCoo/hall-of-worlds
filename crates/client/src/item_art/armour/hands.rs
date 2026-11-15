@@ -20,13 +20,17 @@ use crate::item_art::{CAMERA_AT, CAMERA_UP, HandsLook, OUTLINE_PIXELS, Part, VIE
 // Split into files (`cargo xtask lint` keeps files small).
 mod arc;
 mod back;
+mod cloth;
 mod cuff;
 mod extras;
 mod glove;
+mod lay;
 mod look;
 mod rings;
 mod shape;
 
+pub(in crate::item_art) use self::cloth::{GloveCut, cloth_glove};
+pub(in crate::item_art) use self::lay::lay_pair;
 use arc::{Arc, add_arc, add_arc_bumped, ellipse};
 use back::{add_back, add_lames};
 use cuff::add_cuff;
@@ -160,25 +164,8 @@ pub(in crate::item_art) fn build_pair(form: &HandsForm, frame: &Frame, digits: u
 /// choice), then fitted to the cells.
 fn fitted(look: &HandsLook) -> Model {
     let frame = Frame::of(CreatureKind::Human).expect("people have a frame");
-    let mut picture = Model::default();
-    for side in Side::BOTH {
-        let mut hand = build_hand(&look.form, &frame, side, look.digits);
-        let axes = Axes::of(&Hand::of(&frame, side, look.digits));
-        // Down stays down, out comes towards the camera, and the thumb's way goes
-        // across: right for the right hand, left for the left.
-        let turn = Mat3::from_cols(axes.out.cross(axes.down), -axes.down, axes.out).transpose();
-        hand.map(|point| turn * (point - axes.wrist));
-        let (low, high) = hand.bounds();
-        // Thumbs towards each other: the right hand on the left.
-        let shift = match side {
-            Side::Right => -PICTURE_GAP / 2.0 - high.x,
-            Side::Left => PICTURE_GAP / 2.0 - low.x,
-        };
-        hand.map(|point| point + Vec3::X * shift);
-        picture.join(hand);
-    }
-    let tilt = Quat::from_rotation_x(-TILT);
-    picture.map(|point| tilt * point);
+    let build = |side| build_hand(&look.form, &frame, side, look.digits);
+    let mut picture = lay_pair(&frame, look.digits, &build);
     let (low, high) = picture.bounds();
     let (wide, long) = (look.cells.0 as f32, look.cells.1 as f32);
     let world_per_pixel = VIEW_WIDTH / (wide.max(long) * PIXELS_PER_CELL);
