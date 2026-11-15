@@ -19,7 +19,7 @@ mod piece;
 mod roll;
 mod shirt;
 mod socks;
-mod table;
+pub(crate) mod table;
 mod weight;
 mod wimple;
 

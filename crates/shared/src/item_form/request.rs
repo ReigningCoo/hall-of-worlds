@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::armour::{Construction, Dye, Finish, Style};
+use crate::clothing::ClothingPiece;
 use crate::footwear::FootwearPiece;
 use crate::item::ItemKind;
 use crate::item_form::{Cut, Limits};
@@ -114,7 +115,10 @@ impl RollRequest {
 /// The options a kind of item takes; none for kinds without a form.
 pub fn fields(kind: ItemKind) -> &'static [Field] {
     use Field::*;
-    if FootwearPiece::of(kind).is_some() || UnderPiece::of(kind).is_some() {
+    if FootwearPiece::of(kind).is_some()
+        || UnderPiece::of(kind).is_some()
+        || ClothingPiece::of(kind).is_some()
+    {
         return &[Material, Dye];
     }
     if kind.blade_family().is_some() {

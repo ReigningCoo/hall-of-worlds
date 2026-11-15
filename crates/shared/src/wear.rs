@@ -126,6 +126,8 @@ fn coverage(item: &Item) -> Vec<(Location, Layer)> {
 }
 
 #[cfg(test)]
+mod clothing_tests;
+#[cfg(test)]
 mod death_tests;
 #[cfg(test)]
 mod swap_tests;

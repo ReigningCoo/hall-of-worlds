@@ -217,6 +217,8 @@ impl ItemKind {
                     (1, 0),
                     false,
                 )),
+                // Tunics, robes, doublets, bodices and vests: in `clothing_def.rs`.
+                _ if self.is_clothing() => self.clothing_def(),
                 // Underclothes, and the old T-shirt: in `under_def.rs`.
                 _ => self.under_def(),
             };
@@ -225,7 +227,7 @@ impl ItemKind {
             Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat | Self::Stone => 10,
             _ if self.coin_value().is_some() => 10,
             Self::Trousers | Self::Hat | Self::Tabard => 50,
-            _ if self.is_under() => 50,
+            _ if self.is_under() || self.is_clothing() => 50,
             Self::Ring | Self::Pouch | Self::Bag | Self::Belt | Self::Boomerang => 75,
             Self::Gauntlets
             | Self::Helmet

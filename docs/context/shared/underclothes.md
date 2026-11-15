@@ -1,6 +1,6 @@
 # shared: underclothes
 
-Underclothes, all worn on the Skin layer: shirts and chemises (with stays as an option), braies, breast bands, loincloths, hose, socks, petticoats, linen coifs and wimples. Medieval and earlier first. What one is like is rolled once and saved, with its names, cells and weight. Not the rules for wearing (`wear`), nor clothes over them (the mid-layer, still to come).
+Underclothes, all worn on the Skin layer: shirts and chemises (with stays as an option), braies, breast bands, loincloths, hose, socks, petticoats, linen coifs and wimples. Medieval and earlier first. What one is like is rolled once and saved, with its names, cells and weight. Not the rules for wearing (`wear`), nor clothes over them (`shared::clothing`).
 
 ## Files
 
@@ -9,7 +9,7 @@ Underclothes, all worn on the Skin layer: shirts and chemises (with stays as an 
 - `garment.rs`: `Garment` (which garment and how it is cut: `piece`, `bare`), passing each question to the garment's own file.
 - One file per garment, each with its options, roll, grid, names and base weight: `shirt.rs` (`Shirt`, `Length`, `Sleeves`, `Neck`, `Cut`, `Stays`), `braies.rs` (`Braies`, `BraiesLength`, `Fit`, `Waistband`, `Ends`), `band.rs` (`Band`, `BandForm`), `loincloth.rs` (`Loincloth`, `LoinForm`), `hose.rs` (`Hose`, `HoseFeet`, `HoseHeight`, `HoseMake`, `Held`, `Colours`), `socks.rs` (`Socks`, `SockMake`, `Toe`, `SockHeight`, `SockTop`), `petticoat.rs` (`Petticoat`, `SkirtLength`, `SkirtFullness`, `SkirtMake`, `SkirtWaist`), `coif.rs` (`Coif`, `CoifForm`), `wimple.rs` (`Wimple`, `WimpleForm`).
 - `cloth.rs`: `Cloth` (plain, lawn, net), `Decoration`; materials, cloths, decorations, dyes and second colours by garment.
-- `roll.rs`: `roll`. `grid.rs`: `allowed`. `names.rs`: `specific_name`, `name`. `weight.rs`: `grams`, `grams_at`, `shape`. `table.rs`: `has`, `when`.
+- `roll.rs`: `roll`. `grid.rs`: `allowed`. `names.rs`: `specific_name`, `name`. `weight.rs`: `grams`, `grams_at`, `shape`. `table.rs`: `has`, `when` (`pub(crate)`: `shared::clothing` rolls from the same kind of tables).
 
 ## Public API
 

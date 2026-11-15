@@ -111,7 +111,12 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
             under: super::UnderLook::new(*form, ANY),
             quality,
         },
-        ItemForm::Gem(_) | ItemForm::Ring(_) | ItemForm::Blade(_) | ItemForm::Key(_) => {
+        // Clothes' models come later.
+        ItemForm::Clothing(_)
+        | ItemForm::Gem(_)
+        | ItemForm::Ring(_)
+        | ItemForm::Blade(_)
+        | ItemForm::Key(_) => {
             return None;
         }
     })

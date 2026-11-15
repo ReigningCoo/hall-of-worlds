@@ -173,6 +173,7 @@ impl Item {
     pub fn bare(&self) -> &'static [Location] {
         match &self.form {
             Some(ItemForm::Under(under)) => under.garment.bare(),
+            Some(ItemForm::Clothing(clothing)) => clothing.garment.bare(),
             _ => &[],
         }
     }

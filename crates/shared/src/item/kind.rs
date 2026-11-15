@@ -97,11 +97,17 @@ pub enum ItemKind {
     Petticoat,
     Shirt,
     Wimple,
+    // Clothes with forms (`clothing`), Middle layer.
+    Bodice,
+    Doublet,
+    Robe,
+    Tunic,
+    Vest,
 }
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 82] = [
+    pub const ALL: [Self; 87] = [
         Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -116,6 +122,7 @@ impl ItemKind {
         Self::Belt,
         Self::Bevor,
         Self::BevoredHelm,
+        Self::Bodice,
         Self::Boomerang,
         Self::Boots,
         Self::Braies,
@@ -132,6 +139,7 @@ impl ItemKind {
         Self::CuirassierTassets,
         Self::Dagger,
         Self::DemiGauntlets,
+        Self::Doublet,
         Self::DwarvenBread,
         Self::FingerlessGloves,
         Self::FootArmour,
@@ -165,6 +173,7 @@ impl ItemKind {
         Self::RawMeat,
         Self::Remains,
         Self::Ring,
+        Self::Robe,
         Self::Sandals,
         Self::Shirt,
         Self::Shoes,
@@ -182,6 +191,8 @@ impl ItemKind {
         Self::Tabard,
         Self::TorsoArmour,
         Self::Trousers,
+        Self::Tunic,
+        Self::Vest,
         Self::WaistArmour,
         Self::Wimple,
     ];

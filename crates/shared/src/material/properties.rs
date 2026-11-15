@@ -16,6 +16,7 @@ impl Material {
             | Self::Cotton
             | Self::Felt
             | Self::Garnet
+            | Self::Grass
             | Self::Haircloth
             | Self::Hemp
             | Self::Horn
@@ -51,7 +52,7 @@ impl Material {
     /// How heavy it is, as tenths of a gram for each cubic centimetre. A first guess.
     pub fn density(self) -> u32 {
         match self {
-            Self::Cork | Self::Straw => 2,
+            Self::Cork | Self::Grass | Self::Straw => 2,
             Self::Felt => 3,
             Self::Rattan => 5,
             Self::Wood => 7,
