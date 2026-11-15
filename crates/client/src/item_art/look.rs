@@ -270,7 +270,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
                 quality,
             })
         }
-        ItemForm::Clothing(form) if super::clothing::drawn(form.piece()) => {
+        ItemForm::Clothing(form) => {
             let shape = item.shape();
             Some(Look::Clothing {
                 clothing: super::ClothingLook::new(*form, (shape.width, shape.height))

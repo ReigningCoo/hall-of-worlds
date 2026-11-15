@@ -116,16 +116,11 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
             necklace: super::NecklaceLook::new(form, Size::Medium),
             quality,
         },
-        ItemForm::Clothing(form) if super::clothing::drawn(form.piece()) => Look::Clothing {
+        ItemForm::Clothing(form) => Look::Clothing {
             clothing: super::ClothingLook::new(*form, ANY).with_digits(Hand::digits(worn.fingers)),
             quality,
         },
-        // The other clothes' models come later.
-        ItemForm::Clothing(_)
-        | ItemForm::Gem(_)
-        | ItemForm::Ring(_)
-        | ItemForm::Blade(_)
-        | ItemForm::Key(_) => {
+        ItemForm::Gem(_) | ItemForm::Ring(_) | ItemForm::Blade(_) | ItemForm::Key(_) => {
             return None;
         }
     })

@@ -10,8 +10,9 @@ use shared::body::{Feet, Frame, Layout, Role};
 use shared::clothing::Garment;
 
 use super::Fit;
+use super::worn_head::WornHead;
 use crate::item_art::Look;
-use crate::item_art::body::tail_path;
+use crate::item_art::body::{tail_path, trunk_half};
 
 /// Where armour worn over clothes covers them, so the cloth keeps inside it.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -41,6 +42,13 @@ pub(in crate::item_art) struct Wearer {
     /// what is under them is hidden above it.
     pub torso_hem: Option<f32>,
     pub skirt_hem: Option<f32>,
+    /// How far clothes on the torso stand out in front of the chest, at most: what
+    /// drapes over them (capes, shawls, scarves' ends) lies outside it.
+    pub chest_out: Option<f32>,
+    /// A shawl is worn: a hood's cape goes over it.
+    pub shawl: bool,
+    /// The head, for what is worn on it.
+    pub head: WornHead,
 }
 
 impl Wearer {
@@ -54,6 +62,7 @@ impl Wearer {
         let mut covered = Covered::default();
         let mut belt = None;
         let (mut torso_hem, mut skirt_hem) = (None, None);
+        let (mut chest_out, mut shawl) = (None, false);
         let frame = layout.worn_frame().map(|(frame, _)| frame);
         for look in worn {
             match look {
@@ -62,10 +71,15 @@ impl Wearer {
                     match (&form.garment, &frame) {
                         (Garment::Belt(worn), _) => belt = Some(super::belt::height(worn)),
                         (Garment::Skirt(_), Some(frame)) => {
-                            skirt_hem = lowest(skirt_hem, hem_of(form, frame))
+                            skirt_hem = lowest(skirt_hem, hem_of(form, frame).0)
                         }
-                        (Garment::Trousers(_) | Garment::Gloves(_), _) => {}
-                        (_, Some(frame)) => torso_hem = lowest(torso_hem, hem_of(form, frame)),
+                        (Garment::Shawl(_), _) => shawl = true,
+                        (garment, _) if !on_trunk(garment) => {}
+                        (_, Some(frame)) => {
+                            let (hem, out) = hem_of(form, frame);
+                            torso_hem = lowest(torso_hem, hem);
+                            chest_out = Some(chest_out.map_or(out, |have: f32| have.max(out)));
+                        }
                         _ => {}
                     }
                 }
@@ -92,6 +106,9 @@ impl Wearer {
             belt,
             torso_hem,
             skirt_hem,
+            chest_out,
+            shawl,
+            head: WornHead::of(layout, worn),
         }
     }
 
@@ -108,15 +125,36 @@ fn lowest(have: Option<f32>, new: f32) -> Option<f32> {
     Some(have.map_or(new, |have| have.min(new)))
 }
 
-/// How low a piece hangs at the body's middle, front or back (not its sleeves).
-fn hem_of(form: &shared::clothing::ClothingForm, frame: &Frame) -> f32 {
+/// Whether a piece is worn on the trunk, hanging from the shoulders or the waist: not
+/// on the head, the neck, the hands or the legs.
+fn on_trunk(garment: &Garment) -> bool {
+    matches!(
+        garment,
+        Garment::Tunic(_)
+            | Garment::Robe(_)
+            | Garment::Doublet(_)
+            | Garment::Bodice(_)
+            | Garment::Vest(_)
+    )
+}
+
+/// How low a piece hangs at the body's middle, front or back (not its sleeves), and
+/// how far out in front of the chest it stands.
+fn hem_of(form: &shared::clothing::ClothingForm, frame: &Frame) -> (f32, f32) {
     let model = super::build(form, frame, Fit::Alone);
     let middle = frame.hips_half.0 as f32 * 0.5;
-    model
-        .parts
-        .iter()
-        .flat_map(|(_, triangles)| triangles.iter().flatten())
-        .filter(|corner| corner.x.abs() < middle)
-        .map(|corner| corner.y)
-        .fold(f32::MAX, f32::min)
+    let corners = || {
+        model
+            .parts
+            .iter()
+            .flat_map(|(_, triangles)| triangles.iter().flatten())
+            .filter(|corner| corner.x.abs() < middle)
+    };
+    let hem = corners().map(|corner| corner.y).fold(f32::MAX, f32::min);
+    let chest = frame.chest as f32;
+    let out = corners()
+        .filter(|corner| corner.z > 0.0 && (corner.y - chest).abs() < 40.0)
+        .map(|corner| corner.z - trunk_half(frame, corner.y).deep(true))
+        .fold(0.0, f32::max);
+    (hem, out)
 }

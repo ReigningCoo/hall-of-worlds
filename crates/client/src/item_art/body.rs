@@ -29,7 +29,7 @@ pub(super) use features::{tail_path, wings};
 use fit::fitted;
 pub(super) use fit::turn_of;
 pub(super) use hair::{Cover, hair};
-pub(super) use head::{HeadAxes, crown};
+pub(super) use head::{HeadAxes, crown, horns_of};
 pub(super) use marks::split as split_marks;
 #[cfg(test)]
 pub(super) use morph::placed as morph_placed;

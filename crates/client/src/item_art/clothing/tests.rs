@@ -2,20 +2,18 @@ use super::wearer::Covered;
 use super::*;
 use crate::item_art::body::trunk_half;
 use shared::body::Layout;
+use shared::clothing::ClothingPiece;
 use shared::rng::Seed;
 
 /// Every piece drawn, rolled from many seeds.
 fn looks() -> impl Iterator<Item = ClothingLook> {
-    ClothingPiece::ALL
-        .into_iter()
-        .filter(|&piece| drawn(piece))
-        .flat_map(|piece| {
-            (0..120u64).map(move |seed| {
-                let form = shared::clothing::roll(&mut Seed::new(seed).rng(), piece, Quality::Rare);
-                let shape = form.shape();
-                ClothingLook::new(form, (shape.width, shape.height))
-            })
+    ClothingPiece::ALL.into_iter().flat_map(|piece| {
+        (0..120u64).map(move |seed| {
+            let form = shared::clothing::roll(&mut Seed::new(seed).rng(), piece, Quality::Rare);
+            let shape = form.shape();
+            ClothingLook::new(form, (shape.width, shape.height))
         })
+    })
 }
 
 fn corners(model: &Model) -> impl Iterator<Item = Vec3> + '_ {

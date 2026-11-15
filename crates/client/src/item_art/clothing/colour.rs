@@ -86,6 +86,8 @@ pub(in crate::item_art) fn material_of(
         }
         Stuff::Backing => matte(Color::srgb(0.3, 0.2, 0.12), 0.7),
         Stuff::Bone => matte(colour_of(Material::Fur), 1.0),
+        // Pearls on headdresses.
+        Stuff::Etch => matte(Color::srgb(0.93, 0.91, 0.85), 0.3),
         _ => metal_material(Material::Brass, quality),
     }
 }

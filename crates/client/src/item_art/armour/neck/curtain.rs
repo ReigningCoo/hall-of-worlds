@@ -17,7 +17,7 @@ const TEETH_ROUND: f32 = 26.0;
 
 /// A curtain between two angles, each angle's profile from top to bottom, its lower
 /// edge cut as its hem says.
-pub(super) struct Curtain<'a> {
+pub(in crate::item_art) struct Curtain<'a> {
     pub from: f32,
     pub to: f32,
     pub profile: &'a dyn Fn(f32) -> Profile,

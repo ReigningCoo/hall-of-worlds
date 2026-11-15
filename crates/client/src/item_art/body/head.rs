@@ -198,14 +198,30 @@ fn ears(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &HeadShape, axes:
 
 /// Horns from the top of the skull, outside the ears.
 fn horns(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &HeadShape, axes: &HeadAxes) {
+    for path in horn_paths(layout, shape, axes) {
+        limb(triangles, &path);
+    }
+}
+
+/// Where a shaped head's horns run, one path for each, from the root out; none for a
+/// head without horns or without a shape.
+pub(in crate::item_art) fn horns_of(layout: &Layout) -> Vec<[(Vec3, f32); 3]> {
+    match &layout.head.shape {
+        Some(shape) => horn_paths(layout, shape, &HeadAxes::of(layout, shape)),
+        None => Vec::new(),
+    }
+}
+
+fn horn_paths(layout: &Layout, shape: &HeadShape, axes: &HeadAxes) -> Vec<[(Vec3, f32); 3]> {
     let horn = layout.parts.horn_length as f32;
     let skull = crown(shape);
     let (along, top, half) = (skull.along as f32, skull.back as f32, skull.half as f32);
     let thick = (horn * 0.12).max(8.0);
+    let mut paths = Vec::new();
     for side in Side::BOTH {
         let out = side.sign() as f32;
         let base = axes.at(along, top * 0.85, out * half * 0.7);
-        let path = match layout.parts.horns {
+        paths.push(match layout.parts.horns {
             Horns::None => continue,
             Horns::Bull => [
                 (base, thick),
@@ -229,9 +245,9 @@ fn horns(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &HeadShape, axes
                     2.0,
                 ),
             ],
-        };
-        limb(triangles, &path);
+        });
     }
+    paths
 }
 
 /// A hen's comb, a row of lobes along the top of the skull, and two wattles hanging
