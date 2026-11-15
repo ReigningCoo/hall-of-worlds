@@ -234,6 +234,7 @@ pub(crate) fn answer(
         | ClientMessage::GiveItem { .. }
         | ClientMessage::TakeItem { .. }
         | ClientMessage::WearItem { .. }
+        | ClientMessage::TieBag { .. }
         | ClientMessage::BinItem { .. } => answer_items(client, message, world),
         // Only for those allowed them; for anyone else a stray key or click is
         // ignored rather than ending the game.

@@ -60,7 +60,7 @@ impl Inventory {
     /// Throws a carried item away, with everything in it, destroying what was thrown
     /// away before. `false` if it isn't carried or is there already.
     pub fn to_bin(&mut self, id: Id) -> bool {
-        if self.in_bin(id) {
+        if self.in_bin(id) || self.check_lift(id).is_err() {
             return false;
         }
         let Some(item) = self.take(id) else {
@@ -95,6 +95,9 @@ impl Inventory {
         }
         if let Some(index) = self.worn.iter().position(|item| item.id == id) {
             return Some(self.worn.remove(index));
+        }
+        if let Some(index) = self.bag_slots.iter().position(|item| item.id == id) {
+            return Some(self.bag_slots.remove(index));
         }
         search(&mut self.items, id).or_else(|| {
             self.worn

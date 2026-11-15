@@ -40,6 +40,7 @@ impl Inventory {
         limits: StackLimits,
         new_id: &mut impl FnMut() -> Id,
     ) -> Result<u32, MoveRefused> {
+        self.check_lift(id)?;
         let item = self.find(id).ok_or(MoveRefused::NoSuchItem)?;
         let count = self.stack_room(item, onto, limits)?;
         let holder = self.placed(onto).map(|(holder, _)| holder);

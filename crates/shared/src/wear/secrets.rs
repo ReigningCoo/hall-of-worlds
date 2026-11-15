@@ -42,7 +42,11 @@ impl Inventory {
     /// As a client may see it: see `Item::hide_secrets`.
     pub fn hide_secrets(&mut self) {
         let placed = self.items.iter_mut().map(|placed| &mut placed.item);
-        for item in placed.chain(&mut self.worn).chain(&mut self.bin) {
+        for item in placed
+            .chain(&mut self.worn)
+            .chain(&mut self.bag_slots)
+            .chain(&mut self.bin)
+        {
             item.hide_secrets();
         }
     }

@@ -68,6 +68,9 @@ pub enum WearRefused {
     Stuck(Id),
     /// What is in its way has no room in the inventory to go.
     NoRoom(Id),
+    /// It would take off the belt, or put a worse one on, leaving bags without
+    /// slots.
+    BagsTied,
 }
 
 impl WearRefused {

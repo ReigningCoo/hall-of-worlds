@@ -71,6 +71,15 @@ impl Inventory {
             off.extend(at.map(|at| self.worn.remove(at)));
         }
         let fit = self.check_wear_new(&item)?;
+        // A belt coming off, or a worse one going on, must leave slots for the bags.
+        let mut belts = off.iter().chain(std::iter::once(&item));
+        if belts.any(|item| item.kind == crate::item::ItemKind::Belt) {
+            let mut after = self.clone();
+            after.worn.push(item.clone());
+            if after.bag_slots.len() > after.bag_slot_count() {
+                return Err(WearRefused::BagsTied);
+            }
+        }
         let changed: Vec<&Item> = std::iter::once(&item).chain(&off).collect();
         let cost = self.changing_cost(&changed);
         self.worn.push(item);

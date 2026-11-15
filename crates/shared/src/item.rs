@@ -6,6 +6,7 @@
 //! tree starting from their inventory: a grid of placed items, some of which have
 //! grids of their own.
 
+mod bag_def;
 mod category;
 mod coin;
 mod def;
@@ -36,7 +37,7 @@ mod under_def;
 pub use category::ItemCategory;
 pub use coin::{COINS, COINS_PER_NEXT, coin_items, coin_stacks};
 pub use drop::{Drop, ODDS_OUT_OF, roll_drop};
-pub use inventory::Inventory;
+pub use inventory::{Inventory, belt_slots, grams_off};
 pub use item::{Item, MadeAt};
 pub use item_def::{ContainerDef, ItemDef, WearDef};
 pub use kind::ItemKind;
@@ -61,6 +62,9 @@ pub const INVENTORY_SIZE: (u8, u8) = (6, 4);
 
 #[cfg(test)]
 mod add_tests;
+
+#[cfg(test)]
+mod bag_slot_tests;
 
 #[cfg(test)]
 mod coin_tests;

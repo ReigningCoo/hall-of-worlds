@@ -38,13 +38,14 @@ impl Inventory {
 
     /// Takes out something to hand over, with all in it, unless it isn't carried.
     pub fn hand_over(&mut self, id: Id) -> Option<Item> {
+        self.check_lift(id).ok()?;
         self.take(id)
     }
 
     /// Everything carried and worn, each with all in it, as what is left of a body.
     pub fn spilled(self) -> Vec<Item> {
         let carried = self.items.into_iter().map(|placed| placed.item);
-        carried.chain(self.worn).collect()
+        carried.chain(self.worn).chain(self.bag_slots).collect()
     }
 
     /// How a worn item fits its wearer.
@@ -59,7 +60,9 @@ impl Inventory {
     /// on, checked in the order it was put on so what is under goes back first.
     /// What it can't wear drops, cursed or not (owner, 2026-11-04), and what was
     /// carried goes in the new inventory, stacking, as far as it fits. Gives back
-    /// what drops: what can't be worn and what there was no room for. Coins
+    /// what drops: what can't be worn, tied bags past the slots left (from the last
+    /// slot, empty: all of them if the new body wears no belt), and what there was
+    /// no room for in the grid that is left. Coins
     /// meeting may turn, any new stack of them with an id from `new_id`.
     pub fn change_body(
         &mut self,
@@ -80,6 +83,12 @@ impl Inventory {
                 dropped.push(item);
             }
         }
+        let mut bags = old.bag_slots;
+        let slots = self.bag_slot_count();
+        while bags.len() > slots {
+            dropped.extend(bags.pop());
+        }
+        self.bag_slots = bags;
         let carried = old.items.into_iter().map(|placed| placed.item);
         dropped.extend(carried.filter_map(|item| self.give(item, limits, new_id).err()));
         dropped

@@ -227,6 +227,8 @@ pub struct Client {
 #[cfg(test)]
 mod action_bar_tests;
 #[cfg(test)]
+mod bag_slot_tests;
+#[cfg(test)]
 mod bonuses_tests;
 #[cfg(test)]
 mod dev_audit_tests;

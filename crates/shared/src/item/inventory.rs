@@ -1,5 +1,6 @@
 //! `Inventory`: everything a character carries, in their own grid and what they wear.
 
+mod bag_slots;
 mod changes;
 mod coins;
 mod cost;
@@ -10,6 +11,9 @@ mod room;
 mod rules;
 mod sort;
 mod stacking;
+mod tying;
+
+pub use bag_slots::{belt_slots, grams_off};
 
 use serde::{Deserialize, Serialize};
 
@@ -34,6 +38,10 @@ pub struct Inventory {
     /// thrown away, which destroys it. It weighs nothing, being left behind.
     #[serde(default)]
     pub bin: Option<Item>,
+    /// Bags tied to the worn belt, in slot order, each empty: their insides add to
+    /// the end of the own grid (`bag_slots.rs`). Players' only: mobs never tie any.
+    #[serde(default)]
+    pub bag_slots: Vec<Item>,
 }
 
 impl Default for Inventory {
@@ -45,14 +53,19 @@ impl Default for Inventory {
             size: INVENTORY_SIZE,
             worn: Vec::new(),
             bin: None,
+            bag_slots: Vec::new(),
         }
     }
 }
 
 impl Inventory {
-    /// What it all weighs, in grams.
+    /// What it all weighs, in grams: what lies in the own grid made lighter by any
+    /// tied bags for their share of it (`grams_off`), then what is worn and the tied
+    /// bags themselves.
     pub fn total_weight(&self) -> u32 {
-        weight_of(&self.items) + self.worn.iter().map(Item::total_weight).sum::<u32>()
+        let grid = weight_of(&self.items);
+        let worn = self.worn.iter().chain(&self.bag_slots);
+        grid - self.grams_off(grid) + worn.map(Item::total_weight).sum::<u32>()
     }
 
     /// What the creature weighs with all it carries and wears, in grams.

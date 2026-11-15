@@ -134,6 +134,10 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ClientMessage::WearItem {
             item: Id(uuid::Uuid::from_u128(7)),
         },
+        ClientMessage::TieBag {
+            item: Id(uuid::Uuid::from_u128(7)),
+            slot: 2,
+        },
         ClientMessage::DevGiveItem(crate::protocol::DevGive {
             kind: ItemKind::Pouch,
             size: Some(Size::Large),

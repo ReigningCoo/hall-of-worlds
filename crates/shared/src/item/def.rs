@@ -1,14 +1,11 @@
 //! What each kind of item is: its name, weight, cells, and how it is carried or worn.
 
-use super::item_def::{HELD, bag, plain, wear};
+use super::item_def::{HELD, plain, wear};
 use super::{ItemDef, ItemKind, Shape, WearDef};
 use crate::creature::{Layer, Location};
 
 /// All but its top-right cell: an L.
 const BOOMERANG: Shape = Shape::rectangle(2, 2).without(1 << 1);
-/// A bag of holding's grid: as wide as the ground's, and up to this many rows.
-const BAG_OF_HOLDING_WIDTH: u8 = 8;
-const BAG_OF_HOLDING_ROWS: u8 = 60;
 
 impl ItemKind {
     pub const fn def(self) -> ItemDef {
@@ -34,6 +31,10 @@ impl ItemKind {
                     self.feet_def()
                 }
                 Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat => self.food_def(),
+                // Bags, boxes and backpacks: in `bag_def.rs`.
+                Self::Backpack | Self::Bag | Self::BagOfHolding | Self::Pouch | Self::SmallBox => {
+                    self.bag_def()
+                }
                 // Both arms, or one; its form says its name, cells and weight, and whether
                 // it is padded (kote).
                 Self::ArmArmour => plain("Arm Armour", 2000, Shape::rectangle(2, 3)).worn(wear(
@@ -58,28 +59,6 @@ impl ItemKind {
                 )),
                 // A blade's weight and shape are its form's: these are only for one without.
                 Self::Axe => plain("Axe", 900, Shape::rectangle(1, 3)).worn(HELD),
-                Self::Backpack => bag(
-                    "Backpack",
-                    1200,
-                    Shape::rectangle(3, 4),
-                    (10, 12),
-                    Some(25_000),
-                    None,
-                )
-                .worn(WearDef {
-                    one_place: true,
-                    ..wear(Outer, &[Back], (1, 1), true)
-                }),
-                // A placeholder for trying out bags that grow: far more inside than out.
-                Self::BagOfHolding => bag(
-                    "Bag of Holding",
-                    500,
-                    Shape::rectangle(3, 3),
-                    (BAG_OF_HOLDING_WIDTH, BAG_OF_HOLDING_ROWS),
-                    Some(100_000),
-                    None,
-                )
-                .growing(),
                 Self::Barding => plain("Barding", 15_000, Shape::rectangle(4, 4)).worn(wear(
                     Outer,
                     &[Neck, Torso, Forelegs, Hindlegs],
@@ -200,14 +179,6 @@ impl ItemKind {
                 Self::PaddedGloves => plain("Padded Gloves", 150, Shape::rectangle(2, 1))
                     .worn(wear(Middle, &[Hands, Fingers], (1, 0), false)),
                 Self::Polearm => plain("Polearm", 3000, Shape::rectangle(1, 8)).worn(HELD),
-                Self::Pouch => bag(
-                    "Pouch",
-                    80,
-                    Shape::rectangle(2, 2),
-                    (4, 4),
-                    Some(1500),
-                    Some(500),
-                ),
                 Self::Ring => plain("Ring", 10, square).worn(WearDef {
                     one_place: true,
                     ..wear(Skin, &[Fingers], (1, 1), true)
@@ -216,14 +187,6 @@ impl ItemKind {
                 // A pair: its form says its kind, name, cells and weight.
                 Self::ShoulderArmour => plain("Shoulder Armour", 2600, Shape::rectangle(3, 2))
                     .worn(wear(Outer, &[Shoulders], (0, 0), false)),
-                Self::SmallBox => bag(
-                    "Small Box",
-                    100,
-                    Shape::rectangle(2, 1),
-                    (3, 2),
-                    Some(300),
-                    None,
-                ),
                 Self::Spear => plain("Spear", 1500, Shape::rectangle(1, 8)).worn(HELD),
                 Self::Stone => plain("Stone", 5000, Shape::rectangle(2, 2)).without_quality(),
                 // Belted over armour, to the knee, which doesn't count as the legs.
@@ -263,7 +226,7 @@ impl ItemKind {
             _ if self.coin_value().is_some() => 10,
             Self::Trousers | Self::Hat | Self::Tabard => 50,
             _ if self.is_under() => 50,
-            Self::Ring | Self::Pouch | Self::Belt | Self::Boomerang => 75,
+            Self::Ring | Self::Pouch | Self::Bag | Self::Belt | Self::Boomerang => 75,
             Self::Gauntlets
             | Self::Helmet
             | Self::BevoredHelm

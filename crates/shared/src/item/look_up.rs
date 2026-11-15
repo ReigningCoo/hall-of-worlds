@@ -36,6 +36,7 @@ impl Inventory {
         let carried = self.items.iter().map(|placed| &placed.item);
         carried
             .chain(&self.worn)
+            .chain(&self.bag_slots)
             .chain(&self.bin)
             .find_map(|item| item.find_within(id))
     }
