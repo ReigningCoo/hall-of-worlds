@@ -16,8 +16,12 @@ fn thing(ability: Ability) -> AbilityThing {
         passive: !ability.is_active(),
         usable: true,
         colour: Color::WHITE,
+        item: None,
     };
-    AbilityThing { ability, look }
+    AbilityThing {
+        thing: ability.into(),
+        look,
+    }
 }
 
 fn cells(app: &mut App) -> Vec<AbilityCell> {
@@ -42,7 +46,7 @@ fn a_list_draws_each_ability_as_its_own() {
     let drawn = cells(&mut app);
     assert_eq!(drawn.len(), 2);
     assert!(drawn.iter().all(|cell| cell.of == list));
-    assert!(drawn.iter().any(|cell| cell.ability == Ability::Heal));
+    assert!(drawn.iter().any(|cell| cell.thing == Ability::Heal.into()));
 }
 
 #[test]
@@ -66,7 +70,10 @@ fn a_slot_draws_its_ability_and_how_it_is_used() {
     app.update();
     let drawn = cells(&mut app);
     assert_eq!(drawn.len(), 1);
-    assert_eq!((drawn[0].of, drawn[0].ability), (slot, Ability::Attack));
+    assert_eq!(
+        (drawn[0].of, drawn[0].thing),
+        (slot, Ability::Attack.into())
+    );
     let found = parts(&mut app);
     assert!(found.contains(&SlotPart::On(slot)));
     assert!(found.contains(&SlotPart::Queued(slot)));

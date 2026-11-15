@@ -95,7 +95,7 @@ pub(super) fn show_objects(
             Drawn::Ability(thing) => {
                 let cell = AbilityCell {
                     of: entity,
-                    ability: thing.ability,
+                    thing: thing.thing,
                 };
                 let look = thing.look.clone();
                 object.with_children(|object| {

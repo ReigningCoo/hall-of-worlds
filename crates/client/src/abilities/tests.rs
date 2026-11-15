@@ -23,12 +23,14 @@ fn ids_are_plain_names() {
 }
 
 mod dropping {
-    use shared::ability::{Ability, BarChange};
+    use shared::ability::{Ability, BarChange, BarThing};
+    use shared::item::ItemKind;
 
     use super::super::drag::{From, drop_change};
     use super::super::spots::Spot;
 
-    const ATTACK: Ability = Ability::Attack;
+    const ATTACK: BarThing = BarThing::Ability(Ability::Attack);
+    const BREAD: BarThing = BarThing::Item(ItemKind::Bread);
 
     #[test]
     fn from_the_page_onto_a_slot_puts_it_there() {
@@ -36,7 +38,7 @@ mod dropping {
             drop_change(ATTACK, From::Page, Some(Spot::Slot(3))),
             Some(BarChange::Place {
                 slot: 3,
-                ability: ATTACK
+                ability: Ability::Attack
             })
         );
     }
@@ -64,5 +66,21 @@ mod dropping {
         assert_eq!(drop_change(ATTACK, From::Slot(2), None), None);
         assert_eq!(drop_change(ATTACK, From::Page, Some(Spot::Page)), None);
         assert_eq!(drop_change(ATTACK, From::Page, None), None);
+    }
+
+    #[test]
+    fn a_kind_of_item_comes_off_anywhere_on_the_character_panel() {
+        for spot in [Spot::Panel, Spot::Page] {
+            assert_eq!(
+                drop_change(BREAD, From::Slot(5), Some(spot)),
+                Some(BarChange::Clear { slot: 5 })
+            );
+        }
+        // An ability only on the Abilities page, as before.
+        assert_eq!(drop_change(ATTACK, From::Slot(5), Some(Spot::Panel)), None);
+        assert_eq!(
+            drop_change(BREAD, From::Slot(5), Some(Spot::Slot(1))),
+            Some(BarChange::Swap { a: 5, b: 1 })
+        );
     }
 }

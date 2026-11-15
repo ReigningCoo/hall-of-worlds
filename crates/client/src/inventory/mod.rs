@@ -34,7 +34,7 @@ mod wear_note;
 #[cfg(not(target_arch = "wasm32"))]
 use debug::run_debug;
 use finger::{item_cell_in_front, pick_up_by_finger};
-use hold_items::{aim_items, hold_items};
+use hold_items::{aim_items, eat_kind, hold_items};
 use holding::{Hand, HeldBy, Holding, cancel_held};
 pub use server::Stacks;
 use server::read_server;
@@ -60,6 +60,7 @@ impl Plugin for InventoryPlugin {
             .init_resource::<quest_drop::QuestDrop>()
             .add_message::<TookItem>()
             .add_message::<OpenCharacter>()
+            .add_message::<EatKind>()
             .add_message::<GaveItem>()
             .add_systems(
                 Startup,
@@ -125,6 +126,7 @@ impl Plugin for InventoryPlugin {
             panels::mark_grids.after(crate::dom::DrawObjects),
         );
         app.add_systems(Update, early_pictures::ask_early);
+        app.add_systems(Update, eat_kind.before(panels::show_grids));
         app.add_systems(
             Update,
             (quest_drop::answer_requester, quest_drop::show_requester).chain(),
@@ -141,6 +143,13 @@ impl Plugin for InventoryPlugin {
 /// Opens the Character panel, or brings it to the front.
 #[derive(Message, Clone, Copy, Debug)]
 pub struct OpenCharacter;
+
+/// Eat one of this kind (from the action bar): from the smallest carried
+/// stack in the own grid, else the smallest in a bag
+/// (`Inventory::stack_to_use`), as eating on the clothes panel does. Nothing
+/// if none is carried, or the player's kind won't eat it.
+#[derive(Message, Clone, Copy, Debug)]
+pub struct EatKind(pub shared::item::ItemKind);
 
 /// What the character carries, as last heard from the server plus any move
 /// since, which it answers.

@@ -5,7 +5,8 @@ Abilities, the named things a creature can do: active ones done when asked (and 
 ## Files
 
 - `crates/shared/src/ability.rs`: `Ability` (`ALL`, `name`, `description` (a line for its tip), `leans` (the attributes it leans on, which colour it: Attack and Kick Strength and Agility, Trample Strength and Toughness, Flutter Agility, Night Vision Perception, Heal Empathy as Healing), `mana_cost`, `use_kind`, `is_active` (active or a toggle: it goes on the bar), `is_toggle`, `can_use`), `Use::{Active, Passive, Toggle}`, `known(kind)`. Tests.
-- `crates/shared/src/ability/bar.rs`: `ActionBar`, `BarSlot`, `BarChange`, `BarRefusal`, `BAR_SLOTS`.
+- `crates/shared/src/ability/bar.rs`: `ActionBar`, `BarChange`, `BarRefusal`, `BAR_SLOTS`.
+- `crates/shared/src/ability/bar_slot.rs`: `BarThing`, `BarSlot` (with its two shapes: saves write `(ability: Attack, auto: false)` as before items, or `(item: Apple)`, by `is_human_readable`; messages carry it as it is), `usable_from_bar`.
 
 ## Public API
 
@@ -13,12 +14,13 @@ Abilities, the named things a creature can do: active ones done when asked (and 
 - `known(kind)`: Attack, Heal, Sneak, Kick for any kind with legs (`body::has_legs`, owner 2026-11-09), and the kind's own (`CreatureDef::abilities`), for the body it is in now, so shapeshifting changes them.
 - `Ability::can_be_automatic()`: whether a slot may be made automatic, done whenever it can be (owner, 2026-11-07): Attack and Heal so far; `BarChange::ToggleAuto` refuses the rest (`BarRefusal::NotAutomatic`), though turning one off always works.
 - `Ability::can_use(kind)`: active and known. The client greys out what fails it, and what costs more Mana (`mana_cost`) than there is.
-- `ActionBar { slots: [Option<BarSlot { ability, auto }>; 10], given }`: `Default` is a new character's (Heal in the first slot and Attack in the second, so healing comes first if both are automatic: Claude's suggestion, 2026-11-07; also for saves from before the bar); `apply(change, kind)`, `slot_of(ability)`, `catch_up` (a bar saved before an ability was added to new bars gets it once, in its first empty slot, counted by `given`; the server calls it on loading). Automatic slots take turns from the first: the first whose ability can be done is (owner, 2026-11-07).
-- `BarChange::{Place { slot, ability }, Clear { slot }, Swap { a, b }, ToggleAuto { slot }}`; `BarRefusal::{NoSlot, Passive, Unknown, Empty, NotAutomatic}`.
+- `BarThing::{Ability(Ability), Item(ItemKind)}` (`ability()`, `item()`, `can_be_automatic()`: abilities that may be, never items); `From` an `Ability` or an `ItemKind`. `usable_from_bar(kind)`: food (`bonus::is_food`) so far.
+- `ActionBar { slots: [Option<BarSlot { thing, auto }>; 10], given }` (`BarSlot::new(thing)`, `BarSlot::ability()`): `Default` is a new character's (Heal in the first slot and Attack in the second, so healing comes first if both are automatic: Claude's suggestion, 2026-11-07; also for saves from before the bar); `apply(change, kind)`, `slot_of(ability or item kind)`, `catch_up` (a bar saved before an ability was added to new bars gets it once, in its first empty slot, counted by `given`; the server calls it on loading). Automatic slots take turns from the first: the first whose ability can be done is (owner, 2026-11-07).
+- `BarChange::{Place { slot, ability }, Clear { slot }, Swap { a, b }, ToggleAuto { slot }, PlaceItem { slot, item }}`; `BarRefusal::{NoSlot, Passive, Unknown, Empty, NotAutomatic, NotUsable}`.
 
 ## Depends on
 
-- `creature` (`CreatureKind::def().abilities`).
+- `creature` (`CreatureKind::def().abilities`), `item` (`ItemKind`), `bonus` (`is_food`).
 
 ## Used by
 
@@ -27,4 +29,5 @@ Abilities, the named things a creature can do: active ones done when asked (and 
 ## Notes
 
 - Bar rules (owner): an ability is in at most one slot; placing it from the Abilities page onto a filled slot replaces what was there, and placing one already on the bar moves it with its `auto`; swapping keeps each slot's `auto` with its ability; taking one off (dropping it on the Abilities page) forgets its `auto`. Only active, known abilities can be placed. One no longer known (after shapeshifting) stays in its slot, shown as unusable.
+- Items on the bar (owner, 2026-11-15): a slot may hold a kind of item with something to do when used (food, eaten), placed whoever may eat it (Raw Meat, Dwarven Bread for anyone); one slot per kind, like abilities; never automatic. The slot stands for every one carried; which stack is used is `Inventory::stack_to_use`, and using it is the existing `ClientMessage::Consume`, so the server checks nothing new.
 - Which of the kinds' abilities are active was Claude's guess, agreed by the owner for now (Night Vision passive, the rest active); see `decisions.md`.

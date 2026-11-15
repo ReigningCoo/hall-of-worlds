@@ -11,8 +11,10 @@ use crate::creature::CreatureKind;
 use crate::sheet::Attribute;
 
 mod bar;
+mod bar_slot;
 
-pub use bar::{ActionBar, BAR_SLOTS, BarChange, BarRefusal, BarSlot};
+pub use bar::{ActionBar, BAR_SLOTS, BarChange, BarRefusal};
+pub use bar_slot::{BarSlot, BarThing, usable_from_bar};
 
 /// Something a creature can do.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]

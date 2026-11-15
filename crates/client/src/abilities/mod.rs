@@ -14,6 +14,7 @@ mod cancel;
 mod drag;
 mod held;
 mod icons;
+mod item_look;
 mod manual;
 mod mark;
 mod own_bar;

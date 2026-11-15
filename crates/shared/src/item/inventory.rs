@@ -3,6 +3,7 @@
 mod changes;
 mod coins;
 mod cost;
+mod kinds;
 mod lookup;
 mod parts;
 mod room;
