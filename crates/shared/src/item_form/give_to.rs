@@ -3,8 +3,10 @@
 
 use super::armour::Piece;
 use super::armour_ask::armour_form_to;
-use super::gem::{GemAsk, roll_gem};
+use super::gem::{GemAsk, GemForm, roll_gem};
 use super::give::set_blade;
+use super::necklace_ask::NecklaceAsk;
+use super::necklace_roll::roll_necklace;
 use super::request::{Field, Refused, RollRequest, keep_only};
 use super::ring_ask::RingAsk;
 use super::ring_roll::{roll_ring, roll_ring_size};
@@ -12,7 +14,7 @@ use super::{ItemForm, Limits};
 use crate::blade;
 use crate::creature::Size;
 use crate::id::Id;
-use crate::item::{Item, ItemKind, Made};
+use crate::item::{Item, ItemKind, Made, MadeAt, Quality};
 use crate::rng::Seed;
 
 /// Gives a new item its form, for kinds that have one, going by its quality and
@@ -52,21 +54,20 @@ pub fn give_form_to(
             ask.check(quality)?;
             let size = size.unwrap_or_else(|| roll_ring_size(&mut rng));
             let made_at = item.made_at;
-            let ring = roll_ring(
-                &mut rng,
-                quality,
-                size,
-                ask,
-                &mut |gem, gem_size, quality| {
-                    let mut stone = Item::new(new_id(), ItemKind::Gem);
-                    stone.made = Made::for_body(ItemKind::Gem, gem_size, None, false);
-                    stone.quality = Some(quality);
-                    stone.made_at = made_at;
-                    stone.form = Some(ItemForm::Gem(gem));
-                    stone
-                },
-            );
+            let mut new_gem =
+                |gem, gem_size, quality| set_gem(new_id(), gem, gem_size, quality, made_at);
+            let ring = roll_ring(&mut rng, quality, size, ask, &mut new_gem);
             (ItemForm::Ring(Box::new(ring)), size)
+        }
+        ItemKind::Necklace => {
+            let ask = NecklaceAsk::of(request);
+            ask.check(quality)?;
+            let size = size.unwrap_or(Size::Medium);
+            let made_at = item.made_at;
+            let mut new_gem =
+                |gem, gem_size, quality| set_gem(new_id(), gem, gem_size, quality, made_at);
+            let necklace = roll_necklace(&mut rng, quality, size, ask, &mut new_gem);
+            (ItemForm::Necklace(Box::new(necklace)), size)
         }
         kind => {
             let Some(family) = kind.blade_family() else {
@@ -98,4 +99,14 @@ pub fn give_form_to(
     item.made = Made::for_body(item.kind, size, item.made.fingers, item.made.magical);
     item.form = Some(form);
     Ok(())
+}
+
+/// A gem for a setting, as a whole item.
+fn set_gem(id: Id, gem: GemForm, size: Size, quality: Quality, made_at: Option<MadeAt>) -> Item {
+    let mut stone = Item::new(id, ItemKind::Gem);
+    stone.made = Made::for_body(ItemKind::Gem, size, None, false);
+    stone.quality = Some(quality);
+    stone.made_at = made_at;
+    stone.form = Some(ItemForm::Gem(gem));
+    stone
 }

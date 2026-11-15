@@ -167,6 +167,14 @@ fn each_finger_takes_one_ring() {
 }
 
 #[test]
+fn one_necklace_at_a_time_under_clothes() {
+    let mut inventory = carrying(&[ItemKind::Necklace, ItemKind::Necklace, ItemKind::Tunic]);
+    inventory.wear(id(1)).unwrap();
+    assert_eq!(inventory.check_wear(id(2)), Err(WearRefused::Clash(id(1))));
+    inventory.wear(id(3)).unwrap();
+}
+
+#[test]
 fn gloves_need_the_right_number_of_fingers_unless_magical() {
     let kobold = CreatureKind::Kobold;
     // Made for ten fingers, of any size that fits a kobold.

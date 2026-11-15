@@ -188,6 +188,7 @@ Update these **in the same PR** as the change:
 | Kinds of footwear, their names, shapes, materials or rough weights | `docs/footwear.md` |
 | Kinds of underclothes, their names, shapes, materials or rough weights | `docs/underclothing.md` |
 | Kinds of clothes (Middle layer), their names, shapes, materials or rough weights | `docs/clothing.md` |
+| Kinds of jewellery (rings, necklaces), their names, shapes, metals, gems or rough weights | `docs/jewellery.md` |
 
 Every page keeps to the checklist in `docs/context/wiki-style.md`.
 

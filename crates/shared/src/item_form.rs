@@ -34,6 +34,11 @@ mod give_to;
 mod limits;
 mod make;
 mod measure;
+mod necklace;
+mod necklace_ask;
+mod necklace_name;
+mod necklace_roll;
+mod necklace_weight;
 mod request;
 mod ring;
 mod ring_ask;
@@ -46,6 +51,10 @@ pub use give::{give_blade_within, give_commission, give_form, give_form_from};
 pub use give_to::give_form_to;
 pub use limits::Limits;
 pub use make::{ItemOrder, batch_seed, make_item, try_make_item};
+pub use necklace::{
+    Charm, CordStyle, Link, Medallion, NecklaceForm, NecklaceLength, Ornament, Strand, Thickness,
+    TorcEnd,
+};
 pub(crate) use request::keep_only;
 pub use request::{Field, Refused, RollRequest, fields};
 pub use ring::{BandWidth, Mount, Pattern, Profile, RingForm, Setting};
@@ -55,6 +64,8 @@ pub use ring::{BandWidth, Mount, Pattern, Profile, RingForm, Setting};
 pub enum ItemForm {
     Gem(GemForm),
     Ring(Box<RingForm>),
+    /// A cord, chain or torc, and anything hung from it.
+    Necklace(Box<NecklaceForm>),
     Blade(Box<BladeForm>),
     /// Gauntlets and other hand pieces.
     Hands(HandsForm),
@@ -92,6 +103,7 @@ impl ItemForm {
         match self {
             Self::Gem(gem) => format!("{} {}", gem.cut.name(), gem.material.name()),
             Self::Ring(ring) => ring.name(),
+            Self::Necklace(necklace) => necklace.name(),
             Self::Blade(blade) => blade.name().to_owned(),
             Self::Hands(hands) => hands.name().to_owned(),
             Self::Shoulders(shoulders) => shoulders.name().to_owned(),
@@ -114,6 +126,7 @@ impl ItemForm {
     pub fn gems(&self) -> impl Iterator<Item = &Item> {
         let settings = match self {
             Self::Ring(ring) => ring.settings.as_slice(),
+            Self::Necklace(necklace) => necklace.settings.as_slice(),
             Self::Gem(_)
             | Self::Blade(_)
             | Self::Hands(_)
@@ -137,6 +150,8 @@ impl ItemForm {
 
 #[cfg(test)]
 mod make_tests;
+#[cfg(test)]
+mod necklace_tests;
 #[cfg(test)]
 mod request_tests;
 #[cfg(test)]

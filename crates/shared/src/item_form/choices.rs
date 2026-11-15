@@ -5,6 +5,7 @@ use super::Cut;
 use super::armour::Piece;
 use super::armour_choices::armour_choices;
 use super::gem::GemAsk;
+use super::necklace_ask::{NecklaceAsk, SETTINGS as NECKLACE_SETTINGS, necklace_metals};
 use super::request::{Field, RollRequest, fields, keep_only};
 use super::ring_ask::RingAsk;
 use super::ring_roll::RING_METALS;
@@ -43,6 +44,7 @@ pub fn choices(kind: ItemKind, quality: Quality, request: &RollRequest) -> Choic
         _ if let Some(piece) = Piece::of(kind) => armour_choices(kind, piece, quality, request),
         ItemKind::Gem => gem_choices(quality, request),
         ItemKind::Ring => ring_choices(quality, request),
+        ItemKind::Necklace => necklace_choices(quality, request),
         _ if kind.blade_family().is_some() => Choices {
             materials: passing(Material::ALL, |metal| {
                 keep_only(&mut blade::blade_metals(quality), Some(metal))
@@ -106,6 +108,41 @@ fn ring_choices(quality: Quality, request: &RollRequest) -> Choices {
                 ..gem
             };
             ok(RingAsk { gem, ..ask })
+        }),
+        ..Choices::default()
+    }
+}
+
+fn necklace_choices(quality: Quality, request: &RollRequest) -> Choices {
+    let ask = NecklaceAsk::of(request);
+    let ok = |ask: NecklaceAsk| ask.check(quality).is_ok();
+    let gem = ask.gem;
+    Choices {
+        materials: passing(necklace_metals(), |metal| {
+            ok(NecklaceAsk {
+                metal: Some(metal),
+                ..ask
+            })
+        }),
+        settings: passing(NECKLACE_SETTINGS, |count| {
+            ok(NecklaceAsk {
+                settings: Some(count),
+                ..ask
+            })
+        }),
+        gem_materials: passing(Material::GEMS, |material| {
+            let gem = GemAsk {
+                material: Some(material),
+                ..gem
+            };
+            ok(NecklaceAsk { gem, ..ask })
+        }),
+        gem_cuts: passing(Cut::ALL, |cut| {
+            let gem = GemAsk {
+                cut: Some(cut),
+                ..gem
+            };
+            ok(NecklaceAsk { gem, ..ask })
         }),
         ..Choices::default()
     }

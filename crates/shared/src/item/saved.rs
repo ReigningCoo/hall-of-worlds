@@ -1,13 +1,14 @@
 //! Reading an `Item`: the same fields, then any counted kind's old stack (from
 //! before counted stacks, 2026-11-12: one item with an id for each coin) folded
-//! into its count. Works the same for messages, which never have such stacks.
+//! into its count, and a form for a necklace saved before necklaces had one. Works
+//! the same for messages, which never have such stacks or necklaces.
 
 use serde::Deserialize;
 
 use crate::id::Id;
 use crate::item::item::one;
 use crate::item::{Favour, Item, ItemKind, Known, Made, MadeAt, Placed, Quality};
-use crate::item_form::ItemForm;
+use crate::item_form::{ItemForm, RollRequest, give_form_to};
 use crate::quest::QuestId;
 
 /// An `Item` as written: see `Item` for each field.
@@ -64,6 +65,23 @@ impl From<Saved> for Item {
         } else {
             item.count = 1;
         }
+        if item.kind == ItemKind::Necklace && item.form.is_none() {
+            give_old_necklace_form(&mut item);
+        }
         item
     }
+}
+
+/// A form for a necklace saved before they had one (2026-11-15), rolled from its id
+/// as a new one would be, but without settings: gems are items, and only the
+/// server makes ids, so a stone can't be made while reading.
+fn give_old_necklace_form(item: &mut Item) {
+    let request = RollRequest {
+        settings: Some(0),
+        ..RollRequest::NONE
+    };
+    let size = Some(item.made.size);
+    let seed = item.id.seed();
+    let made = give_form_to(item, size, seed, &request, &mut || Id::NOBODY);
+    made.expect("a necklace without settings can always be made");
 }

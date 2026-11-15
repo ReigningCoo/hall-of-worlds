@@ -1,8 +1,36 @@
-//! Words for a ring's name: its gems counted and in the plural.
+//! Words for a ring's or necklace's name: its gems counted and in the plural.
 
-use super::ItemForm;
+use super::{ItemForm, Setting};
 use crate::item::Item;
 use crate::material::Material;
+
+/// `base`, then what is in the settings as they are now: "Gold Ring with a Ruby",
+/// "... with Two Rubies and an Empty Setting". Just `base` without settings.
+pub(super) fn with_stones(base: String, settings: &[Setting]) -> String {
+    let mut stones: Vec<(Material, usize)> = Vec::new();
+    let mut empty = 0;
+    for setting in settings {
+        match setting.gem.as_ref().and_then(gem_material) {
+            Some(stone) => match stones.iter_mut().find(|(other, _)| *other == stone) {
+                Some((_, count)) => *count += 1,
+                None => stones.push((stone, 1)),
+            },
+            None => empty += 1,
+        }
+    }
+    let mut parts: Vec<String> = stones
+        .into_iter()
+        .map(|(stone, count)| counted(count, stone.name(), plural(stone)))
+        .collect();
+    if empty > 0 {
+        parts.push(counted(empty, "Empty Setting", "Empty Settings".to_owned()));
+    }
+    match parts.split_last() {
+        None => base,
+        Some((only, [])) => format!("{base} with {only}"),
+        Some((last, others)) => format!("{base} with {} and {last}", others.join(", ")),
+    }
+}
 
 pub(super) fn gem_material(item: &Item) -> Option<Material> {
     match &item.form {

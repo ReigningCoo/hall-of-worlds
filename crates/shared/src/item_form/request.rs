@@ -19,18 +19,18 @@ pub struct RollRequest {
     pub style: Option<Style>,
     /// Armour: its construction (a set's is its torso's).
     pub construction: Option<Construction>,
-    /// Armour's or footwear's material (footwear's upper), a ring's metal or a blade's
-    /// blade metal.
+    /// Armour's or footwear's material (footwear's upper), a ring's or necklace's
+    /// metal or a blade's blade metal.
     pub material: Option<Material>,
     /// Armour's finish, for pieces that have one.
     pub finish: Option<Finish>,
     /// Armour's cloth, cover and lacing, or footwear's colour.
     pub dye: Option<Dye>,
-    /// A gem's material, or every stone's in a ring.
+    /// A gem's material, or every stone's in a ring or necklace.
     pub gem_material: Option<Material>,
-    /// A gem's cut, or every stone's in a ring (never uncut there).
+    /// A gem's cut, or every stone's in a ring or necklace (never uncut there).
     pub gem_cut: Option<Cut>,
-    /// How many settings a ring has.
+    /// How many settings a ring or necklace has.
     pub settings: Option<u8>,
     /// What a blade must keep to; it may then be another family's kind.
     pub limits: Option<Limits>,
@@ -126,7 +126,7 @@ pub fn fields(kind: ItemKind) -> &'static [Field] {
     }
     match kind {
         ItemKind::Gem => &[GemMaterial, GemCut],
-        ItemKind::Ring => &[Material, Settings, GemMaterial, GemCut],
+        ItemKind::Ring | ItemKind::Necklace => &[Material, Settings, GemMaterial, GemCut],
         // Their cloth is a material, and shoulders' finish is leather's own.
         ItemKind::Gauntlets
         | ItemKind::DemiGauntlets
