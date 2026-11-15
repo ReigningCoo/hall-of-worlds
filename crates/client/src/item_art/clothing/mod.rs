@@ -29,6 +29,7 @@ mod shape;
 mod shawl;
 mod skirt;
 mod skull;
+mod sleeve_out;
 mod sleeves;
 mod strips;
 mod trousers;

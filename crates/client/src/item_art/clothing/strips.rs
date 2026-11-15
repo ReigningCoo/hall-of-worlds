@@ -73,6 +73,20 @@ impl Wear<'_> {
 
     /// A flat strip `wide` across along points with their ways out.
     pub fn ribbon(&self, model: &mut Model, stuff: Stuff, path: &[(Vec3, Vec3)], wide: f32) {
+        self.ribbon_moved(model, stuff, path, wide, &|point| point, (2, 1));
+    }
+
+    /// The same, each point moved by `moved`, in `rows` per step of the path and
+    /// `columns` across.
+    pub fn ribbon_moved(
+        &self,
+        model: &mut Model,
+        stuff: Stuff,
+        path: &[(Vec3, Vec3)],
+        wide: f32,
+        moved: &dyn Fn(Vec3) -> Vec3,
+        (rows, columns): (usize, usize),
+    ) {
         if path.len() < 2 {
             return;
         }
@@ -88,10 +102,15 @@ impl Wear<'_> {
             let point = a.0.lerp(b.0, t);
             let out = a.1.lerp(b.1, t).normalize_or(Vec3::Z);
             let across = (b.0 - a.0).cross(out).normalize_or(Vec3::X);
-            (point + across * (u - 0.5) * wide, out)
+            (moved(point + across * (u - 0.5) * wide), out)
         };
-        let rows = (path.len() - 1) * 2;
-        plate(model.of(stuff), &grid(&surface, rows, 1), self.thick, false);
+        let rows = (path.len() - 1) * rows;
+        plate(
+            model.of(stuff),
+            &grid(&surface, rows, columns),
+            self.thick,
+            false,
+        );
     }
 
     /// Points along the trunk through these places, `lift` over cloth `ease` off it.

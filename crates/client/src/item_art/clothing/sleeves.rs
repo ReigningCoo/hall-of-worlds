@@ -7,6 +7,7 @@ use std::f32::consts::TAU;
 use bevy::prelude::*;
 use shared::body::Side;
 
+use super::drape::SHOULDER_ROUND;
 use super::shape::Wear;
 use crate::item_art::armour::arms::Arm;
 use crate::item_art::armour::surface::{grid, ring_grid};
@@ -15,6 +16,10 @@ use crate::item_art::body::blob;
 
 /// Points round an arm.
 const ROUND: usize = 24;
+/// Rows over the cap at the top of a sleeve, and how far up the shoulder's round it
+/// starts (of its radius): right over it, closed.
+const CAP_ROWS: usize = 8;
+const CAP_TOP: f32 = 1.0;
 
 impl Wear<'_> {
     pub(super) fn arm(&self, side: Side) -> Arm<'_> {
@@ -58,6 +63,52 @@ impl Wear<'_> {
                 arm.at(down, u * TAU, self.sleeve_ease(ease(down)))
             };
             let rows = (((to - from) / 35.0).ceil() as usize).max(2);
+            plate(
+                model.of(stuff),
+                &ring_grid(&surface, rows, ROUND),
+                self.thick,
+                true,
+            );
+        }
+    }
+
+    /// Both sleeves from the shoulder to `to` millimetres down the arm, `ease(down)`
+    /// off the skin. Each starts as a cap over the round of the shoulder, from inside
+    /// the trunk's cloth, so no skin shows between the sleeve and the body.
+    pub fn shoulder_sleeves(
+        &self,
+        model: &mut Model,
+        stuff: Stuff,
+        to: f32,
+        ease: &dyn Fn(f32) -> f32,
+    ) {
+        if !self.sleeved() {
+            return;
+        }
+        let ease = |down: f32| self.sleeve_ease(ease(down.max(0.0)));
+        let round = self.frame.upper_arm as f32 * SHOULDER_ROUND + ease(0.0);
+        let (from, cap_end) = (-round * CAP_TOP, round.min(to));
+        let rest = (((to - cap_end) / 35.0).ceil() as usize).max(1);
+        let rows = CAP_ROWS + rest;
+        let split = CAP_ROWS as f32 / rows as f32;
+        for side in Side::BOTH {
+            let arm = self.arm(side);
+            let joint = arm.centre(0.0);
+            let surface = |u: f32, v: f32| {
+                let down = if v < split {
+                    Self::between(from, cap_end, v / split)
+                } else {
+                    Self::between(cap_end, to, (v - split) / (1.0 - split))
+                };
+                let tube = arm.skin(down) + ease(down);
+                let cap = (round * round - down * down).max(0.0).sqrt();
+                if cap > tube {
+                    let (point, _) = arm.round(down, u * TAU, cap);
+                    (point, (point - joint).normalize_or_zero())
+                } else {
+                    arm.round(down, u * TAU, tube)
+                }
+            };
             plate(
                 model.of(stuff),
                 &ring_grid(&surface, rows, ROUND),

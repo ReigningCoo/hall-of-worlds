@@ -101,10 +101,10 @@ impl Wear<'_> {
         match bodice.sleeves {
             BodiceSleeves::None => {}
             BodiceSleeves::Short => {
-                self.sleeves(model, Stuff::Main, (-15.0, elbow * 0.4), &|_| FITTED)
+                self.shoulder_sleeves(model, Stuff::Main, elbow * 0.4, &|_| FITTED)
             }
             BodiceSleeves::LacedOn => {
-                self.sleeves(model, Stuff::Main, (-15.0, wrist - 10.0), &|_| FITTED);
+                self.shoulder_sleeves(model, Stuff::Main, wrist - 10.0, &|_| FITTED);
                 self.cuffs(model, Stuff::Shade, 0.0, 4.0, FITTED);
                 self.sleeve_ties(model, FITTED);
             }

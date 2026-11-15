@@ -95,21 +95,21 @@ impl Wear<'_> {
         let (elbow, wrist) = (self.elbow(), self.wrist());
         match sleeves {
             RobeSleeves::Narrow => {
-                self.sleeves(model, Stuff::Main, (-15.0, wrist - 10.0), &|_| LOOSE * 0.7);
+                self.shoulder_sleeves(model, Stuff::Main, wrist - 10.0, &|_| LOOSE * 0.7);
                 wrist - 10.0
             }
             RobeSleeves::Wide => {
                 let bell = move |down: f32| 14.0 + 60.0 * (down / wrist).powi(2);
-                self.sleeves(model, Stuff::Main, (-15.0, wrist), &bell);
+                self.shoulder_sleeves(model, Stuff::Main, wrist, &bell);
                 wrist
             }
             RobeSleeves::SquareHanging => {
-                self.sleeves(model, Stuff::Main, (-15.0, wrist - 30.0), &|_| 25.0);
+                self.shoulder_sleeves(model, Stuff::Main, wrist - 30.0, &|_| 25.0);
                 self.hanging(model, Stuff::Main, elbow - 80.0, 270.0, 210.0);
                 wrist - 30.0
             }
             RobeSleeves::LongHanging => {
-                self.sleeves(model, Stuff::Main, (-15.0, elbow), &|_| 20.0);
+                self.shoulder_sleeves(model, Stuff::Main, elbow, &|_| 20.0);
                 let long = (self.waist() - self.knee()).max(200.0) + 150.0;
                 self.hanging(model, Stuff::Main, 40.0, long, 70.0);
                 elbow

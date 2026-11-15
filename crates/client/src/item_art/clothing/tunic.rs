@@ -97,28 +97,28 @@ impl Wear<'_> {
         let plain = move |_: f32| fit;
         match tunic.sleeves {
             Sleeves::None | Sleeves::OneShoulder => return 0.0,
-            Sleeves::Short => self.sleeves(model, Stuff::Main, (-15.0, elbow * 0.45), &plain),
-            Sleeves::Elbow => self.sleeves(model, Stuff::Main, (-15.0, elbow + 15.0), &plain),
-            Sleeves::Wrist => self.sleeves(model, Stuff::Main, (-15.0, wrist - 10.0), &plain),
+            Sleeves::Short => self.shoulder_sleeves(model, Stuff::Main, elbow * 0.45, &plain),
+            Sleeves::Elbow => self.shoulder_sleeves(model, Stuff::Main, elbow + 15.0, &plain),
+            Sleeves::Wrist => self.shoulder_sleeves(model, Stuff::Main, wrist - 10.0, &plain),
             Sleeves::Wide => {
                 let end = elbow + 80.0;
                 let bell = move |down: f32| 12.0 + 45.0 * (down / end).powi(2);
-                self.sleeves(model, Stuff::Main, (-15.0, end), &bell);
+                self.shoulder_sleeves(model, Stuff::Main, end, &bell);
                 return end;
             }
             Sleeves::Hanging => {
-                self.sleeves(model, Stuff::Main, (-15.0, wrist - 10.0), &|_| FITTED);
+                self.shoulder_sleeves(model, Stuff::Main, wrist - 10.0, &|_| FITTED);
                 let long = (self.waist() - self.knee()).max(200.0);
                 self.hanging(model, Stuff::Main, elbow - 20.0, long, 110.0);
             }
             Sleeves::LacedOn => {
-                self.sleeves(model, Stuff::Main, (-15.0, wrist - 10.0), &|_| FITTED);
+                self.shoulder_sleeves(model, Stuff::Main, wrist - 10.0, &|_| FITTED);
                 self.cuffs(model, Stuff::Shade, 0.0, 4.0, FITTED);
                 self.sleeve_ties(model, FITTED);
             }
             Sleeves::Pinned => {
                 let end = elbow + 20.0;
-                self.sleeves(model, Stuff::Main, (-15.0, end), &|_| 22.0);
+                self.shoulder_sleeves(model, Stuff::Main, end, &|_| 22.0);
                 return end;
             }
         }

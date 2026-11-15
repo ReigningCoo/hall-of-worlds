@@ -190,7 +190,9 @@ impl Wear<'_> {
         } else {
             110.0
         };
-        self.ribbon(model, Stuff::Main, &path, wide);
+        let off = self.drape_off();
+        let clear = |point| self.clear_arms(point, off);
+        self.ribbon_moved(model, Stuff::Main, &path, wide, &clear, (4, 4));
         if hood.tail.long() {
             let (start, _) = self.on_head(-side, down + 0.05, OFF_HEAD + 30.0);
             let over = self.around().over_shoulder(
