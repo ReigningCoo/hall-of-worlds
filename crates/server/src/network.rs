@@ -18,7 +18,8 @@
 //! having trouble and to drop those that have gone silent.
 //!
 //! Every port also answers `/_healthz` and `/_version` (`health`), and the
-//! server's binary can ask the first itself (`--health`), for Docker.
+//! server's binary can ask the first itself (`--health`), for Docker. A
+//! standalone server also answers `/_stats` to those with its key (`stats`).
 
 use bevy::prelude::*;
 use shared::protocol::ServerLink;
@@ -41,6 +42,7 @@ mod online;
 mod ports;
 mod routes;
 mod socket;
+mod stats;
 mod stop;
 mod tls_listener;
 mod upnp;
@@ -51,11 +53,13 @@ pub use health::HEALTH_PATH;
 use health::{Heartbeat, track_heartbeat};
 pub use health_check::check_health;
 pub use online::OnlinePlugin;
-use ports::open_ports;
+use ports::{Extras, open_ports};
 #[cfg(test)]
 use routes::serve;
 use routes::{Stop, accept_connections};
 use socket::upgrade;
+use stats::Stats;
+pub use stats::StatsKey;
 use stop::{stop_signal, stop_when_asked};
 use tls_listener::TlsListener;
 pub use upnp_plugin::{UpnpChoice, UpnpPlugin};
@@ -97,6 +101,8 @@ pub struct NetworkPlugin {
     pub security: Security,
     /// Logging in through providers, whose page to come back to is served here.
     pub logins: Option<Logins>,
+    /// The key `/_stats` answers to; without one, it isn't served.
+    pub stats: Option<StatsKey>,
 }
 
 /// The secure port, and the certificate it uses.
@@ -134,6 +140,8 @@ struct Sockets {
     /// Logging in through providers (`oidc`), whose page players come back to
     /// is served with the game.
     logins: Option<Logins>,
+    /// The figures `/_stats` serves, if it is served (`stats`).
+    stats: Option<Stats>,
 }
 
 impl Plugin for NetworkPlugin {
@@ -141,6 +149,10 @@ impl Plugin for NetworkPlugin {
         let stop = StopAsked::default();
         let clock = app.world().resource::<ServerWorlds>().clock().clone();
         let heartbeat = track_heartbeat(app);
+        let stats = self.stats.clone().map(Stats::new);
+        if let Some(stats) = &stats {
+            stats.track(app);
+        }
         // Bound here, so a port in use stops the server straight away.
         let ports = open_ports(
             clock,
@@ -149,7 +161,10 @@ impl Plugin for NetworkPlugin {
             &self.security,
             self.web.clone(),
             Stop::Signal(stop.0.clone()),
-            self.logins.clone(),
+            Extras {
+                logins: self.logins.clone(),
+                stats,
+            },
         )
         .unwrap_or_else(|error| panic!("{error}"));
         app.insert_resource(NewConnections(Mutex::new(ports.accepted)))
@@ -168,6 +183,8 @@ impl Plugin for NetworkPlugin {
 
 #[cfg(test)]
 mod health_tests;
+#[cfg(test)]
+mod stats_tests;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]

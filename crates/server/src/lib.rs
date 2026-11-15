@@ -29,6 +29,7 @@ mod roads;
 mod roles;
 mod save_queue;
 mod saves;
+mod secret_code;
 mod sites;
 mod stack_limits;
 mod storage;
@@ -50,7 +51,9 @@ pub use embedded::{EmbeddedServer, start_embedded};
 pub use environment::{
     difficulties_from_environment, log_plugin, option_on, upnp_from_environment,
 };
-pub use network::{NetworkPlugin, OnlinePlugin, UpnpChoice, UpnpPlugin, WebClient, check_health};
+pub use network::{
+    NetworkPlugin, OnlinePlugin, StatsKey, UpnpChoice, UpnpPlugin, WebClient, check_health,
+};
 pub use oidc::Logins;
 pub use shared::protocol::CharacterId;
 pub use storage::{DATA_FOLDER_VARIABLE, default_data_folder};

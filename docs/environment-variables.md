@@ -59,6 +59,8 @@ Players can log in through a provider's website, such as Google, if you set one 
 | `HOW_LOGIN_URL` | `https://` and `HOW_LETS_ENCRYPT_DOMAIN`, if that is set | The address players reach the server at, such as `https://game.example.com`. Providers send players back to `/login/callback` there. Without it, providers can't be used. |
 | `HOW_LOGIN_SECRET` | made on the first run | What email addresses are made into keys with. Servers that share players must all have the same one. Without it, the server makes one the first time and keeps it in its data folder; once kept, a different one stops the server from starting, as it would lose every account. |
 | `HOW_LOGIN_SECRET_FILE` | none | A file holding the login secret instead, such as a Docker secret. If set, it is used in place of `HOW_LOGIN_SECRET`. If the file can't be read, the server doesn't start. |
+| `HOW_STATS_SECRET` | made on the first run | The key `/_stats` asks for (see [Hosting](hosting/#stats-for-a-dashboard)). Without it, the server makes one the first time and keeps it in its data folder, in `stats-key.txt`. |
+| `HOW_STATS_SECRET_FILE` | none | A file holding the stats key instead, such as a Docker secret. If set, it is used in place of `HOW_STATS_SECRET`. If the file can't be read, the server doesn't start. |
 
 A provider that is set up wrongly, or can't be reached when the server starts, is left out, with a warning in the log saying why.
 

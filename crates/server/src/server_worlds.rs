@@ -64,7 +64,7 @@ impl ServerWorlds {
         worlds._clock_saver = worlds.storage.saves().then(|| {
             let (storage, shared) = (worlds.storage.clone(), worlds.shared.clone());
             let lockdown = worlds.lockdown.clone();
-            Repeating::start(CLOCK_SAVE_EVERY, move || {
+            Repeating::start("clock saver", CLOCK_SAVE_EVERY, move || {
                 let lockdown = lockdown.load(Ordering::Relaxed);
                 save_server(&storage, &shared.clock, &shared.action_clock, lockdown);
             })

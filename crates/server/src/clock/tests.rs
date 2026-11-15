@@ -29,7 +29,7 @@ fn a_paused_clock_stands_still_and_carries_on_from_there() {
 fn it_repeats_and_runs_once_more_on_stopping() {
     let count = Arc::new(AtomicU32::new(0));
     let counted = count.clone();
-    let repeating = Repeating::start(Duration::from_millis(5), move || {
+    let repeating = Repeating::start("test", Duration::from_millis(5), move || {
         counted.fetch_add(1, Ordering::Relaxed);
     });
     thread::sleep(Duration::from_millis(50));

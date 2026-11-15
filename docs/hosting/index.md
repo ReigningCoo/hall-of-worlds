@@ -161,6 +161,45 @@ Every account has a role, which decides what it may do beyond playing. A role ca
 
 If the file can't be read, the server won't start, so nothing is lost. Each change the server makes keeps the previous file in `roles-backups/` (the last 10). Every role given, taken or run out is written to `audit.log`, and so is every use of a debug menu tool by anyone but a native client's own player, by account and character id (just looking, such as Examine Mob's details, is left out).
 
+## Stats for a dashboard
+
+A standalone server answers `/_stats` with how it is doing, as JSON, for a dashboard such as [Homepage](https://gethomepage.dev/widgets/services/customapi/):
+
+```json
+{"players":{"online":3,"total":41},"memory":{"bytes":412000000},"cpu":{"percent":2.5,"cores":8},"uptime_seconds":86400}
+```
+
+`online` is players in the game now, `total` every character on the server, `memory` and `cpu` the server's own (`percent` is a share of the whole machine), and `uptime_seconds` how long it has run.
+
+It needs a key, in an `X-API-Key` header, as `Authorization: Bearer <key>`, or as `?key=<key>`. Without the right key it answers 404, as if it weren't there. The server makes a key on its first run and keeps it in its data folder, in `stats-key.txt`; to choose your own, set `HOW_STATS_SECRET`, or give it as a Docker secret with `HOW_STATS_SECRET_FILE` (see the [Compose file](docker-compose.yml)). Prefer a header to `?key=`: proxies and servers often log the addresses asked for, key and all.
+
+A Homepage service with the customapi widget:
+
+```yaml
+- Hall of Worlds:
+    href: https://game.example.com/web/
+    widget:
+      type: customapi
+      url: http://hall-of-worlds:24690/_stats
+      headers:
+        X-API-Key: "{{HOMEPAGE_VAR_HOW_STATS_KEY}}"
+      mappings:
+        - field: { players: online }
+          label: Online
+          format: number
+        - field: { players: total }
+          label: Characters
+          format: number
+        - field: { memory: bytes }
+          label: Memory
+          format: bytes
+        - field: { cpu: percent }
+          label: CPU
+          format: percent
+```
+
+Every port answers it, the plain one too, so a dashboard on the same Docker network needs no certificate.
+
 ## Things to know
 
 - **Anyone who can reach the server can play as a guest,** unless `HOW_GUESTS` is `false` and a provider is set up. A guest gets their own character, tied to that browser or native client.

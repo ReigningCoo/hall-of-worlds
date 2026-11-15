@@ -51,6 +51,9 @@ hyper-rustls = { version = "0.27", default-features = false, features = ["http1"
 http-body-util = "0.1"
 url = "2"
 serde_json.workspace = true
+# The server process's own memory and CPU for `/_stats` (MIT), already
+# brought in by Bevy: only its process and system figures.
+sysinfo = { version = "0.39", default-features = false, features = ["system"] }
 # Headless: no rendering, windowing, audio or input.
 bevy = { workspace = true, features = ["std", "bevy_log", "multi_threaded"] }
 # Only with the `debug-api` feature.
