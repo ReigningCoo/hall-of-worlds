@@ -3,7 +3,9 @@
 ## Descriptions under an item's name, for kinds that have one:
 ## `about-` and the kind in kebab case.
 
+about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its inside adds to the end of your inventory.
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
+about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
 
 ## A bonus: the amount with its sign ("+40", "−8"), then what it changes.
 

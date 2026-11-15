@@ -10,6 +10,7 @@ use shared::item::{Inventory, Item, StackLimits};
 use shared::lang::{Args, Lang};
 use shared::wear::{Fit, WearRefused};
 
+use super::bag_slots::{explain_move, lift_refused};
 use super::hold::Target;
 use super::{Carried, Holding};
 use crate::common::{GROUND, GodMode, Wording, kinds_words};
@@ -101,6 +102,7 @@ pub(super) fn show_wear_note(
             let tried = try_wearing(&carried.0, (held.item.id, new), god.0, stacks.0);
             tried.err().map(|why| explain(why, &carried.0))
         });
+    let aiming = slot_refusal(&holding, &carried.0).or(aiming);
     let words = match aiming {
         Some(why) => why,
         None if time.elapsed_secs_f64() < note.until => note.words.clone(),
@@ -111,6 +113,20 @@ pub(super) fn show_wear_note(
             text.0 = words.clone();
         }
     }
+}
+
+/// Why what is held can't be tied to the bag slot it is over, or can't leave
+/// where it is for the bag slots' sake (a tied bag, or the belt).
+fn slot_refusal(holding: &Holding, carried: &Inventory) -> Option<String> {
+    let id = holding.held.filter(|_| holding.stock.is_none())?.item.id;
+    let why = match holding.aim? {
+        Target::BagSlot {
+            slot,
+            allowed: false,
+        } => carried.check_tie(id, slot).err(),
+        aim => lift_refused(carried, id, aim),
+    };
+    why.map(explain_move)
 }
 
 /// Why a creature of kind `eater` may not eat this (its top one), if it is

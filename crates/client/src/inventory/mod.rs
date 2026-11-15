@@ -1,6 +1,7 @@
 //! What the character carries: grids in moveable panels, and picking things up,
 //! holding them and putting them down. See `docs/context/client/inventory.md`.
 
+mod bag_slots;
 mod body;
 mod give;
 mod ground;
@@ -108,7 +109,12 @@ impl Plugin for InventoryPlugin {
                         (panels::show_grids, panels::show_weights),
                     )
                         .chain(),
-                    (body::bind_clothes, body::show_clothes).chain(),
+                    (
+                        body::bind_clothes,
+                        body::show_clothes,
+                        bag_slots::show_bag_slots,
+                    )
+                        .chain(),
                     (body::show_body_aim, wear_note::show_wear_note),
                     (give::show_nearby, give::bind_rows).chain(),
                     give::show_give_aim,

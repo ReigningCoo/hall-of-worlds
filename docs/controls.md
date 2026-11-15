@@ -91,6 +91,7 @@ A camera key moves the camera a little each time you press it, and keeps it movi
 | Put back an item you are holding | Esc, or drop it where it can't go | Drop it where it can't go |
 | See an item's name | Point at it | Tap it |
 | Open a bag | Double-click it | Double-tap it |
+| Tie a bag to your belt | Drag an empty pouch or bag onto a bag slot under Held. A belt has one slot, more the better it is. The bag's inside joins the end of your inventory, and it doesn't open by itself. To untie it, drag it off into a grid, once that many cells at the end of your inventory are empty | The same |
 | Put on or take off clothes | Drag them onto the clothes panel, or off it into a grid; whatever is in the way comes off into your inventory, and a red line says why if it can't. Things under other clothes take longer, the heavier what is over them | The same |
 | Eat something | Drag it onto the clothes panel: one is eaten (the top of a stack), carried or from the ground. An apple gives back Health for a while, until you move or are hurt | The same |
 | Give something to someone near | Drag it onto their name in the Nearby panel | The same |

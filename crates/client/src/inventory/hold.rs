@@ -27,6 +27,8 @@ pub(super) enum Target {
     Someone(Id),
     /// On the clothes panel: it would be put on, if it can be.
     Body { allowed: bool },
+    /// On one of the belt's bag slots: it would be tied there (`bag_slots`).
+    BagSlot { slot: u8, allowed: bool },
     /// In this grid with its top left cell here, which may be off the grid.
     Cells {
         holder: Holder,
@@ -177,6 +179,7 @@ pub(super) fn drop_move(
         | Target::Bin
         | Target::Drop { .. }
         | Target::Body { .. }
+        | Target::BagSlot { .. }
         | Target::Someone(_)
         | Target::Stack { .. }
         | Target::Cells { allowed: false, .. }

@@ -51,6 +51,21 @@ pub struct GridShown {
     pub aim: Option<GridAim>,
     /// All of it is somewhere to drop things to give them to this one.
     pub takes_gifts: Option<Id>,
+    /// Only this many cells, row by row, so the last row may be short (the own
+    /// grid with bags tied to the belt); all of them if `None`.
+    pub cells: Option<u32>,
+}
+
+impl GridShown {
+    /// Whether the grid has this cell: inside it, and not past a short last row.
+    pub fn has_cell(&self, x: i32, y: i32) -> bool {
+        let (columns, rows) = (self.columns as i32, self.rows as i32);
+        let inside = (0..columns).contains(&x) && (0..rows).contains(&y);
+        inside
+            && self
+                .cells
+                .is_none_or(|cells| ((y * columns + x) as u32) < cells)
+    }
 }
 
 /// On a grid, once drawn: the node of its cells, whose place on the screen
@@ -89,8 +104,8 @@ pub(super) fn draw_object_grids(
     for (grid, shown, drawn) in &changed {
         let same_box = drawn.is_some_and(|drawn| {
             let was = &drawn.shown;
-            (was.columns, was.rows, was.takes_gifts)
-                == (shown.columns, shown.rows, shown.takes_gifts)
+            (was.columns, was.rows, was.takes_gifts, was.cells)
+                == (shown.columns, shown.rows, shown.takes_gifts, shown.cells)
         });
         let (cells, things, aim) = match (drawn, same_box) {
             (Some(drawn), true) => (drawn.cells, drawn.things, drawn.aim),
@@ -128,7 +143,12 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
         ..default()
     };
     let gifts = shown.takes_gifts.map(TakesGifts);
-    let mut made = commands.spawn((node, BackgroundColor(GRID_COLOUR), ChildOf(grid)));
+    // A short last row: each cell has the grid's colour, the box none.
+    let (whole, each) = match shown.cells {
+        None => (GRID_COLOUR, Color::NONE),
+        Some(_) => (Color::NONE, GRID_COLOUR),
+    };
+    let mut made = commands.spawn((node, BackgroundColor(whole), ChildOf(grid)));
     if let Some(gifts) = gifts {
         made.insert(gifts);
     }
@@ -139,7 +159,11 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
     }
     for y in 0..shown.rows {
         for x in 0..shown.columns {
+            if !shown.has_cell(x as i32, y as i32) {
+                continue;
+            }
             let line = (at_cell(x as f32, y as f32), BorderColor::from(GRID_LINE));
+            let line = (line, BackgroundColor(each));
             let mut line = commands.spawn((line, ChildOf(made)));
             if let Some(gifts) = gifts {
                 line.insert(gifts);
@@ -177,10 +201,9 @@ fn draw_aim(commands: &mut Commands, layer: Entity, shown: &GridShown) {
         return;
     };
     let tint = if aim.allowed { ALLOWED } else { REFUSED };
-    let (columns, rows) = (shown.columns as i32, shown.rows as i32);
     commands.entity(layer).with_children(|layer| {
         for &(x, y) in &aim.cells {
-            if (0..columns).contains(&x) && (0..rows).contains(&y) {
+            if shown.has_cell(x, y) {
                 // Not solid: the grid under them is still what the pointer is on.
                 let cell = at_cell(x as f32, y as f32);
                 layer.spawn((cell, BackgroundColor(tint)));

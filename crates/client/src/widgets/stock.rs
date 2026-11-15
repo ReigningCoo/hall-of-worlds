@@ -136,6 +136,7 @@ impl StockGrid {
             things,
             aim: None,
             takes_gifts: Some(self.with),
+            cells: None,
         };
         commands.entity(holder).insert((StockOf(self.with), shown));
     }

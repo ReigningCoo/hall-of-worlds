@@ -51,6 +51,7 @@ pub(in crate::inventory) fn show_grids(
             things,
             aim: shown.aim.clone(),
             takes_gifts: None,
+            cells: short_rows(&carried.0, holder, columns, rows),
         };
         // (Only when it differs: the grid draws itself again when changed.)
         if *shown != now {
@@ -73,6 +74,16 @@ pub(in crate::inventory) fn show_weights(
     for (weight, mut text) in &mut weights {
         **text = grid_weight(&carried.0, weight.holder, limit.0);
     }
+}
+
+/// How many cells the own grid has when bags tied to the belt leave its last row
+/// short (`Inventory::grid_cells`); `None` for a full grid.
+fn short_rows(carried: &Inventory, holder: Holder, columns: u8, rows: u8) -> Option<u32> {
+    let cells = match holder {
+        Holder::Inventory => carried.grid_cells(),
+        Holder::Inside(_) => return None,
+    };
+    (cells < columns as u32 * rows as u32).then_some(cells)
 }
 
 /// A placed item, as a grid shows it.
