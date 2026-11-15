@@ -51,6 +51,7 @@ impl Plugin for InventoryPlugin {
         app.init_resource::<Carried>()
             .init_resource::<Stacks>()
             .init_resource::<Holding>()
+            .init_resource::<bag_slots::EmptyIcon>()
             .init_resource::<Split>()
             .init_resource::<OpenGrids>()
             .init_resource::<NearbyPanel>()

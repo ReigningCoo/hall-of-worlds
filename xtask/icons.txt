@@ -145,3 +145,5 @@ sbed/help
 # Timed effects (effect_bar/icons.rs)
 delapouite/eating
 lorc/poison-bottle
+# An empty bag slot on the belt (inventory/bag_slots.rs)
+lorc/swap-bag

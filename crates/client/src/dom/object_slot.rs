@@ -54,6 +54,9 @@ pub struct SlotShown {
     pub look: SlotLook,
     /// The picture of an empty slot saying what it is for.
     pub icon: Option<Handle<Image>>,
+    /// What the icon is drawn in: white (the default) leaves it as it is, and
+    /// a white game-icons.net icon takes this colour.
+    pub icon_tint: Color,
     pub thing: Option<SlotThing>,
     /// Something held is over it: green if it may go here, red if not.
     pub aim: Option<bool>,
@@ -88,7 +91,7 @@ pub(super) fn draw_object_slots(
         let mut entity = commands.entity(slot);
         entity.insert((frame, BackgroundColor(tint), BorderColor::from(GRID_LINE)));
         match &shown.icon {
-            Some(icon) => entity.insert(ImageNode::new(icon.clone())),
+            Some(icon) => entity.insert(ImageNode::new(icon.clone()).with_color(shown.icon_tint)),
             None => entity.remove::<ImageNode>(),
         };
         let same = drawn
