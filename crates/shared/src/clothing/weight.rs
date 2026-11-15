@@ -19,6 +19,13 @@ impl ClothingForm {
             Garment::Skirt(skirt) => skirt.base_grams(),
             Garment::Belt(belt) => belt.base_grams(),
             Garment::Gloves(gloves) => gloves.base_grams(),
+            Garment::Hood(hood) => hood.base_grams(),
+            Garment::Cap(cap) => cap.base_grams(),
+            Garment::Headcloth(cloth) => cloth.base_grams(),
+            Garment::Headdress(headdress) => headdress.base_grams(),
+            Garment::Neckwear(neckwear) => neckwear.base_grams(),
+            Garment::Shawl(shawl) => shawl.base_grams(),
+            Garment::Hat(hat) => hat.base_grams(),
         }
     }
 
@@ -49,13 +56,14 @@ impl ClothingForm {
         material * weave / 100
     }
 
-    /// Grams added whatever its cloth: fur linings, a belt's metal.
+    /// Grams added whatever its cloth: fur linings, a belt's metal, a headdress's pearls.
     fn extra(&self) -> u32 {
         match &self.garment {
             Garment::Robe(robe) => robe.fur_grams(),
             Garment::Vest(vest) => vest.fur_grams(),
             Garment::Gloves(gloves) => gloves.fur_grams(),
             Garment::Belt(belt) => belt.metal_grams(),
+            Garment::Headdress(headdress) => headdress.decoration_grams(),
             _ => 0,
         }
     }
@@ -74,7 +82,8 @@ impl ClothingForm {
 
     /// The cells it takes up at an ordinary size, wide and long: 2 × 2, or 2 × 3 for
     /// robes, tunics below the hip, trousers below the knee and long skirts; belts
-    /// 1 × 3 (sashes 2 × 1), gloves 1 × 2.
+    /// 1 × 3 (sashes 2 × 1), gloves 1 × 2; caps, headcloths and neckwear 1 × 1 (tall
+    /// caps 1 × 2, turbans 2 × 1), hats 2 × 1 (broad ones 2 × 2).
     pub fn shape(&self) -> Shape {
         let (width, height) = match &self.garment {
             Garment::Tunic(tunic) if tunic.length > Length::Hip => (2, 3),
@@ -84,6 +93,11 @@ impl ClothingForm {
             Garment::Belt(belt) if belt.cloth() => (2, 1),
             Garment::Belt(_) => (1, 3),
             Garment::Gloves(_) => (1, 2),
+            Garment::Cap(cap) if cap.tall() => (1, 2),
+            Garment::Headcloth(cloth) if cloth.wide() => (2, 1),
+            Garment::Cap(_) | Garment::Headcloth(_) | Garment::Neckwear(_) => (1, 1),
+            Garment::Hat(hat) if hat.broad() => (2, 2),
+            Garment::Hat(_) => (2, 1),
             _ => (2, 2),
         };
         Shape::rectangle(width, height)

@@ -1,4 +1,6 @@
-//! Linen coifs, undercaps, hairnets and nightcaps, on the head. The mail Coif is armour.
+//! Linen coifs, undercaps, hairnets, nightcaps and skullcaps, on the head. The mail Coif
+//! is armour. Skullcaps are here, on the Skin, so a turban, hood or hat goes over them
+//! (owner, 2026-11-15).
 
 use serde::{Deserialize, Serialize};
 
@@ -19,6 +21,12 @@ pub enum CoifForm {
     PointedNightcap,
     /// A cloth tied under the chin.
     TiedNightcap,
+    /// A close round cap on the crown.
+    Skullcap,
+    /// A short rounded cap, often white and worked open.
+    Taqiyah,
+    /// A brimless cap with straight sides, often bright.
+    Kufi,
 }
 
 impl CoifForm {
@@ -35,13 +43,16 @@ pub struct Coif {
     pub form: CoifForm,
 }
 
-const FORMS: [(CoifForm, u64); 6] = [
+const FORMS: [(CoifForm, u64); 9] = [
     (CoifForm::Coif, 40),
     (CoifForm::Undercap, 15),
     (CoifForm::Net, 15),
     (CoifForm::BrimmedNightcap, 8),
     (CoifForm::PointedNightcap, 10),
     (CoifForm::TiedNightcap, 12),
+    (CoifForm::Skullcap, 10),
+    (CoifForm::Taqiyah, 8),
+    (CoifForm::Kufi, 8),
 ];
 
 impl Coif {
@@ -62,6 +73,9 @@ impl Coif {
             CoifForm::Undercap => "Undercap",
             CoifForm::Net if gold => "Caul",
             CoifForm::Net => "Hairnet",
+            CoifForm::Skullcap => "Skullcap",
+            CoifForm::Taqiyah => "Taqiyah",
+            CoifForm::Kufi => "Kufi",
             _ => "Nightcap",
         }
     }
@@ -74,6 +88,8 @@ impl Coif {
             CoifForm::BrimmedNightcap => 70,
             CoifForm::PointedNightcap => 60,
             CoifForm::TiedNightcap => 40,
+            CoifForm::Skullcap | CoifForm::Taqiyah => 30,
+            CoifForm::Kufi => 45,
         }
     }
 }

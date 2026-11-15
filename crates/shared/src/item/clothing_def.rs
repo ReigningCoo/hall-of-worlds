@@ -2,16 +2,17 @@
 //! Their names, cells and weights are their forms' (`clothing`); these are for items
 //! made before forms. Long tunics and robes still only take the Torso and Arms: their
 //! length is a property, so trousers, a skirt and a belt go with any of them (owner,
-//! 2026-11-15). Skirts take the Legs, as trousers do, so the two clash.
+//! 2026-11-15). Skirts take the Legs, as trousers do, so the two clash. Hats are on the
+//! Outer layer, over hoods, caps and headcloths.
 
 use super::item_def::{plain, wear};
 use super::{ItemDef, ItemKind, Shape};
-use crate::creature::Layer::Middle;
-use crate::creature::Location::{Arms, Fingers, Hands, Legs, Torso, Waist};
+use crate::creature::Layer::{Middle, Outer};
+use crate::creature::Location::{Arms, Fingers, Hands, Head, Legs, Neck, Shoulders, Torso, Waist};
 
 impl ItemKind {
     /// The clothes with forms, in `clothing::ClothingPiece`'s order.
-    pub const ALL_CLOTHING: [Self; 9] = [
+    pub const ALL_CLOTHING: [Self; 16] = [
         Self::Tunic,
         Self::Robe,
         Self::Doublet,
@@ -21,6 +22,13 @@ impl ItemKind {
         Self::Skirt,
         Self::Belt,
         Self::Gloves,
+        Self::Hood,
+        Self::Cap,
+        Self::Headcloth,
+        Self::Headdress,
+        Self::Neckwear,
+        Self::Shawl,
+        Self::Hat,
     ];
 
     pub(super) const fn is_clothing(self) -> bool {
@@ -35,6 +43,13 @@ impl ItemKind {
                 | Self::Skirt
                 | Self::Belt
                 | Self::Gloves
+                | Self::Hood
+                | Self::Cap
+                | Self::Headcloth
+                | Self::Headdress
+                | Self::Neckwear
+                | Self::Shawl
+                | Self::Hat
         )
     }
 
@@ -68,6 +83,38 @@ impl ItemKind {
                 (1, 0),
                 false,
             )),
+            // A hood and a shawl go together: the hood's cape is a property (owner,
+            // 2026-11-15).
+            Self::Hood => {
+                plain("Hood", 400, square).worn(wear(Middle, &[Head, Neck], (1, 1), true))
+            }
+            Self::Cap => {
+                plain("Cap", 100, Shape::rectangle(1, 1)).worn(wear(Middle, &[Head], (1, 0), false))
+            }
+            // One on the head only leaves the Neck bare (its form's `bare`).
+            Self::Headcloth => plain("Headcloth", 100, Shape::rectangle(1, 1)).worn(wear(
+                Middle,
+                &[Head, Neck],
+                (2, 2),
+                true,
+            )),
+            Self::Headdress => {
+                plain("Headdress", 400, square).worn(wear(Middle, &[Head], (0, 0), false))
+            }
+            Self::Neckwear => plain("Neckwear", 80, Shape::rectangle(1, 1)).worn(wear(
+                Middle,
+                &[Neck],
+                (1, 1),
+                true,
+            )),
+            // One without a collar leaves the Neck bare, for a hood (its form's `bare`).
+            Self::Shawl => {
+                plain("Shawl", 300, square).worn(wear(Middle, &[Shoulders, Neck], (2, 2), true))
+            }
+            // Brimmed and stiff hats, over a hood, cap or veil (owner, 2026-11-15).
+            Self::Hat => {
+                plain("Hat", 150, Shape::rectangle(2, 1)).worn(wear(Outer, &[Head], (1, 0), false))
+            }
             _ => panic!("not clothing with a form"),
         }
     }

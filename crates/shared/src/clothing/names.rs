@@ -19,6 +19,13 @@ impl ClothingForm {
             Garment::Skirt(skirt) => skirt.name(self.material, self.pattern),
             Garment::Belt(belt) => belt.name(),
             Garment::Gloves(gloves) => gloves.name(),
+            Garment::Hood(hood) => hood.name(),
+            Garment::Cap(cap) => cap.name(),
+            Garment::Headcloth(cloth) => cloth.name(),
+            Garment::Headdress(headdress) => headdress.name(),
+            Garment::Neckwear(neckwear) => neckwear.name(),
+            Garment::Shawl(shawl) => shawl.name(self.material, self.pattern),
+            Garment::Hat(hat) => hat.name(),
         }
     }
 
@@ -44,13 +51,24 @@ impl ClothingForm {
         if let Some(weave) = self.weave.name() {
             return Some(weave);
         }
-        let usual = materials(&self.garment)
-            .first()
-            .is_some_and(|&(first, _)| first == self.material);
+        let usual = match &self.garment {
+            // Each make has its own material, but only felt hats and wool caps are usual.
+            Garment::Hat(_) => self.material == Material::Felt,
+            Garment::Cap(_) => self.material == Material::Wool,
+            _ => materials(&self.garment)
+                .first()
+                .is_some_and(|&(first, _)| first == self.material),
+        };
         let in_name = match &self.garment {
             Garment::Vest(vest) => vest.make == VestMake::Buff || self.specific_name() == "Jerkin",
             Garment::Trousers(trousers) => trousers.leather_shorts(self.material),
             Garment::Skirt(skirt) => skirt.named_for_material(),
+            Garment::Hat(hat) => hat.named_for_material(),
+            Garment::Cap(_) => matches!(
+                self.specific_name(),
+                "Ushanka" | "Papakha" | "Fez" | "Kalpak" | "Pileus"
+            ),
+            Garment::Shawl(_) => self.specific_name() == "Rebozo",
             _ => false,
         };
         let tartan = self.pattern == Pattern::Tartan && self.material == Material::Wool;

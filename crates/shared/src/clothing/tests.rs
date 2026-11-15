@@ -116,6 +116,55 @@ fn every_name_from_the_research_turns_up() {
         "Fingerless Gloves",
         "Gauntlet Gloves",
         "Nålbound Mittens",
+        "Hood",
+        "Chaperon",
+        "Gugel",
+        "Bashlyk",
+        "Cap",
+        "Phrygian Cap",
+        "Pileus",
+        "Beret",
+        "Tudor Bonnet",
+        "Monmouth Cap",
+        "Fez",
+        "Kalpak",
+        "Papakha",
+        "Ushanka",
+        "Chullo",
+        "Veil",
+        "Kerchief",
+        "Turban",
+        "Head Tie",
+        "Nemes",
+        "Headcloth",
+        "Mantilla",
+        "Litham",
+        "Hennin",
+        "Escoffion",
+        "French Hood",
+        "Gable Hood",
+        "Kokoshnik",
+        "Scarf",
+        "Neckerchief",
+        "Cravat",
+        "Ruff",
+        "Falling Band",
+        "Jabot",
+        "Shawl",
+        "Partlet",
+        "Fichu",
+        "Dupatta",
+        "Capelet",
+        "Tippet",
+        "Rebozo",
+        "Hat",
+        "Straw Hat",
+        "Petasos",
+        "Bycocket",
+        "Capotain",
+        "Cavalier Hat",
+        "Tricorne",
+        "Conical Hat",
     ] {
         assert!(names.contains(wanted), "{wanted} never rolled");
     }
@@ -186,6 +235,12 @@ fn sleeveless_tunics_and_bodices_leave_the_arms_bare() {
                 bare == [Location::Fingers],
                 gloves.fingers == Fingers::Fingerless
             ),
+            Garment::Headcloth(cloth) => {
+                assert_eq!(bare == [Location::Neck], cloth.reach == Reach::Head)
+            }
+            Garment::Shawl(shawl) => {
+                assert_eq!(bare == [Location::Neck], shawl.collar == ShawlCollar::None)
+            }
             _ => assert!(bare.is_empty()),
         }
     }
@@ -196,7 +251,7 @@ fn weights_and_cells_are_sensible() {
     for form in every(Quality::Rare) {
         let grams = form.grams();
         assert!(
-            (20..=4000).contains(&grams),
+            (15..=4000).contains(&grams),
             "{} weighs {grams}",
             form.name()
         );
@@ -205,6 +260,10 @@ fn weights_and_cells_are_sensible() {
         let expected = match form.piece() {
             ClothingPiece::Belt => [(1, 3), (2, 1)].contains(&(shape.width, shape.height)),
             ClothingPiece::Gloves => (shape.width, shape.height) == (1, 2),
+            ClothingPiece::Cap => shape.width == 1 && (1..=2).contains(&shape.height),
+            ClothingPiece::Headcloth => [(1, 1), (2, 1)].contains(&(shape.width, shape.height)),
+            ClothingPiece::Neckwear => (shape.width, shape.height) == (1, 1),
+            ClothingPiece::Hat => shape.width == 2 && (1..=2).contains(&shape.height),
             _ => shape.width == 2 && (2..=3).contains(&shape.height),
         };
         assert!(expected, "{} is {shape:?}", form.name());
@@ -278,3 +337,6 @@ fn old_clothes_without_forms_still_load_and_wear_as_before() {
             .any(|&(kind, _)| kind == ItemKind::FingerlessGloves)
     );
 }
+
+#[path = "head_tests.rs"]
+mod head_tests;
