@@ -1,6 +1,7 @@
 //! The clothes on the Character panel: a row for each place on the character's body and a column
-//! for each layer, then the Held column (`hands`). Items are dragged on to wear them
-//! and off to take them off, with the same holding as everything else.
+//! for each layer, then the Held column (`hands`, and the belt's bag slots, `bag_slots`). Items
+//! are dragged on to wear them and off to take them off, with the same holding as everything
+//! else.
 
 use bevy::prelude::*;
 use shared::creature::{BodyPart, CreatureKind, Layer, Location};
@@ -8,6 +9,7 @@ use shared::id::Id;
 use shared::item::{Inventory, Item};
 use shared::wear::{Fit, Remover};
 
+use super::bag_slots::{bag_slot, bag_slot_named};
 use super::hands::{held_now, in_hands};
 use super::hold::Target;
 use super::{Carried, Holding};
@@ -17,8 +19,10 @@ use crate::html;
 use crate::widgets::{ALLOWED, REFUSED, UiId};
 
 /// The clothes: the body's kind, a heading for each layer, a row for each place
-/// on the body (copied from the template) and the Held column. Each slot is a
-/// place for one that draws itself (`dom::SlotShown`), where the body has one.
+/// on the body (copied from the template), then the Held column: the hands side
+/// by side, and below them the belt's bag slots, two to a row (`bag_slots`), as
+/// many as the most a belt gives. Each slot is a place for one that draws itself
+/// (`dom::SlotShown`), where the body has one.
 static CLOTHES: Template = html!(
     "inventory.clothes",
     r#"
@@ -35,11 +39,30 @@ static CLOTHES: Template = html!(
       </span>
       <div id="parts" class="joined"/>
     </div>
-    <div id="hands" class="joined">
-      <small width="32">&#160;</small>
-      <small width="32">Held</small>
-      <object-slot id="hand0" accepts="item" width="32" height="32"/>
-      <object-slot id="hand1" accepts="item" width="32" height="32"/>
+    <div>
+      <div id="hands" class="joined">
+        <small width="64">&#160;</small>
+        <small width="64">Held</small>
+        <span class="joined">
+          <object-slot id="hand0" accepts="item" width="32" height="32"/>
+          <object-slot id="hand1" accepts="item" width="32" height="32"/>
+        </span>
+      </div>
+      <div id="bags" class="joined">
+        <small width="64">Bags</small>
+        <span id="bag_row0" class="joined">
+          <object-slot id="bag0" accepts="item" width="32" height="32"/>
+          <object-slot id="bag1" accepts="item" width="32" height="32"/>
+        </span>
+        <span id="bag_row1" class="joined">
+          <object-slot id="bag2" accepts="item" width="32" height="32"/>
+          <object-slot id="bag3" accepts="item" width="32" height="32"/>
+        </span>
+        <span id="bag_row2" class="joined">
+          <object-slot id="bag4" accepts="item" width="32" height="32"/>
+          <object-slot id="bag5" accepts="item" width="32" height="32"/>
+        </span>
+      </div>
     </div>
   </span>
   <template id="part">
@@ -108,6 +131,10 @@ pub(super) fn bind_clothes(
             ("body", _) => {
                 let marks = (BodyRows, BodyNode, BackgroundColor(Color::NONE));
                 commands.entity(entity).insert(marks);
+                continue;
+            }
+            (name, _) if let Some(slot) = bag_slot_named(name) => {
+                commands.entity(entity).with_child(bag_slot(slot));
                 continue;
             }
             ("hand0", _) => Some(ClothesSlot::Hand(0)),

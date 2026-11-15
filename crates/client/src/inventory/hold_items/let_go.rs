@@ -25,6 +25,9 @@ pub(super) fn let_go_of(
     (over_gifts, held_stock): (&HeldOverGifts, &mut ResMut<HeldStock>),
     out: &mut Outbox,
 ) {
+    if super::tie::let_go_on_slot(held, aim, holding, carried, out) {
+        return;
+    }
     let Outbox {
         to_server,
         gave,

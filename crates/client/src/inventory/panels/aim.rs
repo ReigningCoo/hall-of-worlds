@@ -47,6 +47,7 @@ fn aimed(
         | Target::Bin
         | Target::Drop { .. }
         | Target::Body { .. }
+        | Target::BagSlot { .. }
         | Target::Someone(_) => return None,
         Target::Cells {
             holder,

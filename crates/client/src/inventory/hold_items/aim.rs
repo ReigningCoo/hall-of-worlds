@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use shared::bonus::{is_food, may_eat};
 use shared::item::StackLimits;
 
+use super::super::bag_slots::tie_aim;
 use super::super::hold::{Held, Target};
 use super::super::wear_note::try_wearing;
 use super::super::{Carried, Holding};
@@ -42,13 +43,19 @@ pub(super) fn aim_at(
     let front = over.front.and_then(|front| {
         let up = std::iter::once(front).chain(parents.iter_ancestors(front));
         up.filter_map(|entity| marks.get(entity).ok()).find(
-            |(bin, drop, body, row, gifts, text)| {
-                *bin || *drop || *body || row.is_some() || gifts.is_some() || text.is_some()
+            |(bin, drop, body, row, gifts, text, slot)| {
+                *bin || *drop
+                    || *body
+                    || row.is_some()
+                    || gifts.is_some()
+                    || text.is_some()
+                    || slot.is_some()
             },
         )
     });
+    let on_slot = front.and_then(|marks| marks.6).map(|slot| slot.0);
     let (on_bin, on_drop, on_body, on_row, on_gifts, on_text) = front
-        .map(|(is_bin, is_drop, is_body, row, gifts, text)| {
+        .map(|(is_bin, is_drop, is_body, row, gifts, text, _)| {
             (
                 is_bin,
                 is_drop,
@@ -72,6 +79,17 @@ pub(super) fn aim_at(
     over_text.set_if_neq(HeldOverText(on_text));
     if on_text.is_some() {
         return Target::Nowhere;
+    }
+    if let Some(slot) = on_slot {
+        // Only a whole bag that is carried can be tied.
+        let whole = holding.stock.is_none() && holding.group.is_none();
+        if !whole || holding.counted.is_some() {
+            return Target::BagSlot {
+                slot,
+                allowed: false,
+            };
+        }
+        return tie_aim(&carried.0, held, slot);
     }
     if let Some((with, item)) = &holding.stock {
         let from_ground = *with == GROUND;

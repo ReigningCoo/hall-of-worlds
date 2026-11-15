@@ -1,5 +1,5 @@
-//! Taking this frame's presses on items: a double click on a bag opens it, and
-//! a press on anything else picks it up.
+//! Taking this frame's presses on items: a double click on a bag opens it (not
+//! one tied to the belt), and a press on anything else picks it up.
 
 use bevy::prelude::*;
 use shared::id::Id;
@@ -49,6 +49,7 @@ pub(super) fn take_presses(
             .find(id)
             .is_some_and(|item| item.kind.def().container.is_some())
         && !carried.0.in_bin(id)
+        && !carried.0.is_tied(id)
     {
         // A double click on a bag: the first lifted it, and it goes back.
         holding.put_back(object);
@@ -119,7 +120,9 @@ pub(super) fn take_presses(
             .0
             .find(cell.id)
             .is_some_and(|item| item.kind.def().container.is_some())
-            && !carried.0.in_bin(cell.id);
+            && !carried.0.in_bin(cell.id)
+            // A bag tied to the belt is part of the own grid (owner, 2026-11-15).
+            && !carried.0.is_tied(cell.id);
         if again && is_bag {
             open.open(Holder::Inside(cell.id), &carried.0, commands, dom);
             continue;

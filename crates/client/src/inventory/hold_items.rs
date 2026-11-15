@@ -7,6 +7,7 @@ mod aim;
 mod eat;
 mod let_go;
 mod press;
+mod tie;
 
 use aim::aim_at;
 use bevy::ecs::system::SystemParam;
@@ -16,6 +17,7 @@ use let_go::let_go_of;
 use press::take_presses;
 use shared::wear::{Fit, WearRefused};
 
+use super::bag_slots::BagSlotNode;
 use super::body::BodyNode;
 use super::give::GiveRow;
 use super::panels::{BinNode, DropNode, GridOwner, ItemCell, OpenGrids};
@@ -37,7 +39,7 @@ pub(super) fn worth_wearing(check: Result<Fit, WearRefused>) -> bool {
 }
 
 /// What the thing in front may be: a grid, or the bin, the ground, the body, people
-/// to give to and text to write an item into.
+/// to give to, text to write an item into and the belt's bag slots.
 #[derive(SystemParam)]
 #[allow(clippy::type_complexity)]
 pub(super) struct Under<'w, 's> {
@@ -52,6 +54,7 @@ pub(super) struct Under<'w, 's> {
             Option<&'static GiveRow>,
             Option<&'static TakesGifts>,
             Option<&'static TakesItemText>,
+            Option<&'static BagSlotNode>,
         ),
     >,
     parents: Query<'w, 's, &'static ChildOf>,

@@ -111,3 +111,21 @@ fn a_grid_taking_gifts_says_so_on_its_cells() {
     // The grid, its box of cells and both cells' lines.
     assert_eq!(takers.iter(app.world()).filter(|to| to.0 == who).count(), 4);
 }
+
+#[test]
+fn a_short_last_row_draws_only_the_cells_there_are() {
+    let mut app = app();
+    let shown = GridShown {
+        columns: 4,
+        rows: 2,
+        cells: Some(6),
+        ..default()
+    };
+    assert!(shown.has_cell(1, 1));
+    assert!(!shown.has_cell(2, 1));
+    assert!(!shown.has_cell(4, 0));
+    let grid = app.world_mut().spawn((Node::default(), shown)).id();
+    app.update();
+    let GridBox(cells) = *app.world().get::<GridBox>(grid).unwrap();
+    assert_eq!(children(&app, cells), 6 + 2);
+}

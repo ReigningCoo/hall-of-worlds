@@ -2,6 +2,7 @@
 //! See `docs/context/client/item_art.md`.
 
 mod armour;
+mod bag;
 mod blade;
 mod body;
 mod character;
