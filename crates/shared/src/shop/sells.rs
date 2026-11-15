@@ -9,9 +9,10 @@ use crate::site::BuildingKind;
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         Apple, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Braies, BreastBand,
-        Cloak, Clogs, Gauntlets, Gloves, Hat, Hose, Lantern, LinenCoif, Loincloth, Necklace,
-        PaddedChausses, PaddedGloves, Petticoat, Pouch, Ring, Sandals, Shirt, Shoes, Slippers,
-        SmallBox, Socks, Surcoat, Sword, Tabard, Trousers, Wimple,
+        Cap, Cloak, Clogs, Gauntlets, Gloves, Hat, Headcloth, Headdress, Hood, Hose, Lantern,
+        LinenCoif, Loincloth, Necklace, Neckwear, PaddedChausses, PaddedGloves, Petticoat, Pouch,
+        Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard,
+        Trousers, Wimple,
     };
     match kind {
         BuildingKind::Blacksmith => &[(Sword, 2), (Gauntlets, 2), (Lantern, 1)],
@@ -30,6 +31,12 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Wimple, 1),
             (Bag, 1),
             (Hat, 2),
+            (Hood, 2),
+            (Cap, 2),
+            (Headcloth, 2),
+            (Headdress, 1),
+            (Neckwear, 1),
+            (Shawl, 1),
             (Cloak, 1),
             // Some rolled fingerless or as mittens.
             (Gloves, 2),

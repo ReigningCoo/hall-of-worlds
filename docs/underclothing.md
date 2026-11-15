@@ -38,7 +38,7 @@ Braies, loincloths and petticoats hang from the waist, so they count as worn on 
 | Hose | Footed, with a strap under the foot, or footless; to the knee, the thigh or joined at the waist (sometimes with a codpiece); cut cloth, leather or knitted; tied to the braies belt, pointed to a doublet or gartered; plain, striped or with each leg a different colour; some have leather soles |
 | Socks | Sewn, nålbound, felt, a wrapped cloth or knitted; whole or split toes; to the ankle, calf or knee |
 | Petticoat | Knee, calf or ankle length; fitted, full or very full; plain, quilted or horsehair; on a drawstring, ties or wrapped |
-| Linen Coif | A coif tied under the chin, an undercap, a hairnet or caul, or a nightcap |
+| Linen Coif | A coif tied under the chin, an undercap, a hairnet or caul, a nightcap, or a skullcap |
 | Wimple | A wimple round the throat and chin, or a pleated barbe |
 
 ### Names
@@ -84,6 +84,7 @@ Braies, loincloths and petticoats hang from the waist, so they count as worn on 
 | Undercap | A close cap without ties |
 | Hairnet, Caul | A net over the hair; a caul is of gold thread |
 | Nightcap | A cap for the night: brimmed, pointed or tied under the chin |
+| Skullcap, Taqiyah, Kufi | Close caps on the crown, worn alone or under a turban, hood or hat: round, short and often white, or brimless with straight sides |
 | Wimple, Barbe | Linen round the throat and chin; a barbe is pleated |
 
 ## Materials

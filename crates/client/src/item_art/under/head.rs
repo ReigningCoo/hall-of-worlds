@@ -1,4 +1,4 @@
-//! Linen coifs, undercaps, hairnets and nightcaps over the head, and wimples round
+//! Linen coifs, undercaps, hairnets, nightcaps and skullcaps over the head, and wimples round
 //! the throat and chin. They stand clear of the hair, which is drawn under them.
 
 use std::f32::consts::TAU;
@@ -53,6 +53,13 @@ impl Cloth<'_> {
             CoifForm::TiedNightcap => {
                 self.head(model, Stuff::Main, (1.0, 0.25), OFF_HAIR, FACE * 0.5);
                 self.chin_ties(model);
+            }
+            // Close caps on the crown alone.
+            CoifForm::Skullcap => self.head(model, Stuff::Main, (1.0, 0.7), OFF_HAIR, 0.0),
+            CoifForm::Taqiyah => self.head(model, Stuff::Main, (1.0, 0.65), OFF_HAIR, 0.0),
+            CoifForm::Kufi => {
+                self.head(model, Stuff::Main, (1.0, 0.62), OFF_HAIR, 0.0);
+                self.head(model, Stuff::Shade, (0.66, 0.62), OFF_HAIR + 1.0, 0.0);
             }
         }
     }

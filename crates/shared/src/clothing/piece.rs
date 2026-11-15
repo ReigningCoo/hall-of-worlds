@@ -1,4 +1,4 @@
-//! `ClothingPiece`: the kinds of item that are Middle-layer clothes with forms.
+//! `ClothingPiece`: the kinds of item that are clothes with forms (hats on the Outer layer).
 
 use serde::{Deserialize, Serialize};
 
@@ -16,10 +16,18 @@ pub enum ClothingPiece {
     Skirt,
     Belt,
     Gloves,
+    Hood,
+    Cap,
+    Headcloth,
+    Headdress,
+    Neckwear,
+    Shawl,
+    /// Brimmed and stiff hats, on the Outer layer.
+    Hat,
 }
 
 impl ClothingPiece {
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 16] = [
         Self::Tunic,
         Self::Robe,
         Self::Doublet,
@@ -29,6 +37,13 @@ impl ClothingPiece {
         Self::Skirt,
         Self::Belt,
         Self::Gloves,
+        Self::Hood,
+        Self::Cap,
+        Self::Headcloth,
+        Self::Headdress,
+        Self::Neckwear,
+        Self::Shawl,
+        Self::Hat,
     ];
 
     /// The piece an item kind is, or `None` for other kinds.

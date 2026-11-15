@@ -135,12 +135,6 @@ impl ItemKind {
                     false,
                 )),
                 Self::Gem => plain("Gem", 5, square),
-                Self::Hat => plain("Hat", 150, Shape::rectangle(2, 1)).worn(wear(
-                    Outer,
-                    &[Head],
-                    (1, 0),
-                    false,
-                )),
                 Self::Helmet => plain("Helmet", 2000, Shape::rectangle(2, 2)).worn(wear(
                     Outer,
                     &[Head],
@@ -200,8 +194,9 @@ impl ItemKind {
                 // weight. Never padded: Waist's Middle is the belt's.
                 Self::WaistArmour => plain("Waist Armour", 2500, Shape::rectangle(2, 2))
                     .worn(wear(Outer, &[Waist], (0, 0), false)),
-                // Tunics, robes, doublets, bodices, vests, trousers, skirts, belts and
-                // gloves: in `clothing_def.rs`.
+                // Tunics, robes, doublets, bodices, vests, trousers, skirts, belts, gloves,
+                // hoods, caps, headcloths, headdresses, neckwear, shawls and hats: in
+                // `clothing_def.rs`.
                 _ if self.is_clothing() => self.clothing_def(),
                 // Underclothes, and the old T-shirt: in `under_def.rs`.
                 _ => self.under_def(),
@@ -211,7 +206,7 @@ impl ItemKind {
             Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat | Self::Stone => 10,
             _ if self.coin_value().is_some() => 10,
             Self::Ring | Self::Pouch | Self::Bag | Self::Belt | Self::Boomerang => 75,
-            Self::Hat | Self::Tabard => 50,
+            Self::Tabard => 50,
             _ if self.is_under() || self.is_clothing() => 50,
             Self::Gauntlets
             | Self::Helmet

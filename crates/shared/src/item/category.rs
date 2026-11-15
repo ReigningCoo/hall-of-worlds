@@ -119,7 +119,13 @@ impl ItemKind {
             | Self::Doublet
             | Self::Bodice
             | Self::Vest
-            | Self::Skirt => Clothing,
+            | Self::Skirt
+            | Self::Hood
+            | Self::Cap
+            | Self::Headcloth
+            | Self::Headdress
+            | Self::Neckwear
+            | Self::Shawl => Clothing,
             Self::Necklace | Self::Ring => Jewellery,
             Self::Backpack | Self::Bag | Self::BagOfHolding | Self::Pouch | Self::SmallBox => {
                 Containers

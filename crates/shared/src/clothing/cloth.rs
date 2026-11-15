@@ -71,6 +71,13 @@ pub(super) fn materials(garment: &Garment) -> Vec<(Material, u64)> {
         Garment::Skirt(skirt) => skirt.materials(),
         Garment::Belt(belt) => belt.materials(),
         Garment::Gloves(gloves) => gloves.materials(),
+        Garment::Hood(hood) => hood.materials(),
+        Garment::Cap(cap) => cap.materials(),
+        Garment::Headcloth(cloth) => cloth.materials(),
+        Garment::Headdress(headdress) => headdress.materials(),
+        Garment::Neckwear(neckwear) => neckwear.materials(),
+        Garment::Shawl(shawl) => shawl.materials(),
+        Garment::Hat(hat) => hat.materials(),
     }
 }
 
@@ -80,7 +87,7 @@ pub(super) fn weaves(garment: &Garment, material: Material) -> Vec<(Weave, u64)>
         Garment::Doublet(doublet) => !doublet.arming(),
         Garment::Robe(robe) => robe.lining != Lining::Padded || material == Silk,
         Garment::Belt(belt) => belt.cloth(),
-        Garment::Gloves(_) => false,
+        Garment::Gloves(_) | Garment::Headcloth(_) | Garment::Neckwear(_) => false,
         _ => true,
     };
     let silk = fine && material == Silk;
@@ -103,12 +110,23 @@ pub(super) fn patterns(garment: &Garment, material: Material, weave: Weave) -> V
             Garment::Robe(_) | Garment::Vest(_) | Garment::Trousers(_) => true,
             Garment::Skirt(skirt) => !skirt.named_for_material(),
             Garment::Belt(belt) => belt.form == super::BeltForm::Sash,
-            Garment::Doublet(_) | Garment::Bodice(_) | Garment::Gloves(_) => false,
+            Garment::Headcloth(cloth) => cloth.patterned(),
+            Garment::Neckwear(neckwear) => neckwear.patterned(),
+            Garment::Shawl(shawl) => shawl.patterned(),
+            Garment::Doublet(_)
+            | Garment::Bodice(_)
+            | Garment::Gloves(_)
+            | Garment::Hood(_)
+            | Garment::Cap(_)
+            | Garment::Headdress(_)
+            | Garment::Hat(_) => false,
         };
     let (tartan, checked) = match garment {
         Garment::Trousers(trousers) if trousers.fitted() => (10, 0),
         Garment::Skirt(skirt) if skirt.kilted() => (100, 0),
         Garment::Skirt(skirt) if skirt.make == super::SkirtMake::Tube => (0, 15),
+        // The square headcloth with a cord is often checked.
+        Garment::Headcloth(cloth) if cloth.form == super::HeadclothForm::Corded => (0, 30),
         _ => (0, 0),
     };
     vec![

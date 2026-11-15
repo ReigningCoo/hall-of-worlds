@@ -98,6 +98,9 @@ pub(super) fn materials(garment: &Garment) -> Vec<(Material, u64)> {
             CoifForm::PointedNightcap | CoifForm::TiedNightcap => {
                 vec![(Linen, 50), (Wool, 30), (Cotton, 20)]
             }
+            CoifForm::Skullcap => vec![(Silk, 40), (Linen, 30), (Wool, 15), (Cotton, 15)],
+            CoifForm::Taqiyah => vec![(Cotton, 80), (Linen, 20)],
+            CoifForm::Kufi => vec![(Cotton, 60), (Wool, 20), (Silk, 20)],
             _ => vec![(Linen, 80), (Silk, 10), (Cotton, 10)],
         },
         Garment::Wimple(_) => vec![(Linen, 85), (Silk, 15)],
@@ -156,7 +159,8 @@ pub(super) fn dyes(garment: &Garment, material: Material) -> Vec<(Dye, u64)> {
         _ => {}
     }
     match garment {
-        Garment::Hose(_) | Garment::Socks(_) | Garment::Petticoat(_) => vec![
+        // Skullcaps and kufis come in colours too.
+        _ if colourful(garment) => vec![
             (Natural, 25),
             (Red, 16),
             (Blue, 14),
@@ -193,4 +197,13 @@ pub(super) fn contrasts(dye: Dye) -> Vec<(Dye, u64)> {
     .into_iter()
     .filter(|&(second, _)| second != dye)
     .collect()
+}
+
+/// Whether it comes in many colours: hose, socks, petticoats, skullcaps and kufis.
+fn colourful(garment: &Garment) -> bool {
+    match garment {
+        Garment::Hose(_) | Garment::Socks(_) | Garment::Petticoat(_) => true,
+        Garment::Coif(coif) => matches!(coif.form, CoifForm::Skullcap | CoifForm::Kufi),
+        _ => false,
+    }
 }

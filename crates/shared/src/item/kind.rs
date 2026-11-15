@@ -104,13 +104,19 @@ pub enum ItemKind {
     Robe,
     Tunic,
     Vest,
-    // Trousers, Belt and Gloves (above) have forms too.
+    // Trousers, Belt, Gloves and Hat (above) have forms too.
     Skirt,
+    Hood,
+    Cap,
+    Headcloth,
+    Headdress,
+    Neckwear,
+    Shawl,
 }
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 88] = [
+    pub const ALL: [Self; 94] = [
         Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -131,6 +137,7 @@ impl ItemKind {
         Self::Braies,
         Self::Bread,
         Self::BreastBand,
+        Self::Cap,
         Self::Caparison,
         Self::Chausses,
         Self::Cloak,
@@ -155,7 +162,10 @@ impl ItemKind {
         Self::Gorget,
         Self::HalfArmour,
         Self::Hat,
+        Self::Headcloth,
+        Self::Headdress,
         Self::Helmet,
+        Self::Hood,
         Self::Hose,
         Self::Keepsake,
         Self::Key,
@@ -167,6 +177,7 @@ impl ItemKind {
         Self::Longsword,
         Self::Mantle,
         Self::Necklace,
+        Self::Neckwear,
         Self::PaddedChausses,
         Self::PaddedGloves,
         Self::Parcel,
@@ -178,6 +189,7 @@ impl ItemKind {
         Self::Ring,
         Self::Robe,
         Self::Sandals,
+        Self::Shawl,
         Self::Shirt,
         Self::Shoes,
         Self::ShortSword,

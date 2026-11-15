@@ -111,6 +111,9 @@ fn every_name_from_the_research_turns_up() {
         "Hairnet",
         "Caul",
         "Nightcap",
+        "Skullcap",
+        "Taqiyah",
+        "Kufi",
         "Wimple",
         "Barbe",
     ] {
