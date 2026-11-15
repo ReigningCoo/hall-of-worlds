@@ -18,9 +18,11 @@ pub(super) fn mark_abilities(
     mut commands: Commands,
 ) {
     for (entity, cell) in &cells {
-        if lists.contains(cell.of) {
-            let id = UiId::new("abilities", ability_id(cell.ability));
-            let marks = (id, PageAbility(cell.ability));
+        if lists.contains(cell.of)
+            && let Some(ability) = cell.thing.ability()
+        {
+            let id = UiId::new("abilities", ability_id(ability));
+            let marks = (id, PageAbility(ability));
             commands.entity(entity).try_insert(marks);
         }
     }

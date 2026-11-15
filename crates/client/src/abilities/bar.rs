@@ -1,17 +1,18 @@
 //! The action bar: ten slots, five either side of the Health and Mana circle, each
 //! with its key's short name over its bottom right. A slot whose ability is used
 //! by itself has a sliding metal edge, as set items do; one queued to be used
-//! has hazard stripes chasing round inside it.
+//! has hazard stripes chasing round inside it. A kind of item shows its picture
+//! and how many are carried, in bags too (owner, 2026-11-15).
 
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use shared::ability::{Ability, ActionBar, BAR_SLOTS};
+use shared::ability::{Ability, ActionBar, BAR_SLOTS, BarSlot, BarThing};
 use shared::creature::CreatureKind;
 
 use super::drag::Aim;
+use super::item_look::thing_look;
 use super::manual::Manual;
 use super::own_bar::OwnBar;
-use super::page::look;
 use super::vitals_now::affords;
 use crate::common::{Action, OwnVitals, Preferences, Sneaking, VitalsCircle, interface_area};
 use crate::dom::{AbilitySlotShown, AbilityThing};
@@ -95,6 +96,8 @@ pub(super) struct Shown {
     queued: Vec<Ability>,
     /// Sneak is on: its slot is edged.
     sneaking: bool,
+    /// How many are carried of each slot's kind of item (0 for the rest).
+    counts: Vec<u32>,
 }
 
 /// Says what each slot shows again when that changes.
@@ -123,6 +126,15 @@ pub(super) fn show_bar(
         low_mana: !affords(Ability::Heal, &vitals, time.elapsed_secs_f64()),
         queued: manual.queued.iter().copied().collect(),
         sneaking: sneaking.0,
+        counts: bar
+            .0
+            .slots
+            .iter()
+            .map(|held| {
+                let item = held.and_then(|held| held.thing.item());
+                item.map_or(0, |kind| carried.0.count_of(kind))
+            })
+            .collect(),
     };
     if shown.as_ref() == Some(&now) {
         return;
@@ -137,26 +149,36 @@ pub(super) fn show_bar(
     *shown = Some(now);
 }
 
-/// What one slot shows: its ability, its key, and how it is used.
+/// What one slot shows: its ability or kind of item, its key, and how it is
+/// used.
 fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
     let held = now.bar.slots[slot as usize];
     let (short, full) = &now.keys[slot as usize];
+    let count = now.counts[slot as usize];
     let thing = held.map(|held| {
-        let ability = held.ability;
-        let mut look = look(ability, now.kind, assets);
+        let mut look = thing_look(held.thing, count, now.kind, assets);
+        let (name, description) = match held.thing {
+            BarThing::Ability(ability) => (ability.name(), ability.description()),
+            BarThing::Item(kind) => (kind.def().name, ""),
+        };
         if !full.is_empty() {
             look.name = format!(
-                "{} ({full})
-{}",
-                ability.name(),
-                ability.description()
-            );
+                "{name} ({full})
+{description}"
+            )
+            .trim_end()
+            .to_string();
         }
         // Greyed while there isn't the Mana for it.
-        look.usable &= !now.low_mana || ability.mana_cost() == 0;
-        AbilityThing { ability, look }
+        let ability = held.ability();
+        look.usable &= !now.low_mana || ability.is_none_or(|ability| ability.mana_cost() == 0);
+        AbilityThing {
+            thing: held.thing,
+            look,
+        }
     });
-    let ability = held.map(|held| held.ability);
+    let ability = held.and_then(BarSlot::ability);
+    let item = held.and_then(|held| held.thing.item());
     AbilitySlotShown {
         thing,
         key: short.clone(),
@@ -164,11 +186,12 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
         // A toggle that is on.
         on: ability.is_some_and(|ability| ability.is_toggle()) && now.sneaking,
         queued: ability.is_some_and(|ability| now.queued.contains(&ability)),
-        // The wait to act again, over what is done when asked.
-        shade: ability.is_some_and(|ability| ability.is_active()),
+        // The wait to act again, over what is done when asked (eating too).
+        shade: item.is_some() || ability.is_some_and(|ability| ability.is_active()),
         aim: now
             .aim
             .filter(|(aimed, _)| *aimed == slot)
             .map(|(_, allowed)| allowed),
+        count: item.map(|_| count),
     }
 }

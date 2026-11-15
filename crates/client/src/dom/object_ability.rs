@@ -14,7 +14,7 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 
 use super::Solid;
-use shared::ability::Ability;
+use shared::ability::BarThing;
 pub(super) use slot::draw_ability_slots;
 
 use crate::widgets::{ABILITY, AbilityLook, spawn_ability};
@@ -22,10 +22,11 @@ use crate::widgets::{ABILITY, AbilityLook, spawn_ability};
 /// Between abilities in a list.
 const GAP: f32 = 6.0;
 
-/// An ability as a grid or a slot shows it, and as it is held.
+/// An ability as a grid or a slot shows it, and as it is held; or a kind of
+/// item, on the action bar.
 #[derive(Clone, Debug, PartialEq)]
 pub struct AbilityThing {
-    pub ability: Ability,
+    pub thing: BarThing,
     pub look: AbilityLook,
 }
 
@@ -72,15 +73,17 @@ pub struct AbilitySlotShown {
     pub shade: bool,
     /// Something held is over it: green if it may go here, red if not.
     pub aim: Option<bool>,
+    /// How many there are of a kind of item, over its top left.
+    pub count: Option<u32>,
 }
 
-/// On each ability drawn in a list or a slot: which list or slot, and which
-/// ability.
+/// On each ability (or kind of item) drawn in a list or a slot: which list or
+/// slot, and which.
 #[derive(Component, Clone, Copy, Debug)]
 #[require(Solid)]
 pub struct AbilityCell {
     pub of: Entity,
-    pub ability: Ability,
+    pub thing: BarThing,
 }
 
 /// On a part of a drawn slot its owner may want to find: the slot it is of.
@@ -115,7 +118,7 @@ pub(super) fn draw_ability_grids(
                 let frame = spawn_ability(list, thing.look.clone());
                 let cell = AbilityCell {
                     of: grid,
-                    ability: thing.ability,
+                    thing: thing.thing,
                 };
                 list.commands().entity(frame).insert(cell);
             }

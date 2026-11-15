@@ -82,9 +82,10 @@ fn an_object_shows_an_ability_once_someone_says_how_it_looks() {
         passive: false,
         usable: true,
         colour: Color::WHITE,
+        item: None,
     };
     let attack = AbilityThing {
-        ability: Ability::Attack,
+        thing: Ability::Attack.into(),
         look,
     };
     let mut known = app.world_mut().resource_mut::<KnownAbilities>();
@@ -93,5 +94,5 @@ fn an_object_shows_an_ability_once_someone_says_how_it_looks() {
     assert_eq!(children(&app, thing), 1);
     let mut cells = app.world_mut().query::<&AbilityCell>();
     let cell = cells.iter(app.world()).next().expect("drawn");
-    assert_eq!((cell.of, cell.ability), (thing, Ability::Attack));
+    assert_eq!((cell.of, cell.thing), (thing, Ability::Attack.into()));
 }

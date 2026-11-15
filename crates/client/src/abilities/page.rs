@@ -59,14 +59,20 @@ pub(super) fn name_abilities(
     *named_for = Some(kind);
     for ability in Ability::ALL {
         let look = look(ability, kind, &assets);
-        known.set(ability_id(ability), AbilityThing { ability, look });
+        known.set(
+            ability_id(ability),
+            AbilityThing {
+                thing: ability.into(),
+                look,
+            },
+        );
     }
 }
 
 /// The list of what this body knows, which draws itself (`dom`).
 fn spawn_contents(page: &mut ChildSpawnerCommands, kind: CreatureKind, assets: &AssetServer) {
     let things = known(kind).into_iter().map(|ability| AbilityThing {
-        ability,
+        thing: ability.into(),
         look: look(ability, kind, assets),
     });
     let shown = AbilityGridShown {
@@ -90,6 +96,7 @@ pub(super) fn look(ability: Ability, kind: CreatureKind, assets: &AssetServer) -
         // A passive ability is never done, so it is never shown as unusable.
         usable: !ability.is_active() || ability.can_use(kind),
         colour: attribute_colour(ability.leans(), Shade::of_ability(!ability.is_active())),
+        item: None,
     }
 }
 

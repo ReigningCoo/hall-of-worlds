@@ -1,5 +1,6 @@
 //! What is at a point of the interface, for abilities: a slot of the bar, an
-//! ability on the Abilities page, or elsewhere on that page.
+//! ability on the Abilities page, elsewhere on that page, or elsewhere on the
+//! Character panel.
 
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
@@ -9,6 +10,7 @@ use super::bar::SlotNode;
 use super::page::PageAbility;
 use crate::common::AbilitiesPage;
 use crate::dom::Finder;
+use crate::widgets::UiId;
 
 /// Where something can be picked up or dropped.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -19,6 +21,8 @@ pub(super) enum Spot {
     Listed(Ability),
     /// Anywhere else on the Abilities page.
     Page,
+    /// Anywhere else on the Character panel (its other pages and tabs).
+    Panel,
 }
 
 /// Finds the spot at a point: whatever is in front there (`dom`'s one
@@ -30,6 +34,7 @@ pub(super) struct Spots<'w, 's> {
     slots: Query<'w, 's, &'static SlotNode>,
     listed: Query<'w, 's, &'static PageAbility>,
     pages: Query<'w, 's, (), With<AbilitiesPage>>,
+    ids: Query<'w, 's, &'static UiId>,
 }
 
 impl Spots<'_, '_> {
@@ -49,6 +54,13 @@ impl Spots<'_, '_> {
                     Some(Spot::Listed(listed.0))
                 } else if self.pages.contains(entity) {
                     Some(Spot::Page)
+                } else if self
+                    .ids
+                    .get(entity)
+                    .is_ok_and(|id| id.parts() == ("inventory", "panel"))
+                {
+                    // The Character panel (`inventory`'s).
+                    Some(Spot::Panel)
                 } else {
                     None
                 }

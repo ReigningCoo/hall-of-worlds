@@ -117,8 +117,9 @@ pub(super) fn use_automatic(
     let automatic = bar.0.slots[..BAR_SLOTS]
         .iter()
         .flatten()
-        .filter(|slot| slot.auto && slot.ability.can_use(kind))
-        .map(|slot| slot.ability)
+        .filter(|slot| slot.auto)
+        .filter_map(|slot| slot.ability())
+        .filter(|ability| ability.can_use(kind))
         .filter(|ability| affords(*ability, &vitals, now));
     for ability in automatic {
         let at = match ability {

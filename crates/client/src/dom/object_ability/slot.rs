@@ -55,7 +55,7 @@ fn draw(inside: &mut ChildSpawnerCommands, slot: Entity, shown: &AbilitySlotShow
             let frame = spawn_ability(inside, thing.look.clone());
             let cell = AbilityCell {
                 of: slot,
-                ability: thing.ability,
+                thing: thing.thing,
             };
             inside.commands().entity(frame).insert(cell);
         }
@@ -100,6 +100,17 @@ fn draw(inside: &mut ChildSpawnerCommands, slot: Entity, shown: &AbilitySlotShow
     }
     if let Some(allowed) = shown.aim {
         inside.spawn(edge(if allowed { ALLOWED } else { REFUSED }));
+    }
+    if let Some(count) = shown.count {
+        let corner = Node {
+            position_type: PositionType::Absolute,
+            left: px(4.0),
+            top: px(1.0),
+            ..default()
+        };
+        inside.spawn(corner).with_children(|corner| {
+            spawn_outlined_text(corner, &count.to_string(), TextSize::Small);
+        });
     }
     if !shown.key.is_empty() {
         let corner = Node {

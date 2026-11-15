@@ -11,6 +11,7 @@ mod press;
 use aim::aim_at;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
+pub(super) use eat::eat_kind;
 use let_go::let_go_of;
 use press::take_presses;
 use shared::wear::{Fit, WearRefused};

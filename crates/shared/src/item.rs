@@ -66,6 +66,9 @@ mod add_tests;
 mod coin_tests;
 
 #[cfg(test)]
+mod kinds_tests;
+
+#[cfg(test)]
 mod look_up_tests;
 #[cfg(test)]
 mod quest_item_tests;

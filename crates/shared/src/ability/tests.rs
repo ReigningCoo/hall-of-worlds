@@ -10,7 +10,10 @@ fn kicker() -> CreatureKind {
 }
 
 fn slot(ability: Ability, auto: bool) -> Option<BarSlot> {
-    Some(BarSlot { ability, auto })
+    Some(BarSlot {
+        thing: ability.into(),
+        auto,
+    })
 }
 
 #[test]
