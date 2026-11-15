@@ -29,12 +29,12 @@ pub(super) const LOOSE: f32 = 18.0;
 pub(super) const FULL: f32 = 32.0;
 /// Worn, the least it stands off the skin, outside the underclothes (2.5 mm on the
 /// body, 12 mm hanging below the hips), and the most under armour (its 15 mm).
-const OVER: f32 = 5.0;
-const OVER_HANGING: f32 = 14.0;
-const UNDER_ARMOUR: f32 = 12.0;
+pub(super) const OVER: f32 = 5.0;
+pub(super) const OVER_HANGING: f32 = 14.0;
+pub(super) const UNDER_ARMOUR: f32 = 12.0;
 /// How much further out cloth may hang under armour for each millimetre below the
 /// crotch, as waist and leg armour stand further out down the legs.
-const UNDER_ARMOUR_FLARE: f32 = 0.15;
+pub(super) const UNDER_ARMOUR_FLARE: f32 = 0.15;
 /// The lowest a hem falls: just off the ground.
 const FLOOR: f32 = 15.0;
 
@@ -123,6 +123,7 @@ impl Wear<'_> {
         let Some(wearer) = self.wearer() else {
             return ease;
         };
+        let ease = self.cinched(ease, height);
         let crotch = self.crotch();
         let (least, most) = if height < crotch {
             let most = match wearer.covered.skirt {

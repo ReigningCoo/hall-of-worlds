@@ -273,7 +273,8 @@ pub fn look_of(item: &Item) -> Option<Look> {
         ItemForm::Clothing(form) if super::clothing::drawn(form.piece()) => {
             let shape = item.shape();
             Some(Look::Clothing {
-                clothing: super::ClothingLook::new(*form, (shape.width, shape.height)),
+                clothing: super::ClothingLook::new(*form, (shape.width, shape.height))
+                    .with_digits(shared::armour::hands::Hand::digits(item.made.fingers)),
                 quality,
             })
         }

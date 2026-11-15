@@ -18,12 +18,17 @@ pub struct WornLook {
 
 impl ItemForm {
     /// Whether a character's picture draws it: armour, footwear, underclothes,
-    /// necklaces and clothes on the torso, built in place on the body. Other clothes
-    /// and rings aren't drawn yet.
+    /// necklaces and clothes on the torso, legs, waist and hands, built in place on the
+    /// body. Clothes for the head and neck, and rings, aren't drawn yet.
     pub fn drawn_worn(&self) -> bool {
         if let Self::Clothing(form) = self {
-            use crate::clothing::ClothingPiece::{Bodice, Doublet, Robe, Tunic, Vest};
-            return matches!(form.piece(), Tunic | Robe | Doublet | Bodice | Vest);
+            use crate::clothing::ClothingPiece::{
+                Belt, Bodice, Doublet, Gloves, Robe, Skirt, Trousers, Tunic, Vest,
+            };
+            return matches!(
+                form.piece(),
+                Tunic | Robe | Doublet | Bodice | Vest | Trousers | Skirt | Belt | Gloves
+            );
         }
         matches!(
             self,

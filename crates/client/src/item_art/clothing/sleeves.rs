@@ -17,7 +17,7 @@ use crate::item_art::body::blob;
 const ROUND: usize = 24;
 
 impl Wear<'_> {
-    fn arm(&self, side: Side) -> Arm<'_> {
+    pub(super) fn arm(&self, side: Side) -> Arm<'_> {
         Arm {
             frame: self.frame,
             side,

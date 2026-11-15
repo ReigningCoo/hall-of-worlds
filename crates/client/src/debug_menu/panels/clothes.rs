@@ -1,5 +1,7 @@
 //! Item Pictures' Clothes page: rolled pieces of each kind drawn so far, two rows of
-//! tunics and robes; then each playable people wearing one of each kind.
+//! tunics, robes, skirts and belts; then each playable people wearing one of each
+//! kind, and two rows of outfits (tunic, trousers, belt and gloves; bodice, skirt
+//! and belt).
 
 use bevy::prelude::*;
 use shared::clothing::{self, ClothingPiece};
@@ -20,7 +22,19 @@ pub(super) struct ClothesShown {
     piece: ClothingPiece,
     nth: u64,
     worn_by: Option<CreatureKind>,
+    /// Worn with these too, rolled from the same seed.
+    with: &'static [ClothingPiece],
 }
+
+/// Outfits shown worn together: with a tunic, and with a bodice.
+const OUTFITS: [&[ClothingPiece]; 2] = [
+    &[
+        ClothingPiece::Trousers,
+        ClothingPiece::Belt,
+        ClothingPiece::Gloves,
+    ],
+    &[ClothingPiece::Skirt, ClothingPiece::Belt],
+];
 
 impl ClothesShown {
     pub(super) fn look(self, quality: Quality) -> Option<Look> {
@@ -32,16 +46,25 @@ impl ClothesShown {
                 quality: Some(quality),
             });
         };
-        let worn = WornLook {
+        let wear = |form| WornLook {
             form: ItemForm::Clothing(form),
             quality: Some(quality),
             fingers: None,
         };
-        character_look(kind, &Appearance::default(), &[worn])
+        let others = self.with.iter().map(|&piece| {
+            wear(clothing::roll(
+                &mut Seed::new(self.nth).rng(),
+                piece,
+                quality,
+            ))
+        });
+        let worn: Vec<WornLook> = std::iter::once(wear(form)).chain(others).collect();
+        character_look(kind, &Appearance::default(), &worn)
     }
 }
 
-/// A row for each kind, two for tunics and robes, then a row of each kind worn.
+/// A row for each kind, two for tunics, robes, skirts and belts, then a row of each
+/// kind worn.
 pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
     let rows = [
         ("Tunics", ClothingPiece::Tunic, 0),
@@ -51,6 +74,12 @@ pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
         ("Doublets", ClothingPiece::Doublet, 0),
         ("Bodices", ClothingPiece::Bodice, 0),
         ("Vests", ClothingPiece::Vest, 0),
+        ("Trousers", ClothingPiece::Trousers, 0),
+        ("Skirts", ClothingPiece::Skirt, 0),
+        ("", ClothingPiece::Skirt, 1),
+        ("Belts", ClothingPiece::Belt, 0),
+        ("", ClothingPiece::Belt, 1),
+        ("Gloves", ClothingPiece::Gloves, 0),
     ];
     let columns = RING_COLUMNS as u64;
     for (label, piece, page) in rows {
@@ -59,6 +88,7 @@ pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
                 piece,
                 nth: page * columns + cell,
                 worn_by: None,
+                with: &[],
             })
         });
         spawn_row(grid, label, pictures);
@@ -67,13 +97,20 @@ pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
         .into_iter()
         .filter(|kind| kind.def().playable)
         .collect();
-    for (label, piece) in [
-        ("Tunics worn", ClothingPiece::Tunic),
-        ("Robes worn", ClothingPiece::Robe),
-        ("Doublets worn", ClothingPiece::Doublet),
-        ("Bodices worn", ClothingPiece::Bodice),
-        ("Vests worn", ClothingPiece::Vest),
-    ] {
+    let rows = [
+        ("Tunics worn", ClothingPiece::Tunic, &[][..]),
+        ("Robes worn", ClothingPiece::Robe, &[][..]),
+        ("Doublets worn", ClothingPiece::Doublet, &[][..]),
+        ("Bodices worn", ClothingPiece::Bodice, &[][..]),
+        ("Vests worn", ClothingPiece::Vest, &[][..]),
+        ("Trousers worn", ClothingPiece::Trousers, &[][..]),
+        ("Skirts worn", ClothingPiece::Skirt, &[][..]),
+        ("Belts worn", ClothingPiece::Belt, &[][..]),
+        ("Gloves worn", ClothingPiece::Gloves, &[][..]),
+        ("Outfits worn", ClothingPiece::Tunic, OUTFITS[0]),
+        ("", ClothingPiece::Bodice, OUTFITS[1]),
+    ];
+    for (label, piece, with) in rows {
         let pictures = peoples
             .clone()
             .into_iter()
@@ -83,6 +120,7 @@ pub(super) fn spawn_clothes_rows(grid: &mut ChildSpawnerCommands) {
                     piece,
                     nth: nth as u64,
                     worn_by: Some(kind),
+                    with,
                 })
             });
         spawn_row(grid, label, pictures);
