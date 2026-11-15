@@ -8,6 +8,7 @@
 
 mod bag_def;
 mod category;
+mod clothing_def;
 mod coin;
 mod def;
 mod drop;

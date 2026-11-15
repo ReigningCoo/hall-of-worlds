@@ -48,6 +48,7 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         ItemForm::Neck(form) => form.material,
         ItemForm::Footwear(form) => form.upper,
         ItemForm::Under(form) => form.material,
+        ItemForm::Clothing(form) => form.material,
         ItemForm::Set(form) => form.material(),
         ItemForm::Ring(ring) => ring.metal,
         ItemForm::Blade(blade) => blade.blade_metal,

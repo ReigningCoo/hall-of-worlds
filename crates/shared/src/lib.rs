@@ -13,6 +13,7 @@ pub mod bonus;
 pub mod celestial;
 pub mod clearance;
 pub mod climate;
+pub mod clothing;
 pub mod combat;
 pub mod creature;
 pub mod difficulty;

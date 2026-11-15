@@ -12,7 +12,7 @@ pub enum Category {
     /// Hides: soft, hardened (cuir bouilli) or thick buff.
     Leather,
     Metal,
-    /// Plant stuff other than timber: rattan, cork.
+    /// Plant stuff other than timber: rattan, cork, straw, grass.
     Plant,
     /// Cloth and the fibres it is woven from: linen, hemp and ramie from plants,
     /// wool and haircloth (goat or horse hair) from animals, silk, cotton, felt.
@@ -43,6 +43,8 @@ pub enum Material {
     Fur,
     Garnet,
     Gold,
+    /// Grass and leaves, hung from a band (the grass skirt).
+    Grass,
     Haircloth,
     HardenedLeather,
     Hemp,
@@ -70,7 +72,7 @@ pub enum Material {
 
 impl Material {
     /// Every material, alphabetically by name.
-    pub const ALL: [Self; 43] = [
+    pub const ALL: [Self; 44] = [
         Self::Adamantine,
         Self::Amethyst,
         Self::Aquamarine,
@@ -91,6 +93,7 @@ impl Material {
         Self::Fur,
         Self::Garnet,
         Self::Gold,
+        Self::Grass,
         Self::Haircloth,
         Self::HardenedLeather,
         Self::Hemp,
@@ -153,6 +156,7 @@ impl Material {
             Self::Fur => "Fur",
             Self::Garnet => "Garnet",
             Self::Gold => "Gold",
+            Self::Grass => "Grass",
             Self::Haircloth => "Haircloth",
             Self::HardenedLeather => "Hardened Leather",
             Self::Hemp => "Hemp",
@@ -197,7 +201,7 @@ impl Material {
             | Self::Mithril
             | Self::Silver
             | Self::Steel => Category::Metal,
-            Self::Coir | Self::Cork | Self::Rattan | Self::Straw => Category::Plant,
+            Self::Coir | Self::Cork | Self::Grass | Self::Rattan | Self::Straw => Category::Plant,
             Self::Cotton
             | Self::Felt
             | Self::Haircloth

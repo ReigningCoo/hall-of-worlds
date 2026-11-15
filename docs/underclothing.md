@@ -5,7 +5,7 @@ nav_order: 4.7
 
 # Underclothing
 
-Underclothes are what you wear next to the skin: shirts and chemises, braies, breast bands, loincloths, hose, socks, petticoats, linen coifs and wimples. They all go on the Skin layer, under your clothes, [armour](armour/) and [footwear](footwear), so they are mostly hidden. They are what people wore in the Middle Ages and before, with the same pieces from other parts of the world. Tailors sell them.
+Underclothes are what you wear next to the skin: shirts and chemises, braies, breast bands, loincloths, hose, socks, petticoats, linen coifs and wimples. They all go on the Skin layer, under your [clothes](clothing), [armour](armour/) and [footwear](footwear), so they are mostly hidden. They are what people wore in the Middle Ages and before, with the same pieces from other parts of the world. Tailors sell them.
 
 On Hard, underclothes stay on you when you die, while everything else you wear is dropped.
 

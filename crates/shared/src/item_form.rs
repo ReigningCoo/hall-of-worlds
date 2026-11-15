@@ -18,6 +18,7 @@ use crate::armour::shoulders::ShouldersForm;
 use crate::armour::torso::TorsoForm;
 use crate::armour::waist::WaistForm;
 use crate::blade::BladeForm;
+use crate::clothing::ClothingForm;
 use crate::footwear::FootwearForm;
 use crate::item::Item;
 use crate::underclothes::UnderForm;
@@ -77,6 +78,8 @@ pub enum ItemForm {
     Footwear(FootwearForm),
     /// Underclothes: a shirt, braies, hose, a coif and the rest.
     Under(UnderForm),
+    /// Clothes on the Middle layer: a tunic, robe, doublet, bodice or vest.
+    Clothing(ClothingForm),
     /// An armour set: several locations' pieces as one item.
     Set(Box<SetForm>),
     /// A key, and the lock it opens (`door::Lock::id`).
@@ -101,6 +104,7 @@ impl ItemForm {
             Self::Neck(neck) => neck.name(),
             Self::Footwear(footwear) => footwear.name(),
             Self::Under(under) => under.name(),
+            Self::Clothing(clothing) => clothing.name(),
             Self::Set(set) => set.name(),
             Self::Key(_) => "Key".to_owned(),
         }
@@ -123,6 +127,7 @@ impl ItemForm {
             | Self::Neck(_)
             | Self::Footwear(_)
             | Self::Under(_)
+            | Self::Clothing(_)
             | Self::Set(_)
             | Self::Key(_) => &[],
         };

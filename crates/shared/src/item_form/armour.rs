@@ -1,4 +1,4 @@
-//! Rolling the forms of armour, footwear and underclothes, by item kind.
+//! Rolling the forms of armour, footwear, underclothes and clothes, by item kind.
 
 use super::ItemForm;
 use crate::armour::hands::{self, HandsPiece};
@@ -9,6 +9,7 @@ use crate::armour::set::{self, SetKind};
 use crate::armour::torso::{self, TorsoKind};
 use crate::armour::waist::{self, WaistKind};
 use crate::armour::{Style, arms, feet, shoulders};
+use crate::clothing::{self, ClothingPiece};
 use crate::footwear::{self, FootwearPiece};
 use crate::item::{ItemKind, Quality};
 use crate::rng::Rng;
@@ -19,6 +20,7 @@ use crate::underclothes::{self, UnderPiece};
 pub(super) enum Piece {
     Footwear(FootwearPiece),
     Under(UnderPiece),
+    Clothing(ClothingPiece),
     Arms,
     Hands(HandsPiece),
     Shoulders,
@@ -39,6 +41,9 @@ impl Piece {
         }
         if let Some(piece) = UnderPiece::of(kind) {
             return Some(Self::Under(piece));
+        }
+        if let Some(piece) = ClothingPiece::of(kind) {
+            return Some(Self::Clothing(piece));
         }
         Some(match kind {
             ItemKind::ArmArmour => Self::Arms,
@@ -76,6 +81,7 @@ impl Piece {
         match self {
             Self::Footwear(piece) => ItemForm::Footwear(footwear::roll(rng, piece, quality)),
             Self::Under(piece) => ItemForm::Under(underclothes::roll(rng, piece, quality)),
+            Self::Clothing(piece) => ItemForm::Clothing(clothing::roll(rng, piece, quality)),
             Self::Arms => ItemForm::Arms(arms::roll(rng, style, quality)),
             Self::Hands(piece) => ItemForm::Hands(hands::roll(rng, piece, style)),
             Self::Shoulders => ItemForm::Shoulders(shoulders::roll(rng, None, style)),
@@ -90,8 +96,13 @@ impl Piece {
     }
 }
 
-/// Whether a kind is armour with a form (not footwear or underclothes, which have
-/// their own options).
+/// Whether a kind is armour with a form (not footwear, underclothes or clothes, which
+/// have their own options).
 pub(super) fn is_armour(kind: ItemKind) -> bool {
-    Piece::of(kind).is_some_and(|piece| !matches!(piece, Piece::Footwear(_) | Piece::Under(_)))
+    Piece::of(kind).is_some_and(|piece| {
+        !matches!(
+            piece,
+            Piece::Footwear(_) | Piece::Under(_) | Piece::Clothing(_)
+        )
+    })
 }
