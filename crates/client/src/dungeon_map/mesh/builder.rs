@@ -25,7 +25,7 @@ impl Builder {
     /// A rectangle `2 × half_across` by `2 × half_up` (along `up`), with each
     /// corner's vertex colour from `colour_at` its position. The picture keeps
     /// its scale (one per cell), so small parts show part of it.
-    pub(super) fn quad(
+    pub(in crate::dungeon_map) fn quad(
         &mut self,
         centre: Vec3,
         normal: Vec3,

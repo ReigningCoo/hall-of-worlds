@@ -79,8 +79,8 @@ impl QuestDungeon {
     }
 
     /// Who is on level `index` (`stairs`: kept away from), the same every
-    /// time: `per_level` of its creatures on walkable cells, as far from the
-    /// stairs as there is room for, one to a cell.
+    /// time: `per_level` of its creatures on walkable cells free of
+    /// furniture, as far from the stairs as there is room for, one to a cell.
     pub fn spawns(&self, index: u32, level: &Level, stairs: &[(i64, i64)]) -> Vec<Spawn> {
         let seed = self.poi.seed.derive("dungeon mobs");
         let seed = Seed::new(seed.at(&[i64::from(index)]));
@@ -92,7 +92,7 @@ impl QuestDungeon {
                     .map(|s| (s.0 - x).abs().max((s.1 - y).abs()))
                     .min()
                     .unwrap_or(i64::MAX);
-                if level.is_walkable(x, y) && apart > 0 {
+                if level.is_walkable(x, y) && level.furniture_at(x, y).is_none() && apart > 0 {
                     // Far cells first, then nearer, then beside the stairs.
                     let nearness = match apart {
                         6.. => 0,

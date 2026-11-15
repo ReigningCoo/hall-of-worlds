@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::door::DoorLook;
 use crate::dungeon::Cell;
+use crate::furniture::Piece;
 use crate::poi::PoiKind;
 use crate::site::{StairsDirection, StairsStyle};
 
@@ -124,6 +125,9 @@ pub struct LevelChunk {
     /// The doors among those cells, as the player sees them now (or saw them
     /// last, if `remembered`). A secret door only once found.
     pub doors: Vec<DoorLook>,
+    /// The furniture covering any of those cells (all of each piece, so a
+    /// piece may come in more than one chunk).
+    pub furniture: Vec<Piece>,
     /// Whether these are cells the player saw on an earlier visit (sent on
     /// arriving), rather than ones they are about to see.
     pub remembered: bool,

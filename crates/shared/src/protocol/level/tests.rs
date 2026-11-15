@@ -34,6 +34,7 @@ fn cells_come_back_where_they_were() {
         cells: vec![Cell::Floor, Cell::Wall, Cell::Water],
         stairs: Vec::new(),
         doors: Vec::new(),
+        furniture: Vec::new(),
         remembered: false,
     };
     let back: Vec<_> = chunk.cells().map(|(x, y, _)| (x, y)).collect();

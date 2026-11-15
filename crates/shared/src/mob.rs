@@ -167,7 +167,7 @@ fn roll_gear(roll: &impl Fn(i64) -> u64, kind: CreatureKind) -> Vec<(ItemKind, O
 }
 
 /// The mobs of level `index` of a site. The same every time for the same seed.
-/// A town has a few beggars for now.
+/// A town has a few beggars for now. Never on furniture.
 pub fn spawns(
     seed: Seed,
     index: u32,
@@ -180,7 +180,10 @@ pub fn spawns(
         let far_from_stairs = stairs
             .iter()
             .all(|s| (s.0 - x).abs().max((s.1 - y).abs()) >= FROM_STAIRS);
-        level.is_walkable(x, y) && level.cell(x, y) != Cell::Ground && far_from_stairs
+        level.is_walkable(x, y)
+            && level.cell(x, y) != Cell::Ground
+            && level.furniture_at(x, y).is_none()
+            && far_from_stairs
     };
     let cells = (min_y..min_y + height)
         .flat_map(|y| (min_x..min_x + width).map(move |x| (x, y)))

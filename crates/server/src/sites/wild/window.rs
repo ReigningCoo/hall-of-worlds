@@ -219,8 +219,8 @@ fn with_towns(world: &ServerWorld, frame: &Frame, chunks: &[ChunkPos]) -> (i64, 
     (min_x, min_y, max_x - min_x, max_y - min_y)
 }
 
-/// A chunk's cutout in the window: its stairs, the poi it shows, and its
-/// site's first level's changes, kept for both.
+/// A chunk's cutout in the window: its stairs, furniture, the poi it shows,
+/// and its site's first level's changes, kept for both.
 fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &mut Window) {
     let Some(wild_chunk) = world.wilderness.chunk(chunk) else {
         return;
@@ -260,6 +260,9 @@ fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &
             })
             .collect(),
     });
+    for piece in cutout.level().furniture() {
+        window.level.level.place_furniture(piece.moved((turn, 0)));
+    }
     for stairs in &wild_chunk.stairs {
         let x = stairs.x + turn;
         window.stairs.push(SeenStairs { x, ..*stairs });

@@ -15,6 +15,8 @@ pub struct Site {
     seed: Seed,
     pub(super) plan: Plan,
     ruined: bool,
+    /// How ruined (0 to 5): what its furniture keeps.
+    ruin: u8,
 }
 
 #[derive(Clone, Debug)]
@@ -49,12 +51,8 @@ impl Site {
         version: u32,
         generator: Generator,
     ) -> Option<Self> {
-        let ruined = match generator {
-            Generator::Building(options) => options.ruin > 0,
-            Generator::Farm(options) => options.house.ruin > 0,
-            Generator::Herbalist(options) => options.house.ruin > 0,
-            _ => false,
-        };
+        let ruin = generator.ruin();
+        let ruined = ruin > 0;
         let plan = match generator {
             Generator::Building(options) if version == generator.version() => {
                 Plan::Building(super::building::Plan::new(&options, seed))
@@ -97,6 +95,7 @@ impl Site {
             seed,
             plan,
             ruined,
+            ruin,
         })
     }
 
@@ -147,7 +146,8 @@ impl Site {
     }
 
     /// Generates level `index` (`0` is the one entered from the world map:
-    /// a building's ground floor, a cave's first level).
+    /// a building's ground floor, a cave's first level), furnished last
+    /// (`furniture::furnish`; a Dev Area's building brings its own).
     pub fn level(&self, index: u32) -> SiteLevel {
         assert!(index < self.levels(), "no level {index}");
         let mut level = match &self.plan {
@@ -159,6 +159,9 @@ impl Site {
             Plan::Oasis(plan) => plan.level(),
             Plan::DevArea(plan) => plan.level(),
         };
+        if !matches!(self.plan, Plan::DevArea(_)) {
+            crate::furniture::furnish(&mut level, self.kind, self.seed, index, self.ruin);
+        }
         level.level.set_natural_walls(self.kind.natural_walls());
         level
     }

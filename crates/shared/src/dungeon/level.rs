@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::{Cell, WallBar, WallShape, bars_of};
 use crate::door::Swing;
+use crate::furniture::Piece;
 
 /// Which room of a level a cell belongs to, as planned by its generator
 /// (corridors, walls and outside ground belong to none). For mobs later. In a
@@ -32,6 +33,10 @@ pub struct Level {
     pub(super) swings: BTreeMap<(i64, i64), Swing>,
     /// The doors known to be locked (see `doors.rs`).
     pub(super) locked: BTreeSet<(i64, i64)>,
+    /// Furniture by its north-west cell, and the cells each covers (see
+    /// `furniture.rs`).
+    pub(super) furniture: BTreeMap<(i64, i64), Piece>,
+    pub(super) furniture_cells: BTreeMap<(i64, i64), (i64, i64)>,
     /// Whether its walls are natural, wider at the foot (`PoiKind::natural_walls`).
     natural_walls: bool,
 }
@@ -49,6 +54,8 @@ impl Level {
             rooms: vec![NO_ROOM; (width * height) as usize],
             swings: BTreeMap::new(),
             locked: BTreeSet::new(),
+            furniture: BTreeMap::new(),
+            furniture_cells: BTreeMap::new(),
             natural_walls: false,
         }
     }

@@ -29,8 +29,9 @@ impl LevelWay<'_> {
     /// What a move from `from` to `to` takes, in units of walking on flat open
     /// ground (a cell's width is `CELL_SPAN`): each quarter cell of it its
     /// length plus `SLOPE_COST` per 16th of an elevation it climbs or
-    /// descends (less by Climbing), waded (by Swimming) in shallows or water,
-    /// or slowed by its terrain (less by Pioneering). A jump (`jumped`) is
+    /// descends (less by Climbing), times 3 over a table and 1.5 over a seat
+    /// (`furniture`), waded (by Swimming) in shallows or water, or slowed by
+    /// its terrain (less by Pioneering). A jump (`jumped`) is
     /// taken whole: its length and slope, less by Jumping, then by where it
     /// lands. Not squeezes: those are the passage's (`clearance::Passage`).
     pub fn cost(&self, from: Spot, to: Spot, jumped: bool) -> u64 {
@@ -77,8 +78,11 @@ impl LevelWay<'_> {
         u64::from(cost) * CELL_SPAN as u64 / (UNITS_PER_16TH as u64 * u64::from(STRAIGHT_COST))
     }
 
-    /// `cost` waded or slowed by the ground at `at`.
+    /// `cost` waded or slowed by the ground at `at`, and by any furniture
+    /// there (`Level::furniture_cost_per_mille`: a table or a seat).
     fn footed(&self, at: Spot, cost: u32) -> u32 {
+        let (x, y) = at.cell();
+        let cost = cost * self.level.furniture_cost_per_mille(x, y) / 1000;
         let footing = footing_on(self.level, at.cell(), self.terrain);
         match (footing.wades(), footing.slowed_by()) {
             (true, _) => self.gait.swim(cost),
