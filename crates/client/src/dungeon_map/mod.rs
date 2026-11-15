@@ -15,6 +15,7 @@ mod border;
 mod daylight;
 mod door_swing;
 mod field;
+mod furniture;
 mod herbs;
 pub use field::CROP_STAGES;
 pub use herbs::HERB_STAGES;

@@ -199,6 +199,10 @@ impl CurrentDungeon {
                 self.remembered.insert(x, y);
             }
         }
+        for piece in &chunk.furniture {
+            // Its move costs then match the server's.
+            self.level.place_furniture(*piece);
+        }
         for stairs in &chunk.stairs {
             if !self.stairs.contains(stairs) {
                 self.stairs.push(*stairs);

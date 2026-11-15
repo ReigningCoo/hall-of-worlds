@@ -3,6 +3,7 @@
 use bevy::prelude::*;
 use shared::door::DoorLook;
 use shared::dungeon::{Cell, Level};
+use shared::furniture::Piece;
 use shared::movement::{Step, step_on_level};
 use shared::protocol::{LevelChunk, SeenStairs, ServerMessage, level_chunk};
 use std::collections::VecDeque;
@@ -121,7 +122,7 @@ pub(super) fn send_cells(
 }
 
 /// The cells in `masks` as the player would see them, a chunk at a time, with
-/// any stairs on them, and the doors as `looks` says they see them (a secret
+/// any stairs and furniture on them, and the doors as `looks` says they see them (a secret
 /// door it says nothing of is wall to them).
 pub(super) fn level_chunks(
     level: &Level,
@@ -139,6 +140,7 @@ pub(super) fn level_chunks(
             cells: Vec::new(),
             stairs: Vec::new(),
             doors: Vec::new(),
+            furniture: Vec::new(),
             remembered,
         };
         // The positions come from the mask; fill in what is there.
@@ -159,10 +161,19 @@ pub(super) fn level_chunks(
             .filter(|s| positions.contains(&(s.x, s.y)))
             .copied()
             .collect();
+        let mut furniture: Vec<Piece> = Vec::new();
+        for &(x, y) in &positions {
+            if let Some(piece) = level.furniture_at(x, y)
+                && !furniture.contains(piece)
+            {
+                furniture.push(*piece);
+            }
+        }
         chunks.push(LevelChunk {
             cells,
             stairs,
             doors,
+            furniture,
             ..message
         });
     }

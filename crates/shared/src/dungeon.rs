@@ -12,6 +12,7 @@
 mod bars;
 mod cell;
 mod doors;
+mod furniture;
 mod level;
 mod line;
 mod sight;

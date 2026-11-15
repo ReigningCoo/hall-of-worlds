@@ -7,6 +7,7 @@ use shared::protocol::SeenStairs;
 
 use super::super::CELL_SIZE;
 use super::super::field;
+use super::super::furniture::build_furniture;
 use super::super::holes::build_hole;
 use super::super::liquid::build_cell;
 use super::super::oasis::{build_grass_or_tree, build_tree};
@@ -59,6 +60,7 @@ pub(super) fn build_cell_at(
         let found = stairs.iter().find(|s| (s.x, s.y) == (x, y));
         build_open_cell(layers, scene, (x, y), found);
         field::build_fence(layers, scene, (x, y));
+        build_furniture(layers, scene, (x, y));
     }
 }
 

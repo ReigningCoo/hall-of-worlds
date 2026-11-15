@@ -15,7 +15,8 @@ pub struct Cutout {
     /// it is set at; `None` when only the way down is (a site entered from
     /// above, such as a cave by a hole).
     offset: Option<(i64, i64)>,
-    /// The cells set into the wilderness, in wilderness cells.
+    /// The cells set into the wilderness, in wilderness cells, with the
+    /// site's furniture.
     level: Level,
     /// The ways from the cutout into the site's levels, in wilderness cells.
     stairs: Vec<Stairs>,
@@ -72,6 +73,9 @@ impl Cutout {
                 level.set(x + ox, y + oy, first.level.cell(x, y));
                 level.set_room(x + ox, y + oy, first.level.room(x, y));
             }
+        }
+        for piece in first.level.furniture() {
+            level.place_furniture(piece.moved((ox, oy)));
         }
         let stairs = first
             .stairs

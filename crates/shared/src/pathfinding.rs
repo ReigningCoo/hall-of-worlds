@@ -39,6 +39,8 @@ const DIRECTIONS: [(i64, i64); 8] = [
 ];
 
 #[cfg(test)]
+mod furniture_tests;
+#[cfg(test)]
 mod road_tests;
 #[cfg(test)]
 mod sized_tests;

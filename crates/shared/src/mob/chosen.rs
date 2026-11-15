@@ -20,7 +20,8 @@ const PLACES: i64 = 10_000;
 
 /// `count` mobs of `kind` on walkable cells of `level`, none within
 /// `FROM_STAIRS` of any of `clear_of` nor on another. Rolled like a level's
-/// own (looks, build and gear); fewer if room can't be found.
+/// own (looks, build and gear); fewer if room can't be found. Never on
+/// furniture.
 pub fn chosen_spawns(
     seed: Seed,
     kind: CreatureKind,
@@ -33,7 +34,7 @@ pub fn chosen_spawns(
         let clear = clear_of
             .iter()
             .all(|s| (s.0 - x).abs().max((s.1 - y).abs()) >= FROM_STAIRS);
-        level.is_walkable(x, y) && clear
+        level.is_walkable(x, y) && level.furniture_at(x, y).is_none() && clear
     };
     let mut mobs: Vec<Spawn> = Vec::new();
     for number in 0..u32::from(count) {
