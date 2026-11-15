@@ -39,6 +39,7 @@ pub(in crate::inventory) fn show_bins(
             icon: Some(icon.0.clone()),
             thing,
             aim,
+            ..default()
         };
     }
 }

@@ -75,7 +75,7 @@ Input:
 Objects and holding:
 
 - `GridShown` (`columns`, `rows`, `things`: `GridThing`s; `aim`: `GridAim`; `takes_gifts`; `cells`: only that many, row by row, so the last row may be short, with `has_cell`) on an `object-grid` (or any node) draws it in `DrawObjects`; `GridBox` names its cells' node; each drawn thing's cell carries `ThingCell { grid, item, rotation, grip }`, for the owner to mark `.after(DrawObjects)`.
-- `SlotShown` (`look`: `SlotLook::Worn` / `Kept`; `icon`; `thing`: `SlotThing`; `aim`) on an `object-slot`.
+- `SlotShown` (`look`: `SlotLook::Worn` / `Kept`; `icon`, drawn in `icon_tint` (white, the default, leaves it as it is); `thing`: `SlotThing`; `aim`) on an `object-slot`.
 - `AbilityThing { thing: shared::ability::BarThing, look }` (an ability, or a kind of item on the action bar, drawn by its `AbilityLook::item`), `AbilityGridShown`, `AbilitySlotShown` (`thing`, `key`, `auto`, `on`, `queued`, `shade`, `aim`, `count`: how many of a kind of item, over its top left), `AbilityCell { of, thing }`, `SlotPart` (`On`, `Queued`, `Shade`); `KnownAbilities` (`set(name, AbilityThing)`) for `<object type="ability">`.
 - `HeldObject` (resource): the one thing held, `pick_up(thing, picked)`, `put_back`, `keep_up`. `HeldThing` (`id`, `item` or `ability`, `rotation`, `grip`, `Hand`: `Mouse`, `Clicked`, `Finger`, `Kept`). `Dropped { thing, at, over }` (message), `HeldOver { front, cell }`. Owners pick up `.before(HoldObjects)` and read drops `.after` it.
 - `ClosePopups` (set): a system despawning a popup on `Closed` goes `.after` it.

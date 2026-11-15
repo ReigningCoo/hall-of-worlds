@@ -16,6 +16,22 @@ use crate::dom::{Dom, SlotShown, SlotThing};
 /// As many slots as the best belt gives (Artifact): the markup has this many.
 pub(super) const MOST_SLOTS: usize = 6;
 
+/// The picture in an empty slot, saying a bag goes there.
+const EMPTY_ICON: &str = "icons/lorc/swap-bag.png";
+
+/// What the empty slot's (white) icon is drawn in: the bin's ink, faint.
+const EMPTY_TINT: Color = Color::srgba(0.24, 0.16, 0.08, 0.55);
+
+/// The picture in an empty slot, loaded once.
+#[derive(Resource)]
+pub(super) struct EmptyIcon(Handle<Image>);
+
+impl FromWorld for EmptyIcon {
+    fn from_world(world: &mut World) -> Self {
+        Self(world.resource::<AssetServer>().load(EMPTY_ICON))
+    }
+}
+
 /// On a bag slot (counting from 0) and what is drawn in it: dropping here ties
 /// a bag to the belt.
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
@@ -59,6 +75,7 @@ pub(super) fn show_bag_slots(
     new_slots: Query<(), Added<BagSlotNode>>,
     mut dom: Dom,
     mut shown_count: Local<Option<usize>>,
+    empty_icon: Res<EmptyIcon>,
 ) {
     let inventory = &carried.0;
     let count = inventory.bag_slot_count().min(MOST_SLOTS);
@@ -94,6 +111,11 @@ pub(super) fn show_bag_slots(
         }
         if shown.aim != aim {
             shown.aim = aim;
+        }
+        let icon = shown.thing.is_none().then(|| empty_icon.0.clone());
+        if shown.icon != icon {
+            shown.icon = icon;
+            shown.icon_tint = EMPTY_TINT;
         }
     }
 }
