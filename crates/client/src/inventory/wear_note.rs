@@ -141,5 +141,6 @@ pub(super) fn explain(why: WearRefused, carried: &Inventory) -> String {
         WearRefused::Clash(id) => format!("{} is in the way.", name(id)),
         WearRefused::Stuck(id) => format!("{} won't come off.", name(id)),
         WearRefused::NoRoom(id) => format!("No room to take off {}.", name(id)),
+        WearRefused::BagsTied => "The bags tied to your belt need its slots.".into(),
     }
 }

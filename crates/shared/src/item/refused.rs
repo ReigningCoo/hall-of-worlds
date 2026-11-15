@@ -19,4 +19,14 @@ pub enum MoveRefused {
     TooHeavy,
     /// It doesn't look the same as the stack, or the stack has no room for it.
     NoStackRoom,
+    /// It can't be tied to a belt (or is worn some other way).
+    NotForBelt,
+    /// Only an empty bag can be tied to a belt.
+    NotEmpty,
+    /// The belt has no such slot, or there is no belt.
+    NoSlot,
+    /// Untying it would leave things off the end of the own grid.
+    BagInUse,
+    /// Without this belt, or with a worse one, bags would be left without slots.
+    BeltInUse,
 }

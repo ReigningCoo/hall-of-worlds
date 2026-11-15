@@ -21,7 +21,14 @@ impl Inventory {
         };
         let inside = x as u32 + shape.width as u32 <= width as u32
             && y as u32 + shape.height as u32 <= height as u32;
+        // The own grid's last row may be short (`has_cell`). Only once inside, so
+        // the sums can't overflow.
+        let on_cells = || {
+            holder != Holder::Inventory
+                || shape.cells().all(|(dx, dy)| self.has_cell(x + dx, y + dy))
+        };
         inside
+            && on_cells()
             && !grid
                 .iter()
                 .filter(|placed| Some(placed.item.id) != moving)
@@ -92,6 +99,13 @@ impl Inventory {
         y: u8,
         rotation: Rotation,
     ) -> Result<(), MoveRefused> {
+        if self.is_tied(id) {
+            // Untied first, so it may lie in what is left of the grid.
+            let mut after = self.clone();
+            let bag = after.untie(id)?;
+            return after.check_add(&bag, holder, x, y, rotation);
+        }
+        self.check_lift(id)?;
         let item = self.find(id).ok_or(MoveRefused::NoSuchItem)?;
         self.may_hold(holder, item)?;
         let shape = item.shape().turned(rotation);

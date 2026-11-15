@@ -1,4 +1,5 @@
-//! Answering item moves: dropping, taking, wearing, giving, binning and moving things.
+//! Answering item moves: dropping, taking, wearing, tying bags to the belt, giving,
+//! binning and moving things.
 
 use bevy::prelude::*;
 use shared::energy::handling_cost;
@@ -193,6 +194,21 @@ pub(super) fn answer_items(
             let tick = world.action_clock.ticks();
             // What is in its way comes off, or the player is told why not.
             client.put_on(item, world.stacks, tick);
+            client.update_speed(world.action_clock.ticks());
+            client.send_inventory()
+        }
+        ClientMessage::TieBag { item, slot } => {
+            let grams = client.inventory.find(item).map_or(0, Item::total_weight);
+            match client.inventory.tie_bag(item, slot) {
+                Ok(()) => {
+                    client.unsaved = true;
+                    let tick = world.action_clock.ticks();
+                    client
+                        .energy
+                        .spend(tick, client.speed, handling_cost(grams));
+                }
+                Err(why) => warn!("Refused tying {item:?} to bag slot {slot}: {why:?}"),
+            }
             client.update_speed(world.action_clock.ticks());
             client.send_inventory()
         }

@@ -16,7 +16,8 @@ impl Inventory {
             })
         }
         let carried = search(&self.items, id).or_else(|| {
-            self.worn.iter().find_map(|item| {
+            let mut worn = self.worn.iter().chain(&self.bag_slots);
+            worn.find_map(|item| {
                 if item.id == id {
                     Some(item)
                 } else {
@@ -31,6 +32,8 @@ impl Inventory {
     pub fn grid(&self, holder: Holder) -> Option<&[Placed]> {
         match holder {
             Holder::Inventory => Some(&self.items),
+            // A tied bag's inside is the own grid's end, not a grid of its own.
+            Holder::Inside(id) if self.is_tied(id) => None,
             Holder::Inside(id) => {
                 let item = self.find(id)?;
                 item.kind.def().container?;
@@ -42,7 +45,8 @@ impl Inventory {
     /// How wide and tall this grid is.
     pub fn grid_size(&self, holder: Holder) -> Option<(u8, u8)> {
         match holder {
-            Holder::Inventory => Some(self.size),
+            Holder::Inventory => Some(self.combined_size()),
+            Holder::Inside(id) if self.is_tied(id) => None,
             Holder::Inside(id) => {
                 let container = self.find(id)?.kind.def().container?;
                 Some((container.width, container.height))

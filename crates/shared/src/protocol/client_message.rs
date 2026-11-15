@@ -145,6 +145,11 @@ pub enum ClientMessage {
     /// Puts on something the character carries, answered with `Inventory`, whether
     /// or not it could go on. Taking it off is `MoveItem`.
     WearItem { item: Id },
+    /// Ties a carried, empty bag that can go on a belt to this bag slot (from 0):
+    /// after the last bag if that slot is empty, or in place of the bag there,
+    /// which goes in the own grid, empty (`Inventory::tie_bag`). Answered with
+    /// `Inventory`, whether or not it could be done. Untying one is `MoveItem`.
+    TieBag { item: Id, slot: u8 },
     /// Puts something carried or worn on the ground, in the nearest bag in the
     /// player's reach or a new one at their feet (`ground::nearest_in_reach`), in
     /// a site, after any moves to get there. Answered with `Inventory` and

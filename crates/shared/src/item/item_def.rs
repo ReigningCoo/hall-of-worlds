@@ -18,6 +18,12 @@ pub struct ContainerDef {
     pub max_total: Option<u32>,
     /// The most any one thing in it may weigh, in grams, with its contents.
     pub max_each: Option<u32>,
+    /// It can be tied to a belt, in a bag slot, and still be reached: its inside
+    /// then adds to the end of its wearer's own grid (`Inventory::bag_slots`).
+    pub on_belt: bool,
+    /// While tied to a belt, how much lighter it makes what lies in its share of the
+    /// own grid, as a percentage (0 for none): see `Inventory::total_weight`.
+    pub lighter_by: u8,
 }
 
 /// What a kind of item is.
@@ -85,6 +91,8 @@ pub(super) const fn bag(
             grows: false,
             max_total,
             max_each,
+            on_belt: false,
+            lighter_by: 0,
         }),
         ..plain(name, weight, shape)
     }
@@ -135,6 +143,20 @@ impl ItemDef {
         Self {
             container: Some(ContainerDef {
                 grows: true,
+                ..container
+            }),
+            ..self
+        }
+    }
+
+    /// A bag that can be tied to a belt: see `ContainerDef::on_belt`.
+    pub(super) const fn on_belt(self) -> Self {
+        let Some(container) = self.container else {
+            panic!("only a bag can be tied to a belt");
+        };
+        Self {
+            container: Some(ContainerDef {
+                on_belt: true,
                 ..container
             }),
             ..self
