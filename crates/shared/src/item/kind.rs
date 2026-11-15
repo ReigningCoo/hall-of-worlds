@@ -41,6 +41,7 @@ pub enum ItemKind {
     CuirassierTassets,
     Dagger,
     DemiGauntlets,
+    /// Old fingerless gloves: no form, no longer made (gloves are rolled fingerless).
     FingerlessGloves,
     FootArmour,
     FullArmour,
@@ -103,11 +104,13 @@ pub enum ItemKind {
     Robe,
     Tunic,
     Vest,
+    // Trousers, Belt and Gloves (above) have forms too.
+    Skirt,
 }
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 87] = [
+    pub const ALL: [Self; 88] = [
         Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -180,6 +183,7 @@ impl ItemKind {
         Self::ShortSword,
         Self::ShoulderArmour,
         Self::SilverCoin,
+        Self::Skirt,
         Self::Slippers,
         Self::SmallBox,
         Self::Socks,

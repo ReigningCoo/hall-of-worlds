@@ -12,15 +12,23 @@ pub enum ClothingPiece {
     Doublet,
     Bodice,
     Vest,
+    Trousers,
+    Skirt,
+    Belt,
+    Gloves,
 }
 
 impl ClothingPiece {
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 9] = [
         Self::Tunic,
         Self::Robe,
         Self::Doublet,
         Self::Bodice,
         Self::Vest,
+        Self::Trousers,
+        Self::Skirt,
+        Self::Belt,
+        Self::Gloves,
     ];
 
     /// The piece an item kind is, or `None` for other kinds.
