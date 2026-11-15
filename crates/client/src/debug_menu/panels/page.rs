@@ -5,9 +5,9 @@ use shared::blade::Family;
 use shared::material::Material;
 
 use super::{
-    RING_ROWS, armour, arms, beast_heads, feet, footwear, hair, legs, markings, neck, sets,
-    spawn_blade_row, spawn_body_row, spawn_picture_heading, spawn_picture_row, spawn_ring_row,
-    under, waist,
+    RING_ROWS, armour, arms, beast_heads, feet, footwear, hair, legs, markings, neck, necklaces,
+    sets, spawn_blade_row, spawn_body_row, spawn_picture_heading, spawn_picture_row,
+    spawn_ring_row, under, waist,
 };
 use crate::common::Preferences;
 
@@ -32,10 +32,11 @@ pub(in crate::debug_menu) enum PicturePage {
     #[default]
     Gems,
     Rings,
+    Necklaces,
 }
 
 impl PicturePage {
-    pub(super) const ALL: [Self; 16] = [
+    pub(super) const ALL: [Self; 17] = [
         Self::Bodies,
         Self::Hands,
         Self::Shoulders,
@@ -52,6 +53,7 @@ impl PicturePage {
         Self::Weapons,
         Self::Gems,
         Self::Rings,
+        Self::Necklaces,
     ];
 
     pub(super) fn name(self) -> &'static str {
@@ -72,6 +74,7 @@ impl PicturePage {
             Self::Weapons => "Weapons",
             Self::Gems => "Gems",
             Self::Rings => "Rings",
+            Self::Necklaces => "Necklaces",
         }
     }
 
@@ -115,6 +118,7 @@ impl PicturePage {
                 }
             }
             Self::Rings => (0..RING_ROWS).for_each(|row| spawn_ring_row(grid, row)),
+            Self::Necklaces => necklaces::spawn_necklace_rows(grid),
         }
     }
 }

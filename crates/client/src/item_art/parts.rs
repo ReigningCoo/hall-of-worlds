@@ -19,6 +19,9 @@ pub(super) fn parts_of(
             })
             .collect(),
         Look::Ring { ring, quality } => super::ring::ring_parts(&ring, quality, meshes, materials),
+        Look::Necklace { necklace, quality } => {
+            super::necklace::necklace_parts(&necklace, quality, meshes, materials)
+        }
         Look::Blade { blade, quality } => {
             super::blade::blade_parts(&blade, quality, meshes, materials)
         }

@@ -82,6 +82,8 @@ pub(super) enum Shown {
     Under(super::under::UnderShown),
     /// A kind in one of its markings.
     Marked(super::markings::MarkedShown),
+    /// A necklace.
+    Necklace(super::necklaces::NecklaceShown),
 }
 
 impl Shown {
@@ -124,6 +126,7 @@ impl Shown {
             Self::Footwear(shown) => shown.look(quality),
             Self::Under(shown) => shown.look(quality),
             Self::Marked(shown) => shown.look(),
+            Self::Necklace(shown) => shown.look(quality),
         }
     }
 }
