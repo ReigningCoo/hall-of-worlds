@@ -83,6 +83,39 @@ fn every_name_from_the_research_turns_up() {
         "Buff Jerkin",
         "Waistcoat",
         "Yelek",
+        "Trousers",
+        "Braccae",
+        "Trews",
+        "Breeches",
+        "Salvar",
+        "Sharovary",
+        "Hakama",
+        "Lederhosen",
+        "Thorsberg Trousers",
+        "Skirt",
+        "Kilt",
+        "Fustanella",
+        "Shendyt",
+        "Kaunakes",
+        "Qun",
+        "Chima",
+        "Sarong",
+        "Lungi",
+        "Longyi",
+        "Dhoti",
+        "Lavalava",
+        "Grass Skirt",
+        "Belt",
+        "Girdle",
+        "Sash",
+        "Obi",
+        "Zoster",
+        "Cummerbund",
+        "Gloves",
+        "Mittens",
+        "Fingerless Gloves",
+        "Gauntlet Gloves",
+        "Nålbound Mittens",
     ] {
         assert!(names.contains(wanted), "{wanted} never rolled");
     }
@@ -149,6 +182,10 @@ fn sleeveless_tunics_and_bodices_leave_the_arms_bare() {
                 bare.contains(&Location::Arms),
                 bodice.sleeves == BodiceSleeves::None
             ),
+            Garment::Gloves(gloves) => assert_eq!(
+                bare == [Location::Fingers],
+                gloves.fingers == Fingers::Fingerless
+            ),
             _ => assert!(bare.is_empty()),
         }
     }
@@ -159,13 +196,18 @@ fn weights_and_cells_are_sensible() {
     for form in every(Quality::Rare) {
         let grams = form.grams();
         assert!(
-            (50..=4000).contains(&grams),
+            (20..=4000).contains(&grams),
             "{} weighs {grams}",
             form.name()
         );
         assert!(form.grams_at(Size::Large) > grams);
         let shape = form.shape();
-        assert!(shape.width == 2 && (2..=3).contains(&shape.height));
+        let expected = match form.piece() {
+            ClothingPiece::Belt => [(1, 3), (2, 1)].contains(&(shape.width, shape.height)),
+            ClothingPiece::Gloves => (shape.width, shape.height) == (1, 2),
+            _ => shape.width == 2 && (2..=3).contains(&shape.height),
+        };
+        assert!(expected, "{} is {shape:?}", form.name());
     }
 }
 
@@ -175,4 +217,64 @@ fn a_form_is_saved_and_loaded_unchanged() {
         let text = ron::to_string(&form).unwrap();
         assert_eq!(ron::from_str::<ClothingForm>(&text).unwrap(), form);
     }
+}
+
+#[test]
+fn rank_belts_and_gloves_come_at_rare_and_better() {
+    let plated = |quality| {
+        rolled(ClothingPiece::Belt, quality)
+            .any(|form| matches!(form.garment, Garment::Belt(b) if b.form == BeltForm::Plates))
+    };
+    assert!(!plated(Quality::Common));
+    assert!(plated(Quality::Rare));
+    let elbow = |quality| {
+        rolled(ClothingPiece::Gloves, quality)
+            .any(|form| matches!(form.garment, Garment::Gloves(g) if g.cuff == Cuff::Elbow))
+    };
+    assert!(!elbow(Quality::Common));
+    assert!(elbow(Quality::Rare));
+}
+
+#[test]
+fn kilts_are_mostly_tartan_and_grass_skirts_grass() {
+    let forms: Vec<_> = rolled(ClothingPiece::Skirt, Quality::Common).collect();
+    let kilts: Vec<_> = forms
+        .iter()
+        .filter(|form| form.specific_name() == "Kilt")
+        .collect();
+    let tartan = kilts
+        .iter()
+        .filter(|form| form.pattern == Pattern::Tartan)
+        .count();
+    assert!(tartan * 4 > kilts.len(), "{tartan} of {}", kilts.len());
+    for form in forms
+        .iter()
+        .filter(|form| form.specific_name() == "Grass Skirt")
+    {
+        assert_eq!(form.name(), "Grass Skirt");
+    }
+}
+
+#[test]
+fn old_clothes_without_forms_still_load_and_wear_as_before() {
+    use crate::creature::Location::{Fingers, Hands, Legs, Waist};
+    use crate::id::Id;
+    use crate::item::{Item, ItemKind};
+    for (kind, places) in [
+        (ItemKind::Trousers, vec![Legs]),
+        (ItemKind::Belt, vec![Waist]),
+        (ItemKind::Gloves, vec![Hands, Fingers]),
+        (ItemKind::FingerlessGloves, vec![Hands]),
+    ] {
+        let old = Item::new(Id::for_test(7), kind);
+        let text = ron::to_string(&old).unwrap();
+        let loaded: Item = ron::from_str(&text).unwrap();
+        assert_eq!(loaded.form, None);
+        assert_eq!(loaded.worn_locations(), places, "{kind:?}");
+    }
+    assert!(
+        !crate::shop::sells(crate::site::BuildingKind::Tailor)
+            .iter()
+            .any(|&(kind, _)| kind == ItemKind::FingerlessGloves)
+    );
 }

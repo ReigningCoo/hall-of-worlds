@@ -1,19 +1,23 @@
 //! Clothes on the Middle layer: everything worn over underclothes and under cloaks and
-//! armour, footwear apart. So far the torso's: tunics, robes, doublets, bodices and
-//! vests. Medieval and earlier first, later pieces (to 1700) rarer. What one is like
+//! armour, footwear apart. So far: tunics, robes, doublets, bodices and vests on the
+//! torso; trousers and skirts on the legs; belts; gloves. Medieval and earlier first, later pieces (to 1700) rarer. What one is like
 //! is rolled once and saved; each choice comes from what the ones before allow, so
 //! nothing is thrown away. See `docs/context/shared/clothing.md` and the research in
 //! `docs/context/research-clothing.md`.
 
+mod belt;
 mod bodice;
 mod cloth;
 mod doublet;
 mod garment;
+mod gloves;
 mod grid;
 mod names;
 mod piece;
 mod robe;
 mod roll;
+mod skirt;
+mod trousers;
 mod tunic;
 mod vest;
 mod weight;
@@ -23,6 +27,7 @@ mod tests;
 
 use serde::{Deserialize, Serialize};
 
+pub use belt::{Belt, BeltEnd, BeltFastening, BeltForm, BeltWidth, Fittings};
 pub use bodice::{Bodice, BodiceLength, BodiceNeck, BodiceSleeves, Lacing, Stiffening};
 pub use cloth::{Pattern, Weave};
 pub use doublet::{
@@ -30,9 +35,12 @@ pub use doublet::{
     Padding,
 };
 pub use garment::Garment;
+pub use gloves::{Cuff, Fingers, GloveDecoration, GloveMake, Gloves};
 pub use piece::ClothingPiece;
 pub use robe::{Collar, Fastening, Front, Lining, Robe, RobeDecoration, RobeLength, RobeSleeves};
 pub use roll::roll;
+pub use skirt::{Skirt, SkirtFront, SkirtLength, SkirtMake, SkirtWaist};
+pub use trousers::{Fullness, LegEnds, TrouserFront, TrouserLength, TrouserWaist, Trousers};
 pub use tunic::{Closure, Cut, Length, Neck, Sleeves, Tunic, TunicDecoration};
 pub use vest::{Vest, VestDecoration, VestFastening, VestLength, VestMake};
 

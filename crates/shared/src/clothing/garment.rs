@@ -4,8 +4,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::{
-    Bodice, BodiceSleeves, ClothingPiece, Doublet, DoubletDecoration, Robe, RobeDecoration, Tunic,
-    Vest, VestDecoration,
+    Belt, Bodice, BodiceSleeves, ClothingPiece, Doublet, DoubletDecoration, Fingers, Gloves, Robe,
+    RobeDecoration, Skirt, Trousers, Tunic, Vest, VestDecoration,
 };
 use crate::creature::Location;
 use crate::item::Quality;
@@ -18,6 +18,10 @@ pub enum Garment {
     Doublet(Doublet),
     Bodice(Bodice),
     Vest(Vest),
+    Trousers(Trousers),
+    Skirt(Skirt),
+    Belt(Belt),
+    Gloves(Gloves),
 }
 
 impl Garment {
@@ -28,6 +32,10 @@ impl Garment {
             Self::Doublet(_) => ClothingPiece::Doublet,
             Self::Bodice(_) => ClothingPiece::Bodice,
             Self::Vest(_) => ClothingPiece::Vest,
+            Self::Trousers(_) => ClothingPiece::Trousers,
+            Self::Skirt(_) => ClothingPiece::Skirt,
+            Self::Belt(_) => ClothingPiece::Belt,
+            Self::Gloves(_) => ClothingPiece::Gloves,
         }
     }
 
@@ -38,6 +46,10 @@ impl Garment {
             ClothingPiece::Doublet => Self::Doublet(Doublet::roll(rng)),
             ClothingPiece::Bodice => Self::Bodice(Bodice::roll(rng)),
             ClothingPiece::Vest => Self::Vest(Vest::roll(rng)),
+            ClothingPiece::Trousers => Self::Trousers(Trousers::roll(rng)),
+            ClothingPiece::Skirt => Self::Skirt(Skirt::roll(rng)),
+            ClothingPiece::Belt => Self::Belt(Belt::roll(rng, quality)),
+            ClothingPiece::Gloves => Self::Gloves(Gloves::roll(rng, quality)),
         }
     }
 
@@ -48,15 +60,20 @@ impl Garment {
             Self::Doublet(doublet) => doublet.allowed(),
             Self::Bodice(bodice) => bodice.allowed(),
             Self::Vest(vest) => vest.allowed(),
+            Self::Trousers(trousers) => trousers.allowed(),
+            Self::Skirt(skirt) => skirt.allowed(),
+            Self::Belt(belt) => belt.allowed(),
+            Self::Gloves(gloves) => gloves.allowed(),
         }
     }
 
-    /// Locations of its kind it leaves bare: a sleeveless tunic's or bodice's arms.
-    /// Worn and clashing go by what is left.
+    /// Locations of its kind it leaves bare: a sleeveless tunic's or bodice's arms,
+    /// fingerless gloves' fingers. Worn and clashing go by what is left.
     pub fn bare(&self) -> &'static [Location] {
         match self {
             Self::Tunic(tunic) if tunic.sleeves.bare() => &[Location::Arms],
             Self::Bodice(bodice) if bodice.sleeves == BodiceSleeves::None => &[Location::Arms],
+            Self::Gloves(gloves) if gloves.fingers == Fingers::Fingerless => &[Location::Fingers],
             _ => &[],
         }
     }
@@ -67,7 +84,7 @@ impl Garment {
             Self::Robe(robe) => robe.decoration == RobeDecoration::ContrastEdges,
             Self::Doublet(doublet) => doublet.decoration == DoubletDecoration::ContrastLining,
             Self::Vest(vest) => vest.decoration == VestDecoration::ContrastEdging,
-            Self::Tunic(_) | Self::Bodice(_) => false,
+            _ => false,
         }
     }
 }

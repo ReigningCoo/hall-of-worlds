@@ -67,6 +67,10 @@ pub(super) fn materials(garment: &Garment) -> Vec<(Material, u64)> {
             VestMake::Buff => vec![(BuffLeather, 1)],
             VestMake::FurLined => vec![(Wool, 50), (Leather, 35), (Silk, 15)],
         },
+        Garment::Trousers(trousers) => trousers.materials(),
+        Garment::Skirt(skirt) => skirt.materials(),
+        Garment::Belt(belt) => belt.materials(),
+        Garment::Gloves(gloves) => gloves.materials(),
     }
 }
 
@@ -75,6 +79,8 @@ pub(super) fn weaves(garment: &Garment, material: Material) -> Vec<(Weave, u64)>
     let fine = match garment {
         Garment::Doublet(doublet) => !doublet.arming(),
         Garment::Robe(robe) => robe.lining != Lining::Padded || material == Silk,
+        Garment::Belt(belt) => belt.cloth(),
+        Garment::Gloves(_) => false,
         _ => true,
     };
     let silk = fine && material == Silk;
@@ -87,20 +93,32 @@ pub(super) fn weaves(garment: &Garment, material: Material) -> Vec<(Weave, u64)>
     ]
 }
 
-/// Its pattern: plain cloth only, tartan only in wool.
+/// Its pattern: plain cloth only, tartan only in wool, kilts and trews mostly tartan,
+/// tube skirts often checked (the longyi).
 pub(super) fn patterns(garment: &Garment, material: Material, weave: Weave) -> Vec<(Pattern, u64)> {
     let woven = weave == Weave::Plain && material.category() == crate::material::Category::Textile;
     let patterned = woven
         && match garment {
             Garment::Tunic(tunic) => tunic.cut != super::Cut::Draped,
-            Garment::Robe(_) | Garment::Vest(_) => true,
-            Garment::Doublet(_) | Garment::Bodice(_) => false,
+            Garment::Robe(_) | Garment::Vest(_) | Garment::Trousers(_) => true,
+            Garment::Skirt(skirt) => !skirt.named_for_material(),
+            Garment::Belt(belt) => belt.form == super::BeltForm::Sash,
+            Garment::Doublet(_) | Garment::Bodice(_) | Garment::Gloves(_) => false,
         };
+    let (tartan, checked) = match garment {
+        Garment::Trousers(trousers) if trousers.fitted() => (10, 0),
+        Garment::Skirt(skirt) if skirt.kilted() => (100, 0),
+        Garment::Skirt(skirt) if skirt.make == super::SkirtMake::Tube => (0, 15),
+        _ => (0, 0),
+    };
     vec![
         (Pattern::Plain, 90),
         (Pattern::Striped, when(patterned, 5)),
-        (Pattern::Checked, when(patterned, 3)),
-        (Pattern::Tartan, when(patterned && material == Wool, 3)),
+        (Pattern::Checked, when(patterned, 3 + checked)),
+        (
+            Pattern::Tartan,
+            when(patterned && material == Wool, 3 + tartan),
+        ),
     ]
 }
 
@@ -111,6 +129,8 @@ pub(super) fn dyes(material: Material) -> Vec<(Dye, u64)> {
         crate::material::Category::Leather => {
             vec![(Natural, 5), (Brown, 4), (Black, 3), (Red, 1)]
         }
+        // Grass and leaves keep their own colours, or are dyed plainly.
+        crate::material::Category::Plant => vec![(Natural, 6), (Brown, 2), (Red, 1), (Yellow, 1)],
         _ if material == Silk => vec![
             (Red, 20),
             (Blue, 15),

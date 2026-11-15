@@ -15,6 +15,10 @@ impl ClothingForm {
             Garment::Doublet(doublet) => doublet.name(),
             Garment::Bodice(bodice) => bodice.name(),
             Garment::Vest(vest) => vest.name(),
+            Garment::Trousers(trousers) => trousers.name(self.material, self.pattern),
+            Garment::Skirt(skirt) => skirt.name(self.material, self.pattern),
+            Garment::Belt(belt) => belt.name(),
+            Garment::Gloves(gloves) => gloves.name(),
         }
     }
 
@@ -35,7 +39,7 @@ impl ClothingForm {
 
     /// The word for its cloth, when it is worth saying: a weave always, and a material
     /// other than its garment's usual one, unless its name says so already (a jerkin is
-    /// leather, tartan is wool).
+    /// leather, lederhosen too, a grass skirt grass, tartan is wool).
     fn cloth_word(&self) -> Option<&'static str> {
         if let Some(weave) = self.weave.name() {
             return Some(weave);
@@ -45,6 +49,8 @@ impl ClothingForm {
             .is_some_and(|&(first, _)| first == self.material);
         let in_name = match &self.garment {
             Garment::Vest(vest) => vest.make == VestMake::Buff || self.specific_name() == "Jerkin",
+            Garment::Trousers(trousers) => trousers.leather_shorts(self.material),
+            Garment::Skirt(skirt) => skirt.named_for_material(),
             _ => false,
         };
         let tartan = self.pattern == Pattern::Tartan && self.material == Material::Wool;
