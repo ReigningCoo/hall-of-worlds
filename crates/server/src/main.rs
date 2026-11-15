@@ -47,6 +47,8 @@
 //!   send them back to (default `https://` and `HOW_LETS_ENCRYPT_DOMAIN`).
 //! - `HOW_LOGIN_SECRET`: what email addresses are hashed with, the same for
 //!   every server sharing players; made and kept in the data folder if unset.
+//! - `HOW_STATS_SECRET`: the key `/_stats` asks for; made and kept in the data
+//!   folder's `stats-key.txt` if unset.
 //! - `HOW_DEBUG_TOOLS`: `true` accepts dev tools messages from anyone connected.
 //! - `HOW_SERVER_NAME`: what the server calls itself (default `Hall of Worlds`).
 //! - `HOW_PLAYER_LIMIT`: the most players at once (default 0, no limit).
@@ -67,7 +69,7 @@ use std::process;
 
 use server::{
     DEFAULT_WORLD_SEED, IDLE_MINUTES, Logins, NetworkPlugin, Security, ServerName, ServerOptions,
-    UpnpChoice, UpnpPlugin, WebClient, check_health, debug_api::DebugApiPlugin,
+    StatsKey, UpnpChoice, UpnpPlugin, WebClient, check_health, debug_api::DebugApiPlugin,
     default_data_folder, headless_app, log_plugin, option_on,
 };
 use shared::world::WorldSeed;
@@ -161,12 +163,17 @@ fn main() {
     if let Some(logins) = &logins {
         app.insert_resource(logins.clone());
     }
+    let stats = StatsKey::from_environment(&data).unwrap_or_else(|error| {
+        bevy::log::error!("{error}");
+        process::exit(1);
+    });
     app.add_plugins((
         NetworkPlugin {
             address,
             web,
             security,
             logins,
+            stats: Some(stats),
         },
         // After the log plugin, so what it says is logged.
         DebugApiPlugin { port_offset: 0 },

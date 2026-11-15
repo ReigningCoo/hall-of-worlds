@@ -55,6 +55,11 @@ impl Accounts {
         Ok(())
     }
 
+    /// How many names are taken: every character on the server.
+    pub(crate) fn names_taken(&self) -> usize {
+        self.names.names.len()
+    }
+
     /// Takes the name asked for (checked as `name::checked` does): what it will
     /// be, or why not.
     pub(super) fn take_name(

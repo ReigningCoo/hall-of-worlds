@@ -80,17 +80,18 @@ pub(crate) struct Repeating {
 }
 
 impl Repeating {
-    pub fn start(every: Duration, mut action: impl FnMut() + Send + 'static) -> Self {
+    /// On a thread called `name`.
+    pub fn start(name: &str, every: Duration, mut action: impl FnMut() + Send + 'static) -> Self {
         let (stop, stopped) = mpsc::channel::<()>();
         let thread = thread::Builder::new()
-            .name("clock saver".into())
+            .name(name.into())
             .spawn(move || {
                 while stopped.recv_timeout(every) == Err(RecvTimeoutError::Timeout) {
                     action();
                 }
                 action();
             })
-            .expect("the clock's thread can start");
+            .expect("a repeating thread can start");
         Self {
             stop: Some(stop),
             thread: Some(thread),

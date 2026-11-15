@@ -32,6 +32,7 @@ pub(super) fn serve_web(heartbeat: Heartbeat, web: Option<WebClient>) -> SocketA
         ping_every: PING_EVERY,
         silent_after: SILENT_AFTER,
         logins: None,
+        stats: None,
     };
     thread::spawn(move || {
         serve(

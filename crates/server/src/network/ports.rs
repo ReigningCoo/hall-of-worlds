@@ -10,7 +10,7 @@ use std::thread::{self, JoinHandle};
 
 use super::routes::{Stop, serve};
 use super::web_files::WebClient;
-use super::{Heartbeat, PING_EVERY, SILENT_AFTER, SecurePort, Sockets};
+use super::{Heartbeat, PING_EVERY, SILENT_AFTER, SecurePort, Sockets, Stats};
 use crate::clock::ServerClock;
 use crate::oidc::Logins;
 use crate::tls::{Certificates, Security};
@@ -24,9 +24,17 @@ pub(crate) struct OpenPorts {
     pub(super) thread: JoinHandle<()>,
 }
 
+/// The routes some servers serve beside the game: the page players come back
+/// to from providers (`logins`) and `/_stats` (`stats`).
+#[derive(Default)]
+pub(crate) struct Extras {
+    pub(crate) logins: Option<Logins>,
+    pub(super) stats: Option<Stats>,
+}
+
 /// Binds the ports and serves them on a thread of their own until `stop`: the
 /// plain one (`plain`, if any) and, with TLS, the secure one in `security`;
-/// with `logins`, the page players come back to from providers too.
+/// and the `extras` given.
 /// An `Err` says why it can't, before anything is served.
 pub(crate) fn open_ports(
     clock: ServerClock,
@@ -35,8 +43,9 @@ pub(crate) fn open_ports(
     security: &Security,
     web: Option<WebClient>,
     stop: Stop,
-    logins: Option<Logins>,
+    extras: Extras,
 ) -> Result<OpenPorts, String> {
+    let Extras { logins, stats } = extras;
     let bind = |address: SocketAddr| {
         TcpListener::bind(address).map_err(|error| format!("Can't listen on {address}: {error}"))
     };
@@ -89,6 +98,7 @@ pub(crate) fn open_ports(
         ping_every: PING_EVERY,
         silent_after: SILENT_AFTER,
         logins,
+        stats,
     };
     let thread = thread::Builder::new()
         .name("network".into())

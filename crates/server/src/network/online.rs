@@ -17,7 +17,7 @@ use std::sync::Mutex;
 
 use super::NewConnections;
 use super::health::{Heartbeat, track_heartbeat};
-use super::ports::{OpenPorts, open_ports};
+use super::ports::{Extras, OpenPorts, open_ports};
 use super::routes::{Stop, accept_connections};
 use super::upnp;
 use crate::connections::{self, Connections};
@@ -210,7 +210,7 @@ fn open(
         &security,
         None,
         Stop::Closing(closed),
-        None,
+        Extras::default(),
     )?;
     Ok((ports, closing))
 }

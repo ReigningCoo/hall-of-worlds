@@ -86,6 +86,15 @@ pub struct Connections {
     accounts: Accounts,
 }
 
+impl Connections {
+    /// Players in the game now, and characters on the server in all.
+    pub(crate) fn player_counts(&self) -> (usize, usize) {
+        let online = self.clients.iter();
+        let online = online.filter(|client| client.phase == Phase::Playing);
+        (online.count(), self.accounts.names_taken())
+    }
+}
+
 /// What a client is told when saves can't be reached. Nothing has been lost.
 const SAVES_TROUBLE: &str = "the server can't reach its saves just now: try again soon";
 

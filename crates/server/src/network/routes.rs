@@ -12,6 +12,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use super::health::health_routes;
+use super::stats::stats_routes;
 use super::web_files::{WebClient, WebFiles, web_files};
 use super::{CERTIFICATE_PATH, NewConnections, SecurePort, Sockets, TlsListener, WEB_PATH};
 use super::{stop_signal, upgrade};
@@ -37,7 +38,7 @@ pub(super) fn game_routes(
     sockets: Sockets,
     certificates: Option<Arc<Certificates>>,
 ) -> Router {
-    let health = health_routes(sockets.heartbeat.clone());
+    let health = status_routes(&sockets);
     let logins = sockets.logins.as_ref().map(Logins::routes);
     let mut router = Router::new()
         .route(SOCKET_PATH, get(upgrade))
@@ -69,7 +70,16 @@ pub(super) fn game_routes(
     router
 }
 
-/// What the plain port answers when the secure one is in use, to everything.
+/// What every port answers: health and version, and the stats if served.
+fn status_routes(sockets: &Sockets) -> Router {
+    let routes = health_routes(sockets.heartbeat.clone());
+    match &sockets.stats {
+        Some(stats) => routes.merge(stats_routes(stats.clone())),
+        None => routes,
+    }
+}
+
+/// What the plain port answers when the secure one is in use, to everything else.
 async fn use_the_secure_port(secure_port: u16) -> impl IntoResponse {
     (
         StatusCode::UPGRADE_REQUIRED,
@@ -159,7 +169,7 @@ async fn run(
             let plain_routes = if secure.plain_too {
                 game_routes(web.clone(), sockets.clone(), None)
             } else {
-                health_routes(sockets.heartbeat.clone()).fallback(move || use_the_secure_port(port))
+                status_routes(&sockets).fallback(move || use_the_secure_port(port))
             };
             let routes = game_routes(web, sockets, Some(secure.certificates.clone()));
             let secured = axum::serve(TlsListener::start(secure), routes).into_future();

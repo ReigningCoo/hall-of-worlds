@@ -6013,6 +6013,7 @@ dependencies = [
  "serde",
  "serde_json",
  "shared",
+ "sysinfo",
  "time",
  "tokio",
  "tokio-rustls",
