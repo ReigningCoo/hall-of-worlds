@@ -23,7 +23,7 @@ Clothes on the Middle layer: everything worn over underclothes and under cloaks 
 
 ## Used by
 
-- `shared::item_form` (`ItemForm::Clothing`, rolled by `give_form`; material and dye can be asked for), `shared::item` (`Item::bare`; the kinds' rows in `item/clothing_def.rs`). Not drawn yet: `ItemForm::drawn_worn` leaves clothing out, and client `item_art` has no look for it.
+- `shared::item_form` (`ItemForm::Clothing`, rolled by `give_form`; material and dye can be asked for), `shared::item` (`Item::bare`; the kinds' rows in `item/clothing_def.rs`). Client `item_art` (`item_art/clothing/`) draws tunics, robes, doublets, bodices and vests, and `ItemForm::drawn_worn` includes them; the other kinds aren't drawn yet.
 
 ## Notes
 

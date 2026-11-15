@@ -90,6 +90,11 @@ pub enum Look {
         under: super::UnderLook,
         quality: Option<Quality>,
     },
+    /// Clothes: a tunic, robe, doublet, bodice or vest so far.
+    Clothing {
+        clothing: super::ClothingLook,
+        quality: Option<Quality>,
+    },
     /// A quest's parcel: brown paper and string.
     Parcel,
     /// A quest's keepsake, whatever it is: a bundle in cloth, tied.
@@ -155,6 +160,7 @@ impl Look {
             Self::Neck { neck, .. } => neck.cells,
             Self::Footwear { footwear, .. } => footwear.cells,
             Self::Under { under, .. } => under.cells,
+            Self::Clothing { clothing, .. } => clothing.cells,
             Self::Set { set, .. } => set.cells,
             Self::Body { layout, .. } => super::body::cells(layout),
             Self::Character { .. } | Self::Morph(_) => super::character::CELLS,
@@ -261,6 +267,13 @@ pub fn look_of(item: &Item) -> Option<Look> {
             let shape = item.shape();
             Some(Look::Under {
                 under: super::UnderLook::new(*form, (shape.width, shape.height)),
+                quality,
+            })
+        }
+        ItemForm::Clothing(form) if super::clothing::drawn(form.piece()) => {
+            let shape = item.shape();
+            Some(Look::Clothing {
+                clothing: super::ClothingLook::new(*form, (shape.width, shape.height)),
                 quality,
             })
         }

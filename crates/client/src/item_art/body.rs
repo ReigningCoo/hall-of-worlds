@@ -25,7 +25,7 @@ mod morph;
 mod trunk;
 
 pub(super) use coat_hair::coat_hair;
-pub(super) use features::wings;
+pub(super) use features::{tail_path, wings};
 use fit::fitted;
 pub(super) use fit::turn_of;
 pub(super) use hair::{Cover, hair};

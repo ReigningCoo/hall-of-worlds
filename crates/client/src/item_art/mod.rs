@@ -6,6 +6,7 @@ mod bag;
 mod blade;
 mod body;
 mod character;
+mod clothing;
 mod colours;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
@@ -25,6 +26,7 @@ use bevy::prelude::*;
 use bevy::render::{ExtractSchedule, Render, RenderApp, RenderSystems};
 
 pub use character::{character_look, portrait_look};
+pub use clothing::ClothingLook;
 pub use colours::Colours;
 pub use footwear::FootwearLook;
 pub use looks::{

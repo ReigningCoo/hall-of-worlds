@@ -116,7 +116,11 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
             necklace: super::NecklaceLook::new(form, Size::Medium),
             quality,
         },
-        // Clothes' models come later.
+        ItemForm::Clothing(form) if super::clothing::drawn(form.piece()) => Look::Clothing {
+            clothing: super::ClothingLook::new(*form, ANY),
+            quality,
+        },
+        // The other clothes' models come later.
         ItemForm::Clothing(_)
         | ItemForm::Gem(_)
         | ItemForm::Ring(_)
@@ -186,8 +190,9 @@ pub(super) fn dressed(
         Look::Head { head, .. } => Some(head.form.rim(&frame)),
         _ => None,
     });
+    let wearer = super::clothing::Wearer::of(&layout, worn);
     for look in worn {
-        for (triangles, stuff) in worn::worn(look, &frame, rim.as_deref()) {
+        for (triangles, stuff) in worn::worn(look, &frame, rim.as_deref(), &wearer) {
             let moved = triangles
                 .into_iter()
                 .map(|triangle| triangle.map(|corner| corner + offset))

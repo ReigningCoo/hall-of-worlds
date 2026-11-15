@@ -66,7 +66,12 @@ fn everything_worn_stays_outside_the_trunk_on_every_people() {
     let mut wrong = Vec::new();
     for look in &looks {
         for (kind, frame, trunk) in &frames {
-            let parts = worn(look, frame, None);
+            let parts = worn(
+                look,
+                frame,
+                None,
+                &crate::item_art::clothing::Wearer::default(),
+            );
             if parts.is_empty() {
                 continue;
             }
