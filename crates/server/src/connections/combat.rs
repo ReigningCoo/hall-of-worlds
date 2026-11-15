@@ -190,9 +190,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         harm: hit.harm,
         left: hit.left,
     };
-    client
-        .link
-        .send(&ServerMessage::Sheet(client.sheet.as_sent()))
+    client.send_sheet(tick)
         && client.link.send(&ServerMessage::AbilityLanded {
             who: None,
             target: Some(target),

@@ -3,7 +3,7 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
-use shared::protocol::{KindChange, ServerMessage};
+use shared::protocol::KindChange;
 use shared::sheet::Sheet;
 
 use super::Client;
@@ -24,10 +24,7 @@ pub(super) fn change_kind(
     if client.visit.is_none() {
         warn!("Refused becoming {kind:?}: there is no ground here");
         // Put right whatever the client guessed.
-        return client
-            .link
-            .send(&ServerMessage::Sheet(client.sheet.as_sent()))
-            && client.send_inventory();
+        return client.send_sheet(world.action_clock.ticks()) && client.send_inventory();
     }
     let was = client.inventory.creature;
     for item in client
@@ -51,11 +48,8 @@ pub(super) fn change_kind(
         }
     }
     client.unsaved = true;
-    client
-        .link
-        .send(&ServerMessage::Sheet(client.sheet.as_sent()))
-        && {
-            client.update_speed(world.action_clock.ticks());
-            client.send_inventory()
-        }
+    client.send_sheet(world.action_clock.ticks()) && {
+        client.update_speed(world.action_clock.ticks());
+        client.send_inventory()
+    }
 }

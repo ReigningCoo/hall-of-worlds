@@ -25,12 +25,12 @@ impl Plugin for NoticesPlugin {
 }
 
 /// The notice: a panel in the middle of a row across the window, under the
-/// status text. The pointer is never on it (`inert`).
+/// bar of timed effects (`effect_bar`). The pointer is never on it (`inert`).
 static NOTICES: Template = html!(
     "notices",
     r#"
 <form id="notices">
-  <div id="row" top="64" left="0" right="0" align="center" inert hidden>
+  <div id="row" top="72" left="0" right="0" align="center" inert hidden>
     <panel id="notice"><p id="words" class="medium"/></panel>
   </div>
 </form>

@@ -87,7 +87,7 @@ impl Client {
         }
         self.unsaved = true;
         self.refresh_attributes(now);
-        self.link.send(&ServerMessage::Sheet(self.sheet.as_sent())) && self.send_vitals(now)
+        self.send_sheet(now) && self.send_vitals(now)
     }
 
     /// After a step or a move from `from`: moving ends what moving ends.

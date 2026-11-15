@@ -142,3 +142,6 @@ delapouite/padlock-open
 delapouite/plain-padlock
 # The "?" beside a labelled setting with a tip (dom/help_mark.rs)
 sbed/help
+# Timed effects (effect_bar/icons.rs)
+delapouite/eating
+lorc/poison-bottle

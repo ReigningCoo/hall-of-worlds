@@ -41,9 +41,7 @@ pub(super) fn struck(
         killed(client, world, tick);
         return left;
     }
-    client
-        .link
-        .send(&ServerMessage::Sheet(client.sheet.as_sent()));
+    client.send_sheet(tick);
     client.send_vitals(tick);
     left
 }
@@ -78,9 +76,7 @@ fn killed(client: &mut Client, world: &mut ServerWorld, tick: u64) {
     let permanent = difficulty.permanent_death();
     client.died_for_good = permanent;
     crate::sites::killed(client, world);
-    client
-        .link
-        .send(&ServerMessage::Sheet(client.sheet.as_sent()));
+    client.send_sheet(tick);
     client.send_vitals(tick);
     client.link.send(&ServerMessage::Killed { permanent });
 }

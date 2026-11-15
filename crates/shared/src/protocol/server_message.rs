@@ -256,16 +256,12 @@ pub enum ServerMessage {
         who: Option<Id>,
         skills: crate::skill::Skills,
     },
-    /// The cells of the wilderness's window round the cutouts of pois the
-    /// player knows (`wilderness::Cutout::border`), sent with each window:
-    /// shown hatched, a click on one walks there and leaves for the world
-    /// map (`Up`).
+    /// The wilderness window's cells round known pois' cutouts (`Cutout::border`),
+    /// sent with each window: hatched, a click walks there and leaves (`Up`).
     Borders(Vec<(i64, i64)>),
-    /// Ground the wilderness keeps level (the groups of covered cells in pois'
-    /// cutouts, `wilderness::Cutout::flats`: a rectangle each, levelling only
-    /// its cells that aren't out in the open), sent with the first of a
-    /// cutout's cells the client is sent in each window: their heights, for
-    /// drawing and step costs (`shared::movement::WildHeights::with_flats`).
+    /// Ground the wilderness keeps level (pois' covered cells, `Cutout::flats`: a
+    /// rectangle each, its open cells not levelled), with a cutout's first cell sent in
+    /// each window: heights for drawing and steps (`movement::WildHeights::with_flats`).
     FlatGround(Vec<crate::movement::FlatGround>),
     /// The player has just found a poi in the wilderness, by seeing its way
     /// in or stepping inside it: it is known from now on (not sent for
@@ -297,4 +293,7 @@ pub enum ServerMessage {
     Turned(Vec<(Id, crate::facing::Heading)>),
     /// About quests (`QuestNews`).
     Quest(super::QuestNews),
+    /// The action clock's tick now, right after every `Sheet`, so the client can
+    /// tell when its effects end (it counts on at `energy::ACTION_TICKS_PER_SECOND`).
+    Clock { tick: u64 },
 }

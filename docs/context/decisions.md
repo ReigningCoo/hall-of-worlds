@@ -1579,3 +1579,7 @@ A bar slot holds `shared::ability::BarThing`, an ability or a kind of item that 
 ## 2026-11-15: Bag slots apart from what is worn, and one combined grid
 
 Owner's design: a worn belt gives bag slots (Poor and Common 1, +1 a quality above), and a Pouch or Bag tied there adds its inside's cells to the end of the own grid. Tied bags are kept in their own list, `Inventory::bag_slots`, not in `worn`: they aren't clothes (no layer or location, no wear rules, no bonuses), and slot order matters. What lies in the cells they add is in `Inventory::items` like the rest, with the tied bag empty, so one grid holds everything, things lie across own and added rows, and the bag's own limits don't apply; the cost is that a tied bag comes off only once as many cells as it adds are empty at the grid's end. The client draws it as one bigger grid (PR 2).
+
+## 2026-11-15: The client learns the action tick from `Clock`, and one food counts at a time
+
+The client had no idea of the server's action tick, so it couldn't tell when effects end. The server now sends `ServerMessage::Clock { tick }` right after every `Sheet` (always through `Client::send_sheet`), and the client counts on from it with its own `Time`, which stops while single player is paused as the server's clock does (`effect_bar::ServerTick`). Only the effect bar uses it so far. Owner's decision with it: only the most recently eaten food counts; eating anything replaces any earlier `Source::Eaten(_)` (`Source::replaced_by`), while Poison and Dev stay apart.

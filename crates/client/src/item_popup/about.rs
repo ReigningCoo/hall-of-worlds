@@ -4,7 +4,7 @@
 use shared::item::{Item, ItemKind};
 use shared::lang::{Args, Lang};
 
-use super::words::written;
+use crate::common::written;
 
 /// What the language files say of this kind of item, if anything. A stack's
 /// is its top's.

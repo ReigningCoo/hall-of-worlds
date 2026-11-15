@@ -7,8 +7,9 @@ use super::stat::{Bonus, Stat};
 use crate::item::ItemKind;
 use crate::vitals::Vital;
 
-/// Where an effect came from. A creature has at most one from each: a new one
-/// takes its place, so eating a second apple starts it again.
+/// Where an effect came from. A creature has at most one from each, and one
+/// eaten at all: a new one takes its place, so eating a second apple starts it
+/// again, and bread after an apple ends the apple's (`replaced_by`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Source {
     /// Eating or drinking one of these.
@@ -21,6 +22,17 @@ pub enum Source {
     /// starts it again.
     Poison,
     // New sources go at the end: messages carry one by its place in this list.
+}
+
+impl Source {
+    /// Whether a new effect from `new` takes the place of one from this: the
+    /// same source, or both eaten, as only the latest food counts.
+    pub fn replaced_by(self, new: Source) -> bool {
+        match (self, new) {
+            (Source::Eaten(_), Source::Eaten(_)) => true,
+            _ => self == new,
+        }
+    }
 }
 
 /// Something that ends an effect early (`EndsOn`).

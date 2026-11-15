@@ -42,9 +42,7 @@ pub(in crate::connections) fn do_for_others(clients: &mut [Client], worlds: &mut
                 ForOther::Gift(batch) => give_to_player(other, world, &batch),
                 ForOther::Skills(change) => {
                     other.change_skills(change, world.action_clock.ticks());
-                    other
-                        .link
-                        .send(&ServerMessage::Sheet(other.sheet.as_sent()));
+                    other.send_sheet(world.action_clock.ticks());
                     asker.link.send(&ServerMessage::DevSkillsOf {
                         who: Some(to),
                         skills: other.sheet.skills.clone(),

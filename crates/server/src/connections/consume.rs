@@ -6,7 +6,6 @@ use shared::bonus::{is_food, may_eat};
 use shared::energy::handling_cost;
 use shared::id::Id;
 use shared::item::Item;
-use shared::protocol::ServerMessage;
 
 use super::Client;
 use crate::ServerWorld;
@@ -37,11 +36,7 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
     };
     client.update_speed(tick);
     client.ground_told.again |= !carried;
-    let told = client.send_inventory()
-        && client
-            .link
-            .send(&ServerMessage::Sheet(client.sheet.as_sent()))
-        && client.send_vitals(tick);
+    let told = client.send_inventory() && client.send_sheet(tick) && client.send_vitals(tick);
     (told, cost)
 }
 

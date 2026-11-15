@@ -98,9 +98,7 @@ pub(super) fn land_kick(
         shove(world, place.0, target, to);
     }
     client.practise(kick_skill(), hit.kind, tick);
-    client
-        .link
-        .send(&ServerMessage::Sheet(client.sheet.as_sent()))
+    client.send_sheet(tick)
         && client.link.send(&ServerMessage::AbilityLanded {
             who: None,
             target: Some(target),
@@ -132,9 +130,7 @@ pub(super) fn land_door_kick(client: &mut Client, world: &mut ServerWorld, at: (
         client.sheet.skills.used(skill, client.activity.played);
         client.unsaved = true;
     }
-    client
-        .link
-        .send(&ServerMessage::Sheet(client.sheet.as_sent()))
+    client.send_sheet(tick)
         && client.link.send(&ServerMessage::AbilityLanded {
             who: None,
             target: None,
