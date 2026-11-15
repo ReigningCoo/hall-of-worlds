@@ -12,6 +12,7 @@ mod hair;
 mod legs;
 mod markings;
 mod neck;
+mod necklaces;
 mod page;
 mod sets;
 mod under;

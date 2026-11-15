@@ -4,7 +4,7 @@
 use bevy::prelude::*;
 use shared::armour::hands::Hand;
 use shared::body::{Hair, Layout};
-use shared::creature::CreatureKind;
+use shared::creature::{CreatureKind, Size};
 use shared::item_form::ItemForm;
 use shared::sheet::Appearance;
 use shared::wear::WornLook;
@@ -111,11 +111,15 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
             under: super::UnderLook::new(*form, ANY),
             quality,
         },
+        // Settings' sizes don't show worn: only gems against their settings.
+        ItemForm::Necklace(form) => Look::Necklace {
+            necklace: super::NecklaceLook::new(form, Size::Medium),
+            quality,
+        },
         // Clothes' models come later.
         ItemForm::Clothing(_)
         | ItemForm::Gem(_)
         | ItemForm::Ring(_)
-        | ItemForm::Necklace(_)
         | ItemForm::Blade(_)
         | ItemForm::Key(_) => {
             return None;

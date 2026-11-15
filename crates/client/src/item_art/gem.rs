@@ -71,7 +71,7 @@ pub(super) fn gem_parts(
     vec![(mesh.clone(), back), (mesh, front)]
 }
 
-fn gem_colour(gem: Material) -> Color {
+pub(super) fn gem_colour(gem: Material) -> Color {
     match gem {
         Material::Amethyst => Color::srgb(0.55, 0.2, 0.8),
         Material::Aquamarine => Color::srgb(0.4, 0.85, 0.9),

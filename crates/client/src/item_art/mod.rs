@@ -15,6 +15,7 @@ mod gem;
 mod looks;
 mod model;
 mod morph;
+mod necklace;
 mod parcel;
 mod pouch;
 mod ring;
@@ -32,6 +33,7 @@ pub use looks::{
 };
 pub use model::CreatureModels;
 pub use morph::{MORPH_STEPS, MorphLook, morph_look};
+pub use necklace::NecklaceLook;
 pub use under::UnderLook;
 
 // Split into files (`cargo xtask lint` keeps files small).

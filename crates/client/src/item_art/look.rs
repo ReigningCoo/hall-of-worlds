@@ -6,7 +6,7 @@ use shared::body::{Hair, Layout};
 use super::Colours;
 use shared::creature::{CreatureKind, Size};
 use shared::item::{Item, Quality};
-use shared::item_form::{BandWidth, GemForm, ItemForm, Mount, Pattern, Profile};
+use shared::item_form::{BandWidth, GemForm, ItemForm, Mount, Pattern, Profile, Setting};
 use shared::material::Material;
 
 use super::looks::{
@@ -24,6 +24,11 @@ pub enum Look {
     },
     Ring {
         ring: RingLook,
+        quality: Option<Quality>,
+    },
+    /// A necklace, as it hangs round a neck.
+    Necklace {
+        necklace: super::NecklaceLook,
         quality: Option<Quality>,
     },
     Blade {
@@ -132,7 +137,7 @@ impl Look {
     /// The cells it is drawn to fill, wide and long: only the proportions matter.
     pub fn cells(&self) -> (u8, u8) {
         match self {
-            Self::Gem { .. } | Self::Ring { .. } => (1, 1),
+            Self::Gem { .. } | Self::Ring { .. } | Self::Necklace { .. } => (1, 1),
             Self::Parcel => (2, 2),
             Self::Keepsake => (1, 1),
             Self::Bag => (3, 3),
@@ -204,6 +209,24 @@ pub(super) fn sizes_above(size: Size, than: Size) -> i8 {
     size as i8 - than as i8
 }
 
+/// How settings look, with sizes against the item's own `size`.
+pub(super) fn setting_looks(settings: &[Setting], size: Size) -> Vec<SettingLook> {
+    let look = |setting: &Setting| SettingLook {
+        angle: setting.angle,
+        mount: setting.mount,
+        bigger: sizes_above(setting.size, size),
+        gem: setting.gem.as_ref().and_then(|gem| match &gem.form {
+            Some(ItemForm::Gem(form)) => Some(SetGemLook {
+                gem: *form,
+                quality: gem.quality,
+                bigger: sizes_above(gem.made.size, setting.size),
+            }),
+            _ => None,
+        }),
+    };
+    settings.iter().map(look).collect()
+}
+
 /// How this item looks, if it has a form to go by.
 pub fn look_of(item: &Item) -> Option<Look> {
     match item.kind {
@@ -220,31 +243,20 @@ pub fn look_of(item: &Item) -> Option<Look> {
     match item.form.as_ref()? {
         ItemForm::Blade(form) => Some(super::looks::blade_look(item, form)),
         ItemForm::Gem(gem) => Some(Look::Gem { gem: *gem, quality }),
-        ItemForm::Ring(ring) => {
-            let settings = ring.settings.iter().map(|setting| SettingLook {
-                angle: setting.angle,
-                mount: setting.mount,
-                bigger: sizes_above(setting.size, item.made.size),
-                gem: setting.gem.as_ref().and_then(|gem| match &gem.form {
-                    Some(ItemForm::Gem(form)) => Some(SetGemLook {
-                        gem: *form,
-                        quality: gem.quality,
-                        bigger: sizes_above(gem.made.size, setting.size),
-                    }),
-                    _ => None,
-                }),
-            });
-            Some(Look::Ring {
-                ring: RingLook {
-                    metal: ring.metal,
-                    profile: ring.profile,
-                    width: ring.width,
-                    pattern: ring.pattern,
-                    settings: settings.collect(),
-                },
-                quality,
-            })
-        }
+        ItemForm::Ring(ring) => Some(Look::Ring {
+            ring: RingLook {
+                metal: ring.metal,
+                profile: ring.profile,
+                width: ring.width,
+                pattern: ring.pattern,
+                settings: setting_looks(&ring.settings, item.made.size),
+            },
+            quality,
+        }),
+        ItemForm::Necklace(necklace) => Some(Look::Necklace {
+            necklace: super::NecklaceLook::new(necklace, item.made.size),
+            quality,
+        }),
         ItemForm::Under(form) => {
             let shape = item.shape();
             Some(Look::Under {
