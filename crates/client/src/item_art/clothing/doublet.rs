@@ -94,20 +94,20 @@ impl Wear<'_> {
         let (elbow, wrist) = (self.elbow(), self.wrist());
         let end = wrist - 10.0;
         match sleeves {
-            DoubletSleeves::Close => self.sleeves(model, Stuff::Main, (-15.0, end), &|_| FITTED),
+            DoubletSleeves::Close => self.shoulder_sleeves(model, Stuff::Main, end, &|_| FITTED),
             DoubletSleeves::Puffed => {
                 let puff = move |down: f32| {
                     let near = 1.0 - ((down - elbow * 0.3) / (elbow * 0.35)).abs().min(1.0);
                     FITTED + 26.0 * near
                 };
-                self.sleeves(model, Stuff::Main, (-15.0, end), &puff);
+                self.shoulder_sleeves(model, Stuff::Main, end, &puff);
             }
             DoubletSleeves::Wings => {
-                self.sleeves(model, Stuff::Main, (-15.0, end), &|_| FITTED);
+                self.shoulder_sleeves(model, Stuff::Main, end, &|_| FITTED);
                 self.rolls(model, Stuff::Main, FITTED);
             }
             DoubletSleeves::Detachable => {
-                self.sleeves(model, Stuff::Main, (-15.0, end), &|_| FITTED);
+                self.shoulder_sleeves(model, Stuff::Main, end, &|_| FITTED);
                 self.cuffs(model, Stuff::Shade, 0.0, 4.0, FITTED);
                 self.sleeve_ties(model, FITTED);
             }

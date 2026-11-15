@@ -1,14 +1,21 @@
 //! Cloth hanging from round the neck or head over the shoulders: hoods' capes, veils,
 //! shawls, capelets and falling bands. Each falls from a ring at its top to heights in
 //! front and behind, and at the sides onto the shoulders or down over the arms, kept
-//! clear of the body, outside the clothes on the trunk and inside torso armour.
+//! clear of the body, outside the clothes on the trunk and the sleeves, and inside
+//! torso armour.
 
 use shared::armour::neck::Hem;
 
+use shared::body::Side;
+
 use super::shape::{OVER, UNDER_ARMOUR, Wear};
+use super::sleeve_out::{from_arm, upper_arm};
 use crate::item_art::armour::neck::{Curtain, Profile, dir, sideness};
 use crate::item_art::armour::{Model, Stuff};
 use bevy::prelude::*;
+
+/// How much wider than the upper arm the bare body's shoulder is drawn.
+pub(super) const SHOULDER_ROUND: f32 = 1.15;
 
 /// Where a drape falls to.
 #[derive(Clone, Copy)]
@@ -36,6 +43,33 @@ impl Wear<'_> {
         }
     }
 
+    /// The upper arms' radius a drape keeps clear of, `along` from the shoulder (0) to
+    /// the elbow (1): the round of the shoulder (as the bare body draws it, and
+    /// shoulder capes clear it), or worn sleeves over it.
+    pub fn drape_arm(&self, along: f32) -> f32 {
+        let shoulder = self.frame.upper_arm as f32 * SHOULDER_ROUND;
+        let sleeve = self
+            .wearer()
+            .map_or(0.0, |wearer| wearer.sleeve_out.at(along));
+        sleeve.max(shoulder)
+    }
+
+    /// The point moved out, if need be, to stand `off` outside the upper arms (as
+    /// `drape_arm`): for cloth hanging over a shoulder that is not a `drape`.
+    pub fn clear_arms(&self, point: Vec3, off: f32) -> Vec3 {
+        let mut point = point;
+        for side in Side::BOTH {
+            let (from, to) = upper_arm(self.frame, side);
+            let (away, along) = from_arm(point, (from, to));
+            let reach = self.drape_arm(along) + off;
+            if away < reach {
+                let nearest = from.lerp(to, along.clamp(0.0, 1.0));
+                point = nearest + (point - nearest).normalize_or(Vec3::Y) * reach;
+            }
+        }
+        point
+    }
+
     /// The profile of a drape at an angle (from the front towards the left), from
     /// `top`, `off` the body.
     fn fall_at(&self, fall: &Fall, angle: f32, top: Vec3, off: f32) -> Profile {
@@ -45,7 +79,7 @@ impl Wear<'_> {
         let front = around.trunk(angle, height, off);
         let (side, crest) = match fall.side {
             Some(low) => {
-                let out = around.shoulder_half() + around.upper_arm() + off + 6.0;
+                let out = around.shoulder_half() + self.drape_arm(0.0) + off + 6.0;
                 let bottom = dir(angle) * out + Vec3::Y * low;
                 let crest = around.over_shoulder(angle, around.shoulder_half(), off + 10.0);
                 (bottom, crest)
@@ -98,6 +132,7 @@ impl Wear<'_> {
             hem,
             depth,
             clear: (&around, off),
+            arm: Some(&|along| self.drape_arm(along)),
         };
         curtain.sheet(model, stuff, 0.0, self.thick);
     }

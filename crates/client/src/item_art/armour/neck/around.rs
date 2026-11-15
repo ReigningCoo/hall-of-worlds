@@ -111,8 +111,9 @@ impl Around<'_> {
     }
 
     /// The point moved out, if need be, to stand at least `off` clear of the neck, the
-    /// trunk and the upper arms.
-    pub fn clear(&self, point: Vec3, off: f32) -> Vec3 {
+    /// trunk and the upper arms (`arm` their radius by how far along from the shoulder
+    /// (0) to the elbow (1): the skin's, or more for what is on them).
+    pub fn clear(&self, point: Vec3, off: f32, arm: &dyn Fn(f32) -> f32) -> Vec3 {
         let mut point = point;
         let (neck_low, neck_high) = (self.neck_base() - 20.0, self.chin() + 20.0);
         let across = Vec2::new(point.x, point.z);
@@ -138,7 +139,7 @@ impl Around<'_> {
                 ((point - from).dot(to - from) / (to - from).length_squared()).clamp(0.0, 1.0);
             let nearest = from.lerp(to, along);
             let away = point - nearest;
-            let reach = self.upper_arm() + off;
+            let reach = arm(along) + off;
             if away.length() < reach {
                 point = nearest + away.normalize_or(Vec3::Y) * reach;
             }

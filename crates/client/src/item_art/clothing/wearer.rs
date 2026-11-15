@@ -10,6 +10,7 @@ use shared::body::{Feet, Frame, Layout, Role};
 use shared::clothing::Garment;
 
 use super::Fit;
+use super::sleeve_out::SleeveOut;
 use super::worn_head::WornHead;
 use crate::item_art::Look;
 use crate::item_art::body::{tail_path, trunk_half};
@@ -45,6 +46,9 @@ pub(in crate::item_art) struct Wearer {
     /// How far clothes on the torso stand out in front of the chest, at most: what
     /// drapes over them (capes, shawls, scarves' ends) lies outside it.
     pub chest_out: Option<f32>,
+    /// How far worn sleeves stand out from the middle of the upper arm, at most: what
+    /// drapes over the arms keeps outside them.
+    pub sleeve_out: SleeveOut,
     /// A shawl is worn: a hood's cape goes over it.
     pub shawl: bool,
     /// The head, for what is worn on it.
@@ -63,6 +67,7 @@ impl Wearer {
         let mut belt = None;
         let (mut torso_hem, mut skirt_hem) = (None, None);
         let (mut chest_out, mut shawl) = (None, false);
+        let mut sleeve_out = SleeveOut::default();
         let frame = layout.worn_frame().map(|(frame, _)| frame);
         for look in worn {
             match look {
@@ -71,14 +76,17 @@ impl Wearer {
                     match (&form.garment, &frame) {
                         (Garment::Belt(worn), _) => belt = Some(super::belt::height(worn)),
                         (Garment::Skirt(_), Some(frame)) => {
-                            skirt_hem = lowest(skirt_hem, hem_of(form, frame).0)
+                            let model = super::build(form, frame, Fit::Alone);
+                            skirt_hem = lowest(skirt_hem, hem_of(&model, frame).0)
                         }
                         (Garment::Shawl(_), _) => shawl = true,
                         (garment, _) if !on_trunk(garment) => {}
                         (_, Some(frame)) => {
-                            let (hem, out) = hem_of(form, frame);
+                            let model = super::build(form, frame, Fit::Alone);
+                            let (hem, out) = hem_of(&model, frame);
                             torso_hem = lowest(torso_hem, hem);
                             chest_out = Some(chest_out.map_or(out, |have: f32| have.max(out)));
+                            sleeve_out = sleeve_out.max(super::sleeve_out::measure(&model, frame));
                         }
                         _ => {}
                     }
@@ -96,9 +104,10 @@ impl Wearer {
                 _ => {}
             }
         }
+        let wings = layout.limbs().any(|limb| limb.role == Role::WingArm);
         Self {
             tail,
-            wings: layout.limbs().any(|limb| limb.role == Role::WingArm),
+            wings,
             taur,
             covered,
             hooves: layout.parts.feet == Feet::Hooves,
@@ -107,6 +116,12 @@ impl Wearer {
             torso_hem,
             skirt_hem,
             chest_out,
+            // Wing-arms take no sleeves.
+            sleeve_out: if wings {
+                SleeveOut::default()
+            } else {
+                sleeve_out
+            },
             shawl,
             head: WornHead::of(layout, worn),
         }
@@ -140,8 +155,7 @@ fn on_trunk(garment: &Garment) -> bool {
 
 /// How low a piece hangs at the body's middle, front or back (not its sleeves), and
 /// how far out in front of the chest it stands.
-fn hem_of(form: &shared::clothing::ClothingForm, frame: &Frame) -> (f32, f32) {
-    let model = super::build(form, frame, Fit::Alone);
+fn hem_of(model: &crate::item_art::armour::Model, frame: &Frame) -> (f32, f32) {
     let middle = frame.hips_half.0 as f32 * 0.5;
     let corners = || {
         model

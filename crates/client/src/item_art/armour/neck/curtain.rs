@@ -26,6 +26,10 @@ pub(in crate::item_art) struct Curtain<'a> {
     pub depth: f32,
     /// The body it is kept this far clear of.
     pub clear: (&'a Around<'a>, f32),
+    /// The upper arms' radius it keeps clear of, by how far from the shoulder (0) to
+    /// the elbow (1): the skin's if `None`, or more for the shoulder and sleeves under
+    /// a drape.
+    pub arm: Option<&'a dyn Fn(f32) -> f32>,
 }
 
 impl Curtain<'_> {
@@ -56,7 +60,8 @@ impl Curtain<'_> {
         let angle = self.from + (self.to - self.from) * u;
         let point = (self.profile)(angle).longer(self.hem_at(u)).at(v);
         let (around, off) = self.clear;
-        around.clear(point, off)
+        let skin = |_| around.upper_arm();
+        around.clear(point, off, self.arm.unwrap_or(&skin))
     }
 
     /// The curtain as a surface, lifted `lift` off where it hangs.

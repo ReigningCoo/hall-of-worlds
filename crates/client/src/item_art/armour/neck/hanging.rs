@@ -81,6 +81,7 @@ fn whole<'a>(
         hem,
         depth: HEM_DEPTH,
         clear: (around, off),
+        arm: None,
     }
 }
 
@@ -164,6 +165,7 @@ pub(super) fn add_aventail(
         hem: form.hem,
         depth: HEM_DEPTH,
         clear: (around, SOFT_OFF),
+        arm: None,
     };
     dress(model, &curtain, form.construction, form.studded);
     add_edging(model, &curtain, form.edging);

@@ -33,6 +33,7 @@ fn whole<'a>(around: &'a Around<'a>, profile: &'a dyn Fn(f32) -> Profile, off: f
         hem: shared::armour::neck::Hem::Straight,
         depth: 0.0,
         clear: (around, off),
+        arm: None,
     }
 }
 
@@ -145,6 +146,7 @@ fn add_bib(model: &mut Model, form: &NeckForm, around: &Around) {
         hem: shared::armour::neck::Hem::Straight,
         depth: 0.0,
         clear: (around, off),
+        arm: None,
     };
     let laced = matches!(
         form.construction,

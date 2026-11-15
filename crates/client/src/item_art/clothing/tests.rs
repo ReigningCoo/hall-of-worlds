@@ -209,3 +209,61 @@ fn trousers_are_hidden_under_a_long_tunic() {
         }
     }
 }
+
+/// Capes, veils, hoods' capes and shawls lie outside the upper arms: the round of the
+/// shoulder, and any sleeves worn on them, on every playable people.
+#[test]
+fn drapes_stay_clear_of_the_upper_arms() {
+    use super::drape::SHOULDER_ROUND;
+    use super::sleeve_out::{from_arm, upper_arm};
+    use shared::body::Side;
+    let drapes = [
+        ClothingPiece::Shawl,
+        ClothingPiece::Hood,
+        ClothingPiece::Headcloth,
+    ];
+    for kind in CreatureKind::ALL
+        .into_iter()
+        .filter(|kind| kind.def().playable)
+    {
+        let layout = Layout::of(kind).unwrap();
+        let Some((frame, _)) = layout.worn_frame() else {
+            continue;
+        };
+        let shoulder = frame.upper_arm as f32 * SHOULDER_ROUND;
+        let pairs = drapes
+            .iter()
+            .flat_map(|&piece| rolled(ClothingPiece::Robe).zip(rolled(piece)));
+        for (nth, (robe, drape)) in pairs.enumerate() {
+            // The dupatta's straps and the tippet's roll are not draped.
+            if let shared::clothing::Garment::Shawl(shawl) = &drape.garment
+                && matches!(
+                    shawl.form,
+                    shared::clothing::ShawlForm::Dupatta | shared::clothing::ShawlForm::Tippet
+                )
+            {
+                continue;
+            }
+            let worn = [robe, drape].map(|form| {
+                let shape = form.shape();
+                crate::item_art::Look::Clothing {
+                    clothing: ClothingLook::new(form, (shape.width, shape.height)),
+                    quality: None,
+                }
+            });
+            let wearer = Wearer::of(&layout, &worn);
+            let model = build(&drape, &frame, Fit::Worn(wearer));
+            for corner in corners(&model) {
+                for side in Side::BOTH {
+                    let (away, along) = from_arm(corner, upper_arm(&frame, side));
+                    let sleeve = wearer.sleeve_out.at(along);
+                    let arm = sleeve.max(shoulder);
+                    assert!(
+                        away >= arm - 0.5,
+                        "{kind:?} #{nth} {drape:?}: {away} from the arm, under {arm}"
+                    );
+                }
+            }
+        }
+    }
+}

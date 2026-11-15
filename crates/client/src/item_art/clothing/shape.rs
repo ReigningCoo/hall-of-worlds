@@ -39,6 +39,9 @@ pub(super) const UNDER_ARMOUR_FLARE: f32 = 0.15;
 const FLOOR: f32 = 15.0;
 
 /// Whether a piece is drawn alone, as cut, or worn by someone.
+// `Wearer` is large, but a fit is copied into each piece once as it is built, and
+// boxing it would cost `Copy`.
+#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Copy, Debug)]
 pub(in crate::item_art) enum Fit {
     Alone,
