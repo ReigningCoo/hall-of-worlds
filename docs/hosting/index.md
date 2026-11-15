@@ -171,7 +171,7 @@ A standalone server answers `/_stats` with how it is doing, as JSON, for a dashb
 
 `online` is players in the game now, `total` every character on the server, `memory` and `cpu` the server's own (`percent` is a share of the whole machine), and `uptime_seconds` how long it has run.
 
-It needs a key, in an `X-API-Key` header, as `Authorization: Bearer <key>`, or as `?key=<key>`. Without the right key it answers 404, as if it weren't there. The server makes a key on its first run and keeps it in its data folder, in `stats-key.txt`; to choose your own, set `HOW_STATS_SECRET`, or give it as a Docker secret with `HOW_STATS_SECRET_FILE` (see the [Compose file](docker-compose.yml)). Prefer a header to `?key=`: proxies and servers often log the addresses asked for, key and all.
+It needs a key, in an `X-API-Key` header, as `Authorization: Bearer <key>`, or as `?key=<key>`. Without the right key it answers 404, as if it weren't there. The server makes a key on its first run and keeps it in its data folder, in `stats-key.txt`, which holds the key alone (no newline), so a dashboard can read it as a secret as it is; to choose your own, set `HOW_STATS_SECRET`, or give it as a Docker secret with `HOW_STATS_SECRET_FILE` (see the [Compose file](docker-compose.yml)). Prefer a header to `?key=`: proxies and servers often log the addresses asked for, key and all.
 
 A Homepage service with the customapi widget:
 

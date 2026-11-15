@@ -127,12 +127,36 @@ fn a_key_is_made_and_then_kept() {
     let folder = TestFolder::new();
     StatsKey::choose(None, &folder.0).unwrap();
     let made = fs::read_to_string(folder.0.join("stats-key.txt")).unwrap();
-    let made = made.trim();
+    // The key alone: no newline for a dashboard to put into its header.
     assert_eq!(made.len(), 24);
+    let made = made.as_str();
     let key = StatsKey::choose(None, &folder.0).unwrap();
     assert!(key.matches(made));
     let again = fs::read_to_string(folder.0.join("stats-key.txt")).unwrap();
     assert_eq!(again.trim(), made);
+}
+
+#[test]
+fn a_kept_key_loses_its_newline() {
+    let folder = TestFolder::new();
+    fs::create_dir_all(&folder.0).unwrap();
+    let file = folder.0.join("stats-key.txt");
+    fs::write(&file, "kept\n").unwrap();
+    let key = StatsKey::choose(None, &folder.0).unwrap();
+    assert!(key.matches("kept"));
+    assert_eq!(fs::read_to_string(&file).unwrap(), "kept");
+}
+
+#[test]
+fn a_blank_file_gets_a_new_key() {
+    let folder = TestFolder::new();
+    fs::create_dir_all(&folder.0).unwrap();
+    let file = folder.0.join("stats-key.txt");
+    fs::write(&file, "\n").unwrap();
+    let key = StatsKey::choose(None, &folder.0).unwrap();
+    let made = fs::read_to_string(&file).unwrap();
+    assert_eq!(made.len(), 24);
+    assert!(key.matches(&made));
 }
 
 #[test]
