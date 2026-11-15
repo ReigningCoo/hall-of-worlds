@@ -173,7 +173,7 @@ fn tail(triangles: &mut Vec<Triangle>, layout: &Layout, length: f32) {
 }
 
 /// Where a tail this long runs, from its root to its tip, and how thick it is there.
-pub(super) fn tail_path(layout: &Layout, length: f32) -> [(Vec3, f32); 4] {
+pub(in crate::item_art) fn tail_path(layout: &Layout, length: f32) -> [(Vec3, f32); 4] {
     let f = |value: i32| value as f32;
     // Behind the hips, whichever way the back leans; high on the rump of a level back,
     // where it hangs nearly straight down.

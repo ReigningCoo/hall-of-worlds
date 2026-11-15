@@ -5,11 +5,17 @@ use shared::body::Frame;
 
 use super::set::Coloured;
 use super::{Model, Stuff, arms, feet, hands, head, legs, neck, set, shoulders, torso, waist};
-use crate::item_art::{Look, footwear, necklace, under};
+use crate::item_art::{Look, clothing, footwear, necklace, under};
 
 /// A worn thing's parts on this frame, for the looks that are worn on a body; none
-/// for others. An aventail hangs from `rim`, the helmet worn with it, if any.
-pub(in crate::item_art) fn worn(look: &Look, frame: &Frame, rim: Option<&[[i32; 3]]>) -> Coloured {
+/// for others. An aventail hangs from `rim`, the helmet worn with it, if any; clothes
+/// are cut for `wearer`.
+pub(in crate::item_art) fn worn(
+    look: &Look,
+    frame: &Frame,
+    rim: Option<&[[i32; 3]]>,
+    wearer: &clothing::Wearer,
+) -> Coloured {
     let mut all = Coloured::new();
     let mut add = |model: Model, colour: &dyn Fn(Stuff) -> bevy::prelude::StandardMaterial| {
         for (stuff, triangles) in model.parts {
@@ -64,6 +70,13 @@ pub(in crate::item_art) fn worn(look: &Look, frame: &Frame, rim: Option<&[[i32; 
                 under::material_of(s, &l.form, *quality)
             })
         }
+        Look::Clothing {
+            clothing: l,
+            quality,
+        } => add(
+            clothing::build(&l.form, frame, clothing::Fit::Worn(*wearer)),
+            &|s| clothing::material_of(s, &l.form, *quality),
+        ),
         Look::Necklace {
             necklace: l,
             quality,
