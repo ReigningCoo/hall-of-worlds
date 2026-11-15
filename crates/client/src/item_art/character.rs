@@ -115,6 +115,7 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
         ItemForm::Clothing(_)
         | ItemForm::Gem(_)
         | ItemForm::Ring(_)
+        | ItemForm::Necklace(_)
         | ItemForm::Blade(_)
         | ItemForm::Key(_) => {
             return None;

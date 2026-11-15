@@ -9,6 +9,7 @@ impl ItemForm {
     pub fn shape(&self) -> Option<Shape> {
         match self {
             Self::Blade(blade) => Some(blade.shape()),
+            Self::Necklace(necklace) => Some(necklace.shape()),
             Self::Shoulders(shoulders) => Some(shoulders.shape()),
             Self::Torso(torso) => Some(torso.shape()),
             Self::Head(head) => Some(head.shape()),
@@ -29,6 +30,7 @@ impl ItemForm {
     pub fn grams_at(&self, size: Size) -> Option<u32> {
         match self {
             Self::Blade(blade) => Some(blade.grams_at(size)),
+            Self::Necklace(necklace) => Some(necklace.grams_at(size)),
             Self::Hands(hands) => Some(hands.grams_at(size)),
             Self::Shoulders(shoulders) => Some(shoulders.grams_at(size)),
             Self::Torso(torso) => Some(torso.grams_at(size)),

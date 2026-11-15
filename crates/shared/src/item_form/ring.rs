@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::creature::Size;
 use crate::item::Item;
-use crate::item_form::words::{counted, gem_material, plural};
+use crate::item_form::words::with_stones;
 use crate::item_form::{Cut, ItemForm};
 use crate::material::Material;
 
@@ -77,29 +77,6 @@ pub struct RingForm {
 impl RingForm {
     /// Its metal and what is in its settings, as it is now.
     pub(super) fn name(&self) -> String {
-        let mut stones: Vec<(Material, usize)> = Vec::new();
-        let mut empty = 0;
-        for setting in &self.settings {
-            match setting.gem.as_ref().and_then(gem_material) {
-                Some(stone) => match stones.iter_mut().find(|(other, _)| *other == stone) {
-                    Some((_, count)) => *count += 1,
-                    None => stones.push((stone, 1)),
-                },
-                None => empty += 1,
-            }
-        }
-        let mut parts: Vec<String> = stones
-            .into_iter()
-            .map(|(stone, count)| counted(count, stone.name(), plural(stone)))
-            .collect();
-        if empty > 0 {
-            parts.push(counted(empty, "Empty Setting", "Empty Settings".to_owned()));
-        }
-        let ring = format!("{} Ring", self.metal.name());
-        match parts.split_last() {
-            None => ring,
-            Some((only, [])) => format!("{ring} with {only}"),
-            Some((last, others)) => format!("{ring} with {} and {last}", others.join(", ")),
-        }
+        with_stones(format!("{} Ring", self.metal.name()), &self.settings)
     }
 }
