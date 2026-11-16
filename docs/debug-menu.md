@@ -19,6 +19,7 @@ What only your screen shows.
 | Lightning Now | | Flashes lightning where you are, as in the heaviest rain: everything on the world map, or only what is outside on a site's level, with more light spilling in through doors and windows. Only you see it, and without a bolt. Dimmer and slower with Reduce Motion. |
 | Suns and Moons | | Toggles a panel changing the colours of the suns and moons, and how bright the suns are. Only on your screen, until you next join the world. |
 | Drawing States |  | Opens a panel with a row each for stairs, fields and herbs, whose buttons step through the styles of stairs, the stages of the crops and how grown the herbs are on the level you are on. A row is greyed where the level has none. Changes only what is drawn. |
+| Other Floors | | Opens a panel tuning how the floors below are drawn when you are on an upper floor of a building: how much darker each storey down is by day and at night, how far the ground is shown, how tall a storey is, and whether what you remember of the outside below is shown. Only on your screen, until you next start the game. |
 
 ## Galleries
 

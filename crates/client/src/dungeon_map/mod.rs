@@ -25,6 +25,7 @@ mod holes;
 mod liquid;
 mod mesh;
 mod oasis;
+mod other_floors;
 mod outlined;
 mod picking;
 mod rain;
@@ -113,6 +114,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<door_swing::DoorSwings>()
             .init_resource::<OutsideLight>()
             .init_resource::<TownLights>()
+            .init_resource::<other_floors::Below>()
             .init_resource::<wild_ground::GroundTint>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
@@ -145,7 +147,12 @@ impl Plugin for DungeonMapPlugin {
                     sight_lines::place_mask,
                     wild_ground::work_out_tint,
                     door_swing::swing_doors,
-                    update_meshes,
+                    (
+                        update_meshes,
+                        other_floors::draw_below,
+                        other_floors::follow_materials,
+                    )
+                        .chain(),
                     outlined::apply_outlined,
                     update_crops,
                     update_herbs,

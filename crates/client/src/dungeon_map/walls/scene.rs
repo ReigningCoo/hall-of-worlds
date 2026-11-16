@@ -36,6 +36,9 @@ pub struct Scene<'a> {
     /// Door leaves part way through a swing, by cell (`door_swing`); the rest
     /// are drawn as they hang.
     pub leaves: &'a BTreeMap<(i64, i64), super::LeafPose>,
+    /// Whether the floors below are drawn under this one (`other_floors`), so
+    /// holes show them rather than a black base.
+    pub open_below: bool,
 }
 
 impl Scene<'_> {

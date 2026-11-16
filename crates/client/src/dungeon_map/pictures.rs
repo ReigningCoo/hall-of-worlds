@@ -7,6 +7,7 @@ use shared::protocol::LevelKind;
 use shared::surface::SurfaceSample;
 
 use super::mesh::Surface;
+use super::other_floors::has_floors_below;
 use super::sight_lines::{MaskSide, SurfaceMaterial};
 use super::theme::Theme;
 use super::{MEMORY_ALPHA, SurfaceMaterials, load_tile};
@@ -39,12 +40,13 @@ pub(super) fn apply_theme(
         surfaces.to_grey.push((surface as usize, picture));
     }
     // Nothing in the Hall of Worlds is drawn see-through (owner): memory there
-    // is solid, like a town's.
+    // is solid, like a town's. Nor on a floor with floors drawn below it
+    // (owner): they would show through what is remembered.
     let in_hall = matches!(kind, Some(LevelKind::Hall { .. }));
+    let solid = in_hall || has_floors_below(dungeon.info.as_ref());
     for (surface, handle) in Surface::ALL.iter().zip(&surfaces.memory) {
         if let Some(mut material) = materials.get_mut(handle) {
-            let (alpha, mode) = if in_hall || matches!(surface, Surface::Town | Surface::Furniture)
-            {
+            let (alpha, mode) = if solid || matches!(surface, Surface::Town | Surface::Furniture) {
                 (1.0, AlphaMode::Opaque)
             } else {
                 (MEMORY_ALPHA, AlphaMode::Blend)

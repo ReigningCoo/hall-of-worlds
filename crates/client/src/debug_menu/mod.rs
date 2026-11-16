@@ -43,6 +43,7 @@ impl Plugin for DebugMenuPlugin {
                 panels::add_place_furniture_panel,
                 panels::add_examine_mob_panel,
                 panels::add_alignment_panel,
+                panels::add_other_floors_panel,
                 panels::add_learn_skills_panel,
                 panels::add_kept_choices,
             ))

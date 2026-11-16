@@ -10,6 +10,7 @@ use shared::protocol::LevelKind;
 use super::daylight::{OutsideLight, Spill, TownLights};
 use super::door_swing::DoorSwings;
 use super::mesh::{LightGrid, View, build_posed};
+use super::other_floors::has_floors_below;
 use super::put_meshes::put_meshes;
 use super::sight_lines::SightLines;
 use super::theme::Theme;
@@ -233,7 +234,7 @@ pub(super) fn update_meshes(
     );
     let (seen_now, place) = (
         (&views[..], &drawn, &remembered, &cut),
-        (camera, theme.shape),
+        (camera, theme.shape, has_floors_below(dungeon.info.as_ref())),
     );
     let (stairs, wild) = (&dungeon.stairs, tint.wild(&heights));
     let built = build_posed(

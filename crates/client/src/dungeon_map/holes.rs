@@ -195,8 +195,8 @@ pub fn build_hole(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) {
                 }
             }
         }
-        if layer == Layer::Solid {
-            // The black base under the whole quarter.
+        if layer == Layer::Solid && !scene.open_below {
+            // The black base under the whole quarter: nothing is drawn below.
             let at = |east: f32, south: f32| place((east, south)).0 - Vec3::Y * depth;
             layers.builder(layer, Surface::Wall).free(
                 [

@@ -13,7 +13,8 @@ impl DebugAction {
             Self::ShowDebugInfo => DebugTool::ShowDebugInfo,
             Self::LightningNow => DebugTool::LightningNow,
             Self::SunsAndMoons => DebugTool::SunsAndMoons,
-            Self::DrawingStates => DebugTool::DrawingStates,
+            // Only how this client draws, as Drawing States is.
+            Self::DrawingStates | Self::OtherFloors => DebugTool::DrawingStates,
             Self::ItemPictures => DebugTool::ItemPictures,
             Self::ShowWidgets => DebugTool::ShowWidgets,
             Self::ViewPlanet => DebugTool::ViewPlanet,
