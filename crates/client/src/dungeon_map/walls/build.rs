@@ -33,6 +33,7 @@ pub fn build_wall(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) {
     for quarter in QUARTERS {
         tile.build_wall_quarter(layers, quarter, reach, turned_away);
     }
+    tile.build_battlements(layers);
     // A wall's curve lets the camera see in under it from the side, as far as
     // its foot. See-through walls keep their dark band, and the far side of a
     // wall stays dark.
@@ -84,4 +85,5 @@ pub fn build_opening(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) {
         tile.floor_quarter(layers, floor_layer, quarter, foot, &[wall]);
     }
     tile.build_opening_wall(layers, east_west, window, in_sight);
+    tile.build_battlements(layers);
 }

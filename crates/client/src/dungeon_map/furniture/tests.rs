@@ -8,6 +8,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::super::CELL_SIZE;
 use super::super::mesh::{LightGrid, Surface, View, build_posed};
 use super::super::theme::Shape;
+use super::super::walls::Above;
 use super::frame::Frame;
 use super::{TABLE_TOP, tables};
 
@@ -94,7 +95,13 @@ fn a_table_is_drawn_in_its_cells() {
         &LightGrid::new(&level),
         &[],
         (&[], &BTreeSet::new(), &[], &[], false),
-        (Vec3::new(0.0, 600.0, 2000.0), Shape::Built, false, true),
+        (
+            Vec3::new(0.0, 600.0, 2000.0),
+            Shape::Built,
+            false,
+            true,
+            Above::Nothing,
+        ),
         None,
         &BTreeMap::new(),
     );

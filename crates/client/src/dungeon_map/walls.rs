@@ -16,6 +16,7 @@ use shared::spot::CELL_SPAN;
 use super::{CELL_SIZE, WALL_HEIGHT};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod battlements;
 mod build;
 mod door_leaf;
 mod faces;
@@ -44,7 +45,7 @@ pub use layers::{Layer, Layers};
 pub use leaf_pose::LeafPose;
 use opening::{Opening, RISING_SHADE};
 use patch::{Patch, cuts};
-pub use scene::Scene;
+pub use scene::{Above, Scene};
 use texture::{face_uv, floor_near};
 pub(super) use texture::{flat_uv, noise};
 pub use thickness::half_thickness;

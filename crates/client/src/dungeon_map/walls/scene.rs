@@ -4,7 +4,7 @@ use super::super::CELL_SIZE;
 use super::super::wild_ground::Tints;
 use crate::common::DrawnGround;
 use bevy::prelude::*;
-use shared::dungeon::{Level, Sight};
+use shared::dungeon::{Cell, Level, Sight};
 use shared::site::{BuildingLook, FieldLook, WallLook};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -39,6 +39,31 @@ pub struct Scene<'a> {
     /// Whether the floors below are drawn under this one (`other_floors`), so
     /// holes show them rather than a black base.
     pub open_below: bool,
+    /// What stands on the level's walls: battlements go only where nothing
+    /// does (`battlements`).
+    pub above: Above<'a>,
+}
+
+/// The floor above a level, as far as it matters to the tops of its walls.
+#[derive(Clone, Copy)]
+pub enum Above<'a> {
+    /// None: the top storey, or not a building.
+    Nothing,
+    /// There is one, but the client doesn't have it.
+    Unknown,
+    /// This one, as the client has it (cells it doesn't know are walls).
+    Floor(&'a Level),
+}
+
+impl Above<'_> {
+    /// Whether nothing stands on `(x, y)`: no floor above, or open air there.
+    pub fn is_open(&self, x: i64, y: i64) -> bool {
+        match self {
+            Self::Nothing => true,
+            Self::Unknown => false,
+            Self::Floor(level) => !level.contains(x, y) || level.cell(x, y) == Cell::Air,
+        }
+    }
 }
 
 impl Scene<'_> {

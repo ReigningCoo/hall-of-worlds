@@ -4,7 +4,8 @@
 //! blocks with a parapet along the outer edge of their top (`parapet`). Pieces go in the town mesh (atlas pictures, lit
 //! where they stand, like fences) and are draped over the ground. A gate's two
 //! doors are drawn as one gate: a post at each side and the two leaves
-//! (`walls::build_gate_leaf`) meeting in the middle.
+//! (`walls::build_gate_leaf`) meeting in the middle; between two towers, a
+//! gatehouse (`gatehouse`) in place of the posts.
 
 use shared::site::{WallLook, WallMaterial};
 
@@ -14,13 +15,16 @@ use super::walls::{Layers, Scene, build_gate_leaf};
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod block;
+mod gatehouse;
 mod join;
 mod parapet;
 mod pieces;
 mod stone;
 
 use block::block;
+use gatehouse::build_gatehouse;
 pub use join::without_ramparts;
+pub(super) use parapet::{OVERHANG, Parapet, THICKNESS};
 use pieces::{build_gate_post, build_run};
 
 const HALF_CELL: f32 = CELL_SIZE / 2.0;
@@ -79,7 +83,10 @@ pub fn build_rampart(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) -> 
     };
     if wall.is_gate(x, y) {
         build_gate_leaf(layers, scene, (x, y));
-        build_gate_post(layers, scene, wall, (x, y));
+        match gatehouse::gatehouse_gate(wall, scene.level, (x, y)) {
+            Some(gate) => build_gatehouse(layers, scene, wall, gate, (x, y)),
+            None => build_gate_post(layers, scene, wall, (x, y)),
+        }
     } else {
         build_run(layers, scene, wall, (x, y));
     }

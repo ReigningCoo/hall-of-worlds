@@ -10,7 +10,7 @@ use shared::protocol::LevelKind;
 use super::daylight::{OutsideLight, Spill, TownLights};
 use super::door_swing::DoorSwings;
 use super::mesh::{LightGrid, View, build_posed};
-use super::other_floors::has_floors_below;
+use super::other_floors::own_stack;
 use super::put_meshes::put_meshes;
 use super::sight_lines::SightLines;
 use super::theme::Theme;
@@ -18,8 +18,8 @@ use super::viewers;
 use super::wild_ground::GroundTint;
 use super::{MemoryPart, SeeThroughPart, Shown, SolidPart, StairsThroughPart};
 use crate::common::{
-    CurrentDungeon, DrawnGround, LightSource, Lightning, MapPosition, PlayerCone, Preferences,
-    Remembered, SharesSight, ViewStats,
+    CurrentDungeon, DrawnGround, LightSource, Lightning, MapPosition, OtherLevels, PlayerCone,
+    Preferences, Remembered, SharesSight, ViewStats,
 };
 use crate::player::Player;
 use crate::view3d::ViewCamera;
@@ -65,12 +65,13 @@ pub(super) fn update_meshes(
     // Together, as Bevy limits how many things a system can ask for.
     // With the settings: Brightness and whether remembered places show, as
     // last built.
-    (outside, mut spill, preferences, mut settings_seen, swings): (
+    (outside, mut spill, preferences, mut settings_seen, swings, others): (
         Res<OutsideLight>,
         Local<Spill>,
         Res<Preferences>,
         Local<Option<(u8, bool)>>,
         Res<DoorSwings>,
+        Res<OtherLevels>,
     ),
     // With the player's field of view, and the way it faced when last worked out.
     (
@@ -113,6 +114,7 @@ pub(super) fn update_meshes(
         || tint.is_changed()
         || heights.is_changed()
         || swings.is_changed()
+        || others.is_changed()
         || *lines_seen != lines.changes
         || *settings_seen != Some(settings)
         || lights
@@ -232,9 +234,8 @@ pub(super) fn update_meshes(
         &dungeon.walls[..],
         ruined,
     );
-    let below = has_floors_below(dungeon.info.as_ref());
+    let (below, above) = own_stack(dungeon.info.as_ref(), &others);
     let seen_now = (&views[..], &drawn, &remembered, &cut);
-    let place = (camera, theme.shape, below, true);
     let (stairs, wild) = (&dungeon.stairs, tint.wild(&heights));
     let built = build_posed(
         level,
@@ -242,7 +243,7 @@ pub(super) fn update_meshes(
         &light,
         stairs,
         looks,
-        place,
+        (camera, theme.shape, below, true, above),
         wild,
         &swings.drawn,
     );

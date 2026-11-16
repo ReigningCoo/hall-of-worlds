@@ -14,13 +14,13 @@ use super::{Build, HALF_CELL, SIDES, block};
 use crate::dungeon_map::CELL_SIZE;
 
 /// The way out of a cell towards one of its sides.
-fn way(side: usize) -> Vec3 {
+pub(super) fn way(side: usize) -> Vec3 {
     let (dx, dy) = SIDES[side];
     Vec3::new(dx as f32, 0.0, dy as f32)
 }
 
 /// Which sides of the wall's rectangle `(x, y)` lies on: its outer sides.
-fn outer_sides(wall: &WallLook, (x, y): (i64, i64)) -> [bool; 4] {
+pub(super) fn outer_sides(wall: &WallLook, (x, y): (i64, i64)) -> [bool; 4] {
     let rect = wall.rect;
     [
         y == rect.y,

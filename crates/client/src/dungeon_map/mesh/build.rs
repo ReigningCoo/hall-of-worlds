@@ -10,7 +10,7 @@ use super::super::liquid::LooksLiquid;
 use super::super::outlined::Outlined;
 use super::super::theme::Shape;
 use super::super::town;
-use super::super::walls::{Layers, LeafPose, Scene};
+use super::super::walls::{Above, Layers, LeafPose, Scene};
 use super::super::wild_ground::Wild;
 use super::cutaway::{cut_height, settle_in_the_way};
 use super::flow::flow_liquid;
@@ -58,7 +58,7 @@ pub fn build(
         light,
         stairs,
         looks,
-        (camera, shape, false, true),
+        (camera, shape, false, true, Above::Nothing),
         wild,
         &no_swings,
     )
@@ -79,7 +79,7 @@ pub fn build_posed(
         &[WallLook],
         bool,
     ),
-    (camera, shape, open_below, cut_near): (Vec3, Shape, bool, bool),
+    (camera, shape, open_below, cut_near, above): (Vec3, Shape, bool, bool, Above),
     wild: Option<Wild>,
     leaves: &BTreeMap<(i64, i64), LeafPose>,
 ) -> DungeonMeshes {
@@ -107,6 +107,7 @@ pub fn build_posed(
         heights: wild.map(|wild| wild.heights),
         leaves,
         open_below,
+        above,
     };
     let (min_x, min_y, width, height) = level.bounds();
     // The first viewer is the player.

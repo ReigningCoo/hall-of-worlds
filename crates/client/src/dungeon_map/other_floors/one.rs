@@ -10,6 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::super::WALL_HEIGHT;
 use super::super::mesh::{DungeonMeshes, LightGrid, Surface, View, build_posed};
 use super::super::theme::Shape;
+use super::above::above_floor;
 use super::floors::Floor;
 use super::roof::{RoofAt, roof_mesh, roofed, roofing};
 use super::which::drawn;
@@ -103,6 +104,11 @@ pub(super) fn build_floor(
     };
     let light = LightGrid::filled(&level.level, building.light);
     let empty = Sight::new(&level.level);
+    // Battlements only where no floor stands on its walls.
+    let above = above_floor(info, index, |up| match up {
+        _ if up == info.index => Some(building.own),
+        _ => building.known.get(up as usize).copied().flatten(),
+    });
     let mut made = build_posed(
         &level.level,
         (&[view], now, &draw, &empty),
@@ -111,7 +117,7 @@ pub(super) fn build_floor(
         (&[], &BTreeSet::new(), &[], &level.walls, info.ruined),
         // Never cut down near the player: other floors aren't in the way
         // (the wedge leaves out the floors above that would be).
-        (local, building.shape, false, false),
+        (local, building.shape, false, false, above),
         None,
         &BTreeMap::new(),
     );
