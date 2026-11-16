@@ -516,6 +516,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ServerMessage::RememberedLevel(RememberedLevel {
             index: 2,
             bounds: (-20, -10, 40, 30),
+            walls: Vec::new(),
             chunks: vec![LevelChunk {
                 chunk: (0, 0),
                 mask: 1,

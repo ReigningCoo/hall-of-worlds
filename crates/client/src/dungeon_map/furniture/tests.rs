@@ -94,7 +94,7 @@ fn a_table_is_drawn_in_its_cells() {
         &LightGrid::new(&level),
         &[],
         (&[], &BTreeSet::new(), &[], &[], false),
-        (Vec3::new(0.0, 600.0, 2000.0), Shape::Built, false),
+        (Vec3::new(0.0, 600.0, 2000.0), Shape::Built, false, true),
         None,
         &BTreeMap::new(),
     );

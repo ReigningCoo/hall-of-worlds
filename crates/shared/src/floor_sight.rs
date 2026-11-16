@@ -12,7 +12,9 @@
 //! - A face is only seen from its outside side, so the wall under the window
 //!   the viewer looks out of is never seen: they are behind it.
 //! - Rooms inside other floors are never seen, except straight down through a
-//!   ruin's holes.
+//!   ruin's holes; but in a seen column, a floor's cell under `Air` on the
+//!   floor directly above is seen, as its roof is (a building narrowing as it
+//!   goes up).
 //! - The ground floor's outside is only seen within `GROUND_REACH` of the
 //!   viewer.
 //!
@@ -45,8 +47,9 @@ pub fn other_floors(storeys: &[&Level], viewer: usize, at: (i64, i64), seen: &Si
         let near = |(x, y): (i64, i64)| {
             index != 0 || (x - at.0).pow(2) + (y - at.1).pow(2) <= GROUND_REACH.pow(2)
         };
+        let over = storeys.get(index + 1).copied();
         for &column in &columns {
-            show_column(level, sight, column, at, &near);
+            show_column((level, over), sight, column, at, &near);
         }
         for &(wall, way) in &faces {
             show_face(level, sight, wall, way, &near);
@@ -120,10 +123,12 @@ fn looked_at(
     (columns, faces, holes)
 }
 
-/// Shows the column at `(x, y)` on one floor: outside there, it and the walls
-/// facing into it; a wall there (a lower floor reaching further out), that.
+/// Shows the column at `(x, y)` on one floor (`level`, with `over` the floor
+/// directly above it): outside there, it and the walls facing into it; a wall
+/// there (a lower floor reaching further out), that; inside under air, that
+/// (its roof is seen).
 fn show_column(
-    level: &Level,
+    (level, over): (&Level, Option<&Level>),
     sight: &mut Sight,
     (x, y): (i64, i64),
     at: (i64, i64),
@@ -133,7 +138,8 @@ fn show_column(
         return;
     }
     let cell = level.cell(x, y);
-    if is_face(cell) {
+    let under_air = over.is_some_and(|over| over.contains(x, y) && over.cell(x, y) == Cell::Air);
+    if is_face(cell) || !is_out(cell) && under_air && near((x, y)) {
         sight.insert(x, y);
     }
     if !is_out(cell) || !near((x, y)) {

@@ -99,6 +99,9 @@ impl OtherLevels {
         for chunk in &remembered.chunks {
             level.add(chunk);
         }
+        if !remembered.walls.is_empty() {
+            level.walls.clone_from(&remembered.walls);
+        }
     }
 
     /// The floor being looked at, if not the player's.

@@ -101,6 +101,7 @@ pub(super) fn send_other_levels(
             continue;
         }
         let (level, stairs, doors) = level_of(world, new, other);
+        let walls = level.walls.clone();
         let level = &level.level;
         let looks = |x, y| {
             door_looks(
@@ -132,6 +133,7 @@ pub(super) fn send_other_levels(
             index: other,
             bounds: level.bounds(),
             chunks,
+            walls,
         });
         if !client.link.send(&message) {
             return false;

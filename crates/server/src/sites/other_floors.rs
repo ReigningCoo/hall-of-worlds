@@ -29,6 +29,8 @@ pub(crate) struct OtherFloor {
     /// Its cells that are another map's too (the ground floor's, in the
     /// wilderness).
     mirrors: Vec<Mirror>,
+    /// The walls round the site on it (`SiteLevel::walls`).
+    walls: Vec<shared::site::WallLook>,
 }
 
 /// The floors of a building other than level `index` (from the ground up, no
@@ -53,6 +55,7 @@ pub(super) fn floors_of(
             let sent = memory.and_then(|levels| levels.get(&other)).cloned();
             OtherFloor {
                 index: other,
+                walls: level.walls.clone(),
                 level: level.level,
                 stairs,
                 doors,
@@ -164,6 +167,7 @@ fn send(
         index: floor.index,
         bounds: level.bounds(),
         chunks,
+        walls: floor.walls.clone(),
     });
     super::add_masks(&mut floor.sent, new);
     super::add_masks(&mut floor.shaped, neighbours);

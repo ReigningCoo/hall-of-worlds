@@ -110,6 +110,10 @@ pub struct RememberedLevel {
     /// Its rectangle: `(min_x, min_y, width, height)`.
     pub bounds: (i64, i64, i64, i64),
     pub chunks: Vec<LevelChunk>,
+    /// The walls round the site on it (`crate::site::WallLook`, a walled
+    /// fort's or castle's ground floor's), drawn with their ramparts from
+    /// other floors.
+    pub walls: Vec<crate::site::WallLook>,
 }
 
 /// Some cells of one chunk of the current level.

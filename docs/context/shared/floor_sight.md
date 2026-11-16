@@ -4,7 +4,7 @@ What a viewer on one floor of a building sees of its other floors (owner's desig
 
 ## Files
 
-- `crates/shared/src/floor_sight.rs`: `other_floors`, `is_out`, `GROUND_REACH`, and the private steps (`looked_at`: columns, faces and holes seen on the viewer's floor; `show_column`, `show_face`). Tests: looking out of a window shows the ground but not the wall under it, from outside a face and its window but not the room behind, a floor set back shows its face behind the air, holes show straight down, the ground's reach, every floor full height.
+- `crates/shared/src/floor_sight.rs`: `other_floors`, `is_out`, `GROUND_REACH`, and the private steps (`looked_at`: columns, faces and holes seen on the viewer's floor; `show_column`, `show_face`). Tests: looking out of a window shows the ground but not the wall under it, from outside a face and its window but not the room behind, a floor set back shows its face behind the air, holes show straight down, the ground's reach, every floor full height, rooms under air seen as their roof.
 
 ## Public API
 
@@ -25,5 +25,5 @@ What a viewer on one floor of a building sees of its other floors (owner's desig
 
 - Rules: an outside cell seen (ground, or `Air` beside an upper floor) shows its whole column on every floor, with the walls, windows and doors facing into it; a wall face seen from outside (a wall, window or door beside a seen outside cell) shows on every floor full height, and where a floor is set back, the air in front of it and its face behind; a lower floor's wall reaching out under a seen column shows too. No floor cap.
 - A face only counts from its outside: the viewer must be at least a cell beyond its line (`beyond`), so the wall under the window they look out of, and the rest of that wall's line, is never seen.
-- Rooms inside other floors are never seen, only straight down through `Hole`s (each floor below, until one isn't a hole).
+- Rooms inside other floors are never seen, only straight down through `Hole`s (each floor below, until one isn't a hole). But in a seen column, a floor's cell under `Air` on the floor directly above is seen (`show_column`): its roof is, where a building narrows going up, and the client draws a roof there (multi-level buildings PR 3, owner).
 - Only buildings' floors above ground (`Site::is_building`, not towns), never caves or a basement: callers pass only those.

@@ -71,7 +71,7 @@ fn a_rampart_is_drawn_in_its_material() {
             std::slice::from_ref(&wall),
             false,
         ),
-        (Vec3::new(0.0, 600.0, 2000.0), Shape::Built, false),
+        (Vec3::new(0.0, 600.0, 2000.0), Shape::Built, false, true),
         None,
         &BTreeMap::new(),
     );

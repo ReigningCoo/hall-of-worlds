@@ -1,5 +1,5 @@
-//! Other Floors: sliders for how the floors below a building's upper floor are
-//! drawn (`common::OtherFloorLooks`), to tune them by eye, and a switch for
+//! Other Floors: sliders for how a building's other floors are drawn (below
+//! and above the player's) (`common::OtherFloorLooks`), to tune them by eye, and a switch for
 //! remembered slices. Only this client's drawing, for this run.
 
 use bevy::prelude::*;
@@ -41,6 +41,11 @@ pub(super) static OTHER_FLOORS: Template = html!(
         <td><span id="storey_value">1.50</span></td>
       </tr>
       <tr>
+        <td><label for="wedge">Hidden above, towards camera (degrees)</label></td>
+        <td><input id="wedge" type="range" min="0" max="360" step="5" value="120"/></td>
+        <td><span id="wedge_value">120.00</span></td>
+      </tr>
+      <tr>
         <td><label for="remembered">Remembered slices</label></td>
         <td><input id="remembered" type="checkbox" switch checked/></td>
         <td/>
@@ -52,7 +57,7 @@ pub(super) static OTHER_FLOORS: Template = html!(
 );
 
 /// The sliders, by id, and the number each sets.
-const SLIDERS: [&str; 4] = ["day_dark", "night_dark", "ground_range", "storey"];
+const SLIDERS: [&str; 5] = ["day_dark", "night_dark", "ground_range", "storey", "wedge"];
 
 /// Adds the panel's systems to the debug menu's plugin.
 pub(in crate::debug_menu) fn add_other_floors_panel(app: &mut App) {
@@ -66,6 +71,7 @@ fn number<'a>(looks: &'a mut OtherFloorLooks, id: &str) -> Option<&'a mut f32> {
         "night_dark" => Some(&mut looks.night_dark),
         "ground_range" => Some(&mut looks.ground_range),
         "storey" => Some(&mut looks.storey),
+        "wedge" => Some(&mut looks.wedge),
         _ => None,
     }
 }

@@ -43,6 +43,7 @@ fn remembered(index: u32, bounds: (i64, i64, i64, i64)) -> RememberedLevel {
     RememberedLevel {
         index,
         bounds,
+        walls: Vec::new(),
         chunks: vec![LevelChunk {
             chunk: (0, 0),
             mask: 1,

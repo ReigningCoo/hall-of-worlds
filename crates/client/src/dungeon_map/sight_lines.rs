@@ -21,7 +21,7 @@ pub use cells::add_cells;
 use cells::{cross_cells, touch_cells};
 use fan::{add_fan, fan_mesh};
 pub use mask::{MaskCamera, SightLines, spawn_mask};
-pub use material::{MaskSide, SightMask, SurfaceMaterial};
+pub use material::{MaskSide, SightMask, SurfaceMaterial, Wedge};
 pub use outlines::{OutlineMesh, place_mask, set_mask_active, update_outlines};
 pub use wall_map::{Vec2d, WallMap};
 
