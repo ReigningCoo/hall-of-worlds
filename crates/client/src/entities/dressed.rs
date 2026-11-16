@@ -4,6 +4,7 @@
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::gender::Gender;
 use shared::sheet::Appearance;
 use shared::wear::WornLook;
 
@@ -24,15 +25,16 @@ pub(super) struct Drawing<'w> {
 }
 
 impl Drawing<'_> {
-    /// The model of a creature of this kind, looking like this, wearing these, if its
-    /// kind has a body to draw. Built once for each look.
+    /// The model of a creature of this kind and gender, looking like this, wearing
+    /// these, if its kind has a body to draw. Built once for each look.
     pub(super) fn dressed(
         &mut self,
         kind: CreatureKind,
+        gender: Gender,
         appearance: &Appearance,
         worn: &[WornLook],
     ) -> Option<TokenModel> {
-        let look = character_look(kind, appearance, worn)?;
+        let look = character_look(kind, gender, appearance, worn)?;
         self.model(&look)
     }
 
@@ -65,7 +67,7 @@ pub(super) fn show_own_dress(
     if drawn.as_ref() == Some(&now) {
         return;
     }
-    let picture = drawing.dressed(now.0, &now.1, &now.2);
+    let picture = drawing.dressed(now.0, sheet.0.gender, &now.1, &now.2);
     let (entity, morphing) = player.into_inner();
     let changed = drawn.as_ref().filter(|(kind, ..)| *kind != now.0);
     let started = changed.and_then(|(kind, appearance, _)| {

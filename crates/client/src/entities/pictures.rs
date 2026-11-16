@@ -17,7 +17,7 @@ pub(super) fn picture(kind: CreatureKind) -> &'static str {
         | CreatureKind::Minotaur
         | CreatureKind::Birdfolk => "monsters/humanfighter.png",
         CreatureKind::Beggar => "monsters/humandruid01.png",
-        CreatureKind::Cattle => "monsters/cowright.png",
+        CreatureKind::Cattle | CreatureKind::Coo => "monsters/cowright.png",
         CreatureKind::Chicken => "monsters/chicken1.png",
         CreatureKind::Drider => "monsters/spiderblack.png",
         CreatureKind::Giant => "monsters/gianthill.png",

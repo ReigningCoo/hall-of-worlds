@@ -220,6 +220,10 @@ creature-chicken = { $count ->
     [one] chicken
    *[other] chickens
 }
+creature-coo = { $count ->
+    [one] highland cow
+   *[other] highland cattle
+}
 creature-drider = { $count ->
     [one] drider
    *[other] driders

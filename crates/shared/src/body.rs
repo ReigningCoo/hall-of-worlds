@@ -27,7 +27,7 @@ mod scaled;
 mod taurs;
 mod trig;
 
-pub use beasts::{BEASTS, Beast, Bird, Fourfoot, Plan};
+pub use beasts::{BEASTS, Beast, Bird, Fourfoot, Plan, Sex, Sexes};
 pub use bipeds::{Biped, FIRST_BIPEDS};
 pub use blend::WHOLE as BLEND_WHOLE;
 pub use hair::{Beard, Hair, HairStyle};

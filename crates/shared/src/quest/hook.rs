@@ -108,6 +108,10 @@ pub(super) fn slain_with_weights(kind: PoiKind) -> Vec<(CreatureKind, u64)> {
 fn is_slain(kind: CreatureKind) -> bool {
     !matches!(
         kind,
-        CreatureKind::Chicken | CreatureKind::Cattle | CreatureKind::Horse | CreatureKind::Beggar
+        CreatureKind::Chicken
+            | CreatureKind::Cattle
+            | CreatureKind::Coo
+            | CreatureKind::Horse
+            | CreatureKind::Beggar
     )
 }

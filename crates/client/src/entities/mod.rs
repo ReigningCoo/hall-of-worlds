@@ -136,7 +136,7 @@ fn read_server(
                         .entity(spawned)
                         .insert(boss_look::SeenBoss(boss.clone()));
                 }
-                let picture = drawing.dressed(look.kind, &look.appearance, &look.worn);
+                let picture = drawing.dressed(look.kind, look.gender, &look.appearance, &look.worn);
                 // Seen again as another kind: it changes into it.
                 let old = others.0.insert(look.id, spawned);
                 let was = old.and_then(|old| seen.get(old).ok());

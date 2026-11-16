@@ -15,6 +15,8 @@ pub enum CreatureKind {
     Cattle,
     Centaur,
     Chicken,
+    /// A highland cow ("coo" in Scots): shaggy, long-horned, at home in the cold.
+    Coo,
     Drider,
     Dwarf,
     Elf,

@@ -46,7 +46,12 @@ impl HairShown {
                 })
             })
             .collect();
-        character_look(self.kind, &appearance, &worn)
+        character_look(
+            self.kind,
+            shared::gender::Gender::default(),
+            &appearance,
+            &worn,
+        )
     }
 }
 

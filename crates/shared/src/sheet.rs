@@ -103,8 +103,15 @@ impl Appearance {
         self.choice(kind, Trait::CoatColour)?.colour
     }
 
-    /// Its markings, if it has any (`Trait::Markings`).
+    /// Its markings, if it has any (`Trait::Markings`), or a brindled coat's
+    /// stripes.
     pub fn marks(&self, kind: CreatureKind) -> Option<Marks> {
+        let coat = self
+            .choice(kind, Trait::CoatColour)
+            .map(|choice| choice.pattern);
+        if let Some(Pattern::Brindle(stripes)) = coat {
+            return Some(Marks::brindle(stripes));
+        }
         match self.choice(kind, Trait::Markings)?.pattern {
             Pattern::Marked(marks) => Some(marks),
             _ => None,

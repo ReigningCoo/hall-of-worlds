@@ -29,6 +29,28 @@ pub(super) const CATTLE: CreatureDef = CreatureDef {
     looks: &[Trait::CoatColour, Trait::Markings],
 };
 
+/// Highland cattle ("coo" in Scots): shaggy, long-horned and hardy in the cold, a
+/// little smaller than other cattle (cows about 450 kg, bulls 650 kg). Their coats are
+/// one colour, or brindled: no markings.
+pub(super) const COO: CreatureDef = CreatureDef {
+    name: "Coo",
+    weight: 550_000,
+    size: Size::Large,
+    inventory: (4, 3),
+    body: &HORSE,
+    speed: 90,
+    uses_stairs: false,
+    playable: false,
+    attributes: medians(165, 45, 170, 20),
+    bonus_set: &[],
+    skills: &[
+        ("athletics/running", level_practice(1)),
+        ("athletics/swimming", level_practice(1)),
+    ],
+    abilities: &[Ability::Kick, Ability::Trample],
+    looks: &[Trait::CoatColour],
+};
+
 /// Grey hunters in packs: quick, with keen noses, seeing in the dark.
 pub(super) const WOLF: CreatureDef = CreatureDef {
     name: "Wolf",

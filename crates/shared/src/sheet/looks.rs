@@ -27,6 +27,8 @@ pub enum Pattern {
     Speckled([u8; 3]),
     /// A second colour over parts of the body.
     Marked(Marks),
+    /// Stripes of this colour across the coat (`Marks::brindle`).
+    Brindle([u8; 3]),
 }
 
 const fn colour(name: &'static str, rgb: [u8; 3]) -> Choice {
@@ -42,6 +44,14 @@ const fn speckled(name: &'static str, rgb: [u8; 3], specks: [u8; 3]) -> Choice {
         name,
         colour: Some(rgb),
         pattern: Pattern::Speckled(specks),
+    }
+}
+
+const fn brindled(name: &'static str, rgb: [u8; 3], stripes: [u8; 3]) -> Choice {
+    Choice {
+        name,
+        colour: Some(rgb),
+        pattern: Pattern::Brindle(stripes),
     }
 }
 
@@ -165,6 +175,17 @@ const CATTLE_COAT: &[Choice] = &[
     colour("Dun", [176, 146, 104]),
 ];
 
+/// Highland cattle: one long coat, mostly reddish brown; mobs roll these with the
+/// weights in `mob::looks`.
+const COO_COAT: &[Choice] = &[
+    colour("Red-brown", [140, 70, 40]),
+    colour("Yellow-brown", [186, 140, 82]),
+    colour("Silvery brown", [166, 150, 134]),
+    colour("Black", [38, 33, 30]),
+    brindled("Red-brown brindle", [140, 70, 40], [44, 34, 30]),
+    brindled("Yellow-brown brindle", [186, 140, 82], [126, 62, 36]),
+];
+
 const WOLF_COAT: &[Choice] = &[
     colour("Grey", [136, 132, 126]),
     colour("White", [226, 224, 218]),
@@ -200,8 +221,8 @@ impl Trait {
     /// The choices a creature of this kind has for this trait, in order.
     pub fn choices_for(self, kind: CreatureKind) -> &'static [Choice] {
         use CreatureKind::{
-            Birdfolk, Cattle, Drider, Dwarf, Elf, Goblin, Horse, Kobold, Lizardfolk, Minotaur, Orc,
-            ScorpionMan, Wolf,
+            Birdfolk, Cattle, Coo, Drider, Dwarf, Elf, Goblin, Horse, Kobold, Lizardfolk, Minotaur,
+            Orc, ScorpionMan, Wolf,
         };
         match self {
             Self::Height => HEIGHT,
@@ -222,6 +243,7 @@ impl Trait {
             Self::CoatColour => match kind {
                 Horse => HORSE_COAT,
                 Cattle => CATTLE_COAT,
+                Coo => COO_COAT,
                 Drider => SPIDER_CHITIN,
                 ScorpionMan => SCORPION_CHITIN,
                 Wolf => WOLF_COAT,

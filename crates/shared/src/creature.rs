@@ -27,12 +27,13 @@ pub use size::Size;
 
 impl CreatureKind {
     /// Every kind, alphabetically.
-    pub const ALL: [Self; 19] = [
+    pub const ALL: [Self; 20] = [
         Self::Beggar,
         Self::Birdfolk,
         Self::Cattle,
         Self::Centaur,
         Self::Chicken,
+        Self::Coo,
         Self::Drider,
         Self::Dwarf,
         Self::Elf,
