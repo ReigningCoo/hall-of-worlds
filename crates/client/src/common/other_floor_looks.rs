@@ -24,10 +24,10 @@ pub struct OtherFloorLooks {
 }
 
 impl OtherFloorLooks {
-    pub const DAY_DARK: f32 = 0.15;
-    pub const NIGHT_DARK: f32 = 0.45;
+    pub const DAY_DARK: f32 = 0.45;
+    pub const NIGHT_DARK: f32 = 0.7;
     pub const GROUND_RANGE: f32 = 24.0;
-    pub const STOREY: f32 = 1.2;
+    pub const STOREY: f32 = 1.5;
 }
 
 impl Default for OtherFloorLooks {

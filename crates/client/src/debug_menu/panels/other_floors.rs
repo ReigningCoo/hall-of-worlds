@@ -22,13 +22,13 @@ pub(super) static OTHER_FLOORS: Template = html!(
     <table cellspacing="4">
       <tr>
         <td><label for="day_dark">Darker per storey by day</label></td>
-        <td><input id="day_dark" type="range" min="0" max="0.9" step="0.05" value="0.15"/></td>
-        <td><span id="day_dark_value">0.15</span></td>
+        <td><input id="day_dark" type="range" min="0" max="0.9" step="0.05" value="0.45"/></td>
+        <td><span id="day_dark_value">0.45</span></td>
       </tr>
       <tr>
         <td><label for="night_dark">Darker per storey at night</label></td>
-        <td><input id="night_dark" type="range" min="0" max="0.9" step="0.05" value="0.45"/></td>
-        <td><span id="night_dark_value">0.45</span></td>
+        <td><input id="night_dark" type="range" min="0" max="0.9" step="0.05" value="0.7"/></td>
+        <td><span id="night_dark_value">0.70</span></td>
       </tr>
       <tr>
         <td><label for="ground_range">Ground shown (cells)</label></td>
@@ -37,8 +37,8 @@ pub(super) static OTHER_FLOORS: Template = html!(
       </tr>
       <tr>
         <td><label for="storey">Storey height (walls)</label></td>
-        <td><input id="storey" type="range" min="1" max="2" step="0.05" value="1.2"/></td>
-        <td><span id="storey_value">1.20</span></td>
+        <td><input id="storey" type="range" min="1" max="2" step="0.05" value="1.5"/></td>
+        <td><span id="storey_value">1.50</span></td>
       </tr>
       <tr>
         <td><label for="remembered">Remembered slices</label></td>
