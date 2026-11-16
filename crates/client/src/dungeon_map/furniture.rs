@@ -5,19 +5,22 @@
 //! (`assets/furniture_atlas.png`, made by `tools/make_furniture_atlas.py`),
 //! tinted per vertex by the wood or stone and lit where they stand. Tops stay
 //! level on sloping ground, their legs reaching down to it. Black outlines.
-//! Chairs and benches are placeholder boxes until their models come.
+//! Seats facing a table reach a little under its edge.
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod atlas;
+mod benches;
+mod chairs;
 mod colour;
 mod draw;
 mod frame;
 mod part;
-mod placeholder;
+mod seats;
 mod stone_tables;
 mod tables;
 mod wooden_tables;
 
+use bevy::prelude::*;
 use part::{Grain, Part};
 
 use super::CELL_SIZE;
@@ -34,11 +37,24 @@ pub(super) fn build_furniture(layers: &mut Layers, scene: &Scene, (x, y): (i64, 
     let Some(piece) = scene.level.furniture_at(x, y) else {
         return;
     };
-    match tables::parts(piece) {
-        Some(parts) => draw::draw_parts(layers, scene, piece, &parts, (x, y)),
-        None => placeholder::build_placeholder(layers, scene, piece, (x, y)),
-    }
+    let mut beyond = (Vec3::ZERO, Vec3::ZERO);
+    let parts = match tables::parts(piece) {
+        Some(parts) => parts,
+        None => {
+            let under_table = seats::faces_table(scene.level, piece);
+            if under_table {
+                let (dx, dy) = piece.facing.beside((0, 0));
+                let ahead = Vec3::new(dx as f32, 0.0, dy as f32) * seats::OVERHANG;
+                beyond = (ahead.min(Vec3::ZERO).abs(), ahead.max(Vec3::ZERO));
+            }
+            seats::parts(piece, under_table).unwrap_or_default()
+        }
+    };
+    draw::draw_parts(layers, scene, (piece, &parts), (x, y), beyond);
 }
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod seats_tests;

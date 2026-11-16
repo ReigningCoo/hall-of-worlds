@@ -1,6 +1,6 @@
 //! `HOW_DEBUG_FURNITURE`: draw every table in one style and material, or in
-//! each in turn, or a table of every style beside the player, to look at
-//! their models. Only what is drawn changes: the server's pieces stay as they
+//! each in turn, or a table of every style and every seat beside the player,
+//! to look at their models. Only what is drawn changes: the server's pieces stay as they
 //! are.
 
 use bevy::prelude::*;
@@ -26,7 +26,7 @@ struct ForcedTables {
 
 /// `HOW_DEBUG_FURNITURE=style[,material]`: indexes into `STYLES` and
 /// `MATERIALS`, `all` for each in turn, or `show` for a table of every style
-/// in two rows south-east of the player.
+/// in two rows south-east of the player, and every seat.
 pub(super) fn add(app: &mut App) {
     let Ok(text) = env::var("HOW_DEBUG_FURNITURE") else {
         return;
@@ -77,7 +77,8 @@ fn force_tables(forced: Res<ForcedTables>, mut dungeon: ResMut<CurrentDungeon>) 
 }
 
 /// A table of every style, each its own size and material, in two rows of
-/// three south-east of the player, once they stand on a level.
+/// three south-east of the player, with seats (`furniture_seats`), once they
+/// stand on a level.
 fn show_tables(
     player: Query<&MapPosition, With<Player>>,
     mut dungeon: ResMut<CurrentDungeon>,
@@ -101,15 +102,19 @@ fn show_tables(
         (STYLES[4], (3, 1), Side::East, MATERIALS[11]),
         (STYLES[5], (2, 2), Side::East, MATERIALS[8]),
     ];
-    for (i, (style, size, facing, material)) in shown.into_iter().enumerate() {
+    let tables = shown.into_iter().enumerate().map(|(i, shown)| {
+        let (style, size, facing, material) = shown;
         let (column, row) = (i as i64 % 3, i as i64 / 3);
-        let piece = Piece {
+        Piece {
             at: (at.x + 1 + column * 5, at.y + 3 + row * 5),
             size,
             facing,
             material,
             furniture: Furniture::Table { style },
-        };
+        }
+    });
+    let seats = super::furniture_seats::shown_seats((at.x, at.y));
+    for piece in tables.chain(seats) {
         if dungeon.level.furniture_at(piece.at.0, piece.at.1) != Some(&piece) {
             dungeon.level.place_furniture(piece);
         }
