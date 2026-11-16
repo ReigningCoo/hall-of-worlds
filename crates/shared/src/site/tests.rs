@@ -121,7 +121,7 @@ fn stilt_huts_stand_on_pillars_over_covered_ground() {
                         }
                     }
                     Cell::Ground if ruin == 0 => {
-                        assert_eq!(up, Cell::Wall, "floor over open ground");
+                        assert_eq!(up, Cell::Air, "air over open ground");
                     }
                     cell => assert_eq!(cell, Cell::Ground),
                 }
@@ -510,7 +510,7 @@ fn golden_levels() {
 }
 
 const GOLDEN_LEVELS: [u64; 3] = [
-    10753682426908746752,
+    17714626048698662836,
     4540973389226848185,
     16348176066830501790,
 ];

@@ -33,7 +33,7 @@ use castle::{Castle, CastleSize};
 pub use castle::{CastleOptions, GATE_TOWER_SIZE, PoiCastle, TOWER_SIZE, TowerSpot, tower_spots};
 use doors::{add_doors, add_extra_doors, join_corridors};
 use entrances::{add_entrances, between};
-use fill::{add_windows, pillars};
+use fill::{add_windows, open_round, pillars};
 pub use options::{BuildingOptions, Outline};
 pub use plan::Plan;
 pub(super) use shape::Shape;

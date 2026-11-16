@@ -44,6 +44,8 @@ pub(super) fn build_cell_at(
         town::build_hedges(layers, scene, (x, y));
     } else if level.is_opening(x, y) {
         build_opening(layers, scene, (x, y));
+    } else if cell == Cell::Air {
+        // Open space beside an upper floor: nothing of its own.
     } else if cell == Cell::Hole {
         build_hole(layers, scene, (x, y));
     } else if cell == Cell::Field && field::build_field(layers, scene, (x, y)) {

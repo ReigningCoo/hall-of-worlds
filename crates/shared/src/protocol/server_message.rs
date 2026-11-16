@@ -161,8 +161,8 @@ pub enum ServerMessage {
     },
     /// Cells of the current level.
     LevelCells(LevelChunk),
-    /// Another level of this site that the player knows, sent after
-    /// `EnterLevel` on coming into the site.
+    /// Cells of another level of this site the player knows: all on coming
+    /// into the site (after `EnterLevel`), then more as they see them.
     RememberedLevel(RememberedLevel),
     /// A town's buildings, sent after `EnterLevel` and before its cells:
     /// players know a town's layout from the start.

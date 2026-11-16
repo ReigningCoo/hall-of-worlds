@@ -4,7 +4,8 @@ use shared::dungeon::{Cell, Sight};
 use shared::protocol::level_chunk;
 
 use super::{
-    Visit, add_masks, all_cells, arrive_again, beside, nearby_cells, remember_doors, send_cells,
+    Visit, add_masks, all_cells, arrive_again, beside, nearby_cells, remember_doors,
+    see_other_floors, send_cells,
 };
 use crate::connections::Client;
 use crate::storage::CellMasks;
@@ -149,9 +150,10 @@ pub(crate) fn update_sight(client: &mut Client) -> bool {
     let extra = beside(level, |cx, cy| visit.loaded.is_seen(cx, cy), &visit.sent);
     add_masks(&mut new, extra);
     let sent = send_cells(client, &visit, &new, false);
+    let others = see_other_floors(client, &mut visit, &seen);
     let visit = client.visit.insert(visit);
     add_masks(&mut visit.sent, new);
-    told && sent
+    told && sent && others
 }
 
 /// Cells just seen that are another map's too, or a poi's cutout in the

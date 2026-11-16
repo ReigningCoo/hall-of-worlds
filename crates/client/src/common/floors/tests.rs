@@ -96,3 +96,20 @@ fn the_players_place_carries_across_by_cell_or_by_share_of_the_level() {
     current.info.as_mut().expect("entered").building = true;
     assert_eq!(others.spot(&current, (5.0, 5.0)), (5.0, 5.0));
 }
+
+#[test]
+fn cells_seen_later_are_added_to_what_is_kept() {
+    let mut current = CurrentDungeon::default();
+    let bounds = (0, 0, 8, 8);
+    current.enter(info(0, bounds, true));
+    let mut others = OtherLevels::default();
+    others.add(&current, &remembered(1, bounds));
+    let mut later = remembered(1, bounds);
+    // The cell at (1, 0).
+    later.chunks[0].mask = 2;
+    others.add(&current, &later);
+    others.show(1);
+    let shown = others.shown(&current);
+    assert!(shown.remembered.is_seen(0, 0));
+    assert!(shown.remembered.is_seen(1, 0));
+}

@@ -206,6 +206,7 @@ fn mark(cell: Cell) -> char {
         Cell::Tree => 'T',
         Cell::Shallows => '-',
         Cell::Bridge => 'B',
+        Cell::Air => 'A',
     }
 }
 

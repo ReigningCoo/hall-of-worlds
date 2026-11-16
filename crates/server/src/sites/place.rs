@@ -2,7 +2,8 @@
 
 use shared::movement::FlatGround;
 use shared::poi::{ChunkPos, Poi, PoiKind};
-use shared::site::Site;
+use shared::site::{Exit, Site};
+use shared::spot::Spot;
 use shared::wilderness::BlockPos;
 
 use crate::storage::SiteId;
@@ -25,6 +26,14 @@ pub(crate) enum Place {
         cutouts: Vec<SetIn>,
         in_poi: Option<Poi>,
     },
+}
+
+/// Where on a level a player arrives.
+pub(super) enum Arrival {
+    /// Coming from the world map or another level.
+    From(Exit),
+    /// Back where they were (a saved visit), if there is still footing.
+    At(Spot),
 }
 
 /// A poi set into a wilderness window, in the window's cells.

@@ -57,6 +57,7 @@ fn print_sites() {
                             Cell::Water => '~',
                             Cell::Lava => '^',
                             Cell::Hole => ' ',
+                            Cell::Air => '`',
                             Cell::Window => 'W',
                             Cell::BlindWindow => 'w',
                             Cell::BuildingDoor => '+',
