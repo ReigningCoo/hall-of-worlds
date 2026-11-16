@@ -17,8 +17,8 @@ pub(super) const CRENEL_HEIGHT: f32 = METRE;
 pub(super) const MERLON_HEIGHT: f32 = 1.5 * METRE;
 
 /// How far the parapet stands out past the wall's face, and how thick it is.
-pub(super) const OVERHANG: f32 = CELL_SIZE * 0.05;
-const THICKNESS: f32 = CELL_SIZE * 0.12;
+pub(in crate::dungeon_map) const OVERHANG: f32 = CELL_SIZE * 0.05;
+pub(in crate::dungeon_map) const THICKNESS: f32 = CELL_SIZE * 0.12;
 
 /// How far below the walk the parapet starts: a band round the wall's top,
 /// so the part standing out past the face doesn't float.
@@ -31,7 +31,7 @@ const MERLON_FIRST: f32 = CELL_SIZE / 4.0;
 const MERLON_HALF: f32 = CELL_SIZE * 0.13;
 
 /// One straight stretch of parapet, in one cell.
-pub(super) struct Parapet {
+pub(in crate::dungeon_map) struct Parapet {
     /// The middle of the cell at the height of the walk.
     pub foot: Vec3,
     /// The way out from the wall (one of the four sides, flat).

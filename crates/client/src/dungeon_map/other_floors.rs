@@ -4,6 +4,7 @@
 //! client has of them: what is seen of them now (`shared::floor_sight`), and
 //! their remembered slices in grey. See `docs/context/client/dungeon_map.md`.
 
+mod above;
 mod aim;
 mod draw;
 mod floors;
@@ -13,6 +14,7 @@ mod roof;
 mod which;
 
 use super::sight_lines::SurfaceMaterial;
+pub(super) use above::own_stack;
 pub(super) use aim::aim_wedge;
 pub(super) use draw::draw_others;
 pub(super) use floors::Floors;

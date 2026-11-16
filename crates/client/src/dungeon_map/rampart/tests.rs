@@ -5,12 +5,15 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::super::mesh::{LightGrid, Surface, View, build_posed};
 use super::super::theme::Shape;
+use super::super::walls::Above;
+use super::gatehouse::{gatehouse_boxes, gatehouse_gate};
 use super::parapet::{CRENEL_HEIGHT, MERLON_HEIGHT, METRE, OVERHANG};
 use super::stone::stone_boxes;
 use super::{Build, LOG_TILE, without_ramparts};
 use crate::dungeon_map::town::atlas_uv;
 use crate::dungeon_map::town::cell_centre;
 use crate::dungeon_map::walls::half_thickness;
+use crate::dungeon_map::{CELL_SIZE, WALL_HEIGHT};
 
 /// A walled square of ground, its gate in the south side.
 fn walled() -> (Level, WallLook) {
@@ -71,7 +74,13 @@ fn a_rampart_is_drawn_in_its_material() {
             std::slice::from_ref(&wall),
             false,
         ),
-        (Vec3::new(0.0, 600.0, 2000.0), Shape::Built, false, true),
+        (
+            Vec3::new(0.0, 600.0, 2000.0),
+            Shape::Built,
+            false,
+            true,
+            Above::Nothing,
+        ),
         None,
         &BTreeMap::new(),
     );
@@ -190,4 +199,96 @@ fn a_wall_meets_a_tower_at_its_face() {
     assert!(reaching(0.0), "the run reaches the tower's face");
     assert!(reaching(CRENEL_HEIGHT), "and so does its parapet");
     assert!(boxes.iter().all(|(_, high)| high.x <= face + 0.001));
+}
+
+/// A stone wall round `0..8` with its gate at `(3, 7)` and `(4, 7)`, and, if
+/// `towers`, a gate tower either side of it.
+fn gated(towers: bool) -> (Level, WallLook) {
+    let mut level = Level::new(-2, -2, 12, 12);
+    for y in -2..10 {
+        for x in -2..10 {
+            level.set(x, y, Cell::Ground);
+        }
+    }
+    let rects = [(1, 6), (5, 6)].map(|(x, y)| Rect {
+        x,
+        y,
+        width: 2,
+        height: 3,
+    });
+    let wall = WallLook {
+        rect: Rect {
+            x: 0,
+            y: 0,
+            width: 8,
+            height: 8,
+        },
+        material: WallMaterial::Stone,
+        gates: vec![Gate {
+            x: 3,
+            y: 7,
+            runs_east_west: true,
+        }],
+        towers: if towers { rects.to_vec() } else { Vec::new() },
+        gaps: Vec::new(),
+    };
+    for y in -2..10 {
+        for x in -2..10 {
+            let in_tower = towers && rects.iter().any(|tower| tower.contains(x, y));
+            if wall.is_gate(x, y) {
+                level.set(x, y, Cell::Door);
+            } else if wall.has(x, y) || in_tower {
+                level.set(x, y, Cell::Wall);
+            }
+        }
+    }
+    (level, wall)
+}
+
+/// Only a gate with a tower's wall beyond each of its cells is a gatehouse.
+#[test]
+fn a_gate_between_towers_is_a_gatehouse() {
+    let (level, wall) = gated(true);
+    assert!(gatehouse_gate(&wall, &level, (3, 7)).is_some());
+    assert!(gatehouse_gate(&wall, &level, (4, 7)).is_some());
+    let (level, wall) = gated(false);
+    assert!(gatehouse_gate(&wall, &level, (3, 7)).is_none());
+}
+
+/// A gatehouse's cell has a wall from the hinge to its tower, the walk carried
+/// over the arch at the towers' wall tops, and the parapet on the outer side
+/// only, above that walk.
+#[test]
+fn a_gatehouse_carries_the_walk_over_its_arch() {
+    let (level, wall) = gated(true);
+    let gate = gatehouse_gate(&wall, &level, (3, 7)).expect("a gatehouse");
+    let build = Build::of(WallMaterial::Stone);
+    let boxes = gatehouse_boxes(&wall, gate, &build, (3, 7));
+    let centre = cell_centre(3, 7);
+    let half_cell = CELL_SIZE / 2.0;
+    // The wall beside the leaf, from the ground up to the walk, at the west
+    // edge (towards its tower).
+    assert!(boxes.iter().any(|(low, high)| {
+        low.y <= 0.0 && close(high.y, WALL_HEIGHT) && close(low.x, centre.x - half_cell)
+    }));
+    // The walk over the arch reaches the gate's middle, the east edge.
+    assert!(boxes.iter().any(|(low, high)| {
+        low.y > 0.0 && close(high.y, WALL_HEIGHT) && close(high.x, centre.x + half_cell)
+    }));
+    let parapet: Vec<_> = boxes
+        .iter()
+        .filter(|(_, high)| high.y > WALL_HEIGHT)
+        .collect();
+    assert!(!parapet.is_empty());
+    for (low, high) in parapet {
+        assert!(
+            low.z > centre.z + build.half - CELL_SIZE * 0.2,
+            "south side only"
+        );
+        assert!(high.y <= WALL_HEIGHT + MERLON_HEIGHT + 0.01);
+    }
+}
+
+fn close(a: f32, b: f32) -> bool {
+    (a - b).abs() < 0.01
 }
