@@ -20,6 +20,8 @@
 //!   `StairsStyle::ALL`).
 //! - `HOW_DEBUG_FIELDS=n`: draw every field as this stage (its `variety`: for crops
 //!   0 ploughed, 1 grass, 2 short, 3 tall, 4 ripe).
+//! - `HOW_DEBUG_FURNITURE=style[,material]`: draw every table in this style and
+//!   material (indexes), or each in turn (`all`).
 //! - `HOW_DEBUG_HERBS=n`: draw every herb tile `n` stages (game days) further on.
 //! - `HOW_DEBUG_TRAVEL=x,y`: start travelling to a grid position (as if clicked),
 //!   once at `HOW_DEBUG_POS` if set, otherwise two seconds after starting.
@@ -89,6 +91,7 @@ use crate::common::GameView;
 mod dev_area;
 mod fake_cursor;
 mod forced;
+mod furniture;
 mod inventory;
 mod keep_drawing;
 mod menus;
@@ -143,6 +146,7 @@ impl Plugin for DevToolsPlugin {
         start::add(app);
         dev_area::add(app);
         forced::read(app);
+        furniture::add(app);
         fake_cursor::add(app);
         menus::add(app);
         inventory::add(app);

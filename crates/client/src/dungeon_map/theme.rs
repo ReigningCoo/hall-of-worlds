@@ -11,6 +11,8 @@ use super::mesh::Surface;
 const DOOR: &str = "angbandtk/dg_extra132_12_05.png";
 /// All of a town's roads, gardens, walls, roofs and doors.
 pub const TOWN_ATLAS: &str = "town_atlas.png";
+/// Wood grain and stone for furniture (`tools/make_furniture_atlas.py`).
+const FURNITURE_ATLAS: &str = "furniture_atlas.png";
 const GROUND: &str = "angbandtk/dg_grounds32_01_00.png";
 const WATER: &str = "angbandtk/dg_grounds32_02_00.png";
 const LAVA: &str = "angbandtk/dg_grounds32_04_00.png";
@@ -108,6 +110,7 @@ impl Theme {
             Surface::Water => WATER,
             Surface::Lava => LAVA,
             Surface::Town => TOWN_ATLAS,
+            Surface::Furniture => FURNITURE_ATLAS,
         }
     }
 }

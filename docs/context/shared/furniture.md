@@ -1,6 +1,6 @@
 # shared: furniture
 
-Tables, chairs and benches in sites' rooms, of wood or stone, and where they go. Pieces are kept on `dungeon::Level` (as doors are) and sent with its cells; they never block, but moves over them cost more, so routes go round. Material and style are for models only and are never named to players. Drawing is client `dungeon_map` (placeholder boxes for now).
+Tables, chairs and benches in sites' rooms, of wood or stone, and where they go. Pieces are kept on `dungeon::Level` (as doors are) and sent with its cells; they never block, but moves over them cost more, so routes go round. Material and style are for models only and are never named to players. Drawing is client `dungeon_map` (tables as models; seats placeholder boxes until the plan's PR 3).
 
 ## Files
 

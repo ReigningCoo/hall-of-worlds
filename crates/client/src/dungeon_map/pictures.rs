@@ -43,7 +43,8 @@ pub(super) fn apply_theme(
     let in_hall = matches!(kind, Some(LevelKind::Hall { .. }));
     for (surface, handle) in Surface::ALL.iter().zip(&surfaces.memory) {
         if let Some(mut material) = materials.get_mut(handle) {
-            let (alpha, mode) = if in_hall || *surface == Surface::Town {
+            let (alpha, mode) = if in_hall || matches!(surface, Surface::Town | Surface::Furniture)
+            {
                 (1.0, AlphaMode::Opaque)
             } else {
                 (MEMORY_ALPHA, AlphaMode::Blend)
