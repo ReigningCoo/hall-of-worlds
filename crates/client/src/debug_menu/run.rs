@@ -132,6 +132,7 @@ pub(super) fn run_actions(
             | DebugAction::ExamineMob
             | DebugAction::GiveItem
             | DebugAction::LearnSkills
+            | DebugAction::PlaceFurniture
             | DebugAction::ItemPictures
             | DebugAction::ShowWidgets
             | DebugAction::TeleportToWorld

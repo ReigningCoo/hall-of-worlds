@@ -12,6 +12,7 @@ impl ClientMessage {
             Self::DevGoToWorld { .. } | Self::DevToHall { .. } => DebugTool::TeleportToWorld,
             Self::DevLightning => DebugTool::LightningStrikeHere,
             Self::DevSetCell { .. } => DebugTool::ChangeCellMode,
+            Self::DevFurniture(_) => DebugTool::PlaceFurniture,
             Self::DevSetWorldClock { .. } => DebugTool::WorldTime,
             Self::DevRevealMap => DebugTool::RevealMap,
             Self::DevForgetMap => DebugTool::ForgetMap,

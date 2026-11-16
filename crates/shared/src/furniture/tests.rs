@@ -224,3 +224,12 @@ const GOLDEN_FURNITURE: [&str; 19] = [
     "(16, 4) (1, 1) Chair { style: PanelBack, arms: false }",
     "(16, 8) (1, 1) Chair { style: PanelBack, arms: true }",
 ];
+
+#[test]
+fn furnishing_makes_only_well_made_pieces() {
+    for (kind, ruin, site) in furnished_levels(4) {
+        for piece in site.level.furniture() {
+            assert!(piece.is_well_made(), "{kind:?} ruin {ruin}: {piece:?}");
+        }
+    }
+}

@@ -11,11 +11,13 @@
 mod material;
 mod piece;
 mod place;
+mod shape;
 mod style;
 
 pub use material::{Material, Stone, Wood};
 pub use piece::{Furniture, Piece, SEAT_COST_PER_MILLE, TABLE_COST_PER_MILLE};
 pub use place::{Setting, furnish};
+pub use shape::footprint;
 pub use style::{BenchStyle, ChairStyle, TableStyle};
 
 #[cfg(test)]

@@ -28,6 +28,9 @@ pub enum ClickMode {
     ChangeCell,
     /// Puts a mob made to order (`CreateMobOrder`) on the cell (in a site).
     PlaceMob,
+    /// Puts the piece Place Furniture has set up on the cell (in a site), or
+    /// the next variation of it when clicked again (`FurnitureClicked`).
+    PlaceFurniture,
 }
 
 /// Whether the client is connected to the server (set by `connection`).

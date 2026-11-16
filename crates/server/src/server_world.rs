@@ -85,6 +85,8 @@ pub struct ServerWorld {
     /// Doors changed since everyone on their levels was last told
     /// (`sites::share_doors`), and where players stood then.
     pub(crate) door_changes: Vec<crate::sites::DoorChange>,
+    /// Furniture put down by hand (dev tools), for `sites::share_furniture`.
+    pub(crate) furniture_changes: Vec<crate::sites::FurnitureChange>,
     pub(crate) standing: crate::sites::Standing,
     /// Developer tools' Freeze Mobs: no mob in this world thinks or moves.
     pub(crate) mobs_frozen: bool,
@@ -189,6 +191,7 @@ impl ServerWorld {
             harmed: Vec::new(),
             kills: Vec::new(),
             door_changes: Vec::new(),
+            furniture_changes: Vec::new(),
             standing: Default::default(),
             mobs_frozen: false,
             stacks: crate::stack_limits::from_environment(),

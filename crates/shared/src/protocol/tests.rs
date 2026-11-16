@@ -247,6 +247,17 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             still: true,
             seed: 12,
         })),
+        ClientMessage::DevFurniture(super::DevFurniture {
+            piece: crate::furniture::Piece {
+                at: (3, -2),
+                size: (1, 2),
+                facing: crate::door::Side::West,
+                material: crate::furniture::Material::Wood(crate::furniture::Wood::Elm),
+                furniture: crate::furniture::Furniture::Bench {
+                    style: crate::furniture::BenchStyle::BoardEnded,
+                },
+            },
+        }),
         ClientMessage::DevMobs(super::DevMobTool::Inspect(crate::id::Id::for_test(4))),
         ClientMessage::DevMobs(super::DevMobTool::Freeze(true)),
         ClientMessage::DevEnterSite {

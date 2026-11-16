@@ -8,7 +8,8 @@ use shared::spot::Spot;
 use super::Shown;
 use super::ground_hit::Ground;
 use crate::common::{
-    ClickMode, CreateMobOrder, CurrentDungeon, DrawnGround, HoveredBag, PointerPosition,
+    ClickMode, CreateMobOrder, CurrentDungeon, DrawnGround, FurnitureClicked, HoveredBag,
+    PointerPosition,
 };
 use crate::connection::ToServer;
 use crate::player::TravelTo;
@@ -21,7 +22,8 @@ use crate::view3d::{ClickedToken, ViewCamera};
 /// stairs, by arriving on their cell. In Teleport Mode it asks the server to teleport
 /// the player there, and in Change Cell Mode it changes the cell (floor, wall,
 /// door, window, and round again) to try walls out (dev tools); in Mob Mode it
-/// puts a mob made to order there.
+/// puts a mob made to order there, and in Furniture Mode it says which cell
+/// was clicked (`FurnitureClicked`), for Place Furniture's panel.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn pick_on_click(
     mouse: Res<ButtonInput<MouseButton>>,
@@ -37,6 +39,7 @@ pub(super) fn pick_on_click(
     mut travel: MessageWriter<TravelTo>,
     mut door_clicked: MessageWriter<DoorClicked>,
     mut to_server: MessageWriter<ToServer>,
+    mut furniture: MessageWriter<FurnitureClicked>,
 ) {
     if !mouse.just_pressed(MouseButton::Left) || clicked.0.is_some() {
         return;
@@ -58,6 +61,12 @@ pub(super) fn pick_on_click(
         if let Some((x, y)) = super::picking::floor_cell(ray, ground) {
             let mob = DevMob { x, y, ..order.0 };
             to_server.write(ToServer(ClientMessage::DevMobs(DevMobTool::Create(mob))));
+        }
+        return;
+    }
+    if *mode == ClickMode::PlaceFurniture {
+        if let Some((x, y)) = super::picking::floor_cell(ray, ground) {
+            furniture.write(FurnitureClicked { x, y });
         }
         return;
     }
