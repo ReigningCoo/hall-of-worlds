@@ -19,6 +19,7 @@ impl ClientMessage {
             Self::DevForgetMapOnServer => DebugTool::RemakeSite,
             Self::DevGenerateSite { .. } => DebugTool::GeneratePoi,
             Self::DevGenerateArea(_) => DebugTool::DevArea,
+            Self::DevGoToPlace(_) => DebugTool::LoadDebugString,
             Self::DevMobs(DevMobTool::Create(_)) => DebugTool::CreateMob,
             Self::DevMobs(DevMobTool::Inspect(_)) => DebugTool::ExamineMob,
             Self::DevMobs(DevMobTool::Delete(_)) => DebugTool::DestroyMob,

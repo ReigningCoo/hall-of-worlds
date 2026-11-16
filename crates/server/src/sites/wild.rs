@@ -36,7 +36,7 @@ pub(crate) use chunks::wild_chunk;
 pub(super) use chunks::{ensure_chunk, site_as_saved};
 pub(crate) use exits::leave_by_key;
 pub(super) use exits::{back_to_wilderness, into_site};
-pub(super) use explore::enter_wilderness;
+pub(super) use explore::{enter_wilderness, nearest_walkable};
 pub(crate) use explore::{explore, follow};
 pub(super) use flats::send_flats;
 pub(super) use found::found_by_sight;

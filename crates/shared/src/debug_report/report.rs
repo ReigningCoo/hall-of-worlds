@@ -26,6 +26,11 @@ pub struct DebugReport {
     pub who: Option<Who>,
     /// Where they are, once in a world.
     pub place: Option<Where>,
+    /// The world's seed when it is one of the Hall's planets (public, as their
+    /// gates' places give it), so staff can go there: `place` has only its
+    /// terrain seed. Missing from older strings.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub planet: Option<u32>,
     /// The world's time, once in a world.
     pub clock: Option<ReportClock>,
     /// How the view is turned.

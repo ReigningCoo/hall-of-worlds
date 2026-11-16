@@ -259,7 +259,7 @@ fn ask_roads(world: &ServerWorld, (x, y): (i64, i64)) {
 
 /// The walkable cell nearest `at` on `level` (by rings round it), or `at`;
 /// never a World Gate's, which would take them straight through.
-fn nearest_walkable(level: &Level, (x, y): (i64, i64)) -> (i64, i64) {
+pub(in crate::sites) fn nearest_walkable(level: &Level, (x, y): (i64, i64)) -> (i64, i64) {
     (0..=ARRIVAL_SEARCH)
         .flat_map(|ring| {
             (-ring..=ring).flat_map(move |dy| {

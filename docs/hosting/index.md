@@ -137,7 +137,7 @@ Every account has a role, which decides what it may do beyond playing. A role ca
 | ---- | -------------- |
 | Owner | Everything, always, including lockdown. A native client's own world is its player's. |
 | Admin | Everything except making Owners and Admins, including lockdown. |
-| Developer | Every tool of the [debug menu](../debug-menu) except World Time and Freeze Mobs, and nothing of moderation or accounts. |
+| Developer | Every tool of the [debug menu](../debug-menu) except World Time and Freeze Mobs, and Debug Info's Load (going to where someone's debug string was written), and nothing of moderation or accounts. |
 | Moderator | Moderating players (Moderated and Banned), finding characters by name and reading the audit log; let in when the server is full. The debug menu's tools for looking after players: Show Debug Info, Teleport Mode, Teleport to World, God Mode, Truesight, Examine Mob with Kill and Destroy, Detect Mobs, and the doors' tools. |
 | Player | Playing. Every account starts as one. |
 | Moderated | Playing, with limits, usually for a time. |
@@ -156,7 +156,7 @@ Every account has a role, which decides what it may do beyond playing. A role ca
 
 - give an account a role, by its account id (from the server's log);
 - rename a role, or give it a `title` that is shown instead of its name;
-- change what each role may do, turning each permission on or off. Each debug menu tool is a permission of its own, written like `Debug(GiveItem)`; a file from before they were split, with one `DebugTools` permission, is turned into them the next time the server starts;
+- change what each role may do, turning each permission on or off. Each debug menu tool is a permission of its own, written like `Debug(GiveItem)` (Debug Info's Load is `Debug(LoadDebugString)`); a file from before they were split, with one `DebugTools` permission, is turned into them the next time the server starts;
 - add roles of your own, with an id of lower case letters, digits, `-` and `_`.
 
 If the file can't be read, the server won't start, so nothing is lost. Each change the server makes keeps the previous file in `roles-backups/` (the last 10). Every role given, taken or run out is written to `audit.log`, and so is every use of a debug menu tool by anyone but a native client's own player, by account and character id (just looking, such as Examine Mob's details, is left out).

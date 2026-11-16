@@ -38,6 +38,7 @@ impl Client {
             makes_characters: false,
             world: None,
             going_to: None,
+            going_place: None,
             account: None,
             login_state: None,
             character_id,

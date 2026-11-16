@@ -272,6 +272,8 @@ pub enum ClientMessage {
     /// Developer tools: put a piece of furniture on the player's site level
     /// (Place Furniture), for everyone there; not kept.
     DevFurniture(DevFurniture),
+    /// Developer tools: go to a debug report's place (Load in Debug Info).
+    DevGoToPlace(super::DevGoToPlace),
     /// Change the action bar (`ability::BarChange`), answered with `ActionBar`:
     /// what it is now, whether the change was made or refused.
     ActionBar(BarChange),

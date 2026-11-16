@@ -2,7 +2,8 @@
 //! menu's gear) opens a moving panel where the player describes a problem,
 //! with a debug string beside it to copy into a bug report. The string
 //! (`shared::debug_report`) says where they are and what they see: enough for
-//! staff to go there. Shown to everyone while playing.
+//! staff to go there: those allowed it paste someone's string and Load to go
+//! to the same place (`load`). Shown to everyone while playing.
 
 use bevy::prelude::*;
 
@@ -11,6 +12,9 @@ mod button;
 mod debug_api;
 mod gather;
 mod known;
+mod load;
+mod load_show;
+mod load_state;
 mod markup;
 mod panel;
 mod platform;
@@ -23,6 +27,7 @@ impl Plugin for DebugInfoPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<state::Panel>()
             .init_resource::<known::Known>()
+            .init_resource::<load_state::Load>()
             .add_systems(Startup, button::spawn_button)
             .add_systems(
                 Update,
@@ -36,6 +41,9 @@ impl Plugin for DebugInfoPlugin {
                     panel::bind_panel,
                     refresh::read_events,
                     refresh::refresh,
+                    load::read_load_events,
+                    load::hear_answers,
+                    load_show::show_load,
                 )
                     .chain(),
             );

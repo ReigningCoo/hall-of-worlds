@@ -19,6 +19,7 @@ use crate::storage::{CellMasks, SiteId, VisitSave};
 mod cells;
 mod dev_area;
 mod dev_furniture;
+mod dev_place;
 mod doors;
 mod enter;
 mod generator;
@@ -42,6 +43,7 @@ use cells::{
 };
 pub(super) use dev_area::generate_area;
 pub(crate) use dev_furniture::{FurnitureChange, place_furniture, share_furniture};
+pub(crate) use dev_place::{dev_wilderness, land_near};
 pub(crate) use doors::{
     DoorChange, Standing, door_act, door_to_kick, kick_door, mob_opened, share_doors,
 };

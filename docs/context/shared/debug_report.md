@@ -1,11 +1,11 @@
 # shared: debug_report
 
-Debug reports for bug reports: what the client's Debug Info panel (`client: debug_info`) writes about where the player is and what they see, as one string to paste, and reading one back (for staff going there, PR 3 of the plan). Plain data and its encoding; nothing here goes anywhere or is trusted.
+Debug reports for bug reports: what the client's Debug Info panel (`client: debug_info`) writes about where the player is and what they see, as one string to paste, and reading one back (for staff going there: Load, `protocol::DevGoToPlace`). Plain data and its encoding; nothing here goes anywhere or is trusted.
 
 ## Files
 
 - `crates/shared/src/debug_report.rs`: the module's docs and re-exports. Tests in `debug_report/tests.rs`.
-- `debug_report/report.rs`: `DebugReport` (`build`, `utc` seconds, `who`, `place`, `clock`, `camera`, `flags`, `dev`, `problem`), `Build` (`version`, `protocol`, `Platform` Native or Web, `system`), `Who` (character id, `CreatureKind`, `Gender`, `Difficulty`), `Where` (`WorldMap { seed, x, y }`, `Wilderness { seed, at, heading, poi }`, `Site { seed, x, y, chunk, kind, ruined, level, levels, at, heading }`, `Hall { origin, at, heading }`), `ReportClock` (game minutes, `ClockRate`), `Camera` (turn, tilt, zoom), `DebugFlags` (God Mode, Truesight, Freeze Mobs), `DevPlace` (`Site { kind, seed, ruin }` of Generate POI, `Area(DevArea)`). Serde, read as JSON.
+- `debug_report/report.rs`: `DebugReport` (`build`, `utc` seconds, `who`, `place`, `planet` (the world's seed if one of the Hall's planets, which are public: `place` has only the terrain seed, from which the world can't be worked out; optional, missing from older strings), `clock`, `camera`, `flags`, `dev`, `problem`), `Build` (`version`, `protocol`, `Platform` Native or Web, `system`), `Who` (character id, `CreatureKind`, `Gender`, `Difficulty`), `Where` (`WorldMap { seed, x, y }`, `Wilderness { seed, at, heading, poi }`, `Site { seed, x, y, chunk, kind, ruined, level, levels, at, heading }`, `Hall { origin, at, heading }`), `ReportClock` (game minutes, `ClockRate`), `Camera` (turn, tilt, zoom), `DebugFlags` (God Mode, Truesight, Freeze Mobs), `DevPlace` (`Site { kind, seed, ruin }` of Generate POI, `Area(DevArea)`). Serde, read as JSON.
 - `debug_report/code.rs`: `encode` (`PREFIX` `HOW1.` + URL-safe base64 without padding of the JSON deflated in zlib's wrapping, level 10), `decode` (whitespace ignored; `NotAReport`, `UnknownVersion`, `TooLong` past `MOST_LETTERS`, `Damaged`: bad base64, a wrong Adler-32 checksum, inflating past 64 KiB, or JSON not a report), `DecodeError` (with `Display` wording).
 
 ## Public API
@@ -18,7 +18,7 @@ Debug reports for bug reports: what the client's Debug Info panel (`client: debu
 
 ## Used by
 
-- `client: debug_info`.
+- `client: debug_info`, `protocol` (`DevGoToPlace` carries a `Where`, `DevPlace` and `ReportClock`).
 
 ## Notes
 

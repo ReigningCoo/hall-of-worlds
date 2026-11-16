@@ -56,6 +56,11 @@ impl Sources<'_, '_> {
             utc: 0,
             who: in_world.then(|| self.who()),
             place,
+            planet: self
+                .world
+                .as_ref()
+                .filter(|_| in_world)
+                .and_then(|w| hall_planet(w)),
             clock: in_world.then(|| ReportClock {
                 // Whole minutes, so the string doesn't change every frame.
                 minutes: self.clock.minutes.floor(),
@@ -125,4 +130,15 @@ impl Sources<'_, '_> {
             }
         })
     }
+}
+
+/// The world's seed if it is one of the Hall's planets: its gates' places give
+/// it (public), checked against its terrain seed.
+fn hall_planet(world: &CurrentWorld) -> Option<u32> {
+    let gate = world.gates.first()?;
+    let seed = shared::hall::GatePlace::from_number(gate.place)
+        .address()
+        .seed();
+    let world_seed = shared::world::WorldSeed::new(u64::from(seed));
+    (world_seed.terrain() == world.params.seed).then_some(seed)
 }

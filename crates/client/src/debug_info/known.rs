@@ -15,7 +15,7 @@ pub(super) struct Known {
     pub character: Option<CharacterId>,
     /// In the wilderness, the poi whose cutout the player stands in.
     pub in_poi: Option<PoiKind>,
-    /// A site asked of Generate POI or Dev Area, until the player enters it.
+    /// A site asked of Generate POI, Dev Area or Load, until the player enters it.
     asked: Option<DevPlace>,
     /// The site the player is in, if a debug tool made it.
     pub dev: Option<DevPlace>,
@@ -31,6 +31,8 @@ pub(super) fn note_sent(mut sent: MessageReader<ToServer>, mut known: ResMut<Kno
             ClientMessage::DevGenerateArea(area) => {
                 known.asked = Some(DevPlace::Area(area.checked()));
             }
+            // Load: the debug tool's site it makes again.
+            ClientMessage::DevGoToPlace(ask) if ask.dev.is_some() => known.asked = ask.dev,
             _ => {}
         }
     }

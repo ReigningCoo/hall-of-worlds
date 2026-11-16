@@ -119,11 +119,12 @@ fn only_permitted_entries_are_shown() {
         ..some
     };
     assert!(DebugAction::Accounts.is_permitted(&staff));
-    // Every tool but Other has an entry.
+    // Every tool but Other and Debug Info's Load has an entry.
     let entries: Vec<_> = DebugAction::ALL.iter().filter_map(|a| a.tool()).collect();
     for tool in DebugTool::ALL {
         let examine_buttons = matches!(tool, DebugTool::KillMob | DebugTool::DestroyMob);
-        assert!(entries.contains(&tool) || examine_buttons || tool == DebugTool::Other);
+        let elsewhere = matches!(tool, DebugTool::Other | DebugTool::LoadDebugString);
+        assert!(entries.contains(&tool) || examine_buttons || elsewhere);
     }
 }
 
