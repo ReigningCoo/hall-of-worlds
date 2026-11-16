@@ -74,8 +74,9 @@ pub enum ServerMessage {
     /// and where they are on its world map (where they left off). If they
     /// were in a site, `EnterLevel` follows.
     Welcome {
-        /// The character's name, as chosen in making them.
+        /// The character's name, as chosen in making them, and id (for `debug_report`).
         name: String,
+        character: Option<super::CharacterId>,
         world: WorldInfo,
         time: WorldTime,
         server_clock: f64,

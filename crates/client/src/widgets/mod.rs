@@ -8,7 +8,6 @@ mod aura;
 mod auto_scroll;
 mod clipboard;
 mod colour_picker;
-#[cfg(not(target_arch = "wasm32"))]
 mod copy_button;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
@@ -51,10 +50,8 @@ pub use ability::{ABILITY, AbilityLook, spawn_ability, spawn_outlined_icon};
 pub use attribute_colour::{Shade, attribute_colour, row_rgb};
 pub use aura::{Aura, AuraMask, aura_glow};
 pub use auto_scroll::AutoScroll;
-#[cfg(not(target_arch = "wasm32"))]
 pub use clipboard::copy_to_clipboard;
 pub use colour_picker::{ColourChosen, ColourPicker, Swatch, spawn_colour_picker};
-#[cfg(not(target_arch = "wasm32"))]
 pub use copy_button::spawn_copy_button;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 pub use debug_api::WidgetPlaces;

@@ -11,6 +11,7 @@ mod character_create;
 mod character_select;
 mod common;
 mod connection;
+mod debug_info;
 mod debug_menu;
 #[cfg(not(target_arch = "wasm32"))]
 mod dev_tools;
@@ -147,6 +148,7 @@ fn main() {
     app.add_plugins(accounts_panel::AccountsPanelPlugin);
     app.add_plugins(quests::QuestsPlugin);
     app.add_plugins(quest_log::QuestLogPlugin);
+    app.add_plugins(debug_info::DebugInfoPlugin);
     app.add_plugins(tracked_quest::TrackedQuestPlugin);
     app.add_plugins(app_icon::AppIconPlugin);
     app.add_plugins(item_popup::ItemPopupPlugin);

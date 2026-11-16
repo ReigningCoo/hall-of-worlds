@@ -79,9 +79,6 @@ impl PoiMap {
 
     /// The chunk containing world grid point `(x, y)`.
     pub fn chunk_at(&self, x: i64, y: i64) -> ChunkPos {
-        ChunkPos {
-            x: (x.rem_euclid(self.width) / CHUNK_SIZE).min(self.columns() - 1),
-            y: y.div_euclid(CHUNK_SIZE),
-        }
+        ChunkPos::containing(x, y, self.width)
     }
 }

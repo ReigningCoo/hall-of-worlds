@@ -68,6 +68,7 @@ pub(super) fn receive(
             }
             Ok(Some(ServerMessage::Welcome {
                 name,
+                character,
                 world: info,
                 time: world_time,
                 server_clock: seconds,
@@ -113,6 +114,7 @@ pub(super) fn receive(
                 }
                 from_server.write(FromServer(ServerMessage::Welcome {
                     name,
+                    character,
                     world: info,
                     time: world_time,
                     server_clock: seconds,

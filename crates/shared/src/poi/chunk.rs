@@ -14,6 +14,18 @@ pub struct ChunkPos {
     pub y: i64,
 }
 
+impl ChunkPos {
+    /// The chunk holding world grid point `(x, y)` on a planet `width`
+    /// points round (`PoiMap::chunk_at`, for those without a `PoiMap`).
+    pub fn containing(x: i64, y: i64, width: i64) -> Self {
+        let columns = (width / super::CHUNK_SIZE).max(1);
+        Self {
+            x: (x.rem_euclid(width) / super::CHUNK_SIZE).min(columns - 1),
+            y: y.div_euclid(super::CHUNK_SIZE),
+        }
+    }
+}
+
 /// One poi on the world map.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Poi {
