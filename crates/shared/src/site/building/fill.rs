@@ -88,6 +88,20 @@ impl Plan {
     }
 }
 
+/// Makes everything outside an upper floor's outline `Air`: open space beside
+/// the building, which sight passes. Done last, so no roll changes.
+pub(super) fn open_round(level: &mut Level, shape: &Shape) {
+    let (min_x, min_y, width, height) = level.bounds();
+    for y in min_y..min_y + height {
+        for x in min_x..min_x + width {
+            if !shape.contains(x, y) {
+                level.set(x, y, Cell::Air);
+                level.set_room(x, y, None);
+            }
+        }
+    }
+}
+
 /// Where pillars stand round an outline's edge: going round it from the east,
 /// each edge cell at least `PILLAR_SPACING` from those already chosen, so none
 /// touch. In integers, like everything both sides work out.

@@ -88,6 +88,7 @@ pub(in crate::sites) fn enter_wilderness(
         mirrors: made.mirrors,
         wild_area: 0,
         further: 0,
+        floors: Vec::new(),
     };
     let info = LevelInfo {
         kind: LevelKind::Wilderness,

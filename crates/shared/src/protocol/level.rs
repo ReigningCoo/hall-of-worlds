@@ -100,7 +100,9 @@ impl LevelInfo {
 }
 
 /// What the player remembers of another level of the site they are on, for
-/// the maps. Only what they have seen, and the neighbours that shape it.
+/// the maps. Only what they have seen, and the neighbours that shape it: all
+/// of it on coming into the site, then what they see of it from where they
+/// are (`floor_sight`), added to what the client has.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RememberedLevel {
     /// Which level it is.

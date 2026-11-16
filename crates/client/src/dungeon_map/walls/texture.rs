@@ -42,7 +42,10 @@ pub(super) fn floor_near(level: &Level, around: [(i64, i64); 3]) -> Surface {
         .iter()
         .map(|&(x, y)| level.cell(x, y))
         .find(|&cell| {
-            cell.is_open() && !cell.looks_liquid() && !cell.is_opening() && cell != Cell::Hole
+            cell.is_open()
+                && !cell.looks_liquid()
+                && !cell.is_opening()
+                && !matches!(cell, Cell::Hole | Cell::Air)
         })
         .map_or(Surface::Floor, Surface::of_flat)
 }

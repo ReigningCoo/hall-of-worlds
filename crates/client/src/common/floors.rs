@@ -78,23 +78,27 @@ impl OtherLevels {
         self.levels.remove(&info.index);
     }
 
-    /// What the server says the player remembers of another level.
+    /// What the server says the player remembers of another level: all of it
+    /// on coming into the site, then what they see of it from their own floor
+    /// (`shared::floor_sight`), added to what is kept of it already.
     pub fn add(&mut self, current: &CurrentDungeon, remembered: &RememberedLevel) {
         let Some(info) = &current.info else {
             return;
         };
-        let mut level = CurrentDungeon::default();
-        level.enter(LevelInfo {
-            index: remembered.index,
-            bounds: remembered.bounds,
-            // Only drawn on the map, flat.
-            ground: Default::default(),
-            ..info.clone()
+        let level = self.levels.entry(remembered.index).or_insert_with(|| {
+            let mut level = CurrentDungeon::default();
+            level.enter(LevelInfo {
+                index: remembered.index,
+                bounds: remembered.bounds,
+                // Only drawn on the map, flat.
+                ground: Default::default(),
+                ..info.clone()
+            });
+            level
         });
         for chunk in &remembered.chunks {
             level.add(chunk);
         }
-        self.levels.insert(remembered.index, level);
     }
 
     /// The floor being looked at, if not the player's.

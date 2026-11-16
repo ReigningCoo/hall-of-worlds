@@ -63,7 +63,8 @@ struct Remains {
 /// shape, and off the level's edge counts as hole, so no floor is left along it;
 /// see the module's notes on how quarters meet.
 fn remains(level: &Level, (x, y): (i64, i64), (sx, sy): (i64, i64)) -> Option<Remains> {
-    let is_hole = |x, y| !level.contains(x, y) || level.cell(x, y) == Cell::Hole;
+    let is_hole =
+        |x, y| !level.contains(x, y) || matches!(level.cell(x, y), Cell::Hole | Cell::Air);
     let side_open = is_hole(x + sx, y);
     let end_open = is_hole(x, y + sy);
     let corner = (HALF_CELL, HALF_CELL);
@@ -139,7 +140,9 @@ fn floor_surface(level: &Level, (x, y): (i64, i64), (sx, sy): (i64, i64)) -> Sur
     [(x + sx, y), (x, y + sy), (x + sx, y + sy)]
         .iter()
         .map(|&(x, y)| level.cell(x, y))
-        .find(|&cell| cell != Cell::Hole && cell.is_open() && !cell.looks_liquid())
+        .find(|&cell| {
+            !matches!(cell, Cell::Hole | Cell::Air) && cell.is_open() && !cell.looks_liquid()
+        })
         .map_or(Surface::Floor, Surface::of_flat)
 }
 

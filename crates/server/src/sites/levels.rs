@@ -15,7 +15,7 @@ use shared::spot::Spot;
 use super::remembered::{mirror_of_first, send_remembered};
 use super::{
     Arrival, DoorSite, NewKeepers, Place, Visit, VisitDoors, beside, door_looks, ensure_locks,
-    keepers_of, level_chunks, place_name_of, set_doors, update_sight,
+    floors_of, keepers_of, level_chunks, place_name_of, set_doors, update_sight,
 };
 use crate::ServerWorld;
 use crate::connections::Client;
@@ -196,6 +196,7 @@ pub(super) fn enter_level(
         return false;
     }
     let mirrors = mirror_of_first(world, &new, index, &level);
+    let floors = floors_of(client, world, &new, index);
     let NewVisit {
         poi,
         id,
@@ -222,6 +223,7 @@ pub(super) fn enter_level(
         mirrors,
         wild_area: 0,
         further: 0,
+        floors,
     };
     if visit.is_town() {
         let looks = visit.level.buildings.iter().map(|b| b.look.clone());

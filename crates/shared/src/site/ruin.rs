@@ -40,9 +40,9 @@ fn floor_cells_per_hole(ruin: u8) -> Option<i64> {
 /// below before it comes down.
 const MAX_SPAN: i64 = 4;
 
-/// Whether a cell has nothing there: outside ground, or a hole.
+/// Whether a cell has nothing there: outside ground, a hole or air.
 fn is_gap(cell: Cell) -> bool {
-    cell.is_outside() || cell == Cell::Hole
+    cell.is_outside() || matches!(cell, Cell::Hole | Cell::Air)
 }
 
 /// Whether a staircase, or the cells round it, are at `(x, y)`.
@@ -83,7 +83,10 @@ pub(super) fn ruin_floors(
         let level = &mut floor.level;
         if let Some(below) = below {
             for (x, y) in cells_of(level) {
-                if !shape.contains(x, y) || is_gap(below.cell(x, y)) {
+                if !shape.contains(x, y) {
+                    level.set(x, y, Cell::Air);
+                    level.set_room(x, y, None);
+                } else if is_gap(below.cell(x, y)) {
                     make_hole(level, x, y);
                 }
             }

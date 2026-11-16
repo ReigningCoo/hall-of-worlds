@@ -10,7 +10,7 @@ use shared::dungeon::Sight;
 use shared::movement::{Gait, LevelMove, move_on_level};
 use shared::poi::Poi;
 use shared::protocol::SeenStairs;
-use shared::site::{Exit, Site, SiteLevel};
+use shared::site::{Site, SiteLevel};
 use shared::spot::Spot;
 
 use crate::storage::{CellMasks, SiteId, VisitSave};
@@ -27,6 +27,7 @@ mod keepers;
 mod leave;
 mod levels;
 mod moves;
+mod other_floors;
 mod place;
 mod place_name;
 mod quest_dots;
@@ -59,7 +60,8 @@ use leave::leave_for_poi;
 pub(super) use leave::{forget_site, killed, leave, leave_dungeon, put_out, use_exit};
 use levels::{NewVisit, arrive_again, enter_level};
 pub(super) use moves::{moved, refused, set_cell, teleport};
-use place::{Mirror, Place, SetIn};
+use other_floors::{OtherFloor, floors_of, see_other_floors};
+use place::{Arrival, Mirror, Place, SetIn};
 pub(crate) use place_name::place_name_of;
 pub(crate) use quest_place::{QuestPlace, beside_giver, town_buildings};
 use sight::memory;
@@ -102,6 +104,8 @@ pub(crate) struct Visit {
     wild_area: u32,
     /// Cells Observation adds to sight's reach (`facing::Field::further`).
     further: u32,
+    /// A building's other floors, seen from this one (`other_floors`).
+    floors: Vec<OtherFloor>,
 }
 
 impl Visit {
@@ -273,14 +277,6 @@ impl Visit {
     }
 }
 
-/// Where on a level a player arrives.
-enum Arrival {
-    /// Coming from the world map or another level.
-    From(Exit),
-    /// Back where they were (a saved visit), if there is still footing.
-    At(Spot),
-}
-
 #[cfg(test)]
 mod dev_area_tests;
 #[cfg(test)]
@@ -289,6 +285,8 @@ mod leave_key_tests;
 mod left_at_tests;
 #[cfg(test)]
 mod moves_tests;
+#[cfg(test)]
+mod other_floors_tests;
 #[cfg(test)]
 mod place_name_tests;
 #[cfg(test)]

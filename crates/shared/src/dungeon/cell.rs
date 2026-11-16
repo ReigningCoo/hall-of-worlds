@@ -72,6 +72,12 @@ pub enum Cell {
     Shallows,
     /// A road over water in the wilderness: walkable, drawn as boards.
     Bridge,
+    /// Open space beside a building's upper floor, outside its outline: sight
+    /// and light pass, nothing can step into it or jump it, and it is drawn as
+    /// nothing of its own (what is below shows through). Not a `Hole`, which is
+    /// a ruined floor's gap with a rough edge. Not `is_outside`: it is no
+    /// ground, and never leads out.
+    Air,
 }
 
 impl Cell {
@@ -138,7 +144,13 @@ impl Cell {
         self.is_walkable()
             || matches!(
                 self,
-                Self::Water | Self::Lava | Self::Window | Self::Hole | Self::Fence | Self::Tree
+                Self::Water
+                    | Self::Lava
+                    | Self::Window
+                    | Self::Hole
+                    | Self::Fence
+                    | Self::Tree
+                    | Self::Air
             )
     }
 

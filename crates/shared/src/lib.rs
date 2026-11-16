@@ -22,6 +22,7 @@ pub mod door;
 pub mod dungeon;
 pub mod energy;
 pub mod facing;
+pub mod floor_sight;
 pub mod footwear;
 pub mod furniture;
 pub mod gender;

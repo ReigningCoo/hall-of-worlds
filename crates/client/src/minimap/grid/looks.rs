@@ -134,7 +134,10 @@ pub fn look_of(dungeon: &CurrentDungeon, x: i64, y: i64) -> CellLook {
             && level.room(x, y).is_some()
             && level.room(x, y) != room;
         dungeon.remembered.is_seen(x, y)
-            && (cell.is_walkable() || cell.is_jumpable() || cell == Cell::Window || other_building)
+            && (cell.is_walkable()
+                || cell.is_jumpable()
+                || matches!(cell, Cell::Window | Cell::Air)
+                || other_building)
     };
     match level.cell(x, y) {
         Cell::Door => CellLook::Door {

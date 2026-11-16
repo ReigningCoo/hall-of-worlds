@@ -135,12 +135,15 @@ fn upper_floors_stand_on_what_is_below() {
                 let cell = level.cell(x, y);
                 assert!(!cell.is_outside(), "ruin {ruin} floor {n}: {cell:?}");
                 if is_gap(below.cell(x, y)) {
-                    assert_eq!(cell, Cell::Hole, "ruin {ruin} floor {n} ({x}, {y})");
+                    assert!(
+                        matches!(cell, Cell::Hole | Cell::Air),
+                        "ruin {ruin} floor {n} ({x}, {y})"
+                    );
                 }
-                // Wall in the plan, on the border round any outline.
+                // Air in the plan and the ruin, on the border round any outline.
                 if x < 3 || y < 3 {
-                    assert_eq!(whole.cell(x, y), Cell::Wall);
-                    assert_eq!(cell, Cell::Hole);
+                    assert_eq!(whole.cell(x, y), Cell::Air);
+                    assert_eq!(cell, Cell::Air);
                 }
                 if cell.is_walkable() && !stairs.iter().any(|&s| near(s, x, y)) {
                     assert!(supported(below, x, y), "ruin {ruin} floor {n} ({x}, {y})");

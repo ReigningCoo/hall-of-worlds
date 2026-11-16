@@ -2,7 +2,7 @@
 
 use super::super::{Exit, PoiWall, SiteLevel, Stairs, StairsDirection};
 use super::PoiCastle;
-use super::{Outline, Plan, Shape, add_windows, pillars};
+use super::{Outline, Plan, Shape, add_windows, open_round, pillars};
 use crate::dungeon::{Cell, Level};
 use crate::rng::Seed;
 use crate::site::Rect as CellRect;
@@ -150,7 +150,11 @@ impl Plan {
         if n == 0 && self.stilts {
             return self.ground_under_stilts(shape, stairs);
         }
-        self.fill_floor(shape, rng, stairs, n == 0)
+        let mut floor = self.fill_floor(shape, rng, stairs, n == 0);
+        if n > 0 {
+            open_round(&mut floor.level, &shape);
+        }
+        floor
     }
 
     /// The ground under a building on stilts: the outside ground, covered ground
