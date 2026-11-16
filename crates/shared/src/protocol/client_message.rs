@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use super::login::{CharacterId, Credentials, NewCharacter};
 use super::{
-    DevAlignment, DevGive, DevMobTool, DevSkills, DevVitals, DoorAsk, KindChange, OnlineSettings,
+    DevAlignment, DevFurniture, DevGive, DevMobTool, DevSkills, DevVitals, DoorAsk, KindChange,
+    OnlineSettings,
 };
 use crate::ability::{Ability, BarChange};
 use crate::creature::CreatureKind;
@@ -268,6 +269,9 @@ pub enum ClientMessage {
     /// Developer tools: change the character's skills, or `who`'s (another player
     /// in sight), answered with `DevSkillsOf` and their `Sheet`.
     DevSkills { who: Option<Id>, change: DevSkills },
+    /// Developer tools: put a piece of furniture on the player's site level
+    /// (Place Furniture), for everyone there; not kept.
+    DevFurniture(DevFurniture),
     /// Change the action bar (`ability::BarChange`), answered with `ActionBar`:
     /// what it is now, whether the change was made or refused.
     ActionBar(BarChange),

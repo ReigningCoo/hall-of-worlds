@@ -262,6 +262,7 @@ pub(crate) fn answer(
         | ClientMessage::DevGenerateArea(_)
         | ClientMessage::DevMobs(_)
         | ClientMessage::DevSetCell { .. }
+        | ClientMessage::DevFurniture(_)
         | ClientMessage::DevRevealPois
         | ClientMessage::DevRevealMap
         | ClientMessage::DevForgetMap

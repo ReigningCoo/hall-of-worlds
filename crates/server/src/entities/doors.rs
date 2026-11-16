@@ -49,6 +49,16 @@ impl Population {
             doors.open = self.level.with_doors_open();
         }
     }
+
+    /// Developer tools: a piece of furniture was put on its level by hand
+    /// (`sites::share_furniture`), replacing any it overlaps, so its mobs'
+    /// moves cost what players' do.
+    pub(crate) fn place_furniture(&mut self, piece: shared::furniture::Piece) {
+        self.level.place_furniture(piece);
+        if let Some(doors) = &mut self.doors {
+            doors.open.place_furniture(piece);
+        }
+    }
 }
 
 /// The level a mob finds its way by: one with hands goes as if every door were

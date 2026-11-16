@@ -56,6 +56,7 @@ pub(super) fn answer_dev(
         ClientMessage::DevGenerateArea(area) => sites::generate_area(client, world, area),
         ClientMessage::DevMobs(tool) => crate::entities::dev_mobs(client, world, tool),
         ClientMessage::DevSetCell { x, y, cell } => sites::set_cell(client, world, x, y, cell),
+        ClientMessage::DevFurniture(order) => sites::place_furniture(client, world, order.piece),
         ClientMessage::DevRevealPois => world_map::reveal_pois(client, world),
         ClientMessage::DevRevealMap => sites::reveal_level(client, world),
         ClientMessage::DevForgetMap => match client.visit {

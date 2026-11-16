@@ -77,8 +77,8 @@ pub use creatures::{
     SpentEnergy,
 };
 pub use debug::{
-    CreateMobOrder, DebugInfo, DebugTools, DetectMonsters, FreezeMobs, GodMode, InspectedMob,
-    TeleportToWorldAsked, Truesight,
+    CreateMobOrder, DebugInfo, DebugTools, DetectMonsters, FreezeMobs, FurnitureClicked, GodMode,
+    InspectedMob, TeleportToWorldAsked, Truesight,
 };
 pub use difficulty::{IRONMAN_QUESTION, PlayDifficulty, difficulty_words};
 pub use display::{
@@ -178,6 +178,7 @@ impl Plugin for CommonPlugin {
             .add_message::<WorldChanged>()
             .add_message::<LightningStrike>()
             .add_message::<TeleportToWorldAsked>()
+            .add_message::<FurnitureClicked>()
             .add_message::<BoltStruck>()
             .add_message::<DroppedOnText>()
             .init_resource::<KnownItems>()

@@ -28,6 +28,7 @@ mod create_mob_systems;
 mod dev_area;
 mod dev_area_systems;
 mod examine_mob;
+mod furniture_order;
 mod generate;
 mod generate_form;
 mod give;
@@ -46,6 +47,8 @@ mod open;
 mod pictures_form;
 mod pictures_spawn;
 mod pictures_systems;
+mod place_furniture;
+mod place_furniture_systems;
 mod steps;
 mod teleport_to_world;
 mod teleport_to_world_systems;
@@ -100,6 +103,8 @@ use pictures_spawn::{
     spawn_picture_row, spawn_ring_row,
 };
 pub(super) use pictures_systems::{choose_pictures, fill_pictures, show_pictures};
+pub(super) use place_furniture::{FurnitureChoice, FurnitureClickToPlace, FurniturePlace};
+pub(super) use place_furniture_systems::add_place_furniture_panel;
 pub(super) use steps::{press_panel_buttons, update_panel_buttons};
 pub(super) use teleport_to_world::TeleportForm;
 pub(super) use teleport_to_world_systems::{

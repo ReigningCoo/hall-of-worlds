@@ -32,6 +32,7 @@ use crate::poi::CHUNK_SIZE;
 mod client_message;
 mod combat;
 mod dev_alignment;
+mod dev_furniture;
 mod dev_give;
 mod dev_mob;
 mod dev_skills;
@@ -52,6 +53,7 @@ mod world_chunk;
 pub use client_message::ClientMessage;
 pub use combat::Landed;
 pub use dev_alignment::DevAlignment;
+pub use dev_furniture::DevFurniture;
 pub use dev_give::DevGive;
 pub use dev_mob::{DevMob, DevMobTool};
 pub use dev_skills::{DEV_SKILLS_LEARNT, DevSkills};
@@ -70,7 +72,7 @@ pub use world_chunk::{GateInfo, SeenPoi, WorldChunk, WorldInfo};
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 109;
+pub const PROTOCOL_VERSION: u32 = 110;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

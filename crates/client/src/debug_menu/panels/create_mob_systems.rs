@@ -35,7 +35,7 @@ pub(in crate::debug_menu) fn add_create_mob_panel(app: &mut App) {
 
 /// Whether Mob Mode can be used: in a site that isn't the wilderness or the
 /// Hall, with permission to make mobs.
-fn can_place(view: &GameView, dungeon: &CurrentDungeon, dev_tools: bool) -> bool {
+pub(super) fn can_place(view: &GameView, dungeon: &CurrentDungeon, dev_tools: bool) -> bool {
     use shared::protocol::LevelKind;
     let in_site = dungeon
         .info

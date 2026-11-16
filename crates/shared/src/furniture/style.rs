@@ -46,6 +46,14 @@ pub enum BenchStyle {
 }
 
 impl TableStyle {
+    pub const ALL: [Self; 6] = [
+        Self::Trestle,
+        Self::Joined,
+        Self::PlankLegs,
+        Self::Pedestal,
+        Self::StoneSlab,
+        Self::StoneBlock,
+    ];
     pub const WOOD: [Self; 4] = [Self::Trestle, Self::Joined, Self::PlankLegs, Self::Pedestal];
     pub const STONE: [Self; 2] = [Self::StoneSlab, Self::StoneBlock];
 
@@ -78,4 +86,24 @@ impl TableStyle {
             Self::StoneSlab | Self::StoneBlock => &[StoneSlab],
         }
     }
+}
+
+impl ChairStyle {
+    pub const ALL: [Self; 6] = [
+        Self::Stool,
+        Self::BackStool,
+        Self::LadderBack,
+        Self::PanelBack,
+        Self::XFrame,
+        Self::StoneBlock,
+    ];
+}
+
+impl BenchStyle {
+    pub const ALL: [Self; 4] = [
+        Self::SplayedPlank,
+        Self::BoardEnded,
+        Self::LongStool,
+        Self::StoneSlab,
+    ];
 }

@@ -40,6 +40,7 @@ pub enum DebugTool {
     ForgetMap,
     RemakeSite,
     ChangeCellMode,
+    PlaceFurniture,
     OpenAllDoors,
     CloseAllDoors,
     KeyForThisDoor,
@@ -56,7 +57,7 @@ pub enum DebugTool {
 }
 
 impl DebugTool {
-    pub const ALL: [Self; 34] = [
+    pub const ALL: [Self; 35] = [
         Self::ShowDebugInfo,
         Self::LightningNow,
         Self::SunsAndMoons,
@@ -83,6 +84,7 @@ impl DebugTool {
         Self::ForgetMap,
         Self::RemakeSite,
         Self::ChangeCellMode,
+        Self::PlaceFurniture,
         Self::OpenAllDoors,
         Self::CloseAllDoors,
         Self::KeyForThisDoor,

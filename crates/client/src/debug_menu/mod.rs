@@ -40,6 +40,7 @@ impl Plugin for DebugMenuPlugin {
             .add_plugins((
                 panels::add_dev_area_panel,
                 panels::add_create_mob_panel,
+                panels::add_place_furniture_panel,
                 panels::add_examine_mob_panel,
                 panels::add_alignment_panel,
                 panels::add_learn_skills_panel,

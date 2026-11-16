@@ -78,13 +78,13 @@ pub(crate) fn run_mobs(
     }
 }
 
-/// Every tick: tells everyone on a level whose doors have changed, and its mobs.
+/// Every tick: tells everyone on a level whose doors (or furniture put down by
+/// hand) have changed, and its mobs.
 pub(crate) fn share_doors(mut connections: ResMut<Connections>, mut worlds: ResMut<ServerWorlds>) {
-    for_each_world(
-        &mut connections.clients,
-        &mut worlds,
-        crate::sites::share_doors,
-    );
+    for_each_world(&mut connections.clients, &mut worlds, |clients, world| {
+        crate::sites::share_furniture(clients, world);
+        crate::sites::share_doors(clients, world);
+    });
 }
 
 /// Every tick: tells everyone who has come into or gone out of their sight, or

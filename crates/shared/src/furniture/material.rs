@@ -10,6 +10,23 @@ pub enum Material {
 }
 
 impl Material {
+    /// Every material: the woods, then the stones.
+    pub const ALL: [Self; 13] = [
+        Self::Wood(Wood::Oak),
+        Self::Wood(Wood::Walnut),
+        Self::Wood(Wood::Ash),
+        Self::Wood(Wood::Pine),
+        Self::Wood(Wood::Elm),
+        Self::Wood(Wood::Beech),
+        Self::Wood(Wood::Cherry),
+        Self::Wood(Wood::Ebony),
+        Self::Stone(Stone::Granite),
+        Self::Stone(Stone::Sandstone),
+        Self::Stone(Stone::Limestone),
+        Self::Stone(Stone::Marble),
+        Self::Stone(Stone::Slate),
+    ];
+
     pub fn is_stone(self) -> bool {
         matches!(self, Self::Stone(_))
     }

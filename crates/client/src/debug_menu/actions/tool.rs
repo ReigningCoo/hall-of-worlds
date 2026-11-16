@@ -34,6 +34,7 @@ impl DebugAction {
             Self::ForgetMap => DebugTool::ForgetMap,
             Self::RemakeSite => DebugTool::RemakeSite,
             Self::ChangeCellMode => DebugTool::ChangeCellMode,
+            Self::PlaceFurniture => DebugTool::PlaceFurniture,
             Self::OpenAllDoors => DebugTool::OpenAllDoors,
             Self::CloseAllDoors => DebugTool::CloseAllDoors,
             Self::KeyForThisDoor => DebugTool::KeyForThisDoor,

@@ -4,7 +4,7 @@
 //! are.
 
 use bevy::prelude::*;
-use shared::furniture::{Furniture, Material, Stone, TableStyle, Wood};
+use shared::furniture::{Furniture, Material, TableStyle};
 use std::env;
 
 use shared::door::Side;
@@ -13,30 +13,8 @@ use shared::furniture::Piece;
 use crate::common::{CurrentDungeon, MapPosition};
 use crate::player::Player;
 
-const STYLES: [TableStyle; 6] = [
-    TableStyle::Trestle,
-    TableStyle::Joined,
-    TableStyle::PlankLegs,
-    TableStyle::Pedestal,
-    TableStyle::StoneSlab,
-    TableStyle::StoneBlock,
-];
-
-const MATERIALS: [Material; 13] = [
-    Material::Wood(Wood::Oak),
-    Material::Wood(Wood::Walnut),
-    Material::Wood(Wood::Ash),
-    Material::Wood(Wood::Pine),
-    Material::Wood(Wood::Elm),
-    Material::Wood(Wood::Beech),
-    Material::Wood(Wood::Cherry),
-    Material::Wood(Wood::Ebony),
-    Material::Stone(Stone::Granite),
-    Material::Stone(Stone::Sandstone),
-    Material::Stone(Stone::Limestone),
-    Material::Stone(Stone::Marble),
-    Material::Stone(Stone::Slate),
-];
+const STYLES: [TableStyle; 6] = TableStyle::ALL;
+const MATERIALS: [Material; 13] = Material::ALL;
 
 /// The style and material every table is drawn in: `None` for each in turn,
 /// table by table.

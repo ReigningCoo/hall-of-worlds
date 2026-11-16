@@ -59,6 +59,7 @@ impl DebugAction {
             | Self::ForgetMap
             | Self::RemakeSite
             | Self::ChangeCellMode
+            | Self::PlaceFurniture
             | Self::OpenAllDoors
             | Self::CloseAllDoors
             | Self::KeyForThisDoor => Group::Level,

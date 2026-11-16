@@ -92,6 +92,7 @@ fn update_status_text(
         ClickMode::Teleport => "Teleport Mode",
         ClickMode::ChangeCell => "Change Cell Mode",
         ClickMode::PlaceMob => "Mob Mode",
+        ClickMode::PlaceFurniture => "Furniture Mode",
     };
     let says = [
         (god.0, GOD_MODE_ICON),

@@ -92,6 +92,14 @@ impl Default for CreateMobOrder {
     }
 }
 
+/// Debug: a cell clicked in Furniture Mode (`ClickMode::PlaceFurniture`), for
+/// Place Furniture's panel to say what goes there.
+#[derive(Message, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct FurnitureClicked {
+    pub x: i64,
+    pub y: i64,
+}
+
 /// Debug: the mob Inspect Mob last asked about and what the server said of it,
 /// shown in its panel and asked again while that is open.
 #[derive(Resource, Default, Clone, Debug, PartialEq, Eq)]
