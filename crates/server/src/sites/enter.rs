@@ -84,14 +84,13 @@ pub(crate) fn test_enter_poi(
 }
 
 /// Developer tools: a made-up site as if new, whatever anyone has done there or
-/// remembers of it, and the player in it. It is on no map: leaving it comes back
-/// to where they stand now.
+/// remembers of it, and the player in it on level `level`. It is on no map:
+/// leaving it comes back to where they stand now.
 pub(crate) fn generate(
     client: &mut Client,
     world: &mut ServerWorld,
-    kind: PoiKind,
-    seed: u64,
-    ruin: u8,
+    (kind, seed, ruin): (PoiKind, u64, u8),
+    level: u32,
 ) -> bool {
     let ruin = if Generator::can_be_ruined(kind) {
         ruin.min(MAX_RUIN)
@@ -103,7 +102,7 @@ pub(crate) fn generate(
     let id = SiteId::Dev { kind, seed, ruin };
     world.forget_site(id);
     client.character.forget_site(&id);
-    dev_enter(client, world, kind, seed, 0, ruin)
+    dev_enter(client, world, kind, seed, level, ruin)
 }
 
 /// The made-up poi of a dev tools site: where the player stands.

@@ -258,6 +258,26 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 },
             },
         }),
+        ClientMessage::DevGoToPlace(super::DevGoToPlace {
+            place: crate::debug_report::Where::Site {
+                seed: crate::rng::Seed::new(5),
+                x: 70,
+                y: -3,
+                chunk: crate::poi::ChunkPos { x: 1, y: -1 },
+                kind: crate::poi::PoiKind::RockCave,
+                ruined: false,
+                level: 2,
+                levels: 4,
+                at: crate::spot::Spot::new(500, -260),
+                heading: crate::facing::Heading::EAST,
+            },
+            planet: Some(77),
+            dev: None,
+            clock: Some(crate::debug_report::ReportClock {
+                minutes: 900.0,
+                rate: crate::world::ClockRate::default(),
+            }),
+        }),
         ClientMessage::DevMobs(super::DevMobTool::Inspect(crate::id::Id::for_test(4))),
         ClientMessage::DevMobs(super::DevMobTool::Freeze(true)),
         ClientMessage::DevEnterSite {
@@ -605,6 +625,10 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         },
         ServerMessage::Sheet(Sheet::new(CreatureKind::Horse)),
         ServerMessage::Clock { tick: 123_456 },
+        ServerMessage::DevPlace(super::PlaceAnswer::Arrived {
+            heading: crate::facing::Heading::SOUTH,
+        }),
+        ServerMessage::DevPlace(super::PlaceAnswer::Refused(super::PlaceRefusal::NoSuchPoi)),
         ServerMessage::Vitals {
             who: None,
             health: crate::vitals::VitalNow {

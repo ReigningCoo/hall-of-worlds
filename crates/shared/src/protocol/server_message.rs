@@ -278,15 +278,13 @@ pub enum ServerMessage {
         session: SessionToken,
         email: EmailAddress,
     },
-    /// Logging in didn't work, and why: the client may try again or another
-    /// way, as it is still logging in.
+    /// Logging in didn't work, and why: still logging in, it may try again or another way.
     LoginFailed(String),
     /// Whether the player is sneaking now (`Ability::Sneak`, a toggle): after
     /// they turn it on or off, and `false` on joining, as it isn't kept.
     Sneaking(bool),
-    /// A door the player asked to open (`DoorAsk::Open`) stays shut, `locked`
-    /// if they tried it and found it locked without its key: click travel
-    /// stops there.
+    /// A door the player asked to open (`DoorAsk::Open`) stays shut, `locked` if
+    /// found locked without its key: click travel stops there.
     DoorRefused { x: i64, y: i64, locked: bool },
     /// Everyone in sight who turned this tick without moving, and the way
     /// they face now (a stretch in `Moves` turns them by itself): one message
@@ -297,4 +295,6 @@ pub enum ServerMessage {
     /// The action clock's tick now, right after every `Sheet`, so the client can
     /// tell when its effects end (it counts on at `energy::ACTION_TICKS_PER_SECOND`).
     Clock { tick: u64 },
+    /// Developer tools: how a `DevGoToPlace` went (`PlaceAnswer`).
+    DevPlace(super::PlaceAnswer),
 }

@@ -50,6 +50,9 @@ pub enum DebugTool {
     GeneratePoi,
     /// Dev Area, and making it again.
     DevArea,
+    // Debug Info.
+    /// Load in Debug Info: going to the place a debug string was written at.
+    LoadDebugString,
     /// What only the debug API and starting variables use, with no entry:
     /// going straight into a site, back to the start, the snow line,
     /// revealing pois and deleting the character.
@@ -57,7 +60,7 @@ pub enum DebugTool {
 }
 
 impl DebugTool {
-    pub const ALL: [Self; 35] = [
+    pub const ALL: [Self; 36] = [
         Self::ShowDebugInfo,
         Self::LightningNow,
         Self::SunsAndMoons,
@@ -92,6 +95,7 @@ impl DebugTool {
         Self::LightningStrikeHere,
         Self::GeneratePoi,
         Self::DevArea,
+        Self::LoadDebugString,
         Self::Other,
     ];
 

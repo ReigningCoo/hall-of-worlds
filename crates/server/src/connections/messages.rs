@@ -74,9 +74,12 @@ pub(crate) fn handle_messages(
                 }
             }
         };
-        let stay = stay
-            && match client.going_to.take() {
+        let stay =
+            stay && match client.going_to.take() {
                 Some(going) => change_world(client, &mut worlds, going, &options),
+                None => true,
+            } && match client.going_place.take() {
+                Some(ask) => super::go_to_place::go_to_place(client, &mut worlds, ask, &options),
                 None => true,
             };
         if !stay {

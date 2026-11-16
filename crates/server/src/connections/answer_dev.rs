@@ -51,7 +51,7 @@ pub(super) fn answer_dev(
             ruin,
         } => sites::dev_enter(client, world, kind, seed, level, ruin),
         ClientMessage::DevGenerateSite { kind, seed, ruin } => {
-            sites::generate(client, world, kind, seed, ruin)
+            sites::generate(client, world, (kind, seed, ruin), 0)
         }
         ClientMessage::DevGenerateArea(area) => sites::generate_area(client, world, area),
         ClientMessage::DevMobs(tool) => crate::entities::dev_mobs(client, world, tool),

@@ -39,6 +39,7 @@ pub(crate) mod difficulty;
 mod facing;
 mod for_others;
 mod give_items;
+mod go_to_place;
 mod heal;
 mod kick;
 mod lightning;
@@ -150,6 +151,9 @@ pub struct Client {
     /// The world it has asked to go to (dev tools), moved to once its
     /// messages this tick have been read.
     going_to: Option<(shared::world::WorldSeed, moving::Arrival)>,
+    /// The place it has asked to go to (Load in Debug Info), gone to after
+    /// any `going_to`.
+    going_place: Option<shared::protocol::DevGoToPlace>,
     /// What the character knows of this world and where they are in it: the
     /// pois and cells they know (`visit` is filled in on saving).
     pub(crate) character: CharacterWorldSave,
@@ -246,6 +250,8 @@ mod dev_audit_tests;
 mod dev_skills_tests;
 #[cfg(test)]
 mod difficulty_tests;
+#[cfg(test)]
+mod go_to_place_tests;
 #[cfg(test)]
 mod idle_tests;
 #[cfg(test)]

@@ -231,6 +231,7 @@ pub(super) fn receive(
                 | ServerMessage::Keepers(_)
                 | ServerMessage::Sheet(_)
                 | ServerMessage::Clock { .. }
+                | ServerMessage::DevPlace(_)
                 | ServerMessage::Attributes(_)
                 | ServerMessage::Vitals { .. }
                 | ServerMessage::VisitedGates(_)

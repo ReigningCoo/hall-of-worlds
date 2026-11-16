@@ -37,6 +37,7 @@ fn sample() -> DebugReport {
             at: Spot::new(1234, -56),
             heading: Heading::NORTH,
         }),
+        planet: Some(4321),
         clock: Some(ReportClock {
             minutes: 12_345.5,
             rate: ClockRate::NORMAL,
@@ -88,6 +89,7 @@ fn an_empty_report_comes_back() {
     let report = DebugReport {
         who: None,
         place: None,
+        planet: None,
         clock: None,
         camera: None,
         dev: None,
@@ -152,4 +154,12 @@ fn a_full_problem_stays_short_enough_to_paste() {
         ..sample()
     };
     assert!(encode(&report).len() < MOST_LETTERS / 4);
+}
+
+#[test]
+fn strings_without_a_planet_still_read() {
+    let mut json = serde_json::to_value(sample()).unwrap();
+    json.as_object_mut().unwrap().remove("planet");
+    let report: DebugReport = serde_json::from_value(json).unwrap();
+    assert_eq!(report.planet, None);
 }
