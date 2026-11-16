@@ -1,7 +1,7 @@
 //! Walls round sites (`shared::site::WallLook`: a walled fort's), drawn by
 //! what they are made of rather than the place's theme, and lower than a
 //! building's walls: logs side by side, boards on posts, rough stone or dressed
-//! blocks with merlons on top. Pieces go in the town mesh (atlas pictures, lit
+//! blocks with a parapet along the outer edge of their top (`parapet`). Pieces go in the town mesh (atlas pictures, lit
 //! where they stand, like fences) and are draped over the ground. A gate's two
 //! doors are drawn as one gate: a post at each side and the two leaves
 //! (`walls::build_gate_leaf`) meeting in the middle.
@@ -14,12 +14,20 @@ use super::walls::{Layers, Scene, build_gate_leaf};
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod block;
+mod join;
+mod parapet;
 mod pieces;
+mod stone;
 
 use block::block;
+pub use join::without_ramparts;
 use pieces::{build_gate_post, build_run};
 
 const HALF_CELL: f32 = CELL_SIZE / 2.0;
+
+/// The four ways out of a cell, as steps (`y` south): north, east, south,
+/// west.
+const SIDES: [(i64, i64); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
 /// Atlas tiles (`town::atlas`) for each material: fence wood, boards, the
 /// stone wall, dressed stone.

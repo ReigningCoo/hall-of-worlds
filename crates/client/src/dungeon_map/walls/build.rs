@@ -3,6 +3,7 @@
 use bevy::prelude::*;
 use shared::dungeon::Cell;
 
+use super::super::rampart;
 use super::super::theme::Shape;
 use super::{
     HALF_CELL, Layer, Layers, OPENING_HALF, Patch, QUARTERS, Scene, half_thickness, units_to_size,
@@ -23,6 +24,8 @@ pub fn build_wall(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) {
     let Some(shape) = scene.level.wall_shape(x, y) else {
         return;
     };
+    // A wall round a site meeting this one comes on to its face instead.
+    let shape = rampart::without_ramparts(scene.walls, scene.level, (x, y), shape);
     let joins = [shape.north, shape.east, shape.south, shape.west];
     let reach = shape.reach().map(units_to_size);
     let tile = Tile::new(scene, (x, y), joins);

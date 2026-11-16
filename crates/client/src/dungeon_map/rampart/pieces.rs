@@ -6,11 +6,9 @@ use shared::site::{WallLook, WallMaterial};
 
 use super::super::town;
 use super::super::walls::{Layer, Layers, Scene};
-use super::{Build, HALF_CELL, block};
+use super::stone::build_stone_run;
+use super::{Build, HALF_CELL, SIDES, block};
 use crate::dungeon_map::{CELL_SIZE, WALL_HEIGHT};
-
-/// The four ways out of a cell, as steps (`y` south).
-const SIDES: [(i64, i64); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
 /// Logs stand this far apart along a palisade, each a little taller or
 /// shorter than the next by a hash of where it stands, with a point on top.
@@ -22,10 +20,6 @@ const LOG_POINT: f32 = CELL_SIZE * 0.07;
 /// its boards.
 const PLANK_POST: f32 = CELL_SIZE * 0.1;
 const PLANK_POST_ABOVE: f32 = WALL_HEIGHT * 0.06;
-
-/// Merlons on a stone wall: half their length, and their height.
-const MERLON_HALF: f32 = CELL_SIZE * 0.16;
-const MERLON_HEIGHT: f32 = WALL_HEIGHT * 0.18;
 
 /// A gate's posts: from where the leaf is hinged to the edge of the cell,
 /// standing this much above the wall.
@@ -105,22 +99,7 @@ pub(super) fn build_run(layers: &mut Layers, scene: &Scene, wall: &WallLook, (x,
             }
         }
         WallMaterial::Stone | WallMaterial::Block => {
-            let (half, height) = (build.half, build.height);
-            along(
-                layers,
-                scene,
-                layer,
-                &build,
-                (centre, centre),
-                (half, height),
-            );
-            for way in &joined {
-                let edge = centre + *way * HALF_CELL;
-                along(layers, scene, layer, &build, (centre, edge), (half, height));
-            }
-            let top = centre + Vec3::Y * height;
-            let merlon = (MERLON_HALF.min(half), MERLON_HEIGHT);
-            along(layers, scene, layer, &build, (top, top), merlon);
+            build_stone_run(layers, scene, wall, &build, (x, y));
         }
     }
 }
