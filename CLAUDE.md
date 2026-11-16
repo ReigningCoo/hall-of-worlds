@@ -1,6 +1,6 @@
 # Hall of Worlds: guide for Claude
 
-**Hall of Worlds** is a multiplayer roguelike with an infinite, procedurally generated world, written in Rust with the Bevy engine. Client/server: the client builds natively (Windows/macOS/Linux) and to WebAssembly (browser); the server builds natively only. Design notes are in `README.md` and `designs.txt`.
+**Hall of Worlds** is a multiplayer roguelike with an infinite, procedurally generated world, written in Rust with the Bevy engine. Client/server: the client builds natively (Windows/macOS/Linux) and to WebAssembly (browser); the server builds natively only. Setup, domains and the licence are in `README.md`.
 
 ## Core rules (always apply)
 
