@@ -19,7 +19,7 @@ pub(in crate::widgets) fn take_dropped_items(
         let Ok((mut text_box, mut cursor)) = boxes.get_mut(drop.on) else {
             continue;
         };
-        if !text_box.accepts_items {
+        if !text_box.accepts_items || text_box.read_only {
             continue;
         }
         let mut edited = current(&text_box, &cursor);

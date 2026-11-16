@@ -6,6 +6,7 @@ fn edited(text: &str, caret: usize, anchor: usize) -> Edited {
         caret,
         anchor,
         items: false,
+        limit: None,
     }
 }
 
@@ -137,6 +138,7 @@ fn with_items(text: &str, caret: usize) -> Edited {
         caret,
         anchor: caret,
         items: true,
+        limit: None,
     }
 }
 
@@ -165,4 +167,18 @@ fn an_item_pasted_in_is_one_place_and_the_caret_goes_after_it() {
 fn a_box_without_items_counts_each_character() {
     let box_ = Edited::at_end(RING, false);
     assert_eq!(box_.len(), RING.chars().count());
+}
+
+#[test]
+fn typing_stops_at_the_limit_and_replacing_frees_room() {
+    let mut box_ = edited("abc", 3, 3);
+    box_.limit = Some(5);
+    box_.insert("defg");
+    assert_eq!(box_.text, "abcde");
+    box_.insert("x");
+    assert_eq!(box_.text, "abcde");
+    // A selection taken out makes room for what replaces it.
+    box_.anchor = 0;
+    box_.insert("vwxyz!");
+    assert_eq!(box_.text, "vwxyz");
 }

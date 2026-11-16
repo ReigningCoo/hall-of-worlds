@@ -1,7 +1,8 @@
 //! The caret: a thin line where typing goes, in the box with the keyboard. It
 //! stays solid while the player types or moves it, then fades gently in and
-//! out, twice a second (solid throughout with Reduce Motion). Long writing is
-//! slid left to keep it in sight.
+//! out, twice a second (solid throughout with Reduce Motion). Long writing on one
+//! line is slid left to keep it in sight; a box of several lines scrolls
+//! instead (`area`).
 
 use std::f32::consts::TAU;
 
@@ -75,26 +76,31 @@ pub(in crate::widgets) fn show_carets(
             continue;
         };
         let edited = current(text_box, &cursor);
-        let Some((_, edges)) = labels.places(caret.0, edited.len()) else {
+        let Some(spots) = labels.spots(caret.0, &edited) else {
             continue;
         };
-        let scale = box_node.inverse_scale_factor;
-        let inside = box_node.size() * scale - Vec2::splat(BORDER * 2.0);
-        let at = edges[edited.caret.min(edges.len() - 1)];
-        let width = *edges.last().expect("at least one place") + WIDTH;
-        let scroll = slide(cursor.scroll, at, width, inside.x - SIDE_PADDING * 2.0);
-        if (scroll - cursor.scroll).abs() > 0.01 {
-            cursor.scroll = scroll;
-        }
-        for (label, mut label_node) in &mut label_nodes {
-            if label.0 == caret.0 && label_node.left != px(SIDE_PADDING - scroll) {
-                label_node.left = px(SIDE_PADDING - scroll);
+        let at = spots.x(edited.caret);
+        let place = if text_box.multiline {
+            // On its line on the page, which scrolls.
+            (px(at), px(spots.top(edited.caret)))
+        } else {
+            let scale = box_node.inverse_scale_factor;
+            let inside = box_node.size() * scale - Vec2::splat(BORDER * 2.0);
+            let width = spots.x(edited.len()) + WIDTH;
+            let scroll = slide(cursor.scroll, at, width, inside.x - SIDE_PADDING * 2.0);
+            if (scroll - cursor.scroll).abs() > 0.01 {
+                cursor.scroll = scroll;
             }
-        }
-        let place = (
-            px(SIDE_PADDING + at - scroll),
-            px((inside.y - caret_node.size().y * caret_node.inverse_scale_factor) / 2.0),
-        );
+            for (label, mut label_node) in &mut label_nodes {
+                if label.0 == caret.0 && label_node.left != px(SIDE_PADDING - scroll) {
+                    label_node.left = px(SIDE_PADDING - scroll);
+                }
+            }
+            (
+                px(SIDE_PADDING + at - scroll),
+                px((inside.y - caret_node.size().y * caret_node.inverse_scale_factor) / 2.0),
+            )
+        };
         if (node.left, node.top) != place {
             (node.left, node.top) = place;
         }

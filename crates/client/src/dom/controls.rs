@@ -11,7 +11,7 @@ use super::build::{Builder, Inside};
 use super::check::{Checked, CheckedNode};
 use super::parts::{Control, ControlOf};
 use super::tag::Tag;
-use crate::widgets::ButtonState;
+use crate::widgets::{ButtonState, text_area_height};
 
 mod bridge;
 mod buttons;
@@ -66,7 +66,9 @@ impl Builder<'_, '_, '_> {
             (Tag::Button, _) => self.button(holder, element, size, node),
             (Tag::Input, Some("checkbox")) => self.check(holder, attrs, size, node),
             (Tag::Input, Some("range")) => self.range(holder, attrs),
-            (Tag::Input, _) => self.text_box(holder, attrs, size, node),
+            (Tag::Input | Tag::Textarea, _) => {
+                self.text_box(holder, element.tag, attrs, size, node)
+            }
             (Tag::KeyBox, _) => self.key_box(holder, attrs, size, node),
             (Tag::Select, _) => self.select(holder, element, size, node),
             (Tag::ToggleRow | Tag::TabBar, _) => self.row(holder, element, size),
@@ -87,10 +89,20 @@ impl Builder<'_, '_, '_> {
     /// what holds it when stacked and as itself when in a row, so nothing
     /// needs a width to fill its room. It is as tall as the theme's row for
     /// the writing round it (the menus' is taller), or as its element when
-    /// that is given a height. A button in a dialog's footer is at least the
-    /// theme's width, so a footer's buttons match.
+    /// that is given a height; a `textarea` as its `rows` (4 unless it says).
+    /// A button in a dialog's footer is at least the theme's width, so a
+    /// footer's buttons match.
     fn widget_node(&self, element: &Checked, inside: Inside) -> Node {
         let attrs = &element.attrs;
+        if element.tag == Tag::Textarea {
+            let rows = attrs.number("rows").map_or(4, |rows| rows as usize);
+            let height = text_area_height(inside.style.size, rows);
+            return Node {
+                width: percent(100),
+                height: attrs.height.map_or(px(height), |_| percent(100)),
+                ..default()
+            };
+        }
         let is_box = element.tag == Tag::Input && attrs.text("type") == Some("text");
         let row = match is_box {
             true => self.theme.box_row(inside.style.size),

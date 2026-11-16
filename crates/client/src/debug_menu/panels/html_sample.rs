@@ -63,6 +63,14 @@ pub(super) static HTML_SAMPLE: Template = html!(
       <td><input id="name" type="text" value="Words" suffix="(any)"/></td>
     </tr>
     <tr>
+      <td><label for="notes">Text area</label></td>
+      <td><textarea id="notes" rows="3" maxlength="500" placeholder="Describe the problem"/></td>
+    </tr>
+    <tr>
+      <td><label for="code">Read only</label></td>
+      <td><textarea id="code" rows="2" readonly value="HOW1.eJyrVkrLz1eyUkpKLFKqBQAdegQ7HOW1eJyrVkrLz1eyUkpKLFKqBQAdegQ7 can be selected and copied, but not changed"/></td>
+    </tr>
+    <tr>
       <td><label for="amount">Range</label></td>
       <td><input id="amount" type="range" min="0" max="10" step="1" value="4"/></td>
     </tr>

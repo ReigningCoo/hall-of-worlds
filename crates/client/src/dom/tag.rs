@@ -31,6 +31,8 @@ pub enum Tag {
     Button,
     /// By its `type`: `text`, `checkbox` (a switch with `switch`) or `range`.
     Input,
+    /// A text box of several lines, its writing its `value`.
+    Textarea,
     /// A dropdown of its `option`s.
     Select,
     /// A choice in a `select`, `toggle-row`, `tab-bar` or `colour-picker`.
@@ -81,7 +83,7 @@ pub(super) enum Holds {
     Anything,
 }
 
-const ALL: [(&str, Tag); 36] = [
+const ALL: [(&str, Tag); 37] = [
     ("div", Tag::Div),
     ("span", Tag::Span),
     ("table", Tag::Table),
@@ -102,6 +104,7 @@ const ALL: [(&str, Tag); 36] = [
     ("canvas", Tag::Canvas),
     ("button", Tag::Button),
     ("input", Tag::Input),
+    ("textarea", Tag::Textarea),
     ("select", Tag::Select),
     ("option", Tag::Option),
     ("toggle-row", Tag::ToggleRow),
@@ -142,6 +145,7 @@ impl Tag {
             | Self::Img
             | Self::Canvas
             | Self::Input
+            | Self::Textarea
             | Self::KeyBox
             | Self::Object
             | Self::ObjectGrid
@@ -171,7 +175,10 @@ impl Tag {
     /// Something the player uses, built from one of the widgets: it has no
     /// elements of its own inside, and what it does comes back by its `id`.
     pub fn is_control(self) -> bool {
-        matches!(self, Self::Button | Self::Input | Self::KeyBox) || CHOOSERS.contains(&self)
+        matches!(
+            self,
+            Self::Button | Self::Input | Self::Textarea | Self::KeyBox
+        ) || CHOOSERS.contains(&self)
     }
 
     /// Whether it is an error to leave its `id` out: code has to find it.
@@ -226,7 +233,10 @@ impl Tag {
                 "suffix",
                 "accepts-items",
                 "src",
+                "maxlength",
+                "placeholder",
             ],
+            Self::Textarea => &["value", "readonly", "maxlength", "placeholder", "rows"],
             Self::Select => &["value", "searchable"],
             Self::Option => &["value", "selected", "label", "src"],
             Self::ToggleRow | Self::TabBar | Self::ColourPicker | Self::KeyBox => &["value"],

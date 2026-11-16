@@ -1,5 +1,7 @@
 //! Typing into text boxes on a device with no keyboard. A canvas can't raise the
-//! on-screen keyboard, so in the browser a hidden HTML input takes the typing.
+//! on-screen keyboard, so in the browser a hidden HTML `textarea` takes the
+//! typing (a `textarea`, so a box of several lines gets its line breaks; a box
+//! of one line drops them, and Return there gives up the keyboard).
 //! Browsers only let it take focus during the tap itself, not a frame later, so
 //! a listener on the canvas does that, using the boxes' places sent each frame.
 //! Native builds have real keys, and all of this does nothing.
@@ -35,12 +37,12 @@ mod platform {
 
     use wasm_bindgen::JsCast;
     use wasm_bindgen::closure::Closure;
-    use web_sys::{HtmlElement, HtmlInputElement, KeyboardEvent, PointerEvent};
+    use web_sys::{HtmlElement, HtmlTextAreaElement, KeyboardEvent, PointerEvent};
 
     use super::{Key, Rect};
 
     struct Hidden {
-        input: HtmlInputElement,
+        input: HtmlTextAreaElement,
         places: Rc<RefCell<Vec<Rect>>>,
         keys: Rc<RefCell<Vec<Key>>>,
     }
@@ -52,7 +54,8 @@ mod platform {
     fn make_hidden() -> Option<Hidden> {
         let document = web_sys::window()?.document()?;
         let canvas: HtmlElement = document.query_selector("#game").ok()??.dyn_into().ok()?;
-        let input: HtmlInputElement = document.create_element("input").ok()?.dyn_into().ok()?;
+        let input: HtmlTextAreaElement =
+            document.create_element("textarea").ok()?.dyn_into().ok()?;
         let style = input.style();
         // Under 16 px, iPads zoom the page to the input.
         for (name, value) in [

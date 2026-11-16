@@ -84,6 +84,8 @@ pub(super) fn report(
         let value = match did {
             Did::Pressed if tag == Tag::Button => UiValue::Pressed,
             Did::Pressed if tag == Tag::Dialog => UiValue::Dismissed,
+            // A press on a text box only gives it the keyboard.
+            Did::Pressed if tag == Tag::Textarea || attrs.text("type") == Some("text") => continue,
             // `readonly`: its owner ticks it, and is only told of the press.
             Did::Pressed if attrs.has("readonly") => UiValue::Pressed,
             // A checkbox is a button that ticks itself.

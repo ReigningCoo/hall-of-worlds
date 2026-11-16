@@ -10,8 +10,9 @@ use super::keys::{Held, current, keep};
 use super::layout::Labels;
 use super::{Cursor, TextBox, TextFocus};
 use crate::common::{TouchGesture, UiPointer, in_interface};
-use crate::dom::Finder;
+use crate::dom::{Finder, Hit};
 use crate::widgets::ButtonPressed;
+use crate::widgets::scroll::ScrollBar;
 
 /// Clicks this close in time and place count as one double or triple click.
 const MULTI_CLICK_SECONDS: f32 = 0.4;
@@ -45,7 +46,7 @@ fn clicks_in_a_row(last: Option<(Entity, Vec2, f32, u8)>, at: (Entity, Vec2, f32
 
 /// Presses on boxes, and the pointer held down after one. Before `take_text`,
 /// which gives the box the keyboard, so a box getting it can be told apart.
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
 pub(in crate::widgets) fn select_by_pointer(
     mut pressed: MessageReader<ButtonPressed>,
     focus: Res<TextFocus>,
@@ -54,20 +55,23 @@ pub(in crate::widgets) fn select_by_pointer(
     pointer: Res<UiPointer>,
     mouse: Res<ButtonInput<MouseButton>>,
     held: Res<Held>,
-    time: Res<Time<Real>>,
+    (time, hit, bars): (Res<Time<Real>>, Res<Hit>, Query<(), With<ScrollBar>>),
     mut clicking: Local<Clicking>,
 ) {
     let now = time.elapsed_secs();
+    // A press on the scroll bar of a box of several lines only scrolls it.
+    let on_bar = hit.chain.iter().any(|&entity| bars.contains(entity));
     let on_box = pressed
         .read()
         .map(|press| press.0)
-        .filter(|&entity| boxes.contains(entity))
+        .filter(|&entity| boxes.contains(entity) && !on_bar)
         .last();
     if let (Some(entity), Some(at)) = (on_box, pointer.0)
         && let Ok((mut text_box, mut cursor)) = boxes.get_mut(entity)
     {
         let mut edited = current(&text_box, &cursor);
-        let place = labels.place_at(entity, edited.len(), at.x);
+        let place = labels.place_at(entity, &edited, at);
+        cursor.goal = None;
         let count = clicks_in_a_row(clicking.last, (entity, at, now));
         clicking.last = Some((entity, at, now, count));
         let getting_keyboard = focus.0 != Some(entity);
@@ -101,7 +105,7 @@ pub(in crate::widgets) fn select_by_pointer(
     if let Ok((mut text_box, mut cursor)) = boxes.get_mut(entity) {
         let mut edited = current(&text_box, &cursor);
         edited.anchor = anchor.min(edited.len());
-        edited.caret = labels.place_at(entity, edited.len(), at.x);
+        edited.caret = labels.place_at(entity, &edited, at);
         keep(edited, &mut text_box, &mut cursor, now);
     }
 }
@@ -139,13 +143,13 @@ pub(in crate::widgets) fn drag_to_select(
     let anchor = match *started {
         Some((from, anchor)) if from == gesture.drag_start => anchor,
         _ => {
-            let anchor = labels.place_at(entity, edited.len(), start.x);
+            let anchor = labels.place_at(entity, &edited, start);
             *started = Some((gesture.drag_start, anchor));
             anchor
         }
     };
     edited.anchor = anchor;
-    edited.caret = labels.place_at(entity, edited.len(), at.x);
+    edited.caret = labels.place_at(entity, &edited, at);
     keep(edited, &mut text_box, &mut cursor, time.elapsed_secs());
     *gesture = TouchGesture::default();
 }

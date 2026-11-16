@@ -88,6 +88,8 @@ fn add_value(widgets: &Widgets, entity: Entity, kind: Kind, about: &mut Value) {
             if let Ok(text_box) = widgets.text_boxes.get(entity) {
                 about["value"] = json!(text_box.text);
                 about["error"] = json!(text_box.error);
+                about["multiline"] = json!(text_box.multiline);
+                about["readonly"] = json!(text_box.read_only);
                 about["focused"] = json!(widgets.focus.0 == Some(entity));
                 if let Ok(cursor) = widgets.text_cursors.get(entity) {
                     // In characters; kept while the box hasn't the keyboard.
