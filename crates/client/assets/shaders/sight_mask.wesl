@@ -15,9 +15,13 @@ struct Mask {
     side: f32,
     // Seconds water has flowed for (0: still), wrapping every 8 s (`flowing::PERIOD`).
     flow_time: f32,
-    // Pads the uniform to 32 bytes: WebGL 2 needs a multiple of 16.
-    _pad_b: f32,
-    _pad_c: f32,
+    // The wedge hiding what is above the player towards the camera (`Wedge`):
+    // the cosine of half its angle, 1 when on, its point and which way it
+    // opens. 48 bytes in all: WebGL 2 needs a multiple of 16.
+    wedge_cos: f32,
+    wedge_on: f32,
+    wedge_at: vec2<f32>,
+    wedge_towards: vec2<f32>,
 }
 
 @group(constants::MATERIAL_BIND_GROUP) @binding(100) var<uniform> mask: Mask;
@@ -33,6 +37,10 @@ const IN_FRONT: f32 = 2.4;
 // ground under them, which raised wilderness cells give as `uv_b.x`.
 const RAISED: f32 = 1.0;
 const RAISED_NORMAL: f32 = 0.5;
+
+// Round the wedge's point, everything is in it (world units, a fifth of a
+// cell), so what stands right over the player is hidden whichever way it opens.
+const WEDGE_NEAR: f32 = 4.8;
 
 // How fast water flows in each band (`FLOW_BANDS` in mesh/flow.rs), in pictures
 // (cells) a second: each a whole number of pictures in the 8 s
@@ -56,6 +64,13 @@ fn fragment(in: VertexOutput, @builtin(front_facing) is_front: bool) -> Fragment
     let raised = in.world_position.y - ground > RAISED && normal.y > RAISED_NORMAL;
     if !raised && ((mask.side > 0.0 && !in_sight) || (mask.side < 0.0 && in_sight)) {
         discard;
+    }
+    if mask.wedge_on > 0.5 {
+        let offset = in.world_position.xz - mask.wedge_at;
+        let along = dot(offset, mask.wedge_towards);
+        if along >= mask.wedge_cos * length(offset) - WEDGE_NEAR {
+            discard;
+        }
     }
 
     var input = in;

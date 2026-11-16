@@ -19,6 +19,18 @@ pub(super) fn floors_below(info: &LevelInfo) -> Vec<(u32, u32)> {
         .collect()
 }
 
+/// The floors above the player's in a building, as `(level index, storeys
+/// up)`, nearest first: none in a cave, a town or a basement.
+pub(super) fn floors_above(info: &LevelInfo) -> Vec<(u32, u32)> {
+    if !info.building || info.storey(info.index) < 0 {
+        return Vec::new();
+    }
+    let storeys = info.levels - u32::from(info.basement);
+    (info.index + 1..storeys)
+        .map(|index| (index, index - info.index))
+        .collect()
+}
+
 /// Whether the floors below are drawn under the player's (an upper floor of a
 /// building), so holes in it show them.
 pub(in crate::dungeon_map) fn has_floors_below(info: Option<&LevelInfo>) -> bool {

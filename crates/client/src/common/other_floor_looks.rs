@@ -4,7 +4,7 @@
 
 use bevy::prelude::*;
 
-/// How the floors below are drawn. Starts with the tuned values; the debug
+/// How the other floors are drawn. Starts with the tuned values; the debug
 /// menu's Other Floors panel changes it for this run only.
 #[derive(Resource, Clone, Copy, Debug, PartialEq)]
 pub struct OtherFloorLooks {
@@ -18,6 +18,10 @@ pub struct OtherFloorLooks {
     pub ground_range: f32,
     /// How tall a storey is, in walls' heights: a wall and a floor's thickness.
     pub storey: f32,
+    /// How wide the wedge is (degrees, seen from above) in which nothing on
+    /// the floors above the player's is drawn, centred on the way from the
+    /// player towards the camera.
+    pub wedge: f32,
     /// Whether remembered slices (seen before, out of sight now) are drawn, in
     /// grey; off only to compare.
     pub remembered: bool,
@@ -28,6 +32,7 @@ impl OtherFloorLooks {
     pub const NIGHT_DARK: f32 = 0.7;
     pub const GROUND_RANGE: f32 = 24.0;
     pub const STOREY: f32 = 1.5;
+    pub const WEDGE: f32 = 120.0;
 }
 
 impl Default for OtherFloorLooks {
@@ -37,6 +42,7 @@ impl Default for OtherFloorLooks {
             night_dark: Self::NIGHT_DARK,
             ground_range: Self::GROUND_RANGE,
             storey: Self::STOREY,
+            wedge: Self::WEDGE,
             remembered: true,
         }
     }

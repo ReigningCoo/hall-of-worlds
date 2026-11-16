@@ -1,7 +1,8 @@
-//! The floors below's materials follow the scene's own (its theme, grey
-//! copies, plain pictures), darker per storey down by the light outside, never
-//! cut by the sight mask, and solid even as memory: blended layers don't sort
-//! here, and see-through floors would show rooms never seen.
+//! The other floors' materials follow the scene's own (its theme, grey
+//! copies, plain pictures), darker per storey down by the light outside (those
+//! above as they are), never cut by the sight mask, and solid even as memory:
+//! blended layers don't sort here, and see-through floors would show rooms
+//! never seen.
 
 use bevy::prelude::*;
 
@@ -9,13 +10,13 @@ use super::super::SurfaceMaterials;
 use super::super::daylight::OutsideLight;
 use super::super::mesh::Surface;
 use super::super::sight_lines::SurfaceMaterial;
-use super::below::Below;
+use super::floors::Floors;
 use super::which::kept_per_storey;
 use crate::common::{Lightning, OtherFloorLooks};
 
-/// Keeps every floor below's materials like the scene's, darkened.
+/// Keeps every other floor's materials like the scene's, those below darkened.
 pub(in crate::dungeon_map) fn follow_materials(
-    below: Res<Below>,
+    floors: Res<Floors>,
     surfaces: Res<SurfaceMaterials>,
     outside: Res<OutsideLight>,
     lightning: Res<Lightning>,
@@ -24,8 +25,10 @@ pub(in crate::dungeon_map) fn follow_materials(
 ) {
     let daylight = outside.in_flash(lightning.0).max_element();
     let kept = kept_per_storey(looks.day_dark, looks.night_dark, daylight);
-    for (depth, floor) in below.floors.iter().enumerate() {
-        let shade = kept.powi(depth as i32 + 1);
+    let below = floors.below.iter().enumerate();
+    let below = below.map(|(depth, floor)| (floor, kept.powi(depth as i32 + 1)));
+    let above = floors.above.iter().map(|floor| (floor, 1.0));
+    for (floor, shade) in below.chain(above) {
         for (index, &surface) in Surface::ALL.iter().enumerate() {
             let solid = (&surfaces.solid[index], &floor.solid[index].2);
             follow(&mut materials, solid, shade, None);
@@ -74,6 +77,8 @@ fn follow(
     // Nothing on another floor is cut by the edge of sight on the player's.
     made.extension.set_side(None);
     if let Some(mut had) = materials.get_mut(copy) {
+        // The wedge is `aim_wedge`'s.
+        made.extension.wedge_like(&had.extension);
         *had = made;
     }
 }

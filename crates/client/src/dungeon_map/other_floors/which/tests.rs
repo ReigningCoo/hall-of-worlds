@@ -30,6 +30,16 @@ fn floors_below_are_only_a_buildings_and_nearest_first() {
     assert!(floors_below(&info(3, true, true)).is_empty());
 }
 
+#[test]
+fn floors_above_are_only_a_buildings_and_nearest_first() {
+    assert_eq!(floors_above(&info(1, true, false)), vec![(2, 1), (3, 2)]);
+    assert_eq!(floors_above(&info(0, true, true)), vec![(1, 1), (2, 2)]);
+    assert!(floors_above(&info(3, true, false)).is_empty());
+    assert!(floors_above(&info(0, false, false)).is_empty());
+    // Nothing is above a basement but the ground.
+    assert!(floors_above(&info(3, true, true)).is_empty());
+}
+
 /// A 9 × 9 floor: a room of 3 × 3 in the middle walled round, ground outside.
 fn ground_floor() -> Level {
     let mut level = Level::new(0, 0, 9, 9);

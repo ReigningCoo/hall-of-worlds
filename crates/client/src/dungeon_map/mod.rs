@@ -114,7 +114,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<door_swing::DoorSwings>()
             .init_resource::<OutsideLight>()
             .init_resource::<TownLights>()
-            .init_resource::<other_floors::Below>()
+            .init_resource::<other_floors::Floors>()
             .init_resource::<wild_ground::GroundTint>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
@@ -149,8 +149,9 @@ impl Plugin for DungeonMapPlugin {
                     door_swing::swing_doors,
                     (
                         update_meshes,
-                        other_floors::draw_below,
+                        other_floors::draw_others,
                         other_floors::follow_materials,
+                        other_floors::aim_wedge,
                     )
                         .chain(),
                     outlined::apply_outlined,

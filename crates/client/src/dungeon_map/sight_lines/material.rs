@@ -26,8 +26,7 @@ impl MaskSide {
 }
 
 /// Order matches `struct Mask` in the shader. WebGL 2 refuses a uniform that
-/// isn't a multiple of 16 bytes (the game quits on entering a site), so two
-/// unused `f32`s pad the 24 bytes out to 32.
+/// isn't a multiple of 16 bytes (the game quits on entering a site): it is 48.
 #[derive(ShaderType, Reflect, Clone, Copy, Debug, Default)]
 pub struct MaskParams {
     /// The corner of the mask with the smallest world `x` and `z`.
@@ -38,8 +37,27 @@ pub struct MaskParams {
     /// Seconds water's picture has flowed for (`mesh::flow`), wrapping; 0 on
     /// every material but the lit water's, and with Reduce Motion.
     flow_time: f32,
-    _pad_b: f32,
-    _pad_c: f32,
+    /// The cosine of half the wedge's angle (see `Wedge`).
+    wedge_cos: f32,
+    /// 1 when the wedge hides what is in it, 0 off.
+    wedge_on: f32,
+    /// The wedge's point, in world `x` and `z`.
+    wedge_at: Vec2,
+    /// Which way the wedge opens, in world `x` and `z`, of length 1.
+    wedge_towards: Vec2,
+}
+
+/// A wedge, seen from above, in which nothing of a surface is drawn: what is
+/// on the floors above the player between them and the camera (owner's,
+/// 2026-11-16). It reaches up and down without end.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Wedge {
+    /// Its point (the player), in world `x` and `z`.
+    pub at: Vec2,
+    /// Which way it opens (towards the camera), of length 1.
+    pub towards: Vec2,
+    /// How wide it is, in degrees.
+    pub degrees: f32,
 }
 
 /// Adds the mask to a surface's standard material.
@@ -67,6 +85,29 @@ impl SightMask {
         if self.params.side != value {
             self.params.side = value;
         }
+    }
+
+    /// Hides what is inside `wedge`, or nothing (`None`).
+    pub fn set_wedge(&mut self, wedge: Option<Wedge>) {
+        let params = &mut self.params;
+        match wedge {
+            Some(wedge) => {
+                params.wedge_on = 1.0;
+                params.wedge_at = wedge.at;
+                params.wedge_towards = wedge.towards;
+                params.wedge_cos = (wedge.degrees.to_radians() / 2.0).cos();
+            }
+            None => params.wedge_on = 0.0,
+        }
+    }
+
+    /// Takes `other`'s wedge (or none), as it is.
+    pub fn wedge_like(&mut self, other: &SightMask) {
+        let (params, from) = (&mut self.params, &other.params);
+        params.wedge_on = from.wedge_on;
+        params.wedge_at = from.wedge_at;
+        params.wedge_towards = from.wedge_towards;
+        params.wedge_cos = from.wedge_cos;
     }
 
     /// How long water's picture has flowed, in seconds (0: still).
