@@ -10,11 +10,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::alignment::Alignment;
 use crate::bonus::Effects;
-use crate::creature::{CreatureKind, Size};
-use crate::energy::NORMAL_SPEED;
+use crate::creature::CreatureKind;
 use crate::gender::Gender;
-use crate::item::Inventory;
-use crate::movement::{FULL, MOVEMENT_SKILLS};
 use crate::skill::Skills;
 use crate::vitals::Vitals;
 
@@ -27,6 +24,7 @@ mod from_build;
 mod hair;
 mod height;
 mod kind_bonus;
+mod load;
 mod looks;
 mod markings;
 mod shapeshift;
@@ -39,6 +37,7 @@ pub use foes::{Foe, Foes};
 pub use from_build::{POINT_WEIGHT, SPREAD};
 pub use height::{HEIGHT_SHARES, HEIGHT_WHOLE};
 pub use kind_bonus::{BONUS_POINTS, bonus_from};
+pub use load::Load;
 pub use looks::{Choice, Pattern};
 pub use markings::{Face, Marks};
 pub use shapeshift::TrueForm;
@@ -146,14 +145,6 @@ pub enum Reaction {
     Flee,
 }
 
-/// How weighed down someone is.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-pub enum Load {
-    Light,
-    Burdened,
-    Overloaded,
-}
-
 /// What one creature is like: starts from its kind, and can grow from there.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Sheet {
@@ -191,6 +182,9 @@ pub struct Sheet {
     /// older saves, whose changes to the most `settled` turns into these.
     #[serde(default)]
     pub effects: Effects,
+    /// What it has found out about herbs (`shared::herb`): nothing in older saves.
+    #[serde(default)]
+    pub herbs: crate::herb::HerbKnowledge,
 }
 
 impl Default for Sheet {
@@ -219,6 +213,7 @@ impl Sheet {
             true_form: None,
             foes: Foes::default(),
             effects: Effects::default(),
+            herbs: Default::default(),
         }
     }
 
@@ -251,50 +246,6 @@ impl Sheet {
             alignment: None,
             ..self.clone()
         }
-    }
-
-    /// How much it can carry before it is overloaded, in grams: by strength, and
-    /// more the bigger it is. A person of median strength (100) carries 30 kg,
-    /// and Weight Training adds its value as a share of that: twice as much at
-    /// 100% (owner).
-    pub fn capacity(&self, size: Size) -> u32 {
-        const GRAMS_PER_STRENGTH_AND_SIZE: u32 = 100;
-        let base =
-            self.attributes.strength as u32 * (size as u32 + 1) * GRAMS_PER_STRENGTH_AND_SIZE;
-        let trained = self.skills.value(MOVEMENT_SKILLS.weight_training).min(FULL);
-        (u64::from(base) * u64::from(FULL + trained) / u64::from(FULL)) as u32
-    }
-
-    /// How weighed down this makes it: burdened past half what it can carry.
-    pub fn load(&self, carrying: &Inventory) -> Load {
-        let capacity = self.capacity(carrying.creature.def().size);
-        let weight = carrying.total_weight();
-        if weight > capacity {
-            Load::Overloaded
-        } else if weight * 2 > capacity {
-            Load::Burdened
-        } else {
-            Load::Light
-        }
-    }
-}
-
-impl Load {
-    /// How much of its speed something keeps, as a percentage.
-    pub fn speed_percent(self) -> u32 {
-        match self {
-            Self::Light => 100,
-            Self::Burdened => 75,
-            Self::Overloaded => 40,
-        }
-    }
-}
-
-impl Sheet {
-    /// How much energy it gains per tick: its kind's speed, slowed by what it carries.
-    pub fn speed(&self, carrying: &Inventory) -> u32 {
-        let kind = carrying.creature.def().speed;
-        (NORMAL_SPEED * kind / 100 * self.load(carrying).speed_percent() / 100).max(1)
     }
 }
 

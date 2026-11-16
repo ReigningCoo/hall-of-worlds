@@ -43,8 +43,12 @@ pub struct ServerWorlds {
 
 impl ServerWorlds {
     /// The server's clocks as saved, and its home world, saved in `storage`
-    /// (or new). An error if either can't be read.
-    pub(crate) fn start(home: WorldSeed, storage: Storage) -> Result<Self, String> {
+    /// (or new), every world with these herbs. An error if either can't be read.
+    pub(crate) fn start(
+        home: WorldSeed,
+        storage: Storage,
+        herbs: shared::herb::Herbs,
+    ) -> Result<Self, String> {
         let (seconds, ticks, lockdown) = match storage.load_server()? {
             Some(save) => (save.clock, save.action_ticks, save.lockdown),
             // From before the server had clocks of its own: its one world kept
@@ -55,7 +59,10 @@ impl ServerWorlds {
                 false,
             ),
         };
-        let shared = Shared::new(seconds, ticks);
+        let shared = Shared {
+            herbs: std::sync::Arc::new(herbs),
+            ..Shared::new(seconds, ticks)
+        };
         let world = ServerWorld::open_in(home, storage.clone(), &shared)?;
         let mut worlds = Self::with_home(world);
         worlds.storage = storage;

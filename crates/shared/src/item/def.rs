@@ -98,6 +98,9 @@ impl ItemKind {
                 Self::SilverCoin => plain("Silver Coin", 3, square).without_quality().counted(),
                 Self::GoldCoin => plain("Gold Coin", 5, square).without_quality().counted(),
                 Self::Key => plain("Key", 30, square).without_quality(),
+                // Counted with quality: a stack keys on its herb and quality
+                // (`shared::herb`). What one weighs is its form's, from its herb.
+                Self::Herb => plain("Herb", 10, square).counted(),
                 // Laminated to the knee, wrapping the thighs: Waist and Legs (the owner's
                 // decision). Its form says its cells and weight.
                 Self::CuirassierTassets => plain(

@@ -8,7 +8,12 @@ fn storage(folder: &TestFolder) -> Storage {
 #[test]
 fn other_worlds_open_beside_the_home_with_their_own_time() {
     let folder = TestFolder::new();
-    let mut worlds = ServerWorlds::start(WorldSeed::new(1), storage(&folder)).unwrap();
+    let mut worlds = ServerWorlds::start(
+        WorldSeed::new(1),
+        storage(&folder),
+        shared::herb::Herbs::built_in(),
+    )
+    .unwrap();
     let other = worlds.open(WorldSeed::new(2)).unwrap();
     assert_ne!(other, worlds.home_id());
     assert_eq!(worlds.iter().count(), 2);
@@ -35,11 +40,21 @@ fn a_world_is_opened_from_its_save_by_its_id() {
     let folder = TestFolder::new();
     let id = WorldSeed::new(7).id();
     {
-        let mut worlds = ServerWorlds::start(WorldSeed::new(1), storage(&folder)).unwrap();
+        let mut worlds = ServerWorlds::start(
+            WorldSeed::new(1),
+            storage(&folder),
+            shared::herb::Herbs::built_in(),
+        )
+        .unwrap();
         worlds.open(WorldSeed::new(7)).unwrap();
         worlds.storage.finish_writing();
     }
-    let mut worlds = ServerWorlds::start(WorldSeed::new(1), storage(&folder)).unwrap();
+    let mut worlds = ServerWorlds::start(
+        WorldSeed::new(1),
+        storage(&folder),
+        shared::herb::Herbs::built_in(),
+    )
+    .unwrap();
     assert_eq!(worlds.open_saved(id), Ok(Some(id)));
     assert_eq!(worlds.get(id).unwrap().seed, WorldSeed::new(7));
     // One never saved can't be.
@@ -67,7 +82,12 @@ fn idle_worlds_close_but_the_home_and_those_in_use_stay() {
 #[test]
 fn time_runs_on_by_the_server_clock_while_a_world_is_closed() {
     let folder = TestFolder::new();
-    let mut worlds = ServerWorlds::start(WorldSeed::new(1), storage(&folder)).unwrap();
+    let mut worlds = ServerWorlds::start(
+        WorldSeed::new(1),
+        storage(&folder),
+        shared::herb::Herbs::built_in(),
+    )
+    .unwrap();
     let id = worlds.open(WorldSeed::new(2)).unwrap();
     worlds.of(Some(id)).set_time(Some(100.0), None);
     worlds.close(id);
@@ -81,12 +101,22 @@ fn time_runs_on_by_the_server_clock_while_a_world_is_closed() {
 fn the_server_clock_is_saved_and_carries_on() {
     let folder = TestFolder::new();
     {
-        let worlds = ServerWorlds::start(WorldSeed::new(1), storage(&folder)).unwrap();
+        let worlds = ServerWorlds::start(
+            WorldSeed::new(1),
+            storage(&folder),
+            shared::herb::Herbs::built_in(),
+        )
+        .unwrap();
         std::thread::sleep(Duration::from_millis(50));
         worlds.action_clock().advance(40);
         drop(worlds);
     }
-    let worlds = ServerWorlds::start(WorldSeed::new(1), storage(&folder)).unwrap();
+    let worlds = ServerWorlds::start(
+        WorldSeed::new(1),
+        storage(&folder),
+        shared::herb::Herbs::built_in(),
+    )
+    .unwrap();
     assert!(worlds.clock().seconds() >= 0.05);
     assert_eq!(worlds.action_clock().ticks(), 40);
 }

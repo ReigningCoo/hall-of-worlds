@@ -38,6 +38,8 @@ pub struct ServerWorld {
     pub(crate) ground: WorldGround,
     /// Works out the roads between towns (shared by every world).
     roads: Arc<RoadWorker>,
+    /// Every herb on the server, its mods' too: the same for every world.
+    pub(crate) herbs: Arc<shared::herb::Herbs>,
     /// The steps along every road found so far, which cost less.
     pub(crate) road_steps: shared::road::RoadSteps,
     /// The rivers, and the points they run through near where anyone has
@@ -168,6 +170,7 @@ impl ServerWorld {
             width: Surface::new(&params).width(),
             ground: WorldGround::new(&params),
             roads: shared.roads.clone(),
+            herbs: shared.herbs.clone(),
             road_steps: shared::road::RoadSteps::new(Surface::new(&params).width()),
             rivers: shared::river::Rivers::new(&params),
             river_points: shared::river::RiverPoints::default(),

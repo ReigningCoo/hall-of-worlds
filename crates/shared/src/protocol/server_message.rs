@@ -7,8 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::characters::ListedCharacter;
 use super::level::{LevelChunk, LevelInfo, RememberedLevel};
 use super::login::{EmailAddress, LoginMethod, SessionToken};
-use super::{Landed, OnlineState, Strike};
-use super::{WorldChunk, WorldInfo};
+use super::{Landed, OnlineState, Strike, WorldChunk, WorldInfo};
 use crate::ability::{Ability, ActionBar};
 use crate::alignment::Alignment;
 use crate::difficulty::{Difficulties, Difficulty};
@@ -138,14 +137,15 @@ pub enum ServerMessage {
     /// Server Options after `Welcome` and whenever it changes, so their
     /// Online shows it (open while not). Never sent by an embedded server.
     Lockdown(bool),
+    /// Every herb here, mods' too (`shared::herb`): straight after `Welcome`.
+    Herbs(crate::herb::Herbs),
     /// A world map chunk, as this player knows it.
     WorldChunk(WorldChunk),
     /// A road between two towns, sent once it is worked out to anyone near
     /// enough to see any of it (towns are seen by all, so it gives nothing
     /// away). Sent once per connection; the client keeps it.
     Road(Road),
-    /// The player is now on this site level (or in the wilderness); its cells
-    /// follow.
+    /// The player is now on this site level (or the wilderness); its cells follow.
     EnterLevel(LevelInfo),
     /// The wilderness's level is now this rectangle round the player: what
     /// the client has of it stays, and cells come as usual. Not a new map.

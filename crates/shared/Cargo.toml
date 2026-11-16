@@ -30,6 +30,5 @@ uuid = { workspace = true, features = ["serde", "v5"] }
 unic-langid = "0.9"
 # Taking accents off letters in typed names (MIT/Apache-2.0).
 unicode-normalization = "0.1"
-
-[dev-dependencies]
+# The herb table built in and a server's mods (`herb`): RON (MIT/Apache-2.0).
 ron.workspace = true

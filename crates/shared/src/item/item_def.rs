@@ -38,8 +38,9 @@ pub struct ItemDef {
     /// Whether how well it is made matters: not for a coin.
     pub has_quality: bool,
     /// Every one is like every other, so a stack of them is a number, not items
-    /// with ids (`Item::count`): coins. Such a kind has no quality, form, wear,
-    /// grid, name of its own or secrets.
+    /// with ids (`Item::count`): coins and herbs. Such a kind has no wear, grid,
+    /// name of its own or secrets; coins have no quality or form either, and a
+    /// herb's form (`shared::herb::HerbForm`) is compared without its look.
     pub counted: bool,
     /// How long it takes to make beside other things, as a percentage.
     pub make_percent: u64,

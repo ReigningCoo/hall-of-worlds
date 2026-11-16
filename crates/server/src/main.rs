@@ -60,6 +60,8 @@
 //! - `HOW_STACK_GRAMS_PER_CELL`: the most a stack of items may weigh for each cell
 //!   it takes up, in grams (default 2000).
 //! - `HOW_STACK_MAX`: the most items in one stack (default 99).
+//! - `HOW_MODS`: the folder of the server's mods (default: `mods` in the data
+//!   folder); `herbs/*.ron` in it add herbs or replace the game's by key.
 //! - `LOG_LEVEL`: how much to log (see `environment`); `debug` adds every
 //!   connection's every round trip, for looking into network trouble.
 

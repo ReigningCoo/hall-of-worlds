@@ -1,5 +1,8 @@
 use super::*;
+use crate::creature::Size;
+use crate::energy::NORMAL_SPEED;
 use crate::id::Id;
+use crate::item::Inventory;
 use crate::item::StackLimits;
 use crate::item::{Item, ItemKind};
 

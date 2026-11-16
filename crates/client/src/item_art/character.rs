@@ -123,7 +123,11 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
             clothing: super::ClothingLook::new(*form, ANY).with_digits(Hand::digits(worn.fingers)),
             quality,
         },
-        ItemForm::Gem(_) | ItemForm::Ring(_) | ItemForm::Blade(_) | ItemForm::Key(_) => {
+        ItemForm::Gem(_)
+        | ItemForm::Ring(_)
+        | ItemForm::Blade(_)
+        | ItemForm::Key(_)
+        | ItemForm::Herb(_) => {
             return None;
         }
     })

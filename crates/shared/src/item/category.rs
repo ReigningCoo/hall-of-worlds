@@ -132,7 +132,7 @@ impl ItemKind {
             }
             Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat => Food,
             Self::CopperCoin | Self::SilverCoin | Self::GoldCoin | Self::Gem => Valuables,
-            Self::Stone => Materials,
+            Self::Stone | Self::Herb => Materials,
             Self::Lantern | Self::Key | Self::Keepsake | Self::Parcel | Self::Remains => Other,
         }
     }

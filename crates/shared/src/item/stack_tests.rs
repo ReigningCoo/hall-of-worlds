@@ -512,13 +512,17 @@ fn old_saves_fold_stacked_coins_into_a_count() {
 
 #[test]
 fn counted_kinds_are_plain() {
-    // A stack of them is a number, so nothing may tell one from another.
+    // A stack of them is a number, so nothing may tell one from another but
+    // a herb's herb and quality (`herb/tests.rs`).
     for kind in ItemKind::ALL {
         let def = kind.def();
         if !def.counted {
             continue;
         }
-        assert!(!def.has_quality, "{kind:?} has quality");
+        assert!(
+            !def.has_quality || kind == ItemKind::Herb,
+            "{kind:?} has quality"
+        );
         assert!(def.container.is_none(), "{kind:?} has a grid");
         assert!(def.wear.is_none(), "{kind:?} is worn");
         assert!(!kind.comes_in_sizes(), "{kind:?} comes in sizes");

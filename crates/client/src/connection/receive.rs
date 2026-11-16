@@ -133,6 +133,9 @@ pub(super) fn receive(
                 server_clock.can_pause = !matches!(state, OnlineState::Online { .. });
                 hosting.0 = state;
             }
+            Ok(Some(ServerMessage::Herbs(herbs))) => {
+                commands.insert_resource(crate::common::HerbTable(herbs));
+            }
             Ok(Some(ServerMessage::Lockdown(on))) => {
                 commands.insert_resource(crate::common::Lockdown(Some(on)));
             }
