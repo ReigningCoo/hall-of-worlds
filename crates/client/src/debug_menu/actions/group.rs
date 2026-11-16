@@ -42,9 +42,11 @@ impl DebugAction {
     /// The group it is shown in.
     pub(in crate::debug_menu) fn group(self) -> Group {
         match self {
-            Self::ShowDebugInfo | Self::LightningNow | Self::SunsAndMoons | Self::DrawingStates => {
-                Group::Display
-            }
+            Self::ShowDebugInfo
+            | Self::LightningNow
+            | Self::SunsAndMoons
+            | Self::DrawingStates
+            | Self::OtherFloors => Group::Display,
             Self::ItemPictures | Self::ShowWidgets | Self::ViewPlanet => Group::Galleries,
             Self::TeleportMode | Self::TeleportToWorld => Group::Travel,
             Self::GodMode

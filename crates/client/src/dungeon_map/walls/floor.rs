@@ -20,7 +20,11 @@ impl<'a> Tile<'a> {
         foot: &[Patch],
         fade_from: &[Patch],
     ) {
-        let surface = floor_near(self.scene.level, self.around_corner((sx, sz)));
+        let around = self.around_corner((sx, sz));
+        // Beside open air (`Cell::Air`) there is no floor: what is below shows.
+        let Some(surface) = floor_near(self.scene.level, around) else {
+            return;
+        };
         let point = |east: f32, south: f32| {
             let (e, s) = (sx * east, sz * south);
             (self.centre + Vec3::new(e, 0.0, s), flat_uv(e, s), 1.0)

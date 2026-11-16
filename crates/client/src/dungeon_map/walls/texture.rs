@@ -36,16 +36,19 @@ pub(in crate::dungeon_map) fn flat_uv(east: f32, south: f32) -> [f32; 2] {
 /// corner. Liquid is drawn for itself, with this floor round it. Doors, windows
 /// and holes have no floor of their own to pass on (a door between wood and
 /// grass would give both sides wood), so the cells on the quarter's own side
-/// decide.
-pub(super) fn floor_near(level: &Level, around: [(i64, i64); 3]) -> Surface {
-    around
-        .iter()
-        .map(|&(x, y)| level.cell(x, y))
-        .find(|&cell| {
-            cell.is_open()
-                && !cell.looks_liquid()
-                && !cell.is_opening()
-                && !matches!(cell, Cell::Hole | Cell::Air)
-        })
-        .map_or(Surface::Floor, Surface::of_flat)
+/// decide. None beside open air with nothing else round it: an upper floor's
+/// outside wall has nothing under its outer half.
+pub(super) fn floor_near(level: &Level, around: [(i64, i64); 3]) -> Option<Surface> {
+    let cells = around.map(|(x, y)| level.cell(x, y));
+    let found = cells.iter().copied().find(|&cell| {
+        cell.is_open()
+            && !cell.looks_liquid()
+            && !cell.is_opening()
+            && !matches!(cell, Cell::Hole | Cell::Air)
+    });
+    match found {
+        Some(cell) => Some(Surface::of_flat(cell)),
+        None if cells.contains(&Cell::Air) => None,
+        None => Some(Surface::Floor),
+    }
 }

@@ -129,6 +129,7 @@ pub(super) fn run_actions(
             | DebugAction::CreateMob
             | DebugAction::DevArea
             | DebugAction::DrawingStates
+            | DebugAction::OtherFloors
             | DebugAction::ExamineMob
             | DebugAction::GiveItem
             | DebugAction::LearnSkills

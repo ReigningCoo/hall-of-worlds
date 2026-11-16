@@ -44,6 +44,7 @@ mod layout;
 mod learn_skills;
 mod learn_skills_systems;
 mod open;
+mod other_floors;
 mod pictures_form;
 mod pictures_spawn;
 mod pictures_systems;
@@ -91,6 +92,7 @@ pub(super) use kept_choices::add_kept_choices;
 use layout::show_if;
 pub(super) use learn_skills_systems::add_learn_skills_panel;
 pub(super) use open::{OpenPanels, forget_closed};
+pub(super) use other_floors::add_other_floors_panel;
 use pictures_form::{
     BLADE_PICTURE, HANDS_PICTURE, LARGE_PICTURE, LARGE_PICTURE_PIXELS, PICTURE, PICTURE_LABEL,
     PICTURE_PIXELS, PICTURE_ROW_LABEL, RING_COLUMNS, RING_ROWS, Shown, gem_to_show,

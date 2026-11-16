@@ -30,6 +30,7 @@ pub enum DebugAction {
     LightningNow,
     LightningStrikeHere,
     OpenAllDoors,
+    OtherFloors,
     PlaceFurniture,
     RegenerateDevArea,
     RemakeSite,
@@ -70,12 +71,13 @@ pub(super) struct Facts {
 impl DebugAction {
     /// Every action, in the order the menu lists them: by group (`Group`),
     /// then as the owner ordered each group.
-    pub(super) const ALL: [Self; 34] = [
+    pub(super) const ALL: [Self; 35] = [
         // Display
         Self::ShowDebugInfo,
         Self::LightningNow,
         Self::SunsAndMoons,
         Self::DrawingStates,
+        Self::OtherFloors,
         // Galleries
         Self::ItemPictures,
         Self::ShowWidgets,
@@ -138,6 +140,7 @@ impl DebugAction {
             Self::Accounts
                 | Self::SunsAndMoons
                 | Self::DrawingStates
+                | Self::OtherFloors
                 | Self::ItemPictures
                 | Self::ShowWidgets
                 | Self::ViewPlanet

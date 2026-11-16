@@ -58,7 +58,7 @@ pub fn build(
         light,
         stairs,
         looks,
-        (camera, shape),
+        (camera, shape, false),
         wild,
         &no_swings,
     )
@@ -78,7 +78,7 @@ pub fn build_posed(
         &[WallLook],
         bool,
     ),
-    (camera, shape): (Vec3, Shape),
+    (camera, shape, open_below): (Vec3, Shape, bool),
     wild: Option<Wild>,
     leaves: &BTreeMap<(i64, i64), LeafPose>,
 ) -> DungeonMeshes {
@@ -105,6 +105,7 @@ pub fn build_posed(
         tint: wild.and_then(|wild| wild.tints),
         heights: wild.map(|wild| wild.heights),
         leaves,
+        open_below,
     };
     let (min_x, min_y, width, height) = level.bounds();
     // The first viewer is the player.

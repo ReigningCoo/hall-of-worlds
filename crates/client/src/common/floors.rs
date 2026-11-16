@@ -123,6 +123,11 @@ impl OtherLevels {
             .unwrap_or(current)
     }
 
+    /// Another level as known, if any of it is.
+    pub fn level(&self, index: u32) -> Option<&CurrentDungeon> {
+        self.levels.get(&index)
+    }
+
     /// The floors known besides the player's.
     pub fn floors(&self) -> impl Iterator<Item = u32> + '_ {
         self.levels.keys().copied()

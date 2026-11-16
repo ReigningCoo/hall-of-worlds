@@ -28,6 +28,7 @@ impl DebugAction {
             Self::LightningNow => "Lightning Now",
             Self::LightningStrikeHere => "Lightning Strike Here",
             Self::OpenAllDoors => "Open All Doors",
+            Self::OtherFloors => "Other Floors",
             Self::PlaceFurniture => "Place Furniture",
             Self::RegenerateDevArea => "Regenerate Dev Area",
             Self::RemakeSite => "Remake Site",

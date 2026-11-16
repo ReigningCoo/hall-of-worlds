@@ -27,8 +27,8 @@ fn a_wall_beside_an_opening_takes_the_floor_on_its_own_side() {
         let level = wall_line(middle);
         let north = floor_near(&level, around((0, 1), (1, -1)));
         let south = floor_near(&level, around((0, 1), (1, 1)));
-        assert_eq!(north, Surface::Floor, "{middle:?}");
-        assert_eq!(south, Surface::Ground, "{middle:?}");
+        assert_eq!(north, Some(Surface::Floor), "{middle:?}");
+        assert_eq!(south, Some(Surface::Ground), "{middle:?}");
     }
 }
 
@@ -36,14 +36,23 @@ fn a_wall_beside_an_opening_takes_the_floor_on_its_own_side() {
 fn an_opening_beside_an_opening_takes_the_floor_on_its_own_side() {
     let mut level = wall_line(Cell::Door);
     level.set(0, 1, Cell::Window);
-    assert_eq!(floor_near(&level, around((0, 1), (1, 1))), Surface::Ground);
-    assert_eq!(floor_near(&level, around((1, 1), (-1, 1))), Surface::Ground);
+    assert_eq!(
+        floor_near(&level, around((0, 1), (1, 1))),
+        Some(Surface::Ground)
+    );
+    assert_eq!(
+        floor_near(&level, around((1, 1), (-1, 1))),
+        Some(Surface::Ground)
+    );
 }
 
 #[test]
 fn a_wall_beside_a_hole_takes_the_floor_on_its_own_side() {
     let level = wall_line(Cell::Hole);
-    assert_eq!(floor_near(&level, around((0, 1), (1, 1))), Surface::Ground);
+    assert_eq!(
+        floor_near(&level, around((0, 1), (1, 1))),
+        Some(Surface::Ground)
+    );
 }
 
 #[test]
@@ -53,5 +62,23 @@ fn only_openings_round_a_corner_give_floor() {
     level.set(1, 0, Cell::Door);
     level.set(0, 1, Cell::Wall);
     level.set(1, 1, Cell::Wall);
-    assert_eq!(floor_near(&level, around((0, 0), (1, 1))), Surface::Floor);
+    assert_eq!(
+        floor_near(&level, around((0, 0), (1, 1))),
+        Some(Surface::Floor)
+    );
+}
+
+#[test]
+fn a_wall_beside_open_air_has_no_floor_on_that_side() {
+    let level = wall_line(Cell::Air);
+    assert_eq!(
+        floor_near(&level, around((0, 1), (1, 1))),
+        Some(Surface::Ground)
+    );
+    let mut level = Level::new(0, 0, 2, 2);
+    level.set(0, 0, Cell::Wall);
+    level.set(1, 0, Cell::Air);
+    level.set(0, 1, Cell::Air);
+    level.set(1, 1, Cell::Air);
+    assert_eq!(floor_near(&level, around((0, 0), (1, 1))), None);
 }

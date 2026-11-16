@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use super::super::actions::DebugAction;
 use super::{
     FIRST_AT, NEXT_AT, alignment, change_creature, create_mob, dev_area, examine_mob, generate,
-    give, learn_skills, pictures_spawn, place_furniture, steps, teleport_to_world, vitals,
-    world_time,
+    give, learn_skills, other_floors, pictures_spawn, place_furniture, steps, teleport_to_world,
+    vitals, world_time,
 };
 use crate::dom::{Dom, Template, UiEvent, UiValue, document, top_strip};
 use crate::html;
@@ -108,6 +108,7 @@ fn template_of(action: DebugAction) -> Option<&'static Template> {
         DebugAction::Vitals => Some(&vitals::VITALS),
         DebugAction::Alignment => Some(&alignment::ALIGNMENT),
         DebugAction::DrawingStates => Some(&steps::DRAWING_STATES),
+        DebugAction::OtherFloors => Some(&other_floors::OTHER_FLOORS),
         DebugAction::WorldTime => Some(&world_time::WORLD_TIME),
         DebugAction::ExamineMob => Some(&examine_mob::EXAMINE_MOB),
         DebugAction::CreateMob => Some(&create_mob::CREATE_MOB),
@@ -139,6 +140,7 @@ pub(in crate::debug_menu) fn form_of(action: DebugAction) -> &'static str {
         DebugAction::ExamineMob => "debug.examine_mob",
         DebugAction::LearnSkills => super::learn_skills::FORM,
         DebugAction::DrawingStates => "debug.drawing_states",
+        DebugAction::OtherFloors => other_floors::FORM,
         DebugAction::GeneratePoi => "debug.generate_poi",
         _ => "debug.panel",
     }

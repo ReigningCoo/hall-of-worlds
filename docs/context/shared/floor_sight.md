@@ -19,6 +19,7 @@ What a viewer on one floor of a building sees of its other floors (owner's desig
 ## Used by
 
 - `server` (`sites/other_floors.rs`).
+- client `dungeon_map` (`other_floors/which.rs`: what is seen of the floors below now, for drawing them lit).
 
 ## Notes
 

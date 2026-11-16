@@ -12,12 +12,14 @@ mod hover;
 mod kind_words;
 mod local_time;
 mod login;
+mod other_floor_looks;
 mod quest_colours;
 pub use controls::{Action, Binding, Controls, Group, Mods};
 mod preferences;
 mod servers;
 pub use floors::{FirstFloor, OtherLevels};
 pub use hosting::{Hosting, Lockdown};
+pub use other_floor_looks::OtherFloorLooks;
 #[cfg(not(target_arch = "wasm32"))]
 pub use preferences::client_file;
 pub use preferences::{CreateMobPrefs, DevAreaPrefs, InterfaceSize, Preferences};
@@ -164,6 +166,7 @@ impl Plugin for CommonPlugin {
             .init_resource::<LoadingStep>()
             .init_resource::<CurrentDungeon>()
             .init_resource::<OtherLevels>()
+            .init_resource::<OtherFloorLooks>()
             .init_resource::<FirstFloor>()
             .init_resource::<WorldReturn>()
             .init_resource::<ServerStatus>()
