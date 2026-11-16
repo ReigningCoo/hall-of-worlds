@@ -1,5 +1,5 @@
-//! A button showing a clipboard, for copying something beside it. Native only,
-//! as `copy_to_clipboard` is.
+//! A button showing a clipboard, for copying something beside it (with
+//! `copy_to_clipboard`).
 
 use bevy::prelude::*;
 

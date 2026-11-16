@@ -16,6 +16,7 @@ pub mod climate;
 pub mod clothing;
 pub mod combat;
 pub mod creature;
+pub mod debug_report;
 pub mod difficulty;
 pub mod door;
 pub mod dungeon;

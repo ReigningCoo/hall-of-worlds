@@ -301,6 +301,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         },
         ServerMessage::Welcome {
             name: "Brin".into(),
+            character: Some(super::CharacterId(crate::id::Id::NOBODY)),
             world: WorldInfo {
                 id: crate::world::WorldSeed::new(7).id(),
                 terrain_seed: Seed::new(8),

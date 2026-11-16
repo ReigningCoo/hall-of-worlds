@@ -6077,10 +6077,12 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
+ "base64 0.22.1",
  "fastnoise-lite",
  "fluent-bundle",
  "fluent-syntax",
  "libm",
+ "miniz_oxide 0.8.9",
  "postcard",
  "ron",
  "serde",

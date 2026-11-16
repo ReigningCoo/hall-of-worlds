@@ -13,12 +13,16 @@ publish.workspace = true
 doctest = false
 
 [dependencies]
+# Debug reports' strings (`debug_report`): URL-safe base64 (MIT/Apache-2.0)
+# and zlib deflating (MIT/Zlib/Apache-2.0), both already used by Bevy.
+base64 = "0.22"
 fastnoise-lite.workspace = true
 # Language files for text in the player's language (`lang`): Fluent bundles, the
 # syntax tree they are read from and language ids (all Apache-2.0/MIT).
 fluent-bundle = "0.16"
 fluent-syntax = "0.12"
 libm = "0.2"
+miniz_oxide = "0.8"
 postcard.workspace = true
 serde.workspace = true
 serde_json.workspace = true

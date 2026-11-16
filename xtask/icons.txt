@@ -147,3 +147,5 @@ delapouite/eating
 lorc/poison-bottle
 # An empty bag slot on the belt (inventory/bag_slots.rs)
 lorc/swap-bag
+# The bug button, opening Debug Info (debug_info/button.rs)
+delapouite/ladybug

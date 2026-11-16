@@ -35,7 +35,9 @@ pub fn copy_to_clipboard(text: &str) -> bool {
 }
 
 #[cfg(target_arch = "wasm32")]
-pub(super) use browser::{arrived, copy_to_clipboard, paste};
+pub use browser::copy_to_clipboard;
+#[cfg(target_arch = "wasm32")]
+pub(super) use browser::{arrived, paste};
 
 #[cfg(target_arch = "wasm32")]
 mod browser {
