@@ -92,6 +92,7 @@ mod dev_area;
 mod fake_cursor;
 mod forced;
 mod furniture;
+mod furniture_seats;
 mod inventory;
 mod keep_drawing;
 mod menus;

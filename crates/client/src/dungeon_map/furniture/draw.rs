@@ -31,13 +31,15 @@ struct Drawing<'a> {
     level: f32,
 }
 
-/// Draws the share of `parts` (of `piece`) at `(x, y)`.
+/// Draws the share of `parts` (of `piece`) at `(x, y)`. `beyond`: how far
+/// past the cell's low and high edges its share reaches (a seat's front
+/// under a table's edge).
 pub(super) fn draw_parts(
     layers: &mut Layers,
     scene: &Scene,
-    piece: &Piece,
-    parts: &[Part],
+    (piece, parts): (&Piece, &[Part]),
     (x, y): (i64, i64),
+    beyond: (Vec3, Vec3),
 ) {
     let frame = Frame::of(piece);
     let tile = atlas::tile(piece.material);
@@ -84,18 +86,21 @@ pub(super) fn draw_parts(
             flipped: part.flipped,
         };
         if lean != Vec3::ZERO {
-            // Whole, by the cell its middle is in.
+            // Whole, by the piece's cell nearest its middle.
             let middle = frame.place(part.middle());
-            let inside = |m: f32, l: f32, h: f32| m >= l && m < h;
-            if inside(middle.x, drawing.cell_low.x, cell_high.x)
-                && inside(middle.z, drawing.cell_low.z, cell_high.z)
+            let cell_of = |m: f32, at: i64, size: u8| {
+                ((m / CELL_SIZE + 0.5).floor() as i64).clamp(at, at + i64::from(size) - 1)
+            };
+            if cell_of(middle.x, piece.at.0, piece.size.0) == x
+                && cell_of(middle.z, piece.at.1, piece.size.1) == y
             {
                 drawing.box_faces(layers, &world, (low, high));
             }
             continue;
         }
-        let clipped_low = low.max(Vec3::new(drawing.cell_low.x, low.y, drawing.cell_low.z));
-        let clipped_high = high.min(Vec3::new(cell_high.x, high.y, cell_high.z));
+        let (from, to) = (drawing.cell_low - beyond.0, cell_high + beyond.1);
+        let clipped_low = low.max(Vec3::new(from.x, low.y, from.z));
+        let clipped_high = high.min(Vec3::new(to.x, high.y, to.z));
         if clipped_low.x < clipped_high.x && clipped_low.z < clipped_high.z {
             drawing.box_faces(layers, &world, (clipped_low, clipped_high));
         }

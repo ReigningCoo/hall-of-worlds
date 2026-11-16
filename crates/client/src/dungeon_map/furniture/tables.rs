@@ -55,7 +55,7 @@ impl Table {
     }
 }
 
-/// A table's parts, or `None` for anything else (seats, still placeholders).
+/// A table's parts, or `None` for anything else (seats: `seats::parts`).
 pub(super) fn parts(piece: &Piece) -> Option<Vec<Part>> {
     let Furniture::Table { style } = piece.furniture else {
         return None;
