@@ -15,10 +15,12 @@ pub enum Surface {
     WallBlend,
     /// A town's roads, gardens, buildings and hedges, from one picture.
     Town,
+    /// Tables, chairs and benches: wood grain and stone, tinted per vertex.
+    Furniture,
 }
 
 impl Surface {
-    pub const ALL: [Self; 8] = [
+    pub const ALL: [Self; 9] = [
         Self::Floor,
         Self::Wall,
         Self::Door,
@@ -27,6 +29,7 @@ impl Surface {
         Self::Lava,
         Self::WallBlend,
         Self::Town,
+        Self::Furniture,
     ];
 
     /// The surface the floor of a cell is drawn with.

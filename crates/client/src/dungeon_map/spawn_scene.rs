@@ -83,14 +83,15 @@ pub(super) fn spawn_scene(
             let base = StandardMaterial {
                 base_color: Color::srgba(1.0, 1.0, 1.0, MEMORY_ALPHA),
                 // Solid even as memory: a whole town is remembered at once,
-                // and blended meshes wouldn't sort.
-                alpha_mode: if surface == Surface::Town {
+                // and blended meshes wouldn't sort (nor would a table's
+                // legs under its top).
+                alpha_mode: if matches!(surface, Surface::Town | Surface::Furniture) {
                     AlphaMode::Opaque
                 } else {
                     AlphaMode::Blend
                 },
                 depth_bias: match surface {
-                    Surface::Wall | Surface::Town => 0.0,
+                    Surface::Wall | Surface::Town | Surface::Furniture => 0.0,
                     Surface::WallBlend => BLEND_DEPTH_BIAS,
                     _ => -1.0,
                 },
