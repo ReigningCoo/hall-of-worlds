@@ -4,6 +4,7 @@
 #   server and the game assets (`cargo xtask package`), for Windows, macOS and
 #   Linux
 # - web: the browser client (no server code)
+# A successful run on master is announced on Discord (`discord.yml`).
 name: Build
 
 # Not run on every merge for now: it was too much CI work per change.

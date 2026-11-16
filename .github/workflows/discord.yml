@@ -1,0 +1,137 @@
+# Tells the project's Discord channel about every commit landing on master and
+# every full release, through the webhook in the repository secret
+# `DISCORD_WEBHOOK_URL` (the plain https://discord.com/api/webhooks/... form).
+# Without the secret (forks) every job skips quietly.
+#
+# - push to master: one post per commit, its first line linked to the commit,
+#   the rest of the message cut from the "Context files updated" line down
+# - a successful run of Build on master: "New release v<version> (<commit>)",
+#   linked to the run, where the downloads are
+# - a published (not pre-) release: the same line, with the release's name,
+#   link and notes
+#
+# The version is the Cargo workspace's (`[workspace.package]` in Cargo.toml) at
+# that commit. Posts are JSON built with jq, never form data. Commit and
+# release text only ever reaches the scripts through `env:`, so nothing in it
+# can run as shell.
+#
+# GitHub runs `workflow_run` and `release` from the default branch's copy of
+# this file, so changes to those jobs only take effect once on master.
+name: Discord
+
+on:
+  push:
+    branches: [master]
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  commits:
+    name: Post commits
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    env:
+      URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      COMMITS: ${{ toJSON(github.event.commits) }}
+    steps:
+      - name: Post each commit
+        run: |
+          if [ -z "$URL" ]; then echo "No DISCORD_WEBHOOK_URL: skipping"; exit 0; fi
+          count=$(jq '[.[] | select(.distinct)] | length' <<<"$COMMITS")
+          for ((i = 0; i < count; i++)); do
+            jq --argjson i "$i" '
+              def cut($n): if length > $n then .[0:$n - 1] + "…" else . end;
+              def trim: gsub("\\A\\s+|\\s+\\z"; "");
+              # Joins lines hard-wrapped in the message back into their
+              # paragraph or list item, as Discord wraps text itself.
+              def unwrap: reduce .[] as $l ([];
+                if length > 0 and .[length - 1] != "" and $l != ""
+                   and ($l | test("^\\s*([-*+] |\\d+\\. |#|>|```)") | not)
+                then .[length - 1] += " " + $l
+                else . + [$l] end);
+              [.[] | select(.distinct)][$i]
+              | (.message | split("\n")) as $lines
+              | ($lines[1:]) as $rest
+              | ([$rest | to_entries[] | select(.value | startswith("Context files updated")) | .key] | first) as $end
+              | (if $end != null then $rest[0:$end]
+                 else $rest | map(select(test("^(🤖 Generated|Co-authored-by:)"; "i") | not))
+                 end | unwrap | join("\n") | trim | cut(4096)) as $body
+              | {embeds: [{
+                  title: ($lines[0] | trim | cut(256)),
+                  url: .url,
+                  author: {name: .author.name},
+                  timestamp: .timestamp,
+                  color: 5793266
+                } + (if $body == "" then {} else {description: $body} end)]}
+            ' <<<"$COMMITS" > payload.json
+            curl -fsS --retry 3 -H "Content-Type: application/json" --data-binary @payload.json "$URL"
+            # Discord allows about 5 posts in 2 seconds per webhook.
+            sleep 1
+          done
+
+  build:
+    name: Post a Build run
+    if: >-
+      github.event_name == 'workflow_run'
+      && github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.head_branch == 'master'
+    runs-on: ubuntu-24.04
+    env:
+      URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Post the release
+        run: |
+          if [ -z "$URL" ]; then echo "No DISCORD_WEBHOOK_URL: skipping"; exit 0; fi
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["workspace"]["package"]["version"])')
+          jq -n --arg version "$version" --arg sha "${SHA:0:8}" --arg url "$RUN_URL" '
+            {embeds: [{
+              title: "New release v\($version) (\($sha))",
+              url: $url,
+              description: "Built for Windows, macOS, Linux and the web: the downloads are on the run'"'"'s page.",
+              color: 5763719
+            }]}
+          ' > payload.json
+          curl -fsS --retry 3 -H "Content-Type: application/json" --data-binary @payload.json "$URL"
+
+  release:
+    name: Post a release
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    runs-on: ubuntu-24.04
+    env:
+      URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      RELEASE: ${{ toJSON(github.event.release) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ github.event.release.tag_name }}
+          persist-credentials: false
+      - name: Post the release
+        run: |
+          if [ -z "$URL" ]; then echo "No DISCORD_WEBHOOK_URL: skipping"; exit 0; fi
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["workspace"]["package"]["version"])')
+          sha=$(git rev-parse --short=8 HEAD)
+          jq --arg version "$version" --arg sha "$sha" '
+            def cut($n): if length > $n then .[0:$n - 1] + "…" else . end;
+            ((.name // "") | if . == "" then null else . end) as $name
+            | ("**" + ($name // .tag_name) + "**"
+               + (if (.body // "") == "" then "" else "\n\n" + .body end)) as $text
+            | {embeds: [{
+                title: "New release v\($version) (\($sha))",
+                url: .html_url,
+                description: ($text | cut(4096)),
+                color: 5763719
+              }]}
+          ' <<<"$RELEASE" > payload.json
+          curl -fsS --retry 3 -H "Content-Type: application/json" --data-binary @payload.json "$URL"
