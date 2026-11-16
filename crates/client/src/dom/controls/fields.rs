@@ -1,4 +1,4 @@
-//! `input type="text"`, `input type="range"` and `key-box`.
+//! `input type="text"`, `textarea`, `input type="range"` and `key-box`.
 
 use bevy::prelude::*;
 
@@ -7,6 +7,7 @@ use crate::common::{Binding, Mods};
 use crate::dom::attrs::{Attrs, Length};
 use crate::dom::build::Builder;
 use crate::dom::pictures::picture_for;
+use crate::dom::tag::Tag;
 use crate::widgets::{KeyBox, TextBox, TextSize, spawn_key_box, spawn_slider, spawn_text_box};
 
 /// A slider's width, with none given.
@@ -35,8 +36,9 @@ fn range_of(attrs: &Attrs) -> (f32, f32) {
     (least, attrs.number("max").unwrap_or(100.0).max(least))
 }
 
-/// A text box as its element's attributes have it.
-pub(super) fn text_box_of(attrs: &Attrs) -> TextBox {
+/// A text box as its element's attributes have it: a `textarea` is one of
+/// several lines.
+pub(super) fn text_box_of(tag: Tag, attrs: &Attrs) -> TextBox {
     TextBox {
         text: attrs.text("value").unwrap_or_default().to_owned(),
         prefix: attrs.static_text("prefix").unwrap_or_default(),
@@ -45,6 +47,10 @@ pub(super) fn text_box_of(attrs: &Attrs) -> TextBox {
         error: attrs.class.as_deref() == Some("error"),
         suffix: attrs.text("suffix").unwrap_or_default().to_owned(),
         accepts_items: attrs.has("accepts-items"),
+        multiline: tag == Tag::Textarea,
+        read_only: attrs.has("readonly"),
+        max_length: attrs.number("maxlength").map(|most| most as usize),
+        placeholder: attrs.text("placeholder").unwrap_or_default().to_owned(),
     }
 }
 
@@ -66,11 +72,12 @@ impl Builder<'_, '_, '_> {
     pub(super) fn text_box(
         &mut self,
         holder: Entity,
+        tag: Tag,
         attrs: &Attrs,
         size: TextSize,
         node: Node,
     ) -> Entity {
-        let text_box = text_box_of(attrs);
+        let text_box = text_box_of(tag, attrs);
         self.spawn_in(holder, |inside| {
             spawn_text_box(inside, text_box, size, node).id()
         })

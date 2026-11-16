@@ -20,7 +20,7 @@ pub(super) enum Kind {
     OneOf(&'static [&'static str]),
 }
 
-pub(super) const OWN: [(&str, Kind); 40] = [
+pub(super) const OWN: [(&str, Kind); 42] = [
     ("for", Kind::Text),
     ("src", Kind::Text),
     ("alt", Kind::Text),
@@ -28,6 +28,9 @@ pub(super) const OWN: [(&str, Kind); 40] = [
     ("label", Kind::Text),
     ("prefix", Kind::Text),
     ("suffix", Kind::Text),
+    ("placeholder", Kind::Text),
+    // A text box's most, in characters.
+    ("maxlength", Kind::Count),
     ("min", Kind::Number),
     ("max", Kind::Number),
     ("step", Kind::Number),

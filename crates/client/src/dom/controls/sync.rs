@@ -1,6 +1,6 @@
 //! From a control's attributes to its widget, whenever code changes them
-//! (`Dom::set`): `disabled`, `selected`, `checked`, `value`, and a button's
-//! `class`.
+//! (`Dom::set`): `disabled`, `selected`, `checked`, `value` (and a text box's
+//! `readonly`, `maxlength` and `placeholder`), and a button's `class`.
 
 use bevy::prelude::*;
 
@@ -65,13 +65,22 @@ pub(in crate::dom) fn follow_elements(
             slider.0 = share_of(attrs);
         }
         if let Ok(mut text_box) = shown.boxes.get_mut(widget) {
-            let wanted = text_box_of(attrs);
+            let wanted = text_box_of(element.tag, attrs);
             // Only what differs: changing a box's words moves its caret.
             if text_box.text != wanted.text {
                 text_box.text = wanted.text;
             }
             if text_box.error != wanted.error {
                 text_box.error = wanted.error;
+            }
+            if text_box.read_only != wanted.read_only {
+                text_box.read_only = wanted.read_only;
+            }
+            if text_box.max_length != wanted.max_length {
+                text_box.max_length = wanted.max_length;
+            }
+            if text_box.placeholder != wanted.placeholder {
+                text_box.placeholder = wanted.placeholder;
             }
         }
         put(shown.key_boxes.get_mut(widget), key_box_of(attrs));

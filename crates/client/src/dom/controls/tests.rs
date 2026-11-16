@@ -8,7 +8,7 @@ use crate::dom::{Dom, Template, document};
 use crate::html;
 use crate::widgets::{
     ButtonPressed, ButtonState, Dropdown, DropdownChosen, SliderMoved, SwitchFlipped, TabChosen,
-    UiId,
+    TextBox, TextEdited, UiId,
 };
 
 static CONTROLS: Template = html!(
@@ -195,4 +195,33 @@ fn controls_are_checked_strictly() {
         error(r#"<form id="a"><button id="x">Go <img src="icon:x"/></button></form>"#),
         "`<button>` can't hold `<img>`"
     );
+}
+
+static AREAS: Template = html!(
+    "areas",
+    r#"<form id="b">
+        <textarea id="notes" rows="3" maxlength="20" placeholder="Say" value="One"/>
+        <textarea id="code" readonly value="X"/>
+    </form>"#
+);
+
+#[test]
+fn a_textarea_is_a_text_box_of_several_lines() {
+    AREAS.assert_good();
+    let mut app = app();
+    app.world_mut().spawn(document(&AREAS));
+    app.update();
+    let (notes, _) = control(&mut app, "b/notes");
+    let text_box = app.world().get::<TextBox>(notes).unwrap();
+    assert!(text_box.multiline && !text_box.read_only);
+    assert_eq!(text_box.text, "One");
+    assert_eq!(text_box.max_length, Some(20));
+    assert_eq!(text_box.placeholder, "Say");
+    let (code, _) = control(&mut app, "b/code");
+    assert!(app.world().get::<TextBox>(code).unwrap().read_only);
+    // What the player writes comes back as its value, lines and all.
+    app.world_mut().get_mut::<TextBox>(notes).unwrap().text = "Two\nlines".into();
+    let events = said(&mut app, TextEdited(notes));
+    let wanted = UiValue::Text("Two\nlines".into());
+    assert_eq!(events, [("b/notes".to_owned(), wanted)]);
 }

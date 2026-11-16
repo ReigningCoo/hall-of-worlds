@@ -90,7 +90,9 @@ pub use spinner::Spinner;
 pub use stock::{StockGrid, StockGridNode, StockOf, show_stock_aim};
 pub use switch::{Switch, SwitchFlipped, spawn_switch};
 pub use tabs::{ChooseTab, TabChosen, set_tabs, spawn_tabs, spawn_toggle_row};
-pub use text_box::{SoftKeyPressed, TextBox, TextEdited, TextFocus, field_label, spawn_text_box};
+pub use text_box::{
+    SoftKeyPressed, TextBox, TextEdited, TextFocus, field_label, spawn_text_box, text_area_height,
+};
 pub use theme::{
     ALLOWED, GRID_COLOUR, GRID_LINE, INK, ITEM_EDGE, PARCHMENT, REFUSED, ROW_TINT, TextSize,
     WARNING_TEXT,
@@ -255,6 +257,7 @@ impl Plugin for WidgetsPlugin {
                         text_box::take_dropped_items,
                         text_box::show_text_boxes,
                         text_box::show_carets,
+                        text_box::follow_carets,
                         text_box::show_selections,
                     )
                         .chain(),

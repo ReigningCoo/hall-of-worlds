@@ -30,6 +30,9 @@ pub(in crate::widgets) struct Edited {
     pub anchor: usize,
     /// Items written in count as one place each (a box that takes items).
     pub items: bool,
+    /// The most places it may have (`TextBox::max_length`): typing past it is
+    /// cut short.
+    pub limit: Option<usize>,
 }
 
 impl Edited {
@@ -41,6 +44,7 @@ impl Edited {
             caret: end,
             anchor: end,
             items,
+            limit: None,
         }
     }
 
@@ -146,10 +150,22 @@ impl Edited {
     /// Writes this at the caret, in place of anything selected.
     pub fn insert(&mut self, typed: &str) {
         self.remove_selection();
+        let typed = self.within_limit(typed);
         let at = self.byte(self.caret);
         self.text.insert_str(at, typed);
         self.caret = self.place_of_byte(at + typed.len());
         self.anchor = self.caret;
+    }
+
+    /// As much of `typed` as there is room for under the limit, whole units.
+    fn within_limit<'a>(&self, typed: &'a str) -> &'a str {
+        let Some(limit) = self.limit else {
+            return typed;
+        };
+        let room = limit.saturating_sub(self.len());
+        units(typed, self.items)
+            .get(room)
+            .map_or(typed, |unit| &typed[..unit.start])
     }
 
     /// Takes out what is selected, or from the caret to where a motion ends.

@@ -21,7 +21,7 @@ fn type_into(edited: &mut Edited, keys: &[KeyboardInput]) {
     for key in keys {
         held.follow(key);
         if key.state == KeyState::Pressed {
-            press(key, &held, edited, false);
+            press(key, &held, edited, Rules::default());
         }
     }
 }
@@ -112,4 +112,40 @@ fn keeping_an_edit_says_whether_the_writing_changed() {
     edited.insert("x");
     assert!(keep(edited, &mut text_box, &mut cursor, 6.0));
     assert_eq!(text_box.text, "axb");
+}
+
+#[test]
+fn a_read_only_box_moves_and_selects_but_never_changes() {
+    let mut edited = Edited::at_end("fixed", false);
+    let rules = Rules {
+        read_only: true,
+        ..default()
+    };
+    let mut held = Held::default();
+    for key in [
+        down(KeyCode::Backspace, Key::Backspace),
+        down(KeyCode::KeyX, Key::Character("x".into())),
+        down(KeyCode::ArrowLeft, Key::ArrowLeft),
+        down(KeyCode::ShiftLeft, Key::Shift),
+        down(KeyCode::Home, Key::Home),
+    ] {
+        held.follow(&key);
+        press(&key, &held, &mut edited, rules);
+    }
+    assert_eq!(edited.text, "fixed");
+    assert_eq!(edited.selection(), Some((0, 4)));
+}
+
+#[test]
+fn return_starts_a_new_line_only_in_a_box_of_several() {
+    let enter = down(KeyCode::Enter, Key::Enter);
+    let held = Held::default();
+    let mut edited = Edited::at_end("ab", false);
+    assert!(!press(&enter, &held, &mut edited, Rules::default()));
+    let rules = Rules {
+        multiline: true,
+        ..default()
+    };
+    assert!(press(&enter, &held, &mut edited, rules));
+    assert_eq!(edited.text, "ab\n");
 }

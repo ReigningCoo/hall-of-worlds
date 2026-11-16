@@ -242,6 +242,7 @@ impl Theme {
                 &["", "main", "quiet", "danger", "folder", "small"][..],
             ),
             (Tag::Input, &["", "error"]),
+            (Tag::Textarea, &["", "error"]),
             (Tag::Select, &["", "small"]),
             (Tag::KeyBox, &["", "warned"]),
         ];

@@ -1,7 +1,9 @@
 //! Boxes to type into. One has the keyboard at a time (`TextFocus`): a click or
 //! tap on a box gives it the keyboard, and something else covering the screen
 //! can give it to its own box. The caret can be anywhere in the writing, and
-//! some of it selected, by keys, clicks or a finger (`edit` has the rules).
+//! some of it selected, by keys, clicks or a finger (`edit` has the rules). A
+//! box of several lines (markup's `textarea`) wraps its writing and scrolls
+//! (`area`), and Up and Down go by its lines (`lines`).
 
 use bevy::prelude::*;
 use bevy::text::LineBreak;
@@ -11,15 +13,23 @@ use super::theme::SUNKEN_BACKGROUND;
 use super::{INK, Pressable, TextSize, sunken_border};
 use crate::common::TakesItemText;
 
+mod allowed;
+mod area;
 mod caret;
 mod clicks;
 mod dropped;
 mod edit;
 mod keys;
 mod layout;
+mod lines;
 mod selection;
 mod show;
+mod spots;
 mod units;
+
+pub(super) use allowed::allowed;
+pub(super) use area::follow_carets;
+pub use area::text_area_height;
 
 pub(super) use caret::show_carets;
 pub(super) use clicks::{drag_to_select, select_by_pointer};
@@ -49,6 +59,16 @@ pub struct TextBox {
     /// Items can be dropped on it, and items written in (`${item:<uuid>}`) show
     /// as pictures and count as one place each.
     pub accepts_items: bool,
+    /// Several lines: the writing wraps to the box's width, Return starts a
+    /// new line, Up and Down go by lines, and it scrolls once taller than the
+    /// box. Only when spawned.
+    pub multiline: bool,
+    /// Its writing can be selected and copied, but not changed by the player.
+    pub read_only: bool,
+    /// The most it may hold, in places (characters; an item written in is one).
+    pub max_length: Option<usize>,
+    /// Grey writing shown while it is empty (and it has no `suffix`).
+    pub placeholder: String,
 }
 
 /// Where a box's caret is and what is selected, kept apart from `TextBox` so
@@ -66,6 +86,9 @@ pub(super) struct Cursor {
     /// When the caret last moved or the writing changed, by the real clock: it
     /// stays solid a while after.
     pub moved_at: f32,
+    /// How far across Up and Down keep the caret, in a box of several lines,
+    /// while they are pressed one after another.
+    pub goal: Option<f32>,
 }
 
 /// The writing of a `TextBox`, whose entity it holds. Its own text is the
@@ -124,15 +147,26 @@ pub fn spawn_text_box<'a>(
         text: text_box.text.clone(),
         ..default()
     };
-    let takes_items = text_box.accepts_items;
+    let (takes_items, multiline) = (text_box.accepts_items, text_box.multiline);
     let mut holder = parent.spawn((
         text_box,
         cursor,
         Pressable,
         Node {
             border: UiRect::all(px(BORDER)),
-            padding: UiRect::horizontal(px(SIDE_PADDING)),
-            align_items: AlignItems::Center,
+            padding: match multiline {
+                true => UiRect::axes(px(SIDE_PADDING), px(area::END_PADDING)),
+                false => UiRect::horizontal(px(SIDE_PADDING)),
+            },
+            // Several lines stack their scroll area, filling the box.
+            flex_direction: match multiline {
+                true => FlexDirection::Column,
+                false => FlexDirection::Row,
+            },
+            align_items: match multiline {
+                true => AlignItems::Stretch,
+                false => AlignItems::Center,
+            },
             overflow: Overflow::clip(),
             // Writing slid along is cut at the padding, not the edge.
             overflow_clip_margin: OverflowClipMargin::content_box(),
@@ -143,48 +177,11 @@ pub fn spawn_text_box<'a>(
         sunken_border(),
     ));
     let entity = holder.id();
-    holder.with_children(|holder| {
-        // First, so behind the writing.
-        holder.spawn((
-            selection::TextBoxSelection(entity),
-            Node {
-                position_type: PositionType::Absolute,
-                height: px(line_height(size)),
-                ..default()
-            },
-            BackgroundColor(Color::NONE),
-            Visibility::Hidden,
-        ));
-        holder.spawn((
-            TextBoxLabel(entity),
-            InlineHeight(line_height(size)),
-            Text::new(""),
-            TextLayout {
-                linebreak: LineBreak::NoWrap,
-                ..default()
-            },
-            size.font(),
-            TextColor(INK),
-            // Placed over the box rather than sizing it, so long writing
-            // slides left (`Node::left`) instead of widening the box.
-            Node {
-                position_type: PositionType::Absolute,
-                left: px(SIDE_PADDING),
-                ..default()
-            },
-        ));
-        holder.spawn((
-            TextBoxCaret(entity),
-            Node {
-                position_type: PositionType::Absolute,
-                width: px(caret::WIDTH),
-                height: px(line_height(size)),
-                ..default()
-            },
-            BackgroundColor(INK),
-            Visibility::Hidden,
-        ));
-    });
+    if multiline {
+        area::fill(&mut holder, size);
+    } else {
+        holder.with_children(|holder| spawn_line(holder, entity, size));
+    }
     if takes_items {
         // On its parts too: whichever the pointer is on counts as the box.
         holder.insert(TakesItemText(entity));
@@ -199,6 +196,50 @@ pub fn spawn_text_box<'a>(
     holder
 }
 
+/// The insides of a box of one line: the band, the writing and the caret.
+fn spawn_line(holder: &mut ChildSpawnerCommands, entity: Entity, size: TextSize) {
+    // First, so behind the writing.
+    holder.spawn((
+        selection::TextBoxSelection(entity, 0),
+        Node {
+            position_type: PositionType::Absolute,
+            height: px(line_height(size)),
+            ..default()
+        },
+        BackgroundColor(Color::NONE),
+        Visibility::Hidden,
+    ));
+    holder.spawn((
+        TextBoxLabel(entity),
+        InlineHeight(line_height(size)),
+        Text::new(""),
+        TextLayout {
+            linebreak: LineBreak::NoWrap,
+            ..default()
+        },
+        size.font(),
+        TextColor(INK),
+        // Placed over the box rather than sizing it, so long writing
+        // slides left (`Node::left`) instead of widening the box.
+        Node {
+            position_type: PositionType::Absolute,
+            left: px(SIDE_PADDING),
+            ..default()
+        },
+    ));
+    holder.spawn((
+        TextBoxCaret(entity),
+        Node {
+            position_type: PositionType::Absolute,
+            width: px(caret::WIDTH),
+            height: px(line_height(size)),
+            ..default()
+        },
+        BackgroundColor(INK),
+        Visibility::Hidden,
+    ));
+}
+
 /// How tall a line of writing this size is: Bevy's own line height, 1.2 times
 /// the font's size.
 pub(super) fn line_height(size: TextSize) -> f32 {
@@ -208,14 +249,6 @@ pub(super) fn line_height(size: TextSize) -> f32 {
 /// The words naming a box, to go above it.
 pub fn field_label(words: impl Into<String>) -> impl Bundle {
     (Text::new(words), TextSize::Small.font(), TextColor(INK))
-}
-
-/// What of `typed` a box keeps.
-pub(super) fn allowed(typed: &str, digits_only: bool) -> String {
-    typed
-        .chars()
-        .filter(|c| !c.is_control() && (!digits_only || c.is_ascii_digit()))
-        .collect()
 }
 
 pub(super) fn note_press(

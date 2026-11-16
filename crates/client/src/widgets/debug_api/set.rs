@@ -6,7 +6,6 @@ use serde::Deserialize;
 use server::debug_api::{BrpResult, Value, json, params, refused};
 
 use super::super::slider::Slider;
-use super::super::text_box::allowed;
 use super::super::{
     ButtonPressed, Dropdown, DropdownChosen, HoldButton, KeyBox, KeyChosen, SliderMoved, TextBox,
     TextEdited,
@@ -64,7 +63,7 @@ pub(super) fn set(
     match change {
         Change::Text(text) => {
             if let Ok(mut text_box) = all.p1().get_mut(entity) {
-                text_box.text = allowed(&text, text_box.digits_only);
+                text_box.text = text_box.keeps(&text);
                 edited.write(TextEdited(entity));
             }
         }
