@@ -70,7 +70,9 @@ impl CreatureKind {
             Chicken | Horse => Temper::Timid,
             Lizardfolk | ScorpionMan | Wolf => Temper::Territorial,
             Drider | Goblin | Kobold | Minotaur | Orc => Temper::Hostile,
-            Beggar | Birdfolk | Cattle | Centaur | Dwarf | Elf | Giant | Human => Temper::Neutral,
+            Beggar | Birdfolk | Cattle | Centaur | Coo | Dwarf | Elf | Giant | Human => {
+                Temper::Neutral
+            }
         }
     }
 
@@ -81,7 +83,7 @@ impl CreatureKind {
         use CreatureKind::*;
         match self {
             Horse => 350,
-            Cattle => 330,
+            Cattle | Coo => 330,
             Chicken => 300,
             Minotaur => 240,
             Wolf => 240,
@@ -106,7 +108,7 @@ impl CreatureKind {
         match self {
             Beggar | Human => senses(Normal, DarkSight::None, Normal, Poor),
             Birdfolk => senses(Keen, DarkSight::None, Normal, Poor),
-            Cattle => senses(Normal, DarkSight::Low, Keen, Keen),
+            Cattle | Coo => senses(Normal, DarkSight::Low, Keen, Keen),
             Centaur => senses(Keen, DarkSight::None, Normal, Normal),
             Chicken => senses(Normal, DarkSight::None, Normal, Poor),
             Drider | Dwarf | ScorpionMan => senses(Normal, DarkSight::Dark, Normal, Normal),

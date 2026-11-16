@@ -21,6 +21,22 @@ pub struct Marks {
     /// Patches over the trunk, neck, head and the tops of the legs, laid out by this
     /// number, so animals with the same markings have different patches.
     pub patches: Option<u8>,
+    /// Brindle: wavy stripes across the trunk, neck and legs, from a brindled coat
+    /// (`Pattern::Brindle`) rather than a choice of markings.
+    pub stripes: bool,
+}
+
+impl Marks {
+    /// A brindled coat's stripes, in this colour.
+    pub const fn brindle(colour: [u8; 3]) -> Self {
+        Marks {
+            colour,
+            belly: false,
+            face: Face::Bare,
+            patches: None,
+            stripes: true,
+        }
+    }
 }
 
 /// What of the face is marked.
@@ -54,6 +70,7 @@ const fn marks(colour: [u8; 3], belly: bool, face: Face) -> Marks {
         belly,
         face,
         patches: None,
+        stripes: false,
     }
 }
 
@@ -65,6 +82,7 @@ const fn patched(name: &'static str, colour: [u8; 3], layout: u8) -> Choice {
             belly: false,
             face: Face::Bare,
             patches: Some(layout),
+            stripes: false,
         },
     )
 }

@@ -262,3 +262,24 @@ fn markings_are_a_look_older_saves_have_the_first_of() {
         .collect();
     assert!(layouts.len() > 4);
 }
+
+#[test]
+fn brindled_coats_have_stripes_and_plain_ones_none() {
+    let coat = |chosen: u8| Appearance([(Trait::CoatColour, chosen)].into_iter().collect());
+    let names: Vec<_> = Trait::CoatColour
+        .choices_for(CreatureKind::Coo)
+        .iter()
+        .map(|choice| choice.name)
+        .collect();
+    assert_eq!(names[..2], ["Red-brown", "Yellow-brown"]);
+    assert_eq!(coat(0).marks(CreatureKind::Coo), None);
+    for brindle in [4, 5] {
+        let marks = coat(brindle).marks(CreatureKind::Coo).unwrap();
+        assert!(marks.stripes && !marks.belly && marks.patches.is_none());
+        let choice = coat(brindle).choice(CreatureKind::Coo, Trait::CoatColour);
+        assert_eq!(choice.unwrap().pattern, Pattern::Brindle(marks.colour));
+    }
+    // A coo's coat is its body's colour; it has no markings to choose.
+    assert_eq!(coat(1).skin(CreatureKind::Coo), Some([186, 140, 82]));
+    assert!(!CreatureKind::Coo.def().looks.contains(&Trait::Markings));
+}

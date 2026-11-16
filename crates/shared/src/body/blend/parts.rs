@@ -29,6 +29,7 @@ pub(super) fn blend(a: &Parts, b: &Parts, t: i32) -> Parts {
         dewlap: mix(a.dewlap, b.dewlap, t),
         udder: mix(a.udder, b.udder, t),
         comb: mix(a.comb, b.comb, t),
+        fringe: mix(a.fringe, b.fringe, t),
     }
 }
 
@@ -61,6 +62,7 @@ pub(in crate::body) fn scaled(parts: &Parts, share: i32) -> Parts {
         dewlap: size(parts.dewlap),
         udder: size(parts.udder),
         comb: size(parts.comb),
+        fringe: size(parts.fringe),
         ..*parts
     }
 }

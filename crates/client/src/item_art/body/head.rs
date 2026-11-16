@@ -1,13 +1,13 @@
 //! An animal's measured head (`shared::body::HeadShape`) and the neck it sits on: the
 //! neck lofted from the trunk's last ring up to the head, so it carries on from the
 //! trunk with no step; the head lofted through its rings from the back of the skull
-//! to the nose; ears by their shape, horns, and a hen's comb and wattles, placed on
-//! the outline.
+//! to the nose; ears by their shape, horns (`horns.rs`), a fringe (`fringe.rs`), and a
+//! hen's comb and wattles, placed on the outline.
 
 use std::f32::consts::{PI, TAU};
 
 use bevy::prelude::*;
-use shared::body::{Ears, HEAD_RINGS, HeadShape, Horns, Layout, RINGS, Ring, Side};
+use shared::body::{Ears, HEAD_RINGS, HeadShape, Layout, RINGS, Ring, Side};
 
 use super::trunk::{self, Axes};
 use super::{ROUND, Triangle, blob, limb, loft, point};
@@ -73,7 +73,8 @@ pub(super) fn build(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &Head
         .collect();
     loft(triangles, &rings);
     ears(triangles, layout, shape, &axes);
-    horns(triangles, layout, shape, &axes);
+    super::horns::build(triangles, layout, shape, &axes);
+    super::fringe::build(triangles, layout, shape, &axes);
     if layout.parts.comb > 0 {
         comb(triangles, layout.parts.comb as f32, shape, &axes);
     }
@@ -194,60 +195,6 @@ fn ears(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &HeadShape, axes:
         };
         limb(triangles, &path);
     }
-}
-
-/// Horns from the top of the skull, outside the ears.
-fn horns(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &HeadShape, axes: &HeadAxes) {
-    for path in horn_paths(layout, shape, axes) {
-        limb(triangles, &path);
-    }
-}
-
-/// Where a shaped head's horns run, one path for each, from the root out; none for a
-/// head without horns or without a shape.
-pub(in crate::item_art) fn horns_of(layout: &Layout) -> Vec<[(Vec3, f32); 3]> {
-    match &layout.head.shape {
-        Some(shape) => horn_paths(layout, shape, &HeadAxes::of(layout, shape)),
-        None => Vec::new(),
-    }
-}
-
-fn horn_paths(layout: &Layout, shape: &HeadShape, axes: &HeadAxes) -> Vec<[(Vec3, f32); 3]> {
-    let horn = layout.parts.horn_length as f32;
-    let skull = crown(shape);
-    let (along, top, half) = (skull.along as f32, skull.back as f32, skull.half as f32);
-    let thick = (horn * 0.12).max(8.0);
-    let mut paths = Vec::new();
-    for side in Side::BOTH {
-        let out = side.sign() as f32;
-        let base = axes.at(along, top * 0.85, out * half * 0.7);
-        paths.push(match layout.parts.horns {
-            Horns::None => continue,
-            Horns::Bull => [
-                (base, thick),
-                (
-                    base + Vec3::new(out * horn * 0.55, horn * 0.05, horn * 0.05),
-                    thick * 0.7,
-                ),
-                (
-                    base + Vec3::new(out * horn * 0.75, horn * 0.45, horn * 0.1),
-                    3.0,
-                ),
-            ],
-            Horns::Back => [
-                (base, thick),
-                (
-                    base + Vec3::new(out * horn * 0.15, horn * 0.4, -horn * 0.5),
-                    thick * 0.6,
-                ),
-                (
-                    base + Vec3::new(out * horn * 0.25, horn * 0.45, -horn * 0.95),
-                    2.0,
-                ),
-            ],
-        });
-    }
-    paths
 }
 
 /// A hen's comb, a row of lobes along the top of the skull, and two wattles hanging

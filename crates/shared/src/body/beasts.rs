@@ -8,8 +8,10 @@ use super::measured::{COW, DOG, HORSE, Measured, MeasuredRing};
 use super::measured_heads::{COW_HEAD, HORSE_HEAD, MeasuredHead, WOLF_HEAD};
 use super::parts::{Ears, Feet, Horns, NONE, Parts, Snout, Tail, Wings};
 use crate::creature::CreatureKind;
+pub use sexes::{Sex, Sexes};
 
 mod build;
+mod sexes;
 
 /// A beast standing on four legs, level-backed.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -67,11 +69,13 @@ pub struct Beast {
     pub name: &'static str,
     pub plan: Plan,
     pub parts: Parts,
+    /// How its males and females differ, if they do: `parts` is a neutral one's.
+    pub sexes: Option<Sexes>,
 }
 
 /// The first animals drawn, measured from the research's heights and lengths (the
-/// middle of each range). Wolf and cattle are drawn before they are kinds.
-pub const BEASTS: [Beast; 4] = [
+/// middle of each range).
+pub const BEASTS: [Beast; 5] = [
     Beast {
         name: "Horse",
         plan: Plan::Fourfoot(Fourfoot {
@@ -97,6 +101,7 @@ pub const BEASTS: [Beast; 4] = [
             tail_hair: 700,
             ..NONE
         },
+        sexes: None,
     },
     Beast {
         name: "Wolf",
@@ -122,6 +127,7 @@ pub const BEASTS: [Beast; 4] = [
             feet: Feet::Digitigrade,
             ..NONE
         },
+        sexes: None,
     },
     Beast {
         name: "Cattle",
@@ -152,6 +158,41 @@ pub const BEASTS: [Beast; 4] = [
             udder: 160,
             ..NONE
         },
+        sexes: None,
+    },
+    Beast {
+        name: "Coo",
+        // Highland cattle: lower than other cattle, with a thick double coat, long
+        // horns, a fringe over the eyes and a full switch.
+        plan: Plan::Fourfoot(Fourfoot {
+            withers: 1150,
+            body: 1150,
+            barrel: (300, 350),
+            fore: [100, 76, 46, 42],
+            hind: [124, 98, 56, 50],
+            foot: 100,
+            neck: (360, 75, 170),
+            head: (480, 40, &COW_HEAD),
+            coat: 70,
+            measured: &COW,
+        }),
+        parts: Parts {
+            snout: Snout::Muzzle,
+            snout_length: 290,
+            ears: 130,
+            ear_shape: Ears::Sideways,
+            horns: Horns::Upturned,
+            horn_length: 500,
+            tail: 750,
+            tail_shape: Tail::Thin,
+            feet: Feet::Hooves,
+            tail_hair: 330,
+            dewlap: 110,
+            udder: 140,
+            fringe: 150,
+            ..NONE
+        },
+        sexes: Some(sexes::COO),
     },
     Beast {
         name: "Chicken",
@@ -171,6 +212,7 @@ pub const BEASTS: [Beast; 4] = [
             wings: Wings::Folded,
             ..NONE
         },
+        sexes: None,
     },
 ];
 

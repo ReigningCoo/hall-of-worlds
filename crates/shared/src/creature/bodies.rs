@@ -1,6 +1,6 @@
 //! The body parts of each kind of creature.
 
-use super::animals::{CATTLE, WOLF};
+use super::animals::{CATTLE, COO, WOLF};
 use super::guesses::{PERSON, medians};
 use super::peoples::{BIRDFOLK, DWARF, ELF, GOBLIN, HALFLING, LIZARDFOLK, MINOTAUR, ON_TOES, ORC};
 use super::taurs::{DRIDER, SCORPION_MAN};
@@ -110,6 +110,7 @@ impl CreatureKind {
         match self {
             Self::Birdfolk => BIRDFOLK,
             Self::Cattle => CATTLE,
+            Self::Coo => COO,
             Self::Drider => DRIDER,
             Self::ScorpionMan => SCORPION_MAN,
             Self::Wolf => WOLF,

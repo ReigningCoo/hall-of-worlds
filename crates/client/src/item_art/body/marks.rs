@@ -1,7 +1,8 @@
 //! Markings (`shared::sheet::Marks`): the skin's triangles split into those in the
 //! coat's colour and those in the markings', by where each is on the body: under the
 //! trunk's middle for a pale belly, parts of a measured head for a face, and patches
-//! from the markings' own number laid over the trunk, neck, head and tops of the legs.
+//! from the markings' own number laid over the trunk, neck, head and tops of the legs;
+//! a brindle's wavy stripes across the trunk, neck and legs.
 //! Triangles are halved along each side first, so the edges are less jagged.
 
 use bevy::prelude::*;
@@ -49,6 +50,10 @@ struct Body<'a> {
 const PATCH_SHARE: f32 = 0.3;
 /// How much of the patched parts is marked, from 0 (all) to 1 (none).
 const PATCH_LEVEL: f32 = 0.52;
+/// How far apart a brindle's stripes are, as a share of a patch, and how much of
+/// that each stripe takes.
+const STRIPE_SHARE: f32 = 0.4;
+const STRIPE_WIDTH: f32 = 0.4;
 
 impl<'a> Body<'a> {
     fn of(layout: &'a Layout) -> Self {
@@ -89,7 +94,21 @@ impl<'a> Body<'a> {
         let patched = marks
             .patches
             .is_some_and(|layout| self.patched(part) && self.patch_at(layout, at));
-        belly || face || patched
+        let striped = marks.stripes && self.striped(part, at);
+        belly || face || patched || striped
+    }
+
+    /// Whether a point is in a brindle's stripes: wavy bands across the trunk and
+    /// neck from front to back, and round the legs from top to bottom, never on the
+    /// head.
+    fn striped(&self, part: u32, at: Vec3) -> bool {
+        let part = part % BodyPart::UPPER;
+        if part == BodyPart::HEAD {
+            return false;
+        }
+        let along = if part <= BodyPart::NECK { at.z } else { at.y };
+        let wave = noise(at / (self.patch * 0.5), 7) - 0.5;
+        (along / (self.patch * STRIPE_SHARE) + wave * 1.4).rem_euclid(1.0) < STRIPE_WIDTH
     }
 
     /// Whether a point is on the underside of the neck.

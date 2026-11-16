@@ -151,9 +151,9 @@ fn spawned(world: &mut ServerWorld, seed: Seed, block: BlockPos, at: (i64, i64))
     if world.wilderness.areas.living.contains_key(&block) {
         return Vec::new();
     }
-    let biome = world.wilderness.wild.biome_of(block);
+    let land = world.wilderness.wild.habitat_of(block);
     let width = world.wilderness.wild.width();
-    let plan = wild_spawns(seed, block, world.wilderness.block(block), biome);
+    let plan = wild_spawns(seed, block, world.wilderness.block(block), land);
     resets::reset_if_due(world, seed, block, &plan);
     let made_at = world.made_now();
     let saved = world.site(SiteId::Wilderness).levels.get(&0);

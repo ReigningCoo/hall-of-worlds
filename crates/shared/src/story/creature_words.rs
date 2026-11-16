@@ -17,6 +17,7 @@ impl Selector for CreatureKind {
             Cattle => "cattle",
             Centaur => "centaur",
             Chicken => "chicken",
+            Coo => "coo",
             Drider => "drider",
             Dwarf => "dwarf",
             Elf => "elf",

@@ -116,6 +116,18 @@ fn pattern_picture(base: [u8; 3], pattern: Pattern) -> Image {
             }
         }
     }
+    if let Pattern::Brindle(stripes) = pattern {
+        // Slanting wavy stripes, a quarter of the swatch apart.
+        for y in 0..side {
+            for x in 0..side {
+                let wave = (y * 7 / side) % 2;
+                if (x + y / 2 + wave) % (side / 4).max(1) < side / 10 + 1 {
+                    let index = (y * side + x) * 4;
+                    bytes[index..index + 3].copy_from_slice(&stripes);
+                }
+            }
+        }
+    }
     Image::new(
         Extent3d {
             width: PATTERN_PIXELS,

@@ -2,7 +2,7 @@
 //! mobs, so nothing about them needs saving.
 
 use super::{DevArea, DevLayout, DevMobs};
-use crate::mob::{Spawn, chosen_spawns, spawns, wild_spawns};
+use crate::mob::{Habitat, Spawn, chosen_spawns, spawns, wild_spawns};
 use crate::rng::Seed;
 use crate::site::SiteLevel;
 use crate::wilderness::{BLOCK_SIZE, BlockPos};
@@ -30,9 +30,10 @@ impl DevArea {
             (DevMobs::Default, DevLayout::Biome(biome)) => {
                 let side = (i64::from(area.size) / BLOCK_SIZE).max(1);
                 let mut mobs: Vec<Spawn> = Vec::new();
+                let land = Habitat::typical(biome);
                 for block in 0..side * side {
                     let block = BlockPos { x: block, y: 0 };
-                    for spawn in wild_spawns(seed, block, &level.level, biome) {
+                    for spawn in wild_spawns(seed, block, &level.level, land) {
                         let (x, y) = spawn.position;
                         let away = clear_of
                             .iter()

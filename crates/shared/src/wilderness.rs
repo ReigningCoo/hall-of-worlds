@@ -105,11 +105,17 @@ impl Wilderness {
         self.points
     }
 
-    /// The biome at the middle of a block, for who lives there.
-    pub fn biome_of(&self, block: BlockPos) -> crate::climate::Biome {
+    /// What the land is like at the middle of a block, for who lives there:
+    /// its biome, height and temperature, rounded to whole metres and degrees.
+    pub fn habitat_of(&self, block: BlockPos) -> crate::mob::Habitat {
         let (x, y, width, height) = self.block_bounds(block);
         let (px, py) = self.point_of(x + width / 2, y + height / 2);
         let height = self.surface.sample(px, py).height;
-        self.climate.sample(px, py, height).biome()
+        let climate = self.climate.sample(px, py, height);
+        crate::mob::Habitat {
+            biome: climate.biome(),
+            metres: self.surface.metres(height),
+            celsius: climate.celsius().round() as i32,
+        }
     }
 }

@@ -60,7 +60,12 @@ impl ClothesShown {
             ))
         });
         let worn: Vec<WornLook> = std::iter::once(wear(form)).chain(others).collect();
-        character_look(kind, &Appearance::default(), &worn)
+        character_look(
+            kind,
+            shared::gender::Gender::default(),
+            &Appearance::default(),
+            &worn,
+        )
     }
 }
 

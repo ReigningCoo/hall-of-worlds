@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use shared::armour::hands::Hand;
 use shared::body::{Hair, Layout};
 use shared::creature::{CreatureKind, Size};
+use shared::gender::Gender;
 use shared::item_form::ItemForm;
 use shared::sheet::Appearance;
 use shared::wear::WornLook;
@@ -28,15 +29,17 @@ pub(super) const CELLS: (u8, u8) = (2, 2);
 /// A piece's own picture never comes into it: only its form.
 const ANY: (u8, u8) = (1, 1);
 
-/// How a creature of this kind looks wearing these, if its body is drawn: what its
-/// token shows in place of its icon, its body in its own colours, bare when nothing it
-/// wears is drawn. An animal is its bare body, as nothing is drawn on it yet.
+/// How a creature of this kind and gender looks wearing these, if its body is drawn:
+/// what its token shows in place of its icon, its body in its own colours, bare when
+/// nothing it wears is drawn. An animal is its bare body, as nothing is drawn on it
+/// yet, with its sex's horns and size where they differ (`Layout::of_gender`).
 pub fn character_look(
     kind: CreatureKind,
+    gender: Gender,
     appearance: &Appearance,
     worn: &[WornLook],
 ) -> Option<Look> {
-    let layout = Layout::of(kind)?;
+    let layout = Layout::of_gender(kind, gender)?;
     let hair = appearance.hair(kind);
     let height = appearance.height_share(kind);
     if layout.worn_frame().is_none() {

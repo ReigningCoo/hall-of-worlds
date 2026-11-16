@@ -23,7 +23,7 @@ pub fn portrait_look(
     appearance: &Appearance,
     worn: &[WornLook],
 ) -> Option<Look> {
-    match character_look(kind, appearance, worn)? {
+    match character_look(kind, shared::gender::Gender::default(), appearance, worn)? {
         character @ Look::Character { .. } => Some(Look::Portrait(Box::new(character))),
         _ => None,
     }

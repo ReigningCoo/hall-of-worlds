@@ -6,7 +6,12 @@ use super::*;
 use crate::item_art::character_look;
 
 fn build(kind: CreatureKind) -> Option<TokenModel> {
-    let look = character_look(kind, &Appearance::default(), &[])?;
+    let look = character_look(
+        kind,
+        shared::gender::Gender::default(),
+        &Appearance::default(),
+        &[],
+    )?;
     let (mut meshes, mut materials) = (Assets::default(), Assets::default());
     CreatureModels::default().model(&look, &mut meshes, &mut materials)
 }
@@ -32,7 +37,13 @@ fn every_kind_with_a_body_has_a_model_at_its_own_height() {
 
 #[test]
 fn a_look_is_built_once() {
-    let look = character_look(CreatureKind::Human, &Appearance::default(), &[]).unwrap();
+    let look = character_look(
+        CreatureKind::Human,
+        shared::gender::Gender::default(),
+        &Appearance::default(),
+        &[],
+    )
+    .unwrap();
     let (mut meshes, mut materials) = (Assets::default(), Assets::default());
     let mut models = CreatureModels::default();
     let first = models.model(&look, &mut meshes, &mut materials).unwrap();
@@ -69,7 +80,8 @@ fn height_looks_scale_the_model() {
     ] {
         let height = |chosen: u8| {
             let looks = Appearance([(Trait::Height, chosen)].into());
-            let look = character_look(kind, &looks, &[]).unwrap();
+            let look =
+                character_look(kind, shared::gender::Gender::default(), &looks, &[]).unwrap();
             let (mut meshes, mut materials) = (Assets::default(), Assets::default());
             let models = &mut CreatureModels::default();
             models
@@ -97,7 +109,13 @@ fn a_height_look_is_its_own_model() {
     let mut models = CreatureModels::default();
     for chosen in [0, 4] {
         let looks = Appearance([(Trait::Height, chosen)].into());
-        let look = character_look(CreatureKind::Human, &looks, &[]).unwrap();
+        let look = character_look(
+            CreatureKind::Human,
+            shared::gender::Gender::default(),
+            &looks,
+            &[],
+        )
+        .unwrap();
         models.model(&look, &mut meshes, &mut materials);
     }
     assert_eq!(models.len(), 2);

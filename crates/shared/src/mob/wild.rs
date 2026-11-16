@@ -32,12 +32,47 @@ const SPREAD: i64 = 3;
 /// How many places are tried for each.
 const TRIES: i64 = 16;
 
-/// Who lives in a biome, and how likely each is, in percent.
+/// What a wild block's land is like at its middle, for who lives there: its
+/// biome, its height above the sea in whole metres (on surfaces that aren't
+/// in metres, the height scale's own metres) and its temperature in whole °C.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Habitat {
+    pub biome: Biome,
+    pub metres: i32,
+    pub celsius: i32,
+}
+
+impl Habitat {
+    /// Low land of a biome at a middling temperature for it, where nothing
+    /// more is known (the development area).
+    pub fn typical(biome: Biome) -> Self {
+        let celsius = match biome {
+            Biome::Tundra => -5,
+            Biome::BorealForest => 3,
+            Biome::Grassland | Biome::Woodland => 10,
+            Biome::SeasonalForest | Biome::TemperateRainforest => 14,
+            Biome::Desert | Biome::Savanna | Biome::TropicalRainforest => 26,
+        };
+        Habitat {
+            biome,
+            metres: 0,
+            celsius,
+        }
+    }
+}
+
+/// Who lives in a biome, and how likely each is, in percent, apart from
+/// highland cattle (`coo_percent`), who take their share from these.
 fn who_lives_in(biome: Biome) -> &'static [(CreatureKind, u64)] {
     match biome {
         Biome::Desert => &[],
         Biome::Tundra | Biome::BorealForest => &[(CreatureKind::Wolf, 100)],
-        Biome::Grassland | Biome::Savanna => &[
+        Biome::Grassland => &[
+            (CreatureKind::Horse, 45),
+            (CreatureKind::Cattle, 45),
+            (CreatureKind::Wolf, 10),
+        ],
+        Biome::Savanna => &[
             (CreatureKind::Horse, 45),
             (CreatureKind::Cattle, 45),
             (CreatureKind::Wolf, 10),
@@ -53,17 +88,18 @@ fn who_lives_in(biome: Biome) -> &'static [(CreatureKind, u64)] {
     }
 }
 
-/// A block's creatures (`level`: its cells; `biome`: the land's at its
+/// A block's creatures (`level`: its cells; `land`: what it is like at its
 /// middle): none, or a pack or herd of one kind round a den on open ground.
 /// Each one's number is its own across the wilderness (from a hash), and its
 /// id `wild_mob_id`.
-pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, biome: Biome) -> Vec<Spawn> {
+pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) -> Vec<Spawn> {
     let roll = |what: i64| seed.at(&[PURPOSE, block.x, block.y, what]);
-    let lives_here = who_lives_in(biome);
+    let lives_here = shares(land);
     if lives_here.is_empty() || roll(0) % 100 < EMPTY_PERCENT {
         return Vec::new();
     }
-    let mut left = roll(1) % 100;
+    let total: u64 = lives_here.iter().map(|&(_, share)| share).sum();
+    let mut left = roll(1) % total;
     let kind = lives_here
         .iter()
         .find(|&&(_, share)| {
@@ -116,6 +152,38 @@ pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, biome: Biome) -> 
         });
     }
     mobs
+}
+
+/// Who lives on this land and how likely each is, in hundredths of a percent:
+/// highland cattle's share (`coo_percent`) first, the biome's others shrunk
+/// to make room.
+pub(super) fn shares(land: Habitat) -> Vec<(CreatureKind, u64)> {
+    let others = who_lives_in(land.biome);
+    let coo = coo_percent(land);
+    let mut shares: Vec<(CreatureKind, u64)> = Vec::new();
+    if coo > 0 && !others.is_empty() {
+        shares.push((CreatureKind::Coo, coo * 100));
+    }
+    let rest = others
+        .iter()
+        .map(|&(kind, share)| (kind, share * (100 - coo)));
+    shares.extend(rest);
+    shares
+}
+
+/// Highland cattle's share of a block's animals, in percent: none where it is
+/// hot (savanna, deserts, forests too warm or wet), about 15 in low, mild
+/// grassland, rising with cold and height to 40 on cold high ground.
+pub(super) fn coo_percent(land: Habitat) -> u64 {
+    use Biome::{BorealForest, Grassland, Tundra, Woodland};
+    if !matches!(land.biome, Tundra | BorealForest | Woodland | Grassland) {
+        return 0;
+    }
+    // Each from 0 to 1000: full cold at 0 °C and below, none from 15 °C;
+    // full height from 1500 m.
+    let cold = ((15 - land.celsius).clamp(0, 15) * 1000 / 15) as u64;
+    let high = (land.metres.clamp(0, 1500) * 1000 / 1500) as u64;
+    15 + 25 * (2 * cold + high) / 3000
 }
 
 /// The id of the wild mob with this number: always the same, so nothing needs

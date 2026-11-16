@@ -130,7 +130,7 @@ pub(super) fn head(triangles: &mut Vec<Triangle>, layout: &Layout, parts: &Parts
                     ],
                 );
             }
-            Horns::Bull => {
+            Horns::Bull | Horns::Upturned | Horns::Forward => {
                 let base = at(out * across * 0.85, up * 0.6, 0.0);
                 limb(
                     triangles,

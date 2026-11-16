@@ -12,23 +12,25 @@ use crate::id::Id;
 use crate::item::{Drop, ItemKind, Quality, roll_drop};
 use crate::poi::PoiKind;
 use crate::rng::Seed;
-use crate::sheet::{Appearance, Attributes, Build, Feeling, Trait};
+use crate::sheet::{Appearance, Attributes, Build, Feeling};
 use crate::wear::WornLook;
 
 mod chosen;
+mod looks;
 mod memory;
 mod purse;
 mod scent;
 mod trail;
 mod wild;
 pub use chosen::{chosen_spawns, spawn_at};
+use looks::looks;
 pub use memory::{
     Event, FIRST_HARM_OPINION, GIFT_OPINION, Memory, Regard, TRESPASS_FORGOTTEN_AFTER,
 };
 use purse::roll_coins;
 pub use scent::{BASE_SCENT, MOST_SCENT, SCENT_KEPT_FOR, can_smell, scent_strength, smells_for};
 pub use trail::{TRAIL_LONGEST, TRAIL_SHORTEST, wild_trail};
-pub use wild::{wild_mob_id, wild_spawns};
+pub use wild::{Habitat, wild_mob_id, wild_spawns};
 
 /// Marks these hashes as being for mobs, apart from anything else from the seed.
 const PURPOSE: i64 = 0x006d_6f62;
@@ -237,15 +239,6 @@ pub fn spawns(
         });
     }
     mobs
-}
-
-/// A look for a creature of this kind, by the rolls given.
-fn looks(roll: &impl Fn(i64) -> u64, kind: CreatureKind) -> Appearance {
-    let chosen = |(place, &which): (usize, &Trait)| {
-        let rolled = roll(TRIES * 2 + 1 + place as i64);
-        (which, (rolled % which.choices_for(kind).len() as u64) as u8)
-    };
-    Appearance(kind.def().looks.iter().enumerate().map(chosen).collect())
 }
 
 /// What a player is told about something on the map they can see: never stats.

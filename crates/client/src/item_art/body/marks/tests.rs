@@ -78,3 +78,30 @@ fn every_marking_marks_something_and_leaves_some_coat() {
         }
     }
 }
+
+#[test]
+fn a_brindle_is_striped_on_trunk_and_legs_never_the_head() {
+    let layout = Layout::at_size(CreatureKind::Coo).unwrap();
+    let coat = Appearance(BTreeMap::from([(Trait::CoatColour, 4)]));
+    let marks = coat.marks(CreatureKind::Coo).unwrap();
+    let (kept, marked) = split(&layout, build(&layout), Some(marks));
+    let bones = Bones::of(&layout);
+    let parts: Vec<u32> = marked
+        .iter()
+        .map(|[a, b, c]| bones.part_at((*a + *b + *c) / 3.0))
+        .collect();
+    let on = |part: u32| parts.iter().filter(|&&at| at == part).count();
+    assert!(on(BodyPart::TRUNK) > 20);
+    assert!(
+        parts.iter().any(|&part| part > BodyPart::HEAD),
+        "on the legs"
+    );
+    assert_eq!(on(BodyPart::HEAD), 0);
+    // Stripes, not a second coat: well under half is striped.
+    assert!(
+        kept.len() > marked.len() * 3 / 2,
+        "{} {}",
+        kept.len(),
+        marked.len()
+    );
+}

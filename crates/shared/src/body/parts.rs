@@ -24,6 +24,11 @@ pub enum Horns {
     Back,
     /// Out to the sides and curving up, as a bull's.
     Bull,
+    /// Long, out to the sides and sweeping up at the tips, slender: a highland
+    /// cow's.
+    Upturned,
+    /// Out to the sides, then curving forwards, thick: a highland bull's.
+    Forward,
 }
 
 /// The shape of the ears, however long they are (`Parts::ears`).
@@ -107,6 +112,9 @@ pub struct Parts {
     pub udder: i32,
     /// A comb this tall on top of the head and wattles under the beak, as a hen's.
     pub comb: i32,
+    /// Long shaggy hair over the brow and eyes, hanging this far, as a highland
+    /// cow's.
+    pub fringe: i32,
 }
 
 /// A person: nothing more.
@@ -129,4 +137,5 @@ pub const NONE: Parts = Parts {
     dewlap: 0,
     udder: 0,
     comb: 0,
+    fringe: 0,
 };
