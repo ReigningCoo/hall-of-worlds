@@ -4,7 +4,7 @@
 
 use bevy::platform::time::Instant;
 use bevy::prelude::*;
-use shared::dungeon::Level;
+use shared::dungeon::{Level, Sight};
 
 use super::super::daylight::OutsideLight;
 use super::super::theme::Theme;
@@ -102,6 +102,12 @@ pub(in crate::dungeon_map) fn draw_others(
         let known: Vec<Option<&Level>> = (0..storeys as u32)
             .map(|index| levels.level(index).map(|level| &level.level))
             .collect();
+        let cells: Vec<Option<&Sight>> = (0..storeys as u32)
+            .map(|index| match levels.level(index) {
+                _ if index == info.index => Some(&dungeon.remembered),
+                level => level.map(|level| &level.remembered),
+            })
+            .collect();
         let at = (player.x, player.y);
         let now = seen_now(&known, &dungeon.level, info.index as usize, at, sight);
         let mut light = outside.in_flash(lightning.0);
@@ -109,6 +115,7 @@ pub(in crate::dungeon_map) fn draw_others(
         let building = Building {
             info,
             known: &known,
+            cells: &cells,
             own: &dungeon.level,
             now: &now,
             at,

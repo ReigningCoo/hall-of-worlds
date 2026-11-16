@@ -58,13 +58,14 @@ pub fn build(
         light,
         stairs,
         looks,
-        (camera, shape, false),
+        (camera, shape, false, true),
         wild,
         &no_swings,
     )
 }
 
-/// `build`, with door leaves part way through swinging drawn as `leaves` says.
+/// `build`, with door leaves part way through swinging drawn as `leaves` says,
+/// and walls near the player (the first view) cut down only if `cut_near`.
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
 pub fn build_posed(
     level: &Level,
@@ -78,7 +79,7 @@ pub fn build_posed(
         &[WallLook],
         bool,
     ),
-    (camera, shape, open_below): (Vec3, Shape, bool),
+    (camera, shape, open_below, cut_near): (Vec3, Shape, bool, bool),
     wild: Option<Wild>,
     leaves: &BTreeMap<(i64, i64), LeafPose>,
 ) -> DungeonMeshes {
@@ -109,7 +110,7 @@ pub fn build_posed(
     };
     let (min_x, min_y, width, height) = level.bounds();
     // The first viewer is the player.
-    let player = views.first().map(|view| view.cell);
+    let player = views.first().map(|view| view.cell).filter(|_| cut_near);
 
     for y in min_y..min_y + height {
         for x in min_x..min_x + width {

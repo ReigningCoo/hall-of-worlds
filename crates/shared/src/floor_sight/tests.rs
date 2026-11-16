@@ -92,3 +92,16 @@ fn all_floors_above_are_seen_full_height() {
     assert!(seen[1].is_seen(6, 10));
     assert!(seen[2].is_seen(6, 10));
 }
+
+#[test]
+fn rooms_under_air_are_seen_as_their_roof() {
+    // A ground floor reaching two cells further than the floor above, which
+    // has a window in its east wall.
+    let ground = floor(16, (2, 12), Cell::Ground);
+    let mut upper = floor(16, (4, 9), Cell::Air);
+    upper.set(9, 6, Cell::Window);
+    let seen = seen_from(&[&ground, &upper], 1, (8, 6));
+    assert!(seen[0].is_seen(10, 6), "the room under the air");
+    assert!(seen[0].is_seen(12, 6), "the wall beyond it");
+    assert!(!seen[0].is_seen(6, 6), "the room under the floor above");
+}

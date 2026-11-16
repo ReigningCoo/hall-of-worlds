@@ -107,6 +107,17 @@ fn a_room_under_holes_all_the_way_up_is_drawn() {
 }
 
 #[test]
+fn a_room_under_air_is_roofed_not_drawn() {
+    let level = ground_floor();
+    let known = all(&level);
+    let nothing = Sight::new(&level);
+    let mut above = Level::new(0, 0, 9, 9);
+    above.set(4, 4, Cell::Air);
+    let drawn = drawn(&level, &known, &nothing, &[&above], ((4, 4), None), true);
+    assert!(!drawn.is_seen(4, 4));
+}
+
+#[test]
 fn the_ground_floor_is_drawn_only_within_range() {
     let level = ground_floor();
     let known = all(&level);

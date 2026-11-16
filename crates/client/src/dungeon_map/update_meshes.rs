@@ -232,10 +232,9 @@ pub(super) fn update_meshes(
         &dungeon.walls[..],
         ruined,
     );
-    let (seen_now, place) = (
-        (&views[..], &drawn, &remembered, &cut),
-        (camera, theme.shape, has_floors_below(dungeon.info.as_ref())),
-    );
+    let below = has_floors_below(dungeon.info.as_ref());
+    let seen_now = (&views[..], &drawn, &remembered, &cut);
+    let place = (camera, theme.shape, below, true);
     let (stairs, wild) = (&dungeon.stairs, tint.wild(&heights));
     let built = build_posed(
         level,

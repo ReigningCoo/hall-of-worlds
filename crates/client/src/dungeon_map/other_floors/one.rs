@@ -8,9 +8,10 @@ use shared::protocol::LevelInfo;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::super::WALL_HEIGHT;
-use super::super::mesh::{DungeonMeshes, LightGrid, View, build_posed};
+use super::super::mesh::{DungeonMeshes, LightGrid, Surface, View, build_posed};
 use super::super::theme::Shape;
 use super::floors::Floor;
+use super::roof::{RoofAt, roof_mesh, roofed, roofing};
 use super::which::drawn;
 use crate::common::{CurrentDungeon, OtherFloorLooks};
 
@@ -49,6 +50,8 @@ pub(super) struct Building<'a> {
     pub(super) info: &'a LevelInfo,
     /// Each floor from the ground up, if the client has it.
     pub(super) known: &'a [Option<&'a Level>],
+    /// Which cells of each floor the client knows (the player's own too).
+    pub(super) cells: &'a [Option<&'a Sight>],
     /// The player's own floor.
     pub(super) own: &'a Level,
     /// What the player sees now of each floor.
@@ -100,20 +103,59 @@ pub(super) fn build_floor(
     };
     let light = LightGrid::filled(&level.level, building.light);
     let empty = Sight::new(&level.level);
-    let made = build_posed(
+    let mut made = build_posed(
         &level.level,
         (&[view], now, &draw, &empty),
         &light,
         &level.stairs,
         (&[], &BTreeSet::new(), &[], &level.walls, info.ruined),
-        (local, building.shape, false),
+        // Never cut down near the player: other floors aren't in the way
+        // (the wedge leaves out the floors above that would be).
+        (local, building.shape, false, false),
         None,
         &BTreeMap::new(),
     );
+    let roof = match place {
+        Placed::Below(_) => between.first().map(|over| {
+            let known = (&level.level, &level.remembered);
+            (roofed(known, over, &draw), RoofAt::Top)
+        }),
+        Placed::Above(up) => {
+            let under = index as usize - 1;
+            let level_under = if up == 1 {
+                Some(building.own)
+            } else {
+                building.known[under]
+            };
+            level_under
+                .zip(building.cells[under])
+                .map(|known| (roofing(&level.level, known), RoofAt::Foot))
+        }
+    };
+    if let Some((cells, at)) = roof {
+        add_roof(&mut made, &cells, at, building.light);
+    }
     commands.entity(floor.root).insert(
         Transform::from_translation(Vec3::Y * height).with_scale(Vec3::new(1.0, stretch, 1.0)),
     );
     put(commands, meshes, floor, made);
+}
+
+/// Adds a roof over `cells` to a floor's walls (their tops look the same).
+fn add_roof(made: &mut DungeonMeshes, cells: &[(i64, i64)], at: RoofAt, light: Vec3) {
+    if cells.is_empty() {
+        return;
+    }
+    let wall = Surface::Wall as usize;
+    let roof = roof_mesh(cells, at, light);
+    if made.has_solid[wall] {
+        if made.solid[wall].merge(&roof).is_err() {
+            return;
+        }
+    } else {
+        made.solid[wall] = roof;
+    }
+    made.has_solid[wall] = true;
 }
 
 /// Puts a floor's built meshes in place, showing those with faces.

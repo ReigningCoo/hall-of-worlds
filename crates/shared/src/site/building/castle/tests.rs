@@ -180,3 +180,27 @@ fn ruins_have_gaps_and_fallen_towers() {
         }
     }
 }
+
+/// Over the courtyard, a castle's upper levels are open air (seen past, as
+/// round any building's upper floors), not wall.
+#[test]
+fn upper_levels_are_air_over_the_courtyard() {
+    for (_, site) in castles() {
+        let ground = site.level(0).level;
+        let towers: Vec<_> = tower_spots(wall(&site).rect)
+            .iter()
+            .map(|spot| spot.rect())
+            .collect();
+        for index in 1..site.levels() - u32::from(site.has_basement()) {
+            let level = site.level(index).level;
+            let courtyard = cells(&level).filter(|&(x, y)| {
+                ground.contains(x, y)
+                    && ground.cell(x, y).is_outside()
+                    && !towers.iter().any(|tower| tower.contains(x, y))
+            });
+            for (x, y) in courtyard {
+                assert_eq!(level.cell(x, y), Cell::Air, "level {index} at {x}, {y}");
+            }
+        }
+    }
+}

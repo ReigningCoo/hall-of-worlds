@@ -64,7 +64,7 @@ pub(super) fn seen_now(
 /// What is drawn of a floor below: everything seen now, and of what is
 /// remembered (if `remembered`), the slices (outside cells and the walls facing
 /// them) and anything seen straight down from the player's floor (through
-/// `above`'s holes and air). On the ground floor, nothing further than `range`
+/// `above`'s holes and air, the floor directly above it a hole). On the ground floor, nothing further than `range`
 /// cells from `at`.
 pub(super) fn drawn(
     level: &Level,
@@ -109,12 +109,15 @@ fn in_slice(level: &Level, x: i64, y: i64) -> bool {
 }
 
 /// Whether every floor above, up to the player's, is open at a cell (a hole,
-/// or air), so it can be seen straight down.
+/// or air), so it can be seen straight down, and the one directly above
+/// (`above[0]`) is a hole: under air there is a roof (`roof`).
 fn open_above(above: &[&Level], x: i64, y: i64) -> bool {
-    !above.is_empty()
-        && above
-            .iter()
-            .all(|level| level.contains(x, y) && matches!(level.cell(x, y), Cell::Hole | Cell::Air))
+    let open =
+        |level: &&Level| level.contains(x, y) && matches!(level.cell(x, y), Cell::Hole | Cell::Air);
+    above
+        .first()
+        .is_some_and(|level| level.contains(x, y) && level.cell(x, y) == Cell::Hole)
+        && above.iter().all(open)
 }
 
 /// How much each storey down is darkened (the colour kept, 1 none): `day` in

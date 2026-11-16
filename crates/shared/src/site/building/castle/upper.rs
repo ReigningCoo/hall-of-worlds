@@ -3,12 +3,13 @@
 
 use super::super::super::SiteLevel;
 use super::{Castle, next_room};
-use crate::dungeon::Level;
+use crate::dungeon::{Cell, Level};
 
 impl Castle {
     /// The keep's floor `index` (1 or more) with the towers' floors at that
-    /// height, on a level reaching over them all. Round them is whatever is
-    /// round the keep's floor: wall, or holes in a ruin.
+    /// height, on a level reaching over them all. Round them is `Air`, as
+    /// round any building's upper floor (`fill::open_round`), so other floors
+    /// are seen past them (`floor_sight`).
     pub(super) fn raise(&self, index: u32, floor: SiteLevel) -> SiteLevel {
         let towers: Vec<_> = (self.towers.iter())
             .filter(|tower| tower.floors > index)
@@ -22,7 +23,6 @@ impl Castle {
         let y0 = rects.clone().map(|r| r.y).fold(min_y, i64::min);
         let x1 = (rects.clone().map(|r| r.x + r.width)).fold(min_x + width, i64::max);
         let y1 = (rects.map(|r| r.y + r.height)).fold(min_y + height, i64::max);
-        let round = floor.level.cell(min_x, min_y);
         let mut level = Level::new(x0, y0, x1 - x0, y1 - y0);
         for y in y0..y1 {
             for x in x0..x1 {
@@ -30,7 +30,7 @@ impl Castle {
                     level.set(x, y, floor.level.cell(x, y));
                     level.set_room(x, y, floor.level.room(x, y));
                 } else {
-                    level.set(x, y, round);
+                    level.set(x, y, Cell::Air);
                 }
             }
         }
