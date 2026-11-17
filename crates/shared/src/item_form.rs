@@ -31,6 +31,7 @@ mod choices;
 mod gem;
 mod give;
 mod give_to;
+mod key;
 mod limits;
 mod make;
 mod measure;
@@ -49,6 +50,7 @@ pub use choices::{Choices, choices};
 pub use gem::{Cut, GemForm};
 pub use give::{give_blade_within, give_commission, give_form, give_form_from};
 pub use give_to::give_form_to;
+pub use key::{KeyForm, KeyFound, KeyPlace, KeyUse, Turned};
 pub use limits::Limits;
 pub use make::{ItemOrder, batch_seed, make_item, try_make_item};
 pub use necklace::{
@@ -93,8 +95,8 @@ pub enum ItemForm {
     Clothing(ClothingForm),
     /// An armour set: several locations' pieces as one item.
     Set(Box<SetForm>),
-    /// A key, and the lock it opens (`door::Lock::id`).
-    Key(crate::id::Id),
+    /// A key: the lock it opens (`door::Lock::id`) and what it remembers.
+    Key(Box<KeyForm>),
     /// A herb (`shared::herb`): which, how it looks and what one weighs.
     Herb(crate::herb::HerbForm),
 }
@@ -124,6 +126,19 @@ impl ItemForm {
             // Its herb's name is in the herb table, which only the client's
             // panels have, going by what the character knows.
             Self::Herb(_) => "Herb".to_owned(),
+        }
+    }
+
+    /// A new key to `lock`, which remembers nothing yet.
+    pub fn key(lock: crate::id::Id) -> Self {
+        Self::Key(Box::new(KeyForm::new(lock)))
+    }
+
+    /// The lock it opens, if it is a key.
+    pub fn lock(&self) -> Option<crate::id::Id> {
+        match self {
+            Self::Key(key) => Some(key.lock),
+            _ => None,
         }
     }
 

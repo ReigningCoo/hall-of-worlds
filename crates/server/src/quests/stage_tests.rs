@@ -58,7 +58,7 @@ fn a_stage_door_is_locked_with_a_quest_key_on_the_near_side() {
         .filter(|item| item.kind == ItemKind::Key)
         .collect();
     assert_eq!(keys.len(), 1);
-    assert_eq!(keys[0].form, Some(ItemForm::Key(lock.id)));
+    assert_eq!(keys[0].form, Some(ItemForm::key(lock.id)));
     assert_eq!(keys[0].quest, Some(quest.id));
     // It has the quest's dot while locked.
     let marked = super::stage_door::locked_stage(&test.client, &mut test.world);

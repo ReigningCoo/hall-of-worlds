@@ -4,8 +4,9 @@ use shared::world::WorldSeed;
 
 use super::entries::{Group, grouped};
 use super::planets::choices;
-use super::runes::picture;
+use crate::common::rune_picture;
 use crate::quests::tests::entry;
+use crate::widgets::INK;
 
 #[test]
 fn quests_are_grouped_under_way_then_done_then_failed_newest_first() {
@@ -42,7 +43,7 @@ fn the_planet_the_player_is_on_comes_first() {
 #[test]
 fn a_planets_runes_are_drawn() {
     let code = GateCode::of_planet(WorldSeed::new(12345)).unwrap();
-    let image = picture(code);
+    let image = rune_picture(code, INK);
     let size = image.size();
     assert!(size.x > 4 * size.y, "a long strip of runes: {size}");
     let data = image.data.unwrap();

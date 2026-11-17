@@ -6,7 +6,7 @@ use crate::connections::tests::TestClient;
 
 /// Into a castle, standing beside one of its doors (north or west of it, with
 /// floor across it): the door, and its wall's way (east-west if `true`).
-fn beside_a_door(test: &mut TestClient) -> ((i64, i64), bool) {
+pub(super) fn beside_a_door(test: &mut TestClient) -> ((i64, i64), bool) {
     test.enter_a_castle();
     let visit = test.client.visit.as_ref().unwrap();
     let level = &visit.level.level;
@@ -33,7 +33,7 @@ fn swing_of(test: &TestClient, at: (i64, i64)) -> Swing {
     test.client.visit.as_ref().unwrap().doors[&at].door.swing
 }
 
-fn ask(test: &mut TestClient, ask: DoorAsk) -> Vec<ServerMessage> {
+pub(super) fn ask(test: &mut TestClient, ask: DoorAsk) -> Vec<ServerMessage> {
     test.send(&[ClientMessage::Door(ask)])
 }
 
@@ -147,7 +147,7 @@ fn a_change_reaches_the_mobs_on_the_level() {
 }
 
 /// Puts a locked lock on the door at `at` of the player's level.
-fn lock_it(test: &mut TestClient, at: (i64, i64)) {
+pub(super) fn lock_it(test: &mut TestClient, at: (i64, i64)) {
     let visit = test.client.visit.as_mut().unwrap();
     let door = visit.doors.get_mut(&at).unwrap();
     door.door.swing = Swing::Closed;
@@ -187,7 +187,7 @@ fn a_locked_door_opens_only_with_its_key_and_locks_again() {
 
     // With its key: unlocked, then opened.
     ask(&mut test, DoorAsk::DevKey);
-    let key = Some(shared::item_form::ItemForm::Key(shared::id::Id::for_test(
+    let key = Some(shared::item_form::ItemForm::key(shared::id::Id::for_test(
         77,
     )));
     let carried = test.client.inventory.items.iter();
@@ -228,7 +228,7 @@ fn locks_are_placed_once_with_their_keys_on_the_levels_mobs() {
         assert!(saved.locks_placed);
         for door in saved.doors.values().filter(|door| door.lock.is_some()) {
             let lock = door.lock.unwrap();
-            let key = Some(shared::item_form::ItemForm::Key(lock.id));
+            let key = Some(shared::item_form::ItemForm::key(lock.id));
             let carried = saved.records.values().flat_map(|record| &record.carried);
             assert!(carried.into_iter().any(|item| item.form == key));
             found += 1;

@@ -15,6 +15,11 @@ impl Pictures {
     pub fn name(&mut self, name: impl Into<String>, picture: Handle<Image>) {
         self.0.insert(name.into(), picture);
     }
+
+    /// Whether a picture has been given this name.
+    pub fn has(&self, name: &str) -> bool {
+        self.0.contains_key(name)
+    }
 }
 
 /// The picture `src` asks for, and whether it takes the colour of writing.

@@ -211,7 +211,7 @@ fn a_key_is_found_in_bags_and_stacks() {
     use crate::item_form::ItemForm;
     let lock = Id::for_test(7);
     let mut key = Item::new(Id::for_test(1), ItemKind::Key);
-    key.form = Some(ItemForm::Key(lock));
+    key.form = Some(ItemForm::key(lock));
     let mut bag = Item::new(Id::for_test(2), ItemKind::Pouch);
     bag.contents.push(Placed {
         item: key,

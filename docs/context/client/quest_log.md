@@ -13,11 +13,10 @@ The Quest Log (L, `common::Action::QuestLog`, or its button right of the Charact
 - `quest_log/read.rs`: `read_server` (`QuestNews::PlanetLog` into `others`; `quests::QuestPlanets` or this planet's `QuestBook` changing marks it dirty; `Welcome` forgets all).
 - `quest_log/input.rs`: `read_events` (the chooser (another planet asks `QuestAsk::PlanetLog`), a row, Track (`QuestAsk::Track`, none if it was the one chosen), Abandon pressed twice (`QuestAsk::Abandon`), a place opening `minimap::FullMap` centred on its poi).
 - `quest_log/show.rs`: `show_log` (the chooser when `planets_dirty`, the page when `dirty` or the view changes).
-- `quest_log/planets.rs`: `choices`, `show_planets` (options by index, "Here" for the planet the player is on and no words for others, each option's runes through `Dom::set_option_pictures` when every planet's code is known).
+- `quest_log/planets.rs`: `choices`, `show_planets` (options by index, "Here" for the planet the player is on and no words for others, each option's runes (`common::rune_picture`) through `Dom::set_option_pictures` when every planet's code is known).
 - `quest_log/page.rs`: `id`, `id_at`, `shown` (the planet's entries and dailies, or `None` until told), `show_page` (headings, rows, daily lines, then `detail`).
 - `quest_log/detail.rs`: `show_detail` (name, "From <giver> of <town>", where it stands, story, steps and Return, reward, places still to go by known name (`common::poi_name`), Track selected for `QuestBook::followed`, Abandon's words).
 - `quest_log/entries.rs`: `Group` (`Active`, `Completed`, `Failed`; `of`, `heading`), `grouped`.
-- `quest_log/runes.rs`: `picture` (a planet's code as a strip of ink-coloured runes).
 
 ## Public API
 

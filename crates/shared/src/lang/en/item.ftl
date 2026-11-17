@@ -70,3 +70,19 @@ item-kinds-only = { $kinds } only
 ## the kinds it is for in the plural ("dwarves").
 
 item-refused = Only { $kinds } can eat that.
+
+## What a key remembers: where it was first found ("Found in Ashford (1204,
+## −388)") and the door it has locked or unlocked ("Has unlocked a door in
+## Ashford (1204, −388)"). $place is one of the key-place- phrases; $x and $y
+## are world map points, with a true minus sign.
+
+key-found = Found { $place }
+key-turned = Has { $did ->
+    [locked] locked
+    [both] locked and unlocked
+   *[unlocked] unlocked
+} a door { $place }
+key-place-in = in { $place } ({ $x }, { $y })
+key-place-at = at ({ $x }, { $y })
+key-place-hall = in the Hall of Worlds
+key-place-elsewhere = { $place }, on another planet

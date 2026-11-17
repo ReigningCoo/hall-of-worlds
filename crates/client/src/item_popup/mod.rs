@@ -1,12 +1,13 @@
 //! Item popups: resting the pointer (or a finger) on an item anywhere it is
 //! drawn opens a `hover` popup (`dom`) with its name in its quality's colour,
 //! what it gives (`shared::bonus`, worded through `shared::lang`), what it
-//! asks of its wearer (`shared::requirement`) and its weight. It stays while
+//! asks of its wearer (`shared::requirement`), what a key remembers and its weight. It stays while
 //! the pointer is on the item or on it, and goes when the pointer leaves both;
 //! its padlock keeps it open. Whoever draws items says which one the pointer
 //! is on through `widgets::PointedItem`.
 
 mod about;
+mod keys;
 mod needs;
 mod open;
 mod place;

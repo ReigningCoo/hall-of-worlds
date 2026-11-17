@@ -20,7 +20,7 @@ mod start;
 mod swing;
 
 pub use gate::{gate_first_leaf, gate_partner};
-pub use keys::carries_key;
+pub use keys::{carries_key, has_unfound_keys, note_found_keys, note_key_turned};
 pub use lock::Lock;
 pub use look::DoorLook;
 pub use placing::{place_locks, reach_without};
