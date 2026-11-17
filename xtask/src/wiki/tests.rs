@@ -106,3 +106,24 @@ fn every_weapon_has_a_picture() {
         files.push(file);
     }
 }
+
+/// No table follows a comment straight away: Markdown would take both as one
+/// block of HTML and show the table as plain text.
+#[test]
+fn tables_stand_apart_from_comments() {
+    for (path, text) in pages(root()).expect("the pages") {
+        let lines: Vec<&str> = text.lines().collect();
+        for pair in lines.windows(2) {
+            assert!(
+                !(pair[0].trim_end().ends_with("-->") && pair[1].starts_with('|')),
+                "{}: a table straight after a comment",
+                path.display()
+            );
+            assert!(
+                !(pair[0].starts_with('|') && pair[1].starts_with("<!--")),
+                "{}: a comment straight after a table",
+                path.display()
+            );
+        }
+    }
+}
