@@ -18,6 +18,7 @@ mod target_dir;
 mod test_cache;
 mod web_deltas;
 mod webgl;
+mod wiki;
 
 use std::env;
 use std::fs;
@@ -150,16 +151,19 @@ fn main() -> ExitCode {
             scenario::run(&workspace_root(), &env::args().skip(2).collect::<Vec<_>>())
         }
         Some("fight") => fight::run(&env::args().skip(2).collect::<Vec<_>>()),
+        Some("wiki") => wiki::run(&workspace_root(), &env::args().skip(2).collect::<Vec<_>>()),
         Some("shapes") => shapes::run(&workspace_root(), &env::args().skip(2).collect::<Vec<_>>()),
         _ => {
             eprintln!(
                 "{USAGE}
 {}
 {}
+{}
 {}",
                 api::USAGE,
                 scenario::USAGE,
-                shapes::USAGE
+                shapes::USAGE,
+                wiki::USAGE
             );
             ExitCode::FAILURE
         }

@@ -178,7 +178,7 @@ Context files are summaries, not documentation: a few lines per item, enough to 
 
 ## User documentation
 
-`docs/` (except `docs/context/`) is the players' and server hosts' site, https://hallofworlds.wiki, in Markdown, published by Jekyll when it reaches `master`. Keep it plain and free of screenshots and fine detail while the game is changing quickly.
+`docs/` (except `docs/context/`) is the players' and server hosts' site, https://hallofworlds.wiki, in Markdown, published by Jekyll when it reaches `master`. Keep it plain and free of screenshots and fine detail while the game is changing quickly; item pictures made by `cargo xtask wiki --pictures` are the exception. Pages made from the game's data (a page per herb) are written by `cargo xtask wiki`, never by hand, and a test fails when they fall behind.
 
 Update these **in the same PR** as the change:
 

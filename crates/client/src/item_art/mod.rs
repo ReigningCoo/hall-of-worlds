@@ -23,6 +23,8 @@ mod necklace;
 mod parcel;
 mod pouch;
 mod ring;
+#[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
+mod save_picture;
 mod under;
 
 use bevy::prelude::*;
@@ -115,6 +117,8 @@ impl Plugin for ItemArtPlugin {
             );
         #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
         debug_api::add(app);
+        #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
+        save_picture::add(app);
         if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
                 .add_systems(ExtractSchedule, (count_compiling, extract_copies))
