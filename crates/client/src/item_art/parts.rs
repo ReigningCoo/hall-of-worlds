@@ -62,6 +62,7 @@ pub(super) fn parts_of(
         Look::Keepsake => super::parcel::keepsake_parts(meshes, materials),
         Look::Bag => super::bag::bag_parts(meshes, materials),
         Look::Pouch => super::pouch::pouch_parts(meshes, materials),
+        Look::Key(key) => super::key::key_parts(&key, meshes, materials),
         Look::Keyring => super::keyring::keyring_parts(meshes, materials),
         Look::HerbPouch => super::herb_pouch::herb_pouch_parts(meshes, materials),
         Look::Food(kind) => super::food::food_parts(kind, meshes, materials),

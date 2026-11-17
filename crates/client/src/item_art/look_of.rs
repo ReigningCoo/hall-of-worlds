@@ -13,6 +13,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
         ItemKind::Bag => return Some(Look::Bag),
         ItemKind::Pouch => return Some(Look::Pouch),
         ItemKind::Keyring => return Some(Look::Keyring),
+        ItemKind::Key => return Some(Look::Key(super::KeyLook::of(item))),
         ItemKind::HerbPouch => return Some(Look::HerbPouch),
         kind @ (ItemKind::Bread | ItemKind::DwarvenBread | ItemKind::RawMeat) => {
             return Some(Look::Food(kind));
