@@ -129,6 +129,9 @@ pub(super) fn explain_move(why: MoveRefused) -> String {
         MoveRefused::NotEmpty => "Only an empty bag can be tied to a belt.".into(),
         MoveRefused::NoSlot => "Your belt has no slot for it.".into(),
         MoveRefused::BagInUse => "Empty the end of your inventory to untie this bag.".into(),
+        MoveRefused::StrengthInUse => {
+            "Empty the end of your inventory first: you would be weaker, with less room.".into()
+        }
         MoveRefused::BeltInUse => "The bags tied to this belt need it.".into(),
         MoveRefused::NoRoom => "There is no room for it.".into(),
         MoveRefused::IntoItself => "It can't go inside itself.".into(),

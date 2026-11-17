@@ -27,6 +27,9 @@ pub enum MoveRefused {
     NoSlot,
     /// Untying it would leave things off the end of the own grid.
     BagInUse,
+    /// With less Strength the own grid would lose cells that hold something
+    /// (`Inventory::check_own_cells`).
+    StrengthInUse,
     /// Without this belt, or with a worse one, bags would be left without slots.
     BeltInUse,
     /// The container takes only some kinds, not this one (a keyring: keys).

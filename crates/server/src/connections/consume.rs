@@ -9,6 +9,7 @@ use shared::id::Id;
 use shared::item::Item;
 
 use super::Client;
+use super::strength_room::eating_allowed;
 use crate::ServerWorld;
 use crate::ids::new_id;
 
@@ -17,9 +18,15 @@ use crate::ids::new_id;
 pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) -> (bool, u32) {
     let tick = world.action_clock.ticks();
     let carried = client.inventory.find(item).is_some();
-    let taken = match carried {
-        true => take_carried(client, item),
-        false => crate::ground::take_food(client, world, item),
+    let food = match carried {
+        true => client.inventory.find(item).map(|found| found.top().clone()),
+        false => crate::ground::food_lying(client, world, item),
+    };
+    let allowed = food.is_none_or(|food| eating_allowed(client, world, (item, &food), tick));
+    let taken = match (allowed, carried) {
+        (false, _) => Err("its Strength is needed"),
+        (true, true) => take_carried(client, item),
+        (true, false) => crate::ground::take_food(client, world, item),
     };
     let cost = match taken {
         Ok(eaten) if eaten.herb().is_some() => {

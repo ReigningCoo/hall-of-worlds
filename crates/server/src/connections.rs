@@ -60,6 +60,7 @@ mod role;
 mod role_ask;
 mod send_sheet;
 mod stack_parts;
+mod strength_room;
 mod systems;
 mod visited_gates;
 mod vitals;
@@ -273,6 +274,8 @@ mod new_character_tests;
 mod role_ask_tests;
 #[cfg(test)]
 mod shapeshift_tests;
+#[cfg(test)]
+mod strength_room_tests;
 #[cfg(test)]
 pub(crate) mod tests;
 #[cfg(test)]

@@ -13,7 +13,8 @@ use crate::common::SpentEnergy;
 use crate::connection::ToServer;
 
 /// Ties what is held to the bag slot it was let go on, or says why it can't be,
-/// and the same for a tied bag or its belt that can't leave where they are.
+/// and the same for a tied bag or its belt that can't leave where they are, or
+/// something worn whose Strength the own grid needs (`strength_room`).
 /// Whether that was all letting go does.
 pub(super) fn let_go_on_slot(
     held: HeldBy,
@@ -31,6 +32,13 @@ pub(super) fn let_go_on_slot(
         // It stays: the rest of letting go finds it can't, and snaps it back.
         note.say_words(explain_move(why), now);
         return false;
+    }
+    if holding.stock.is_none()
+        && let Some(why) = out.strength.refused(&carried.0, id, aim)
+    {
+        // Nothing happens: it stays where it was, on.
+        note.say_words(explain_move(why), now);
+        return true;
     }
     let Target::BagSlot { slot, allowed } = aim else {
         return false;

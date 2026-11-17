@@ -84,6 +84,8 @@ pub(super) struct Outbox<'w> {
     ),
     /// A quest item let go of over the ground, asked about first.
     quest_drop: ResMut<'w, super::quest_drop::QuestDrop>,
+    /// What taking off each worn thing would leave of the own grid.
+    strength: Res<'w, super::strength_room::StrengthRoom>,
 }
 
 /// Picking up with the mouse, and keeping what is held as it should be. In
