@@ -4,7 +4,8 @@ use bevy::prelude::*;
 
 use super::theme::{INK, TextSize};
 use super::{
-    BUTTON_BORDER, ButtonState, CHECK_GAP, CHECK_PIXELS, CLOSE_FONT, CLOSE_PIXELS, STROKE_THICKNESS,
+    BUTTON_BORDER, BUTTON_PADDING, ButtonState, CHECK_GAP, CHECK_PIXELS, CLOSE_FONT, CLOSE_PIXELS,
+    STROKE_THICKNESS,
 };
 
 /// The two strokes of a tick: each one's length, where it goes and how it is turned.
@@ -109,7 +110,13 @@ pub fn spawn_check_button<'a>(
         state,
         Node {
             border: UiRect::all(px(BUTTON_BORDER)),
-            padding: UiRect::horizontal(px(CHECK_GAP)),
+            // As high as a button with words alone beside it.
+            padding: UiRect {
+                left: px(CHECK_GAP),
+                right: px(CHECK_GAP),
+                top: BUTTON_PADDING.top,
+                bottom: BUTTON_PADDING.bottom,
+            },
             column_gap: px(CHECK_GAP),
             align_items: AlignItems::Center,
             ..node
