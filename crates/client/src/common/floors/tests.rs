@@ -51,6 +51,7 @@ fn remembered(index: u32, bounds: (i64, i64, i64, i64)) -> RememberedLevel {
             stairs: Vec::new(),
             doors: Vec::new(),
             furniture: Vec::new(),
+            herbs: Vec::new(),
             remembered: true,
         }],
     }

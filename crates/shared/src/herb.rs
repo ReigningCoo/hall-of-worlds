@@ -5,22 +5,30 @@
 //! (`HerbKnowledge`). Research and the owner's decisions:
 //! `docs/context/research-herbs.md`.
 
+mod beds;
 mod def;
 mod effect;
 mod form;
 mod growth;
+mod harvest;
 mod knowledge;
+mod patch;
+mod place;
 mod plant;
 mod potency;
 mod quality;
 mod table;
 mod traits;
 
+pub use beds::plant_beds;
 pub use def::{EFFECTS, HerbDef};
 pub use effect::{Effect, Stat};
 pub use form::{HerbForm, new_item};
 pub use growth::{EARLY_STAGE, Early, Growth, Regrow, STAGES};
+pub use harvest::{FULL_HARVEST, Harvest, harvest};
 pub use knowledge::{HerbKnowledge, KnownHerb};
+pub use patch::{HerbPatch, MINUTES_PER_DAY, stage_minutes};
+pub use place::{MARSH_STAND_INS, bed_herbs, choose, wild_herbs};
 pub use plant::{PartSize, PlantLook, PlantShape, Rgb};
 pub use potency::{HERBALISM, potency, quality_percent, skill_cap};
 pub use quality::{FORAGING, HERB_ODDS, pick_odds, pick_quality, skill_value};

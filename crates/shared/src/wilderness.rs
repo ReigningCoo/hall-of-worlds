@@ -12,6 +12,7 @@ mod course;
 mod cutout;
 mod flats;
 mod gate;
+mod herbs;
 mod plan;
 mod samples;
 mod scale;
@@ -25,6 +26,7 @@ mod tests;
 pub use border::BORDER;
 pub use cutout::Cutout;
 pub use gate::{GATE_PAD, GateSpot};
+pub use herbs::{CLUMP_MOST, CLUMP_PERCENT, CLUMP_TRIES};
 pub use plan::{ChunkPlan, gates_of};
 pub use scale::{BLOCK_SIZE, BlockPos, SCALE};
 
@@ -110,12 +112,6 @@ impl Wilderness {
     pub fn habitat_of(&self, block: BlockPos) -> crate::mob::Habitat {
         let (x, y, width, height) = self.block_bounds(block);
         let (px, py) = self.point_of(x + width / 2, y + height / 2);
-        let height = self.surface.sample(px, py).height;
-        let climate = self.climate.sample(px, py, height);
-        crate::mob::Habitat {
-            biome: climate.biome(),
-            metres: self.surface.metres(height),
-            celsius: climate.celsius().round() as i32,
-        }
+        self.habitat_at(px, py)
     }
 }

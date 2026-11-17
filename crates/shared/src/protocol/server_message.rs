@@ -268,8 +268,7 @@ pub enum ServerMessage {
     /// in or stepping inside it: it is known from now on (not sent for
     /// towns, which everyone knows of).
     PoiFound { kind: crate::poi::PoiKind },
-    /// The answer to logging in with `Credentials::Provider`: the provider's page for the player to log in
-    /// on, to open in their browser.
+    /// The answer to `Credentials::Provider`: the provider's page to log in on, in the browser.
     OpenLogin { url: String },
     /// The player logged in on the provider's website: the token to log in
     /// with next time (`Credentials::Session`), and the address the provider
@@ -286,9 +285,8 @@ pub enum ServerMessage {
     /// A door the player asked to open (`DoorAsk::Open`) stays shut, `locked` if
     /// found locked without its key: click travel stops there.
     DoorRefused { x: i64, y: i64, locked: bool },
-    /// Everyone in sight who turned this tick without moving, and the way
-    /// they face now (a stretch in `Moves` turns them by itself): one message
-    /// a tick at most.
+    /// Everyone in sight who turned this tick without moving, and the way they face now
+    /// (a stretch in `Moves` turns them by itself): one message a tick at most.
     Turned(Vec<(Id, crate::facing::Heading)>),
     /// About quests (`QuestNews`).
     Quest(super::QuestNews),
@@ -297,4 +295,6 @@ pub enum ServerMessage {
     Clock { tick: u64 },
     /// Developer tools: how a `DevGoToPlace` went (`PlaceAnswer`).
     DevPlace(super::PlaceAnswer),
+    /// About harvesting a herb patch (`HerbNews`).
+    Herb(super::HerbNews),
 }

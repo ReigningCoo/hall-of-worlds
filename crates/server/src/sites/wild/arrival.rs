@@ -51,7 +51,11 @@ pub(in crate::sites) fn poi_arrival(
     // Somewhere in it still, on the map of it they knew.
     let inside = cutout.contains(x, y);
     let block = world.wilderness.wild.block_of(x, y);
-    let open = inside && world.wilderness.block(block).is_walkable(x, y);
+    let open = inside
+        && world
+            .wilderness
+            .block(block, &world.herbs)
+            .is_walkable(x, y);
     let knew = client.character.site_versions.get(&id).copied();
     if !open || knew != Some(world.site(id).version) {
         return entrance;

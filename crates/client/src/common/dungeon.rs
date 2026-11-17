@@ -203,6 +203,13 @@ impl CurrentDungeon {
             // Its move costs then match the server's.
             self.level.place_furniture(*piece);
         }
+        // The chunk's herb patches replace any its cells had.
+        for (x, y) in chunk.positions() {
+            self.level.remove_herb(x, y);
+        }
+        for seen in &chunk.herbs {
+            self.level.set_herb(seen.x, seen.y, seen.patch.clone());
+        }
         for stairs in &chunk.stairs {
             if !self.stairs.contains(stairs) {
                 self.stairs.push(*stairs);

@@ -187,14 +187,12 @@ pub enum ClientMessage {
     /// Developer tools: god mode on or off. Mobs take no notice of the character,
     /// and it can walk through them.
     DevGodMode(bool),
-    /// Developer tools: this mob dies, if it is in sight. What it had falls where it
-    /// stood, and it doesn't come back.
+    /// Developer tools: this mob in sight dies for good, dropping what it had.
     DevKillMob { mob: Id },
     /// Developer tools: the character becomes this kind of creature, for good or only its
     /// body (`how`). What its new body can't wear drops. Answered with `Sheet` and `Inventory`.
     DevSetCreature { kind: CreatureKind, how: KindChange },
-    /// Developer tools: the character is deleted, save and all, answered with
-    /// `Characters` to choose or make another.
+    /// Developer tools: the character is deleted for good, answered with `Characters`.
     DevDeleteCharacter,
     /// Developer tools: jump to a point on this map, in its measure
     /// (`protocol::moves`), answered with `Teleported`.
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Face(crate::facing::Heading),
     /// About quests (`QuestAsk`).
     Quest(super::QuestAsk),
+    /// Harvest the herb patch at `(x, y)`: answered with `Herb` (`HerbNews`).
+    PickHerb { x: i64, y: i64 },
 }

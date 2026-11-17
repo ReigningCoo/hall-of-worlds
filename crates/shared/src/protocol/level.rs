@@ -134,6 +134,9 @@ pub struct LevelChunk {
     /// The furniture covering any of those cells (all of each piece, so a
     /// piece may come in more than one chunk).
     pub furniture: Vec<Piece>,
+    /// The herb patches on those cells: the client works out how grown each
+    /// is by the clock (`HerbPatch::stage`).
+    pub herbs: Vec<SeenHerb>,
     /// Whether these are cells the player saw on an earlier visit (sent on
     /// arriving), rather than ones they are about to see.
     pub remembered: bool,
@@ -159,6 +162,14 @@ impl LevelChunk {
             .zip(&self.cells)
             .map(|((x, y), &cell)| (x, y, cell))
     }
+}
+
+/// A herb patch on a cell (`shared::herb`).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SeenHerb {
+    pub x: i64,
+    pub y: i64,
+    pub patch: crate::herb::HerbPatch,
 }
 
 /// A staircase as the player sees it: where it leads stays with the server.
