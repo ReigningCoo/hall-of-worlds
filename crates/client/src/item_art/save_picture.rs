@@ -8,9 +8,12 @@ use bevy::prelude::*;
 use bevy::render::gpu_readback::{ReadbackComplete, ReadbackOnce};
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat, TextureUsages};
 use serde::Deserialize;
-use server::debug_api::{BrpResult, Value, json, params, refused};
+use server::debug_api::{BrpError, BrpResult, Value, json, params, refused};
 use shared::item::Item;
 
+use shared::fruit::{FruitForm, Fruits};
+
+use super::fruit::{FRUIT_VARIANTS, FruitItemLook};
 use super::herb::{HERB_VARIANTS, HerbLook};
 use super::pictures::Waiting;
 use super::{Batch, ItemPictures, Look, look_of};
@@ -25,6 +28,9 @@ struct Asked {
     /// A herb by its key, with its variant (0 if not given)...
     herb: Option<String>,
     variant: Option<u8>,
+    /// ...or a fruit by its key, with its variant, whole or a slice...
+    fruit: Option<String>,
+    serving: Option<bool>,
     /// ...or any item, as saved, drawn as its look.
     item: Option<Item>,
 }
@@ -40,7 +46,7 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.save_picture", save_picture);
 }
 
-/// `client.save_picture {path, pixels, herb?, variant?, item?}`: answers the
+/// `client.save_picture {path, pixels, herb?, fruit?, serving?, variant?, item?}`: answers the
 /// full path, the picture's `width` and `height`, and `wait_for_file`.
 fn save_picture(
     In(request): In<Option<Value>>,
@@ -51,6 +57,11 @@ fn save_picture(
 ) -> BrpResult {
     let asked: Asked = params(request)?;
     let look = match (asked.herb, asked.item) {
+        (None, None) if asked.fruit.is_some() => fruit_look(
+            asked.fruit.unwrap_or_default(),
+            asked.serving,
+            asked.variant,
+        )?,
         (Some(herb), None) => {
             if herbs.0.get(&herb).is_none() {
                 return Err(refused(format!("no herb has the key {herb:?}")));
@@ -95,6 +106,30 @@ fn save_picture(
         "height": size.y,
         "wait_for_file": path,
     }))
+}
+
+/// A fruit's look by key, whole or a slice, in a variant (0 if not given).
+fn fruit_look(key: String, serving: Option<bool>, variant: Option<u8>) -> Result<Look, BrpError> {
+    let Some(def) = Fruits::built_in().get(&key) else {
+        return Err(refused(format!("no fruit has the key {key:?}")));
+    };
+    let variant = variant.unwrap_or(0);
+    if variant >= FRUIT_VARIANTS {
+        return Err(refused(format!("variant is 0 to {}", FRUIT_VARIANTS - 1)));
+    }
+    let serving = serving.unwrap_or(false);
+    let servings = u32::from(def.servings.max(1));
+    let form = FruitForm {
+        fruit: key,
+        serving,
+        look: u64::from(variant),
+        grams: if serving {
+            def.grams.div_ceil(servings)
+        } else {
+            def.grams
+        },
+    };
+    Ok(Look::Fruit(FruitItemLook::of(&form)))
 }
 
 /// Once a picture asked for is drawn and copied off its page (no longer waiting

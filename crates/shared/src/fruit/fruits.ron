@@ -622,7 +622,7 @@
         look: (
             shape: Round,
             size: 90,
-            ripe: (240, 210, 60),
+            ripe: (185, 205, 75),
             unripe: (90, 150, 60),
             skin: Rough,
         ),

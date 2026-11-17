@@ -1,6 +1,6 @@
 # shared: fruit
 
-Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in), fruits as counted items (a whole big fruit cut into servings when eaten), and what eating one does. Not where they grow, growth stages or picking (PR 3 of the fruit plan), their pictures and slices' pictures (PR 2) or plant models (PR 4). Herbs that bear fruit stay herbs (`shared::herb`), linked by `HerbDef::fruit`. Research and the owner's decisions: `docs/context/research-fruit.md`.
+Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in), fruits as counted items (a whole big fruit cut into servings when eaten), and what eating one does. Not where they grow, growth stages or picking (PR 3 of the fruit plan), or plant models (PR 4); the items' pictures are the client's `item_art` (`fruit.rs`). Herbs that bear fruit stay herbs (`shared::herb`), linked by `HerbDef::fruit`. Research and the owner's decisions: `docs/context/research-fruit.md`.
 
 ## Files
 
@@ -33,7 +33,7 @@ Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in),
 
 ## Used by
 
-- `item` (`ItemKind::Fruit`; `saved.rs` gives old apples the apple's form; stacks compare a fruit's form without its look), `item_form` (`give_form` gives an apple; `ItemForm::Fruit`'s name, shape, grams), `bonus` (`Source::EatenFruit`, `FruitEffects`; `is_food` and `may_eat` take fruit), `herb` (`HerbDef::fruit`, `eating_herb`), server `connections/eat_fruit.rs` (`eating`, `cut`), `strength_room.rs`, `give_items.rs` (`dev_fruit`), client `effect_bar` (names by `by_tag`), `item_popup` (healing, effects, servings), `debug_menu` (Give Item's fruit dropdown and preview), `dev_tools` (`client.give_item`'s `fruit`).
+- `item` (`ItemKind::Fruit`; `saved.rs` gives old apples the apple's form; stacks compare a fruit's form without its look), `item_form` (`give_form` gives an apple; `ItemForm::Fruit`'s name, shape, grams), `bonus` (`Source::EatenFruit`, `FruitEffects`; `is_food` and `may_eat` take fruit), `herb` (`HerbDef::fruit`, `eating_herb`), server `connections/eat_fruit.rs` (`eating`, `cut`), `strength_room.rs`, `give_items.rs` (`dev_fruit`), client `item_art` (`FruitItemLook`: pictures and slices from the look), `effect_bar` (names by `by_tag`), `item_popup` (healing, effects, servings), `debug_menu` (Give Item's fruit dropdown and preview), `dev_tools` (`client.give_item`'s `fruit`).
 
 ## Notes
 
@@ -42,4 +42,5 @@ Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in),
 - Eating a whole fruit (server, `eat_fruit.rs`) cuts it: the other servings are given back to what is carried, or put on the ground when it lay there or there is no room; on the world map with no room it is refused.
 - Shops and mob loot give apples (`give_form`) until PR 3 decides what grows where.
 - Herbs bearing fruit: eating one gives its raw dose and the fruit's healing and effects (`herb::eating_herb`, `RAW_DOSE_WITH_FRUIT`).
+- The apple's ripe colour made greener by hand for its picture (owner, 2026-11-17).
 - Temperatures widened by hand so every biome grows some fruit at its extremes: crowberry and bog blueberry −11 to 9, date and coconut to 40, avocado into temperate rainforest.

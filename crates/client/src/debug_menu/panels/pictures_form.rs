@@ -93,6 +93,8 @@ pub(super) enum Shown {
     ),
     /// A coin of this metal, the same whatever its quality.
     Coin(shared::material::Material),
+    /// The `n`th fruit item in the table, whole or a slice, in a variant.
+    Fruit(super::fruit::FruitShown),
 }
 
 impl Shown {
@@ -139,6 +141,7 @@ impl Shown {
             Self::Necklace(shown) => shown.look(quality),
             Self::Bottle(bottle, liquid) => Some(Look::Bottle { bottle, liquid }),
             Self::Coin(metal) => Some(Look::Coin(metal)),
+            Self::Fruit(shown) => shown.look(),
         }
     }
 }
