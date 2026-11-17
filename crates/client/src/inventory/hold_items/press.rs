@@ -1,15 +1,17 @@
 //! Taking this frame's presses on items: a double click on a bag opens it (not
-//! one tied to the belt), and a press on anything else picks it up.
+//! one tied to the belt), two taps on anything else move it to the other side
+//! (`quick`), and a press on anything else picks it up.
 
 use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::{Holder, Inventory};
 
 use super::super::hold::Held;
+use super::super::hold::QuickFrom;
 use super::super::panels::{ItemCell, OpenGrids};
 use super::super::split::{PickRow, Split, SplitCell, Splitting};
 use super::super::{Carried, DOUBLE_PRESS_SECONDS, Hand, HeldBy, Holding};
-use crate::common::StockCell;
+use crate::common::{GROUND, StockCell};
 use crate::dom::Dom;
 use crate::dom::HeldObject;
 use crate::widgets::ButtonPressed;
@@ -99,6 +101,16 @@ pub(super) fn take_presses(
         }
         if let Ok(cell) = stock_cells.get(press.0) {
             if tapped {
+                // Two taps on something on the ground, not a bag: a quick move.
+                let id = cell.item.id;
+                let again = last_press
+                    .is_some_and(|(last, when)| last == id && now - when < DOUBLE_PRESS_SECONDS);
+                *last_press = Some((id, now));
+                let bag = cell.item.kind.def().container.is_some();
+                if again && !bag && cell.with == GROUND {
+                    holding.quick = Some(QuickFrom::Ground(cell.item.clone()));
+                    *last_press = None;
+                }
                 continue;
             }
             let held = Held {
@@ -123,6 +135,13 @@ pub(super) fn take_presses(
             && !carried.0.in_bin(cell.id)
             // A bag tied to the belt is part of the own grid (owner, 2026-11-15).
             && !carried.0.is_tied(cell.id);
+        if again && tapped && !carried.0.find(cell.id).is_some_and(is_container) {
+            // Two taps on anything but a bag: a quick move (owner, 2026-11-17).
+            holding.quick = Some(QuickFrom::Carried(cell.id));
+            split.0 = None;
+            *last_press = None;
+            continue;
+        }
         if again && is_bag {
             open.open(Holder::Inside(cell.id), &carried.0, commands, dom);
             continue;
@@ -150,6 +169,11 @@ pub(super) fn take_presses(
         holding.pick_up(object, item, held, Hand::Mouse, picked);
     }
     false
+}
+
+/// Whether it is a bag (or pouch): two taps open it rather than move it.
+fn is_container(item: &shared::item::Item) -> bool {
+    item.kind.def().container.is_some()
 }
 
 /// The id of the top `count` of a carried stack, to hold. Part of a counted stack

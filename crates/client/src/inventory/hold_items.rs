@@ -1,12 +1,13 @@
 //! Holding things, as far as it is the inventory's: what a press picks up
 //! (`press`), what letting go where it is would do (`aim`) and doing that
-//! (`let_go`). Following the pointer, turning and when it is let go are `dom`'s
+//! (`let_go`), and quick moves by right-click (`quick`). Following the pointer, turning and when it is let go are `dom`'s
 //! (`HeldObject`), which runs between `hold_items` and `aim_items`.
 
 mod aim;
 mod eat;
 mod let_go;
 mod press;
+mod quick;
 mod tie;
 
 use aim::aim_at;
@@ -20,16 +21,17 @@ use shared::wear::{Fit, WearRefused};
 use super::bag_slots::BagSlotNode;
 use super::body::BodyNode;
 use super::give::GiveRow;
+use super::hold::QuickFrom;
 use super::panels::{BinNode, DropNode, GridOwner, ItemCell, OpenGrids};
 use super::split::{PickRow, Split, SplitCell};
 use super::{Carried, HeldBy, Holding};
 use crate::common::{
-    DroppedOnText, GameView, GaveItem, HeldOverGifts, HeldOverText, HeldStock, SpentEnergy,
+    DroppedOnText, GROUND, GameView, GaveItem, HeldOverGifts, HeldOverText, HeldStock, SpentEnergy,
     StockCell, TakesGifts, TakesItemText, TookItem, TouchGesture, UiPointer,
 };
 use crate::connection::ToServer;
 use crate::dom::Dom;
-use crate::dom::{Dropped, HeldObject};
+use crate::dom::{Dropped, HeldObject, Hit};
 use crate::widgets::ButtonPressed;
 
 /// Whether it is worth asking to wear something: the server may know of magic this
@@ -106,10 +108,19 @@ pub(super) fn hold_items(
     mut dom: Dom,
     keys: Res<ButtonInput<KeyCode>>,
     mut split: ResMut<Split>,
-    time: Res<Time<Real>>,
+    (time, hit): (Res<Time<Real>>, Res<Hit>),
     (mut last_press, mut was_down): (Local<Option<(shared::id::Id, f64)>>, Local<bool>),
 ) {
     let now = time.elapsed_secs_f64();
+    // A right-click on an item not held: to the other side (`quick`). While
+    // holding, it turns what is held (`dom`).
+    if mouse.just_pressed(MouseButton::Right)
+        && object.thing().is_none()
+        && let Some(from) = hit.first(|entity| quick_from(entity, &cells.0, &cells.1))
+    {
+        mouse.clear_just_pressed(MouseButton::Right);
+        holding.quick = Some(from);
+    }
     // Part of a stack lifted out (see `split`) goes back once nothing holds it.
     if HeldBy::of(&object).is_none() {
         holding.group = None;
@@ -176,6 +187,20 @@ pub(super) fn hold_items(
     }
 }
 
+/// What a right-click on this would move: a carried item, or one on the ground
+/// (never a shop's: that would be buying).
+fn quick_from(
+    entity: Entity,
+    cells: &Query<&ItemCell>,
+    stock_cells: &Query<&StockCell>,
+) -> Option<QuickFrom> {
+    if let Ok(cell) = cells.get(entity) {
+        return Some(QuickFrom::Carried(cell.id));
+    }
+    let cell = stock_cells.get(entity).ok()?;
+    (cell.with == GROUND).then(|| QuickFrom::Ground(cell.item.clone()))
+}
+
 /// What letting go of what is held would do, and doing it when `dom` says it
 /// was let go. In `PreUpdate`, after `dom` has moved it.
 #[allow(clippy::too_many_arguments)]
@@ -188,9 +213,24 @@ pub(super) fn aim_items(
     mut carried: ResMut<Carried>,
     (mut over_gifts, mut held_stock): (ResMut<HeldOverGifts>, ResMut<HeldStock>),
     mut out: Outbox,
+    open: Res<OpenGrids>,
 ) {
     over_gifts.0 = None;
     out.on_text.0.set_if_neq(HeldOverText(None));
+    if let Some(from) = holding.quick.take()
+        && HeldBy::of(&object).is_none()
+    {
+        quick::quick_move(
+            from,
+            &open,
+            &view,
+            under.stacks.0,
+            &mut holding,
+            &mut carried,
+            (&over_gifts, &mut held_stock),
+            &mut out,
+        );
+    }
     // Noted for what draws by them.
     let held = HeldBy::of(&object);
     holding.held = held;

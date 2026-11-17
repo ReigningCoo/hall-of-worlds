@@ -26,6 +26,9 @@ pub(super) struct Holding {
     /// Part of a counted stack (coins): the stack, and how many from its top. What
     /// is held has a stand-in id until the server answers (`PartOfStack`).
     pub(super) counted: Option<(Id, u32)>,
+    /// Something right-clicked (or tapped twice) to move to the other side, done
+    /// by `aim_items` this frame (`hold::quick_target`).
+    pub(super) quick: Option<super::hold::QuickFrom>,
     /// The last stand-in id given (`Id::stand_in`), counting up.
     stand_ins: u64,
 }

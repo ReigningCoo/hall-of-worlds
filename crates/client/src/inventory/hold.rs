@@ -4,6 +4,9 @@
 use shared::id::Id;
 use shared::item::{Holder, Inventory, Item, Placed, Rotation, StackLimits};
 
+mod quick;
+pub(super) use quick::{QuickFrom, quick_target};
+
 /// An item picked up and following the pointer. Nothing has changed anywhere
 /// until it is dropped: it is still where it was, only not drawn there.
 #[derive(Clone, Copy, Debug, PartialEq)]
