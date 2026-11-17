@@ -195,8 +195,12 @@ impl Item {
             fruit.look = 0;
         }
         if let Some(ItemForm::Bottle(bottle)) = &mut copy.form {
-            // Shapes differ in a stack: it keys on contents and quality.
+            // Shapes differ in a stack: it keys on the liquid, and a potion's
+            // on quality too (owner, 2026-11-17).
             bottle.look = 0;
+            if !bottle.is_potion() {
+                copy.quality = None;
+            }
         }
         if let Some(ItemForm::Ring(ring)) = &mut copy.form {
             for gem in ring

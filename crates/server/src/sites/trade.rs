@@ -3,10 +3,10 @@
 use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::{Item, MadeAt, Quality};
-use shared::item_form::give_form;
+use shared::item_form::give_form_to;
 use shared::protocol::ServerMessage;
 use shared::rng::Seed;
-use shared::shop::{Shop, catch_up, sells};
+use shared::shop::{Shop, catch_up, sells, stock_request};
 
 use super::shop_here::shop_of;
 use crate::ServerWorld;
@@ -76,7 +76,11 @@ pub(crate) fn open_trade(client: &mut Client, world: &mut ServerWorld, with: Id)
             }),
             ..Item::new(new_id(), new.kind)
         };
-        give_form(&mut item, None, &mut new_id);
+        // A bottle holds one of the shop's liquids.
+        let seed = item.id.seed();
+        let request = stock_request(kind, new.kind, seed);
+        give_form_to(&mut item, None, seed, &request, &mut new_id)
+            .expect("a shop asks only for what can be made");
         item.roll_secrets();
         item
     }));

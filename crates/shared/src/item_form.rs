@@ -131,7 +131,7 @@ impl ItemForm {
             // Its herb's name is in the herb table, which only the client's
             // panels have, going by what the character knows.
             Self::Herb(_) => "Herb".to_owned(),
-            Self::Bottle(bottle) => bottle.name().to_owned(),
+            Self::Bottle(bottle) => bottle.name(),
             Self::Fruit(fruit) => fruit.name(),
         }
     }

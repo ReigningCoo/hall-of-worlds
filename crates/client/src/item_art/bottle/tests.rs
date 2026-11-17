@@ -1,12 +1,9 @@
 use super::*;
-use shared::potion::{BottleForm, Contents};
+use shared::potion::BottleForm;
 use std::collections::HashSet;
 
 fn form(look: u64) -> BottleForm {
-    BottleForm {
-        contents: Contents::EMPTY,
-        look,
-    }
+    BottleForm::new(None, look)
 }
 
 #[test]
@@ -85,7 +82,7 @@ fn fitting_keeps_a_bottle_inside_its_picture() {
 }
 
 mod liquid_tests {
-    use super::super::liquid::LiquidLook;
+    use super::super::liquid::{Base, LiquidLook};
     use super::super::liquid_colour::{alpha, main_colour};
     use crate::item_art::{Look, look_of};
     use shared::herb::Stat;
@@ -105,10 +102,8 @@ mod liquid_tests {
     /// A bottle item with this id and look seed, holding these.
     fn bottle(id: u128, look: u64, doses: &[(Stat, i16)]) -> Item {
         let mut item = Item::new(Id::for_test(id), ItemKind::Bottle);
-        item.form = Some(ItemForm::Bottle(BottleForm {
-            contents: contents(doses),
-            look,
-        }));
+        let potion = shared::potion::Liquid::Potion(contents(doses));
+        item.form = Some(ItemForm::Bottle(BottleForm::new(Some(potion), look)));
         item
     }
 
@@ -135,6 +130,19 @@ mod liquid_tests {
     }
 
     #[test]
+    fn waters_and_oils_have_their_own_looks() {
+        use shared::potion::{Liquid, Oil, Water};
+        let of = |liquid| LiquidLook::of_bottle(&BottleForm::new(Some(liquid), 0)).unwrap();
+        let moon = of(Liquid::Water(Water::Moon));
+        assert_eq!(moon.main, Base::Water(Water::Moon));
+        assert!(moon.sparkles);
+        let nut = of(Liquid::Oil(Oil::Nut));
+        assert_eq!(nut.main, Base::Oil(Oil::Nut));
+        assert!(alpha(&of(Liquid::Water(Water::Plain))) < alpha(&nut));
+        assert_ne!(main_colour(&nut), main_colour(&of(Liquid::Oil(Oil::Seed))));
+    }
+
+    #[test]
     fn an_empty_bottle_has_no_liquid() {
         assert_eq!(liquid_of(&bottle(1, 3, &[])), None);
     }
@@ -142,10 +150,10 @@ mod liquid_tests {
     #[test]
     fn the_strongest_effect_sets_the_colour_ties_by_stat_order() {
         let look = liquid(&[(Stat::Mana, 3), (Stat::Will, -6), (Stat::Agility, 2)]);
-        assert_eq!(look.main, Stat::Will);
+        assert_eq!(look.main, Base::Stat(Stat::Will));
         assert_eq!(look.second, Some(Stat::Mana));
         let tie = liquid(&[(Stat::Health, 4), (Stat::Strength, -4)]);
-        assert_eq!(tie.main, Stat::Strength);
+        assert_eq!(tie.main, Base::Stat(Stat::Strength));
         assert_eq!(tie.second, Some(Stat::Health));
     }
 

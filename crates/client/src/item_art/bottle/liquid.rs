@@ -1,9 +1,10 @@
-//! `LiquidLook`: what a potion's liquid looks like, worked out from its contents
+//! `LiquidLook`: what a bottle's liquid looks like, worked out from the liquid
 //! alone (owner, 2026-11-17), never the bottle's seed or quality, so the same
-//! effects look the same in any bottle and at any rarity.
+//! effects look the same in any bottle and at any rarity. Waters and oils have
+//! their own colours (brewing plan, PR 1).
 
 use shared::herb::Stat;
-use shared::potion::{Contents, Dose};
+use shared::potion::{BottleForm, Contents, Dose, Liquid, Oil, Water};
 use shared::rng::Seed;
 
 /// The most the steps added up (helpful minus harmful) count for lightness.
@@ -11,11 +12,31 @@ pub(super) const MOST_NET: i16 = 12;
 /// The most all the steps together count for how see-through it is.
 pub(super) const MOST_STRENGTH: i16 = 24;
 
-/// A potion's liquid. Equal contents always give an equal look.
+/// Where a liquid's main colour comes from.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum Base {
+    /// A potion's strongest effect's stat (ties by `Stat`'s order).
+    Stat(Stat),
+    Water(Water),
+    Oil(Oil),
+}
+
+impl Base {
+    /// A number for it, for the seed.
+    fn number(self) -> i64 {
+        match self {
+            Self::Stat(stat) => stat as i64,
+            Self::Water(water) => 100 + water as i64,
+            Self::Oil(oil) => 200 + oil as i64,
+        }
+    }
+}
+
+/// A bottle's liquid. Equal liquids always give an equal look.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct LiquidLook {
-    /// The strongest effect's stat (ties by `Stat`'s order): the main colour.
-    pub main: Stat,
+    /// The main colour: a potion's strongest stat's, or a water's or an oil's.
+    pub main: Base,
     /// The second strongest's: swirls and layers.
     pub second: Option<Stat>,
     /// The strongest effect of the other kind (harmful if the main one helps,
@@ -31,7 +52,7 @@ pub struct LiquidLook {
     pub fizz: bool,
     /// Strength: big bubbles.
     pub bubbles: bool,
-    /// Mana or Aura: sparkles.
+    /// Mana or Aura, or Moon Water: sparkles.
     pub sparkles: bool,
     /// Intellect: a swirl of the second colour.
     pub swirl: bool,
@@ -40,6 +61,27 @@ pub struct LiquidLook {
 }
 
 impl LiquidLook {
+    /// The liquid in this bottle, or none if it is empty.
+    pub fn of_bottle(bottle: &BottleForm) -> Option<Self> {
+        let plain = |main| Self {
+            main,
+            second: None,
+            blobs: None,
+            net: 0,
+            strength: 0,
+            fizz: false,
+            bubbles: false,
+            sparkles: main == Base::Water(Water::Moon),
+            swirl: false,
+            layered: false,
+        };
+        match bottle.liquid.as_ref()? {
+            Liquid::Potion(contents) => Self::of(contents),
+            Liquid::Water(water) => Some(plain(Base::Water(*water))),
+            Liquid::Oil(oil) => Some(plain(Base::Oil(*oil))),
+        }
+    }
+
     /// The liquid in a bottle holding these, or none if it is empty.
     pub fn of(contents: &Contents) -> Option<Self> {
         let doses = contents.doses();
@@ -51,7 +93,7 @@ impl LiquidLook {
         let net: i32 = doses.iter().map(|dose| dose.step as i32).sum();
         let strength: i32 = doses.iter().map(|dose| (dose.step as i32).abs()).sum();
         Some(Self {
-            main: main.stat,
+            main: Base::Stat(main.stat),
             second: second.map(|dose| dose.stat),
             blobs: blobs.map(|dose| dose.stat),
             net: net.clamp(-MOST_NET as i32, MOST_NET as i32) as i16,
@@ -77,7 +119,7 @@ impl LiquidLook {
         .iter()
         .fold(0, |bits, &on| bits * 2 + on as i64);
         let value = Seed::new(0).derive("liquid").at(&[
-            self.main as i64,
+            self.main.number(),
             stat(self.second),
             stat(self.blobs),
             self.net as i64,
