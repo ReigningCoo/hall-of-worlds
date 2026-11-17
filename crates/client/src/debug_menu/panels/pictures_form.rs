@@ -91,6 +91,8 @@ pub(super) enum Shown {
         crate::item_art::BottleLook,
         Option<crate::item_art::LiquidLook>,
     ),
+    /// A coin of this metal, the same whatever its quality.
+    Coin(shared::material::Material),
 }
 
 impl Shown {
@@ -136,6 +138,7 @@ impl Shown {
             Self::Marked(shown) => shown.look(),
             Self::Necklace(shown) => shown.look(quality),
             Self::Bottle(bottle, liquid) => Some(Look::Bottle { bottle, liquid }),
+            Self::Coin(metal) => Some(Look::Coin(metal)),
         }
     }
 }

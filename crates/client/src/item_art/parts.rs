@@ -69,6 +69,7 @@ pub(super) fn parts_of(
         Look::Bottle { bottle, liquid } => {
             super::bottle::bottle_parts(&bottle, liquid.as_ref(), meshes, materials)
         }
+        Look::Coin(metal) => super::coin::coin_parts(metal, meshes, materials),
         Look::Herb(herb) => super::herb::herb_parts(&herb, herbs, meshes, materials),
         Look::Under { under, quality } => {
             super::under::under_parts(&under, quality, meshes, materials)

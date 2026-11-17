@@ -2,6 +2,7 @@
 
 use shared::item::{Item, ItemKind};
 use shared::item_form::ItemForm;
+use shared::material::Material;
 
 use super::look::{Look, RingLook, setting_looks};
 
@@ -15,6 +16,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
         ItemKind::Keyring => return Some(Look::Keyring),
         ItemKind::Key => return Some(Look::Key(super::KeyLook::of(item))),
         ItemKind::HerbPouch => return Some(Look::HerbPouch),
+        ItemKind::CopperCoin => return Some(Look::Coin(Material::Copper)),
+        ItemKind::SilverCoin => return Some(Look::Coin(Material::Silver)),
+        ItemKind::GoldCoin => return Some(Look::Coin(Material::Gold)),
         kind @ (ItemKind::Bread | ItemKind::DwarvenBread | ItemKind::RawMeat) => {
             return Some(Look::Food(kind));
         }
