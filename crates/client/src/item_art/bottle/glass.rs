@@ -19,6 +19,9 @@ const EDGE_ALPHA: f32 = 0.8;
 const NECK_ALPHA: f32 = 0.35;
 /// How much of the glass's shade the far side takes, against white.
 const FAR_TINT: f32 = 0.35;
+/// How much of its usual tint the near side keeps in front of a liquid, so the
+/// contents read clearly (owner, 2026-11-17: the glass washed them out).
+const OVER_LIQUID: f32 = 0.3;
 /// Which way the streak of light faces, round the bottle from the front.
 const STREAK: Vec2 = Vec2::new(-0.55, 0.83);
 
@@ -35,9 +38,11 @@ pub(super) fn shade(glass: Glass) -> Color {
     }
 }
 
-/// The far side's and near side's materials.
+/// The far side's and near side's materials: the near side shines less when
+/// there is a liquid behind it.
 pub(super) fn materials(
     glass: Glass,
+    filled: bool,
     materials: &mut Assets<StandardMaterial>,
 ) -> (Handle<StandardMaterial>, Handle<StandardMaterial>) {
     let far = materials.add(StandardMaterial {
@@ -52,8 +57,8 @@ pub(super) fn materials(
     let near = materials.add(StandardMaterial {
         // Its colour is in each point's, with how see-through it is there.
         base_color: Color::WHITE,
-        perceptual_roughness: 0.1,
-        reflectance: 0.8,
+        perceptual_roughness: if filled { 0.3 } else { 0.1 },
+        reflectance: if filled { 0.3 } else { 0.8 },
         alpha_mode: AlphaMode::Blend,
         ..default()
     });
@@ -62,8 +67,14 @@ pub(super) fn materials(
 
 /// The surface's meshes for the far side, and with colours for the near side:
 /// `view` is the way to the camera in the bottle's own space, `neck` the height
-/// the neck starts at.
-pub(super) fn glass_meshes(surface: &Surface, glass: Glass, view: Vec3, neck: f32) -> (Mesh, Mesh) {
+/// the neck starts at, `liquid` the top of any liquid, below which it is clearer.
+pub(super) fn glass_meshes(
+    surface: &Surface,
+    glass: Glass,
+    view: Vec3,
+    neck: f32,
+    liquid: Option<f32>,
+) -> (Mesh, Mesh) {
     let (positions, normals, indices) = surface.triangles();
     let tint = shade(glass).to_linear();
     let around = positions.len() / surface.rows.len();
@@ -76,6 +87,9 @@ pub(super) fn glass_meshes(surface: &Surface, glass: Glass, view: Vec3, neck: f3
             let mut alpha = MIDDLE_ALPHA + (EDGE_ALPHA - MIDDLE_ALPHA) * edge * edge;
             if point.y > neck {
                 alpha = alpha.max(NECK_ALPHA);
+            }
+            if liquid.is_some_and(|top| point.y < top) {
+                alpha *= OVER_LIQUID;
             }
             let flat = Vec2::new(normal.x, normal.z).normalize_or_zero();
             let curved = 1.0 - surface.faceted[k / around];
