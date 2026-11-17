@@ -32,7 +32,14 @@ pub(super) fn put_in(page: &str, herbs: &Herbs) -> Result<String, String> {
     let (_, after) = rest
         .split_once(END)
         .ok_or("The Herbs page has no table end comment")?;
-    Ok(format!("{before}{START}{}{END}{after}", table(herbs)))
+    // Blank lines round the table: Markdown takes a comment with lines straight
+    // after it as one block of HTML, and would show the table as plain text.
+    Ok(format!(
+        "{before}{START}
+{}
+{END}{after}",
+        table(herbs)
+    ))
 }
 
 fn table(herbs: &Herbs) -> String {

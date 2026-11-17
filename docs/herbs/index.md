@@ -44,6 +44,7 @@ Drag a herb onto your clothes, as you would food, to eat one. You get a weak dos
 Rare herbs are marked. Herbs of marshes grow in the wettest lands until the world has marshes of its own.
 
 <!-- herbs table: written by `cargo xtask wiki` -->
+
 | Land | Herbs |
 | ---- | ----- |
 | Tundra | [Angelica](herbs/angelica), [Arctic willow](herbs/arctic-willow), [Bearberry](herbs/bearberry), [Bilberry](herbs/bilberry), [Bogbean](herbs/bogbean), [Eyebright](herbs/eyebright), [Fireweed](herbs/fireweed), [Juniper](herbs/juniper), [Labrador tea](herbs/labrador-tea), [Lady's mantle](herbs/ladys-mantle), [Moonwort](herbs/moonwort), [Roseroot](herbs/roseroot) (rare), [Sundew](herbs/sundew), [Yarrow](herbs/yarrow) |
@@ -56,4 +57,5 @@ Rare herbs are marked. Herbs of marshes grow in the wettest lands until the worl
 | Savanna | [Aloe](herbs/aloe), [Ashwagandha](herbs/ashwagandha), [Chilli](herbs/chilli), [Cumin](herbs/cumin), [Devil's claw](herbs/devils-claw), [Fenugreek](herbs/fenugreek), [Ginger](herbs/ginger), [Gotu kola](herbs/gotu-kola), [Henna](herbs/henna), [Lemongrass](herbs/lemongrass), [Neem](herbs/neem), [Roselle](herbs/roselle), [Turmeric](herbs/turmeric) |
 | Tropical rainforest | [Black pepper](herbs/black-pepper), [Cardamom](herbs/cardamom), [Chilli](herbs/chilli), [Cinnamon](herbs/cinnamon), [Clove](herbs/clove), [Galangal](herbs/galangal), [Ginger](herbs/ginger), [Gotu kola](herbs/gotu-kola), [Guarana](herbs/guarana), [Lemongrass](herbs/lemongrass), [Neem](herbs/neem), [Roselle](herbs/roselle), [Turmeric](herbs/turmeric), [Vanilla](herbs/vanilla) (rare) |
 | Marshes and wet ground | [Angelica](herbs/angelica), [Bog myrtle](herbs/bog-myrtle), [Bogbean](herbs/bogbean), [Comfrey](herbs/comfrey), [Elecampane](herbs/elecampane), [Gotu kola](herbs/gotu-kola), [Labrador tea](herbs/labrador-tea), [Marsh mallow](herbs/marsh-mallow), [Meadowsweet](herbs/meadowsweet), [Purple loosestrife](herbs/purple-loosestrife), [Ramsons](herbs/ramsons), [Self-heal](herbs/self-heal), [Stinging nettle](herbs/stinging-nettle), [Sundew](herbs/sundew), [Sweet flag](herbs/sweet-flag), [Valerian](herbs/valerian), [Water hemlock](herbs/water-hemlock), [Water mint](herbs/water-mint), [Watercress](herbs/watercress) |
+
 <!-- end of herbs table -->
