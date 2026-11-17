@@ -1649,3 +1649,7 @@ Every crate's tests are one test binary; if it is byte for byte one that passed 
 ## 2026-11-17: Herb patches placed from the server's table, outside generator versions
 
 Herbs grow on levels as `HerbPatch`es kept by cell on `dungeon::Level` and sent in `LevelChunk` (as furniture is): in the wilderness by `Wilderness::herb_patches` per world map point, in herbalists' beds by `herb::plant_beds`, both from seeds and the server's herb table (which mods change), so neither is part of a generator's version. A patch's stage comes from the world's clock, its phase and when it was last harvested, the only thing saved (`LevelSave::herbs_picked`, the site's for a bed set into the wilderness). Why: the client can draw growth without being told each change, saves stay tiny, and mods may add herbs freely.
+
+## 2026-11-17: Herb plants as procedural models, an entity per plant
+
+Herb patches are drawn from each herb's `PlantLook` by the client's `plants` module (twelve shapes built of stems, leaves and blobs, four stages, four variants each, black outlines as inverted hulls), not from a picture atlas, so mods' herbs get models too. Each model is built once per herb, stage and variant and shared as a mesh; each plant in sight is its own entity under the dungeon scene, spawned or despawned only when its patch changes, so a step or a new hour doesn't rebuild one big mesh. Only looks: the server never hears of them.

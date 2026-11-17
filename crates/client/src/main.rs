@@ -33,6 +33,7 @@ mod login;
 mod minimap;
 mod notices;
 mod planet_view;
+mod plants;
 mod player;
 mod quest_log;
 mod quests;
@@ -119,6 +120,7 @@ fn main() {
     ));
     app.add_plugins((
         dom::DomPlugin,
+        plants::PlantsPlugin,
         login::LoginPlugin,
         character_select::CharacterSelectPlugin,
     ));

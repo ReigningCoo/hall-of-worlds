@@ -1,28 +1,32 @@
-//! Naming the door, stairs or border the pointer is over, for the hover box.
+//! Naming the door, stairs, herb or border the pointer is over, for the hover box.
 
 use bevy::prelude::*;
 use shared::door::Swing;
 use shared::dungeon::{Cell, Level};
+use shared::sheet::Sheet;
 use shared::site::StairsDirection;
 
 use super::Shown;
 use super::ground_hit::Ground;
 use super::picking::{door_clicked, pick};
-use crate::common::{CurrentDungeon, DrawnGround, GameView, HoveredOnMap, PointerPosition};
+use crate::character::CharacterSheet;
+use crate::common::{
+    CurrentDungeon, DrawnGround, GameView, HerbTable, HoveredOnMap, PointerPosition, ServerClock,
+};
 use crate::view3d::ViewCamera;
 
 /// What the hatched border round a poi in the wilderness is called.
 const BORDER_NAME: &str = "Way back to the world map";
 
 /// Names what the pointer is over on the site's map: a building's door (a
-/// shop's by what it sells), the border round a poi, or stairs. Nothing elsewhere, or off the site.
+/// shop's by what it sells), the border round a poi, a herb patch, or stairs. Nothing elsewhere, or off the site.
 pub(super) fn name_hovered_place(
     view: Res<State<GameView>>,
     pointer: Res<PointerPosition>,
     camera: Single<(&Camera, &GlobalTransform), With<ViewCamera>>,
-    dungeon: Res<CurrentDungeon>,
-    shown: Res<Shown>,
+    (dungeon, shown): (Res<CurrentDungeon>, Res<Shown>),
     heights: Res<DrawnGround>,
+    (table, sheet, clock): (Res<HerbTable>, Res<CharacterSheet>, Res<ServerClock>),
     mut hovered: ResMut<HoveredOnMap>,
 ) {
     let (camera, camera_transform) = *camera;
@@ -55,6 +59,10 @@ pub(super) fn name_hovered_place(
                     (false, false) => name.to_owned(),
                 });
             }
+            let now = clock.minutes.max(0.0) as u64;
+            if let Some(name) = herb_name(&dungeon.level, &table, &sheet.0, now, (x, y)) {
+                return Some(name);
+            }
             let stairs = dungeon.stairs.iter().find(|s| (s.x, s.y) == (x, y))?;
             Some(stairs_name(stairs.direction).to_owned())
         });
@@ -86,4 +94,31 @@ fn stairs_name(direction: StairsDirection) -> &'static str {
         StairsDirection::Up => "Stairs up",
         StairsDirection::Down => "Stairs down",
     }
+}
+
+/// What a herb patch is called: its herb's name once the character knows it,
+/// "Unknown plant" until then, saying when it is ready to pick; nothing while
+/// it is dug up.
+fn herb_name(
+    level: &Level,
+    table: &HerbTable,
+    sheet: &Sheet,
+    now: u64,
+    (x, y): (i64, i64),
+) -> Option<String> {
+    let patch = level.herb_at(x, y)?;
+    let def = table.get(&patch.herb)?;
+    if patch.stage(def, now) == 0 {
+        return None;
+    }
+    let name = if sheet.herbs.knows_name(&def.key) {
+        def.name.as_str()
+    } else {
+        "Unknown plant"
+    };
+    Some(if patch.can_pick(def, now) {
+        format!("{name}, ready to pick")
+    } else {
+        name.to_owned()
+    })
 }

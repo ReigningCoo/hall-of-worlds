@@ -19,7 +19,7 @@ pub use controls::{Action, Binding, Controls, Group, Mods};
 mod preferences;
 mod servers;
 pub use floors::{FirstFloor, OtherLevels};
-pub use herbs::HerbTable;
+pub use herbs::{HerbShowcase, HerbTable};
 pub use hosting::{Hosting, Lockdown};
 pub use other_floor_looks::OtherFloorLooks;
 #[cfg(not(target_arch = "wasm32"))]
@@ -178,6 +178,7 @@ impl Plugin for CommonPlugin {
             .init_resource::<Hosting>()
             .init_resource::<Lockdown>()
             .init_resource::<HerbTable>()
+            .init_resource::<HerbShowcase>()
             .init_resource::<PlayDifficulty>()
             .init_state::<GameView>()
             .init_resource::<GameClock>()

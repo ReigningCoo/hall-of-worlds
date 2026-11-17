@@ -22,6 +22,7 @@ What the character is like: the Character panel's Character tab, which `inventor
 
 ## Used by
 
+- `dungeon_map` (`CharacterSheet`: which herbs' names the character knows, for the hover box).
 - `character_select` (`describe_listed`), `item_popup` (`CharacterSheet`, `WithBonuses`: requirements against the player's attributes).
 
 ## Notes

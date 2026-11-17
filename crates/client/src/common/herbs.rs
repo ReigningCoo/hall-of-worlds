@@ -15,3 +15,9 @@ impl Default for HerbTable {
         Self(Herbs::built_in())
     }
 }
+
+/// The herb showcase (debug API `client.herb_showcase`): every herb drawn at
+/// this stage in rows round the player, in place of the patches there; `None`
+/// off.
+#[derive(Resource, Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct HerbShowcase(pub Option<u8>);

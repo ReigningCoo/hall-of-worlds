@@ -4,14 +4,15 @@ use bevy::camera::visibility::NoFrustumCulling;
 use bevy::image::{ImageLoaderSettings, ImageSampler};
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
+use bevy::render::render_resource::Face;
 use std::collections::BTreeMap;
 
 use super::mesh::Surface;
 use super::sight_lines::{MaskSide, SightMask, SurfaceMaterial};
 use super::theme::Theme;
 use super::{
-    BLEND_DEPTH_BIAS, CropPart, DungeonScene, HerbPart, MEMORY_ALPHA, MemoryPart,
-    SEE_THROUGH_ALPHA, SeeThroughPart, SolidPart, StairsThroughPart, SurfaceMaterials,
+    BLEND_DEPTH_BIAS, CropPart, DungeonScene, MEMORY_ALPHA, MemoryPart, SEE_THROUGH_ALPHA,
+    SeeThroughPart, SolidPart, StairsThroughPart, SurfaceMaterials,
 };
 use crate::common::GameView;
 
@@ -188,23 +189,25 @@ pub(super) fn spawn_scene(
         NoFrustumCulling,
         NotShadowCaster,
     ));
-    commands.entity(scene).with_child((
-        HerbPart,
-        Mesh3d(meshes.add(Mesh::from(Cuboid::from_length(0.0)))),
-        MeshMaterial3d(surface_materials.add(masked(
+    commands.insert_resource(super::herbs::HerbMaterials {
+        fill: surface_materials.add(masked(
             StandardMaterial {
-                base_color_texture: Some(load_tile(&asset_server, super::herbs::HERBS_PICTURE)),
                 unlit: true,
-                alpha_mode: AlphaMode::Mask(0.5),
-                // Seen from both sides.
-                cull_mode: None,
                 ..default()
             },
             MaskSide::InSight,
-        ))),
-        NoFrustumCulling,
-        NotShadowCaster,
-    ));
+        )),
+        // Inside out: only the faces turned away show, round the plant.
+        outline: surface_materials.add(masked(
+            StandardMaterial {
+                base_color: Color::BLACK,
+                unlit: true,
+                cull_mode: Some(Face::Front),
+                ..default()
+            },
+            MaskSide::InSight,
+        )),
+    });
     super::rain::spawn(&mut commands, scene, &mut meshes, &mut rain_materials);
     commands.insert_resource(SurfaceMaterials {
         solid,
