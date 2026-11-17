@@ -22,7 +22,7 @@
 //!   0 ploughed, 1 grass, 2 short, 3 tall, 4 ripe).
 //! - `HOW_DEBUG_FURNITURE=style[,material]`: draw every table in this style and
 //!   material (indexes), or each in turn (`all`).
-//! - `HOW_DEBUG_HERBS=n`: draw every herb tile `n` stages (game days) further on.
+//! - `HOW_DEBUG_HERBS=n`: draw every herb patch `n` stages further on, going round.
 //! - `HOW_DEBUG_TRAVEL=x,y`: start travelling to a grid position (as if clicked),
 //!   once at `HOW_DEBUG_POS` if set, otherwise two seconds after starting.
 //! - `HOW_DEBUG_WALK=true`: start with auto-walk on (as if G was pressed).

@@ -1,10 +1,10 @@
-//! Building crops and herbs again when what is seen changes.
+//! Building crops again when what is seen changes.
 
 use bevy::prelude::*;
 
 use super::CELL_SIZE;
-use super::{CropPart, HerbPart, Shown};
-use crate::common::{CurrentDungeon, DrawnGround, GameClock, HerbGrowthShift, WorldReturn};
+use super::{CropPart, Shown};
+use crate::common::{CurrentDungeon, DrawnGround};
 
 /// Builds the crops again when what is seen changes: never for the camera, as
 /// fields can hold many more faces than everything else put together.
@@ -33,40 +33,5 @@ pub(super) fn update_crops(
     });
     if any && let Some(mut stored) = meshes.get_mut(&handle.0) {
         *stored = crops.into_mesh();
-    }
-}
-
-/// Builds what grows in a herbalist's patch again when what is seen changes,
-/// or an hour passes: some tile may move on a stage in any of them.
-#[allow(clippy::too_many_arguments)]
-pub(super) fn update_herbs(
-    dungeon: Res<CurrentDungeon>,
-    shown: Res<Shown>,
-    clock: Res<GameClock>,
-    shift: Res<HerbGrowthShift>,
-    (place, heights): (Res<WorldReturn>, Res<DrawnGround>),
-    part: Single<(&Mesh3d, &mut Visibility), With<HerbPart>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut built: Local<(u64, u32)>,
-) {
-    let grown = super::herbs::growth(clock.hour, shift.0);
-    let now = (shown.looks, grown);
-    let Some(sight) = shown.sight.as_ref().filter(|_| *built != now) else {
-        return;
-    };
-    *built = now;
-    let at = (place.0.x, place.0.y);
-    let ground = |at: Vec3| heights.drawn_between(at.x / CELL_SIZE, at.z / CELL_SIZE) * CELL_SIZE;
-    let seen = (sight, &dungeon.remembered);
-    let plants = super::herbs::build_plants(&dungeon.level, seen, at, grown, &ground);
-    let (handle, mut visibility) = part.into_inner();
-    let any = !plants.indices.is_empty();
-    visibility.set_if_neq(if any {
-        Visibility::Inherited
-    } else {
-        Visibility::Hidden
-    });
-    if any && let Some(mut stored) = meshes.get_mut(&handle.0) {
-        *stored = plants.into_mesh();
     }
 }

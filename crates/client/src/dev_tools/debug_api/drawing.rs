@@ -56,8 +56,8 @@ pub(super) struct StagesParams {
     stages: u32,
 }
 
-/// `client.herbs_shift { "stages": 3 }`: herbs drawn this many game days on
-/// (`HOW_DEBUG_HERBS`).
+/// `client.herbs_shift { "stages": 3 }`: herbs drawn this many stages on,
+/// going round (`HOW_DEBUG_HERBS`).
 pub(super) fn herbs_shift(
     In(request): In<Option<Value>>,
     mut shift: ResMut<HerbGrowthShift>,

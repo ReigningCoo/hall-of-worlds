@@ -64,10 +64,6 @@ pub(super) struct StairsThroughPart(pub(super) Surface);
 #[derive(Component)]
 pub(super) struct CropPart;
 
-/// The mesh of what grows in a herbalist's patch.
-#[derive(Component)]
-pub(super) struct HerbPart;
-
 /// A real light for tokens, following `owner`'s `LightSource`.
 #[derive(Component)]
 pub(super) struct TokenLight {

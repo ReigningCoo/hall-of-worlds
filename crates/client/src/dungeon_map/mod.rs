@@ -67,11 +67,12 @@ mod wild_ground;
 
 pub use click::DoorClicked;
 use click::pick_on_click;
-use growth::{update_crops, update_herbs};
+use growth::update_crops;
+use herbs::{DrawnPatches, HerbHeading, aim_at_herbs, pick_on_arrival, update_herbs};
 use lights::sync_lights;
 pub use parts::Shown;
 use parts::{
-    CropPart, DungeonScene, HerbPart, MemoryPart, SeeThroughPart, SolidPart, StairsThroughPart,
+    CropPart, DungeonScene, MemoryPart, SeeThroughPart, SolidPart, StairsThroughPart,
     SurfaceMaterials, TokenLight,
 };
 use pictures::{apply_theme, colour_ground, grey_pictures};
@@ -116,6 +117,8 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<TownLights>()
             .init_resource::<other_floors::Floors>()
             .init_resource::<wild_ground::GroundTint>()
+            .init_resource::<DrawnPatches>()
+            .init_resource::<HerbHeading>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -156,7 +159,7 @@ impl Plugin for DungeonMapPlugin {
                         .chain(),
                     outlined::apply_outlined,
                     update_crops,
-                    update_herbs,
+                    (update_herbs, aim_at_herbs, pick_on_arrival),
                     hide_unseen_tokens,
                     sync_lights,
                     rain::update,

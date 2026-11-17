@@ -10,6 +10,7 @@ use server::debug_api::AddDebugMethod;
 // Split into files (`cargo xtask lint` keeps files small).
 mod drawing;
 mod eat;
+mod herbs;
 mod items;
 mod login;
 mod mobs;
@@ -59,6 +60,8 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.stairs_style", stairs_style)
         .add_debug_method("client.fields_stage", fields_stage)
         .add_debug_method("client.herbs_shift", herbs_shift)
+        .add_debug_method("client.herb_showcase", herbs::herb_showcase)
+        .add_debug_method("client.herbs", herbs::herbs)
         .add_debug_method("client.celestial", celestial)
         .add_debug_method("client.token", token)
         // What is open.

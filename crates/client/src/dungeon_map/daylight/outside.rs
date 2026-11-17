@@ -3,9 +3,10 @@
 use bevy::prelude::*;
 use shared::celestial::{brightest, flat_light};
 
+use super::super::herbs::HerbMaterials;
 use super::super::mesh::with_ambient;
 use super::super::sight_lines::SurfaceMaterial;
-use super::super::{CropPart, HerbPart, Surface, SurfaceMaterials, TOKEN_AMBIENT_BRIGHTNESS};
+use super::super::{CropPart, Surface, SurfaceMaterials, TOKEN_AMBIENT_BRIGHTNESS};
 use super::{CLOUD_SHADOW, FLASH_LIGHT, OPEN_AMBIENT_BRIGHTNESS};
 
 /// How much darker remembered places are with Remembered Places set to Dim.
@@ -76,7 +77,10 @@ pub(in crate::dungeon_map) fn tint_outside(
     lightning: Res<Lightning>,
     surfaces: Res<SurfaceMaterials>,
     mut materials: ResMut<Assets<SurfaceMaterial>>,
-    plants: Query<&MeshMaterial3d<SurfaceMaterial>, Or<(With<CropPart>, With<HerbPart>)>>,
+    (crops, herbs): (
+        Query<&MeshMaterial3d<SurfaceMaterial>, With<CropPart>>,
+        Res<HerbMaterials>,
+    ),
     mut dimmed: Local<f32>,
 ) {
     let dim = match preferences.graphics.remembered {
@@ -100,8 +104,9 @@ pub(in crate::dungeon_map) fn tint_outside(
             tint(&mut material.base, Vec3::splat(by * dim));
         }
     }
-    for plant in &plants {
-        if let Some(mut material) = materials.get_mut(&plant.0) {
+    let plants = crops.iter().map(|crop| &crop.0).chain([&herbs.fill]);
+    for plant in plants {
+        if let Some(mut material) = materials.get_mut(plant) {
             tint(&mut material.base, lit);
         }
     }
