@@ -21,7 +21,7 @@ fn player(count: u128, cells: u32) -> Inventory {
     let dropped = inventory.start_sizing(cells, StackLimits::NONE, &mut stand_ins());
     assert!(dropped.is_empty());
     for n in 1..=count {
-        let apple = Item::new(id(n), ItemKind::Apple);
+        let apple = Item::new(id(n), ItemKind::Keepsake);
         inventory
             .give(apple, StackLimits::NONE, &mut stand_ins())
             .unwrap();
@@ -54,7 +54,7 @@ fn an_old_grid_grows_to_8_wide_keeping_what_is_on_it() {
         ..Inventory::default()
     };
     for n in 1..=3 {
-        let apple = Item::new(id(n), ItemKind::Apple);
+        let apple = Item::new(id(n), ItemKind::Keepsake);
         inventory
             .give(apple, StackLimits::NONE, &mut stand_ins())
             .unwrap();

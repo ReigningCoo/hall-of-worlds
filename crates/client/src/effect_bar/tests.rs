@@ -21,12 +21,12 @@ fn the_markup_is_good() {
 fn only_effects_with_an_end_not_yet_reached_show() {
     let mut forever = poison(0);
     forever.end = None;
-    let apple = food_effect(ItemKind::Apple, 0).unwrap();
-    let end = apple.end.unwrap() as f64;
-    let effects = vec![forever, apple];
+    let bread = food_effect(ItemKind::Bread, 0).unwrap();
+    let end = bread.end.unwrap() as f64;
+    let effects = vec![forever, bread];
     let shown = |now| timed(&effects, now).map(|e| e.source).collect::<Vec<_>>();
-    assert_eq!(shown(0.0), vec![Source::Eaten(ItemKind::Apple)]);
-    assert_eq!(shown(end - 1.0), vec![Source::Eaten(ItemKind::Apple)]);
+    assert_eq!(shown(0.0), vec![Source::Eaten(ItemKind::Bread)]);
+    assert_eq!(shown(end - 1.0), vec![Source::Eaten(ItemKind::Bread)]);
     assert!(shown(end).is_empty());
 }
 
@@ -45,29 +45,43 @@ fn poison_is_harmful_and_food_is_not() {
     assert!(!is_harmful(&food_effect(ItemKind::Bread, 0).unwrap()));
     assert!(!is_harmful(&Effect::dev_bonus(5, 0, 10)));
     let bread = icon_path(Source::Eaten(ItemKind::Bread));
-    assert_eq!(bread, icon_path(Source::Eaten(ItemKind::Apple)));
+    let apple = shared::fruit::FruitTag::of("apple");
+    assert_eq!(
+        bread,
+        icon_path(Source::EatenFruit(apple)),
+        "every food shares one"
+    );
 }
 
 #[test]
 fn the_popup_says_what_it_is_what_ends_it_and_when() {
     let lang = Lang::new(Language::English);
-    let apple = food_effect(ItemKind::Apple, 0).unwrap();
-    assert_eq!(name(apple.source, &lang), "Eating: Apple");
+    let bread = food_effect(ItemKind::Bread, 0).unwrap();
+    assert_eq!(name(bread.source, &lang), "Eating: Bread");
     assert_eq!(name(Source::Poison, &lang), "Poisoned");
+    let tag = shared::fruit::FruitTag::of;
     assert_eq!(
-        bonus_lines(&apple, &lang),
+        name(Source::EatenFruit(tag("apple")), &lang),
+        "Eating: Apple"
+    );
+    assert_eq!(
+        name(Source::FruitEffects(tag("kola_nut")), &lang),
+        "Kola nut"
+    );
+    assert_eq!(
+        bonus_lines(&bread, &lang),
         vec!["Restores 1 Health a second"]
     );
-    let ends = ends_early(&apple, &lang);
+    let ends = ends_early(&bread, &lang);
     assert_eq!(ends.as_deref(), Some("Ends if you move or are hurt"));
     assert_eq!(ends_early(&poison(0), &lang), None);
     assert_eq!(
         bonus_lines(&poison(0), &lang),
         vec!["\u{2212}1 Health a second"]
     );
-    assert_eq!(ends_in(&apple, 0.0, &lang).unwrap(), "Ends in 30 s");
+    assert_eq!(ends_in(&bread, 0.0, &lang).unwrap(), "Ends in 45 s");
     assert_eq!(
-        ends_in(&apple, 29.5 * SECOND, &lang).unwrap(),
+        ends_in(&bread, 44.5 * SECOND, &lang).unwrap(),
         "Ends in 1 s"
     );
     let dev = Effect::dev_bonus(5, 0, (300.0 * SECOND) as u64);

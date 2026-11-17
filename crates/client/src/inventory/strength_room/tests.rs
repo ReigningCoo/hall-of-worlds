@@ -17,7 +17,7 @@ fn wearing_a_belt() -> Inventory {
     };
     inventory.start_sizing(40, StackLimits::NONE, &mut shared::id::stand_ins());
     inventory.worn.push(Item::new(id(1), ItemKind::Belt));
-    let apple = Item::new(id(2), ItemKind::Apple);
+    let apple = Item::new(id(2), ItemKind::Keepsake);
     let at = (7, 4);
     let to = Holder::Inventory;
     inventory

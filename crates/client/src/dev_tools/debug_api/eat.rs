@@ -13,11 +13,11 @@ use crate::inventory::Carried;
 
 #[derive(Deserialize)]
 pub(super) struct EatItemParams {
-    /// By name: `"Apple"`, `"RawMeat"`, ...
+    /// By name: `"Fruit"`, `"Bread"`, `"RawMeat"`, ...
     kind: ItemKind,
 }
 
-/// `client.eat_item { "kind": "Apple" }`: eats one of the first stack of this
+/// `client.eat_item { "kind": "Fruit" }`: eats one of the first stack of this
 /// kind in the inventory (`ClientMessage::Consume`).
 pub(super) fn eat_item(
     In(request): In<Option<Value>>,

@@ -11,7 +11,7 @@ fn app() -> App {
 
 fn apple(n: u128) -> SlotThing {
     SlotThing {
-        item: Item::new(Id::for_test(n), ItemKind::Apple),
+        item: Item::new(Id::for_test(n), ItemKind::Bread),
         count: 1,
         faded: false,
         pressable: true,

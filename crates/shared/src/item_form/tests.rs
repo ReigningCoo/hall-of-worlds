@@ -134,7 +134,7 @@ fn a_blade_within_limits_may_change_kind_or_not_be_made() {
 
 #[test]
 fn only_kinds_with_a_form_roll_one() {
-    let apple = made(ItemKind::Apple, 1, Quality::Common, None);
+    let apple = made(ItemKind::Bread, 1, Quality::Common, None);
     assert_eq!(apple.form, None);
 }
 
@@ -250,7 +250,7 @@ fn a_setting_takes_only_cut_gems_up_to_one_size_too_big() {
         ..gem
     };
     assert!(!setting.takes(&uncut));
-    assert!(!setting.takes(&Item::new(Id::for_test(2), ItemKind::Apple)));
+    assert!(!setting.takes(&Item::new(Id::for_test(2), ItemKind::Bread)));
 }
 
 #[test]

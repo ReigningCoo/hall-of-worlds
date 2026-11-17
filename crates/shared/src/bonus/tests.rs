@@ -97,7 +97,7 @@ fn better_armour_gives_more_toughness_but_costs_the_same() {
 fn a_hat_or_an_apple_gives_nothing() {
     let hat = Item::new(Id::for_test(1), ItemKind::Hat);
     assert!(item_bonuses(&hat).is_empty());
-    let apple = Item::new(Id::for_test(1), ItemKind::Apple);
+    let apple = Item::new(Id::for_test(1), ItemKind::Bread);
     assert!(item_bonuses(&apple).is_empty());
 }
 
@@ -144,11 +144,12 @@ fn every_material_is_as_usual_for_now() {
 }
 
 #[test]
-fn an_apple_restores_health_for_thirty_seconds_until_moving_or_hurt() {
-    let effect = food_effect(ItemKind::Apple, 100).expect("apples do something");
-    assert_eq!(effect.end, Some(100 + APPLE_TICKS));
-    assert!(effect.lasts(100 + APPLE_TICKS - 1));
-    assert!(!effect.lasts(100 + APPLE_TICKS));
+fn bread_restores_health_for_45_seconds_until_moving_or_hurt() {
+    let bread_ticks = 45 * crate::energy::ACTION_TICKS_PER_SECOND as u64;
+    let effect = food_effect(ItemKind::Bread, 100).expect("bread does something");
+    assert_eq!(effect.end, Some(100 + bread_ticks));
+    assert!(effect.lasts(100 + bread_ticks - 1));
+    assert!(!effect.lasts(100 + bread_ticks));
     assert!(effect.ends_on.by(Cancel::Moving) && effect.ends_on.by(Cancel::Hurt));
     let totals = Totals::of(&effect.bonuses);
     assert_eq!(totals.restoring(Vital::Health), 1000);
@@ -159,40 +160,47 @@ fn an_apple_restores_health_for_thirty_seconds_until_moving_or_hurt() {
 #[test]
 fn a_second_from_the_same_source_takes_the_firsts_place() {
     let mut effects = Effects::default();
-    effects.add(food_effect(ItemKind::Apple, 0).unwrap());
+    effects.add(food_effect(ItemKind::Bread, 0).unwrap());
     effects.add(Effect::dev_bonus(5, 0, 50));
-    effects.add(food_effect(ItemKind::Apple, 40).unwrap());
+    effects.add(food_effect(ItemKind::Bread, 40).unwrap());
     assert_eq!(effects.0.len(), 2);
-    let apple = effects
+    let bread = effects
         .0
         .iter()
-        .find(|e| e.source == Source::Eaten(ItemKind::Apple));
-    assert_eq!(apple.unwrap().start, 40);
+        .find(|e| e.source == Source::Eaten(ItemKind::Bread));
+    assert_eq!(bread.unwrap().start, 40);
 }
 
 #[test]
 fn only_the_latest_food_counts_while_poison_and_dev_stay() {
+    let apple = crate::fruit::Fruits::built_in()
+        .get(crate::fruit::APPLE)
+        .unwrap();
+    let fruit = Source::EatenFruit(crate::fruit::FruitTag::of(crate::fruit::APPLE));
     let mut effects = Effects::default();
-    effects.add(food_effect(ItemKind::Apple, 0).unwrap());
+    for effect in crate::fruit::eating(apple, 0) {
+        effects.add(effect);
+    }
     effects.add(poison(0));
     effects.add(Effect::dev_bonus(5, 0, 50));
     effects.add(food_effect(ItemKind::Bread, 10).unwrap());
     let sources: Vec<Source> = effects.0.iter().map(|e| e.source).collect();
     assert_eq!(sources.len(), 3);
     assert!(sources.contains(&Source::Eaten(ItemKind::Bread)));
-    assert!(!sources.contains(&Source::Eaten(ItemKind::Apple)));
+    assert!(!sources.contains(&fruit));
     assert!(sources.contains(&Source::Poison) && sources.contains(&Source::Dev));
     effects.add(poison(20));
     assert_eq!(effects.0.len(), 3);
-    assert!(Source::Eaten(ItemKind::Apple).replaced_by(Source::Eaten(ItemKind::Bread)));
+    assert!(fruit.replaced_by(Source::Eaten(ItemKind::Bread)));
+    assert!(Source::Eaten(ItemKind::Bread).replaced_by(fruit));
     assert!(!Source::Poison.replaced_by(Source::Eaten(ItemKind::Bread)));
-    assert!(!Source::Eaten(ItemKind::Apple).replaced_by(Source::Poison));
+    assert!(!Source::Eaten(ItemKind::Bread).replaced_by(Source::Poison));
 }
 
 #[test]
 fn effects_end_by_time_or_by_what_cancels_them() {
     let mut effects = Effects::default();
-    effects.add(food_effect(ItemKind::Apple, 0).unwrap());
+    effects.add(food_effect(ItemKind::Bread, 0).unwrap());
     effects.add(Effect::dev_bonus(5, 0, 50));
     assert_eq!(effects.next_end(0), Some(50));
     assert_eq!(effects.first_ended(49), None);

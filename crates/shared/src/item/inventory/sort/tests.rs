@@ -18,10 +18,10 @@ fn at(n: u128, kind: ItemKind, x: u8, y: u8, rotation: Rotation) -> Placed {
 fn messy() -> Inventory {
     Inventory {
         items: vec![
-            at(1, ItemKind::Apple, 0, 3, Rotation::None),
+            at(1, ItemKind::Keepsake, 0, 3, Rotation::None),
             at(2, ItemKind::CopperCoin, 5, 0, Rotation::None),
             at(3, ItemKind::Sword, 0, 0, Rotation::Quarter),
-            at(4, ItemKind::Apple, 5, 3, Rotation::None),
+            at(4, ItemKind::Keepsake, 5, 3, Rotation::None),
             at(5, ItemKind::Stone, 2, 1, Rotation::None),
         ],
         ..Inventory::default()
@@ -48,13 +48,13 @@ fn largest_go_first_from_the_top_left_with_like_stacked() {
             // The sword keeps its turn, along the top.
             (id(3), 0, 0, Rotation::Quarter, 1),
             (id(5), 0, 1, Rotation::None, 1),
-            // The apples are one stack, the first in at the bottom; food before
-            // valuables among things the same size.
-            (id(1), 5, 0, Rotation::None, 2),
-            (id(2), 2, 1, Rotation::None, 1),
+            // Valuables before other things the same size; the keepsakes are
+            // one stack, the first in at the bottom.
+            (id(2), 5, 0, Rotation::None, 1),
+            (id(1), 2, 1, Rotation::None, 2),
         ]
     );
-    assert_eq!(sorted[2].item.top().id, id(4));
+    assert_eq!(sorted[3].item.top().id, id(4));
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn nothing_changes_if_something_would_not_fit() {
     // Two things that can't stack, in an inventory of one cell.
     let mut inventory = Inventory {
         items: vec![
-            at(1, ItemKind::Apple, 0, 0, Rotation::None),
+            at(1, ItemKind::Keepsake, 0, 0, Rotation::None),
             at(2, ItemKind::CopperCoin, 0, 0, Rotation::None),
         ],
         size: (1, 1),

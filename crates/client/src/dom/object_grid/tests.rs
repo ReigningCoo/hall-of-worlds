@@ -11,7 +11,7 @@ fn app() -> App {
 
 fn apple(n: u128, x: u8) -> GridThing {
     GridThing {
-        item: Item::new(Id::for_test(n), ItemKind::Apple),
+        item: Item::new(Id::for_test(n), ItemKind::Bread),
         x,
         y: 0,
         rotation: Rotation::None,

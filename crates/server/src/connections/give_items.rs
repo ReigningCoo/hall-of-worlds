@@ -6,6 +6,7 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::fruit::dev_fruit;
 use shared::herb::{dev_herb, new_item};
 use shared::id::Id;
 use shared::item::{Item, ItemKind};
@@ -27,7 +28,8 @@ pub(crate) struct Batch {
     pub seed: Option<u64>,
     pub count: u32,
     pub identical: bool,
-    /// For herbs: the key of the herb, or `None` for one from the seed.
+    /// For herbs and fruit: the key of the herb or fruit, or `None` for one
+    /// from the seed.
     pub herb: Option<String>,
 }
 
@@ -112,6 +114,12 @@ fn count_made(
             let def = dev_herb(&world.herbs, batch.herb.as_deref(), seed);
             let def = def.ok_or(Refused(Field::Material))?;
             return Ok(new_item(def, 1, new_id(), made_at));
+        }
+        if batch.order.kind == ItemKind::Fruit {
+            // Chosen as herbs are (`fruit::dev_fruit`), the same on both sides.
+            let def = dev_fruit(batch.herb.as_deref(), seed);
+            let def = def.ok_or(Refused(Field::Material))?;
+            return Ok(shared::fruit::new_item(def, 1, new_id(), made_at));
         }
         try_make_item(&batch.order, wearer, new_id(), seed, made_at, &mut new_id)
     };

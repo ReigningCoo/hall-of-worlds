@@ -7,7 +7,10 @@ use crate::blade::Family;
 /// A kind of item. Saved by name, so new ones can go anywhere in the list.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ItemKind {
-    Apple,
+    /// A fruit or nut (`shared::fruit`), counted: which one is in its form.
+    /// Saved apples load as fruit, given the apple's form (`item::Saved`).
+    #[serde(alias = "Apple")]
+    Fruit,
     Bread,
     DwarvenBread,
     RawMeat,
@@ -125,7 +128,6 @@ pub enum ItemKind {
 impl ItemKind {
     /// Every kind, alphabetically by name.
     pub const ALL: [Self; 98] = [
-        Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -162,6 +164,7 @@ impl ItemKind {
         Self::DwarvenBread,
         Self::FingerlessGloves,
         Self::FootArmour,
+        Self::Fruit,
         Self::FullArmour,
         Self::Gambeson,
         Self::Gauntlets,

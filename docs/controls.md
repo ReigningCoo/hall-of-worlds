@@ -97,7 +97,7 @@ A camera key moves the camera a little each time you press it, and keeps it movi
 | Use a keyring | Drag a keyring onto a bag slot, with or without keys on it: it keeps its own keys, and only one goes on at a time. Double-click it to open it. Keys you pick up or are given go onto it first, unless you drag one to a place yourself. The better the keyring, the less its keys weigh | The same, double-tapping to open it |
 | Use a herb pouch | The same as a keyring, for herbs: they stack inside by kind | The same, double-tapping to open it |
 | Put on or take off clothes | Drag them onto the clothes panel, or off it into a grid; whatever is in the way comes off into your inventory, and a red line says why if it can't. Things under other clothes take longer, the heavier what is over them | The same |
-| Eat something | Drag it onto the clothes panel: one is eaten (the top of a stack), carried or from the ground. An apple gives back Health for a while, until you move or are hurt | The same |
+| Eat something | Drag it onto the clothes panel: one is eaten (the top of a stack), carried or from the ground. Fruit and other food give back Health for a while, until you move or are hurt; a big fruit is cut into servings and one eaten | The same |
 | Give something to someone near | Drag it onto their name in the Nearby panel | The same |
 | Throw an item away, with all that is in it | Drop it on the bin under your inventory. Take it back until you throw away something else, which destroys it | The same |
 | Open the [debug menu](debug-menu) | Backtick (`` ` ``), or click the warning button at the top left | Tap the warning button |

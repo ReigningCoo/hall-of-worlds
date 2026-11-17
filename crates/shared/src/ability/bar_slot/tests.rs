@@ -10,11 +10,11 @@ fn place(slot: u8, item: ItemKind) -> BarChange {
 fn food_goes_on_the_bar_once_and_moves() {
     let mut bar = ActionBar::default();
     let kind = CreatureKind::Human;
-    assert_eq!(bar.apply(place(4, ItemKind::Apple), kind), Ok(()));
-    assert_eq!(bar.slots[4], Some(BarSlot::new(ItemKind::Apple)));
-    bar.apply(place(6, ItemKind::Apple), kind).unwrap();
+    assert_eq!(bar.apply(place(4, ItemKind::Bread), kind), Ok(()));
+    assert_eq!(bar.slots[4], Some(BarSlot::new(ItemKind::Bread)));
+    bar.apply(place(6, ItemKind::Bread), kind).unwrap();
     assert_eq!(bar.slots[4], None);
-    assert_eq!(bar.slot_of(ItemKind::Apple), Some(6));
+    assert_eq!(bar.slot_of(ItemKind::Bread), Some(6));
     // Over an ability, it takes its place.
     bar.apply(place(0, ItemKind::Bread), kind).unwrap();
     assert_eq!(bar.slots[0], Some(BarSlot::new(ItemKind::Bread)));
@@ -44,7 +44,7 @@ fn what_cant_be_used_stays_off_the_bar() {
         Err(BarRefusal::NotUsable)
     );
     assert_eq!(
-        bar.apply(place(10, ItemKind::Apple), CreatureKind::Human),
+        bar.apply(place(10, ItemKind::Bread), CreatureKind::Human),
         Err(BarRefusal::NoSlot)
     );
     assert_eq!(bar, before);
@@ -54,7 +54,7 @@ fn what_cant_be_used_stays_off_the_bar() {
 fn items_are_never_automatic() {
     let mut bar = ActionBar::default();
     let kind = CreatureKind::Human;
-    bar.apply(place(2, ItemKind::Apple), kind).unwrap();
+    bar.apply(place(2, ItemKind::Bread), kind).unwrap();
     assert_eq!(
         bar.apply(BarChange::ToggleAuto { slot: 2 }, kind),
         Err(BarRefusal::NotAutomatic)
@@ -66,12 +66,12 @@ fn items_are_never_automatic() {
 fn swapping_and_clearing_work_on_items_too() {
     let mut bar = ActionBar::default();
     let kind = CreatureKind::Human;
-    bar.apply(place(2, ItemKind::Apple), kind).unwrap();
+    bar.apply(place(2, ItemKind::Bread), kind).unwrap();
     bar.apply(BarChange::Swap { a: 2, b: 0 }, kind).unwrap();
-    assert_eq!(bar.slot_of(ItemKind::Apple), Some(0));
+    assert_eq!(bar.slot_of(ItemKind::Bread), Some(0));
     assert_eq!(bar.slot_of(Ability::Heal), Some(2));
     bar.apply(BarChange::Clear { slot: 0 }, kind).unwrap();
-    assert_eq!(bar.slot_of(ItemKind::Apple), None);
+    assert_eq!(bar.slot_of(ItemKind::Bread), None);
 }
 
 const OLD_SAVE: &str = "(slots: (Some((ability: Heal, auto: false)), \

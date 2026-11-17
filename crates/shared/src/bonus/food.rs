@@ -34,14 +34,10 @@ impl Food {
     }
 }
 
-/// Health an apple gives back a second, in thousandths of a point.
-pub const APPLE_RESTORE: u32 = PER_POINT;
-/// How long an apple keeps giving it back: 30 seconds of action ticks.
-pub const APPLE_TICKS: u64 = 30 * SECOND;
 const SECOND: u64 = ACTION_TICKS_PER_SECOND as u64;
 
-/// What eating this is like, if it can be eaten (owner, 2026-11-14): an apple
-/// gives back 1 Health a second for 30 s, bread for 45 s, Dwarven Bread for
+/// What eating this is like, if it can be eaten (owner, 2026-11-14): bread
+/// gives back 1 Health a second for 45 s, Dwarven Bread for
 /// 60 s to dwarves only, Raw Meat 2 a second for 60 s to orcs and goblins and
 /// poisons anyone else.
 pub fn food(kind: ItemKind) -> Option<Food> {
@@ -52,7 +48,6 @@ pub fn food(kind: ItemKind) -> Option<Food> {
         others: Others::Refused,
     };
     Some(match kind {
-        ItemKind::Apple => anyone(APPLE_RESTORE, APPLE_TICKS),
         ItemKind::Bread => anyone(PER_POINT, 45 * SECOND),
         ItemKind::DwarvenBread => Food {
             kinds: &[CreatureKind::Dwarf],
@@ -67,9 +62,10 @@ pub fn food(kind: ItemKind) -> Option<Food> {
     })
 }
 
-/// Whether it can be eaten by someone: what can be dropped on the body.
+/// Whether it can be eaten by someone: what can be dropped on the body and go
+/// on the action bar. Fruit is, eaten by its own rules (`fruit::eating`).
 pub fn is_food(kind: ItemKind) -> bool {
-    food(kind).is_some()
+    food(kind).is_some() || kind == ItemKind::Fruit
 }
 
 /// Whether it can be eaten at all: food, or a herb (eaten raw, for a weak dose
@@ -79,9 +75,9 @@ pub fn edible(kind: ItemKind) -> bool {
     is_food(kind) || kind == ItemKind::Herb
 }
 
-/// Whether a creature of this kind may eat it: a herb (anyone may), or food
-/// not refused to it.
+/// Whether a creature of this kind may eat it: a herb or fruit (anyone may),
+/// or food not refused to it.
 pub fn may_eat(kind: ItemKind, eater: CreatureKind) -> bool {
-    kind == ItemKind::Herb
+    matches!(kind, ItemKind::Herb | ItemKind::Fruit)
         || food(kind).is_some_and(|food| food.suits(eater) || food.others != Others::Refused)
 }

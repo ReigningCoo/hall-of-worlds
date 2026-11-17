@@ -32,8 +32,8 @@ pub struct DevGive {
     /// What their form must be like (`item_form::RollRequest`); refused, giving
     /// nothing, if any of them can't keep to it (`try_make_item`).
     pub request: RollRequest,
-    /// For herbs: the key of the herb to give (`herb::dev_herb`), or `None`
-    /// for one rolled from the seed.
+    /// For herbs and fruit: the key of the herb (`herb::dev_herb`) or fruit
+    /// (`fruit::dev_fruit`) to give, or `None` for one rolled from the seed.
     pub herb: Option<String>,
     /// Who gets them: a mob or another player in sight (the target), or
     /// `None` for the character. Nothing is given if `to` isn't in sight.

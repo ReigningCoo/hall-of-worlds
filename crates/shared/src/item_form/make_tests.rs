@@ -54,7 +54,7 @@ fn what_is_asked_for_is_kept_where_the_kind_allows_it() {
     assert_eq!(hat.favour, Some(Favour::Blessed));
     let apple = made(
         &ItemOrder {
-            kind: ItemKind::Apple,
+            kind: ItemKind::Bread,
             ..order
         },
         2,

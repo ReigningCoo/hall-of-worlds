@@ -1,8 +1,10 @@
-//! Give Item's herb (for the Herb kind): a dropdown of the server's herbs by
-//! name, "Any herb" first for one rolled from the seed (`herb::dev_herb`), on
-//! the Form line, which only herbs and kinds with a form show.
+//! Give Item's herb or fruit (for the Herb and Fruit kinds): a dropdown of the
+//! server's herbs, or the fruits, by name, "Any herb" or "Any fruit" first for
+//! one rolled from the seed (`herb::dev_herb`, `fruit::dev_fruit`), on the Form
+//! line, which only herbs, fruit and kinds with a form show.
 
 use bevy::prelude::*;
+use shared::fruit::Fruits;
 use shared::item::ItemKind;
 
 use super::GiveForm;
@@ -10,17 +12,19 @@ use crate::common::HerbTable;
 use crate::dom::Dom;
 use crate::widgets::DropdownChosen;
 
-/// The herb dropdown, with the keys of the herbs it lists after "Any herb".
+/// The herb dropdown, with the keys of the herbs or fruits it lists after
+/// "Any herb" or "Any fruit", and the kind they are for.
 #[derive(Component, Default)]
 pub(in crate::debug_menu) struct GiveHerb {
     keys: Vec<String>,
+    listed: Option<ItemKind>,
 }
 
-/// Lists the herbs (again when the table changes), and shows the dropdown and
-/// the Form line for herbs. Runs after `fill_give_options`, which hides that
+/// Lists the herbs or fruits (again when the table or the kind changes), and
+/// shows the dropdown and the Form line for them. Runs after `fill_give_options`, which hides that
 /// line for kinds without a form.
 pub(in crate::debug_menu) fn fill_give_herb(
-    form: Res<GiveForm>,
+    mut form: ResMut<GiveForm>,
     table: Res<HerbTable>,
     mut dropdowns: Query<&mut GiveHerb>,
     mut dom: Dom,
@@ -32,23 +36,40 @@ pub(in crate::debug_menu) fn fill_give_herb(
     if !(added || form.is_changed() || table.is_changed()) {
         return;
     }
-    let herbs = form.kind == ItemKind::Herb;
-    dom.set_flag("debug.give_item/herb", "hidden", !herbs);
-    if herbs {
+    let shown = matches!(form.kind, ItemKind::Herb | ItemKind::Fruit);
+    dom.set_flag("debug.give_item/herb", "hidden", !shown);
+    if shown {
         dom.set_flag("debug.give_item/form_line", "hidden", false);
     }
-    if added || table.is_changed() {
-        let mut named: Vec<_> = table.0.iter().map(|def| (&def.name, &def.key)).collect();
+    let kind = shown.then_some(form.kind);
+    if kind.is_some() && (dropdown.listed != kind || table.is_changed()) {
+        dropdown.listed = kind;
+        let (mut named, any): (Vec<_>, _) = match form.kind {
+            ItemKind::Fruit => {
+                let fruits = Fruits::built_in().items();
+                (
+                    fruits.map(|def| (&def.name, &def.key)).collect(),
+                    "Any fruit",
+                )
+            }
+            _ => (
+                table.0.iter().map(|def| (&def.name, &def.key)).collect(),
+                "Any herb",
+            ),
+        };
         named.sort();
         dropdown.keys = named.iter().map(|(_, key)| (*key).clone()).collect();
         let names = named.into_iter().map(|(name, _)| name.clone());
-        let all = std::iter::once("Any herb".to_owned())
-            .chain(names)
-            .enumerate();
+        let all = std::iter::once(any.to_owned()).chain(names).enumerate();
         dom.set_options(
             "debug.give_item/herb",
             all.map(|(at, name)| (at.to_string(), name)),
         );
+    }
+    // A herb's key chosen before the kind became Fruit, or the other way round.
+    let stale = (form.herb.as_ref()).is_some_and(|key| !dropdown.keys.contains(key));
+    if shown && stale {
+        form.herb = None;
     }
     let chosen = form.herb.as_ref();
     let at = chosen.and_then(|key| dropdown.keys.iter().position(|it| it == key));

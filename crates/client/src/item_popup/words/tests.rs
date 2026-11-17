@@ -10,13 +10,34 @@ use super::*;
 const MINUS: char = '\u{2212}';
 
 #[test]
-fn an_apple_restores_health_until_moving_or_hurt() {
+fn bread_restores_health_until_moving_or_hurt() {
     let lang = Lang::new(Language::English);
-    let apple = Item::new(Id::for_test(1), ItemKind::Apple);
+    let bread = Item::new(Id::for_test(1), ItemKind::Bread);
+    assert_eq!(
+        bonus_lines(&bread, &lang),
+        vec!["Restores 1 Health a second for 45 s; stops on moving or being hurt"]
+    );
+}
+
+#[test]
+fn fruit_says_its_healing_its_effects_and_its_servings() {
+    let lang = Lang::new(Language::English);
+    let fruits = shared::fruit::Fruits::built_in();
+    let apple = shared::fruit::new_item(fruits.get("apple").unwrap(), 1, Id::for_test(1), None);
     assert_eq!(
         bonus_lines(&apple, &lang),
-        vec!["Restores 1 Health a second for 30 s; stops on moving or being hurt"]
+        vec!["Restores 1 Health a second for 23 s; stops on moving or being hurt"]
     );
+    let kola = shared::fruit::new_item(fruits.get("kola_nut").unwrap(), 1, Id::for_test(2), None);
+    assert_eq!(
+        bonus_lines(&kola, &lang).len(),
+        3,
+        "healing and two effects"
+    );
+    let melon = fruits.get("watermelon").unwrap();
+    let melon = shared::fruit::new_item(melon, 1, Id::for_test(3), None);
+    let lines = bonus_lines(&melon, &lang);
+    assert_eq!(lines.last().unwrap(), "Cut into 11 servings when eaten");
 }
 
 #[test]

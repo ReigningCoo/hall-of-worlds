@@ -24,6 +24,7 @@ pub mod energy;
 pub mod facing;
 pub mod floor_sight;
 pub mod footwear;
+pub mod fruit;
 pub mod furniture;
 pub mod gender;
 pub mod ground;

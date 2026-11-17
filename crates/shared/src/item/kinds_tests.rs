@@ -41,7 +41,7 @@ fn carrying() -> Inventory {
 fn every_one_carried_is_counted_however_deep() {
     let inventory = carrying();
     assert_eq!(inventory.count_of(ItemKind::Bread), 5 + 3 + 2 + 1 + 4);
-    assert_eq!(inventory.count_of(ItemKind::Apple), 0);
+    assert_eq!(inventory.count_of(ItemKind::Fruit), 0);
 }
 
 #[test]
@@ -59,7 +59,7 @@ fn the_smallest_stack_in_the_own_grid_is_used_first() {
         inventory.stack_to_use(ItemKind::Bread),
         Some(Id::for_test(5))
     );
-    assert_eq!(inventory.stack_to_use(ItemKind::Apple), None);
+    assert_eq!(inventory.stack_to_use(ItemKind::Fruit), None);
 }
 
 #[test]

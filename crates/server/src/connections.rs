@@ -37,6 +37,7 @@ mod dev_audit;
 mod dev_herbs;
 mod dev_skills;
 pub(crate) mod difficulty;
+mod eat_fruit;
 mod eat_herb;
 mod facing;
 mod for_others;
@@ -256,6 +257,8 @@ mod dev_audit_tests;
 mod dev_skills_tests;
 #[cfg(test)]
 mod difficulty_tests;
+#[cfg(test)]
+mod fruit_tests;
 #[cfg(test)]
 mod go_to_place_tests;
 #[cfg(test)]

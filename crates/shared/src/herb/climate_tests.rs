@@ -8,7 +8,7 @@ use crate::mob::Habitat;
 /// The coldest and hottest whole degrees a biome can have, as
 /// `Wilderness::habitat_at` rounds them: the climate's temperature runs from 0
 /// to 1 (clamped), and `Biome::of` decides the biome from it and moisture.
-fn extremes(biome: Biome) -> (i32, i32) {
+pub(crate) fn extremes(biome: Biome) -> (i32, i32) {
     let mut found: Option<(i32, i32)> = None;
     for t in 0..=1000 {
         let temperature = f64::from(t) / 1000.0;

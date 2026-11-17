@@ -17,7 +17,7 @@ fn the_list_is_all_then_each_category() {
 
 #[test]
 fn only_what_is_not_chosen_fades() {
-    let apple = Item::new(Id::for_test(1), ItemKind::Apple);
+    let apple = Item::new(Id::for_test(1), ItemKind::Bread);
     assert!(!dims(None, &apple));
     assert!(!dims(Some(ItemCategory::Food), &apple));
     assert!(dims(Some(ItemCategory::Weapons), &apple));

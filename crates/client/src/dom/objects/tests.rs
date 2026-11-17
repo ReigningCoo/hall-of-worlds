@@ -44,7 +44,7 @@ fn an_object_shows_its_item_once_it_is_known() {
     let wanted = app.world_mut().resource_mut::<KnownItems>().take_wanted();
     assert!(wanted.contains(&id));
 
-    let item = Item::new(id, ItemKind::Apple);
+    let item = Item::new(id, ItemKind::Bread);
     let found = KnownItem::Found(Box::new(item.clone()), 0.0);
     app.world_mut().resource_mut::<KnownItems>().set(id, found);
     app.update();

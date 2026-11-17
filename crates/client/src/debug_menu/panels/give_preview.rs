@@ -4,6 +4,7 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::fruit::dev_fruit;
 use shared::herb::{Herbs, dev_herb, new_item};
 use shared::id::Id;
 use shared::item::{Inventory, Item, ItemKind, StackLimits};
@@ -118,7 +119,8 @@ fn order_as_usual(order: &ItemOrder) -> ItemOrder {
     }
 }
 
-/// The herbs to choose from, and the one chosen (`None`: from the seed).
+/// The herbs to choose from, and the herb or fruit chosen (`None`: from the
+/// seed).
 #[derive(Clone, Copy)]
 struct Herb<'a> {
     herbs: &'a Herbs,
@@ -144,6 +146,11 @@ fn one_of(
         // As the server makes them (`herb::dev_herb`).
         let def = dev_herb(herb.herbs, herb.key, seed).ok_or(Refused(Field::Material))?;
         return Ok(new_item(def, 1, id, None));
+    }
+    if order.kind == ItemKind::Fruit {
+        // As the server makes them (`fruit::dev_fruit`).
+        let def = dev_fruit(herb.key, seed).ok_or(Refused(Field::Material))?;
+        return Ok(shared::fruit::new_item(def, 1, id, None));
     }
     try_make_item(order, wearer, id, seed, None, &mut new_id)
 }

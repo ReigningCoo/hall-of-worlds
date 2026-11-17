@@ -8,6 +8,7 @@
 mod beds;
 mod def;
 mod dev;
+mod eating;
 mod effect;
 mod form;
 mod growth;
@@ -26,6 +27,7 @@ mod traits;
 pub use beds::plant_beds;
 pub use def::{EFFECTS, HerbDef};
 pub use dev::dev_herb;
+pub use eating::{RAW_DOSE_WITH_FRUIT, eating_herb};
 pub use effect::{Effect, Stat};
 pub use form::{HerbForm, new_item};
 pub use growth::{EARLY_STAGE, Early, Growth, Regrow, STAGES};
@@ -42,7 +44,7 @@ pub use table::Herbs;
 pub use traits::{Abundance, Part, Temperature};
 
 #[cfg(test)]
-mod climate_tests;
+pub(crate) mod climate_tests;
 #[cfg(test)]
 mod raw_tests;
 #[cfg(test)]

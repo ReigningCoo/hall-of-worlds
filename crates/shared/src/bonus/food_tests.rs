@@ -70,7 +70,7 @@ fn food_for_some_kinds_asks_for_them() {
 
 #[test]
 fn herbs_are_eaten_raw_but_arent_food() {
-    assert!(edible(ItemKind::Herb) && edible(ItemKind::Apple));
+    assert!(edible(ItemKind::Herb) && edible(ItemKind::Fruit));
     assert!(!is_food(ItemKind::Herb), "herbs never go on the action bar");
     assert!(may_eat(ItemKind::Herb, Orc) && may_eat(ItemKind::Herb, Dwarf));
     assert!(!edible(ItemKind::Stone));

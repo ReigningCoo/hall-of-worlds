@@ -140,8 +140,8 @@ fn a_bag_held_over_its_own_place_is_not_dropped_in_itself() {
 fn something_that_looks_the_same_goes_on_its_stack() {
     let mut inventory = Inventory::default();
     let apples = [
-        Item::new(id(1), ItemKind::Apple),
-        Item::new(id(2), ItemKind::Apple),
+        Item::new(id(1), ItemKind::Keepsake),
+        Item::new(id(2), ItemKind::Keepsake),
     ];
     for (x, apple) in apples.into_iter().enumerate() {
         inventory
