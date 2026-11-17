@@ -75,6 +75,8 @@ mod bag_slot_tests;
 mod coin_tests;
 
 #[cfg(test)]
+mod herb_pouch_tests;
+#[cfg(test)]
 mod holder_tests;
 #[cfg(test)]
 mod kinds_tests;

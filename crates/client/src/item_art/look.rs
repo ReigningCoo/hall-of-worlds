@@ -5,7 +5,7 @@ use shared::body::{Hair, Layout};
 
 use super::Colours;
 use shared::creature::{CreatureKind, Size};
-use shared::item::{Item, Quality};
+use shared::item::Quality;
 use shared::item_form::{BandWidth, GemForm, ItemForm, Mount, Pattern, Profile, Setting};
 use shared::material::Material;
 
@@ -105,6 +105,8 @@ pub enum Look {
     Pouch,
     /// The Keyring: an iron ring with keys on it (`keyring.rs`).
     Keyring,
+    /// The Herb Pouch: green linen with a leaf on it (`herb_pouch.rs`).
+    HerbPouch,
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
     Food(shared::item::ItemKind),
     /// A herb: the part used, by herb and variant (`herb.rs`).
@@ -151,7 +153,7 @@ impl Look {
             Self::Keepsake | Self::Herb(_) => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),
-            Self::Keyring => (2, 1),
+            Self::Keyring | Self::HerbPouch => (2, 1),
             Self::Food(_) => (2, 1),
             Self::Blade { blade, .. } => blade.cells,
             Self::Hands { hands, .. } => hands.cells,
@@ -236,64 +238,4 @@ pub(super) fn setting_looks(settings: &[Setting], size: Size) -> Vec<SettingLook
         }),
     };
     settings.iter().map(look).collect()
-}
-
-/// How this item looks, if it has a form to go by.
-pub fn look_of(item: &Item) -> Option<Look> {
-    match item.kind {
-        shared::item::ItemKind::Parcel => return Some(Look::Parcel),
-        shared::item::ItemKind::Keepsake => return Some(Look::Keepsake),
-        shared::item::ItemKind::Bag => return Some(Look::Bag),
-        shared::item::ItemKind::Pouch => return Some(Look::Pouch),
-        shared::item::ItemKind::Keyring => return Some(Look::Keyring),
-        kind @ (shared::item::ItemKind::Bread
-        | shared::item::ItemKind::DwarvenBread
-        | shared::item::ItemKind::RawMeat) => return Some(Look::Food(kind)),
-        _ => {}
-    }
-    if let Some(herb) = item.herb() {
-        return Some(Look::Herb(super::HerbLook::of(herb)));
-    }
-    let quality = item.quality;
-    match item.form.as_ref()? {
-        ItemForm::Blade(form) => Some(super::looks::blade_look(item, form)),
-        ItemForm::Gem(gem) => Some(Look::Gem { gem: *gem, quality }),
-        ItemForm::Ring(ring) => Some(Look::Ring {
-            ring: RingLook {
-                metal: ring.metal,
-                profile: ring.profile,
-                width: ring.width,
-                pattern: ring.pattern,
-                settings: setting_looks(&ring.settings, item.made.size),
-            },
-            quality,
-        }),
-        ItemForm::Necklace(necklace) => Some(Look::Necklace {
-            necklace: super::NecklaceLook::new(necklace, item.made.size),
-            quality,
-        }),
-        ItemForm::Under(form) => {
-            let shape = item.shape();
-            Some(Look::Under {
-                under: super::UnderLook::new(*form, (shape.width, shape.height)),
-                quality,
-            })
-        }
-        ItemForm::Clothing(form) => {
-            let shape = item.shape();
-            Some(Look::Clothing {
-                clothing: super::ClothingLook::new(*form, (shape.width, shape.height))
-                    .with_digits(shared::armour::hands::Hand::digits(item.made.fingers)),
-                quality,
-            })
-        }
-        ItemForm::Footwear(form) => {
-            let shape = item.shape();
-            Some(Look::Footwear {
-                footwear: super::FootwearLook::new(*form, (shape.width, shape.height)),
-                quality,
-            })
-        }
-        _ => super::looks::armour_look(item),
-    }
 }

@@ -9,14 +9,14 @@ use crate::site::BuildingKind;
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         Apple, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Braies, BreastBand,
-        Cap, Cloak, Clogs, Gauntlets, Gloves, Hat, Headcloth, Headdress, Hood, Hose, Keyring,
-        Lantern, LinenCoif, Loincloth, Necklace, Neckwear, PaddedChausses, PaddedGloves, Petticoat,
-        Pouch, Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword,
-        Tabard, Trousers, Wimple,
+        Cap, Cloak, Clogs, Gauntlets, Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood, Hose,
+        Keyring, Lantern, LinenCoif, Loincloth, Necklace, Neckwear, PaddedChausses, PaddedGloves,
+        Petticoat, Pouch, Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat,
+        Sword, Tabard, Trousers, Wimple,
     };
     match kind {
         BuildingKind::Blacksmith => &[(Sword, 2), (Gauntlets, 2), (Lantern, 1), (Keyring, 1)],
-        BuildingKind::Herbalist => &[(Apple, 3), (Pouch, 1)],
+        BuildingKind::Herbalist => &[(Apple, 3), (Pouch, 1), (HerbPouch, 1)],
         BuildingKind::Carpenter => &[(SmallBox, 2), (Boomerang, 1), (Clogs, 1)],
         BuildingKind::Tailor => &[
             (Shirt, 3),

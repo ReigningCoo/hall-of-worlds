@@ -63,6 +63,7 @@ pub(super) fn parts_of(
         Look::Bag => super::bag::bag_parts(meshes, materials),
         Look::Pouch => super::pouch::pouch_parts(meshes, materials),
         Look::Keyring => super::keyring::keyring_parts(meshes, materials),
+        Look::HerbPouch => super::herb_pouch::herb_pouch_parts(meshes, materials),
         Look::Food(kind) => super::food::food_parts(kind, meshes, materials),
         Look::Herb(herb) => super::herb::herb_parts(&herb, herbs, meshes, materials),
         Look::Under { under, quality } => {

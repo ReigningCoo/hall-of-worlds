@@ -257,7 +257,15 @@ fn only_pouches_bags_and_holders_go_on_belts() {
         .into_iter()
         .filter(|kind| kind.def().container.is_some_and(|inside| inside.on_belt))
         .collect();
-    assert_eq!(tied, [ItemKind::Bag, ItemKind::Keyring, ItemKind::Pouch]);
+    assert_eq!(
+        tied,
+        [
+            ItemKind::Bag,
+            ItemKind::HerbPouch,
+            ItemKind::Keyring,
+            ItemKind::Pouch
+        ]
+    );
     let bag = ItemKind::Bag.def().container.unwrap();
     let pouch = ItemKind::Pouch.def().container.unwrap();
     let backpack = ItemKind::Backpack.def().container.unwrap();

@@ -15,6 +15,10 @@ A patch grows through four stages, from a shoot to full grown, and then seeds an
 
 Your **Foraging** skill makes better herbs more likely, and picking practises it. A herb's quality (Poor to Artifact) shows in the colour of its name. Herbs of the same kind and quality stack, though each looks a little different.
 
+## The herb pouch
+
+Herbalists sell a **herb pouch**, which ties onto a bag slot of your belt like a keyring. It holds only herbs, but as many as you like: it grows as it fills. Double-click it (or tap it twice) to open it. Herbs you pick or are given go into it first and stack by kind and quality, unless you drag one to a place yourself. The better the pouch, the less the herbs in it weigh, down to nothing for an artifact.
+
 ## Knowing herbs
 
 You don't know a herb until you learn it. Until you know its name, it shows as **Unknown herb**, with the part it is (leaves, a root, berries). Each herb has four effects, and the ones you don't know show as **?**.

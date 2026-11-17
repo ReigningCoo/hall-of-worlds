@@ -130,6 +130,7 @@ impl ItemKind {
             Self::Backpack
             | Self::Bag
             | Self::BagOfHolding
+            | Self::HerbPouch
             | Self::Keyring
             | Self::Pouch
             | Self::SmallBox => Containers,
