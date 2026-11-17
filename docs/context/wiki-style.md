@@ -25,7 +25,8 @@ Signed off by the owner on 2026-11-04.
 
 - [x] Questions, decisions, who decided what, and research notes: those live in `docs/context/`.
 - [x] Evidence marks, sources and article names, Ngram figures.
-- [x] Pictures and screenshots, while the game changes quickly.
+- [x] ~~Pictures and screenshots, while the game changes quickly.~~ Replaced by the next rule (owner, 2026-11-17).
+- [ ] Screenshots of play stay out. Pictures of items are allowed when made by `cargo xtask wiki --pictures` (the game's own item pictures, on a clear background, in `docs/assets/<subject>/`), never drawn or taken by hand, so they change with the game.
 - [x] Code names (`TorsoForm`, `Construction::PlatesInCloth`), file paths and numbers only code needs (roll weights, millimetres on the body frame).
 - [x] Plans and things not made yet, except one line where a player would otherwise wonder ("Gem sockets are planned").
 
@@ -34,6 +35,8 @@ Signed off by the owner on 2026-11-04.
 - [x] A subject's page may use sub-headings under Kinds (such as **Shape** and **Names** for footwear) where its things vary in more ways than one table shows. Signed off on 2026-11-14.
 - [x] One template for every page of a subject. For armour: a short introduction (what the location covers, its layer, what goes under and over it), then **Kinds** (a table), **Styles** (a table), **Materials**, **Weights**. A heading with nothing to say is left out rather than left empty.
 - [x] Tables have a first column naming the thing and one row per thing; the same columns in the same order on every page of a subject.
+- [ ] A page per item (herbs first): made by `cargo xtask wiki` from the game's data, never by hand, with a comment saying so. Front matter `parent` (the subject) and `grand_parent` (Items); `nav_order` by name. Then the picture, the name as a heading, the Latin or other second name in italics with the plain description, a link back to the overview, and a two-column table of facts (for herbs: Rarity, Grows in, Warmth, Part used, Weight, Plant, Growth, Picking, Picked early). What a player learns by playing (herbs' effects) stays out.
+- [ ] A subject's overview may list its items in a table linking each to its page; a table made from the game's data is written between two comments by `cargo xtask wiki`, and the words round it by hand.
 - [x] The overview page explains what the subject's pages share once (layers, styles, constructions, materials), and the other pages link to it rather than repeat it.
 
 ## How it reads

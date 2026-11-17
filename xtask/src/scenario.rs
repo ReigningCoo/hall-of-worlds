@@ -111,7 +111,7 @@ pub(crate) fn words(line: &str) -> Vec<String> {
 
 /// Builds the client with the debug API and starts it, as a development copy
 /// with its own data, waiting until its debug API answers.
-fn start_game(root: &Path) -> Result<Child, String> {
+pub(crate) fn start_game(root: &Path) -> Result<Child, String> {
     println!("==> Build: cargo build -p client --features debug-api");
     let built = Command::new(env::var("CARGO").unwrap_or_else(|_| "cargo".into()))
         .args(["build", "-p", "client", "--features", "debug-api"])

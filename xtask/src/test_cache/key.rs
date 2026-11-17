@@ -24,6 +24,9 @@ const RUN_TIME_DATA: &[(&str, &[&str])] = &[
             "Dockerfile",
             "Dockerfile.github",
             "scenarios",
+            // wiki/tests.rs compares the pages and pictures made from the game's data.
+            "docs/herbs",
+            "docs/assets/herbs",
             "crates/client/assets/fonts/HallOfWorldsTitle.ttf",
         ],
     ),
