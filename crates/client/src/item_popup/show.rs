@@ -1,19 +1,23 @@
 //! What an item's popup shows: its name in its quality's colour, its
-//! description if it has one, anything about where it is, a line for each bonus, what it asks of its wearer (what
-//! the viewer falls short of as a warning), what a key remembers (with the
-//! runes of the planet it was found on, if not this one), and its weight at
-//! the bottom.
+//! description if it has one, anything about where it is, a line for each
+//! bonus, the size it was made in when not the viewer's, what it asks of its
+//! wearer (what the viewer falls short of as a warning), what a key remembers
+//! (with the runes of the planet it was found on, if not this one), its
+//! weight, and for staff with debug tools its id with a copy button
+//! (`copy.rs`).
 
 use super::about::about;
 use super::herb::HerbWords;
 use super::needs::{Viewer, need_lines};
 use super::open::{FORM, ItemPopups};
+use super::size::size_line;
 use super::words::bonus_lines;
 use crate::common::{NO_QUALITY_NAME, quality_colour};
 use crate::dom::{Dom, Template};
 use crate::html;
 use crate::widgets::{Pointed, TextSize, UiId, weight_words};
 use bevy::prelude::*;
+use shared::creature::Size;
 use shared::id::Id;
 use shared::lang::Lang;
 
@@ -28,11 +32,16 @@ pub(super) static ITEM_POPUP: Template = html!(
     <p id="about" hidden>.</p>
     <p id="notes" hidden>.</p>
     <p id="bonuses" hidden>.</p>
+    <p id="size" hidden>.</p>
     <p id="needs" hidden>.</p>
     <p id="unmet" class="warning" hidden>.</p>
     <p id="keys" hidden>.</p>
     <img id="planet" hidden/>
     <p id="weight">.</p>
+    <span id="id_row" class="columns" nowrap valign="middle" hidden>
+      <p id="item_id">.</p>
+      <div id="copy_holder" width="28" height="28"/>
+    </span>
   </popup>
 </form>
 "#
@@ -46,14 +55,15 @@ pub(super) struct KeyWords {
 }
 
 /// Places the popup about `of` at `at` and writes what it says, its
-/// requirements against the `viewer` (none: all met).
+/// requirements against the `viewer` (none: all met) and its size against
+/// theirs (`yours`); its id too for `staff`.
 pub(super) fn fill(
     dom: &mut Dom,
     of: Id,
     pointed: &Pointed,
     at: Vec2,
-    (lang, viewer): (&Lang, Option<Viewer>),
-    (keys, herb): (KeyWords, Option<HerbWords>),
+    (lang, viewer, yours): (&Lang, Option<Viewer>, Size),
+    (keys, herb, staff): (KeyWords, Option<HerbWords>, bool),
 ) {
     let form = UiId::of(FORM, of, "box").form();
     let id = |name: &str| format!("{form}/{name}");
@@ -70,25 +80,24 @@ pub(super) fn fill(
     let lines = effects.unwrap_or_else(|| bonus_lines(&pointed.item, lang));
     dom.set_flag(&id("bonuses"), "hidden", lines.is_empty());
     dom.set_text(&id("bonuses"), lines.join("\n"));
+    let size = size_line(&pointed.item, yours, lang);
+    dom.set_flag(&id("size"), "hidden", size.is_none());
+    dom.set_text(&id("size"), size.unwrap_or_default());
     let (met, unmet) = need_lines(&pointed.item, viewer, lang);
     for (name, lines) in [("needs", met), ("unmet", unmet)] {
         dom.set_flag(&id(name), "hidden", lines.is_empty());
         dom.set_text(&id(name), lines.join("\n"));
     }
     dom.set_flag(&id("keys"), "hidden", keys.lines.is_empty());
-    dom.set_text(
-        &id("keys"),
-        keys.lines.join(
-            "
-",
-        ),
-    );
+    dom.set_text(&id("keys"), keys.lines.join("\n"));
     if let Some(runes) = &keys.runes {
         dom.set(&id("planet"), "src", &format!("picture:{runes}"));
     }
     dom.set_flag(&id("planet"), "hidden", keys.runes.is_none());
     let weight = weight_words(pointed.item.total_weight(), None);
     dom.set_text(&id("weight"), weight);
+    dom.set_flag(&id("id_row"), "hidden", !staff);
+    dom.set_text(&id("item_id"), of.to_string());
 }
 
 /// Writes each new popup's name, by its top (a herb's as known: `herb.rs`), in

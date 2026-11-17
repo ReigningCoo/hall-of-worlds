@@ -85,6 +85,19 @@ item-working = Working at { $percent }%
 
 item-kinds-only = { $kinds } only
 
+## The size a worn thing was made in, when not the viewer's own, and
+## sizes' names ($size: tiny, small, medium, large, huge, giant).
+
+item-size = Size: { $size } (you: { $yours })
+item-size-name = { $size ->
+    [tiny] Tiny
+    [small] Small
+    [large] Large
+    [huge] Huge
+    [giant] Giant
+   *[medium] Medium
+}
+
 ## Why food refused to the player's kind isn't eaten, under the clothes:
 ## the kinds it is for in the plural ("dwarves").
 

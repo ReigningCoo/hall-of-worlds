@@ -10,7 +10,7 @@ use super::keys::key_lines;
 use super::needs::Viewer;
 use super::show::{ITEM_POPUP, KeyWords, fill};
 use crate::character::{CharacterSheet, WithBonuses};
-use crate::common::{CurrentWorld, HerbTable, Wording, rune_picture};
+use crate::common::{AccountRole, CurrentWorld, HerbTable, PlayerSize, Wording, rune_picture};
 use crate::dom::{
     DocumentOf, Dom, HeldObject, KeptOpen, Pictures, Popup, UiEvent, UiValue, document,
 };
@@ -82,6 +82,7 @@ pub(super) fn follow_pointed(
     mut kept: ResMut<KeptOpen>,
     (mut dom, wording, herbs): (Dom, Res<Wording>, Res<HerbTable>),
     (sheet, told, carried): (Res<CharacterSheet>, Res<WithBonuses>, Res<Carried>),
+    (size, role): (Res<PlayerSize>, Res<AccountRole>),
     (world, mut images, mut pictures): (
         Option<Res<CurrentWorld>>,
         ResMut<Assets<Image>>,
@@ -142,13 +143,15 @@ pub(super) fn follow_pointed(
     });
     let herb = herb_words(&pointed.item, &herbs.0, &sheet.0.herbs, &wording.0);
     let name = herb.as_ref().map(|herb| herb.name.clone());
+    // Staff with any debug tool see the item's id, to copy.
+    let staff = role.powers.debug_tools().next().is_some();
     fill(
         &mut dom,
         of,
         &pointed,
         (pointed.at + OFFSET).round(),
-        (&wording.0, viewer),
-        (KeyWords { lines, runes }, herb),
+        (&wording.0, viewer, size.0),
+        (KeyWords { lines, runes }, herb, staff),
     );
     kept.0.push(box_id(of));
     popups.open.push(OpenPopup {
