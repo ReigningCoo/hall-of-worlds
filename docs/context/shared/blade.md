@@ -8,6 +8,7 @@ Weapons made of a handle with a blade or head on it, from knives to polearms: wh
   - `family.rs`: `Family`. `parts.rs`: the property enums. `form.rs`: `BladeForm`, its `name`, cells and weight.
   - `cells.rs`: the size grids (`CELLS`), the length spans and which cell a blade falls in.
   - `roll.rs`: `roll_blade`, `roll_blade_at`, `roll_blade_at_within`, `roll_blade_within`, `commission_blade`, `limits_for_wielder`, `Rolled`. `within.rs`: finding lengths and rows within a request's limits. `properties.rs`: `roll_properties`, everything rolled from a row, in three steps in `properties/` (`blade.rs`, `hilt.rs`, `materials.rs`), always in that order: they take rolls in turn from one generator, so reordering them changes every blade.
+  - `catalogue.rs`: `named_weapons`, `generic_weapons`, `WeaponName`, for the wiki.
   - `table.rs`: `Row` (what a name asks for), its shared defaults, and `rows()`, every row in the order they are rolled from. The rows themselves are in `table/`, one file per family (`knives.rs` … `polearms.rs`), in that order: changing the order changes rolls and which of two equal names wins.
 
 ## Public API
@@ -15,6 +16,7 @@ Weapons made of a handle with a blade or head on it, from knives to polearms: wh
 - `roll_blade(rng, family, quality)`: an ordinary weapon. `roll_blade_at(.., size)`: one that must be this size. `roll_blade_at_within(.., size, limits) -> Option<BladeForm>`: the same within limits, never changing family or size. `roll_blade_within(.., limits) -> Option<Rolled>`: one that suits a request. `commission_blade(rng, name, quality, size, limits)`: a named weapon at any size, keeping its name, only when asked for. `limits_for_wielder(size, spare_grams)`. Items normally get these through `item_form`.
 - `BladeForm { family, build, blade, handle, width, edges, curve, point, shape, section, fuller, hands, guard, pommel, ricasso, langets, handle_shape, sides, top, back, tips, blade_metal, handle_material, fittings, decoration, generic_only }`, with `name()`, `attachment()`, `shape()`, `grams()`, `grams_at(size)`. Lengths are whole millimetres at an ordinary person's scale, and an item's size would go on top.
 - `weapon_names(family)` (`names.rs`): every name a weapon of the family may go by (its rows', then the generic names of cells its rows reach), for the skill tree.
+- `named_weapons()`: every specific row as a `WeaponName { name, family, build, blade, handle }`, lengths those its row reaches in the grids; `generic_weapons(family)`: the generic cell names its rows reach, one per name and build ("Knife" stands for Knife or Dagger). For `cargo xtask wiki`.
 - `Family::ALL`, and the property enums: `Build`, `BladeWidth`, `Edges`, `Curve`, `Point`, `BladeShape`, `Section`, `Hands`, `Attachment`, `Guard`, `Pommel`, `Ricasso`, `HandleShape`, `SidePart`, `Top`, `Back`, `Tips`, `Decoration`. `Family::kind`, `Rolled { form, size }`.
 
 ## Depends on
@@ -23,7 +25,7 @@ Weapons made of a handle with a blade or head on it, from knives to polearms: wh
 
 ## Used by
 
-- `item`, `item_form`, `skill`; `server` (`entities`, for mobs' gear); client `item_art` (models) and `debug_menu` (Item Pictures).
+- `item`, `item_form`, `skill`; `xtask wiki` (the weapons' wiki pages); `server` (`entities`, for mobs' gear); client `item_art` (models) and `debug_menu` (Item Pictures).
 
 ## Notes
 

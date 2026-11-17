@@ -2,6 +2,7 @@
 //! A form is rolled once, within a row of the table, in a cell the size grid allows,
 //! and named from what it turned out like. See `docs/context/shared/blade.md`.
 
+mod catalogue;
 mod cells;
 mod family;
 mod form;
@@ -12,6 +13,7 @@ mod roll;
 mod table;
 mod within;
 
+pub use catalogue::{WeaponName, generic_weapons, named_weapons};
 pub use family::Family;
 pub use form::BladeForm;
 pub use names::weapon_names;

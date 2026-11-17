@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::Path;
 
-use super::{HERB_FOLDER, pages};
+use super::weapon_lines::LINES;
+use super::weapon_page::file_name;
+use super::{folders, pages};
 
 fn root() -> &'static Path {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -23,16 +25,20 @@ fn wiki_pages_are_up_to_date() {
             path.display()
         );
     }
-    for entry in fs::read_dir(root.join(HERB_FOLDER))
-        .expect("docs/herbs")
-        .flatten()
-    {
-        let path = Path::new(HERB_FOLDER).join(entry.file_name());
-        assert!(
-            pages.iter().any(|(page, _)| *page == path),
-            "{} is no herb's page any more: run `cargo xtask wiki`",
-            path.display()
-        );
+    for folder in folders() {
+        for entry in fs::read_dir(root.join(&folder))
+            .expect("a folder")
+            .flatten()
+        {
+            let path = folder.join(entry.file_name());
+            if path.extension().is_some_and(|extension| extension == "md") {
+                assert!(
+                    pages.iter().any(|(page, _)| *page == path),
+                    "{} isn't written any more: run `cargo xtask wiki`",
+                    path.display()
+                );
+            }
+        }
     }
 }
 
@@ -61,5 +67,42 @@ fn herb_pages_keep_effects_out() {
             "{} speaks of effects",
             path.display()
         );
+    }
+}
+
+/// Every named weapon has its line, and every line a weapon.
+#[test]
+fn every_weapon_has_a_line() {
+    let named = shared::blade::named_weapons();
+    for weapon in &named {
+        assert!(
+            LINES.iter().any(|(name, _)| *name == weapon.name),
+            "{} has no line in wiki/weapon_lines.rs",
+            weapon.name
+        );
+    }
+    for (name, _) in LINES {
+        assert!(
+            named.iter().any(|weapon| weapon.name == *name),
+            "{name} in wiki/weapon_lines.rs is no named weapon"
+        );
+    }
+}
+
+/// Every named weapon's page shows a picture that is there, and no two share
+/// a file name.
+#[test]
+fn every_weapon_has_a_picture() {
+    let mut files: Vec<String> = Vec::new();
+    for weapon in shared::blade::named_weapons() {
+        let file = file_name(weapon.name);
+        assert!(!files.contains(&file), "two weapons are {file}");
+        let picture = root().join(format!("docs/assets/weapons/{file}.png"));
+        assert!(
+            picture.exists(),
+            "{} is missing: run `cargo xtask wiki --pictures`",
+            picture.display()
+        );
+        files.push(file);
     }
 }
