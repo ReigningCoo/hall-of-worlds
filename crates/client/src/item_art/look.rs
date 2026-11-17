@@ -103,6 +103,8 @@ pub enum Look {
     Bag,
     /// The Pouch: leather, with a flap and a toggle (`pouch.rs`).
     Pouch,
+    /// A key: an old mortice or skeleton key, by its lock (`key/`).
+    Key(super::KeyLook),
     /// The Keyring: an iron ring with keys on it (`keyring.rs`).
     Keyring,
     /// The Herb Pouch: green linen with a leaf on it (`herb_pouch.rs`).
@@ -150,7 +152,7 @@ impl Look {
         match self {
             Self::Gem { .. } | Self::Ring { .. } | Self::Necklace { .. } => (1, 1),
             Self::Parcel => (2, 2),
-            Self::Keepsake | Self::Herb(_) => (1, 1),
+            Self::Keepsake | Self::Herb(_) | Self::Key(_) => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),
             Self::Keyring | Self::HerbPouch => (2, 1),
