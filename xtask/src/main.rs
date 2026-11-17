@@ -15,6 +15,7 @@ mod scenario;
 mod shapes;
 mod sizes;
 mod target_dir;
+mod test_cache;
 mod web_deltas;
 mod webgl;
 
@@ -28,9 +29,12 @@ const USAGE: &str = "\
 Usage: cargo xtask <task>
 
 Tasks:
-  test    Check formatting, type-check and lint (warnings are errors) for
+  test [--all]
+          Check formatting, type-check and lint (warnings are errors) for
           both native and the browser (wasm), then run the tests. Run this
-          before merging.
+          before merging. A crate's tests are skipped if its test binary and
+          the files they read are unchanged since they passed; --all (or
+          the CI variable being set) runs every one.
   lint    The same checks without the tests, and the file size, WebGL 2,
           Dockerfile and icon checks. The pre-commit hook runs this.
   sizes   Lower the entries in xtask/large-files.txt to the files' sizes
@@ -111,13 +115,14 @@ const LINTS: &[Check] = &[
 /// The features that build the debug API in, for every crate that has it.
 const DEBUG_API: &str = "client/debug-api,server/debug-api";
 
-/// With the debug API, so its tests run too.
-const TESTS: Check = ("Tests", &["test", "--workspace", "--features", DEBUG_API]);
-
 fn main() -> ExitCode {
     match env::args().nth(1).as_deref() {
         Some("test") => all_passed([
-            run_checks(LINTS.iter().chain([&TESTS])),
+            run_checks(LINTS),
+            test_cache::run(
+                &workspace_root(),
+                env::args().skip(2).any(|arg| arg == "--all"),
+            ),
             sizes::check(&workspace_root()),
             webgl::check(&workspace_root()),
             dockerfiles::check(&workspace_root()),

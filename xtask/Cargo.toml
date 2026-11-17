@@ -19,3 +19,5 @@ resvg = { version = "0.49", default-features = false }
 # The title font's letter outlines, for the app icon (`app-icon`), in pure
 # Rust (MIT OR Apache-2.0); already used by resvg.
 ttf-parser = "0.25"
+# Reads cargo's JSON messages for the test binaries it built (`test`).
+serde_json.workspace = true
