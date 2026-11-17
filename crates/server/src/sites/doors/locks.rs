@@ -68,7 +68,7 @@ pub(in crate::sites) fn ensure_locks(
         door.swing = Swing::Closed;
         saved.doors.insert(at, door);
         let mut key = Item::new(new_id(), ItemKind::Key);
-        key.form = Some(ItemForm::Key(lock.id));
+        key.form = Some(ItemForm::key(lock.id));
         let mob = *saved.mobs.entry(holder).or_insert_with(new_id);
         saved.records.entry(mob).or_default().carried.push(key);
     }

@@ -200,6 +200,7 @@ impl Plugin for ServerPlugin {
                     connections::share_doors,
                     connections::sync_entities,
                     connections::follow_quests,
+                    connections::note_found_keys,
                     connections::sync_ground,
                     connections::tell_the_time,
                     connections::tell_of_lightning,

@@ -1,8 +1,9 @@
 //! Opening and closing doors: what a player asks, checked here.
 
 use bevy::prelude::*;
-use shared::door::{Side, Swing, carries_key, door_cost};
+use shared::door::{Side, Swing, carries_key, door_cost, note_key_turned};
 use shared::dungeon::{Cell, Sight};
+use shared::item_form::Turned;
 use shared::protocol::{ServerMessage, level_chunk};
 
 use super::VisitDoor;
@@ -48,6 +49,7 @@ pub(crate) fn open_door(
     }
     // Locked: unlocked first, with its key, or it stays shut.
     let mut cost = door_cost();
+    let mut turned = false;
     if let Some(lock) = door.door.lock.as_mut().filter(|lock| lock.locked) {
         if !carries_key(&client.inventory, lock.id) {
             info!("A locked door at ({x}, {y}) stays shut");
@@ -56,6 +58,9 @@ pub(crate) fn open_door(
         }
         lock.locked = false;
         cost += door_cost();
+        let place = crate::sites::key_place(client, world);
+        let lock = lock.id;
+        turned = note_key_turned(&mut client.inventory, lock, &place, Turned::Unlocked);
     }
     let runs = visit.level.level.opening_runs_east_west(x, y);
     let from = Side::of(runs, (x, y), (px, py));
@@ -63,6 +68,12 @@ pub(crate) fn open_door(
     door.door.swing = Swing::Open(side);
     let visit = client.visit.as_mut().expect("checked above");
     set_with_gate(visit, world, (x, y), door);
+    if turned {
+        client.unsaved = true;
+        if !client.send_inventory() {
+            return (false, cost);
+        }
+    }
     (update_sight(client), cost)
 }
 
@@ -87,10 +98,13 @@ pub(crate) fn close_near(client: &mut Client, world: &mut ServerWorld) -> (bool,
         .map(|(&at, &door)| (at, door))
         .collect();
     let mut closed = false;
+    let mut turned = false;
     for (at, mut door) in near {
         if door.door.swing.is_shut() {
             if let Some(lock) = &mut door.door.lock {
                 lock.locked = true;
+                let place = crate::sites::key_place(client, world);
+                turned |= note_key_turned(&mut client.inventory, lock.id, &place, Turned::Locked);
             }
         } else if world.someone_in_doorway(client, at, door.key) || gate_blocked(client, world, at)
         {
@@ -103,6 +117,12 @@ pub(crate) fn close_near(client: &mut Client, world: &mut ServerWorld) -> (bool,
     }
     if !closed {
         return (true, 0);
+    }
+    if turned {
+        client.unsaved = true;
+        if !client.send_inventory() {
+            return (false, door_cost());
+        }
     }
     (update_sight(client), door_cost())
 }
@@ -187,7 +207,7 @@ pub(crate) fn dev_key(client: &mut Client, world: &mut ServerWorld) -> bool {
     }
     for lock in chosen {
         let mut key = shared::item::Item::new(crate::ids::new_id(), shared::item::ItemKind::Key);
-        key.form = Some(shared::item_form::ItemForm::Key(lock));
+        key.form = Some(shared::item_form::ItemForm::key(lock));
         if let Err(key) = client
             .inventory
             .give(key, world.stacks, &mut crate::ids::new_id)

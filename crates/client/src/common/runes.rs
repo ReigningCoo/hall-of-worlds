@@ -1,4 +1,5 @@
-//! A planet's name in runes as a picture, for the planet chooser: drawn from
+//! A planet's name in runes as a picture, for the Quest Log's planet chooser
+//! and a key's popup: drawn from
 //! the shared rune strokes (`shared::hall::RUNE_STROKES`), never a font
 //! (owner), so it looks as the code does on the gates.
 
@@ -9,8 +10,6 @@ use shared::hall::{
     CODE_LENGTH, GLYPH_HEIGHT, GLYPH_WIDTH, GateCode, RUNE_STROKES, SEPARATOR_STROKES, Stroke,
 };
 
-use crate::widgets::INK;
-
 /// Pixels a grid step, so the picture stays sharp at a line's height.
 const STEP: f32 = 6.0;
 /// Grid steps between runes, the separator's width, a stroke's width and the
@@ -20,13 +19,13 @@ const SEPARATOR: f32 = 2.0;
 const STROKE: f32 = 0.8;
 const MARGIN: f32 = 0.6;
 
-/// The code's runes in ink on nothing.
-pub(super) fn picture(code: GateCode) -> Image {
+/// The code's runes in `ink` (the writing's colour) on nothing.
+pub fn rune_picture(code: GateCode, ink: Color) -> Image {
     let steps_wide = CODE_LENGTH as f32 * (f32::from(GLYPH_WIDTH) + GAP) + SEPARATOR + 2.0 * MARGIN;
     let width = (steps_wide * STEP).ceil() as u32;
     let height = ((f32::from(GLYPH_HEIGHT) + 2.0 * MARGIN) * STEP).ceil() as u32;
     let mut pixels = vec![0u8; (width * height * 4) as usize];
-    let ink = INK.to_srgba().to_u8_array_no_alpha();
+    let ink = ink.to_srgba().to_u8_array_no_alpha();
     let mut left = MARGIN;
     for (i, &index) in code.0.iter().enumerate() {
         if i == 3 {

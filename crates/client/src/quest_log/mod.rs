@@ -17,7 +17,6 @@ mod open;
 mod page;
 mod planets;
 mod read;
-mod runes;
 mod show;
 mod state;
 

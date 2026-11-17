@@ -1,6 +1,8 @@
 //! What an item's popup shows: its name in its quality's colour, its
 //! description if it has one, anything about where it is, a line for each bonus, what it asks of its wearer (what
-//! the viewer falls short of as a warning), and its weight at the bottom.
+//! the viewer falls short of as a warning), what a key remembers (with the
+//! runes of the planet it was found on, if not this one), and its weight at
+//! the bottom.
 
 use super::about::about;
 use super::needs::{Viewer, need_lines};
@@ -27,11 +29,20 @@ pub(super) static ITEM_POPUP: Template = html!(
     <p id="bonuses" hidden>.</p>
     <p id="needs" hidden>.</p>
     <p id="unmet" class="warning" hidden>.</p>
+    <p id="keys" hidden>.</p>
+    <img id="planet" hidden/>
     <p id="weight">.</p>
   </popup>
 </form>
 "#
 );
+
+/// What a key's popup says it remembers (`keys::key_lines`), and the name of
+/// the picture of the runes to show under it (`dom::Pictures`), if any.
+pub(super) struct KeyWords {
+    pub(super) lines: Vec<String>,
+    pub(super) runes: Option<String>,
+}
 
 /// Places the popup about `of` at `at` and writes what it says, its
 /// requirements against the `viewer` (none: all met).
@@ -41,6 +52,7 @@ pub(super) fn fill(
     pointed: &Pointed,
     at: Vec2,
     (lang, viewer): (&Lang, Option<Viewer>),
+    keys: KeyWords,
 ) {
     let form = UiId::of(FORM, of, "box").form();
     let id = |name: &str| format!("{form}/{name}");
@@ -60,6 +72,18 @@ pub(super) fn fill(
         dom.set_flag(&id(name), "hidden", lines.is_empty());
         dom.set_text(&id(name), lines.join("\n"));
     }
+    dom.set_flag(&id("keys"), "hidden", keys.lines.is_empty());
+    dom.set_text(
+        &id("keys"),
+        keys.lines.join(
+            "
+",
+        ),
+    );
+    if let Some(runes) = &keys.runes {
+        dom.set(&id("planet"), "src", &format!("picture:{runes}"));
+    }
+    dom.set_flag(&id("planet"), "hidden", keys.runes.is_none());
     let weight = weight_words(pointed.item.total_weight(), None);
     dom.set_text(&id("weight"), weight);
 }

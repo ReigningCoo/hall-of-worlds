@@ -211,4 +211,6 @@ pub(super) fn keep_door(world: &mut ServerWorld, key: DoorKey, door: Door) {
 }
 
 #[cfg(test)]
+mod keys_tests;
+#[cfg(test)]
 mod tests;

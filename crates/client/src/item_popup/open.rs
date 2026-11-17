@@ -5,13 +5,16 @@ use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::Item;
 
+use super::keys::key_lines;
 use super::needs::Viewer;
-use super::show::{ITEM_POPUP, fill};
+use super::show::{ITEM_POPUP, KeyWords, fill};
 use crate::character::{CharacterSheet, WithBonuses};
-use crate::common::Wording;
-use crate::dom::{DocumentOf, Dom, HeldObject, KeptOpen, Popup, UiEvent, UiValue, document};
+use crate::common::{CurrentWorld, Wording, rune_picture};
+use crate::dom::{
+    DocumentOf, Dom, HeldObject, KeptOpen, Pictures, Popup, UiEvent, UiValue, document,
+};
 use crate::inventory::Carried;
-use crate::widgets::{PointedItem, UiId};
+use crate::widgets::{INK, PointedItem, UiId};
 
 /// How long the pointer rests on an item before its popup opens, by the real
 /// clock: long enough not to flash one open for every item passed over.
@@ -76,6 +79,11 @@ pub(super) fn follow_pointed(
     mut kept: ResMut<KeptOpen>,
     (mut dom, wording): (Dom, Res<Wording>),
     (sheet, told, carried): (Res<CharacterSheet>, Res<WithBonuses>, Res<Carried>),
+    (world, mut images, mut pictures): (
+        Option<Res<CurrentWorld>>,
+        ResMut<Assets<Image>>,
+        ResMut<Pictures>,
+    ),
     mut commands: Commands,
 ) {
     let pointed = pointed.0.take().filter(|_| held.thing().is_none());
@@ -121,12 +129,21 @@ pub(super) fn follow_pointed(
         attributes,
         kind: carried.0.creature,
     });
+    let (lines, runes) = key_lines(&pointed.item, &wording.0, world.map(|world| world.id));
+    let runes = runes.map(|code| {
+        let name = format!("planet-runes-{code}");
+        if !pictures.has(&name) {
+            pictures.name(name.clone(), images.add(rune_picture(code, INK)));
+        }
+        name
+    });
     fill(
         &mut dom,
         of,
         &pointed,
         (pointed.at + OFFSET).round(),
         (&wording.0, viewer),
+        KeyWords { lines, runes },
     );
     kept.0.push(box_id(of));
     popups.open.push(OpenPopup {

@@ -7,10 +7,11 @@ use shared::lang::Lang;
 use shared::protocol::PlanetQuests;
 use shared::world::WorldId;
 
-use super::runes::picture;
 use super::state::LogPanel;
+use crate::common::rune_picture;
 use crate::dom::Dom;
 use crate::quests::plain;
+use crate::widgets::INK;
 
 const CHOOSER: &str = "quest_log/planet";
 
@@ -62,7 +63,8 @@ pub(super) fn show_planets(
             .into_iter()
             .map(|(world, code)| {
                 let made = panel.runes.entry(world);
-                made.or_insert_with(|| images.add(picture(code))).clone()
+                made.or_insert_with(|| images.add(rune_picture(code, INK)))
+                    .clone()
             })
             .collect();
         dom.set_option_pictures(CHOOSER, pictures);
