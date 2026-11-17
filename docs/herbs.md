@@ -11,13 +11,15 @@ Herbs grow wild across every land, and herbalists grow them in beds beside their
 
 Herbs grow in patches. Which herbs grow where depends on the land and how warm it is: a herb of the tundra won't grow in the desert. Common herbs turn up often, rare ones seldom. Herbalists grow rarer herbs more often than the wild does, and grow something even where nothing grows wild.
 
-A patch grows through four stages, from a shoot to full grown, and then seeds and starts again. Click or tap a patch beside you to pick it. A full grown patch gives two to four; some can be picked a little early for less, and often worse. Picking cuts the plant back, so a patch takes time to grow again, and herbs picked for their roots are dug up and gone for a whole growth.
+A patch grows through four stages, from a shoot to full grown, and then seeds and starts again. Click or tap a patch beside you to pick it. A full grown patch gives one to three; some can be picked a little early for less. Picking cuts the plant back, so a patch takes time to grow again, and herbs picked for their roots are dug up and gone for a whole growth.
 
-Your **Foraging** skill makes better herbs more likely, and picking practises it. A herb's quality (Poor to Artifact) shows in the colour of its name. Herbs of the same kind and quality stack, though each looks a little different.
+Your **Foraging** skill finds more on each plant, up to seven at its best, and picking practises it. The **Herbs** skill, for growing herbs, will let you take more still, at least five and up to eleven with both; nothing teaches it yet.
+
+A herb's quality is how rare its plant is: a common herb is Common, an uncommon one Uncommon, a rare one Rare. It shows in the colour of its name. Herbs of the same kind stack, though each looks a little different.
 
 ## The herb pouch
 
-Herbalists sell a **herb pouch**, which ties onto a bag slot of your belt like a keyring. It holds only herbs, but as many as you like: it grows as it fills. Double-click it (or tap it twice) to open it. Herbs you pick or are given go into it first and stack by kind and quality, unless you drag one to a place yourself. The better the pouch, the less the herbs in it weigh, down to nothing for an artifact.
+Herbalists sell a **herb pouch**, which ties onto a bag slot of your belt like a keyring. It holds only herbs, but as many as you like: it grows as it fills. Double-click it (or tap it twice) to open it. Herbs you pick or are given go into it first and stack by kind, unless you drag one to a place yourself. The better the pouch, the less the herbs in it weigh, down to nothing for an artifact.
 
 ## Knowing herbs
 

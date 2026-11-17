@@ -62,7 +62,8 @@ impl Regrow {
 pub struct Early {
     /// How much of a full harvest it gives, as a percentage: 0 for nothing.
     pub taken: u8,
-    /// How strong what it gives is, as a percentage.
+    /// How strong what it gives is, as a percentage: kept for potions, as
+    /// quality is now always the plant's rarity.
     pub strength: u8,
     /// The research's words for it.
     pub note: String,

@@ -9,6 +9,7 @@ delapouite/healing
 # Skills (skills_page/icons.rs)
 lorc/anvil
 lorc/paw
+delapouite/plant-watering
 delapouite/templar-shield
 carl-olsen/crossbow
 carl-olsen/spider-face

@@ -2,6 +2,7 @@
 
 use shared::creature::CreatureKind;
 use shared::gender::Gender;
+use shared::herb::settle_herbs;
 use shared::item::{Inventory, Item, ItemKind, MadeAt, Quality, StackLimits};
 use shared::item_form::{ItemOrder, make_item};
 use shared::protocol::ServerMessage;
@@ -124,6 +125,15 @@ pub(super) fn welcome(
                 client.character.world_position = crate::world_map::arrival(world, id);
             }
             client.inventory = inventory;
+            // Herbs from before their quality was their rarity, put right and joined.
+            let settled = settle_herbs(&mut client.inventory, &world.herbs, world.stacks);
+            if settled > 0 {
+                bevy::log::info!(
+                    "Settled {settled} herb items' quality for character {}",
+                    id.0
+                );
+                client.unsaved = true;
+            }
             client.sheet = start_sheet(sheet, client.starting_as.take(), &mut client.inventory);
             // Skills from before rust count as used now.
             client.sheet.skills.settle(played);

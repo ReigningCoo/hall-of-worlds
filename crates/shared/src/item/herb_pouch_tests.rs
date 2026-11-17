@@ -15,9 +15,12 @@ fn def(key: &str) -> HerbDef {
     Herbs::built_in().get(key).expect("a built-in herb").clone()
 }
 
-/// `count` roseroot (or `key`) of this quality, with id `n`.
+/// `count` roseroot (or `key`) of this quality, with id `n`: a herb's quality
+/// is its plant's rarity, but an old save's could be anything.
 fn herbs(key: &str, quality: Quality, count: u32, n: u128) -> Item {
-    new_item(&def(key), quality, count, id(n), None)
+    let mut item = new_item(&def(key), count, id(n), None);
+    item.quality = Some(quality);
+    item
 }
 
 /// A human with a 6 × 4 grid wearing a Rare belt (1, three slots) with a herb

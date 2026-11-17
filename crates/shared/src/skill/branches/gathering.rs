@@ -18,6 +18,7 @@ pub(in super::super) const GATHERING: Draft = branch(
                 leaf("crops", "Crops", &[]),
                 leaf("orchards", "Orchards", &[]),
                 leaf("livestock", "Livestock", &[]),
+                leaf("herbs", "Herbs", &[]),
             ],
         ),
         branch(

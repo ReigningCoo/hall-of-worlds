@@ -1,13 +1,14 @@
 //! Harvesting a herb patch (`ClientMessage::PickHerb`), in turn with the
 //! player's steps: one beside or under them, grown enough (`HerbPatch::can_pick`),
-//! gives its herb (how many by its stage, how good by Foraging: `herb::harvest`)
+//! gives its herb (how many by its stage, Foraging and Herbs; as good as it is
+//! rare: `herb::harvest`)
 //! into their inventory, or onto the ground under them if it doesn't fit;
 //! practises Foraging, teaches the herb's name, and keeps when it was picked so
 //! it grows back by its herb's rule (`sites::keep_harvest`).
 
 use bevy::prelude::*;
 use shared::door::door_cost;
-use shared::herb::{FORAGING, harvest, new_item, skill_value};
+use shared::herb::{FORAGING, HERBS, harvest, new_item, skill_value};
 use shared::protocol::{HerbNews, ServerMessage};
 use shared::rng::Seed;
 use shared::skill::SkillId;
@@ -61,19 +62,16 @@ pub(super) fn pick_herb(
         return refused(client, "not grown enough");
     }
     let key = visit.herb_key(x, y);
-    let foraging = skill_value(&client.sheet.skills, FORAGING);
+    let skills = (
+        skill_value(&client.sheet.skills, FORAGING),
+        skill_value(&client.sheet.skills, HERBS),
+    );
     let mut rng = Seed::new(new_id().seed().value()).rng();
     let stage = patch.stage(&def, now);
-    let Some(got) = harvest(&def, stage, foraging, &mut rng) else {
+    let Some(got) = harvest(&def, stage, skills, &mut rng) else {
         return refused(client, "nothing to take this early");
     };
-    let item = new_item(
-        &def,
-        got.quality,
-        got.count,
-        new_id(),
-        Some(world.made_now()),
-    );
+    let item = new_item(&def, got.count, new_id(), Some(world.made_now()));
     if let Err(item) = client.inventory.give(item, world.stacks, &mut new_id) {
         crate::ground::put_down(client, world, item);
         client.ground_told.again = true;
