@@ -27,7 +27,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
     if let Some(bottle) = item.bottle() {
         return Some(Look::Bottle {
             bottle: super::BottleLook::of(bottle),
-            liquid: super::LiquidLook::of(&bottle.contents),
+            liquid: super::LiquidLook::of_bottle(bottle),
         });
     }
     if let Some(herb) = item.herb() {

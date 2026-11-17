@@ -27,7 +27,12 @@ pub(super) struct GiveItemParams {
     herb: Option<String>,
     /// For `"Fruit"`: the fruit's key (`"apple"`); any fruit if missing.
     fruit: Option<String>,
-    /// For `"Bottle"`: how many effects the potion holds; empty if missing.
+    /// For `"Bottle"`: what it holds, `{ "Water": "Moon" }` (`Plain`, `Cave`,
+    /// `Moon`, `Salt`), `{ "Oil": "Nut" }` (`Vegetable`, `Nut`, `Seed`) or
+    /// `"Potion"`; by `effects` if missing.
+    liquid: Option<shared::potion::LiquidKind>,
+    /// For `"Bottle"`: how many effects the potion holds; empty if missing
+    /// and no liquid is asked for.
     effects: Option<u8>,
     /// How many, alike (1 if missing).
     count: Option<u32>,
@@ -36,7 +41,8 @@ pub(super) struct GiveItemParams {
 /// `client.give_item { "kind": "Ring", "quality": "Rare", "magical": true }`
 /// (or `{ "kind": "Herb", "herb": "roseroot", "count": 3 }`,
 /// `{ "kind": "Fruit", "fruit": "watermelon" }`, or
-/// `{ "kind": "Bottle", "effects": 2 }` for a potion): into the
+/// `{ "kind": "Bottle", "effects": 2 }` for a potion, or
+/// `{ "kind": "Bottle", "liquid": { "Water": "Moon" } }`): into the
 /// inventory, as Give Item does. Saved.
 pub(super) fn give_item(
     In(request): In<Option<Value>>,
@@ -50,6 +56,7 @@ pub(super) fn give_item(
         favour,
         herb,
         fruit,
+        liquid,
         effects,
         count,
     } = params(request)?;
@@ -65,6 +72,7 @@ pub(super) fn give_item(
             count: count.unwrap_or(1),
             identical: true,
             request: shared::item_form::RollRequest {
+                liquid,
                 effects,
                 ..shared::item_form::RollRequest::NONE
             },

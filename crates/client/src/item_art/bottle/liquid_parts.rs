@@ -79,7 +79,11 @@ pub(super) fn liquid_parts(
             Feature::Bubbles => (main.mix(&Color::WHITE, 0.8), false),
             Feature::Sparkles => (Color::srgb(1.0, 0.97, 0.8), true),
             Feature::Swirl => (second_colour(look), false),
-            Feature::Blobs => (blob_colour(look, look.blobs.unwrap_or(look.main)), false),
+            // Only potions have blobs, so `blobs` is set.
+            Feature::Blobs => match look.blobs {
+                Some(stat) => (blob_colour(look, stat), false),
+                None => continue,
+            },
         };
         parts.push(part(balls_mesh(&balls), feature_material(colour, glow)));
     }

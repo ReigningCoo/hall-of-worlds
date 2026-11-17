@@ -84,11 +84,14 @@ fn bottles_stack_by_contents_whatever_their_look() {
     // Potions stack only with the same contents.
     let mut c = bottle(3, 5, 2);
     let d = bottle(4, 6, 2);
-    assert_ne!(c.bottle().unwrap().contents, d.bottle().unwrap().contents);
+    assert_ne!(
+        c.bottle().unwrap().contents(),
+        d.bottle().unwrap().contents()
+    );
     assert!(!c.looks_like(&d));
     let mut e = bottle(5, 7, 0);
     if let Some(crate::item_form::ItemForm::Bottle(form)) = &mut e.form {
-        form.contents = c.bottle().unwrap().contents.clone();
+        form.liquid = c.bottle().unwrap().liquid.clone();
     }
     assert!(c.looks_like(&e));
     // Nor across quality.

@@ -1,11 +1,12 @@
 //! Item Pictures' Bottles page: every shape in clear glass with a cork, every
-//! shade of glass, every stopper on two shapes, bottles as rolled, then potions:
+//! shade of glass, every stopper on two shapes, bottles as rolled, waters and
+//! oils, then potions:
 //! each stat alone helping and harming, stronger and weaker, mixes, and liquids
 //! in every shape and glass.
 
 use bevy::prelude::*;
 use shared::herb::Stat;
-use shared::potion::{BottleForm, Contents, Dose};
+use shared::potion::{BottleForm, Contents, Dose, Liquid, Oil, Water};
 
 use super::Shown;
 use super::armour::spawn_row;
@@ -58,14 +59,23 @@ pub(super) fn spawn_bottle_rows(grid: &mut ChildSpawnerCommands) {
     spawn_row(grid, "Stoppers", stoppers);
     for row in 0..2u64 {
         let rolled = (0..8).map(move |n| {
-            let form = BottleForm {
-                contents: Contents::EMPTY,
-                look: row * 8 + n,
-            };
+            let form = BottleForm::new(None, row * 8 + n);
             Shown::Bottle(BottleLook::of(&form), None)
         });
         spawn_row(grid, if row == 0 { "Rolled" } else { "" }, rolled);
     }
+    let waters = Water::ALL.map(Liquid::Water);
+    let oils = Oil::ALL.map(Liquid::Oil);
+    let plain = waters.into_iter().chain(oils).map(|liquid| {
+        let form = BottleForm::new(Some(liquid), 0);
+        let bottle = look(
+            BottleShape::RoundFlask,
+            BottleGlass::Clear,
+            BottleStopper::Cork,
+        );
+        Shown::Bottle(bottle, LiquidLook::of_bottle(&form))
+    });
+    spawn_row(grid, "Waters, oils", plain);
     spawn_potion_rows(grid);
 }
 

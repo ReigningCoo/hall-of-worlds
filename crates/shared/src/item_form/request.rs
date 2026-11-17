@@ -9,6 +9,7 @@ use crate::footwear::FootwearPiece;
 use crate::item::ItemKind;
 use crate::item_form::{Cut, Limits};
 use crate::material::Material;
+use crate::potion::LiquidKind;
 use crate::underclothes::UnderPiece;
 
 /// What a new item must be like. Anything left `None` is rolled as usual, so
@@ -34,7 +35,11 @@ pub struct RollRequest {
     pub settings: Option<u8>,
     /// What a blade must keep to; it may then be another family's kind.
     pub limits: Option<Limits>,
-    /// How many effects a bottle holds: 0 for an empty one (`shared::potion`).
+    /// What a bottle holds (`shared::potion`): without it, a potion if asked
+    /// for effects, or else nothing.
+    pub liquid: Option<LiquidKind>,
+    /// How many effects a bottle's potion has: 0 for an empty bottle when no
+    /// liquid is asked for.
     pub effects: Option<u8>,
 }
 
@@ -50,6 +55,7 @@ pub enum Field {
     GemCut,
     Settings,
     Limits,
+    Liquid,
     Effects,
 }
 
@@ -69,6 +75,7 @@ impl RollRequest {
         gem_cut: None,
         settings: None,
         limits: None,
+        liquid: None,
         effects: None,
     };
 
@@ -84,6 +91,7 @@ impl RollRequest {
             (Field::GemCut, self.gem_cut.is_some()),
             (Field::Settings, self.settings.is_some()),
             (Field::Limits, self.limits.is_some()),
+            (Field::Liquid, self.liquid.is_some()),
             (Field::Effects, self.effects.is_some()),
         ];
         asked
@@ -104,6 +112,7 @@ impl RollRequest {
             Field::GemCut => self.gem_cut = None,
             Field::Settings => self.settings = None,
             Field::Limits => self.limits = None,
+            Field::Liquid => self.liquid = None,
             Field::Effects => self.effects = None,
         }
         self
@@ -132,7 +141,7 @@ pub fn fields(kind: ItemKind) -> &'static [Field] {
     }
     match kind {
         ItemKind::Gem => &[GemMaterial, GemCut],
-        ItemKind::Bottle => &[Effects],
+        ItemKind::Bottle => &[Liquid, Effects],
         ItemKind::Ring | ItemKind::Necklace => &[Material, Settings, GemMaterial, GemCut],
         // Their cloth is a material, and shoulders' finish is leather's own.
         ItemKind::Gauntlets

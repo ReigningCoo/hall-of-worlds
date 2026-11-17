@@ -1,8 +1,10 @@
-//! Contents rolled from a seed: for Give Item (dev tools) until brewing makes
-//! potions. Both sides roll the same from the same seed.
+//! Contents rolled from a seed, and the bottles asked for: for Give Item (dev
+//! tools) until brewing makes potions. Both sides roll the same from the same
+//! seed.
 
-use super::{Contents, Dose};
+use super::{BottleForm, Contents, Dose, Liquid, LiquidKind};
 use crate::herb::Stat;
+use crate::item_form::{Field, Refused, RollRequest};
 use crate::rng::Rng;
 
 /// The most effects Give Item can ask a potion to have.
@@ -24,4 +26,27 @@ pub fn roll_contents(rng: &mut Rng, effects: u8) -> Contents {
         doses.push(Dose { stat, step });
     }
     Contents::new(doses)
+}
+
+/// The bottle Give Item asks for (`RollRequest::liquid` and `effects`): with
+/// no liquid asked for, a potion of that many effects, or empty for none; a
+/// potion asked for has 1 to `MOST_EFFECTS` unless told how many (never 0);
+/// a water or an oil takes no effects.
+pub fn bottle_to(rng: &mut Rng, request: &RollRequest, look: u64) -> Result<BottleForm, Refused> {
+    let refused = Err(Refused(Field::Effects));
+    let liquid = match (request.liquid, request.effects) {
+        (_, Some(effects)) if effects > MOST_EFFECTS => return refused,
+        (None, effects) => Some(Liquid::Potion(roll_contents(rng, effects.unwrap_or(0)))),
+        (Some(LiquidKind::Potion), Some(0)) => return refused,
+        (Some(LiquidKind::Potion), effects) => {
+            let effects =
+                effects.unwrap_or_else(|| rng.range_u64(1, MOST_EFFECTS as u64 + 1) as u8);
+            Some(Liquid::Potion(roll_contents(rng, effects)))
+        }
+        (Some(_), Some(effects)) if effects > 0 => return refused,
+        (Some(LiquidKind::Water(water)), _) => Some(Liquid::Water(water)),
+        (Some(LiquidKind::Oil(oil)), _) => Some(Liquid::Oil(oil)),
+    };
+    // An empty potion is an empty bottle.
+    Ok(BottleForm::new(liquid, look))
 }

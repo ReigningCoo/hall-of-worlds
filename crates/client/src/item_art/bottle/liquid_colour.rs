@@ -5,8 +5,9 @@
 
 use bevy::prelude::*;
 use shared::herb::Stat;
+use shared::potion::{Oil, Water};
 
-use super::liquid::{LiquidLook, MOST_NET, MOST_STRENGTH};
+use super::liquid::{Base, LiquidLook, MOST_NET, MOST_STRENGTH};
 
 /// How far towards white the most helpful liquid goes, and towards black the
 /// most harmful.
@@ -15,6 +16,41 @@ const DARKEST: f32 = 0.6;
 /// How see-through the weakest and strongest liquids are.
 const WEAKEST_ALPHA: f32 = 0.72;
 const STRONGEST_ALPHA: f32 = 0.97;
+/// How see-through waters and oils are: water nearly clear, oil less so.
+const WATER_ALPHA: f32 = 0.4;
+const OIL_ALPHA: f32 = 0.82;
+
+/// A water's colour: faintly tinted, as water in glass is.
+fn water_colour(water: Water) -> Color {
+    match water {
+        Water::Plain => Color::srgb(0.72, 0.86, 0.95),
+        // Mineral: a grey green.
+        Water::Cave => Color::srgb(0.62, 0.74, 0.7),
+        // Silvery, a touch of violet.
+        Water::Moon => Color::srgb(0.82, 0.84, 0.98),
+        // Sea green, a little cloudy.
+        Water::Salt => Color::srgb(0.6, 0.82, 0.78),
+    }
+}
+
+/// An oil's colour: golden to amber.
+fn oil_colour(oil: Oil) -> Color {
+    match oil {
+        Oil::Vegetable => Color::srgb(0.95, 0.78, 0.2),
+        Oil::Nut => Color::srgb(0.78, 0.5, 0.16),
+        // Greenish gold, like hemp or pumpkin seed oil.
+        Oil::Seed => Color::srgb(0.66, 0.7, 0.18),
+    }
+}
+
+/// The colour a base starts from.
+fn base_colour(base: Base) -> Color {
+    match base {
+        Base::Stat(stat) => stat_colour(stat),
+        Base::Water(water) => water_colour(water),
+        Base::Oil(oil) => oil_colour(oil),
+    }
+}
 
 /// A stat's own colour.
 pub(super) fn stat_colour(stat: Stat) -> Color {
@@ -49,13 +85,18 @@ pub(super) fn shaded(colour: Color, net: i16) -> Color {
 
 /// How solid the liquid is, from its strength.
 pub(super) fn alpha(look: &LiquidLook) -> f32 {
+    match look.main {
+        Base::Water(_) => return WATER_ALPHA,
+        Base::Oil(_) => return OIL_ALPHA,
+        Base::Stat(_) => {}
+    }
     let share = look.strength as f32 / MOST_STRENGTH as f32;
     WEAKEST_ALPHA + (STRONGEST_ALPHA - WEAKEST_ALPHA) * share
 }
 
 /// The main colour, shaded.
 pub(super) fn main_colour(look: &LiquidLook) -> Color {
-    shaded(stat_colour(look.main), look.net)
+    shaded(base_colour(look.main), look.net)
 }
 
 /// The second colour, shaded: the second strongest stat's, or the main one
