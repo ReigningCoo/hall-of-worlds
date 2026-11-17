@@ -37,7 +37,8 @@ impl Wilderness {
 
     /// The herb patches growing wild in `block`, whose cells are `cells`
     /// (`block(block, plan)`), with `herbs` the server's table: only on open
-    /// ground and grass, never in a cutout or a gate's clearing.
+    /// ground and grass, never in a cutout, on its border or in a gate's
+    /// clearing.
     pub fn herb_patches(
         &self,
         block: BlockPos,
@@ -49,6 +50,7 @@ impl Wilderness {
         let free = |x: i64, y: i64| {
             matches!(cells.cell(x, y), Cell::Ground | Cell::Grass)
                 && !plan.cutout().is_some_and(|cutout| cutout.contains(x, y))
+                && !plan.keeps_clear(x, y)
                 && !plan
                     .gates()
                     .iter()

@@ -105,6 +105,15 @@ impl ChunkPlan {
         Self::new(wild, chunk, poi.zip(site.as_ref()), &gates, &[])
     }
 
+    /// Whether nothing may grow or be placed on a cell (no trees, no herbs):
+    /// it is on its cutout's hatched border (`Cutout::on_border`). Every
+    /// part of the wilderness that grows things on cells asks this.
+    pub fn keeps_clear(&self, x: i64, y: i64) -> bool {
+        self.cutout
+            .as_ref()
+            .is_some_and(|cutout| cutout.on_border(x, y))
+    }
+
     pub fn chunk(&self) -> ChunkPos {
         self.chunk
     }

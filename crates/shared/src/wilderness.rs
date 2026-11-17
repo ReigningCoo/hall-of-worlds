@@ -21,6 +21,8 @@ mod water;
 #[cfg(test)]
 mod course_tests;
 #[cfg(test)]
+mod ring_tests;
+#[cfg(test)]
 mod tests;
 
 pub use border::BORDER;
