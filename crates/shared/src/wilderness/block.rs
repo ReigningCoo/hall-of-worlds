@@ -104,7 +104,11 @@ impl Wilderness {
                             ROAD_CLEARED,
                             ROAD_CLEARED_TO,
                         );
-                    let trees = trees * open * MOST_TREES_PERCENT as f64 / 100.0;
+                    let trees = if plan.keeps_clear(x, y) {
+                        0.0
+                    } else {
+                        trees * open * MOST_TREES_PERCENT as f64 / 100.0
+                    };
                     rolls.ground(self.wrap(x), y, trees, growth)
                 };
                 level.set(x, y, cell);
