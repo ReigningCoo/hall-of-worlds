@@ -1,6 +1,7 @@
 ---
 title: Making a character
-nav_order: 4.2
+nav_order: 1
+parent: Gameplay
 ---
 
 # Making a character

@@ -1,6 +1,7 @@
 ---
 title: Shoulder armour
 parent: Armour
+grand_parent: Items
 nav_order: 3
 ---
 

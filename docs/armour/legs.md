@@ -1,6 +1,7 @@
 ---
 title: Leg armour
 parent: Armour
+grand_parent: Items
 nav_order: 8
 ---
 

@@ -1,6 +1,8 @@
 ---
 title: Herbs
-nav_order: 4.8
+nav_order: 6
+parent: Items
+grand_parent: Gameplay
 ---
 
 # Herbs

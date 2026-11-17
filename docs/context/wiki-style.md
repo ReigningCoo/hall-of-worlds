@@ -8,7 +8,10 @@ Signed off by the owner on 2026-11-04.
 
 - [x] A subject with several pages gets its own folder (`docs/armour/`) with an `index.md` overview, which has `has_children: true`, and one page per part, each with `parent:` set to the overview's title.
 - [x] Front matter: `title`, `nav_order`, and `parent` / `has_children` where they apply. A page's place in the menu follows how a player would come to it, not when it was written.
-- [x] A subject with only one page sits at the top of `docs/`, beside the others, with a `nav_order` next to the subject a player would look at with it (`footwear.md`, 4.6, after Armour at 4.5). Signed off on 2026-11-14.
+- [x] A subject with only one page sits at the top of `docs/`, beside the others, with a `nav_order` next to the subject a player would look at with it (`footwear.md`, 2, after Armour at 1 under Items). Signed off on 2026-11-14.
+- [ ] Every page belongs to one of three sections, each a page with `has_children: true` and a link in the top bar (`aux_links` in `docs/_config.yml`), which work like tabs: **Gameplay** (`gameplay.md`: playing the game, and the **Items** group, `items.md`, for things found, worn and carried), **Client** (`client-section.md`: installing, running and the client's own tools) and **Server** (`server-section.md`: hosting and its settings). Only the Introduction and Credits and licence sit outside them. A page that would suit two sections goes in one and the other links to it (Saves and data is under Client; Server links to it).
+- [ ] A page's front matter names its `parent` and, below a section, its `grand_parent` too (Head armour: `parent: Armour`, `grand_parent: Items`). Files stay where they are when they join a section, so addresses don't change.
+- [ ] `nav_order` counts in whole numbers within each parent; a new page is fitted in by renumbering its neighbours rather than with a fraction.
 - [x] File names are lower case words joined by hyphens (`full-sets.md`); titles are plain words ("Torso armour").
 
 ## What goes in

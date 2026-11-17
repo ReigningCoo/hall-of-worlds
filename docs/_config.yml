@@ -10,7 +10,11 @@ plugins:
   - jekyll-remote-theme
 color_scheme: dark
 search_enabled: true
+# The top bar's links to the three sections work like tabs.
 aux_links:
+  Gameplay: /gameplay
+  Client: /client-section
+  Server: /server-section
   GitHub: https://github.com/ReigningCoo/hall-of-worlds
 
 # Notes for Claude, not for players.
