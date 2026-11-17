@@ -36,6 +36,7 @@ mod stock;
 mod switch;
 mod tabs;
 mod text_box;
+mod text_scale;
 mod theme;
 mod ui_id;
 mod weight;
@@ -282,6 +283,7 @@ impl Plugin for WidgetsPlugin {
             )
             .add_systems(Last, ui_id::warn_of_duplicates);
         item_text::add(app);
+        text_scale::add(app);
         stock::add(app);
         hold_button::add(app);
         #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
