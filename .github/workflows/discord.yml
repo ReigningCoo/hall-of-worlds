@@ -65,7 +65,6 @@ jobs:
               | {embeds: [{
                   title: ($lines[0] | trim | cut(256)),
                   url: .url,
-                  author: {name: .author.name},
                   timestamp: .timestamp,
                   color: 5793266
                 } + (if $body == "" then {} else {description: $body} end)]}
