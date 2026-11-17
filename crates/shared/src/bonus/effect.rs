@@ -9,7 +9,7 @@ use crate::vitals::Vital;
 
 /// Where an effect came from. A creature has at most one from each, and one
 /// eaten at all: a new one takes its place, so eating a second apple starts it
-/// again, and bread after an apple ends the apple's (`replaced_by`).
+/// again, and bread after a fruit ends the fruit's (`replaced_by`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Source {
     /// Eating or drinking one of these.
@@ -24,17 +24,28 @@ pub enum Source {
     /// A herb eaten raw (`herb::raw_dose`): its own source, so it runs
     /// alongside food, and only the latest herb's counts.
     RawHerb,
+    /// Eating a fruit (`fruit::eating`): its healing, food like any eaten.
+    EatenFruit(crate::fruit::FruitTag),
+    /// A fruit's effects (`fruit::eating`): their own source, alongside food
+    /// and herbs, and only the latest fruit's count.
+    FruitEffects(crate::fruit::FruitTag),
     // New sources go at the end: messages carry one by its place in this list.
 }
 
 impl Source {
     /// Whether a new effect from `new` takes the place of one from this: the
-    /// same source, or both eaten, as only the latest food counts.
+    /// same source, or both eaten, as only the latest food counts, or both a
+    /// fruit's effects.
     pub fn replaced_by(self, new: Source) -> bool {
         match (self, new) {
-            (Source::Eaten(_), Source::Eaten(_)) => true,
-            _ => self == new,
+            (Source::FruitEffects(_), Source::FruitEffects(_)) => true,
+            _ => self.is_eaten() && new.is_eaten() || self == new,
         }
+    }
+
+    /// Whether it is eaten food's healing: any food, or a fruit.
+    pub fn is_eaten(self) -> bool {
+        matches!(self, Source::Eaten(_) | Source::EatenFruit(_))
     }
 }
 

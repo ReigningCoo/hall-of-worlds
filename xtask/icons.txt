@@ -146,6 +146,7 @@ sbed/help
 # Timed effects (effect_bar/icons.rs)
 delapouite/eating
 lorc/poison-bottle
+lorc/shiny-apple
 # An empty bag slot on the belt (inventory/bag_slots.rs)
 lorc/swap-bag
 # The bug button, opening Debug Info (debug_info/button.rs)

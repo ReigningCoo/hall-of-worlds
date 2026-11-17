@@ -4,7 +4,7 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 
 ## Files
 
-- `crates/shared/src/herb.rs`: the module list and re-exports. Tests in `herb/tests.rs`; `herb/climate_tests.rs` checks every biome grows something at its hottest and coldest.
+- `crates/shared/src/herb.rs`: the module list and re-exports. Tests in `herb/tests.rs`; `herb/climate_tests.rs` checks every biome grows something at its hottest and coldest (its `extremes` shared with `fruit`'s test).
 - `herb/herbs.ron`: the 82 built-in herbs, generated once from the research's `final.json` (the script stayed outside the repo); edit by hand from now on. Read by `include_str!`.
 - `herb/def.rs`: `HerbDef`, `EFFECTS` (4), `HerbDef::check`.
 - `herb/traits.rs`: `Abundance` (`quality`), `Temperature` (`suits`), `Part`.
@@ -21,12 +21,13 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 - `herb/harvest.rs`: `Harvest`, `harvest`, `harvest_range`, `FULL_HARVEST`.
 - `herb/place.rs`: `HerbDef::grows_in` / `suits`, `MARSH_STAND_INS`, `Abundance::wild_weight` / `bed_weight`, `wild_herbs`, `bed_herbs`, `choose`.
 - `herb/beds.rs`: `plant_beds`.
+- `herb/eating.rs`: `eating_herb`, `RAW_DOSE_WITH_FRUIT`.
 - `herb/raw.rs`: `raw_dose`, `RAW_TICKS`, `RAW_ATTRIBUTE`, `RAW_VITAL`. Tests in `herb/raw_tests.rs` (with `dev_herb` and knowledge).
 - `herb/dev.rs`: `dev_herb` (Give Item's herb).
 
 ## Public API
 
-- `HerbDef { key, name, latin, biomes, marsh, abundance, temperature, part, part_name, growth, regrow, early, effects, grams, plant }`: `key` is its id for good (lower case, digits, `_`); `biomes` are `climate::Biome`s, `marsh` kept for when the climate has marshes; `temperature` the yearly average °C range (`climate`'s measure); `effects` four `Effect { stat, change }` (change ±1 to 3); `grams` one item's weight; `check()` an error for a mod's author.
+- `HerbDef { key, name, latin, fruit, biomes, marsh, abundance, temperature, part, part_name, growth, regrow, early, effects, grams, plant }`: `key` is its id for good (lower case, digits, `_`); `biomes` are `climate::Biome`s, `marsh` kept for when the climate has marshes; `temperature` the yearly average °C range (`climate`'s measure); `effects` four `Effect { stat, change }` (change ±1 to 3); `grams` one item's weight; `fruit` the key of the fruit it bears (`shared::fruit`; bilberry, elder, hawthorn, juniper, bearberry, wintergreen), if any; `check()` an error for a mod's author.
 - `Growth::{Fast, Medium, Slow, VerySlow}` (`days`: 2, 4, 8, 16 game days for all `STAGES`), `Regrow::{Cut, Pick, Dig, Coppice}` (`back_to`: stage 2, 3, gone, 1), `Early { taken, strength, note }` (percentages for a harvest at `EARLY_STAGE`, 3).
 - `PlantLook { shape, height, spread (cm), leaf, leaf_size, flower, flower_size, form, description }` for the client's models.
 - `Herbs`: `built_in()`, `read(ron_text) -> Result<Vec<HerbDef>, String>` (each checked), `merge(defs)` (by key: replaces in place, else appends; returns how many replaced), `get(key)`, `iter`, `len`. Serialized as the plain list, its index rebuilt when read.
@@ -40,12 +41,13 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 - `HerbDef::grows_in(biome)`, `suits(&mob::Habitat)` (biome and `temperature`); `wild_herbs(herbs, habitat)`, `bed_herbs(herbs, habitat)` (wild ones, else those nearest its warmth); `choose(herbs, weight, rng)` by `Abundance::wild_weight` (9/3/1) or `bed_weight` (3/2/1).
 - `plant_beds(level, herbs, habitat, seed)`: each bed (`HerbBed` cells joined side by side: one strip) one herb from `bed_herbs`, rolled from the site's seed and the bed's first cell; each patch's phase from its cell.
 - `raw_dose(def, quality, herbalism, now) -> Option<bonus::Effect>`: eating one raw: its first effect for `RAW_TICKS` (30 s), an attribute by `RAW_ATTRIBUTE` (1 point) a step of strength, Health or Mana restored or drained by `RAW_VITAL` (0.5 a second) a step, times `potency` / 100; `Source::RawHerb`, nothing ends it early.
+- `eating_herb(def, quality, herbalism, now)`: what eating one does: `raw_dose`, and for a herb bearing fruit that fruit's `fruit::eating` too (owner, 2026-11-17: herb fruits "have fruit effects too", read as both; `RAW_DOSE_WITH_FRUIT` is the one place to change it). The server's eating and Strength check use it.
 - `dev_herb(herbs, key, seed)`: the herb with this key, or with none one rolled from the seed (`item_form::batch_seed`): what Give Item gives, the same on both sides.
 - `HerbKnowledge` (on `Sheet::herbs`): `of`, `knows_name`, `knows_effect`, `learn_name`, `learn_effect` (each returns whether it was new), `learn_all(key)` (name and every effect), `forget_all` (dev tools), `known_effects(def)`, `is_empty`. `KnownHerb { name, effects }`.
 
 ## Depends on
 
-- `climate` (`Biome`), `mob` (`Habitat`), `dungeon` (`Level`, `Cell::HerbBed`), `sheet` (`Attribute`), `item` (`Item`, `ItemKind`, `Quality`, `ODDS_OUT_OF`), `item_form` (`ItemForm::Herb`), `skill` (`Skills`, `SkillId`), `rng`, `id`, `ron`, `serde`.
+- `fruit` (`Fruits`, `eating`: herbs bearing fruit), `climate` (`Biome`), `mob` (`Habitat`), `dungeon` (`Level`, `Cell::HerbBed`), `sheet` (`Attribute`), `item` (`Item`, `ItemKind`, `Quality`, `ODDS_OUT_OF`), `item_form` (`ItemForm::Herb`), `skill` (`Skills`, `SkillId`), `rng`, `id`, `ron`, `serde`.
 
 ## Used by
 

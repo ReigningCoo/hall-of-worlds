@@ -128,7 +128,8 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
         | ItemForm::Blade(_)
         | ItemForm::Key(_)
         | ItemForm::Herb(_)
-        | ItemForm::Bottle(_) => {
+        | ItemForm::Bottle(_)
+        | ItemForm::Fruit(_) => {
             return None;
         }
     })

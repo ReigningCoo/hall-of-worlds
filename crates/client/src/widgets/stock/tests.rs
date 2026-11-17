@@ -26,9 +26,9 @@ fn place_of(stock: &[Placed], n: u128) -> (u8, u8) {
 #[test]
 fn the_oldest_goes_first_along_the_row() {
     let items = [
-        made(1, ItemKind::Apple, 30),
-        made(2, ItemKind::Apple, 10),
-        made(3, ItemKind::Apple, 20),
+        made(1, ItemKind::Keepsake, 30),
+        made(2, ItemKind::Keepsake, 10),
+        made(3, ItemKind::Keepsake, 20),
     ];
     let arranged = arranged(&items);
     assert_eq!(place_of(&arranged, 2), (0, 0));
@@ -44,7 +44,7 @@ fn small_things_fill_the_gaps_left_by_large_ones() {
         .map(|n| made(n, ItemKind::Sword, n as u64))
         .collect();
     items.push(made(20, ItemKind::Boots, 20));
-    items.push(made(21, ItemKind::Apple, 21));
+    items.push(made(21, ItemKind::Keepsake, 21));
     let arranged = arranged(&items);
     assert_eq!(place_of(&arranged, 20), (0, 5));
     assert_eq!(place_of(&arranged, 21), (11, 0));
@@ -83,9 +83,12 @@ fn an_empty_grid_has_room_for_the_longest_thing() {
 
 #[test]
 fn a_gift_goes_where_it_was_let_go_and_the_grid_grows_to_keep_its_empty_rows() {
-    let old = arranged(&[made(1, ItemKind::Apple, 1)]);
+    let old = arranged(&[made(1, ItemKind::Keepsake, 1)]);
     let rows = rows_for(&old);
-    let items = [made(1, ItemKind::Apple, 1), made(2, ItemKind::Apple, 2)];
+    let items = [
+        made(1, ItemKind::Keepsake, 1),
+        made(2, ItemKind::Keepsake, 2),
+    ];
     let gift = Gift {
         item: Id::for_test(2),
         rotation: Rotation::None,
@@ -100,8 +103,11 @@ fn a_gift_goes_where_it_was_let_go_and_the_grid_grows_to_keep_its_empty_rows() {
 
 #[test]
 fn a_gift_let_go_on_something_goes_in_the_first_place_instead() {
-    let old = arranged(&[made(1, ItemKind::Apple, 1)]);
-    let items = [made(1, ItemKind::Apple, 1), made(2, ItemKind::Apple, 2)];
+    let old = arranged(&[made(1, ItemKind::Keepsake, 1)]);
+    let items = [
+        made(1, ItemKind::Keepsake, 1),
+        made(2, ItemKind::Keepsake, 2),
+    ];
     let gift = Gift {
         item: Id::for_test(2),
         rotation: Rotation::None,
@@ -113,6 +119,9 @@ fn a_gift_let_go_on_something_goes_in_the_first_place_instead() {
 
 #[test]
 fn opening_again_sorts_gifts_in_with_the_rest() {
-    let items = [made(2, ItemKind::Apple, 2), made(1, ItemKind::Apple, 1)];
+    let items = [
+        made(2, ItemKind::Keepsake, 2),
+        made(1, ItemKind::Keepsake, 1),
+    ];
     assert_eq!(place_of(&arranged(&items), 1), (0, 0));
 }

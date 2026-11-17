@@ -54,7 +54,9 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         ItemForm::Necklace(necklace) => necklace.metal,
         ItemForm::Blade(blade) => blade.blade_metal,
         ItemForm::Gem(gem) => gem.material,
-        ItemForm::Key(_) | ItemForm::Herb(_) | ItemForm::Bottle(_) => return None,
+        ItemForm::Key(_) | ItemForm::Herb(_) | ItemForm::Bottle(_) | ItemForm::Fruit(_) => {
+            return None;
+        }
     })
 }
 
@@ -96,7 +98,7 @@ fn options_a_kind_doesnt_take_are_refused() {
         ..RollRequest::NONE
     };
     assert_eq!(
-        asked(ItemKind::Apple, 1, Quality::Common, &material),
+        asked(ItemKind::Bread, 1, Quality::Common, &material),
         Err(Refused(Field::Material))
     );
     let finish = RollRequest {
@@ -108,7 +110,7 @@ fn options_a_kind_doesnt_take_are_refused() {
         Err(Refused(Field::Finish))
     );
     assert_eq!(
-        choices(ItemKind::Apple, Quality::Common, &RollRequest::NONE),
+        choices(ItemKind::Bread, Quality::Common, &RollRequest::NONE),
         Choices::default()
     );
 }

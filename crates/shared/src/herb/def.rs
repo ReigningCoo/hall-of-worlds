@@ -18,6 +18,10 @@ pub struct HerbDef {
     pub name: String,
     /// Its botanical name, for lore.
     pub latin: String,
+    /// The fruit it bears (`fruit::FruitDef::key`), whose healing and effects
+    /// eating it gives too (`eating_herb`).
+    #[serde(default)]
+    pub fruit: Option<String>,
     /// Where it grows wild.
     pub biomes: Vec<Biome>,
     /// It also grows in marshes, which the climate doesn't have yet: kept for then.

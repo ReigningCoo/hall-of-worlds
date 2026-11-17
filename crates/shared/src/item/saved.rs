@@ -1,6 +1,6 @@
 //! Reading an `Item`: the same fields, then any counted kind's old stack (from
 //! before counted stacks, 2026-11-12: one item with an id for each coin) folded
-//! into its count, and a form for a necklace saved before necklaces had one. Works
+//! into its count, the apple's form for an apple saved before fruit, and a form for a necklace saved before necklaces had one. Works
 //! the same for messages, which never have such stacks or necklaces.
 
 use serde::Deserialize;
@@ -64,6 +64,11 @@ impl From<Saved> for Item {
             item.count = item.count.max(1) + above;
         } else {
             item.count = 1;
+        }
+        if item.kind == ItemKind::Fruit && item.form.is_none() {
+            // An apple saved before fruit (2026-11-17): the apple fruit.
+            item.form = (crate::fruit::Fruits::built_in().get(crate::fruit::APPLE))
+                .map(|def| ItemForm::Fruit(crate::fruit::FruitForm::new(def, item.id.seed())));
         }
         if item.kind == ItemKind::Necklace && item.form.is_none() {
             give_old_necklace_form(&mut item);

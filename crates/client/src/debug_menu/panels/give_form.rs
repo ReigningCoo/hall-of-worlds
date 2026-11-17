@@ -43,7 +43,8 @@ pub(in crate::debug_menu) struct GiveForm {
     pub(super) kind: ItemKind,
     /// What its form must be like: only options its kind takes.
     pub(super) request: RollRequest,
-    /// For herbs: the key of the herb to give, or `None` for one from the seed.
+    /// For herbs and fruit: the key of the herb or fruit to give, or `None`
+    /// for one from the seed.
     pub(super) herb: Option<String>,
     /// `None` while the seed box says nothing that can be read.
     pub(super) seed: Option<u64>,

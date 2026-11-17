@@ -79,7 +79,7 @@ fn a_keeper_stays_and_takes_over_what_a_shop_had() {
         let mut buildings = level.buildings.iter();
         *buildings.find(|(_, b)| b.keeper == Some(keeper)).unwrap().0
     };
-    let old = Item::new(Id::for_test(9), shared::item::ItemKind::Apple);
+    let old = Item::new(Id::for_test(9), shared::item::ItemKind::Bread);
     let level = test.world.site_mut(id).levels.entry(index).or_default();
     level
         .buildings

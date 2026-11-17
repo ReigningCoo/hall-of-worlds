@@ -44,6 +44,14 @@ pub fn give_form_to(
             };
             (form, size.unwrap_or(Size::Medium))
         }
+        // An apple, until where fruit grows decides (PR 3 of the fruit plan);
+        // Give Item's fruit is chosen as herbs are (`fruit::dev_fruit`).
+        ItemKind::Fruit => {
+            let def = crate::fruit::Fruits::built_in().get(crate::fruit::APPLE);
+            let def = def.expect("the built-in fruits have the apple");
+            let form = crate::fruit::FruitForm::new(def, seed);
+            (ItemForm::Fruit(form), Size::Medium)
+        }
         // Empty unless asked for effects: potions are brewed (later), not rolled.
         ItemKind::Bottle => {
             if request.effects.unwrap_or(0) > MOST_EFFECTS {

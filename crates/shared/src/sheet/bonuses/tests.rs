@@ -1,5 +1,5 @@
 use super::*;
-use crate::bonus::{APPLE_TICKS, Effects};
+use crate::bonus::{Effects, food};
 use crate::creature::CreatureKind;
 use crate::id::Id;
 use crate::item::Quality;
@@ -75,9 +75,9 @@ fn an_apple_restores_health_until_it_ends_exactly() {
     let bare = sheet.limits(situation(&[]), 0);
     sheet.vitals.hurt(Points::whole(15), bare, 0, 0);
     let eaten = 1000;
-    assert!(sheet.eat(ItemKind::Apple, CreatureKind::Human, situation(&[]), eaten));
+    assert!(sheet.eat(ItemKind::Bread, CreatureKind::Human, situation(&[]), eaten));
     assert!(!sheet.eat(ItemKind::Stone, CreatureKind::Human, situation(&[]), eaten));
-    let end = eaten + APPLE_TICKS;
+    let end = eaten + food(ItemKind::Bread).unwrap().ticks;
     // Just before it ends, still restoring.
     let lasting = sheet.limits(situation(&[]), end - 1);
     assert_eq!(lasting.restore.health, 1000);
@@ -99,7 +99,7 @@ fn moving_ends_an_apple_and_keeps_what_it_gave() {
     let mut sheet = sheet();
     let bare = sheet.limits(situation(&[]), 0);
     sheet.vitals.hurt(Points::whole(15), bare, 0, 0);
-    sheet.eat(ItemKind::Apple, CreatureKind::Human, situation(&[]), 1000);
+    sheet.eat(ItemKind::Bread, CreatureKind::Human, situation(&[]), 1000);
     let moved = 1000 + 3 * SECOND;
     let before = health(&sheet, &[], moved);
     assert!(sheet.cancel_effects(Cancel::Moving, situation(&[]), moved));

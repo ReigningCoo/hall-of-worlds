@@ -23,7 +23,7 @@ fn thing(by: Hand) -> HeldThing {
     let id = Id::for_test(1);
     let item = HeldItem {
         id,
-        item: Item::new(id, ItemKind::Apple),
+        item: Item::new(id, ItemKind::Bread),
         rotation: Rotation::None,
         grip: (0, 0),
     };

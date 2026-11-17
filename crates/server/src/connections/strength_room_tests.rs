@@ -43,7 +43,7 @@ fn apples_at_the_end(test: &mut TestClient, count: u128) {
     let cells = inventory.own_cells();
     for n in 1..=count {
         let at = cells - n as u32;
-        let apple = Item::new(Id::for_test(n), ItemKind::Apple);
+        let apple = Item::new(Id::for_test(n), ItemKind::Keepsake);
         let (x, y) = ((at % 8) as u8, (at / 8) as u8);
         inventory
             .add(apple, Holder::Inventory, x, y, Rotation::None)

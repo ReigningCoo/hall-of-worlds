@@ -101,7 +101,7 @@ const GEAR_ROLLS: i64 = 1000;
 /// something there, the kinds it could be and how much each weighs. First guesses.
 fn gear_of(kind: CreatureKind) -> &'static [(u64, &'static [(ItemKind, u64)])] {
     use ItemKind::{
-        Apple, Axe, Belt, Boomerang, Boots, Cloak, Dagger, FullArmour, Gloves, Hat, Knife,
+        Axe, Belt, Boomerang, Boots, Cloak, Dagger, Fruit, FullArmour, Gloves, Hat, Knife,
         Longsword, Pouch, Sandals, Shirt, Shoes, ShortSword, Socks, Spear, Stone, Sword, Trousers,
     };
     match kind {
@@ -109,7 +109,7 @@ fn gear_of(kind: CreatureKind) -> &'static [(u64, &'static [(ItemKind, u64)])] {
             (100, &[(Shirt, 1)]),
             (100, &[(Trousers, 1)]),
             (50, &[(Shoes, 2), (Sandals, 1), (Socks, 1), (Hat, 1)]),
-            (40, &[(Apple, 1), (Stone, 1)]),
+            (40, &[(Fruit, 1), (Stone, 1)]),
         ],
         CreatureKind::Giant => &[
             (100, &[(Trousers, 1)]),
@@ -126,13 +126,13 @@ fn gear_of(kind: CreatureKind) -> &'static [(u64, &'static [(ItemKind, u64)])] {
                 70,
                 &[(Knife, 1), (Dagger, 2), (ShortSword, 1), (Boomerang, 2)],
             ),
-            (30, &[(Stone, 2), (Apple, 1), (Pouch, 1)]),
+            (30, &[(Stone, 2), (Fruit, 1), (Pouch, 1)]),
         ],
         CreatureKind::Goblin => &[
             (50, &[(Shirt, 1), (Trousers, 1)]),
             (30, &[(Gloves, 1), (Boots, 1), (Hat, 1)]),
             (70, &[(Knife, 2), (Dagger, 2), (ShortSword, 1)]),
-            (30, &[(Stone, 2), (Apple, 1), (Pouch, 1)]),
+            (30, &[(Stone, 2), (Fruit, 1), (Pouch, 1)]),
         ],
         CreatureKind::Orc => &[
             (100, &[(Trousers, 1)]),

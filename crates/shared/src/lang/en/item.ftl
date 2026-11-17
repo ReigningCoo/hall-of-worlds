@@ -47,6 +47,10 @@ item-poisons = Poisons other kinds: { $line }
 
 item-lasts = { $line } for { $seconds } s
 
+## A whole fruit's servings, which eating it cuts it into.
+
+item-servings = Cut into { $count } servings when eaten
+
 ## What ends it early, after its line.
 
 item-ends = { $ends ->

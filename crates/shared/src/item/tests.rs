@@ -282,7 +282,7 @@ fn a_quarter_turn_swaps_the_sides_and_four_come_back() {
 
 #[test]
 fn things_cant_lie_on_each_other_or_stick_out() {
-    let mut inventory = carrying(&[ItemKind::Stone, ItemKind::Apple]);
+    let mut inventory = carrying(&[ItemKind::Stone, ItemKind::Keepsake]);
     assert_eq!(
         inventory.check_move(id(2), Holder::Inventory, 1, 1, NONE),
         Err(MoveRefused::NoRoom)
@@ -454,20 +454,20 @@ fn a_container_limits_the_weight_of_each_thing_and_of_all() {
         inventory.check_move(id(2), Holder::Inside(id(1)), 0, 0, NONE),
         Err(MoveRefused::TooHeavy)
     );
-    // Ten apples of 150 g are the 1500 g it takes in all.
+    // Seven keepsakes of 200 g are within the 1500 g it takes in all; an eighth isn't.
     let mut inventory = carrying(&[ItemKind::Pouch]);
-    for apple in 0..11u8 {
+    for apple in 0..8u8 {
         let apple_id = id(50 + apple as u128);
         inventory
             .give(
-                Item::new(apple_id, ItemKind::Apple),
+                Item::new(apple_id, ItemKind::Keepsake),
                 StackLimits::NONE,
                 &mut crate::id::stand_ins(),
             )
             .unwrap();
         let result =
             inventory.move_item(apple_id, Holder::Inside(id(1)), apple % 4, apple / 4, NONE);
-        let wanted = if apple < 10 {
+        let wanted = if apple < 7 {
             Ok(())
         } else {
             Err(MoveRefused::TooHeavy)
@@ -478,17 +478,17 @@ fn a_container_limits_the_weight_of_each_thing_and_of_all() {
 
 #[test]
 fn weight_limits_look_at_the_containers_further_out() {
-    // A box in a pouch, with nine apples beside it: 1450 g of the pouch's
-    // 1500 g. Another apple is fine for the box, but not for the pouch.
+    // A box in a pouch, with seven keepsakes beside it: 1500 g of the pouch's
+    // 1500 g. Another is fine for the box, but not for the pouch.
     let mut inventory = carrying(&[ItemKind::Pouch, ItemKind::SmallBox]);
     inventory
         .move_item(id(2), Holder::Inside(id(1)), 0, 0, NONE)
         .unwrap();
-    for apple in 0..9u8 {
+    for apple in 0..7u8 {
         let apple_id = id(50 + apple as u128);
         inventory
             .give(
-                Item::new(apple_id, ItemKind::Apple),
+                Item::new(apple_id, ItemKind::Keepsake),
                 StackLimits::NONE,
                 &mut crate::id::stand_ins(),
             )
@@ -506,7 +506,7 @@ fn weight_limits_look_at_the_containers_further_out() {
     let last = id(70);
     inventory
         .give(
-            Item::new(last, ItemKind::Apple),
+            Item::new(last, ItemKind::Keepsake),
             StackLimits::NONE,
             &mut crate::id::stand_ins(),
         )
@@ -517,11 +517,11 @@ fn weight_limits_look_at_the_containers_further_out() {
     );
 
     // A pouch made by hand inside a pouch can't grow past 500 g in the outer.
-    let mut inventory = carrying(&[ItemKind::Pouch, ItemKind::Apple]);
+    let mut inventory = carrying(&[ItemKind::Pouch, ItemKind::Keepsake]);
     let mut inner = Item::new(id(3), ItemKind::Pouch);
     for apple in 0..3 {
         inner.contents.push(Placed {
-            item: Item::new(id(10 + apple as u128), ItemKind::Apple),
+            item: Item::new(id(10 + apple as u128), ItemKind::Keepsake),
             x: apple,
             y: 0,
             rotation: NONE,
@@ -542,11 +542,11 @@ fn weight_limits_look_at_the_containers_further_out() {
 #[test]
 fn moving_about_inside_a_bag_doesnt_count_its_weight_twice() {
     let mut inventory = carrying(&[ItemKind::Pouch]);
-    for apple in 0..10u8 {
+    for apple in 0..7u8 {
         let apple_id = id(50 + apple as u128);
         inventory
             .give(
-                Item::new(apple_id, ItemKind::Apple),
+                Item::new(apple_id, ItemKind::Keepsake),
                 StackLimits::NONE,
                 &mut crate::id::stand_ins(),
             )
@@ -555,7 +555,7 @@ fn moving_about_inside_a_bag_doesnt_count_its_weight_twice() {
             .move_item(apple_id, Holder::Inside(id(1)), apple % 4, apple / 4, NONE)
             .unwrap();
     }
-    // It holds all it can, and an apple can still move to a free place.
+    // It holds all the keepsakes it can, and one can still move to a free place.
     assert_eq!(
         inventory.move_item(id(50), Holder::Inside(id(1)), 3, 3, NONE),
         Ok(())
@@ -672,7 +672,7 @@ fn a_bag_of_holding_takes_things_down_to_its_most_rows() {
     let mut inventory = carrying(&[ItemKind::BagOfHolding]);
     let bag = Holder::Inside(id(1));
     let last_row = container.height - 1;
-    let apple = Item::new(id(2), ItemKind::Apple);
+    let apple = Item::new(id(2), ItemKind::Keepsake);
     inventory.check_add(&apple, bag, 0, last_row, NONE).unwrap();
     assert!(
         inventory

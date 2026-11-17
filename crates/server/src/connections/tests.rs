@@ -519,14 +519,14 @@ fn only_things_with_quality_can_be_part_of_a_set() {
             to: None,
         })
     };
-    test.send(&[give(ItemKind::Hat), give(ItemKind::Apple)]);
+    test.send(&[give(ItemKind::Hat), give(ItemKind::Bread)]);
     let set_of = |kind| {
         let carried = test.client.inventory.items.iter();
         let mut carried = carried.filter(|placed| placed.item.kind == kind);
         carried.next_back().unwrap().item.set
     };
     assert!(set_of(ItemKind::Hat));
-    assert!(!set_of(ItemKind::Apple));
+    assert!(!set_of(ItemKind::Bread));
 }
 
 #[test]
@@ -1657,9 +1657,9 @@ fn a_stack_goes_on_another_as_far_as_the_server_allows() {
 fn part_of_a_stack_moves_on_its_own_and_goes_back_if_refused() {
     let mut test = TestClient::new();
     let answers = test.send(&[
-        give(ItemKind::Apple),
-        give(ItemKind::Apple),
-        give(ItemKind::Apple),
+        give(ItemKind::Bread),
+        give(ItemKind::Bread),
+        give(ItemKind::Bread),
     ]);
     let apples = inventory(&answers).items[0].item.clone();
     let part = apples.above[0].id;

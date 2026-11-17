@@ -1,6 +1,6 @@
-//! Eating (`ClientMessage::Consume`): the top one of food or a herb carried, or
-//! lying in reach, is taken and eaten (`Sheet::eat`, or a herb raw:
-//! `eat_herb.rs`), in turn with the player's steps.
+//! Eating (`ClientMessage::Consume`): the top one of food, a fruit or a herb
+//! carried, or lying in reach, is taken and eaten (`Sheet::eat`, a fruit:
+//! `eat_fruit.rs`, or a herb raw: `eat_herb.rs`), in turn with the player's steps.
 
 use bevy::prelude::*;
 use shared::bonus::{edible, may_eat};
@@ -9,6 +9,7 @@ use shared::id::Id;
 use shared::item::Item;
 
 use super::Client;
+use super::eat_fruit::servings_fit;
 use super::strength_room::eating_allowed;
 use crate::ServerWorld;
 use crate::ids::new_id;
@@ -22,8 +23,15 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
         true => client.inventory.find(item).map(|found| found.top().clone()),
         false => crate::ground::food_lying(client, world, item),
     };
-    let allowed = food.is_none_or(|food| eating_allowed(client, world, (item, &food), tick));
-    let taken = match (allowed, carried) {
+    let allowed = food
+        .as_ref()
+        .is_none_or(|food| eating_allowed(client, world, (item, food), tick));
+    let room = !carried
+        || food
+            .as_ref()
+            .is_none_or(|food| servings_fit(client, world, item, food));
+    let taken = match (allowed && room, carried) {
+        (false, _) if !room => Err("its servings have nowhere to go"),
         (false, _) => Err("its Strength is needed"),
         (true, true) => take_carried(client, item),
         (true, false) => crate::ground::take_food(client, world, item),
@@ -31,6 +39,10 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
     let cost = match taken {
         Ok(eaten) if eaten.herb().is_some() => {
             super::eat_herb::eat_herb(client, world, &eaten, tick);
+            handling_cost(eaten.total_weight())
+        }
+        Ok(eaten) if eaten.fruit().is_some() => {
+            super::eat_fruit::eat_fruit(client, world, (&eaten, carried), tick);
             handling_cost(eaten.total_weight())
         }
         Ok(eaten) => {

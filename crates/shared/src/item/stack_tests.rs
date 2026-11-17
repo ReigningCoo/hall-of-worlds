@@ -19,25 +19,25 @@ fn ids(item: &Item) -> Vec<Id> {
 }
 
 #[test]
-fn given_apples_stack_until_the_weight_limit() {
+fn given_keepsakes_stack_until_the_weight_limit() {
     let limits = StackLimits::default();
     let mut inventory = Inventory::default();
     for n in 1..=14 {
         inventory
             .give(
-                Item::new(id(n), ItemKind::Apple),
+                Item::new(id(n), ItemKind::Keepsake),
                 limits,
                 &mut crate::id::stand_ins(),
             )
             .unwrap();
     }
-    // 13 apples of 150 g make 1950 g, under 2000 g for their one cell.
+    // 10 keepsakes of 200 g make 2000 g, all their one cell takes.
     assert_eq!(inventory.items.len(), 2);
     let first = &inventory.items[0].item;
-    assert_eq!((first.id, first.count()), (id(1), 13));
-    assert_eq!(first.top().id, id(13));
-    assert_eq!(first.total_weight(), 13 * 150);
-    assert_eq!(inventory.items[1].item.count(), 1);
+    assert_eq!((first.id, first.count()), (id(1), 10));
+    assert_eq!(first.top().id, id(10));
+    assert_eq!(first.total_weight(), 10 * 200);
+    assert_eq!(inventory.items[1].item.count(), 4);
 }
 
 #[test]
@@ -59,8 +59,8 @@ fn light_things_stack_until_the_count_limit() {
 
 #[test]
 fn only_what_looks_the_same_stacks() {
-    let apple = Item::new(id(1), ItemKind::Apple);
-    assert!(apple.looks_like(&Item::new(id(2), ItemKind::Apple)));
+    let apple = Item::new(id(1), ItemKind::Keepsake);
+    assert!(apple.looks_like(&Item::new(id(2), ItemKind::Keepsake)));
     assert!(!apple.looks_like(&Item::new(id(3), ItemKind::CopperCoin)));
     let hat = |n, quality| Item {
         quality: Some(quality),
@@ -74,7 +74,7 @@ fn only_what_looks_the_same_stacks() {
     cursed.known.favour = true;
     assert!(!cursed.looks_like(&hat(7, Quality::Common)));
     // When something was made isn't seen.
-    let mut later = Item::new(id(8), ItemKind::Apple);
+    let mut later = Item::new(id(8), ItemKind::Keepsake);
     later.made_at = Some(MadeAt {
         world: crate::world::WorldSeed::new(1).id(),
         minute: 99,
@@ -89,7 +89,10 @@ fn only_what_looks_the_same_stacks() {
 fn a_stack_goes_on_another_as_far_as_it_fits() {
     let limits = StackLimits::default();
     let mut inventory = Inventory::default();
-    let (big, small) = (stack(1, ItemKind::Apple, 12), stack(20, ItemKind::Apple, 3));
+    let (big, small) = (
+        stack(1, ItemKind::Keepsake, 9),
+        stack(20, ItemKind::Keepsake, 3),
+    );
     inventory
         .add(big, Holder::Inventory, 0, 0, Rotation::None)
         .unwrap();
@@ -102,7 +105,7 @@ fn a_stack_goes_on_another_as_far_as_it_fits() {
     );
     // The top went first; what is left keeps its bottom, and so its id.
     let big = inventory.find(id(1)).unwrap();
-    assert_eq!((big.count(), big.top().id), (13, id(22)));
+    assert_eq!((big.count(), big.top().id), (10, id(22)));
     assert_eq!(ids(inventory.find(id(20)).unwrap()), [id(20), id(21)]);
     // Full now.
     assert_eq!(
@@ -115,10 +118,10 @@ fn a_stack_goes_on_another_as_far_as_it_fits() {
 fn a_whole_stack_joins_another_and_goes() {
     let limits = StackLimits::default();
     let mut inventory = Inventory::default();
-    let apple = Item::new(id(3), ItemKind::Apple);
+    let apple = Item::new(id(3), ItemKind::Keepsake);
     inventory
         .add(
-            stack(1, ItemKind::Apple, 2),
+            stack(1, ItemKind::Keepsake, 2),
             Holder::Inventory,
             0,
             0,
@@ -162,7 +165,7 @@ fn something_not_carried_joins_a_stack_and_the_rest_is_given_back() {
         .unwrap();
     assert_eq!(ids(&rest.unwrap()), [id(10)]);
     assert_eq!(inventory.find(id(1)).unwrap().count(), 4);
-    let apple = Item::new(id(20), ItemKind::Apple);
+    let apple = Item::new(id(20), ItemKind::Keepsake);
     assert_eq!(
         inventory.add_to_stack(apple, id(1), limits, &mut crate::id::stand_ins()),
         Err(MoveRefused::NoStackRoom)
@@ -180,10 +183,10 @@ fn a_bag_counts_one_item_of_a_stack_against_its_most_for_each() {
         )
         .unwrap();
     let pouch = Holder::Inside(id(1));
-    // Four apples weigh more than a pouch takes of one thing, but each doesn't.
+    // Three keepsakes weigh more than a pouch takes of one thing, but each doesn't.
     inventory
         .add(
-            stack(10, ItemKind::Apple, 4),
+            stack(10, ItemKind::Keepsake, 3),
             Holder::Inventory,
             4,
             0,
@@ -194,10 +197,10 @@ fn a_bag_counts_one_item_of_a_stack_against_its_most_for_each() {
         inventory.check_move(id(10), pouch, 0, 0, Rotation::None),
         Ok(())
     );
-    // Eleven are more than it takes in all.
+    // Eight are more than it takes in all.
     inventory
         .add(
-            stack(20, ItemKind::Apple, 11),
+            stack(20, ItemKind::Keepsake, 8),
             Holder::Inventory,
             5,
             0,
@@ -231,12 +234,12 @@ fn wearing_a_stack_wears_only_its_top() {
 #[test]
 fn splitting_takes_the_top_in_order() {
     let no_new_ids = &mut || unreachable!("apples aren't counted");
-    let mut apples = stack(1, ItemKind::Apple, 5);
+    let mut apples = stack(1, ItemKind::Keepsake, 5);
     let top = apples.split_top(2, no_new_ids);
     assert_eq!(ids(&top), [id(4), id(5)]);
     assert_eq!(ids(&apples), [id(1), id(2), id(3)]);
     assert_eq!(apples.take_top(no_new_ids).map(|one| one.id), Some(id(3)));
-    assert_eq!(apples.own_weight(), ItemKind::Apple.def().weight);
+    assert_eq!(apples.own_weight(), ItemKind::Keepsake.def().weight);
 }
 
 #[test]
@@ -290,7 +293,7 @@ fn a_part_is_named_by_its_lowest_item_and_lifted_out_where_the_stack_lies() {
     let mut inventory = Inventory::default();
     inventory
         .add(
-            stack(1, ItemKind::Apple, 5),
+            stack(1, ItemKind::Keepsake, 5),
             Holder::Inventory,
             2,
             1,
@@ -313,7 +316,7 @@ fn a_lifted_part_moves_like_anything_else_or_goes_back() {
     let mut inventory = Inventory::default();
     inventory
         .add(
-            stack(1, ItemKind::Apple, 5),
+            stack(1, ItemKind::Keepsake, 5),
             Holder::Inventory,
             0,
             0,
@@ -411,10 +414,10 @@ fn the_most_in_a_stack_goes_by_weight_and_count_and_bags_never_stack() {
     let limits = StackLimits::default();
     let coin = Item::new(id(1), ItemKind::CopperCoin);
     assert_eq!(limits.most_of(&coin), limits.most);
-    let apple = Item::new(id(2), ItemKind::Apple);
+    let apple = Item::new(id(2), ItemKind::Keepsake);
     let room = limits.room(
-        &stack(10, ItemKind::Apple, 1),
-        &stack(20, ItemKind::Apple, 98),
+        &stack(10, ItemKind::Keepsake, 1),
+        &stack(20, ItemKind::Keepsake, 98),
     );
     assert_eq!(
         limits.most_of(&apple),
@@ -503,7 +506,7 @@ fn old_saves_fold_stacked_coins_into_a_count() {
     let loaded: Item = ron::from_str(&text).unwrap();
     assert_eq!((loaded.id, loaded.count, loaded.above.len()), (id(1), 4, 0));
     // Without a count written, it is 1; other kinds keep their stacks.
-    let apples = stack(1, ItemKind::Apple, 3);
+    let apples = stack(1, ItemKind::Keepsake, 3);
     let text = ron::to_string(&apples).unwrap().replace(",count:1", "");
     assert!(!text.contains("count"));
     let loaded: Item = ron::from_str(&text).unwrap();
@@ -529,8 +532,9 @@ fn counted_kinds_are_plain() {
         assert!(!kind.comes_in_sizes(), "{kind:?} comes in sizes");
         let mut item = Item::new(id(1), kind);
         crate::item_form::give_form(&mut item, None, &mut || id(2));
-        // A bottle's form is its contents and look, compared without the look.
-        let form = kind == ItemKind::Bottle;
+        // A bottle's form is its contents and look, a fruit's which fruit and
+        // its look, compared without the look.
+        let form = matches!(kind, ItemKind::Bottle | ItemKind::Fruit);
         assert_eq!(item.form.is_some(), form, "{kind:?} has a form");
         assert!(item.name.is_none(), "{kind:?} has its own name");
         assert!(!item.can_be_magical(), "{kind:?} can be magical");
@@ -545,7 +549,7 @@ fn counted_kinds_are_plain() {
 #[test]
 fn taking_one_takes_a_stacks_top_or_all_of_one_alone() {
     let mut inventory = Inventory::default();
-    let apples = stack(1, ItemKind::Apple, 3);
+    let apples = stack(1, ItemKind::Keepsake, 3);
     inventory
         .add(apples, Holder::Inventory, 0, 0, Rotation::None)
         .unwrap();

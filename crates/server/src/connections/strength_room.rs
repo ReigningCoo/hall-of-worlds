@@ -6,7 +6,8 @@
 //! dropping what has none, but only where there is ground to drop it on.
 
 use bevy::prelude::*;
-use shared::herb::{HERBALISM, raw_dose, skill_value};
+use shared::fruit::{Fruits, eating};
+use shared::herb::{HERBALISM, eating_herb, skill_value};
 use shared::id::Id;
 use shared::item::{Inventory, Item, MoveRefused, Quality, StackLimits, cells_for_strength};
 use shared::sheet::{Sheet, Situation};
@@ -78,15 +79,25 @@ pub(super) fn eating_allowed(
         Some(form) => {
             let herbalism = skill_value(&sheet.skills, HERBALISM);
             let quality = food.quality.unwrap_or(Quality::Common);
-            let dose = (world.herbs.get(&form.herb))
-                .and_then(|def| raw_dose(def, quality, herbalism, now));
-            if let Some(dose) = dose {
-                sheet.add_effect(dose, situation, now);
+            let effects =
+                (world.herbs.get(&form.herb)).map(|def| eating_herb(def, quality, herbalism, now));
+            for effect in effects.into_iter().flatten() {
+                sheet.add_effect(effect, situation, now);
             }
         }
-        None => {
-            sheet.eat(food.kind, client.inventory.creature, situation, now);
-        }
+        None => match food
+            .fruit()
+            .and_then(|form| Fruits::built_in().get(&form.fruit))
+        {
+            Some(def) => {
+                for effect in eating(def, now) {
+                    sheet.add_effect(effect, situation, now);
+                }
+            }
+            None => {
+                sheet.eat(food.kind, client.inventory.creature, situation, now);
+            }
+        },
     }
     let mut after = client.inventory.clone();
     after.take_one(item, &mut new_id);

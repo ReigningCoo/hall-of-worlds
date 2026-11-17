@@ -39,8 +39,8 @@ fn with_apples() -> (TestClient, Id) {
     }]);
     let (x, y) = test.client.visit.as_ref().unwrap().room_to_walk_east(2);
     test.send(&[ClientMessage::DevTeleport { x, y }]);
-    test.send(&[give(ItemKind::Apple, 3)]);
-    let stack = carried(&test, ItemKind::Apple).expect("apples");
+    test.send(&[give(ItemKind::Bread, 3)]);
+    let stack = carried(&test, ItemKind::Bread).expect("apples");
     (test, stack)
 }
 
@@ -60,7 +60,7 @@ fn eating(test: &TestClient) -> bool {
     let effects = &test.client.sheet.effects.0;
     effects
         .iter()
-        .any(|effect| effect.source == Source::Eaten(ItemKind::Apple))
+        .any(|effect| effect.source == Source::Eaten(ItemKind::Bread))
 }
 
 #[test]
