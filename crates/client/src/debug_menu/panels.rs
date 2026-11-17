@@ -6,6 +6,7 @@ use bevy::prelude::*;
 mod armour;
 mod arms;
 mod beast_heads;
+mod bottles;
 mod clothes;
 mod feet;
 mod footwear;

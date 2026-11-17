@@ -5,6 +5,7 @@ mod armour;
 mod bag;
 mod blade;
 mod body;
+mod bottle;
 mod character;
 mod clothing;
 mod colours;
@@ -31,6 +32,9 @@ mod under;
 use bevy::prelude::*;
 use bevy::render::{ExtractSchedule, Render, RenderApp, RenderSystems};
 
+pub use bottle::{
+    BottleLook, Glass as BottleGlass, Shape as BottleShape, Stopper as BottleStopper,
+};
 pub use character::{character_look, portrait_look};
 pub use clothing::ClothingLook;
 pub use colours::Colours;

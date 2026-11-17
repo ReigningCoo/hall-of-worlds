@@ -113,6 +113,9 @@ pub enum Look {
     Food(shared::item::ItemKind),
     /// A herb: the part used, by herb and variant (`herb.rs`).
     Herb(super::HerbLook),
+    /// A bottle, empty or a potion: its shape, glass and stopper from its look
+    /// seed (`bottle/`). The liquid, from the contents alone, joins it in PR 3.
+    Bottle { bottle: super::BottleLook },
     /// An armour set: its pieces as worn together.
     Set {
         set: SetLook,
@@ -152,7 +155,7 @@ impl Look {
         match self {
             Self::Gem { .. } | Self::Ring { .. } | Self::Necklace { .. } => (1, 1),
             Self::Parcel => (2, 2),
-            Self::Keepsake | Self::Herb(_) | Self::Key(_) => (1, 1),
+            Self::Keepsake | Self::Herb(_) | Self::Key(_) | Self::Bottle { .. } => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),
             Self::Keyring | Self::HerbPouch => (2, 1),

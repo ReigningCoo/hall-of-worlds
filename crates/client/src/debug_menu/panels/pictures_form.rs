@@ -86,6 +86,8 @@ pub(super) enum Shown {
     Marked(super::markings::MarkedShown),
     /// A necklace.
     Necklace(super::necklaces::NecklaceShown),
+    /// A bottle, as it looks whatever its quality.
+    Bottle(crate::item_art::BottleLook),
 }
 
 impl Shown {
@@ -130,6 +132,7 @@ impl Shown {
             Self::Clothes(shown) => shown.look(quality),
             Self::Marked(shown) => shown.look(),
             Self::Necklace(shown) => shown.look(quality),
+            Self::Bottle(bottle) => Some(Look::Bottle { bottle }),
         }
     }
 }
