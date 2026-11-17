@@ -107,10 +107,11 @@ fn count_made(
     let one = |n: u32| {
         let seed = batch_seed(seed, if batch.identical { 0 } else { n });
         if batch.order.kind == ItemKind::Herb {
-            // Herbs have no form to roll: one of the server's (`herb::dev_herb`).
+            // Herbs have no form to roll: one of the server's (`herb::dev_herb`),
+            // as good as it is rare whatever quality was asked for.
             let def = dev_herb(&world.herbs, batch.herb.as_deref(), seed);
             let def = def.ok_or(Refused(Field::Material))?;
-            return Ok(new_item(def, batch.order.quality, 1, new_id(), made_at));
+            return Ok(new_item(def, 1, new_id(), made_at));
         }
         try_make_item(&batch.order, wearer, new_id(), seed, made_at, &mut new_id)
     };

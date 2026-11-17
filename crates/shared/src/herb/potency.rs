@@ -2,7 +2,7 @@
 //! as far as the user's Herbalism reaches): for eating herbs raw (`raw_dose`)
 //! and, later, making potions.
 
-use super::quality::FULL;
+use super::skills::FULL;
 use crate::item::Quality;
 
 /// The skill that draws out a herb's quality.

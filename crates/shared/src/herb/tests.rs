@@ -3,8 +3,7 @@ use std::collections::BTreeSet;
 use super::*;
 use crate::climate::Biome;
 use crate::id::Id;
-use crate::item::{ODDS_OUT_OF, Quality, StackLimits};
-use crate::rng::Seed;
+use crate::item::{Quality, StackLimits};
 
 fn herbs() -> Herbs {
     Herbs::built_in()
@@ -73,8 +72,11 @@ fn the_table_goes_through_messages_whole() {
     assert!(back.get("roseroot").is_some());
 }
 
+/// `count` of the first herb at `quality` (as an old save might have it).
 fn item(n: u128, quality: Quality, count: u32) -> crate::item::Item {
-    new_item(&first(), quality, count, Id::for_test(n), None)
+    let mut item = new_item(&first(), count, Id::for_test(n), None);
+    item.quality = Some(quality);
+    item
 }
 
 #[test]
@@ -91,7 +93,7 @@ fn herbs_stack_by_herb_and_quality_whatever_they_look_like() {
     // Better ones, or another herb, don't join.
     assert_eq!(limits.room(&stack, &item(3, Quality::Uncommon, 1)), 0);
     let other = herbs().iter().nth(1).unwrap().clone();
-    let other = new_item(&other, Quality::Common, 1, Id::for_test(4), None);
+    let other = new_item(&other, 1, Id::for_test(4), None);
     assert_eq!(limits.room(&stack, &other), 0);
 }
 
@@ -117,23 +119,14 @@ fn herbs_are_never_magical_blessed_or_cursed() {
 }
 
 #[test]
-fn picking_gives_poor_to_uncommon_mostly_and_foraging_helps() {
-    let rare_up = |odds: [u64; 7]| odds[3..].iter().sum::<u64>();
-    let usual: u64 = Quality::ALL[3..].iter().map(|q| q.odds()).sum();
-    for skill in [0, 2_500, 5_000, 10_000, 20_000] {
-        let odds = pick_odds(skill);
-        assert_eq!(odds.iter().sum::<u64>(), ODDS_OUT_OF, "{skill}");
-        assert!(rare_up(odds) < usual, "{skill}: far rarer than other items");
+fn a_herb_is_as_good_as_its_plant_is_rare() {
+    for def in herbs().iter() {
+        let item = new_item(def, 1, Id::for_test(1), None);
+        assert_eq!(item.quality, Some(def.abundance.quality()), "{}", def.key);
     }
-    assert_eq!(pick_odds(0), HERB_ODDS);
-    assert_eq!(pick_odds(20_000), pick_odds(10_000), "100% at most");
-    assert!(rare_up(pick_odds(10_000)) > rare_up(HERB_ODDS));
-    assert!(pick_odds(10_000)[0] < HERB_ODDS[0]);
-    // Rolled: an unskilled picker's are nearly all Poor to Uncommon.
-    let mut rng = Seed::new(7).rng();
-    let rolls: Vec<Quality> = (0..10_000).map(|_| pick_quality(&mut rng, 0)).collect();
-    let low = rolls.iter().filter(|q| **q <= Quality::Uncommon).count();
-    assert!(low > 9_700, "{low}");
+    assert_eq!(Abundance::Common.quality(), Quality::Common);
+    assert_eq!(Abundance::Uncommon.quality(), Quality::Uncommon);
+    assert_eq!(Abundance::Rare.quality(), Quality::Rare);
 }
 
 #[test]
@@ -144,6 +137,9 @@ fn foraging_is_read_from_the_skill_tree() {
     skills.practise(id, 1_000_000);
     assert!(skill_value(&skills, FORAGING) > 0);
     assert!(skill_value(&skills, FORAGING) <= 10_000);
+    assert!(crate::skill::SkillId::find(HERBS).is_some());
+    assert_eq!(skill_percent(10_000), 100);
+    assert_eq!(skill_percent(199), 1);
     assert!(crate::skill::SkillId::find(HERBALISM).is_some());
     assert_eq!(skill_value(&skills, "no/such/skill"), 0);
 }

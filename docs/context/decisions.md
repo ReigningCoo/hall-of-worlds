@@ -1661,3 +1661,7 @@ A holder (`ContainerDef::holder`, made with `ItemDef::holding(only)`) is a bag t
 ## 2026-11-17: Herb item pictures from the herb table, and eating herbs raw as their own effect
 
 A herb item's picture (`item_art::Look::Herb`) is kept by herb key and one of three variants (from the item's look seed), not per item, and is built from the server's herb table (`common::HerbTable`, handed to `parts_of` when drawn) by the part used and the plant's colours, so mods' herbs get pictures too. Herbs are `bonus::edible` but not food (`is_food`), so they never go on the action bar; eating one raw is its own effect source (`Source::RawHerb`), the latest herb replacing the last, alongside food, with `herb::raw_dose`'s first-guess amounts scaled by `potency`.
+
+## 2026-11-17: A herb's quality is its plant's rarity; yield grows with skills
+
+Owner's decision (herbs PR 5). A herb item's quality is always its plant's `Abundance` (Common, Uncommon, Rare), never rolled, wherever it comes from; old saves' rolled qualities are put right when a character loads (`herb::settle_herbs`) and their stacks joined. Skill changes how many a pick gives instead: 1 to 3, plus the whole cube root of Foraging's percent to the most and of a new Herbs skill's (`gathering/farming/herbs`, for planting later) to both, in whole numbers so client and server agree. Why: quality from rarity keeps one stack per herb and makes rarity mean something; skill rewarding quantity is plainer to see.

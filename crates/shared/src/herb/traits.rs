@@ -3,12 +3,26 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::item::Quality;
+
 /// How common a herb is where it can grow.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Abundance {
     Common,
     Uncommon,
     Rare,
+}
+
+impl Abundance {
+    /// The quality of every herb picked from such a plant (owner, 2026-11-17):
+    /// its rarity, never rolled.
+    pub const fn quality(self) -> Quality {
+        match self {
+            Abundance::Common => Quality::Common,
+            Abundance::Uncommon => Quality::Uncommon,
+            Abundance::Rare => Quality::Rare,
+        }
+    }
 }
 
 /// The yearly average temperatures a herb grows in, in °C: the climate's own

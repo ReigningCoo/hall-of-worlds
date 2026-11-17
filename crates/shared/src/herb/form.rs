@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use super::HerbDef;
 use crate::id::Id;
-use crate::item::{Item, ItemKind, MadeAt, Quality};
+use crate::item::{Item, ItemKind, MadeAt};
 use crate::item_form::ItemForm;
 
 /// Which herb an item is, and what one of it is like.
@@ -21,17 +21,12 @@ pub struct HerbForm {
     pub grams: u32,
 }
 
-/// `count` of a herb at this quality, as one new item with id `id`: the server's
-/// to make. Herbs are never magical, blessed or cursed.
-pub fn new_item(
-    def: &HerbDef,
-    quality: Quality,
-    count: u32,
-    id: Id,
-    made_at: Option<MadeAt>,
-) -> Item {
+/// `count` of a herb, as one new item with id `id`: the server's to make. Its
+/// quality is the plant's rarity (`Abundance::quality`). Herbs are never
+/// magical, blessed or cursed.
+pub fn new_item(def: &HerbDef, count: u32, id: Id, made_at: Option<MadeAt>) -> Item {
     let mut item = Item::new(id, ItemKind::Herb);
-    item.quality = Some(quality);
+    item.quality = Some(def.abundance.quality());
     item.count = count.max(1);
     item.made_at = made_at;
     item.form = Some(ItemForm::Herb(HerbForm {

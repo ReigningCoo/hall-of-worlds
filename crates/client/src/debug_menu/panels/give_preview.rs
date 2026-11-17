@@ -143,7 +143,7 @@ fn one_of(
     if order.kind == ItemKind::Herb {
         // As the server makes them (`herb::dev_herb`).
         let def = dev_herb(herb.herbs, herb.key, seed).ok_or(Refused(Field::Material))?;
-        return Ok(new_item(def, order.quality, 1, id, None));
+        return Ok(new_item(def, 1, id, None));
     }
     try_make_item(order, wearer, id, seed, None, &mut new_id)
 }

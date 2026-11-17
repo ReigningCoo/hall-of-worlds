@@ -121,6 +121,7 @@ const ICONS: &[(&str, &str)] = &[
     ("gathering/farming/crops", "lorc/wheat"),
     ("gathering/farming/orchards", "delapouite/fruit-tree"),
     ("gathering/farming/livestock", "delapouite/cow"),
+    ("gathering/farming/herbs", "delapouite/plant-watering"),
     ("gathering/mining", "lorc/mining"),
     ("gathering/mining/stone", "lorc/stone-block"),
     ("gathering/mining/ore", "faithtoken/ore"),

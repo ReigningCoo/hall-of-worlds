@@ -2,7 +2,6 @@
 
 use shared::herb::{Herbs, new_item};
 use shared::id::Id;
-use shared::item::Quality;
 use shared::lang::{Lang, Language};
 
 use super::*;
@@ -10,7 +9,7 @@ use super::*;
 fn roseroot() -> Item {
     let herbs = Herbs::built_in();
     let def = herbs.get("roseroot").expect("roseroot");
-    new_item(def, Quality::Common, 3, Id::for_test(1), None)
+    new_item(def, 3, Id::for_test(1), None)
 }
 
 #[test]
