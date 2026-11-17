@@ -10,6 +10,7 @@ mod bottles;
 mod clothes;
 mod feet;
 mod footwear;
+mod fruit;
 mod hair;
 mod legs;
 mod markings;

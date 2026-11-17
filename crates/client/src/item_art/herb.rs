@@ -7,7 +7,7 @@
 mod colour;
 mod flowers;
 mod fruit;
-mod kit;
+pub(super) mod kit;
 mod leafy;
 mod roots;
 

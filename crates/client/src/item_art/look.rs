@@ -111,6 +111,9 @@ pub enum Look {
     HerbPouch,
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
     Food(shared::item::ItemKind),
+    /// A fruit or nuts, or a slice of a big fruit, by fruit and variant
+    /// (`fruit.rs`).
+    Fruit(super::FruitItemLook),
     /// A herb: the part used, by herb and variant (`herb.rs`).
     Herb(super::HerbLook),
     /// A bottle, empty or a potion: its shape, glass and stopper from its look
@@ -168,6 +171,7 @@ impl Look {
             Self::Pouch => (2, 2),
             Self::Keyring | Self::HerbPouch => (2, 1),
             Self::Food(_) => (2, 1),
+            Self::Fruit(fruit) => fruit.cells,
             Self::Blade { blade, .. } => blade.cells,
             Self::Hands { hands, .. } => hands.cells,
             Self::Shoulders { shoulders, .. } => shoulders.cells,

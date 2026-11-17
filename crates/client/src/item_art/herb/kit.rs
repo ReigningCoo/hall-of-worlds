@@ -2,13 +2,14 @@
 //! (squashed spheres) and rods (cylinders between two points), the whole turned
 //! a little by its variant.
 
+use bevy::mesh::VertexAttributeValues;
 use bevy::prelude::*;
 
 use super::super::Part;
 
 /// A small, fixed wobble for the `n`th piece's `k`th measure, -1 to 1: the
 /// same every time, so a variant always looks the same.
-pub(super) fn wobble(n: usize, variant: u8, k: u32) -> f32 {
+pub(in crate::item_art) fn wobble(n: usize, variant: u8, k: u32) -> f32 {
     let mut x = (n as u32).wrapping_mul(0x9E37_79B9) ^ u32::from(variant).wrapping_mul(0x85EB_CA6B);
     x ^= k.wrapping_mul(0xC2B2_AE35);
     x ^= x >> 15;
@@ -19,7 +20,7 @@ pub(super) fn wobble(n: usize, variant: u8, k: u32) -> f32 {
 
 /// The way out at angle `a` from straight up the picture (towards its top, -z),
 /// and the turn about the up axis that lays a blob's length (x) along it.
-pub(super) fn along(a: f32) -> (Vec3, f32) {
+pub(in crate::item_art) fn along(a: f32) -> (Vec3, f32) {
     (
         Vec3::new(a.sin(), 0.0, -a.cos()),
         std::f32::consts::FRAC_PI_2 - a,
@@ -27,7 +28,7 @@ pub(super) fn along(a: f32) -> (Vec3, f32) {
 }
 
 /// Building a herb's parts.
-pub(super) struct Kit<'a> {
+pub(in crate::item_art) struct Kit<'a> {
     meshes: &'a mut Assets<Mesh>,
     materials: &'a mut Assets<StandardMaterial>,
     parts: Vec<Part>,
@@ -36,7 +37,7 @@ pub(super) struct Kit<'a> {
 }
 
 impl<'a> Kit<'a> {
-    pub(super) fn new(
+    pub(in crate::item_art) fn new(
         meshes: &'a mut Assets<Mesh>,
         materials: &'a mut Assets<StandardMaterial>,
         variant: u8,
@@ -51,7 +52,11 @@ impl<'a> Kit<'a> {
     }
 
     /// A matte material of this colour, a little shiny if `shine`.
-    pub(super) fn material(&mut self, colour: Color, shine: bool) -> Handle<StandardMaterial> {
+    pub(in crate::item_art) fn material(
+        &mut self,
+        colour: Color,
+        shine: bool,
+    ) -> Handle<StandardMaterial> {
         self.materials.add(StandardMaterial {
             base_color: colour,
             perceptual_roughness: if shine { 0.35 } else { 0.85 },
@@ -62,7 +67,7 @@ impl<'a> Kit<'a> {
 
     /// A sphere squashed to `scale` (half sizes), turned `yaw` about the up axis
     /// and then tipped `pitch` about its own length (x).
-    pub(super) fn blob(
+    pub(in crate::item_art) fn blob(
         &mut self,
         material: &Handle<StandardMaterial>,
         at: Vec3,
@@ -81,7 +86,7 @@ impl<'a> Kit<'a> {
     }
 
     /// A rod of this radius from `from` to `to`.
-    pub(super) fn rod(
+    pub(in crate::item_art) fn rod(
         &mut self,
         material: &Handle<StandardMaterial>,
         from: Vec3,
@@ -99,7 +104,7 @@ impl<'a> Kit<'a> {
     }
 
     /// A cone of this radius from its base at `from` to its tip at `to`.
-    pub(super) fn cone(
+    pub(in crate::item_art) fn cone(
         &mut self,
         material: &Handle<StandardMaterial>,
         from: Vec3,
@@ -113,6 +118,23 @@ impl<'a> Kit<'a> {
         let mesh = self.meshes.add(Cone::new(radius, length));
         let rotation = Quat::from_rotation_arc(Vec3::Y, (to - from) / length);
         let transform = Transform::from_translation((from + to) / 2.0).with_rotation(rotation);
+        self.push(mesh, material, transform);
+    }
+
+    /// The whole turned `angle` about the up axis instead of by variant.
+    pub(in crate::item_art) fn turned(mut self, angle: f32) -> Self {
+        self.turn = Quat::from_rotation_y(angle);
+        self
+    }
+
+    /// Any other mesh, placed by `transform`.
+    pub(in crate::item_art) fn mesh(
+        &mut self,
+        mesh: Mesh,
+        material: &Handle<StandardMaterial>,
+        transform: Transform,
+    ) {
+        let mesh = self.meshes.add(mesh);
         self.push(mesh, material, transform);
     }
 
@@ -130,8 +152,34 @@ impl<'a> Kit<'a> {
         });
     }
 
+    /// Shrinks everything built about the middle, if need be, so it reaches no
+    /// further than `half` along x and z.
+    pub(in crate::item_art) fn fit(&mut self, half: Vec2) {
+        let mut most = Vec2::ZERO;
+        for part in &self.parts {
+            let Some(mesh) = self.meshes.get(&part.mesh) else {
+                continue;
+            };
+            let Some(VertexAttributeValues::Float32x3(points)) =
+                mesh.attribute(Mesh::ATTRIBUTE_POSITION)
+            else {
+                continue;
+            };
+            for &point in points {
+                let at = part.transform.transform_point(Vec3::from(point));
+                most = most.max(Vec2::new(at.x.abs(), at.z.abs()));
+            }
+        }
+        let shrink = (half / most.max(Vec2::splat(f32::EPSILON))).min_element();
+        if shrink < 1.0 {
+            for part in &mut self.parts {
+                part.transform = Transform::from_scale(Vec3::splat(shrink)) * part.transform;
+            }
+        }
+    }
+
     /// The parts built.
-    pub(super) fn finish(self) -> Vec<Part> {
+    pub(in crate::item_art) fn finish(self) -> Vec<Part> {
         self.parts
     }
 }

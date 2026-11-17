@@ -14,6 +14,7 @@ mod colours;
 mod debug_api;
 mod food;
 mod footwear;
+mod fruit;
 mod gem;
 mod herb;
 mod herb_pouch;
@@ -40,6 +41,7 @@ pub use character::{character_look, portrait_look};
 pub use clothing::ClothingLook;
 pub use colours::Colours;
 pub use footwear::FootwearLook;
+pub use fruit::{FRUIT_VARIANTS, FruitItemLook};
 pub use herb::HerbLook;
 pub use key::KeyLook;
 pub use looks::{
