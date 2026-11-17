@@ -13,6 +13,7 @@ mod debug_api;
 mod food;
 mod footwear;
 mod gem;
+mod keyring;
 mod looks;
 mod model;
 mod morph;

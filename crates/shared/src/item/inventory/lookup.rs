@@ -32,8 +32,9 @@ impl Inventory {
     pub fn grid(&self, holder: Holder) -> Option<&[Placed]> {
         match holder {
             Holder::Inventory => Some(&self.items),
-            // A tied bag's inside is the own grid's end, not a grid of its own.
-            Holder::Inside(id) if self.is_tied(id) => None,
+            // A tied bag's inside is the own grid's end, not a grid of its own
+            // (but a holder's is).
+            Holder::Inside(id) if self.adds_to_grid(id) => None,
             Holder::Inside(id) => {
                 let item = self.find(id)?;
                 item.kind.def().container?;
@@ -46,7 +47,7 @@ impl Inventory {
     pub fn grid_size(&self, holder: Holder) -> Option<(u8, u8)> {
         match holder {
             Holder::Inventory => Some(self.combined_size()),
-            Holder::Inside(id) if self.is_tied(id) => None,
+            Holder::Inside(id) if self.adds_to_grid(id) => None,
             Holder::Inside(id) => {
                 let container = self.find(id)?.kind.def().container?;
                 Some((container.width, container.height))
@@ -74,7 +75,7 @@ impl Inventory {
         if search(&self.items, id, &mut around) {
             return Some(around);
         }
-        for item in &self.worn {
+        for item in self.worn.iter().chain(&self.bag_slots) {
             if item.id == id {
                 return Some(Vec::new());
             }

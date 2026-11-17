@@ -103,6 +103,8 @@ pub enum Look {
     Bag,
     /// The Pouch: leather, with a flap and a toggle (`pouch.rs`).
     Pouch,
+    /// The Keyring: an iron ring with keys on it (`keyring.rs`).
+    Keyring,
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
     Food(shared::item::ItemKind),
     /// An armour set: its pieces as worn together.
@@ -147,6 +149,7 @@ impl Look {
             Self::Keepsake => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),
+            Self::Keyring => (2, 1),
             Self::Food(_) => (2, 1),
             Self::Blade { blade, .. } => blade.cells,
             Self::Hands { hands, .. } => hands.cells,
@@ -240,6 +243,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
         shared::item::ItemKind::Keepsake => return Some(Look::Keepsake),
         shared::item::ItemKind::Bag => return Some(Look::Bag),
         shared::item::ItemKind::Pouch => return Some(Look::Pouch),
+        shared::item::ItemKind::Keyring => return Some(Look::Keyring),
         kind @ (shared::item::ItemKind::Bread
         | shared::item::ItemKind::DwarvenBread
         | shared::item::ItemKind::RawMeat) => return Some(Look::Food(kind)),

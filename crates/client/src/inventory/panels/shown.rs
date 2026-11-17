@@ -1,8 +1,8 @@
 //! How big a grid is drawn: its whole size, or for a bag that grows
 //! (`ContainerDef::grows`), only the rows in use and room below for the largest
-//! thing it could take.
+//! thing it could take; a holder (a keyring) at least `HOLDER_FIRST_ROWS`.
 
-use shared::item::{Holder, Inventory, Placed};
+use shared::item::{HOLDER_FIRST_ROWS, Holder, Inventory, Placed};
 
 /// The grid's columns and the rows drawn, or `None` if it isn't carried.
 pub(super) fn shown_size(carried: &Inventory, holder: Holder) -> Option<(u8, u8)> {
@@ -11,18 +11,20 @@ pub(super) fn shown_size(carried: &Inventory, holder: Holder) -> Option<(u8, u8)
         return Some((width, height));
     };
     let bag = carried.find(id)?;
-    if !bag
-        .kind
-        .def()
-        .container
-        .is_some_and(|container| container.grows)
-    {
+    let Some(container) = bag.kind.def().container.filter(|inside| inside.grows) else {
         return Some((width, height));
-    }
+    };
     // Anything put in must be smaller than its outside, so this is room enough.
     let outside = bag.shape();
     let room = outside.width.max(outside.height);
-    Some((width, rows_for(&bag.contents, room, height)))
+    let rows = rows_for(&bag.contents, room, height);
+    // A holder shows a few rows even when nearly empty (owner, 2026-11-17).
+    let first = if container.holder {
+        HOLDER_FIRST_ROWS
+    } else {
+        0
+    };
+    Some((width, rows.max(first.min(height))))
 }
 
 /// What is used, and `room` more, but never more rows than it has.

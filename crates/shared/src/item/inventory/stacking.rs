@@ -112,6 +112,9 @@ impl Inventory {
         if let Some(index) = self.worn.iter().position(|item| item.id == id) {
             return Some(&mut self.worn[index]);
         }
+        if let Some(index) = self.bag_slots.iter().position(|item| item.id == id) {
+            return Some(&mut self.bag_slots[index]);
+        }
         let (holder, _) = self.placed(id)?;
         let grid = self.grid_mut(holder)?;
         grid.iter_mut()

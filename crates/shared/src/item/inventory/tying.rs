@@ -2,7 +2,8 @@
 //! that can go on a belt is tied; one on a filled slot swaps, the old one coming
 //! out empty. A bag comes off only if the cells it adds are empty at the end of the
 //! own grid (any cells there, not its own), and a belt only if it would leave as
-//! many slots as there are bags.
+//! many slots as there are bags. A holder (owner, 2026-11-17: a keyring) is tied
+//! and untied with what is in it, and only one of each kind is tied at a time.
 
 use crate::id::Id;
 use crate::item::{Holder, Inventory, Item, ItemKind, MoveRefused, Placed, Rotation};
@@ -64,9 +65,11 @@ impl Inventory {
             self.bag_slots.insert(to, bag);
             return Ok(());
         }
-        if !item.contents.is_empty() || item.count() > 1 {
+        let holder = container.is_some_and(|inside| inside.holder);
+        if (!holder && !item.contents.is_empty()) || item.count() > 1 {
             return Err(MoveRefused::NotEmpty);
         }
+        let kind = item.kind;
         let mut after = self.clone();
         let bag = after.take(id).ok_or(MoveRefused::NoSuchItem)?;
         if slot < after.bag_slots.len() {
@@ -84,6 +87,16 @@ impl Inventory {
             });
         } else {
             after.bag_slots.push(bag);
+        }
+        if holder
+            && after
+                .bag_slots
+                .iter()
+                .filter(|bag| bag.kind == kind)
+                .count()
+                > 1
+        {
+            return Err(MoveRefused::HolderTied);
         }
         *self = after;
         Ok(())

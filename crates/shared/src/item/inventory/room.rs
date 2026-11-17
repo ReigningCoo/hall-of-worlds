@@ -43,9 +43,26 @@ impl Inventory {
         self.first_room(holder, item.shape(), turned_from, Some(id))
     }
 
-    /// Puts a new item in the inventory: on the first stack it can all go on, or else
-    /// in the first place it fits. Gives it back if there is no room. Coins turn as
-    /// for `stack_onto`, any new stack of them with an id from `new_id`.
+    /// Where something coming from outside what is carried goes first (owner,
+    /// 2026-11-17): the first tied holder that takes it (`ContainerDef::holder`: a
+    /// keyring for keys) and has room for all of it, on a stack or in a free place;
+    /// else the own grid. Both sides route by this: `give` on the server, quick
+    /// moves on the client. What the player drags to a chosen cell stays there.
+    pub fn route_for(&self, item: &Item, limits: StackLimits) -> Holder {
+        self.holders_for(item.kind)
+            .map(|holder| Holder::Inside(holder.id))
+            .find(|&holder| {
+                self.first_stack_for(item, holder, limits).is_some()
+                    || self
+                        .first_place_for_new(item, holder, Rotation::None)
+                        .is_some()
+            })
+            .unwrap_or(Holder::Inventory)
+    }
+
+    /// Puts a new item where `route_for` says: on the first stack it can all go on,
+    /// or else in the first place it fits. Gives it back if there is no room. Coins
+    /// turn as for `stack_onto`, any new stack of them with an id from `new_id`.
     #[allow(clippy::result_large_err)] // Handing it back whole is the point, and rare.
     pub fn give(
         &mut self,
@@ -53,15 +70,16 @@ impl Inventory {
         limits: StackLimits,
         new_id: &mut impl FnMut() -> Id,
     ) -> Result<(), Item> {
-        if let Some(onto) = self.first_stack_for(&item, Holder::Inventory, limits) {
+        let holder = self.route_for(&item, limits);
+        if let Some(onto) = self.first_stack_for(&item, holder, limits) {
             self.add_to_stack(item, onto, limits, new_id)
                 .expect("first_stack_for found room for all of it");
             return Ok(());
         }
-        let shape = item.shape();
-        match self.first_room(Holder::Inventory, shape, Rotation::None, None) {
+        match self.first_place_for_new(&item, holder, Rotation::None) {
             Some((x, y, rotation)) => {
-                self.items.push(Placed {
+                let grid = self.grid_mut(holder).expect("route_for found its grid");
+                grid.push(Placed {
                     item,
                     x,
                     y,

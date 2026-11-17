@@ -32,9 +32,12 @@ impl ItemKind {
                 }
                 Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat => self.food_def(),
                 // Bags, boxes and backpacks: in `bag_def.rs`.
-                Self::Backpack | Self::Bag | Self::BagOfHolding | Self::Pouch | Self::SmallBox => {
-                    self.bag_def()
-                }
+                Self::Backpack
+                | Self::Bag
+                | Self::BagOfHolding
+                | Self::Keyring
+                | Self::Pouch
+                | Self::SmallBox => self.bag_def(),
                 // Both arms, or one; its form says its name, cells and weight, and whether
                 // it is padded (kote).
                 Self::ArmArmour => plain("Arm Armour", 2000, Shape::rectangle(2, 3)).worn(wear(
@@ -208,7 +211,9 @@ impl ItemKind {
         def.taking(match self {
             Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat | Self::Stone => 10,
             _ if self.coin_value().is_some() => 10,
-            Self::Ring | Self::Pouch | Self::Bag | Self::Belt | Self::Boomerang => 75,
+            Self::Ring | Self::Pouch | Self::Bag | Self::Belt | Self::Boomerang | Self::Keyring => {
+                75
+            }
             Self::Tabard => 50,
             _ if self.is_under() || self.is_clothing() => 50,
             Self::Gauntlets

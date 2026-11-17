@@ -151,7 +151,16 @@ impl Item {
             .as_ref()
             .and_then(|form| form.grams_at(self.made.size));
         let own = own.unwrap_or(self.kind.def().weight);
-        own + weight_of(&self.contents) + set
+        let mut inside = weight_of(&self.contents);
+        if self
+            .kind
+            .def()
+            .container
+            .is_some_and(|container| container.lighter_by_quality)
+        {
+            inside = self.quality.unwrap_or_default().lightened(inside);
+        }
+        own + inside + set
     }
 
     /// Where it also takes the Middle layer: its kind's padding, or torso armour that

@@ -38,13 +38,14 @@ impl QuickRefused {
 /// Where a quick move of this would go, as a hold and a drop there would do it.
 /// `None` when nothing happens at all (something worn or in the bin).
 ///
-/// - From the ground: into the own grid, on the first stack it all fits on, or
-///   else the first place it fits (as `Inventory::give`).
+/// - From the ground: into the own grid (or a tied holder that takes it first, a
+///   keyring for keys: `Inventory::route_for`), on the first stack it all fits
+///   on, or else the first place it fits (as `Inventory::give`).
 /// - From the own grid (or a bag tied to the belt, part of it): into the bag
 ///   panel opened or raised last (`open_bags`, the last is the latest) that it
 ///   may go in, the same way; with no bag panel open, onto the ground, as on the
 ///   Drop icon.
-/// - From any other bag: into the own grid, the same way.
+/// - From any other bag: into the own grid (or a holder), the same way.
 pub(in crate::inventory) fn quick_target(
     inventory: &Inventory,
     from: &QuickFrom,
@@ -66,7 +67,9 @@ pub(in crate::inventory) fn quick_target(
         Holder::Inside(bag) => inventory.is_tied(bag),
     };
     if !in_own_grid {
-        return Some(into_carried(inventory, item, Holder::Inventory, limits));
+        // Keys go on a tied keyring first (`Inventory::route_for`).
+        let holder = inventory.route_for(item, limits);
+        return Some(into_carried(inventory, item, holder, limits));
     }
     // Not into itself, or anything in it.
     let bag = open_bags.iter().rev().copied().find(|&bag| {
@@ -133,7 +136,8 @@ fn into_new(
     limits: StackLimits,
 ) -> Result<(Held, Target), QuickRefused> {
     let id = item.id;
-    let holder = Holder::Inventory;
+    // Keys go on a tied keyring first, as the server's `give` does.
+    let holder = inventory.route_for(item, limits);
     if let Some(onto) = inventory.first_stack_for(item, holder, limits) {
         let aim = Target::Stack {
             onto,

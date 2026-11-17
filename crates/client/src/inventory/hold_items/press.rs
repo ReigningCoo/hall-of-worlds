@@ -1,5 +1,5 @@
 //! Taking this frame's presses on items: a double click on a bag opens it (not
-//! one tied to the belt), two taps on anything else move it to the other side
+//! one tied to the belt, unless it is a holder such as a keyring), two taps on anything else move it to the other side
 //! (`quick`), and a press on anything else picks it up.
 
 use bevy::prelude::*;
@@ -51,7 +51,7 @@ pub(super) fn take_presses(
             .find(id)
             .is_some_and(|item| item.kind.def().container.is_some())
         && !carried.0.in_bin(id)
-        && !carried.0.is_tied(id)
+        && !carried.0.adds_to_grid(id)
     {
         // A double click on a bag: the first lifted it, and it goes back.
         holding.put_back(object);
@@ -133,8 +133,9 @@ pub(super) fn take_presses(
             .find(cell.id)
             .is_some_and(|item| item.kind.def().container.is_some())
             && !carried.0.in_bin(cell.id)
-            // A bag tied to the belt is part of the own grid (owner, 2026-11-15).
-            && !carried.0.is_tied(cell.id);
+            // A bag tied to the belt is part of the own grid (owner, 2026-11-15),
+            // but a holder (a keyring) keeps its own and opens (2026-11-17).
+            && !carried.0.adds_to_grid(cell.id);
         if again && tapped && !carried.0.find(cell.id).is_some_and(is_container) {
             // Two taps on anything but a bag: a quick move (owner, 2026-11-17).
             holding.quick = Some(QuickFrom::Carried(cell.id));

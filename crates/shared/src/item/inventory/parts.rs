@@ -165,7 +165,12 @@ impl Inventory {
         }
         let mut found = Vec::new();
         search(&self.items, &mut found);
-        for item in &self.worn {
+        // Tied bags only if they keep a grid: holders.
+        let tied = self
+            .bag_slots
+            .iter()
+            .filter(|bag| !self.adds_to_grid(bag.id));
+        for item in self.worn.iter().chain(tied) {
             collect(item, &mut found);
         }
         found

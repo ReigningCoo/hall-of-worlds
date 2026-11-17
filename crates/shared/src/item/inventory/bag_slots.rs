@@ -1,7 +1,8 @@
 //! Bag slots (owner, 2026-11-15): a worn belt gives slots for bags tied to it, and
 //! each tied bag's inside adds to the end of the own grid, laid out in rows of its
 //! width, so the last row may be short. What lies there is in `Inventory::items`
-//! like the rest; a tied bag holds nothing. Tying and untying: `tying.rs`.
+//! like the rest; a tied bag holds nothing. A holder (a keyring) adds no cells:
+//! it keeps its own grid, which works while tied. Tying and untying: `tying.rs`.
 
 use crate::id::Id;
 use crate::item::{Inventory, Item, ItemKind, Quality};
@@ -14,12 +15,13 @@ pub fn belt_slots(quality: Option<Quality>) -> usize {
     rank.max(1)
 }
 
-/// The cells a tied bag adds to the own grid: all of its inside.
+/// The cells a tied bag adds to the own grid: all of its inside, or none for a
+/// holder, which keeps its own grid (`ContainerDef::holder`).
 pub(super) fn tied_cells(bag: &Item) -> u32 {
-    bag.kind
-        .def()
-        .container
-        .map_or(0, |inside| inside.width as u32 * inside.height as u32)
+    match bag.kind.def().container {
+        Some(inside) if !inside.holder => inside.width as u32 * inside.height as u32,
+        _ => 0,
+    }
 }
 
 impl Inventory {
@@ -36,6 +38,24 @@ impl Inventory {
     /// Whether this is a bag tied to the belt.
     pub fn is_tied(&self, id: Id) -> bool {
         self.bag_slots.iter().any(|bag| bag.id == id)
+    }
+
+    /// Whether this is a tied bag whose inside is the own grid's end, so no grid
+    /// of its own: tied, and not a holder.
+    pub fn adds_to_grid(&self, id: Id) -> bool {
+        self.bag_slots
+            .iter()
+            .any(|bag| bag.id == id && tied_cells(bag) > 0)
+    }
+
+    /// The tied holders (`ContainerDef::holder`) that take this kind of item.
+    pub fn holders_for(&self, kind: ItemKind) -> impl Iterator<Item = &Item> {
+        self.bag_slots.iter().filter(move |bag| {
+            bag.kind
+                .def()
+                .container
+                .is_some_and(|inside| inside.holder && inside.takes(kind))
+        })
     }
 
     /// How many cells the own grid has, with every tied bag's.
