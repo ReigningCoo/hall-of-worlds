@@ -27,6 +27,8 @@ const RUN_TIME_DATA: &[(&str, &[&str])] = &[
             // wiki/tests.rs compares the pages and pictures made from the game's data.
             "docs/herbs",
             "docs/assets/herbs",
+            "docs/weapons",
+            "docs/assets/weapons",
             "crates/client/assets/fonts/HallOfWorldsTitle.ttf",
         ],
     ),
