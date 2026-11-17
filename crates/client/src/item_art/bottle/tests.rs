@@ -83,3 +83,113 @@ fn fitting_keeps_a_bottle_inside_its_picture() {
         }
     }
 }
+
+mod liquid_tests {
+    use super::super::liquid::LiquidLook;
+    use super::super::liquid_colour::{alpha, main_colour};
+    use crate::item_art::{Look, look_of};
+    use shared::herb::Stat;
+    use shared::id::Id;
+    use shared::item::{Item, ItemKind};
+    use shared::item_form::ItemForm;
+    use shared::potion::{BottleForm, Contents, Dose};
+
+    fn contents(doses: &[(Stat, i16)]) -> Contents {
+        Contents::new(doses.iter().map(|&(stat, step)| Dose { stat, step }))
+    }
+
+    fn liquid(doses: &[(Stat, i16)]) -> LiquidLook {
+        LiquidLook::of(&contents(doses)).expect("a potion")
+    }
+
+    /// A bottle item with this id and look seed, holding these.
+    fn bottle(id: u128, look: u64, doses: &[(Stat, i16)]) -> Item {
+        let mut item = Item::new(Id::for_test(id), ItemKind::Bottle);
+        item.form = Some(ItemForm::Bottle(BottleForm {
+            contents: contents(doses),
+            look,
+        }));
+        item
+    }
+
+    fn liquid_of(item: &Item) -> Option<LiquidLook> {
+        match look_of(item) {
+            Some(Look::Bottle { liquid, .. }) => liquid,
+            _ => panic!("a bottle's look"),
+        }
+    }
+
+    #[test]
+    fn equal_contents_look_the_same_whatever_the_seed() {
+        let doses = [(Stat::Mana, 5), (Stat::Health, -3), (Stat::Agility, 2)];
+        let first = liquid_of(&bottle(1, 7, &doses));
+        // The same doses in another order, in another bottle.
+        let reordered = [doses[2], doses[0], doses[1]];
+        for seed in 0..50 {
+            assert_eq!(
+                liquid_of(&bottle(100 + seed as u128, seed, &reordered)),
+                first
+            );
+        }
+        assert!(first.is_some());
+    }
+
+    #[test]
+    fn an_empty_bottle_has_no_liquid() {
+        assert_eq!(liquid_of(&bottle(1, 3, &[])), None);
+    }
+
+    #[test]
+    fn the_strongest_effect_sets_the_colour_ties_by_stat_order() {
+        let look = liquid(&[(Stat::Mana, 3), (Stat::Will, -6), (Stat::Agility, 2)]);
+        assert_eq!(look.main, Stat::Will);
+        assert_eq!(look.second, Some(Stat::Mana));
+        let tie = liquid(&[(Stat::Health, 4), (Stat::Strength, -4)]);
+        assert_eq!(tie.main, Stat::Strength);
+        assert_eq!(tie.second, Some(Stat::Health));
+    }
+
+    #[test]
+    fn helping_is_paler_and_harming_darker() {
+        let light = |doses: &[(Stat, i16)]| {
+            let colour = main_colour(&liquid(doses)).to_srgba();
+            colour.red + colour.green + colour.blue
+        };
+        assert!(light(&[(Stat::Health, 8)]) > light(&[(Stat::Health, 2)]));
+        assert!(light(&[(Stat::Health, -8)]) < light(&[(Stat::Health, -2)]));
+    }
+
+    #[test]
+    fn stronger_is_less_see_through() {
+        let weak = alpha(&liquid(&[(Stat::Aura, 2)]));
+        let strong = alpha(&liquid(&[(Stat::Aura, -6), (Stat::Will, 8)]));
+        assert!(strong > weak);
+    }
+
+    #[test]
+    fn features_follow_the_stats() {
+        let look = liquid(&[(Stat::Agility, 2), (Stat::Toughness, 3)]);
+        assert!(look.fizz && look.layered && !look.bubbles && !look.sparkles);
+        assert_eq!(look.blobs, None);
+        let mixed = liquid(&[(Stat::Health, 6), (Stat::Will, -2), (Stat::Mana, -4)]);
+        assert!(mixed.sparkles);
+        assert_eq!(mixed.blobs, Some(Stat::Mana));
+    }
+
+    #[test]
+    fn every_shape_holds_its_liquid_inside_its_glass() {
+        use super::super::liquid_body::{band, levels};
+        for shape in super::Shape::ALL {
+            let (bottom, top) = levels(shape);
+            assert!(top > bottom + 10.0, "{shape:?}");
+            let surface = band(shape, 0.0, 1.0);
+            assert!(
+                surface
+                    .rows
+                    .iter()
+                    .flatten()
+                    .all(|p| p.y >= bottom - 1e-3 && p.y <= top + 1e-3)
+            );
+        }
+    }
+}

@@ -9,13 +9,21 @@ use std::f32::consts::FRAC_PI_2;
 use super::{CAMERA_AT, CAMERA_UP, Part};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod front;
 mod glass;
 mod heart;
+mod liquid;
+mod liquid_body;
+mod liquid_colour;
+mod liquid_features;
+mod liquid_parts;
 mod look;
 mod profiles;
+mod spheres;
 mod stopper;
 mod surface;
 
+pub use liquid::LiquidLook;
 pub use look::{BottleLook, Glass, Shape, Stopper};
 use profiles::profile;
 use surface::Surface;
@@ -28,9 +36,11 @@ const TILT: f32 = 0.6;
 const FIT: f32 = 0.98;
 
 /// A bottle's parts (`Look::Bottle`): the glass's far side and the stopper,
-/// solid, then the glass's near side, see-through.
+/// solid, then the liquid if there is one, then the glass's near side, all three
+/// see-through.
 pub(super) fn bottle_parts(
     look: &BottleLook,
+    liquid: Option<&LiquidLook>,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) -> Vec<Part> {
@@ -52,11 +62,12 @@ pub(super) fn bottle_parts(
         Vec3::new(angle.sin(), 0.0, angle.cos()) * reach.radius + Vec3::Y * reach.top
     }));
     let fitted = fit(&points, turn);
-    let (far, near) = glass::materials(look.glass, materials);
+    let (far, near) = glass::materials(look.glass, liquid.is_some(), materials);
+    let top = liquid.map(|_| liquid_body::levels(look.shape).1);
     let mut solid = Vec::new();
     let mut clear = Vec::new();
     for (surface, neck) in &surfaces {
-        let (far_mesh, near_mesh) = glass::glass_meshes(surface, look.glass, view, *neck);
+        let (far_mesh, near_mesh) = glass::glass_meshes(surface, look.glass, view, *neck, top);
         solid.push(Part {
             mesh: meshes.add(far_mesh),
             material: far.clone(),
@@ -73,6 +84,11 @@ pub(super) fn bottle_parts(
         ..part
     });
     solid.extend(stopper);
+    if let Some(liquid) = liquid {
+        solid.extend(liquid_parts::liquid_parts(
+            look.shape, liquid, view, fitted, meshes, materials,
+        ));
+    }
     solid.extend(clear);
     solid
 }

@@ -114,8 +114,11 @@ pub enum Look {
     /// A herb: the part used, by herb and variant (`herb.rs`).
     Herb(super::HerbLook),
     /// A bottle, empty or a potion: its shape, glass and stopper from its look
-    /// seed (`bottle/`). The liquid, from the contents alone, joins it in PR 3.
-    Bottle { bottle: super::BottleLook },
+    /// seed, and its liquid from its contents alone, none when empty (`bottle/`).
+    Bottle {
+        bottle: super::BottleLook,
+        liquid: Option<super::LiquidLook>,
+    },
     /// An armour set: its pieces as worn together.
     Set {
         set: SetLook,
