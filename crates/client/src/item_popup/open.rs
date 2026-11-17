@@ -5,11 +5,12 @@ use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::Item;
 
+use super::herb::herb_words;
 use super::keys::key_lines;
 use super::needs::Viewer;
 use super::show::{ITEM_POPUP, KeyWords, fill};
 use crate::character::{CharacterSheet, WithBonuses};
-use crate::common::{CurrentWorld, Wording, rune_picture};
+use crate::common::{CurrentWorld, HerbTable, Wording, rune_picture};
 use crate::dom::{
     DocumentOf, Dom, HeldObject, KeptOpen, Pictures, Popup, UiEvent, UiValue, document,
 };
@@ -37,6 +38,8 @@ pub(super) struct OpenPopup {
     pub(super) of: Id,
     pub(super) document: Entity,
     pub(super) item: Item,
+    /// Its name, when not the item's own: a herb's as known.
+    pub(super) name: Option<String>,
 }
 
 /// A popup's box, by the id of the item it is about.
@@ -77,7 +80,7 @@ pub(super) fn follow_pointed(
     mut popups: ResMut<ItemPopups>,
     locks: Query<(&Popup, &UiId)>,
     mut kept: ResMut<KeptOpen>,
-    (mut dom, wording): (Dom, Res<Wording>),
+    (mut dom, wording, herbs): (Dom, Res<Wording>, Res<HerbTable>),
     (sheet, told, carried): (Res<CharacterSheet>, Res<WithBonuses>, Res<Carried>),
     (world, mut images, mut pictures): (
         Option<Res<CurrentWorld>>,
@@ -137,18 +140,21 @@ pub(super) fn follow_pointed(
         }
         name
     });
+    let herb = herb_words(&pointed.item, &herbs.0, &sheet.0.herbs, &wording.0);
+    let name = herb.as_ref().map(|herb| herb.name.clone());
     fill(
         &mut dom,
         of,
         &pointed,
         (pointed.at + OFFSET).round(),
         (&wording.0, viewer),
-        KeyWords { lines, runes },
+        (KeyWords { lines, runes }, herb),
     );
     kept.0.push(box_id(of));
     popups.open.push(OpenPopup {
         of,
         document,
         item: pointed.item,
+        name,
     });
 }

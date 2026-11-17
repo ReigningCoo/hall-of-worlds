@@ -149,6 +149,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             count: 1,
             identical: true,
             request: crate::item_form::RollRequest::NONE,
+            herb: Some("roseroot".to_owned()),
             to: None,
         }),
         ClientMessage::OpenTrade {
@@ -163,6 +164,9 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ClientMessage::Door(super::DoorAsk::CloseNear),
         ClientMessage::Door(super::DoorAsk::DevAll { open: false }),
         ClientMessage::PickHerb { x: 4, y: -9 },
+        ClientMessage::DevHerbs(super::DevHerbs::Learn("roseroot".to_owned())),
+        ClientMessage::DevHerbs(super::DevHerbs::LearnAll),
+        ClientMessage::DevHerbs(super::DevHerbs::ForgetAll),
         ClientMessage::Face(crate::facing::Heading(40_000)),
         ClientMessage::TakeItem {
             with: Id::for_test(3),

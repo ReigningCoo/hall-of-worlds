@@ -41,6 +41,7 @@ pub(super) fn answer_dev(
         }
         ClientMessage::DevVitals(what) => client.dev_vitals(what, world.action_clock.ticks()),
         ClientMessage::DevAlignment(change) => client.dev_alignment(change),
+        ClientMessage::DevHerbs(change) => super::dev_herbs::dev_herbs(client, world, change),
         ClientMessage::DevSkills { who, change } => {
             client.dev_skills(who, change, world.action_clock.ticks())
         }
@@ -78,6 +79,7 @@ pub(super) fn answer_dev(
             count,
             identical,
             request,
+            herb,
             to,
         }) => {
             let order = ItemOrder {
@@ -94,6 +96,7 @@ pub(super) fn answer_dev(
                 seed,
                 count,
                 identical,
+                herb,
             };
             give_items(client, world, batch, to)
         }

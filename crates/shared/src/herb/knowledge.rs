@@ -62,6 +62,20 @@ impl HerbKnowledge {
             .filter_map(|(e, known)| known.then_some(e))
     }
 
+    /// Learns its name and every effect: whether anything was new.
+    pub fn learn_all(&mut self, key: &str) -> bool {
+        let mut new = self.learn_name(key);
+        for n in 0..EFFECTS {
+            new |= self.learn_effect(key, n);
+        }
+        new
+    }
+
+    /// Forgets everything known of herbs (dev tools).
+    pub fn forget_all(&mut self) {
+        self.0.clear();
+    }
+
     /// Whether nothing at all is known.
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()

@@ -258,8 +258,7 @@ pub enum ClientMessage {
     DevGenerateArea(DevArea),
     /// Developer tools for mobs (`DevMobTool`): make, inspect, delete, freeze.
     DevMobs(DevMobTool),
-    /// Developer tools: harm, spend, fill or raise the character's Health and
-    /// Mana (`DevVitals`), answered with `Vitals`.
+    /// Developer tools: harm, spend, fill or raise Health and Mana, answered with `Vitals`.
     DevVitals(DevVitals),
     /// Developer tools: ask after or change the character's hidden alignment
     /// (`DevAlignment`), answered with `ServerMessage::DevAlignment`.
@@ -267,8 +266,7 @@ pub enum ClientMessage {
     /// Developer tools: change the character's skills, or `who`'s (another player
     /// in sight), answered with `DevSkillsOf` and their `Sheet`.
     DevSkills { who: Option<Id>, change: DevSkills },
-    /// Developer tools: put a piece of furniture on the player's site level
-    /// (Place Furniture), for everyone there; not kept.
+    /// Developer tools: furniture on the player's level for everyone there; not kept.
     DevFurniture(DevFurniture),
     /// Developer tools: go to a debug report's place (Load in Debug Info).
     DevGoToPlace(super::DevGoToPlace),
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Quest(super::QuestAsk),
     /// Harvest the herb patch at `(x, y)`: answered with `Herb` (`HerbNews`).
     PickHerb { x: i64, y: i64 },
+    /// Developer tools: learn or forget herbs (`DevHerbs`), answered with `Sheet`.
+    DevHerbs(super::DevHerbs),
 }

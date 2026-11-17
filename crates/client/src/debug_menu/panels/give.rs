@@ -6,8 +6,8 @@ use shared::creature::Size;
 use shared::item::Quality;
 
 use super::{
-    FIELDS, GiveButton, GiveChoice, GiveCount, GiveCountStep, GiveNoSpace, GiveOption, GivePreview,
-    GiveRandomSeed, GiveSeed, GiveToWords, SetChoice, give_kinds, ui_name,
+    FIELDS, GiveButton, GiveChoice, GiveCount, GiveCountStep, GiveHerb, GiveNoSpace, GiveOption,
+    GivePreview, GiveRandomSeed, GiveSeed, GiveToWords, SetChoice, give_kinds, ui_name,
 };
 use crate::dom::Template;
 use crate::html;
@@ -50,6 +50,7 @@ pub(super) static GIVE_ITEM: Template = html!(
       <select id="gem_material" width="170" hidden><option>Any gem</option></select>
       <select id="gem_cut" width="170" hidden><option>Any cut</option></select>
       <select id="limits" width="170" hidden><option>Any length</option></select>
+      <select id="herb" searchable width="220" hidden><option>Any herb</option></select>
     </span>
     <span nowrap valign="middle">
       <label for="seed">Seed</label>
@@ -146,6 +147,7 @@ pub(super) fn bind(bound: &mut EntityCommands, id: &UiId) {
         "no_space" => bound.insert(GiveNoSpace),
         "to" => bound.insert(GiveToWords),
         "give" => bound.insert(GiveButton),
+        "herb" => bound.insert(GiveHerb::default()),
         _ => bound,
     };
 }

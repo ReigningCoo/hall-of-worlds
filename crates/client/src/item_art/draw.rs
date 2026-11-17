@@ -4,12 +4,15 @@ use bevy::platform::time::Instant;
 use bevy::prelude::*;
 use std::time::Duration;
 
+use shared::herb::Herbs;
+
 use super::copy::PageCopies;
 use super::parts::parts_of;
 use super::{
     Batch, EdgeMaterial, ItemPicture, ItemPictures, OUTLINE_PIXELS, PAGES, PictureLight,
     StillCompiling, spawn_batch, spawn_cell, spawn_lights,
 };
+use crate::common::HerbTable;
 
 /// How long building models may take in a frame, so a panel full of new things
 /// doesn't stall one. What is built in a frame is drawn as one page.
@@ -43,6 +46,7 @@ pub(super) fn draw_pictures(
     lights: Query<Entity, With<PictureLight>>,
     compiling: Res<StillCompiling>,
     mut copies: ResMut<PageCopies>,
+    herbs: Res<HerbTable>,
 ) {
     let started = Instant::now();
     copies.0.clear();
@@ -89,7 +93,7 @@ pub(super) fn draw_pictures(
         (entity, &mut batch),
         &mut pictures,
         &mut stores,
-        started,
+        (started, &herbs.0),
     );
     spawn_batch(&mut commands, entity, batch);
 }
@@ -100,7 +104,7 @@ fn fill(
     (entity, batch): (Entity, &mut Batch),
     pictures: &mut ItemPictures,
     (meshes, materials, edges, _): &mut Stores,
-    started: Instant,
+    (started, herbs): (Instant, &Herbs),
 ) {
     while let Some(next) = pictures.waiting.front() {
         if started.elapsed() > BUILD_TIME && !batch.cells.is_empty() {
@@ -113,7 +117,7 @@ fn fill(
             return;
         };
         let building = Instant::now();
-        let parts = parts_of(next.look, meshes, materials);
+        let parts = parts_of(next.look, herbs, meshes, materials);
         pictures.building += building.elapsed();
         // As thick on the screen whatever the detail.
         let reach = (OUTLINE_PIXELS * next.pixels as f32 / next.asked as f32).round() as u32;

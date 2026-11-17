@@ -25,7 +25,8 @@ impl DebugAction {
             Self::ChangeCreature => DebugTool::ChangeCreature,
             Self::GiveItem => DebugTool::GiveItem,
             Self::Vitals => DebugTool::Vitals,
-            Self::LearnSkills => DebugTool::LearnSkills,
+            // Knowing herbs is learning, as skills are.
+            Self::LearnSkills | Self::Herbs => DebugTool::LearnSkills,
             Self::Alignment => DebugTool::Alignment,
             Self::CreateMob => DebugTool::CreateMob,
             Self::ExamineMob => DebugTool::ExamineMob,

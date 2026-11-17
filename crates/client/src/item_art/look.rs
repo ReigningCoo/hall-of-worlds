@@ -107,6 +107,8 @@ pub enum Look {
     Keyring,
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
     Food(shared::item::ItemKind),
+    /// A herb: the part used, by herb and variant (`herb.rs`).
+    Herb(super::HerbLook),
     /// An armour set: its pieces as worn together.
     Set {
         set: SetLook,
@@ -146,7 +148,7 @@ impl Look {
         match self {
             Self::Gem { .. } | Self::Ring { .. } | Self::Necklace { .. } => (1, 1),
             Self::Parcel => (2, 2),
-            Self::Keepsake => (1, 1),
+            Self::Keepsake | Self::Herb(_) => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),
             Self::Keyring => (2, 1),
@@ -248,6 +250,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
         | shared::item::ItemKind::DwarvenBread
         | shared::item::ItemKind::RawMeat) => return Some(Look::Food(kind)),
         _ => {}
+    }
+    if let Some(herb) = item.herb() {
+        return Some(Look::Herb(super::HerbLook::of(herb)));
     }
     let quality = item.quality;
     match item.form.as_ref()? {

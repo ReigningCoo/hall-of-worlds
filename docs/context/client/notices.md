@@ -1,10 +1,10 @@
 # client: notices
 
-Short notices that go by themselves (a snackbar), at the top middle of the window, under the bar of timed effects (`effect_bar`). For now "Found: <kind>" when the server says the player has found a poi in the wilderness, and "Locked" when a door the player tried is locked (`DoorRefused` with `locked`). Not for anything that needs an answer (that is a dialog).
+Short notices that go by themselves (a snackbar), at the top middle of the window, under the bar of timed effects (`effect_bar`). For now "Found: <kind>" when the server says the player has found a poi in the wilderness, "Locked" when a door the player tried is locked (`DoorRefused` with `locked`), and "Picked 3 Roseroot" after a harvest (`HerbNews::Picked`, named from `common::HerbTable`). Not for anything that needs an answer (that is a dialog).
 
 ## Files
 
-- `crates/client/src/notices/mod.rs`: `NoticesPlugin`; `NOTICES` (the notice as markup: `notices/row`, a row across the window 72 down, below `effect_bar`, `inert` and hidden, holding a parchment `panel` with `notices/words`), `spawn_notice` (Startup: the document, on `dom::top_strip()`), `show_notices` (Update, through `Dom`: `ServerMessage::PoiFound` or a locked `DoorRefused` sets the words and shows the row for `SHOWN_FOR` (4 s), the newest in place of any showing), `found` (what the notice says, the kind in words).
+- `crates/client/src/notices/mod.rs`: `NoticesPlugin`; `NOTICES` (the notice as markup: `notices/row`, a row across the window 72 down, below `effect_bar`, `inert` and hidden, holding a parchment `panel` with `notices/words`), `spawn_notice` (Startup: the document, on `dom::top_strip()`), `show_notices` (Update, through `Dom`: `ServerMessage::PoiFound` or a locked `DoorRefused` sets the words and shows the row for `SHOWN_FOR` (4 s), the newest in place of any showing), `found` (what the notice says, the kind in words), `picked` (a harvest's words).
 
 ## Public API
 
@@ -12,7 +12,7 @@ Short notices that go by themselves (a snackbar), at the top middle of the windo
 
 ## Depends on
 
-- `common` (`words`), `connection` (`FromServer`), `dom` (`Template`, `Dom`, `document`), `shared::protocol`.
+- `common` (`words`, `HerbTable`), `connection` (`FromServer`), `dom` (`Template`, `Dom`, `document`), `shared::protocol`.
 
 ## Used by
 

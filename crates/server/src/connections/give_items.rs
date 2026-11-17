@@ -6,9 +6,10 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::herb::{dev_herb, new_item};
 use shared::id::Id;
-use shared::item::Item;
-use shared::item_form::{ItemOrder, Refused, batch_seed, try_make_item};
+use shared::item::{Item, ItemKind};
+use shared::item_form::{Field, ItemOrder, Refused, batch_seed, try_make_item};
 
 use super::Client;
 use crate::ServerWorld;
@@ -20,12 +21,14 @@ mod to_players;
 pub(super) use to_players::give_to_player;
 
 /// What Give Item asked for, apart from who gets it.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub(crate) struct Batch {
     pub order: ItemOrder,
     pub seed: Option<u64>,
     pub count: u32,
     pub identical: bool,
+    /// For herbs: the key of the herb, or `None` for one from the seed.
+    pub herb: Option<String>,
 }
 
 /// Makes and gives a batch, to the player or to `to`: a mob in sight at once,
@@ -103,6 +106,12 @@ fn count_made(
     let made_at = Some(world.made_now());
     let one = |n: u32| {
         let seed = batch_seed(seed, if batch.identical { 0 } else { n });
+        if batch.order.kind == ItemKind::Herb {
+            // Herbs have no form to roll: one of the server's (`herb::dev_herb`).
+            let def = dev_herb(&world.herbs, batch.herb.as_deref(), seed);
+            let def = def.ok_or(Refused(Field::Material))?;
+            return Ok(new_item(def, batch.order.quality, 1, new_id(), made_at));
+        }
         try_make_item(&batch.order, wearer, new_id(), seed, made_at, &mut new_id)
     };
     let first = one(0)?;

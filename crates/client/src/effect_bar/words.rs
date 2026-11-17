@@ -8,7 +8,7 @@ use shared::lang::{Args, Lang};
 
 use crate::common::{amount_of, bonus_line, written};
 
-/// "Eating: Apple", "Poisoned", "Dev Bonus".
+/// "Eating: Apple", "Poisoned", "Dev Bonus", "Raw herb".
 pub(super) fn name(source: Source, lang: &Lang) -> String {
     let words = match source {
         Source::Eaten(kind) => {
@@ -17,6 +17,7 @@ pub(super) fn name(source: Source, lang: &Lang) -> String {
         }
         Source::Poison => lang.render("effect-poison", &Args::new()),
         Source::Dev => lang.render("effect-dev", &Args::new()),
+        Source::RawHerb => lang.render("effect-raw-herb", &Args::new()),
     };
     written(words)
 }

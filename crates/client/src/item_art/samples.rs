@@ -54,4 +54,10 @@ pub(super) fn warm_up(mut pictures: ResMut<ItemPictures>, mut images: ResMut<Ass
             pictures.picture(look, pixels, &mut images);
         }
     }
+    // Herbs have no form to roll here, and are drawn from the herb table.
+    let herb = Look::Herb(super::HerbLook {
+        herb: "roseroot".to_owned(),
+        variant: 0,
+    });
+    pictures.picture(herb, PIXELS_PER_CELL, &mut images);
 }

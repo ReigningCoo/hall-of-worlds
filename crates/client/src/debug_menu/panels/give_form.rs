@@ -43,6 +43,8 @@ pub(in crate::debug_menu) struct GiveForm {
     pub(super) kind: ItemKind,
     /// What its form must be like: only options its kind takes.
     pub(super) request: RollRequest,
+    /// For herbs: the key of the herb to give, or `None` for one from the seed.
+    pub(super) herb: Option<String>,
     /// `None` while the seed box says nothing that can be read.
     pub(super) seed: Option<u64>,
     /// How many seeds the Random button has made, to keep them apart.
@@ -61,6 +63,7 @@ impl Default for GiveForm {
             magical: false,
             kind: give_kinds()[0],
             request: RollRequest::NONE,
+            herb: None,
             seed: None,
             seeds_made: 0,
         }
@@ -114,8 +117,13 @@ pub(in crate::debug_menu) struct GiveRandomSeed;
 /// Where the item to be given is drawn.
 #[derive(Component, Default)]
 pub(in crate::debug_menu) struct GivePreview {
-    /// The order, seed and wearer it was drawn for.
-    pub(super) drawn: Option<(ItemOrder, u64, shared::creature::CreatureKind)>,
+    /// The order, seed, wearer and herb it was drawn for.
+    pub(super) drawn: Option<(
+        ItemOrder,
+        u64,
+        shared::creature::CreatureKind,
+        Option<String>,
+    )>,
 }
 
 /// A dropdown for one option of its form: "Any ..." then `values`.

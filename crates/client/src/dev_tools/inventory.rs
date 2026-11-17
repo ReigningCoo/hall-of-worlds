@@ -75,6 +75,7 @@ pub(super) fn add(app: &mut App) {
                                     count: 1,
                                     identical: true,
                                     request: shared::item_form::RollRequest::NONE,
+                                    herb: None,
                                     to: None,
                                 },
                             )));
@@ -99,6 +100,7 @@ pub(super) fn add(app: &mut App) {
                                 count: 1,
                                 identical: true,
                                 request: shared::item_form::RollRequest::NONE,
+                                herb: None,
                                 to: None,
                             },
                         )));

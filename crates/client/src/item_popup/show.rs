@@ -5,6 +5,7 @@
 //! the bottom.
 
 use super::about::about;
+use super::herb::HerbWords;
 use super::needs::{Viewer, need_lines};
 use super::open::{FORM, ItemPopups};
 use super::words::bonus_lines;
@@ -52,19 +53,21 @@ pub(super) fn fill(
     pointed: &Pointed,
     at: Vec2,
     (lang, viewer): (&Lang, Option<Viewer>),
-    keys: KeyWords,
+    (keys, herb): (KeyWords, Option<HerbWords>),
 ) {
     let form = UiId::of(FORM, of, "box").form();
     let id = |name: &str| format!("{form}/{name}");
     dom.set(&id("box"), "left", &at.x.to_string());
     dom.set(&id("box"), "top", &at.y.to_string());
-    let about = about(&pointed.item, lang);
+    // A herb's part ("Root"), and its effects as far as they are known.
+    let (part, effects) = herb.map_or((None, None), |herb| (herb.part, Some(herb.effects)));
+    let about = part.or_else(|| about(&pointed.item, lang));
     dom.set_flag(&id("about"), "hidden", about.is_none());
     dom.set_text(&id("about"), about.unwrap_or_default());
     let notes = &pointed.notes;
     dom.set_flag(&id("notes"), "hidden", notes.is_empty());
     dom.set_text(&id("notes"), notes.clone());
-    let lines = bonus_lines(&pointed.item, lang);
+    let lines = effects.unwrap_or_else(|| bonus_lines(&pointed.item, lang));
     dom.set_flag(&id("bonuses"), "hidden", lines.is_empty());
     dom.set_text(&id("bonuses"), lines.join("\n"));
     let (met, unmet) = need_lines(&pointed.item, viewer, lang);
@@ -88,8 +91,8 @@ pub(super) fn fill(
     dom.set_text(&id("weight"), weight);
 }
 
-/// Writes each new popup's name, by its top, in its quality's colour, as
-/// Give Item's lists do.
+/// Writes each new popup's name, by its top (a herb's as known: `herb.rs`), in
+/// its quality's colour, as Give Item's lists do.
 pub(super) fn bind_names(
     new: Query<(Entity, &UiId), Added<UiId>>,
     popups: Res<ItemPopups>,
@@ -105,7 +108,8 @@ pub(super) fn bind_names(
         };
         let top = open.item.top();
         let colour = top.quality.map_or(NO_QUALITY_NAME, quality_colour);
-        let words = (Text::new(top.name()), TextSize::Medium.font());
+        let name = open.name.clone().unwrap_or_else(|| top.name().to_owned());
+        let words = (Text::new(name), TextSize::Medium.font());
         commands
             .entity(entity)
             .with_child((words, TextColor(colour)));

@@ -3,9 +3,9 @@
 //! See `docs/context/client/notices.md`.
 
 use bevy::prelude::*;
-use shared::protocol::ServerMessage;
+use shared::protocol::{HerbNews, ServerMessage};
 
-use crate::common::words;
+use crate::common::{HerbTable, words};
 use crate::connection::FromServer;
 use crate::dom::{Dom, Template, document, top_strip};
 use crate::html;
@@ -51,6 +51,12 @@ fn found(kind: shared::poi::PoiKind) -> String {
     format!("Found: {}", words(&format!("{kind:?}")))
 }
 
+/// What a harvest says: "Picked 3 Roseroot" (picking teaches the name).
+fn picked(count: u32, herb: &str, table: &HerbTable) -> String {
+    let name = table.0.get(herb).map_or(herb, |def| &def.name);
+    format!("Picked {count} {name}")
+}
+
 /// What a door found locked says.
 const LOCKED: &str = "Locked";
 
@@ -62,11 +68,15 @@ fn show_notices(
     mut shown: ResMut<Shown>,
     mut dom: Dom,
     mut showing: Local<bool>,
+    table: Res<HerbTable>,
 ) {
     for FromServer(message) in from_server.read() {
         let words = match message {
             &ServerMessage::PoiFound { kind } => found(kind),
             ServerMessage::DoorRefused { locked: true, .. } => LOCKED.to_owned(),
+            ServerMessage::Herb(HerbNews::Picked { herb, count, .. }) => {
+                picked(*count, herb, &table)
+            }
             _ => continue,
         };
         dom.set_text("notices/words", words);

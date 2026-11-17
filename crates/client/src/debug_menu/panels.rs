@@ -33,11 +33,13 @@ mod generate;
 mod generate_form;
 mod give;
 mod give_form;
+mod give_herb;
 mod give_option;
 mod give_options;
 mod give_preview;
 mod give_systems;
 mod give_target;
+mod herbs;
 mod html_sample;
 mod kept_choices;
 mod layout;
@@ -79,6 +81,7 @@ pub(super) use give_form::{
     GiveButton, GiveChoice, GiveCount, GiveCountStep, GiveForm, GiveNoSpace, GiveOption,
     GivePreview, GiveRandomSeed, GiveSeed, SetChoice,
 };
+pub(super) use give_herb::{GiveHerb, choose_give_herb, fill_give_herb};
 pub(super) use give_option::OptionValue;
 use give_option::{FIELDS, any, ui_name};
 pub(super) use give_options::{choose_give_option, fill_give_options};
@@ -87,6 +90,7 @@ pub(super) use give_systems::{
     choose_give_options, edit_give_boxes, press_give_button, start_give_panel,
 };
 pub(super) use give_target::{GiveTo, GiveToWords, follow_target};
+pub(super) use herbs::add_herbs_panel;
 pub(super) use html_sample::{fill_html_sample, show_html_events};
 pub(super) use kept_choices::add_kept_choices;
 use layout::show_if;

@@ -7,6 +7,25 @@ about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
 about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
 
+## Herbs: one whose name isn't known, and each of its four effects, known
+## ("Slightly raises Toughness") or not ("?"). $way is raises or lowers,
+## $strength 1 (slight) to 3 (great).
+
+herb-unknown = Unknown herb
+herb-effect = { $way ->
+    [lowers] { $strength ->
+        [1] Slightly lowers
+        [3] Greatly lowers
+       *[other] Lowers
+    }
+   *[raises] { $strength ->
+        [1] Slightly raises
+        [3] Greatly raises
+       *[other] Raises
+    }
+} { $stat }
+herb-effect-unknown = ?
+
 ## A bonus: the amount with its sign ("+40", "−8"), then what it changes.
 
 item-bonus = { $amount } { $stat }

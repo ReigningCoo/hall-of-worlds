@@ -34,8 +34,10 @@ mod consume;
 mod delete_character;
 mod dev_alignment;
 mod dev_audit;
+mod dev_herbs;
 mod dev_skills;
 pub(crate) mod difficulty;
+mod eat_herb;
 mod facing;
 mod for_others;
 mod give_items;
@@ -255,6 +257,8 @@ mod dev_skills_tests;
 mod difficulty_tests;
 #[cfg(test)]
 mod go_to_place_tests;
+#[cfg(test)]
+mod herb_tests;
 #[cfg(test)]
 mod idle_tests;
 #[cfg(test)]

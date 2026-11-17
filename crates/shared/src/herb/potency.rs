@@ -1,6 +1,6 @@
 //! How much of a herb's quality its user draws out (owner: quality counts only
-//! as far as the user's Herbalism reaches). Nothing uses it yet but tests: it is
-//! for eating herbs and making potions.
+//! as far as the user's Herbalism reaches): for eating herbs raw (`raw_dose`)
+//! and, later, making potions.
 
 use super::quality::FULL;
 use crate::item::Quality;
