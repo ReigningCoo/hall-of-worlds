@@ -59,6 +59,7 @@ pub enum ItemKind {
     /// (owner: one picture for all, named for what it is).
     Keepsake,
     Key,
+    Keyring,
     Knife,
     Lantern,
     LegArmour,
@@ -118,7 +119,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 95] = [
+    pub const ALL: [Self; 96] = [
         Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -172,6 +173,7 @@ impl ItemKind {
         Self::Hose,
         Self::Keepsake,
         Self::Key,
+        Self::Keyring,
         Self::Knife,
         Self::Lantern,
         Self::LegArmour,

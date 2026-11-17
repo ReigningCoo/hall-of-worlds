@@ -1,7 +1,7 @@
 //! `ItemDef`, `ContainerDef` and `WearDef`: what a kind of item is, and the helpers the table in `def.rs` is written with.
 
 use crate::creature::{Layer, Location};
-use crate::item::Shape;
+use crate::item::{ItemKind, Shape};
 
 /// The grid inside a container, and what it will take. Anything put in must also
 /// be `Shape::smaller_than` the container's outside.
@@ -24,6 +24,23 @@ pub struct ContainerDef {
     /// While tied to a belt, how much lighter it makes what lies in its share of the
     /// own grid, as a percentage (0 for none): see `Inventory::total_weight`.
     pub lighter_by: u8,
+    /// The only kinds it takes; empty for anything (a keyring: keys).
+    pub only: &'static [ItemKind],
+    /// A holder (owner, 2026-11-17): tied to a belt it keeps its own grid, which
+    /// works as any other, rather than adding cells to the own grid; it may be
+    /// tied and untied full, only one of each kind is tied at a time, and what
+    /// it takes from outside goes into it first (`Inventory::route_for`).
+    pub holder: bool,
+    /// What is in it weighs less by its quality, in even steps from nothing off
+    /// at Poor to all of it at Artifact (`Quality::lightens`), wherever it is.
+    pub lighter_by_quality: bool,
+}
+
+impl ContainerDef {
+    /// Whether it takes this kind of item at all (`only`).
+    pub fn takes(&self, kind: ItemKind) -> bool {
+        self.only.is_empty() || self.only.contains(&kind)
+    }
 }
 
 /// What a kind of item is.
@@ -94,6 +111,9 @@ pub(super) const fn bag(
             max_each,
             on_belt: false,
             lighter_by: 0,
+            only: &[],
+            holder: false,
+            lighter_by_quality: false,
         }),
         ..plain(name, weight, shape)
     }
@@ -158,6 +178,24 @@ impl ItemDef {
         Self {
             container: Some(ContainerDef {
                 on_belt: true,
+                ..container
+            }),
+            ..self
+        }
+    }
+
+    /// A holder for only these kinds, tied to a belt, its contents lighter by its
+    /// quality: see `ContainerDef::holder`.
+    pub(super) const fn holding(self, only: &'static [ItemKind]) -> Self {
+        let Some(container) = self.container else {
+            panic!("only a bag can be a holder");
+        };
+        Self {
+            container: Some(ContainerDef {
+                on_belt: true,
+                only,
+                holder: true,
+                lighter_by_quality: true,
                 ..container
             }),
             ..self

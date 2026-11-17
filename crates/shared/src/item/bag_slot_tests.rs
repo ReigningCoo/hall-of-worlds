@@ -252,12 +252,12 @@ fn fewer_slots_than_bags_drop_the_last_bags_first() {
 }
 
 #[test]
-fn only_pouches_and_bags_go_on_belts() {
+fn only_pouches_bags_and_holders_go_on_belts() {
     let tied: Vec<ItemKind> = ItemKind::ALL
         .into_iter()
         .filter(|kind| kind.def().container.is_some_and(|inside| inside.on_belt))
         .collect();
-    assert_eq!(tied, [ItemKind::Bag, ItemKind::Pouch]);
+    assert_eq!(tied, [ItemKind::Bag, ItemKind::Keyring, ItemKind::Pouch]);
     let bag = ItemKind::Bag.def().container.unwrap();
     let pouch = ItemKind::Pouch.def().container.unwrap();
     let backpack = ItemKind::Backpack.def().container.unwrap();

@@ -15,11 +15,13 @@ fn is_or_holds_key(item: &Item, lock: Id) -> bool {
         || item.above.iter().any(|above| is_or_holds_key(above, lock))
 }
 
-/// Whether the key to `lock` is carried, in bags too, or worn (not binned).
+/// Whether the key to `lock` is carried, in bags (a tied keyring too), or worn
+/// (not binned).
 pub fn carries_key(inventory: &Inventory, lock: Id) -> bool {
     let carried = inventory.items.iter().map(|placed| &placed.item);
     carried
         .chain(&inventory.worn)
+        .chain(&inventory.bag_slots)
         .any(|item| is_or_holds_key(item, lock))
 }
 
@@ -27,7 +29,8 @@ pub fn carries_key(inventory: &Inventory, lock: Id) -> bool {
 /// it says to stop (`true`).
 fn each_key(inventory: &mut Inventory, each: &mut impl FnMut(&mut KeyForm) -> bool) -> bool {
     let carried = inventory.items.iter_mut().map(|placed| &mut placed.item);
-    for item in carried.chain(&mut inventory.worn) {
+    let worn = inventory.worn.iter_mut().chain(&mut inventory.bag_slots);
+    for item in carried.chain(worn) {
         if in_item(item, each) {
             return true;
         }
@@ -54,7 +57,10 @@ fn in_item(item: &mut Item, each: &mut impl FnMut(&mut KeyForm) -> bool) -> bool
 /// Whether anything carried is a key no character has had before.
 pub fn has_unfound_keys(inventory: &Inventory) -> bool {
     let carried = inventory.items.iter().map(|placed| &placed.item);
-    carried.chain(&inventory.worn).any(unfound_in)
+    carried
+        .chain(&inventory.worn)
+        .chain(&inventory.bag_slots)
+        .any(unfound_in)
 }
 
 /// Whether `item`, or anything in it or on it, is a key not had before.

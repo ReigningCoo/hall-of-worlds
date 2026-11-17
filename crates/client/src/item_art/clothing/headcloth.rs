@@ -19,6 +19,9 @@ use crate::item_art::armour::surface::grid;
 use crate::item_art::armour::{Model, Stuff, plate};
 use crate::item_art::body::{blob, limb};
 
+/// How much further off the trunk a nemes' lappets lie than its drape, in mm.
+const LAPPET_OFF: f32 = 14.0;
+
 /// How far either side of the front a face is left open, from about the brow.
 const FACE: f32 = 1.15;
 
@@ -202,8 +205,11 @@ impl Wear<'_> {
         for side in [-1.0f32, 1.0] {
             let angle = side * (face + 0.2);
             let start = self.on_head(angle, down, off);
-            let over = around.trunk(side * 0.75, self.shoulder() - 30.0, drape);
-            let low = around.trunk(side * 0.7, self.chest() - 20.0, drape);
+            // Off the trunk by more than the drape: a lappet is wide, and its inner
+            // edge would dip into the chest where the trunk rounds towards the neck.
+            let lappet = drape + LAPPET_OFF;
+            let over = around.trunk(side * 0.75, self.shoulder() - 30.0, lappet);
+            let low = around.trunk(side * 0.7, self.chest() - 20.0, lappet);
             let path = [start, (over, Vec3::Z), (low, Vec3::Z)];
             self.ribbon(model, Stuff::Main, &path, 75.0);
         }

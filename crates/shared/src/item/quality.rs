@@ -32,6 +32,15 @@ impl Quality {
         Self::Artifact,
     ];
 
+    /// What `grams` in a holder that lightens by quality weigh
+    /// (`ContainerDef::lighter_by_quality`): all of it at Poor, nothing at
+    /// Artifact, in even steps between, rounding down.
+    pub fn lightened(self, grams: u32) -> u32 {
+        let steps = Self::ALL.len() as u64 - 1;
+        let rank = Self::ALL.iter().position(|&q| q == self).unwrap_or(1) as u64;
+        (grams as u64 * (steps - rank) / steps) as u32
+    }
+
     /// How likely a roll is to give it, out of `ODDS_OUT_OF`. First guesses.
     pub const fn odds(self) -> u64 {
         match self {

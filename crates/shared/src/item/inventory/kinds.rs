@@ -35,7 +35,7 @@ impl Inventory {
             }
         }
         search(&self.items, true, &mut found);
-        for worn in &self.worn {
+        for worn in self.worn.iter().chain(&self.bag_slots) {
             search(&worn.contents, false, &mut found);
         }
         found

@@ -102,6 +102,7 @@ impl Inventory {
         search(&mut self.items, id).or_else(|| {
             self.worn
                 .iter_mut()
+                .chain(&mut self.bag_slots)
                 .find_map(|item| search(&mut item.contents, id))
         })
     }
@@ -119,7 +120,8 @@ impl Inventory {
         match holder {
             Holder::Inventory => Some(&mut self.items),
             Holder::Inside(id) => search(&mut self.items, id).or_else(|| {
-                self.worn.iter_mut().find_map(|item| {
+                let tied = self.bag_slots.iter_mut();
+                self.worn.iter_mut().chain(tied).find_map(|item| {
                     if item.id == id {
                         Some(&mut item.contents)
                     } else {

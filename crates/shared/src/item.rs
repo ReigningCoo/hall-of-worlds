@@ -61,6 +61,10 @@ pub const MAX_DEPTH: u32 = 3;
 /// `Inventory`. Otherwise they come from the kind of creature.
 pub const INVENTORY_SIZE: (u8, u8) = (6, 4);
 
+/// How many rows a holder (`ContainerDef::holder`: a keyring) shows at first,
+/// before what is in it needs more (owner, 2026-11-17).
+pub const HOLDER_FIRST_ROWS: u8 = 4;
+
 #[cfg(test)]
 mod add_tests;
 
@@ -70,6 +74,8 @@ mod bag_slot_tests;
 #[cfg(test)]
 mod coin_tests;
 
+#[cfg(test)]
+mod holder_tests;
 #[cfg(test)]
 mod kinds_tests;
 

@@ -29,4 +29,8 @@ pub enum MoveRefused {
     BagInUse,
     /// Without this belt, or with a worse one, bags would be left without slots.
     BeltInUse,
+    /// The container takes only some kinds, not this one (a keyring: keys).
+    NotTaken,
+    /// A holder of this kind is tied already: only one of each at a time.
+    HolderTied,
 }

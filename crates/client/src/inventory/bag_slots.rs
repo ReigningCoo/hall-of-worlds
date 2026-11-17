@@ -123,7 +123,9 @@ pub(super) fn show_bag_slots(
 /// The words for a move refused by the bag slots' rules, and the like.
 pub(super) fn explain_move(why: MoveRefused) -> String {
     match why {
-        MoveRefused::NotForBelt => "Only a pouch or a bag can be tied to a belt.".into(),
+        MoveRefused::NotForBelt => "Only a pouch, a bag or a keyring can be tied to a belt.".into(),
+        MoveRefused::HolderTied => "Only one of those can be tied at a time.".into(),
+        MoveRefused::NotTaken => "That doesn't go in there.".into(),
         MoveRefused::NotEmpty => "Only an empty bag can be tied to a belt.".into(),
         MoveRefused::NoSlot => "Your belt has no slot for it.".into(),
         MoveRefused::BagInUse => "Empty the end of your inventory to untie this bag.".into(),

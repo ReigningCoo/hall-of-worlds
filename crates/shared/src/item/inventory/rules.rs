@@ -48,8 +48,11 @@ impl Inventory {
             return Err(MoveRefused::IntoItself);
         }
         let target_item = self.find(target).ok_or(MoveRefused::NoSuchGrid)?;
-        if target_item.kind.def().container.is_none() {
+        let Some(container) = target_item.kind.def().container else {
             return Err(MoveRefused::NoSuchGrid);
+        };
+        if item.members().any(|one| !container.takes(one.kind)) {
+            return Err(MoveRefused::NotTaken);
         }
         if !item.shape().smaller_than(target_item.shape()) {
             return Err(MoveRefused::TooBig);
