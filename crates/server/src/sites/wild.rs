@@ -13,6 +13,7 @@ mod exits;
 mod explore;
 mod flats;
 mod found;
+mod frame;
 mod in_poi;
 mod town;
 mod window;

@@ -11,6 +11,7 @@ use shared::wilderness::{BLOCK_SIZE, BlockPos, SCALE};
 use std::collections::BTreeSet;
 
 use super::ensure_chunk;
+use super::frame::{Frame, turn_of};
 use crate::ServerWorld;
 use crate::sites::{DoorSite, Mirror, SetIn, VisitDoors, set_doors};
 use crate::storage::SiteId;
@@ -92,9 +93,12 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
         for cx in min_x..min_x + columns {
             let wrapped = cx.rem_euclid(width);
             let block = world.wilderness.wild.block_of(wrapped, cy);
-            let made = world.wilderness.block(block);
+            let made = world.wilderness.block(block, &world.herbs);
             level.set(cx, cy, made.cell(wrapped, cy));
             level.set_room(cx, cy, made.room(wrapped, cy));
+            if let Some(patch) = made.herb_at(wrapped, cy) {
+                level.set_herb(cx, cy, patch.clone());
+            }
         }
     }
     let mut window = Window {
@@ -125,6 +129,20 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
         }
     }
     add_doors(world, &mut window);
+    let key = |x: i64, y: i64| {
+        crate::sites::herb_key(
+            SiteId::Wilderness,
+            0,
+            &window.mirrors,
+            x,
+            x.rem_euclid(width),
+            y,
+        )
+    };
+    let picked = crate::sites::picked_of(world, &window.level.level, key);
+    for ((x, y), when) in picked {
+        window.level.level.set_herb_picked(x, y, Some(when));
+    }
     window
 }
 
@@ -156,43 +174,6 @@ fn add_doors(world: &mut ServerWorld, window: &mut Window) {
         let doors = set_doors(world, &site, level, mirror.bounds, offset);
         window.doors.extend(doors);
     }
-}
-
-/// Where the player is in the planet, and the window's cells.
-struct Frame {
-    shift: i64,
-    width: i64,
-    bounds: (i64, i64, i64, i64),
-}
-
-impl Frame {
-    /// Where a cell round the planet is in the window, if it is in it.
-    fn place(&self, x: i64, y: i64) -> Option<i64> {
-        let (min_x, min_y, columns, rows) = self.bounds;
-        if !(min_y..min_y + rows).contains(&y) {
-            return None;
-        }
-        [-self.width, 0, self.width]
-            .into_iter()
-            .map(|turn| x + self.shift + turn)
-            .find(|x| (min_x..min_x + columns).contains(x))
-    }
-}
-
-/// How far along a cutout at `bounds` round the planet is in the window's
-/// frame, if it lies in the window at all. Cutouts are kept inside their
-/// chunk, which never lies across the seam.
-fn turn_of(frame: &Frame, (min_x, min_y, columns, rows): (i64, i64, i64, i64)) -> Option<i64> {
-    let (wx, wy, wc, wr) = frame.bounds;
-    [-frame.width, 0, frame.width]
-        .into_iter()
-        .map(|turn| turn + frame.shift)
-        .find(|&turn| {
-            min_x + turn < wx + wc
-                && min_x + columns + turn > wx
-                && min_y < wy + wr
-                && min_y + rows > wy
-        })
 }
 
 /// The window's bounds grown to take in the whole of any town set in that
@@ -262,6 +243,9 @@ fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &
     });
     for piece in cutout.level().furniture() {
         window.level.level.place_furniture(piece.moved((turn, 0)));
+    }
+    for ((x, y), patch) in &wild_chunk.herbs {
+        window.level.level.set_herb(x + turn, *y, patch.clone());
     }
     for stairs in &wild_chunk.stairs {
         let x = stairs.x + turn;

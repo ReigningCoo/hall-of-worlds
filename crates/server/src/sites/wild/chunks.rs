@@ -36,6 +36,7 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
     let (mut stairs, mut buildings, mut fields) = (Vec::new(), Vec::new(), Vec::new());
     let mut walls = Vec::new();
     let (mut entrance, mut town, mut spawns) = (None, Vec::new(), Vec::new());
+    let mut herbs = Vec::new();
     let border = plan.cutout().map(Cutout::border).unwrap_or_default();
     let flats = plan
         .cutout()
@@ -50,6 +51,10 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
             walls = first.walls.iter().map(|wall| wall.moved(offset)).collect();
             town.clone_from(&first.buildings);
             spawns = first_level_mobs(cutout.poi(), &first, offset);
+            herbs = crate::sites::site_herbs(world, cutout.poi(), &first.level)
+                .into_iter()
+                .map(|((x, y), patch)| ((x + offset.0, y + offset.1), patch))
+                .collect();
         }
     }
     world.wilderness.keep_chunk(WildChunk {
@@ -63,6 +68,7 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
         border,
         flats,
         entrance,
+        herbs,
     });
 }
 

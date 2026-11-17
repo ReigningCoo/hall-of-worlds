@@ -44,6 +44,11 @@ pub(super) enum Action {
     Consume {
         item: Id,
     },
+    /// Harvesting the herb patch here (`pick_herb.rs`).
+    PickHerb {
+        x: i64,
+        y: i64,
+    },
 }
 
 impl super::Client {

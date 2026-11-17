@@ -153,7 +153,12 @@ fn spawned(world: &mut ServerWorld, seed: Seed, block: BlockPos, at: (i64, i64))
     }
     let land = world.wilderness.wild.habitat_of(block);
     let width = world.wilderness.wild.width();
-    let plan = wild_spawns(seed, block, world.wilderness.block(block), land);
+    let plan = wild_spawns(
+        seed,
+        block,
+        world.wilderness.block(block, &world.herbs),
+        land,
+    );
     resets::reset_if_due(world, seed, block, &plan);
     let made_at = world.made_now();
     let saved = world.site(SiteId::Wilderness).levels.get(&0);

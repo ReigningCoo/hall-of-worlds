@@ -5,7 +5,7 @@ use shared::door::DoorLook;
 use shared::dungeon::{Cell, Level};
 use shared::furniture::Piece;
 use shared::movement::{Step, step_on_level};
-use shared::protocol::{LevelChunk, SeenStairs, ServerMessage, level_chunk};
+use shared::protocol::{LevelChunk, SeenHerb, SeenStairs, ServerMessage, level_chunk};
 use std::collections::VecDeque;
 
 use super::Visit;
@@ -141,6 +141,7 @@ pub(super) fn level_chunks(
             stairs: Vec::new(),
             doors: Vec::new(),
             furniture: Vec::new(),
+            herbs: Vec::new(),
             remembered,
         };
         // The positions come from the mask; fill in what is there.
@@ -169,11 +170,18 @@ pub(super) fn level_chunks(
                 furniture.push(*piece);
             }
         }
+        let herbs = (positions.iter())
+            .filter_map(|&(x, y)| {
+                let patch = level.herb_at(x, y)?.clone();
+                Some(SeenHerb { x, y, patch })
+            })
+            .collect();
         chunks.push(LevelChunk {
             cells,
             stairs,
             doors,
             furniture,
+            herbs,
             ..message
         });
     }

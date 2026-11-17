@@ -43,6 +43,13 @@ pub(super) fn level_of(
     for (&(x, y), &cell) in &saved.changes {
         level.level.set(x, y, cell);
     }
+    for ((x, y), patch) in super::site_herbs(world, &new.poi, &level.level) {
+        level.level.set_herb(x, y, patch);
+    }
+    let key = |x: i64, y: i64| super::herb_key(new.id, index, &[], x, x, y);
+    for ((x, y), when) in super::picked_of(world, &level.level, key) {
+        level.level.set_herb_picked(x, y, Some(when));
+    }
     let stairs = level
         .stairs
         .iter()

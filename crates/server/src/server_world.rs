@@ -79,14 +79,14 @@ pub struct ServerWorld {
     /// Mobs that died since players were last told who they see, so those who
     /// saw them go are told they died (`entities::sync`).
     pub(crate) died: BTreeSet<shared::id::Id>,
-    /// Creatures harmed since players were last told who they see, so others
-    /// who see them are told (`entities::sync`).
+    /// Creatures harmed lately, told to others who see them (`entities::sync`).
     pub(crate) harmed: Vec<crate::combat::Harm>,
     /// Mobs killed since `entities::sync` last told who helped.
     pub(crate) kills: Vec<crate::entities::Kill>,
-    /// Doors changed since everyone on their levels was last told
-    /// (`sites::share_doors`), and where players stood then.
+    /// Doors changed lately (`sites::share_doors`), and where players stood then.
     pub(crate) door_changes: Vec<crate::sites::DoorChange>,
+    /// Herb patches harvested lately, for `sites::share_herbs`.
+    pub(crate) herb_changes: Vec<crate::sites::HerbChange>,
     /// Furniture put down by hand (dev tools), for `sites::share_furniture`.
     pub(crate) furniture_changes: Vec<crate::sites::FurnitureChange>,
     pub(crate) standing: crate::sites::Standing,
@@ -194,6 +194,7 @@ impl ServerWorld {
             harmed: Vec::new(),
             kills: Vec::new(),
             door_changes: Vec::new(),
+            herb_changes: Vec::new(),
             furniture_changes: Vec::new(),
             standing: Default::default(),
             mobs_frozen: false,

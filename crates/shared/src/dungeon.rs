@@ -13,6 +13,7 @@ mod bars;
 mod cell;
 mod doors;
 mod furniture;
+mod herbs;
 mod level;
 mod line;
 mod sight;

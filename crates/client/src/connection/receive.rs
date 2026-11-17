@@ -241,6 +241,7 @@ pub(super) fn receive(
                 | ServerMessage::ActionBar(_)
                 | ServerMessage::Sneaking(_)
                 | ServerMessage::DoorRefused { .. }
+                | ServerMessage::Herb(_)
                 | ServerMessage::AbilityStarted { .. }
                 | ServerMessage::AbilityLanded { .. }
                 | ServerMessage::Killed { .. }

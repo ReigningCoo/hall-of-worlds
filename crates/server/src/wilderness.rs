@@ -56,6 +56,9 @@ pub(crate) struct WildChunk {
     /// Where exploring from the poi on the world map arrives, in wilderness
     /// cells: its site's entrance, or beside its way down (`sites::wild`).
     pub(crate) entrance: Option<(i64, i64)>,
+    /// The herbs in a set-in first level's beds (a herbalist's), in
+    /// wilderness cells (`sites::plant_site_herbs`).
+    pub(crate) herbs: Vec<((i64, i64), shared::herb::HerbPatch)>,
 }
 
 /// The wilderness of one world.
@@ -128,8 +131,9 @@ impl WildernessMaps {
         self.chunks.insert(chunk.plan.chunk(), chunk);
     }
 
-    /// A block's cells, made if they aren't kept. Its chunk's plan must be kept.
-    pub(crate) fn block(&mut self, block: BlockPos) -> &Level {
+    /// A block's cells, with the herbs growing wild on them (`herbs`, the
+    /// server's), made if they aren't kept. Its chunk's plan must be kept.
+    pub(crate) fn block(&mut self, block: BlockPos, herbs: &shared::herb::Herbs) -> &Level {
         let block = BlockPos {
             x: block.x.rem_euclid(self.wild.block_columns()),
             y: block.y,
@@ -141,7 +145,10 @@ impl WildernessMaps {
             let (x, y, _, _) = self.wild.block_bounds(block);
             let chunk = self.wild.chunk_of(x, y);
             let plan = &self.chunks[&chunk].plan;
-            let level = self.wild.block(block, plan);
+            let mut level = self.wild.block(block, plan);
+            for ((x, y), patch) in self.wild.herb_patches(block, plan, &level, herbs) {
+                level.set_herb(x, y, patch);
+            }
             self.blocks.insert(block, level);
         }
         &self.blocks[&block]

@@ -16,8 +16,8 @@ mod version;
 pub use address::{DEFAULT_PORT, FALLBACK_PORT, ServerAddress};
 pub use characters::{CharacterSummary, ListedCharacter};
 pub use level::{
-    ENTER_REACH, LEVEL_CHUNK_SIZE, LevelChunk, LevelInfo, LevelKind, RememberedLevel, SeenStairs,
-    level_chunk,
+    ENTER_REACH, LEVEL_CHUNK_SIZE, LevelChunk, LevelInfo, LevelKind, RememberedLevel, SeenHerb,
+    SeenStairs, level_chunk,
 };
 pub use link::{ClientLink, Link, LinkError, ServerLink, Wire, local_pair, wired};
 pub use login::{
@@ -40,6 +40,7 @@ mod dev_skills;
 mod dev_tool;
 mod dev_vitals;
 mod door_ask;
+mod herb_news;
 mod kind_change;
 mod moves;
 mod ping;
@@ -61,6 +62,7 @@ pub use dev_mob::{DevMob, DevMobTool};
 pub use dev_skills::{DEV_SKILLS_LEARNT, DevSkills};
 pub use dev_vitals::{DEV_BONUS, DEV_BONUS_TICKS, DevVitals};
 pub use door_ask::DoorAsk;
+pub use herb_news::HerbNews;
 pub use kind_change::KindChange;
 pub use moves::{MOST_MOVE, Stretch, cell_of_units, is_middle, units_of_cell};
 pub use quest::{
@@ -74,7 +76,7 @@ pub use world_chunk::{GateInfo, SeenPoi, WorldChunk, WorldInfo};
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 115;
+pub const PROTOCOL_VERSION: u32 = 116;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

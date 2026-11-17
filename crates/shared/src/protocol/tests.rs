@@ -162,6 +162,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ClientMessage::Door(super::DoorAsk::Open { x: -2, y: 5 }),
         ClientMessage::Door(super::DoorAsk::CloseNear),
         ClientMessage::Door(super::DoorAsk::DevAll { open: false }),
+        ClientMessage::PickHerb { x: 4, y: -9 },
         ClientMessage::Face(crate::facing::Heading(40_000)),
         ClientMessage::TakeItem {
             with: Id::for_test(3),
@@ -525,6 +526,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 stairs: Vec::new(),
                 doors: Vec::new(),
                 furniture: Vec::new(),
+                herbs: Vec::new(),
                 remembered: true,
             }],
         }),
@@ -603,8 +605,25 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                     arms: true,
                 },
             }],
+            herbs: vec![super::SeenHerb {
+                x: -6,
+                y: 16,
+                patch: crate::herb::HerbPatch {
+                    herb: "chamomile".into(),
+                    phase: 1234,
+                    picked: Some(98_765),
+                },
+            }],
             remembered: true,
         }),
+        ServerMessage::Herb(super::HerbNews::Picked {
+            x: -6,
+            y: 16,
+            herb: "chamomile".into(),
+            quality: crate::item::Quality::Uncommon,
+            count: 3,
+        }),
+        ServerMessage::Herb(super::HerbNews::Refused { x: 1, y: -2 }),
         ServerMessage::DoorRefused {
             x: 3,
             y: -4,
