@@ -427,7 +427,8 @@ fn a_new_body_drops_what_it_cant_wear_and_is_kept() {
     // Human shoes are too big for it: they drop, and what fits loosely stays on.
     assert!(changed.worn.iter().all(|item| item.kind != ItemKind::Shoes));
     assert!(!changed.worn.is_empty());
-    assert_eq!(changed.size, (4, 3));
+    // A player's grid goes by Strength, not their kind (owner, 2026-11-17).
+    assert_eq!((changed.size, changed.own_cells()), ((8, 4), 32));
     test.leave();
     // They aren't dressed again on coming back.
     assert_eq!(inventory(&TestClient::of(open()).welcome), changed);
@@ -932,9 +933,9 @@ fn giving_an_item_needs_dev_tools_and_room() {
     test.dev_tools = true;
     // Coins given apart, so they fill the inventory.
     test.world.stacks = shared::item::StackLimits::NONE;
-    let answers = test.send(&vec![give; 30]);
-    // A six by four inventory, and no more.
-    assert_eq!(inventory(&answers).items.len(), 24);
+    let answers = test.send(&vec![give; 40]);
+    // A player's 32 cells, and no more.
+    assert_eq!(inventory(&answers).items.len(), 32);
 }
 
 #[test]
@@ -1168,7 +1169,10 @@ fn a_new_character_is_what_they_asked_if_it_is_allowed() {
     );
     let carried = inventory(&told);
     assert_eq!(carried.creature, CreatureKind::Dwarf);
-    assert_eq!(carried.size, CreatureKind::Dwarf.def().inventory);
+    // A player's own grid goes by Strength, never their kind (owner, 2026-11-17).
+    let strength = sheet.unwrap().attributes.strength;
+    let cells = shared::item::cells_for_strength(strength);
+    assert_eq!((carried.size.0, carried.own_cells()), (8, cells));
 }
 
 #[test]

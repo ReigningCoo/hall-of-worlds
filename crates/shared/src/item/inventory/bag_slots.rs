@@ -58,10 +58,10 @@ impl Inventory {
         })
     }
 
-    /// How many cells the own grid has, with every tied bag's.
+    /// How many cells the own grid has, with every tied bag's (a player's own
+    /// from Strength: `own_cells`).
     pub fn grid_cells(&self) -> u32 {
-        let own = self.size.0 as u32 * self.size.1 as u32;
-        own + self.bag_slots.iter().map(tied_cells).sum::<u32>()
+        self.own_cells() + self.bag_slots.iter().map(tied_cells).sum::<u32>()
     }
 
     /// The own grid's width and rows, with the tied bags' cells: the last row may

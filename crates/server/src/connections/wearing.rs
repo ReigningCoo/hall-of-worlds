@@ -3,6 +3,7 @@
 //! can't go on they are told why (`ServerMessage::NotWorn`). It all takes the time
 //! `Swapped::cost` says, longer under other things.
 
+use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::{Item, StackLimits};
 use shared::protocol::ServerMessage;
@@ -18,9 +19,18 @@ impl Client {
             .inventory
             .find(item)
             .map_or(item, |found| found.top().id);
-        let tried = self.inventory.wear_swapping(item, self.god_mode, limits);
+        let mut after = self.inventory.clone();
+        let tried = after.wear_swapping(item, self.god_mode, limits);
+        if tried.is_ok() && self.strength_allows(&after, &self.sheet, tick).is_err() {
+            warn!(
+                "{} refused wearing {item:?}: its Strength is needed",
+                self.in_log()
+            );
+            return false;
+        }
         match tried {
             Ok(swapped) => {
+                self.inventory = after;
                 self.unsaved = true;
                 self.inventory.magic_found_out(top);
                 self.energy.spend(tick, self.speed, swapped.cost);
@@ -33,25 +43,35 @@ impl Client {
         }
     }
 
-    /// Puts on something from the ground: what putting it on costs, with taking
-    /// off what is in its way, or why it can't go on (the player has been told).
+    /// Puts on something from the ground at this tick: what putting it on
+    /// costs, with taking off what is in its way, or why it can't go on (the
+    /// player has been told; `None` when their Strength is needed: the client
+    /// said so before asking).
     pub(crate) fn put_on_new(
         &mut self,
         item: Item,
         limits: StackLimits,
-    ) -> Result<u32, WearRefused> {
+        tick: u64,
+    ) -> Result<u32, Option<WearRefused>> {
         let id = item.id;
-        let tried = self
-            .inventory
-            .wear_new_swapping(item, self.god_mode, limits);
+        let mut after = self.inventory.clone();
+        let tried = after.wear_new_swapping(item, self.god_mode, limits);
+        if tried.is_ok() && self.strength_allows(&after, &self.sheet, tick).is_err() {
+            warn!(
+                "{} refused wearing {id:?}: its Strength is needed",
+                self.in_log()
+            );
+            return Err(None);
+        }
         match tried {
             Ok(swapped) => {
+                self.inventory = after;
                 self.inventory.magic_found_out(id);
                 Ok(swapped.cost)
             }
             Err(why) => {
                 self.not_worn(id, why);
-                Err(why)
+                Err(Some(why))
             }
         }
     }

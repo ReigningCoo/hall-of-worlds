@@ -18,7 +18,7 @@ mod tell;
 
 pub(crate) use bags::{drop_at, put_down};
 use bags::{leave_on_ground, lying, standing_at, take_up};
-pub(crate) use eat::take_food;
+pub(crate) use eat::{food_lying, take_food};
 use tell::InReach;
 pub(crate) use tell::sync;
 
@@ -98,6 +98,11 @@ fn dropped(
         return Err("it won't come off");
     }
     let cost = client.inventory.put_down_cost(item);
+    let tick = world.action_clock.ticks();
+    let dropping = |after: &mut shared::item::Inventory| drop(after.hand_over(item));
+    if !client.change_allowed(dropping, tick) {
+        return Err("its Strength is needed");
+    }
     let item = client
         .inventory
         .hand_over(item)
@@ -166,7 +171,7 @@ pub(crate) fn act(
             let grams = wearing.total_weight();
             // What is in its way comes off, or the player is told why not.
             let dressing = client
-                .put_on_new(wearing, world.stacks)
+                .put_on_new(wearing, world.stacks, world.action_clock.ticks())
                 .map_err(|_| "it can't go on")?;
             leave_on_ground(client, world, item, rest);
             Ok(dressing + handling_cost(grams))

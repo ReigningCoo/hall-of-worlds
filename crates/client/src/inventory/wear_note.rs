@@ -12,6 +12,7 @@ use shared::wear::{Fit, WearRefused};
 
 use super::bag_slots::{explain_move, lift_refused};
 use super::hold::Target;
+use super::strength_room::StrengthRoom;
 use super::{Carried, Holding};
 use crate::common::{GROUND, GodMode, Wording, kinds_words};
 use crate::widgets::{TextSize, WARNING_TEXT};
@@ -82,7 +83,7 @@ pub(super) fn show_wear_note(
     carried: Res<Carried>,
     god: Res<GodMode>,
     stacks: Res<super::Stacks>,
-    (note, wording): (Res<WearNote>, Res<Wording>),
+    (note, wording, strength): (Res<WearNote>, Res<Wording>, Res<StrengthRoom>),
     mut texts: Query<&mut Text, With<WearNoteText>>,
 ) {
     let aiming = (holding.aim == Some(Target::Body { allowed: false }))
@@ -102,7 +103,7 @@ pub(super) fn show_wear_note(
             let tried = try_wearing(&carried.0, (held.item.id, new), god.0, stacks.0);
             tried.err().map(|why| explain(why, &carried.0))
         });
-    let aiming = slot_refusal(&holding, &carried.0).or(aiming);
+    let aiming = slot_refusal(&holding, &carried.0, &strength).or(aiming);
     let words = match aiming {
         Some(why) => why,
         None if time.elapsed_secs_f64() < note.until => note.words.clone(),
@@ -116,15 +117,16 @@ pub(super) fn show_wear_note(
 }
 
 /// Why what is held can't be tied to the bag slot it is over, or can't leave
-/// where it is for the bag slots' sake (a tied bag, or the belt).
-fn slot_refusal(holding: &Holding, carried: &Inventory) -> Option<String> {
+/// where it is for the bag slots' sake (a tied bag, or the belt), or for the
+/// room its Strength gives (`strength_room`).
+fn slot_refusal(holding: &Holding, carried: &Inventory, strength: &StrengthRoom) -> Option<String> {
     let id = holding.held.filter(|_| holding.stock.is_none())?.item.id;
     let why = match holding.aim? {
         Target::BagSlot {
             slot,
             allowed: false,
         } => carried.check_tie(id, slot).err(),
-        aim => lift_refused(carried, id, aim),
+        aim => lift_refused(carried, id, aim).or_else(|| strength.refused(carried, id, aim)),
     };
     why.map(explain_move)
 }

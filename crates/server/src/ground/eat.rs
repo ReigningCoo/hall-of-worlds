@@ -29,3 +29,10 @@ pub(crate) fn take_food(
     leave_on_ground(client, world, item, rest);
     Ok(top.unwrap_or(found))
 }
+
+/// The top one of this, if it lies in the player's reach: what eating it would eat.
+pub(crate) fn food_lying(client: &Client, world: &mut ServerWorld, item: Id) -> Option<Item> {
+    lying(client, world, item)
+        .ok()
+        .map(|found| found.top().clone())
+}

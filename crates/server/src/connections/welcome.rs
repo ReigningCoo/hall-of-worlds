@@ -140,6 +140,7 @@ pub(super) fn welcome(
             give_first_clothes(&mut client.inventory, world.made_now());
             client.speed = client.sheet.speed(&client.inventory);
             client.start_wearing(world.action_clock.ticks());
+            super::strength_room::size_on_joining(client, world.stacks);
             client.unsaved = true;
         }
         Err(error) => return client.refuse_for_saves(&error),

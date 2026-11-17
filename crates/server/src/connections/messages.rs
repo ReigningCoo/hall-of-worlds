@@ -65,7 +65,9 @@ pub(crate) fn handle_messages(
                         && client.send_position()
                         && (client.phase != Phase::Playing || {
                             let now = world.action_clock.ticks();
-                            client.keep_time(now, options.idle_minutes) && client.keep_vitals(now)
+                            client.keep_time(now, options.idle_minutes)
+                                && client.keep_vitals(now)
+                                && super::strength_room::fit_to_strength(client, world)
                         });
                 }
                 Err(error) => {

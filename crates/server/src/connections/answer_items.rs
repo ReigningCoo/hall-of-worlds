@@ -3,7 +3,7 @@
 
 use bevy::prelude::*;
 use shared::energy::handling_cost;
-use shared::item::{Holder, Item};
+use shared::item::{Holder, Inventory, Item};
 use shared::protocol::{ClientMessage, ServerMessage};
 
 use super::{Action, Client, stack_parts};
@@ -79,7 +79,10 @@ pub(super) fn answer_items(
         } => {
             let cost = client.inventory.move_cost(item, to);
             let tick = world.action_clock.ticks();
-            if client.may_take_off(item) {
+            let moving = |after: &mut Inventory| {
+                let _ = after.move_item(item, to, x, y, rotation);
+            };
+            if client.may_take_off(item) && client.change_allowed(moving, tick) {
                 match client.inventory.move_item(item, to, x, y, rotation) {
                     Ok(()) => {
                         client.unsaved = true;
@@ -96,7 +99,11 @@ pub(super) fn answer_items(
             let to = to.map_or(Holder::Inventory, |(holder, _)| holder);
             let cost = client.inventory.move_cost(item, to);
             let tick = world.action_clock.ticks();
-            if client.may_take_off(item) {
+            let stacks = world.stacks;
+            let stacking = |after: &mut Inventory| {
+                let _ = after.stack_onto(item, onto, stacks, &mut new_id);
+            };
+            if client.may_take_off(item) && client.change_allowed(stacking, tick) {
                 match client
                     .inventory
                     .stack_onto(item, onto, world.stacks, &mut new_id)
@@ -124,8 +131,12 @@ pub(super) fn answer_items(
             let mut stock = None;
             let cost = client.inventory.put_down_cost(item);
             let quest_item = (client.inventory.find(item)).is_some_and(Item::holds_quest_item);
+            let tick = world.action_clock.ticks();
+            let giving = |after: &mut Inventory| drop(after.hand_over(item));
             let given = if !client.may_take_off(item) {
                 Err("it won't come off")
+            } else if !client.change_allowed(giving, tick) {
+                Err("its Strength is needed")
             } else if quest_item {
                 // Quest items are the character's own (owner).
                 Err("quest items can't be given")
@@ -214,7 +225,11 @@ pub(super) fn answer_items(
         }
         ClientMessage::BinItem { item } => {
             let cost = client.inventory.taking_off_cost(item);
-            if !client.may_take_off(item) {
+            let tick = world.action_clock.ticks();
+            let binning = |after: &mut Inventory| {
+                after.to_bin(item);
+            };
+            if !client.may_take_off(item) || !client.change_allowed(binning, tick) {
                 // Nothing more to say: it stays on.
             } else if client.inventory.to_bin(item) {
                 client.unsaved = true;

@@ -11,9 +11,13 @@ mod room;
 mod rules;
 mod sort;
 mod stacking;
+mod strength_room;
 mod tying;
 
 pub use bag_slots::{belt_slots, grams_off};
+pub use strength_room::{
+    PLAYER_GRID_WIDTH, PLAYER_MAX_CELLS, PLAYER_MIN_CELLS, cells_for_strength,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -30,8 +34,13 @@ pub struct Inventory {
     pub outfitted: bool,
     /// What is in their own grid, not worn.
     pub items: Vec<Placed>,
-    /// How big their own grid is, from their kind of creature.
+    /// How big their own grid is, width and rows: a mob's from their kind of
+    /// creature, a player's 8 wide with as many rows as `own_cells` needs.
     pub size: (u8, u8),
+    /// A player's own cells, from their Strength (`strength_room.rs`): the last
+    /// row may be short. `None` for a mob, whose grid is all of `size`.
+    #[serde(default)]
+    pub own_cells: Option<u16>,
     /// What they have on: see `shared::wear`.
     pub worn: Vec<Item>,
     /// What they last threw away: it can be taken back until something else is
@@ -51,6 +60,7 @@ impl Default for Inventory {
             outfitted: false,
             items: Vec::new(),
             size: INVENTORY_SIZE,
+            own_cells: None,
             worn: Vec::new(),
             bin: None,
             bag_slots: Vec::new(),

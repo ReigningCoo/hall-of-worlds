@@ -29,6 +29,7 @@ mod holding;
 mod server;
 mod sort;
 mod split;
+mod strength_room;
 mod ui_ids;
 mod wear_note;
 
@@ -59,6 +60,7 @@ impl Plugin for InventoryPlugin {
             .init_resource::<HeldOverGifts>()
             .init_resource::<HeldStock>()
             .init_resource::<wear_note::WearNote>()
+            .init_resource::<strength_room::StrengthRoom>()
             .init_resource::<quest_drop::QuestDrop>()
             .add_message::<TookItem>()
             .add_message::<OpenCharacter>()
@@ -116,6 +118,7 @@ impl Plugin for InventoryPlugin {
                         bag_slots::show_bag_slots,
                     )
                         .chain(),
+                    strength_room::keep_strength_room,
                     (body::show_body_aim, wear_note::show_wear_note),
                     (give::show_nearby, give::bind_rows).chain(),
                     give::show_give_aim,

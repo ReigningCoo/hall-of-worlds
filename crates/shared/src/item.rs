@@ -38,7 +38,10 @@ mod under_def;
 pub use category::ItemCategory;
 pub use coin::{COINS, COINS_PER_NEXT, coin_items, coin_stacks};
 pub use drop::{Drop, ODDS_OUT_OF, roll_drop};
-pub use inventory::{Inventory, belt_slots, grams_off};
+pub use inventory::{
+    Inventory, PLAYER_GRID_WIDTH, PLAYER_MAX_CELLS, PLAYER_MIN_CELLS, belt_slots,
+    cells_for_strength, grams_off,
+};
 pub use item::{Item, MadeAt};
 pub use item_def::{ContainerDef, ItemDef, WearDef};
 pub use kind::ItemKind;
@@ -88,6 +91,8 @@ mod quest_item_tests;
 
 #[cfg(test)]
 mod stack_tests;
+#[cfg(test)]
+mod strength_room_tests;
 
 #[cfg(test)]
 mod tests;

@@ -97,6 +97,7 @@ fn a_quest_is_taken_done_and_handed_in_for_its_coins() {
     test.client.inventory.items.clear();
     test.client.inventory.worn.clear();
     test.client.inventory.size = (0, 0);
+    test.client.inventory.own_cells = None;
     turn_in(&mut test.client, &mut test.world, id, NOW, false);
     let told = news(&mut test);
     assert!(told.contains(&QuestNews::Refused {

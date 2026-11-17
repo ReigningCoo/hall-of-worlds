@@ -56,7 +56,8 @@ impl Inventory {
             .fit(wear.adjustable, self.creature.def().size, item.quality)
     }
 
-    /// For a creature becoming another kind: what the new body still takes stays
+    /// For a creature becoming another kind: a mob's grid becomes its new kind's,
+    /// a player's (sized by Strength) stays as it was. What the new body still takes stays
     /// on, checked in the order it was put on so what is under goes back first.
     /// What it can't wear drops, cursed or not (owner, 2026-11-04), and what was
     /// carried goes in the new inventory, stacking, as far as it fits. Gives back
@@ -73,7 +74,12 @@ impl Inventory {
         let old = std::mem::take(self);
         self.creature = kind;
         self.outfitted = old.outfitted;
-        self.size = kind.def().inventory;
+        // A player's grid goes by Strength, not by kind: it stays as it was
+        // until their new Strength is taken in (`fit_own_cells`).
+        match old.own_cells {
+            Some(_) => (self.size, self.own_cells) = (old.size, old.own_cells),
+            None => self.size = kind.def().inventory,
+        }
         self.bin = old.bin;
         let mut dropped = Vec::new();
         for item in old.worn {
