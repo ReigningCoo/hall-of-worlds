@@ -79,11 +79,11 @@ pub(super) fn restyle(
         if look.tip {
             entity.try_insert(tooltip_trim());
         }
-        // A panel's or dialog's `title` is its heading, not a tip.
+        // A panel's, dialog's or container's `title` is its heading, not a tip.
         let tip = attrs
             .title
             .as_ref()
-            .filter(|_| !matches!(tag, Tag::Panel | Tag::Dialog));
+            .filter(|_| !matches!(tag, Tag::Panel | Tag::Dialog | Tag::Container));
         match tip {
             Some(title) => entity.try_insert(HoverTip(title.to_string())),
             None => entity.try_remove::<HoverTip>(),

@@ -129,6 +129,10 @@ pub(super) fn explain_move(why: MoveRefused) -> String {
         MoveRefused::BagInUse => "Empty the end of your inventory to untie this bag.".into(),
         MoveRefused::BeltInUse => "The bags tied to this belt need it.".into(),
         MoveRefused::NoRoom => "There is no room for it.".into(),
+        MoveRefused::IntoItself => "It can't go inside itself.".into(),
+        MoveRefused::TooBig => "It is too big to go in there.".into(),
+        MoveRefused::TooHeavy => "It is too heavy to go in there.".into(),
+        MoveRefused::TooDeep => "Too many bags are inside each other already.".into(),
         _ => "It can't go there.".into(),
     }
 }

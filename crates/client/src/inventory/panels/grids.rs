@@ -21,8 +21,11 @@ impl OpenGrids {
         dom: &mut Dom,
     ) {
         let panel = grid_id(Some(holder), "panel").to_string();
-        if self.open.iter().any(|(open, ..)| *open == holder) {
+        if let Some(index) = self.open.iter().position(|(open, ..)| *open == holder) {
             dom.raise(&panel);
+            // The latest raised is last, for quick moves (`bags_open`).
+            let raised = self.open.remove(index);
+            self.open.push(raised);
             return;
         }
         let Some(size) = shown_size(carried, holder) else {
@@ -48,6 +51,15 @@ impl OpenGrids {
         // (Made at the end of the frame, once the panel is built.)
         dom.start_at(&panel, at);
         self.open.push((holder, document, size));
+    }
+
+    /// The bags with panels open, the one opened or raised last at the end.
+    pub(in crate::inventory) fn bags_open(&self) -> Vec<shared::id::Id> {
+        let bag = |(holder, ..): &(Holder, Entity, (u8, u8))| match *holder {
+            Holder::Inside(bag) => Some(bag),
+            Holder::Inventory => None,
+        };
+        self.open.iter().filter_map(bag).collect()
     }
 
     /// Whether the inventory's panel is open.
