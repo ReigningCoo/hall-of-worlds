@@ -513,14 +513,15 @@ fn old_saves_fold_stacked_coins_into_a_count() {
 #[test]
 fn counted_kinds_are_plain() {
     // A stack of them is a number, so nothing may tell one from another but
-    // a herb's herb and quality (`herb/tests.rs`).
+    // a herb's herb and quality (`herb/tests.rs`), or a bottle's contents and
+    // quality (`potion/tests.rs`).
     for kind in ItemKind::ALL {
         let def = kind.def();
         if !def.counted {
             continue;
         }
         assert!(
-            !def.has_quality || kind == ItemKind::Herb,
+            !def.has_quality || matches!(kind, ItemKind::Herb | ItemKind::Bottle),
             "{kind:?} has quality"
         );
         assert!(def.container.is_none(), "{kind:?} has a grid");
@@ -528,7 +529,9 @@ fn counted_kinds_are_plain() {
         assert!(!kind.comes_in_sizes(), "{kind:?} comes in sizes");
         let mut item = Item::new(id(1), kind);
         crate::item_form::give_form(&mut item, None, &mut || id(2));
-        assert!(item.form.is_none(), "{kind:?} has a form");
+        // A bottle's form is its contents and look, compared without the look.
+        let form = kind == ItemKind::Bottle;
+        assert_eq!(item.form.is_some(), form, "{kind:?} has a form");
         assert!(item.name.is_none(), "{kind:?} has its own name");
         assert!(!item.can_be_magical(), "{kind:?} can be magical");
         item.roll_secrets();

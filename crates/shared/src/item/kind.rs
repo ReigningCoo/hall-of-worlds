@@ -26,6 +26,9 @@ pub enum ItemKind {
     Bevor,
     Boomerang,
     Boots,
+    /// A glass bottle, empty or a potion (`shared::potion`), counted: what it
+    /// holds is in its form.
+    Bottle,
     Caparison,
     Chausses,
     Cloak,
@@ -121,7 +124,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 97] = [
+    pub const ALL: [Self; 98] = [
         Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -139,6 +142,7 @@ impl ItemKind {
         Self::Bodice,
         Self::Boomerang,
         Self::Boots,
+        Self::Bottle,
         Self::Braies,
         Self::Bread,
         Self::BreastBand,

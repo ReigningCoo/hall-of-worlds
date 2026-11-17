@@ -99,6 +99,8 @@ pub enum ItemForm {
     Key(Box<KeyForm>),
     /// A herb (`shared::herb`): which, how it looks and what one weighs.
     Herb(crate::herb::HerbForm),
+    /// A bottle (`shared::potion`): what it holds and how it looks.
+    Bottle(crate::potion::BottleForm),
 }
 
 impl ItemForm {
@@ -126,6 +128,7 @@ impl ItemForm {
             // Its herb's name is in the herb table, which only the client's
             // panels have, going by what the character knows.
             Self::Herb(_) => "Herb".to_owned(),
+            Self::Bottle(bottle) => bottle.name().to_owned(),
         }
     }
 
@@ -163,7 +166,8 @@ impl ItemForm {
             | Self::Clothing(_)
             | Self::Set(_)
             | Self::Key(_)
-            | Self::Herb(_) => &[],
+            | Self::Herb(_)
+            | Self::Bottle(_) => &[],
         };
         settings.iter().filter_map(|setting| setting.gem.as_ref())
     }

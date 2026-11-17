@@ -26,6 +26,8 @@ pub struct Choices {
     pub gem_materials: Vec<Material>,
     pub gem_cuts: Vec<Cut>,
     pub settings: Vec<u8>,
+    /// How many effects a bottle may hold, 0 (empty) first.
+    pub effects: Vec<u8>,
     /// Whether it takes limits (sizes and weights, which aren't a list).
     pub limits: bool,
 }
@@ -45,6 +47,10 @@ pub fn choices(kind: ItemKind, quality: Quality, request: &RollRequest) -> Choic
         ItemKind::Gem => gem_choices(quality, request),
         ItemKind::Ring => ring_choices(quality, request),
         ItemKind::Necklace => necklace_choices(quality, request),
+        ItemKind::Bottle => Choices {
+            effects: (0..=crate::potion::MOST_EFFECTS).collect(),
+            ..Choices::default()
+        },
         _ if kind.blade_family().is_some() => Choices {
             materials: passing(Material::ALL, |metal| {
                 keep_only(&mut blade::blade_metals(quality), Some(metal))

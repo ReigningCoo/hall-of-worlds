@@ -102,6 +102,9 @@ impl ItemKind {
                 Self::SilverCoin => plain("Silver Coin", 3, square).without_quality().counted(),
                 Self::GoldCoin => plain("Gold Coin", 5, square).without_quality().counted(),
                 Self::Key => plain("Key", 30, square).without_quality(),
+                // Counted with quality: a stack keys on its contents and quality
+                // (`shared::potion`). What one weighs is its form's, full or empty.
+                Self::Bottle => plain("Bottle", crate::potion::EMPTY_GRAMS, square).counted(),
                 // Counted with quality: a stack keys on its herb and quality
                 // (`shared::herb`). What one weighs is its form's, from its herb.
                 Self::Herb => plain("Herb", 10, square).counted(),

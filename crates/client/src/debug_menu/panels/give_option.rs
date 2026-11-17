@@ -6,7 +6,7 @@ use shared::item_form::{Choices, Cut, Field, Limits, RollRequest};
 use shared::material::Material;
 
 /// Every option, in the order the panel shows them.
-pub(super) const FIELDS: [Field; 9] = [
+pub(super) const FIELDS: [Field; 10] = [
     Field::Style,
     Field::Construction,
     Field::Material,
@@ -16,6 +16,7 @@ pub(super) const FIELDS: [Field; 9] = [
     Field::GemMaterial,
     Field::GemCut,
     Field::Limits,
+    Field::Effects,
 ];
 
 /// The longest a blade can be asked to be at least, in cells.
@@ -34,6 +35,8 @@ pub(in crate::debug_menu) enum OptionValue {
     Cut(Cut),
     /// A blade at least this many cells long.
     Long(u8),
+    /// How many effects a bottle holds, 0 for an empty one.
+    Effects(u8),
 }
 
 /// What the dropdown says when nothing is asked for.
@@ -49,6 +52,7 @@ pub(super) fn ui_name(field: Field) -> &'static str {
         Field::GemMaterial => "gem_material",
         Field::GemCut => "gem_cut",
         Field::Limits => "limits",
+        Field::Effects => "effects",
     }
 }
 
@@ -63,6 +67,7 @@ pub(super) fn any(field: Field) -> &'static str {
         Field::GemMaterial => "Any gem",
         Field::GemCut => "Any cut",
         Field::Limits => "Any length",
+        Field::Effects => "Empty",
     }
 }
 
@@ -84,6 +89,10 @@ pub(super) fn values(field: Field, choices: &Choices) -> Vec<OptionValue> {
         Field::GemCut => choices.gem_cuts.iter().map(|&v| V::Cut(v)).collect(),
         Field::Limits if choices.limits => (1..=LONGEST).map(V::Long).collect(),
         Field::Limits => Vec::new(),
+        // Not asking is already an empty bottle: the dropdown's first entry.
+        Field::Effects => (choices.effects.iter().filter(|&&v| v > 0))
+            .map(|&v| V::Effects(v))
+            .collect(),
     }
 }
 
@@ -101,6 +110,8 @@ pub(super) fn words(value: OptionValue) -> String {
         OptionValue::Settings(count) => format!("{count} settings"),
         OptionValue::Cut(cut) => cut.name().to_owned(),
         OptionValue::Long(cells) => format!("{cells}+ cells long"),
+        OptionValue::Effects(1) => "Potion, 1 effect".to_owned(),
+        OptionValue::Effects(count) => format!("Potion, {count} effects"),
     }
 }
 
@@ -119,6 +130,7 @@ pub(super) fn asked(request: &RollRequest, field: Field) -> Option<OptionValue> 
         Field::Limits => request
             .limits
             .and_then(|limits| limits.at_least_long.map(V::Long)),
+        Field::Effects => request.effects.filter(|&v| v > 0).map(V::Effects),
     }
 }
 
@@ -155,6 +167,10 @@ pub(super) fn asking(request: RollRequest, value: OptionValue) -> RollRequest {
         },
         OptionValue::Cut(cut) => RollRequest {
             gem_cut: Some(cut),
+            ..request
+        },
+        OptionValue::Effects(count) => RollRequest {
+            effects: Some(count),
             ..request
         },
         OptionValue::Long(cells) => {

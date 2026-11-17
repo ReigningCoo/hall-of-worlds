@@ -15,6 +15,7 @@ use crate::blade;
 use crate::creature::Size;
 use crate::id::Id;
 use crate::item::{Item, ItemKind, Made, MadeAt, Quality};
+use crate::potion::{BottleForm, MOST_EFFECTS, roll_contents};
 use crate::rng::Seed;
 
 /// Gives a new item its form, for kinds that have one, going by its quality and
@@ -42,6 +43,18 @@ pub fn give_form_to(
                 false => armour_form_to(piece, &mut rng, quality, request)?,
             };
             (form, size.unwrap_or(Size::Medium))
+        }
+        // Empty unless asked for effects: potions are brewed (later), not rolled.
+        ItemKind::Bottle => {
+            if request.effects.unwrap_or(0) > MOST_EFFECTS {
+                return Err(Refused(Field::Effects));
+            }
+            let contents = roll_contents(&mut rng, request.effects.unwrap_or(0));
+            let look = seed.derive("bottle look").value();
+            (
+                ItemForm::Bottle(BottleForm { contents, look }),
+                Size::Medium,
+            )
         }
         ItemKind::Gem => {
             let ask = GemAsk::of(request);

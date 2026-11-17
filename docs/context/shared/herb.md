@@ -1,6 +1,6 @@
 # shared: herb
 
-Herbs for potion making: what each is, the table of them (built in, plus a server's mods), herbs as counted items as good as their plant is rare, how many picking gives, the potency a user draws out, and what a character knows of each. Where herbs grow and how they grow and are harvested (PR 2; the wilderness's patches are placed by `shared::wilderness`, the server runs picking). Plant models and picking by click are the client's (`plants`, `dungeon_map`); items' pictures and popups too (`item_art`, `item_popup`). Eating one raw (PR 4) gives a weak dose of its first effect (`raw_dose`). Not yet: potions. Research and the owner's decisions: `docs/context/research-herbs.md`.
+Herbs for potion making: what each is, the table of them (built in, plus a server's mods), herbs as counted items as good as their plant is rare, how many picking gives, the potency a user draws out, and what a character knows of each. Where herbs grow and how they grow and are harvested (PR 2; the wilderness's patches are placed by `shared::wilderness`, the server runs picking). Plant models and picking by click are the client's (`plants`, `dungeon_map`); items' pictures and popups too (`item_art`, `item_popup`). Eating one raw (PR 4) gives a weak dose of its first effect (`raw_dose`). Potions are bottles (`shared::potion`, `potion.md`); brewing them from herbs is not built yet. Research and the owner's decisions: `docs/context/research-herbs.md`.
 
 ## Files
 

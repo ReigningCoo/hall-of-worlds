@@ -26,7 +26,8 @@ impl ItemForm {
             | Self::Hands(_)
             | Self::Set(_)
             | Self::Key(_)
-            | Self::Herb(_) => None,
+            | Self::Herb(_)
+            | Self::Bottle(_) => None,
         }
     }
 
@@ -50,6 +51,7 @@ impl ItemForm {
             Self::Clothing(clothing) => Some(clothing.grams_at(size)),
             Self::Set(set) => Some(set.grams_at(size)),
             Self::Herb(herb) => Some(herb.grams),
+            Self::Bottle(bottle) => Some(bottle.grams()),
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) => None,
         }
     }
