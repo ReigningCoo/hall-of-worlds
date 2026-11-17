@@ -1,6 +1,7 @@
 ---
 title: Server environment variables
-nav_order: 6
+nav_order: 2
+parent: Server
 ---
 
 # Server environment variables

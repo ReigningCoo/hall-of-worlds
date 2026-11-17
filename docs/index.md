@@ -14,13 +14,7 @@ You can play alone on your own computer, or join a server with other people.
 
 ## Where to go next
 
-- [Installation](installation): getting the game or a server running.
-- [The client](client): what the game is made of, and how pausing works.
-- [Controls](controls): keyboard, mouse and touch.
-- [Fighting](fighting): attacking, holding weapons, health and dying.
-- [Armour](armour/): what can be worn where, how it is made, and sets.
-- [Hosting a server](hosting/): running your own, with an example Docker Compose file.
-- [Server environment variables](environment-variables): every setting a server has.
-- [Debug menu](debug-menu): the tools built in for trying things out.
-- [Saves and data](saves): where everything is kept, and how to back it up.
+- [Gameplay](gameplay): making a character, controls, fighting, difficulty, and items from armour to herbs.
+- [Client](client-section): installing the game, what it is made of, saves and the debug menu.
+- [Server](server-section): hosting a server of your own and every setting it has.
 - [Credits and licence](credits): who made what, and what you may do with it.

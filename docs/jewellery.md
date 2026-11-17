@@ -1,6 +1,8 @@
 ---
 title: Jewellery
-nav_order: 4.75
+nav_order: 5
+parent: Items
+grand_parent: Gameplay
 ---
 
 # Jewellery

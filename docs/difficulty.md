@@ -1,6 +1,7 @@
 ---
 title: Difficulty
-nav_order: 4.35
+nav_order: 4
+parent: Gameplay
 ---
 
 # Difficulty

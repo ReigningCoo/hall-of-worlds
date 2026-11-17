@@ -1,6 +1,8 @@
 ---
 title: Footwear
-nav_order: 4.6
+nav_order: 2
+parent: Items
+grand_parent: Gameplay
 ---
 
 # Footwear

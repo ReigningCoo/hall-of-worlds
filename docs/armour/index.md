@@ -1,6 +1,8 @@
 ---
 title: Armour
-nav_order: 4.5
+nav_order: 1
+parent: Items
+grand_parent: Gameplay
 has_children: true
 ---
 

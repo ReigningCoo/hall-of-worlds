@@ -1,6 +1,8 @@
 ---
 title: Clothing
-nav_order: 4.65
+nav_order: 3
+parent: Items
+grand_parent: Gameplay
 ---
 
 # Clothing

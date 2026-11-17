@@ -1,6 +1,8 @@
 ---
 title: Underclothing
-nav_order: 4.7
+nav_order: 4
+parent: Items
+grand_parent: Gameplay
 ---
 
 # Underclothing
