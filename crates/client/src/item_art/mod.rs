@@ -8,6 +8,7 @@ mod body;
 mod bottle;
 mod character;
 mod clothing;
+mod coin;
 mod colours;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;

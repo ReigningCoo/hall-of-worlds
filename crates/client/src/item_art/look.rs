@@ -119,6 +119,9 @@ pub enum Look {
         bottle: super::BottleLook,
         liquid: Option<super::LiquidLook>,
     },
+    /// A copper, silver or gold coin, by its metal: one picture whatever the
+    /// count (`coin/`).
+    Coin(Material),
     /// An armour set: its pieces as worn together.
     Set {
         set: SetLook,
@@ -158,7 +161,9 @@ impl Look {
         match self {
             Self::Gem { .. } | Self::Ring { .. } | Self::Necklace { .. } => (1, 1),
             Self::Parcel => (2, 2),
-            Self::Keepsake | Self::Herb(_) | Self::Key(_) | Self::Bottle { .. } => (1, 1),
+            Self::Keepsake | Self::Herb(_) | Self::Key(_) | Self::Bottle { .. } | Self::Coin(_) => {
+                (1, 1)
+            }
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),
             Self::Keyring | Self::HerbPouch => (2, 1),
