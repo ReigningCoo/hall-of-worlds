@@ -17,6 +17,7 @@ fn give_coins(count: u32) -> ClientMessage {
         count,
         identical: true,
         request: shared::item_form::RollRequest::NONE,
+        herb: None,
         to: None,
     })
 }

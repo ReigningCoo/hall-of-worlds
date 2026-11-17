@@ -1,8 +1,9 @@
-//! Eating (`ClientMessage::Consume`): the top one of food carried, or lying in
-//! reach, is taken and eaten (`Sheet::eat`), in turn with the player's steps.
+//! Eating (`ClientMessage::Consume`): the top one of food or a herb carried, or
+//! lying in reach, is taken and eaten (`Sheet::eat`, or a herb raw:
+//! `eat_herb.rs`), in turn with the player's steps.
 
 use bevy::prelude::*;
-use shared::bonus::{is_food, may_eat};
+use shared::bonus::{edible, may_eat};
 use shared::energy::handling_cost;
 use shared::id::Id;
 use shared::item::Item;
@@ -21,6 +22,10 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
         false => crate::ground::take_food(client, world, item),
     };
     let cost = match taken {
+        Ok(eaten) if eaten.herb().is_some() => {
+            super::eat_herb::eat_herb(client, world, &eaten, tick);
+            handling_cost(eaten.total_weight())
+        }
         Ok(eaten) => {
             let eater = client.inventory.creature;
             let (sheet, situation) = client.sheet_and_situation();
@@ -40,10 +45,10 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
     (told, cost)
 }
 
-/// Takes the top one of a carried stack of food, to be eaten.
+/// Takes the top one of a carried stack of food or herbs, to be eaten.
 fn take_carried(client: &mut Client, item: Id) -> Result<Item, &'static str> {
     let found = client.inventory.find(item).ok_or("it isn't carried")?;
-    if !is_food(found.top().kind) {
+    if !edible(found.top().kind) {
         return Err("it can't be eaten");
     }
     if !may_eat(found.top().kind, client.inventory.creature) {

@@ -7,6 +7,7 @@
 //! is on through `widgets::PointedItem`.
 
 mod about;
+mod herb;
 mod keys;
 mod needs;
 mod open;

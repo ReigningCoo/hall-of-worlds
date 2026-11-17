@@ -24,6 +24,7 @@ pub enum DebugAction {
     GiveItem,
     GodMode,
     ExamineMob,
+    Herbs,
     ItemPictures,
     KeyForThisDoor,
     LearnSkills,
@@ -71,7 +72,7 @@ pub(super) struct Facts {
 impl DebugAction {
     /// Every action, in the order the menu lists them: by group (`Group`),
     /// then as the owner ordered each group.
-    pub(super) const ALL: [Self; 35] = [
+    pub(super) const ALL: [Self; 36] = [
         // Display
         Self::ShowDebugInfo,
         Self::LightningNow,
@@ -92,6 +93,7 @@ impl DebugAction {
         Self::GiveItem,
         Self::Vitals,
         Self::LearnSkills,
+        Self::Herbs,
         Self::Alignment,
         // Mobs
         Self::CreateMob,
@@ -149,6 +151,7 @@ impl DebugAction {
                 | Self::GiveItem
                 | Self::Vitals
                 | Self::LearnSkills
+                | Self::Herbs
                 | Self::Alignment
                 | Self::CreateMob
                 | Self::ExamineMob

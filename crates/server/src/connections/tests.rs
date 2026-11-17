@@ -272,6 +272,7 @@ fn give(kind: ItemKind) -> ClientMessage {
         count: 1,
         identical: true,
         request: shared::item_form::RollRequest::NONE,
+        herb: None,
         to: None,
     })
 }
@@ -513,6 +514,7 @@ fn only_things_with_quality_can_be_part_of_a_set() {
             count: 1,
             identical: true,
             request: shared::item_form::RollRequest::NONE,
+            herb: None,
             to: None,
         })
     };
@@ -541,6 +543,7 @@ fn a_new_ring_has_a_form_and_fits_its_wearer_and_a_new_gem_rolls_its_size() {
             count: 1,
             identical: true,
             request: shared::item_form::RollRequest::NONE,
+            herb: None,
             to: None,
         })
     };
@@ -571,6 +574,7 @@ fn artifacts_are_always_named() {
         count: 1,
         identical: true,
         request: shared::item_form::RollRequest::NONE,
+        herb: None,
         to: None,
     });
     let carried = inventory(&test.send(&[artifact]));
@@ -613,6 +617,7 @@ fn items_are_made_for_the_wearer_or_the_size_asked_for() {
             count: 1,
             identical: true,
             request: shared::item_form::RollRequest::NONE,
+            herb: None,
             to: None,
         })
     };
@@ -647,6 +652,7 @@ pub(super) fn given(
         count: 1,
         identical: true,
         request: shared::item_form::RollRequest::NONE,
+        herb: None,
         to: None,
     })]);
     inventory(&answers).items.last().unwrap().item.id
@@ -774,6 +780,7 @@ fn asking_for_magic_on_something_plain_raises_its_quality() {
         count: 1,
         identical: true,
         request: shared::item_form::RollRequest::NONE,
+        herb: None,
         to: None,
     })]);
     let hat = inventory(&answers).items.last().unwrap().item.clone();

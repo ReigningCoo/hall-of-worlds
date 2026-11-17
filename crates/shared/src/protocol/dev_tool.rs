@@ -32,7 +32,7 @@ impl ClientMessage {
             Self::DevGodMode(_) => DebugTool::GodMode,
             Self::DevVitals(_) => DebugTool::Vitals,
             Self::DevAlignment(_) => DebugTool::Alignment,
-            Self::DevSkills { .. } => DebugTool::LearnSkills,
+            Self::DevSkills { .. } | Self::DevHerbs(_) => DebugTool::LearnSkills,
             Self::Door(DoorAsk::DevAll { open: true }) => DebugTool::OpenAllDoors,
             Self::Door(DoorAsk::DevAll { open: false }) => DebugTool::CloseAllDoors,
             Self::Door(DoorAsk::DevKey) => DebugTool::KeyForThisDoor,

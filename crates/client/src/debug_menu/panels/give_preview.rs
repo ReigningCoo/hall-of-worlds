@@ -4,13 +4,14 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::herb::{Herbs, dev_herb, new_item};
 use shared::id::Id;
-use shared::item::{Inventory, Item, StackLimits};
-use shared::item_form::{ItemOrder, Refused, RollRequest, batch_seed, try_make_item};
+use shared::item::{Inventory, Item, ItemKind, StackLimits};
+use shared::item_form::{Field, ItemOrder, Refused, RollRequest, batch_seed, try_make_item};
 use shared::protocol::LevelKind;
 
 use super::{GiveButton, GiveChoice, GiveCount, GiveForm, GivePreview, GiveTo, any};
-use crate::common::{CurrentDungeon, GameView};
+use crate::common::{CurrentDungeon, GameView, HerbTable};
 use crate::dom::Dom;
 use crate::inventory::{Carried, Stacks};
 use crate::widgets::{ButtonState, CELL, ItemLook, ItemName, TextBox, spawn_item_cells};
@@ -25,7 +26,7 @@ pub(in crate::debug_menu) fn show_give_preview(
     carried: Res<Carried>,
     stacks: Res<Stacks>,
     view: Res<State<GameView>>,
-    dungeon: Res<CurrentDungeon>,
+    (dungeon, table): (Res<CurrentDungeon>, Res<HerbTable>),
     mut previews: Query<(Entity, &mut GivePreview, &mut Node)>,
     mut counts: Query<&mut TextBox, With<GiveCount>>,
     mut dom: Dom,
@@ -39,18 +40,25 @@ pub(in crate::debug_menu) fn show_give_preview(
     };
     let fresh = preview.drawn.is_none();
     let moved = view.is_changed() || dungeon.is_changed();
-    let changed = form.is_changed() || to.is_changed() || carried.is_changed();
+    let changed =
+        form.is_changed() || to.is_changed() || carried.is_changed() || table.is_changed();
     if !(fresh || moved || changed || stacks.is_changed()) {
         return;
     }
     let (order, seed) = (form.order(), form.seed.unwrap_or_default());
     // Made for whoever gets it.
     let wearer = to.0.map_or(carried.0.creature, |(_, kind)| kind);
-    let first = one_of(&order, wearer, seed, 0, form.identical);
+    let chosen = form.herb.clone();
+    let herb = Herb {
+        herbs: &table.0,
+        key: chosen.as_deref(),
+    };
+    let first = one_of(&order, (wearer, herb), seed, 0, form.identical);
     // What a refused request would have been: drawn, but not to be given.
     let item = first.clone().unwrap_or_else(|_| {
         let plain = order_as_usual(&order);
-        one_of(&plain, wearer, seed, 0, true).expect("asking nothing is never refused")
+        one_of(&plain, (wearer, herb), seed, 0, true)
+            .unwrap_or_else(|_| Item::new(Id::stand_in(0), order.kind))
     });
     let most = match form.identical {
         true => stacks.0.most_of(&item),
@@ -62,8 +70,9 @@ pub(in crate::debug_menu) fn show_give_preview(
             count.text = form.count.to_string();
         }
     }
-    if preview.drawn != Some((order, seed, wearer)) {
-        preview.drawn = Some((order, seed, wearer));
+    let drawn = Some((order, seed, wearer, chosen.clone()));
+    if preview.drawn != drawn {
+        preview.drawn = drawn;
         draw(&mut commands, entity, &mut node, &item);
     }
     // A target's room is the server's to judge: mobs take anything given.
@@ -74,6 +83,7 @@ pub(in crate::debug_menu) fn show_give_preview(
     let batch = Batch {
         order,
         wearer,
+        herb,
         seed,
         count: form.count,
         identical: form.identical,
@@ -108,10 +118,17 @@ fn order_as_usual(order: &ItemOrder) -> ItemOrder {
     }
 }
 
+/// The herbs to choose from, and the one chosen (`None`: from the seed).
+#[derive(Clone, Copy)]
+struct Herb<'a> {
+    herbs: &'a Herbs,
+    key: Option<&'a str>,
+}
+
 /// The `n`th of a batch, as the server will make it; its ids only stand in.
 fn one_of(
     order: &ItemOrder,
-    wearer: CreatureKind,
+    (wearer, herb): (CreatureKind, Herb),
     seed: u64,
     n: u32,
     identical: bool,
@@ -123,19 +140,25 @@ fn one_of(
     };
     let id = new_id();
     let seed = batch_seed(seed, if identical { 0 } else { n });
+    if order.kind == ItemKind::Herb {
+        // As the server makes them (`herb::dev_herb`).
+        let def = dev_herb(herb.herbs, herb.key, seed).ok_or(Refused(Field::Material))?;
+        return Ok(new_item(def, order.quality, 1, id, None));
+    }
     try_make_item(order, wearer, id, seed, None, &mut new_id)
 }
 
 /// What Give would ask for.
-struct Batch {
+struct Batch<'a> {
     order: ItemOrder,
     wearer: CreatureKind,
+    herb: Herb<'a>,
     seed: u64,
     count: u32,
     identical: bool,
 }
 
-impl Batch {
+impl Batch<'_> {
     /// Why the server would give none of it, as the panel says it: one of a batch of
     /// different ones can't be made as asked, or with no ground, not all of it fits.
     fn problem(
@@ -156,7 +179,8 @@ impl Batch {
             if has_ground && (self.identical || n == 0) {
                 continue;
             }
-            let item = match one_of(&self.order, self.wearer, self.seed, n, self.identical) {
+            let maker = (self.wearer, self.herb);
+            let item = match one_of(&self.order, maker, self.seed, n, self.identical) {
                 Ok(item) => item,
                 Err(Refused(field)) => return Some(format!("No such {}", &any(field)[4..])),
             };

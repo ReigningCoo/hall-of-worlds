@@ -1,6 +1,7 @@
-//! Eating from the ground: the top one of food in a bag in the player's reach.
+//! Eating from the ground: the top one of food or a herb in a bag in the
+//! player's reach.
 
-use shared::bonus::{is_food, may_eat};
+use shared::bonus::{edible, may_eat};
 use shared::id::Id;
 use shared::item::Item;
 
@@ -9,7 +10,7 @@ use crate::ServerWorld;
 use crate::connections::Client;
 use crate::ids::new_id;
 
-/// Takes the top one of this, if it is food lying in the player's reach, to be
+/// Takes the top one of this, if it is food or a herb lying in the player's reach, to be
 /// eaten: the rest of its stack stays in its bag.
 pub(crate) fn take_food(
     client: &Client,
@@ -17,7 +18,7 @@ pub(crate) fn take_food(
     item: Id,
 ) -> Result<Item, &'static str> {
     let mut found = lying(client, world, item)?;
-    if !is_food(found.top().kind) {
+    if !edible(found.top().kind) {
         return Err("it can't be eaten");
     }
     if !may_eat(found.top().kind, client.inventory.creature) {

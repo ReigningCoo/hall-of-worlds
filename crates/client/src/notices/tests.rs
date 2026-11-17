@@ -8,6 +8,13 @@ fn a_found_poi_is_named_in_words() {
 }
 
 #[test]
+fn a_harvest_names_the_herb() {
+    let table = HerbTable::default();
+    assert_eq!(picked(3, "roseroot", &table), "Picked 3 Roseroot");
+    assert_eq!(picked(1, "modded", &table), "Picked 1 modded");
+}
+
+#[test]
 fn the_notice_is_good_markup() {
     NOTICES.assert_good();
 }
@@ -21,7 +28,9 @@ fn a_locked_door_shows_a_notice_that_goes_by_itself() {
     use crate::dom::{test_app, test_find};
 
     let mut app = test_app();
-    app.add_message::<FromServer>().add_plugins(NoticesPlugin);
+    app.add_message::<FromServer>()
+        .init_resource::<HerbTable>()
+        .add_plugins(NoticesPlugin);
     // Each frame is a second long.
     app.insert_resource(TimeUpdateStrategy::ManualDuration(Duration::from_secs(1)));
     app.update();

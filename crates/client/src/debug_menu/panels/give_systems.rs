@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 use shared::creature::Size;
-use shared::item::{Favour, Quality};
+use shared::item::{Favour, ItemKind, Quality};
 use shared::protocol::ClientMessage;
 
 use super::{
@@ -139,6 +139,7 @@ pub(in crate::debug_menu) fn press_give_button(
                 count: form.count,
                 identical: form.identical || form.count == 1,
                 request: order.request,
+                herb: form.herb.clone().filter(|_| order.kind == ItemKind::Herb),
                 to: to.0.map(|(id, _)| id),
             },
         )));

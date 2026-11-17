@@ -13,6 +13,7 @@ mod debug_api;
 mod food;
 mod footwear;
 mod gem;
+mod herb;
 mod keyring;
 mod looks;
 mod model;
@@ -30,6 +31,7 @@ pub use character::{character_look, portrait_look};
 pub use clothing::ClothingLook;
 pub use colours::Colours;
 pub use footwear::FootwearLook;
+pub use herb::HerbLook;
 pub use looks::{
     ArmsLook, BladeLook, FeetLook, HandsLook, HeadLook, LegsLook, NeckLook, SetLook, ShouldersLook,
     TorsoLook, WaistLook,

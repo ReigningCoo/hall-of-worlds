@@ -72,7 +72,16 @@ pub fn is_food(kind: ItemKind) -> bool {
     food(kind).is_some()
 }
 
-/// Whether a creature of this kind may eat it: food, and not refused to it.
+/// Whether it can be eaten at all: food, or a herb (eaten raw, for a weak dose
+/// of its first effect: `herb::raw_dose`). Herbs aren't food: they never go on
+/// the action bar (`is_food`).
+pub fn edible(kind: ItemKind) -> bool {
+    is_food(kind) || kind == ItemKind::Herb
+}
+
+/// Whether a creature of this kind may eat it: a herb (anyone may), or food
+/// not refused to it.
 pub fn may_eat(kind: ItemKind, eater: CreatureKind) -> bool {
-    food(kind).is_some_and(|food| food.suits(eater) || food.others != Others::Refused)
+    kind == ItemKind::Herb
+        || food(kind).is_some_and(|food| food.suits(eater) || food.others != Others::Refused)
 }

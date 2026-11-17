@@ -18,6 +18,7 @@ fn give(kind: ItemKind, seed: u64, count: u32, identical: bool) -> ClientMessage
         count,
         identical,
         request: shared::item_form::RollRequest::NONE,
+        herb: None,
         to: None,
     })
 }
@@ -123,6 +124,7 @@ fn give_asking(kind: ItemKind, request: RollRequest) -> ClientMessage {
             count,
             identical,
             request,
+            herb: None,
             to: None,
         }),
         _ => unreachable!(),
@@ -183,6 +185,7 @@ fn give_to(kind: ItemKind, count: u32, to: shared::id::Id) -> ClientMessage {
             count,
             identical,
             request,
+            herb: None,
             ..
         }) => ClientMessage::DevGiveItem(shared::protocol::DevGive {
             kind,
@@ -195,6 +198,7 @@ fn give_to(kind: ItemKind, count: u32, to: shared::id::Id) -> ClientMessage {
             count,
             identical,
             request,
+            herb: None,
             to: Some(to),
         }),
         _ => unreachable!(),

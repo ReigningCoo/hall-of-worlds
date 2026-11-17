@@ -23,6 +23,7 @@ fn give(kind: ItemKind, count: u32) -> ClientMessage {
         count,
         identical: true,
         request: shared::item_form::RollRequest::NONE,
+        herb: None,
         to: None,
     })
 }

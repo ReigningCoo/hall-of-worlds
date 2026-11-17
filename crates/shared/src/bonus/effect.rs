@@ -21,6 +21,9 @@ pub enum Source {
     /// own source, so it runs alongside any healing, and poisoning again
     /// starts it again.
     Poison,
+    /// A herb eaten raw (`herb::raw_dose`): its own source, so it runs
+    /// alongside food, and only the latest herb's counts.
+    RawHerb,
     // New sources go at the end: messages carry one by its place in this list.
 }
 

@@ -1,10 +1,10 @@
 //! Eating what is held by letting go of it on the clothes panel: the top one of
-//! food (`bonus::is_food`), carried or from the ground, as the server will
+//! food or a herb (`bonus::edible`), carried or from the ground, as the server will
 //! (`ClientMessage::Consume`); the rest of its stack stays where it was. Also
 //! one of a kind, asked for from the action bar (`EatKind`).
 
 use bevy::prelude::*;
-use shared::bonus::{is_food, may_eat};
+use shared::bonus::{edible, may_eat};
 use shared::energy::handling_cost;
 use shared::id::Id;
 use shared::item::{Inventory, Item};
@@ -16,13 +16,13 @@ use crate::common::{SpentEnergy, TookItem};
 use crate::connection::ToServer;
 
 /// The carried stack `held` is, or is part of (`Holding::group` or `counted`),
-/// if it is food: its id, as its top one is what is eaten.
+/// if it is food or a herb: its id, as its top one is what is eaten.
 pub(super) fn carried_food(carried: &Inventory, holding: &Holding, held: Id) -> Option<Id> {
     let group = holding.group.as_ref().map(|(stack, _)| *stack);
     let counted = holding.counted.map(|(stack, _)| stack);
     let stack = group.or(counted).unwrap_or(held);
     let item = carried.find(stack)?;
-    (is_food(item.top().kind) && !carried.is_worn(stack)).then_some(stack)
+    (edible(item.top().kind) && !carried.is_worn(stack)).then_some(stack)
 }
 
 /// Eats one of each kind asked for, from the stack `Inventory::stack_to_use`

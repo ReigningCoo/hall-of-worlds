@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use super::super::actions::DebugAction;
 use super::{
     FIRST_AT, NEXT_AT, alignment, change_creature, create_mob, dev_area, examine_mob, generate,
-    give, learn_skills, other_floors, pictures_spawn, place_furniture, steps, teleport_to_world,
-    vitals, world_time,
+    give, herbs, learn_skills, other_floors, pictures_spawn, place_furniture, steps,
+    teleport_to_world, vitals, world_time,
 };
 use crate::dom::{Dom, Template, UiEvent, UiValue, document, top_strip};
 use crate::html;
@@ -107,6 +107,7 @@ fn template_of(action: DebugAction) -> Option<&'static Template> {
         DebugAction::ChangeCreature => Some(&change_creature::CHANGE_CREATURE),
         DebugAction::Vitals => Some(&vitals::VITALS),
         DebugAction::Alignment => Some(&alignment::ALIGNMENT),
+        DebugAction::Herbs => Some(&herbs::HERBS),
         DebugAction::DrawingStates => Some(&steps::DRAWING_STATES),
         DebugAction::OtherFloors => Some(&other_floors::OTHER_FLOORS),
         DebugAction::WorldTime => Some(&world_time::WORLD_TIME),
@@ -134,6 +135,7 @@ pub(in crate::debug_menu) fn form_of(action: DebugAction) -> &'static str {
         DebugAction::TeleportToWorld => super::teleport_to_world::FORM,
         DebugAction::Vitals => "debug.vitals",
         DebugAction::Alignment => "debug.alignment",
+        DebugAction::Herbs => herbs::FORM,
         DebugAction::DevArea => "debug.dev_area",
         DebugAction::CreateMob => "debug.create_mob",
         DebugAction::PlaceFurniture => super::place_furniture::FORM,

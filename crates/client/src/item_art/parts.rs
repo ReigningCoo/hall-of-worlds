@@ -6,6 +6,7 @@ use super::{Look, Part};
 
 pub(super) fn parts_of(
     look: Look,
+    herbs: &shared::herb::Herbs,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) -> Vec<Part> {
@@ -63,6 +64,7 @@ pub(super) fn parts_of(
         Look::Pouch => super::pouch::pouch_parts(meshes, materials),
         Look::Keyring => super::keyring::keyring_parts(meshes, materials),
         Look::Food(kind) => super::food::food_parts(kind, meshes, materials),
+        Look::Herb(herb) => super::herb::herb_parts(&herb, herbs, meshes, materials),
         Look::Under { under, quality } => {
             super::under::under_parts(&under, quality, meshes, materials)
         }

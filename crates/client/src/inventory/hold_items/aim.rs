@@ -1,7 +1,7 @@
 //! What letting go of what is held, where it is, would do.
 
 use bevy::prelude::*;
-use shared::bonus::{is_food, may_eat};
+use shared::bonus::{edible, may_eat};
 use shared::item::StackLimits;
 
 use super::super::bag_slots::tie_aim;
@@ -100,7 +100,7 @@ pub(super) fn aim_at(
         if from_ground && on_bin {
             return Target::Bin;
         }
-        if from_ground && on_body && is_food(item.top().kind) {
+        if from_ground && on_body && edible(item.top().kind) {
             // Its top one is eaten (`eat`), unless refused to the player's kind.
             let allowed = may_eat(item.top().kind, carried.0.creature);
             return Target::Body { allowed };

@@ -1,6 +1,6 @@
 # shared: herb
 
-Herbs for potion making: what each is, the table of them (built in, plus a server's mods), herbs as counted items, the quality picking gives, the potency a user draws out, and what a character knows of each. Where herbs grow and how they grow and are harvested (PR 2; the wilderness's patches are placed by `shared::wilderness`, the server runs picking). Plant models and picking by click are the client's (`plants`, `dungeon_map`). Not yet: pictures, popups and eating (PR 4), potions. Research and the owner's decisions: `docs/context/research-herbs.md`.
+Herbs for potion making: what each is, the table of them (built in, plus a server's mods), herbs as counted items, the quality picking gives, the potency a user draws out, and what a character knows of each. Where herbs grow and how they grow and are harvested (PR 2; the wilderness's patches are placed by `shared::wilderness`, the server runs picking). Plant models and picking by click are the client's (`plants`, `dungeon_map`); items' pictures and popups too (`item_art`, `item_popup`). Eating one raw (PR 4) gives a weak dose of its first effect (`raw_dose`). Not yet: potions. Research and the owner's decisions: `docs/context/research-herbs.md`.
 
 ## Files
 
@@ -20,6 +20,8 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 - `herb/harvest.rs`: `Harvest`, `harvest`, `FULL_HARVEST`.
 - `herb/place.rs`: `HerbDef::grows_in` / `suits`, `MARSH_STAND_INS`, `Abundance::wild_weight` / `bed_weight`, `wild_herbs`, `bed_herbs`, `choose`.
 - `herb/beds.rs`: `plant_beds`.
+- `herb/raw.rs`: `raw_dose`, `RAW_TICKS`, `RAW_ATTRIBUTE`, `RAW_VITAL`. Tests in `herb/raw_tests.rs` (with `dev_herb` and knowledge).
+- `herb/dev.rs`: `dev_herb` (Give Item's herb).
 
 ## Public API
 
@@ -34,7 +36,9 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 - `harvest(def, stage, foraging, rng) -> Option<Harvest { count, quality }>`: full grown `FULL_HARVEST` (2 to 4); at `EARLY_STAGE` its `Early::taken` share (rounded; `None` if nothing), with quality rolled as if Foraging were times `Early::strength`.
 - `HerbDef::grows_in(biome)`, `suits(&mob::Habitat)` (biome and `temperature`); `wild_herbs(herbs, habitat)`, `bed_herbs(herbs, habitat)` (wild ones, else those nearest its warmth); `choose(herbs, weight, rng)` by `Abundance::wild_weight` (9/3/1) or `bed_weight` (3/2/1).
 - `plant_beds(level, herbs, habitat, seed)`: each bed (`HerbBed` cells joined side by side: one strip) one herb from `bed_herbs`, rolled from the site's seed and the bed's first cell; each patch's phase from its cell.
-- `HerbKnowledge` (on `Sheet::herbs`): `of`, `knows_name`, `knows_effect`, `learn_name`, `learn_effect` (each returns whether it was new), `known_effects(def)`, `is_empty`. `KnownHerb { name, effects }`.
+- `raw_dose(def, quality, herbalism, now) -> Option<bonus::Effect>`: eating one raw: its first effect for `RAW_TICKS` (30 s), an attribute by `RAW_ATTRIBUTE` (1 point) a step of strength, Health or Mana restored or drained by `RAW_VITAL` (0.5 a second) a step, times `potency` / 100; `Source::RawHerb`, nothing ends it early.
+- `dev_herb(herbs, key, seed)`: the herb with this key, or with none one rolled from the seed (`item_form::batch_seed`): what Give Item gives, the same on both sides.
+- `HerbKnowledge` (on `Sheet::herbs`): `of`, `knows_name`, `knows_effect`, `learn_name`, `learn_effect` (each returns whether it was new), `learn_all(key)` (name and every effect), `forget_all` (dev tools), `known_effects(def)`, `is_empty`. `KnownHerb { name, effects }`.
 
 ## Depends on
 
@@ -42,15 +46,16 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 
 ## Used by
 
-- `item` (`ItemKind::Herb`, stacks compare a herb's form without its look), `sheet` (`Sheet::herbs`), `dungeon` (`Level`'s herbs), `wilderness` (`herbs.rs`), `protocol` (`ServerMessage::Herbs`, `LevelChunk::herbs`, `HerbNews`), server `sites/herbs.rs` and `connections/pick_herb.rs`, server `herbs.rs` (loading mods) and `connections/welcome.rs` (sending), client `common::HerbTable`.
+- `item` (`ItemKind::Herb`, stacks compare a herb's form without its look), `sheet` (`Sheet::herbs`), `dungeon` (`Level`'s herbs), `wilderness` (`herbs.rs`), `protocol` (`ServerMessage::Herbs`, `LevelChunk::herbs`, `HerbNews`), server `sites/herbs.rs`, `connections/pick_herb.rs`, `eat_herb.rs` (`raw_dose`), `dev_herbs.rs` and `give_items.rs` (`dev_herb`), server `herbs.rs` (loading mods) and `connections/welcome.rs` (sending), client `common::HerbTable`, `item_art` (`herb.rs`: pictures from `PlantLook`), `item_popup` (`herb.rs`: names and effects as known), `debug_menu` (Give Item's herb, the Herbs panel), `notices`.
 
 ## Notes
 
 - Saves and messages name a herb by key, never by its place in the table, so mods can add and replace freely. A herb item keeps its own `grams`, so a mod changing a herb's weight leaves picked ones as they were (and they no longer stack with new ones).
 - Herb items are counted with quality (the one counted kind with quality and a form): a stack keys on herb and quality only, each one's look seed ignored (`as_compared` zeroes it), and shows its bottom's look. Never magical, blessed or cursed (only worn kinds can be; a test checks). `give_form` gives a herb nothing, as it has no table: herbs are made with `new_item`. `Item::name` says "Herb"; the herb's name, or "Unknown herb", is for the client to show from `HerbTable` and `HerbKnowledge` (PR 4).
 - Quality (owner): Poor to Uncommon mostly; Rare and better 2 in 100 with no Foraging (other items 8), 7 in 100 at 100% (`SKILLED_SHIFT`, linear, Poor taking what rounding leaves). First guesses.
-- Potency (owner): quality counts only as far as Herbalism reaches: `min(quality_percent, skill_cap)`, so with none every herb is as weak as a poor one. Nothing uses it yet.
-- Knowledge (owner): only changes what is shown. Picking or buying will teach the name, eating raw the first effect; Herbalism practice, potions, books and training the rest.
+- Potency (owner): quality counts only as far as Herbalism reaches: `min(quality_percent, skill_cap)`, so with none every herb is as weak as a poor one. Eating raw uses it (`raw_dose`).
+- Knowledge (owner): only changes what is shown. Picking teaches the name (buying will), eating raw the first effect; Herbalism practice, potions, books and training the rest.
+- Eating raw (PR 4, first guesses): `raw_dose` above, scaled by `potency`, so an unskilled eater gets 80% whatever the quality. Anyone may eat any herb (`bonus::may_eat`). Its effect is its own source (`Source::RawHerb`): the latest herb replaces the last, alongside food.
 - Growth (PR 2): a patch goes up through the four stages at its herb's speed, stays full grown as long again, then starts from stage 1 (it seeds and dies back), each from its own `phase` (a hash of its cell), so only when it was last harvested needs keeping. Harvesting starts that round again at its `Regrow::back_to` stage (dug up: nothing for a whole growth, then stage 1). A harvest needs a stage's growth since the last, so picked fruit (back to 3) can't be picked again at once. Game minutes are the world's (`WorldTime`), so moving the clock moves them. No seasons yet.
 - Where they grow (PR 2): wild by each world map point's biome and yearly average temperature (`Wilderness::habitat_at`), commoner herbs more often; a herb of marshes alone grows in the wettest biomes (`MARSH_STAND_INS`) until there are marshes; those with other biomes grow only there. Herbalists grow the same, rarer ones more often, or the nearest to the place's warmth where nothing grows wild (hot deserts). Placing depends on the server's table (mods), so it isn't part of any generator's version: a mod changing herbs changes what grows where, harvests kept by cell.
 - Yield and quality (PR 2, first guesses): 2 to 4 full grown, early its `taken` share; early harvests are poorer by `strength`.

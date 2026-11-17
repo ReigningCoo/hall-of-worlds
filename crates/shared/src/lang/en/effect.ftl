@@ -2,11 +2,12 @@
 ### effect's popup there.
 
 ## An effect's name: what was eaten (its kind's name), poison, the debug
-## menu's bonus.
+## menu's bonus, a herb eaten raw.
 
 effect-eaten = Eating: { $item }
 effect-poison = Poisoned
 effect-dev = Dev Bonus
+effect-raw-herb = Raw herb
 
 ## What ends it early, if anything does.
 

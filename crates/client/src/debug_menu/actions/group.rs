@@ -55,6 +55,7 @@ impl DebugAction {
             | Self::GiveItem
             | Self::Vitals
             | Self::LearnSkills
+            | Self::Herbs
             | Self::Alignment => Group::Character,
             Self::CreateMob | Self::ExamineMob | Self::FreezeMobs | Self::DetectMobs => Group::Mobs,
             Self::RevealMap

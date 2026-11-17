@@ -23,10 +23,15 @@ pub(super) struct GiveItemParams {
     set: bool,
     /// `"Blessed"` or `"Cursed"`.
     favour: Option<Favour>,
+    /// For `"Herb"`: the herb's key (`"roseroot"`); any herb if missing.
+    herb: Option<String>,
+    /// How many, alike (1 if missing).
+    count: Option<u32>,
 }
 
-/// `client.give_item { "kind": "Ring", "quality": "Rare", "magical": true }`:
-/// into the inventory, as Give Item does. Saved.
+/// `client.give_item { "kind": "Ring", "quality": "Rare", "magical": true }`
+/// (or `{ "kind": "Herb", "herb": "roseroot", "count": 3 }`): into the
+/// inventory, as Give Item does. Saved.
 pub(super) fn give_item(
     In(request): In<Option<Value>>,
     mut to_server: MessageWriter<ToServer>,
@@ -37,6 +42,8 @@ pub(super) fn give_item(
         magical,
         set,
         favour,
+        herb,
+        count,
     } = params(request)?;
     to_server.write(ToServer(ClientMessage::DevGiveItem(
         shared::protocol::DevGive {
@@ -47,9 +54,10 @@ pub(super) fn give_item(
             set,
             favour,
             seed: None,
-            count: 1,
+            count: count.unwrap_or(1),
             identical: true,
             request: shared::item_form::RollRequest::NONE,
+            herb,
             to: None,
         },
     )));
