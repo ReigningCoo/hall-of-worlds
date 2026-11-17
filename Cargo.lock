@@ -8053,6 +8053,7 @@ version = "0.1.0"
 dependencies = [
  "brotli",
  "resvg",
+ "serde_json",
  "shared",
  "ttf-parser",
  "web_delta",
