@@ -1,7 +1,7 @@
 //! Bags' rows of the table of kinds (`def.rs`): pouches, bags, boxes and backpacks,
 //! with the grids inside them. A Pouch and a Bag can also be tied to a belt
-//! (`ContainerDef::on_belt`), adding their insides to the own grid; a Keyring is
-//! a holder (`ContainerDef::holder`), tied with its own grid.
+//! (`ContainerDef::on_belt`), adding their insides to the own grid; a Keyring and a
+//! Herb Pouch are holders (`ContainerDef::holder`), tied with its own grid.
 
 use super::item_def::{bag, wear};
 use super::{ItemDef, ItemKind, Shape, WearDef};
@@ -62,6 +62,19 @@ impl ItemKind {
             )
             .growing()
             .holding(&[ItemKind::Key]),
+            // A holder for herbs on the belt (owner, 2026-11-17): like the Keyring,
+            // 6 wide, showing 4 rows at first and growing without limit; herbs
+            // stack in it by herb and quality.
+            Self::HerbPouch => bag(
+                "Herb Pouch",
+                60,
+                Shape::rectangle(2, 1),
+                (HOLDER_WIDTH, HOLDER_ROWS),
+                None,
+                None,
+            )
+            .growing()
+            .holding(&[ItemKind::Herb]),
             Self::SmallBox => bag(
                 "Small Box",
                 100,

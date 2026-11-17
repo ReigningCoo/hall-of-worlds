@@ -8,7 +8,7 @@ What town shops have in stock, and working it out when one is opened. Only the s
 
 ## Public API
 
-- `sells(BuildingKind)`: what it sells, with weights; empty if it isn't a shop. Blacksmiths sell the Keyring.
+- `sells(BuildingKind)`: what it sells, with weights; empty if it isn't a shop. Blacksmiths sell the Keyring, herbalists the Herb Pouch.
 - `Shop { kind, quality, trades, of_kind }`: `target`, `minimum` (80% of it), `make_minutes(quality, kind_percent)`, `replaced_after`.
 - `catch_up(seed, shop, stock qualities, last_made, last_visit, now) -> Restocked { keep, new, last_made }`.
 

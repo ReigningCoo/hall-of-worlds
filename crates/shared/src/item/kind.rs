@@ -55,6 +55,8 @@ pub enum ItemKind {
     Helmet,
     /// A herb (`shared::herb`), counted: which one is in its form.
     Herb,
+    /// A holder for herbs on the belt (`bag_def.rs`).
+    HerbPouch,
     /// Something someone lost, found for a quest: a letter, a book, a toy
     /// (owner: one picture for all, named for what it is).
     Keepsake,
@@ -119,7 +121,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 96] = [
+    pub const ALL: [Self; 97] = [
         Self::Apple,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -169,6 +171,7 @@ impl ItemKind {
         Self::Headdress,
         Self::Helmet,
         Self::Herb,
+        Self::HerbPouch,
         Self::Hood,
         Self::Hose,
         Self::Keepsake,

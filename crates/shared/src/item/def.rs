@@ -35,6 +35,7 @@ impl ItemKind {
                 Self::Backpack
                 | Self::Bag
                 | Self::BagOfHolding
+                | Self::HerbPouch
                 | Self::Keyring
                 | Self::Pouch
                 | Self::SmallBox => self.bag_def(),
@@ -211,9 +212,13 @@ impl ItemKind {
         def.taking(match self {
             Self::Apple | Self::Bread | Self::DwarvenBread | Self::RawMeat | Self::Stone => 10,
             _ if self.coin_value().is_some() => 10,
-            Self::Ring | Self::Pouch | Self::Bag | Self::Belt | Self::Boomerang | Self::Keyring => {
-                75
-            }
+            Self::Ring
+            | Self::Pouch
+            | Self::Bag
+            | Self::Belt
+            | Self::Boomerang
+            | Self::Keyring
+            | Self::HerbPouch => 75,
             Self::Tabard => 50,
             _ if self.is_under() || self.is_clothing() => 50,
             Self::Gauntlets
