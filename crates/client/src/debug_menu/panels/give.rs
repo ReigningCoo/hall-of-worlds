@@ -50,6 +50,7 @@ pub(super) static GIVE_ITEM: Template = html!(
       <select id="gem_material" width="170" hidden><option>Any gem</option></select>
       <select id="gem_cut" width="170" hidden><option>Any cut</option></select>
       <select id="limits" width="170" hidden><option>Any length</option></select>
+      <select id="effects" width="200" hidden><option>Empty</option></select>
       <select id="herb" searchable width="220" hidden><option>Any herb</option></select>
     </span>
     <span nowrap valign="middle">

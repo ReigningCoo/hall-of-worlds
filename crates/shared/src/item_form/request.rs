@@ -34,6 +34,8 @@ pub struct RollRequest {
     pub settings: Option<u8>,
     /// What a blade must keep to; it may then be another family's kind.
     pub limits: Option<Limits>,
+    /// How many effects a bottle holds: 0 for an empty one (`shared::potion`).
+    pub effects: Option<u8>,
 }
 
 /// One of the options in a `RollRequest`.
@@ -48,6 +50,7 @@ pub enum Field {
     GemCut,
     Settings,
     Limits,
+    Effects,
 }
 
 /// A request that can't be met, naming the option that couldn't be: one the kind
@@ -66,6 +69,7 @@ impl RollRequest {
         gem_cut: None,
         settings: None,
         limits: None,
+        effects: None,
     };
 
     /// The options it asks for.
@@ -80,6 +84,7 @@ impl RollRequest {
             (Field::GemCut, self.gem_cut.is_some()),
             (Field::Settings, self.settings.is_some()),
             (Field::Limits, self.limits.is_some()),
+            (Field::Effects, self.effects.is_some()),
         ];
         asked
             .into_iter()
@@ -99,6 +104,7 @@ impl RollRequest {
             Field::GemCut => self.gem_cut = None,
             Field::Settings => self.settings = None,
             Field::Limits => self.limits = None,
+            Field::Effects => self.effects = None,
         }
         self
     }
@@ -126,6 +132,7 @@ pub fn fields(kind: ItemKind) -> &'static [Field] {
     }
     match kind {
         ItemKind::Gem => &[GemMaterial, GemCut],
+        ItemKind::Bottle => &[Effects],
         ItemKind::Ring | ItemKind::Necklace => &[Material, Settings, GemMaterial, GemCut],
         // Their cloth is a material, and shoulders' finish is leather's own.
         ItemKind::Gauntlets

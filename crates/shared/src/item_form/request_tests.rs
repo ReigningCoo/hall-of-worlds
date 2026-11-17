@@ -54,7 +54,7 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         ItemForm::Necklace(necklace) => necklace.metal,
         ItemForm::Blade(blade) => blade.blade_metal,
         ItemForm::Gem(gem) => gem.material,
-        ItemForm::Key(_) | ItemForm::Herb(_) => return None,
+        ItemForm::Key(_) | ItemForm::Herb(_) | ItemForm::Bottle(_) => return None,
     })
 }
 

@@ -42,6 +42,7 @@ pub mod name;
 pub mod pathfinding;
 pub mod place_name;
 pub mod poi;
+pub mod potion;
 pub mod protocol;
 pub mod quest;
 pub mod relief;
