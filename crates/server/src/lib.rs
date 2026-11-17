@@ -19,6 +19,7 @@ mod environment;
 mod gates;
 mod ground;
 mod hall;
+mod herbs;
 mod ids;
 mod latency;
 mod lets_encrypt;
@@ -157,7 +158,8 @@ impl Plugin for ServerPlugin {
             Some(queue) => Storage::new(queue.clone(), self.world_seed.id()),
             None => Storage::none(),
         };
-        let worlds = ServerWorlds::start(self.world_seed, storage)
+        let herbs = herbs::load(self.data.as_deref());
+        let worlds = ServerWorlds::start(self.world_seed, storage, herbs)
             .unwrap_or_else(|error| panic!("The server can't open its home world: {error}"));
         let mut roles = match &self.data {
             Some(data) => roles::Roles::open(data, storage::now())

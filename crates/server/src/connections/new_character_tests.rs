@@ -69,6 +69,9 @@ fn a_new_guest_makes_their_character_before_joining() {
     connections = connections_after;
     let told = answers(&end);
     assert!(matches!(told[0], ServerMessage::Welcome { .. }), "{told:?}");
+    // Then every herb on the server, before what they are like.
+    let herbs = shared::herb::Herbs::built_in();
+    assert!(matches!(&told[1], ServerMessage::Herbs(sent) if *sent == herbs));
     assert_eq!(
         sheet_in(&told),
         Some(Sheet::built(CreatureKind::Dwarf, Gender::Male, strong()).as_sent())

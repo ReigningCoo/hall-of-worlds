@@ -28,6 +28,7 @@ pub mod furniture;
 pub mod gender;
 pub mod ground;
 pub mod hall;
+pub mod herb;
 pub mod id;
 pub mod item;
 pub mod item_form;

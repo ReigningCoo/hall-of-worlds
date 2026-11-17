@@ -186,6 +186,10 @@ impl Item {
         copy.made_at = None;
         copy.above.clear();
         copy.count = 1;
+        if let Some(ItemForm::Herb(herb)) = &mut copy.form {
+            // Each one looks a little different: a stack keys on herb and quality.
+            herb.look = 0;
+        }
         if let Some(ItemForm::Ring(ring)) = &mut copy.form {
             for gem in ring
                 .settings

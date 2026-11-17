@@ -289,6 +289,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
     ];
     let server = vec![
         ServerMessage::Lockdown(true),
+        ServerMessage::Herbs(crate::herb::Herbs::built_in()),
         ServerMessage::DevMobInfo {
             mob: crate::id::Id::for_test(4),
             lines: vec!["Goblin".into(), "Doing: Idle".into()],

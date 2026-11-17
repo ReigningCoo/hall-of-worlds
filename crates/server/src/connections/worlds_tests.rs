@@ -26,7 +26,8 @@ fn character(number: u128) -> CharacterId {
 fn server(folder: &TestFolder, saved_in: &[(CharacterId, WorldSeed)]) -> bevy::prelude::World {
     let storage = || Storage::in_folder(&folder.0, HOME.id());
     {
-        let mut worlds = ServerWorlds::start(HOME, storage()).unwrap();
+        let mut worlds =
+            ServerWorlds::start(HOME, storage(), shared::herb::Herbs::built_in()).unwrap();
         for (id, seed) in saved_in {
             let world = worlds.open(*seed).unwrap();
             worlds.home().storage.save_character(
@@ -45,7 +46,9 @@ fn server(folder: &TestFolder, saved_in: &[(CharacterId, WorldSeed)]) -> bevy::p
     }
     let mut app = bevy::prelude::World::new();
     app.insert_resource(Connections::default());
-    app.insert_resource(ServerWorlds::start(HOME, storage()).unwrap());
+    app.insert_resource(
+        ServerWorlds::start(HOME, storage(), shared::herb::Herbs::built_in()).unwrap(),
+    );
     app.insert_resource(ServerOptions {
         dev_tools: true,
         guests: true,

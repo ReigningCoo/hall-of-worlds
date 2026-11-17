@@ -171,6 +171,9 @@ pub(super) fn send_welcome(
         shown: client.shown(),
     };
     client.link.send(&welcome)
+        && client
+            .link
+            .send(&ServerMessage::Herbs((*world.herbs).clone()))
         && client.send_sheet(world.action_clock.ticks())
         && client.tell_attributes()
         && client.send_vitals(world.action_clock.ticks())
