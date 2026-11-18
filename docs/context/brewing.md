@@ -57,7 +57,7 @@ Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles hold
 1. **Liquids in bottles** (built; and this plan into `docs/context/`, with `decisions.md` and the table in `CLAUDE.md`): `potion`'s liquid (waters, oils, potions), names, stacking, saves (today's potions load as potions), Give Item choosing a liquid, the client's liquid colours for water and oil. Herbalists and Potion Shops sell water bottles and oils.
 2. **Abilities from skills and learned abilities; tools** (built): a rule for abilities known from a skill, abilities learned per character (saved), unusable without a tool; the oil press, mortar & pestle and cauldron as items with pictures (Carpenter, Herbalist / Potion Shop, Blacksmith); the Water skill. Needs 1.
 3. **Collect Water** (built): learned on a first empty bottle; facing water within reach; which water by place and sky; filling until moved or harmed; practice. Needs 2.
-4. **The brewing rules** in `shared` (decisions 6 to 16 and 18): one pure function with tests, no interface. Needs 1. Independent of 2 and 3.
+4. **The brewing rules** (built, `shared::brewing`) in `shared` (decisions 6 to 16 and 18): one pure function with tests, no interface. Needs 1. Independent of 2 and 3.
 5. **Press Oil:** vegetables, nuts or seeds into an empty bottle. Needs 2, and the Fruit and nuts and Vegetables chats' first PRs.
 6. **Grind:** the mixing panel (herbs, an oil, doses), making ointment, ointment used on oneself; potions made before listed for making again. Needs 2 and 4.
 7. **Brew:** ointment and water into a potion; practice for Alchemy and Herbalism; wiki page on brewing. Needs 6.
@@ -66,6 +66,8 @@ Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles hold
 ## As built
 
 - Collect Water (PR 3): each bottle is a wind-up like Heal's, with energy as long, so steps wait behind it unless it is called off; the client calls it off on any move (as for every wind-up) and the server on moving or harm (`Cancel::Moving`, `Cancel::Hurt`, as eating's effects). Facing is within 45° of the heading, reach from the water cell's middle (Claude's choices). Underground is any cave level or a basement; "outside" for Moon Water is the player's own cell being out in the open.
+
+- The brewing rules (PR 4, `docs/context/shared/brewing.md`): a function per step (`grind`, `brew`, `quality`, `duration_seconds`, `on_skin`); the caller (Grind) passes one of each herb with `doses` sets wanted and takes them away. Claude's choices: a herb's steps round to the nearest (`change × potency`, so 1 × 80% gives 1), a helpful/harmful tie for the largest counts as helpful, Salt Water's tie takes the first stat, boosts keep a dose's sign.
 
 ## Later
 

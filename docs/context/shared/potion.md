@@ -15,7 +15,7 @@ Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding
 
 - `Dose { stat, step }`: a `herb::Stat` (nine attributes, Health, Mana) moved up (helpful) or down (harmful) by a whole-number step.
 - `Contents`: doses in one normal order, so equal effects compare equal: `new(doses)` adds those of one stat together, drops any at 0 and sorts by `Stat`; read back from saves and messages the same way (`serde(from)`). `EMPTY`, `is_empty`, `doses`.
-- `Water` (`Plain`, `Cave`, `Moon`, `Salt`; `ALL`, `name`: "Water", "Cave Water", ...), `Oil` (`Vegetable`, `Nut`, `Seed`; `ALL`, `name`: "Nut Oil", ...). What each does to a brew comes with brewing (`brewing.md`, decisions 2 and 3).
+- `Water` (`Plain`, `Cave`, `Moon`, `Salt`; `ALL`, `name`: "Water", "Cave Water", ...), `Oil` (`Vegetable`, `Nut`, `Seed`; `ALL`, `name`: "Nut Oil", ...). What each does to a brew is `shared::brewing`'s (`watered`, `oil_suits`).
 - `Liquid`: `Water(Water)`, `Oil(Oil)` or `Potion(Contents)`; `kind`, `contents` (a potion's), `name`.
 - `LiquidKind`: the same without a potion's contents (`Potion`), for asking for one: `all()` (waters, oils, Potion), `name`.
 - `BottleForm { liquid: Option<Liquid>, look }` (`ItemForm::Bottle`): `new(liquid, look)` (a potion with no doses becomes empty), `is_empty`, `is_potion`, `contents` (a potion's, else empty), `name` ("Empty Bottle", "Potion", "Bottle of Moon Water", which `Item::name` says), `grams` (`EMPTY_GRAMS` 120, any full one `POTION_GRAMS` 220). `look` is a seed (from the item's id, through `give_form`) the client picks the shape, glass and stopper from. `Item::bottle()`.
