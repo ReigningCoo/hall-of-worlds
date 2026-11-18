@@ -112,6 +112,8 @@ pub enum Look {
     /// One of brewing's tools: a cauldron, a mortar and pestle or an oil
     /// press, by its kind (`tool/`).
     Tool(shared::item::ItemKind),
+    /// A sack of flour, by its flour's colour (`flour.rs`).
+    Flour(super::FlourLook),
     /// A cask, by its size and wood (`cask.rs`).
     Cask(shared::cask::CaskLook),
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
@@ -180,6 +182,7 @@ impl Look {
             | Self::Key(_)
             | Self::Bottle { .. }
             | Self::Ointment(_)
+            | Self::Flour(_)
             | Self::Coin(_) => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),

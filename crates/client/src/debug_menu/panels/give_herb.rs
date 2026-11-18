@@ -1,10 +1,13 @@
-//! Give Item's herb, fruit or vegetable (for the Herb, Fruit and Vegetable
-//! kinds): a dropdown of the server's herbs, the fruits or the vegetables, by
-//! name, "Any herb", "Any fruit" or "Any vegetable" first for one rolled from
-//! the seed (`herb::dev_herb`, `fruit::dev_fruit`, `vegetable::dev_vegetable`),
-//! on the Form line, which only these and kinds with a form show.
+//! Give Item's herb, fruit, vegetable or flour (for the Herb, Fruit, Vegetable
+//! and Flour kinds): a dropdown of the server's herbs, the fruits, the
+//! vegetables or the grains' flours, by name, "Any herb", "Any fruit", "Any
+//! vegetable" or "Any flour" first for one rolled from the seed
+//! (`herb::dev_herb`, `fruit::dev_fruit`, `vegetable::dev_vegetable`,
+//! `flour::dev_flour`), on the Form line, which only these and kinds with a
+//! form show.
 
 use bevy::prelude::*;
+use shared::flour::grains;
 use shared::fruit::Fruits;
 use shared::item::ItemKind;
 use shared::vegetable::Vegetables;
@@ -38,10 +41,7 @@ pub(in crate::debug_menu) fn fill_give_herb(
     if !(added || form.is_changed() || table.is_changed()) {
         return;
     }
-    let shown = matches!(
-        form.kind,
-        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable
-    );
+    let shown = super::give_systems::takes_herb(form.kind);
     dom.set_flag("debug.give_item/herb", "hidden", !shown);
     if shown {
         dom.set_flag("debug.give_item/form_line", "hidden", false);
@@ -53,25 +53,33 @@ pub(in crate::debug_menu) fn fill_give_herb(
             ItemKind::Fruit => {
                 let fruits = Fruits::built_in().items();
                 (
-                    fruits.map(|def| (&def.name, &def.key)).collect(),
+                    fruits.map(|def| (def.name.clone(), &def.key)).collect(),
                     "Any fruit",
                 )
             }
             ItemKind::Vegetable => {
                 let vegetables = Vegetables::built_in().iter();
                 (
-                    vegetables.map(|def| (&def.name, &def.key)).collect(),
+                    vegetables.map(|def| (def.name.clone(), &def.key)).collect(),
                     "Any vegetable",
                 )
             }
+            ItemKind::Flour => (
+                (grains().map(|def| (format!("{} Flour", def.name), &def.key))).collect(),
+                "Any flour",
+            ),
             _ => (
-                table.0.iter().map(|def| (&def.name, &def.key)).collect(),
+                table
+                    .0
+                    .iter()
+                    .map(|def| (def.name.clone(), &def.key))
+                    .collect(),
                 "Any herb",
             ),
         };
         named.sort();
         dropdown.keys = named.iter().map(|(_, key)| (*key).clone()).collect();
-        let names = named.into_iter().map(|(name, _)| name.clone());
+        let names = named.into_iter().map(|(name, _)| name);
         let all = std::iter::once(any.to_owned()).chain(names).enumerate();
         dom.set_options(
             "debug.give_item/herb",

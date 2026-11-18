@@ -6,6 +6,7 @@
 about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its inside adds to the end of your inventory.
 about-cask = A wooden cask, bound with iron hoops. It holds one liquid, by the litre.
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
+about-flour = Grain stone-ground into wholemeal flour, in an open hessian sack.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
 

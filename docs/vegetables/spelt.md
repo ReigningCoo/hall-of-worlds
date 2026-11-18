@@ -27,3 +27,9 @@ grand_parent: Items
 | Growth | Very slow: full grown in 16 days of game time |
 | Picking | One to three when full grown, more with Foraging and Crops |
 | After picking | Dug up: nothing grows there for a whole growth, then it starts again from a shoot |
+
+## Flour
+
+![Sack of Spelt Flour]({{ '/assets/flour/spelt.png' | relative_url }})
+
+A sheaf of spelt mills into a sack of spelt flour weighing 23 g: 75% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.

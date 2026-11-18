@@ -139,14 +139,18 @@ pub(in crate::debug_menu) fn press_give_button(
                 count: form.count,
                 identical: form.identical || form.count == 1,
                 request: order.request,
-                herb: (form.herb.clone()).filter(|_| {
-                    matches!(
-                        order.kind,
-                        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable
-                    )
-                }),
+                herb: (form.herb.clone()).filter(|_| takes_herb(order.kind)),
                 to: to.0.map(|(id, _)| id),
             },
         )));
     }
+}
+
+/// Whether Give Item asks this kind for a herb, fruit, vegetable or grain by
+/// key (`give_herb.rs`'s dropdown).
+pub(super) fn takes_herb(kind: ItemKind) -> bool {
+    matches!(
+        kind,
+        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Flour
+    )
 }

@@ -138,7 +138,7 @@ impl ItemKind {
                 Food
             }
             Self::CopperCoin | Self::SilverCoin | Self::GoldCoin | Self::Gem => Valuables,
-            Self::Stone | Self::Herb => Materials,
+            Self::Stone | Self::Herb | Self::Flour => Materials,
             Self::Lantern
             | Self::OilPress
             | Self::MortarAndPestle

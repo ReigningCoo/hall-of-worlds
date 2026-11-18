@@ -27,3 +27,9 @@ grand_parent: Items
 | Growth | Medium: full grown in 4 days of game time |
 | Picking | One when full grown, more with Foraging and Crops |
 | After picking | Dug up: nothing grows there for a whole growth, then it starts again from a shoot |
+
+## Flour
+
+![Sack of Wild rice Flour]({{ '/assets/flour/wild_rice.png' | relative_url }})
+
+A sheaf of wild rice mills into a sack of wild rice flour weighing 20 g: 65% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.

@@ -3,14 +3,17 @@
 //! (`docs/herbs/`) and the Herbs page's "Where they grow" table, from
 //! `shared::herb`; a page per fruit and nut (`docs/fruit/`) and the Fruit and
 //! nuts page's tables, from `shared::fruit`; a page per vegetable, pulse and
-//! grain (`docs/vegetables/`) and that page's table, from `shared::vegetable`;
+//! grain (`docs/vegetables/`), grains' with a Flour section (`shared::flour`),
+//! and that page's table, from `shared::vegetable`;
 //! and the Weapons page, a page per
 //! family and a page per named weapon (`docs/weapons/`), from `shared::blade`. A test fails if the pages
 //! checked in differ from what this writes. With `--pictures` it also starts a
-//! development copy of the game and saves each herb's, fruit's, vegetable's and
-//! named weapon's picture into `docs/assets/herbs/`, `docs/assets/fruit/`,
-//! `docs/assets/vegetables/` and `docs/assets/weapons/`.
+//! development copy of the game and saves each herb's, fruit's, vegetable's,
+//! flour's and named weapon's picture into `docs/assets/herbs/`,
+//! `docs/assets/fruit/`, `docs/assets/vegetables/`, `docs/assets/flour/` and
+//! `docs/assets/weapons/`.
 
+mod flour_pictures;
 mod fruit_facts;
 mod fruit_page;
 mod fruit_table;

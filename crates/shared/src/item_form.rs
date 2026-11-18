@@ -111,6 +111,8 @@ pub enum ItemForm {
     Ointment(crate::brewing::OintmentForm),
     /// A cask (`shared::cask`): its size, wood and what is in it.
     Cask(crate::cask::CaskForm),
+    /// A sack of flour (`shared::flour`): which grain it was milled from.
+    Flour(crate::flour::FlourForm),
 }
 
 impl ItemForm {
@@ -143,6 +145,7 @@ impl ItemForm {
             Self::Vegetable(vegetable) => vegetable.name(),
             Self::Ointment(_) => "Ointment".to_owned(),
             Self::Cask(cask) => cask.name(),
+            Self::Flour(flour) => flour.name(),
         }
     }
 
@@ -185,7 +188,8 @@ impl ItemForm {
             | Self::Fruit(_)
             | Self::Vegetable(_)
             | Self::Ointment(_)
-            | Self::Cask(_) => &[],
+            | Self::Cask(_)
+            | Self::Flour(_) => &[],
         };
         settings.iter().filter_map(|setting| setting.gem.as_ref())
     }

@@ -27,3 +27,9 @@ grand_parent: Items
 | Growth | Medium: full grown in 4 days of game time |
 | Picking | One to three when full grown, more with Foraging and Crops |
 | After picking | Dug up: nothing grows there for a whole growth, then it starts again from a shoot |
+
+## Flour
+
+![Sack of Maize Flour]({{ '/assets/flour/maize.png' | relative_url }})
+
+A sheaf of maize mills into a sack of maize flour weighing 29 g: 95% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.

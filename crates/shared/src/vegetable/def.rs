@@ -59,6 +59,10 @@ pub struct VegetableDef {
     pub servings: u8,
     /// What one item weighs, in grams.
     pub grams: u32,
+    /// For grain: the percent of a sheaf's weight milled into flour,
+    /// stone-ground wholemeal (`shared::flour`); 0 for anything else.
+    #[serde(default)]
+    pub flour_yield: u8,
     /// How often it is eaten raw: whether it heals raw.
     pub raw: Raw,
     /// Exceptionally good for you: cooked (later), it heals
@@ -116,6 +120,12 @@ impl VegetableDef {
         }
         if (self.set == VegetableSet::Grain) != (self.unit == Unit::Sheaf) {
             return Err(format!("{key}: grain comes as a sheaf, and only grain"));
+        }
+        let grain = self.set == VegetableSet::Grain;
+        if grain != (1..=100).contains(&self.flour_yield) {
+            return Err(format!(
+                "{key}: grain mills into 1 to 100% flour, and only grain"
+            ));
         }
         if self.effects.len() > 2
             || self

@@ -60,6 +60,13 @@ pub fn give_form_to(
             let form = crate::vegetable::VegetableForm::new(def, seed);
             (ItemForm::Vegetable(form), Size::Medium)
         }
+        // Any grain's flour, rolled from the seed (`flour::dev_flour`).
+        ItemKind::Flour => {
+            let def = crate::flour::dev_flour(None, seed);
+            let def = def.expect("the built-in grains");
+            let form = crate::flour::FlourForm::of(def).expect("grain mills");
+            (ItemForm::Flour(form), Size::Medium)
+        }
         // Empty unless asked for a liquid or effects: potions are brewed
         // (later), not rolled.
         ItemKind::Bottle => {
