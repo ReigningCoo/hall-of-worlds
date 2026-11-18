@@ -141,7 +141,7 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             Action::Ground(action) => ground::act(client, world, action),
             Action::Door(ask) => sites::door_act(client, world, ask),
             Action::Consume { item } => super::consume::consume(client, world, item),
-            Action::PickHerb { x, y } => super::pick_herb::pick_herb(client, world, x, y),
+            Action::Pick { x, y } => super::pick_fruit::pick(client, world, x, y),
             Action::UseAbility { ability, target } => {
                 super::combat::start_ability(client, world, ability, target)
             }

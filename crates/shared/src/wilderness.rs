@@ -11,6 +11,7 @@ mod border;
 mod course;
 mod cutout;
 mod flats;
+mod fruit;
 mod gate;
 mod herbs;
 mod plan;
@@ -27,6 +28,7 @@ mod tests;
 
 pub use border::BORDER;
 pub use cutout::Cutout;
+pub use fruit::WILD_FRUIT_PERCENT;
 pub use gate::{GATE_PAD, GateSpot};
 pub use herbs::{CLUMP_MOST, CLUMP_PERCENT, CLUMP_TRIES};
 pub use plan::{ChunkPlan, gates_of};

@@ -15,6 +15,7 @@ mod border;
 mod daylight;
 mod door_swing;
 mod field;
+mod fruit;
 mod furniture;
 mod herbs;
 pub use field::CROP_STAGES;
@@ -119,6 +120,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<wild_ground::GroundTint>()
             .init_resource::<DrawnPatches>()
             .init_resource::<HerbHeading>()
+            .init_resource::<fruit::DrawnFruit>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -159,7 +161,12 @@ impl Plugin for DungeonMapPlugin {
                         .chain(),
                     outlined::apply_outlined,
                     update_crops,
-                    (update_herbs, aim_at_herbs, pick_on_arrival),
+                    (
+                        update_herbs,
+                        fruit::update_fruit,
+                        aim_at_herbs,
+                        pick_on_arrival,
+                    ),
                     hide_unseen_tokens,
                     sync_lights,
                     rain::update,

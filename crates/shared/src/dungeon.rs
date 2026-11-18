@@ -12,6 +12,7 @@
 mod bars;
 mod cell;
 mod doors;
+mod fruit;
 mod furniture;
 mod herbs;
 mod level;

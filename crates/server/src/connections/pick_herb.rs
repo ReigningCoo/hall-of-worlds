@@ -1,4 +1,4 @@
-//! Harvesting a herb patch (`ClientMessage::PickHerb`), in turn with the
+//! Harvesting a herb patch (`ClientMessage::Pick`), in turn with the
 //! player's steps: one beside or under them, grown enough (`HerbPatch::can_pick`),
 //! gives its herb (how many by its stage, Foraging and Herbs; as good as it is
 //! rare: `herb::harvest`)
@@ -9,7 +9,7 @@
 use bevy::prelude::*;
 use shared::door::door_cost;
 use shared::herb::{FORAGING, HERBS, harvest, new_item, skill_value};
-use shared::protocol::{HerbNews, ServerMessage};
+use shared::protocol::{PickNews, ServerMessage};
 use shared::rng::Seed;
 use shared::skill::SkillId;
 
@@ -19,15 +19,15 @@ use crate::ids::new_id;
 use crate::sites::{keep_harvest, update_sight};
 
 /// Foraging practice for one harvest (as much as one Heal gives Healing).
-const PICK_PRACTICE: u32 = 8;
+pub(super) const PICK_PRACTICE: u32 = 8;
 
 /// What a harvest costs in time: as long as two steps.
-fn pick_cost() -> u32 {
+pub(super) fn pick_cost() -> u32 {
     2 * door_cost()
 }
 
 /// Harvests the patch at `(x, y)`. Whether the client is still there, and what
-/// it cost: nothing if it was refused (`HerbNews::Refused`).
+/// it cost: nothing if it was refused (`PickNews::Refused`).
 pub(super) fn pick_herb(
     client: &mut Client,
     world: &mut ServerWorld,
@@ -41,7 +41,7 @@ pub(super) fn pick_herb(
         (
             client
                 .link
-                .send(&ServerMessage::Herb(HerbNews::Refused { x, y })),
+                .send(&ServerMessage::Pick(PickNews::Refused { x, y })),
             0,
         )
     };
@@ -61,7 +61,7 @@ pub(super) fn pick_herb(
     if !patch.can_pick(&def, now) {
         return refused(client, "not grown enough");
     }
-    let key = visit.herb_key(x, y);
+    let key = visit.plant_key(x, y);
     let skills = (
         skill_value(&client.sheet.skills, FORAGING),
         skill_value(&client.sheet.skills, HERBS),
@@ -86,9 +86,9 @@ pub(super) fn pick_herb(
     client.update_speed(tick);
     keep_harvest(world, key, now);
     if let Some(visit) = &mut client.visit {
-        visit.herb_picked(x, y, now);
+        visit.plant_picked(x, y, now);
     }
-    let picked = ServerMessage::Herb(HerbNews::Picked {
+    let picked = ServerMessage::Pick(PickNews::Picked {
         x,
         y,
         herb: def.key.clone(),

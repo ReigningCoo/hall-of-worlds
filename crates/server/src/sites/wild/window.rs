@@ -99,6 +99,9 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
             if let Some(patch) = made.herb_at(wrapped, cy) {
                 level.set_herb(cx, cy, patch.clone());
             }
+            if let Some(plant) = made.fruit_at(wrapped, cy) {
+                level.set_fruit(cx, cy, plant.clone());
+            }
         }
     }
     let mut window = Window {
@@ -130,7 +133,7 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
     }
     add_doors(world, &mut window);
     let key = |x: i64, y: i64| {
-        crate::sites::herb_key(
+        crate::sites::plant_key(
             SiteId::Wilderness,
             0,
             &window.mirrors,
@@ -141,7 +144,7 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
     };
     let picked = crate::sites::picked_of(world, &window.level.level, key);
     for ((x, y), when) in picked {
-        window.level.level.set_herb_picked(x, y, Some(when));
+        crate::sites::set_picked(&mut window.level.level, x, y, when);
     }
     window
 }
@@ -246,6 +249,9 @@ fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &
     }
     for ((x, y), patch) in &wild_chunk.herbs {
         window.level.level.set_herb(x + turn, *y, patch.clone());
+    }
+    for ((x, y), plant) in &wild_chunk.fruit {
+        window.level.level.set_fruit(x + turn, *y, plant.clone());
     }
     for stairs in &wild_chunk.stairs {
         let x = stairs.x + turn;

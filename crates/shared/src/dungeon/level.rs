@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::{Cell, WallBar, WallShape, bars_of};
 use crate::door::Swing;
+use crate::fruit::FruitPlant;
 use crate::furniture::Piece;
 use crate::herb::HerbPatch;
 
@@ -40,6 +41,8 @@ pub struct Level {
     pub(super) furniture_cells: BTreeMap<(i64, i64), (i64, i64)>,
     /// Herb patches by cell (see `herbs.rs`).
     pub(super) herbs: BTreeMap<(i64, i64), HerbPatch>,
+    /// Fruit plants by cell (see `fruit.rs`).
+    pub(super) fruit: BTreeMap<(i64, i64), FruitPlant>,
     /// Whether its walls are natural, wider at the foot (`PoiKind::natural_walls`).
     natural_walls: bool,
 }
@@ -60,6 +63,7 @@ impl Level {
             furniture: BTreeMap::new(),
             furniture_cells: BTreeMap::new(),
             herbs: BTreeMap::new(),
+            fruit: BTreeMap::new(),
             natural_walls: false,
         }
     }
@@ -128,11 +132,12 @@ impl Level {
         }
     }
 
-    /// Whether `(x, y)` can be walked on: a door only when it isn't closed.
+    /// Whether `(x, y)` can be walked on: a door only when it isn't closed,
+    /// and never under a fruit plant's trunk (as a wild tree).
     pub fn is_walkable(&self, x: i64, y: i64) -> bool {
         match self.cell(x, y) {
             Cell::Door | Cell::SecretDoor => !self.is_shut(x, y),
-            cell => cell.is_walkable(),
+            cell => cell.is_walkable() && (self.fruit.is_empty() || !self.has_trunk(x, y)),
         }
     }
 

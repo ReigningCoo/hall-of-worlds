@@ -1,6 +1,6 @@
 use shared::dungeon::Cell;
 use shared::herb::{FORAGING, HerbPatch};
-use shared::protocol::{ClientMessage, HerbNews, ServerMessage};
+use shared::protocol::{ClientMessage, PickNews, ServerMessage};
 use shared::skill::SkillId;
 
 use crate::connections::tests::TestClient;
@@ -48,7 +48,7 @@ fn on_a_ripe_patch(test: &mut TestClient) -> (i64, i64) {
 }
 
 fn pick(test: &mut TestClient, (x, y): (i64, i64)) -> Vec<ServerMessage> {
-    test.send(&[ClientMessage::PickHerb { x, y }])
+    test.send(&[ClientMessage::Pick { x, y }])
 }
 
 /// The beds grow herbs, each picked gives its herb, Foraging practice and its
@@ -73,7 +73,7 @@ fn picking_a_bed_gives_herbs_and_is_kept() {
     let when = now(&test);
     let answers = pick(&mut test, at);
     let count = answers.iter().find_map(|answer| match answer {
-        ServerMessage::Herb(HerbNews::Picked {
+        ServerMessage::Pick(PickNews::Picked {
             x,
             y,
             herb: got,
@@ -98,11 +98,11 @@ fn picking_a_bed_gives_herbs_and_is_kept() {
     });
     assert!(told, "{answers:?}");
     let visit = test.client.visit.as_ref().unwrap();
-    let saved = &test.world.site(visit.id).levels[&0].herbs_picked;
+    let saved = &test.world.site(visit.id).levels[&0].plants_picked;
     assert_eq!(saved.get(&at), Some(&when));
     // Not again straight away.
     let answers = pick(&mut test, at);
-    assert!(answers.contains(&ServerMessage::Herb(HerbNews::Refused { x: at.0, y: at.1 })));
+    assert!(answers.contains(&ServerMessage::Pick(PickNews::Refused { x: at.0, y: at.1 })));
     // Coming in again, it is as it was left.
     let mut test = TestClient::of(test.leave());
     test.send(&[ClientMessage::DevEnterSite {
@@ -127,7 +127,7 @@ fn picking_out_of_reach_is_refused() {
     let before = test.client.inventory.clone();
     let far = (at.0 + 3, at.1);
     assert!(
-        pick(&mut test, far).contains(&ServerMessage::Herb(HerbNews::Refused {
+        pick(&mut test, far).contains(&ServerMessage::Pick(PickNews::Refused {
             x: far.0,
             y: far.1
         }))
@@ -141,7 +141,7 @@ fn picking_out_of_reach_is_refused() {
         })
         .unwrap();
     assert!(
-        pick(&mut test, bare).contains(&ServerMessage::Herb(HerbNews::Refused {
+        pick(&mut test, bare).contains(&ServerMessage::Pick(PickNews::Refused {
             x: bare.0,
             y: bare.1
         }))
@@ -189,14 +189,14 @@ fn herbs_grow_wild() {
     assert!(
         answers
             .iter()
-            .any(|a| matches!(a, ServerMessage::Herb(HerbNews::Picked { .. }))),
+            .any(|a| matches!(a, ServerMessage::Pick(PickNews::Picked { .. }))),
         "{answers:?}"
     );
     let visit = test.client.visit.as_ref().unwrap();
-    let (site, index, kept) = visit.herb_key(at.0, at.1);
+    let (site, index, kept) = visit.plant_key(at.0, at.1);
     if site == SiteId::Wilderness {
         assert_eq!(kept, (visit.kept_at(at.0), at.1));
     }
-    let saved = &test.world.site(site).levels[&index].herbs_picked;
+    let saved = &test.world.site(site).levels[&index].plants_picked;
     assert_eq!(saved.get(&kept), Some(&when));
 }

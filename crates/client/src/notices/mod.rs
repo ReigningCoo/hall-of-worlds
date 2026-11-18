@@ -3,7 +3,7 @@
 //! See `docs/context/client/notices.md`.
 
 use bevy::prelude::*;
-use shared::protocol::{HerbNews, ServerMessage};
+use shared::protocol::{PickNews, ServerMessage};
 
 use crate::common::{HerbTable, words};
 use crate::connection::FromServer;
@@ -74,8 +74,13 @@ fn show_notices(
         let words = match message {
             &ServerMessage::PoiFound { kind } => found(kind),
             ServerMessage::DoorRefused { locked: true, .. } => LOCKED.to_owned(),
-            ServerMessage::Herb(HerbNews::Picked { herb, count, .. }) => {
+            ServerMessage::Pick(PickNews::Picked { herb, count, .. }) => {
                 picked(*count, herb, &table)
+            }
+            ServerMessage::Pick(PickNews::PickedFruit { fruit, count, .. }) => {
+                let fruits = shared::fruit::Fruits::built_in();
+                let name = fruits.get(fruit).map_or(fruit.as_str(), |def| &def.name);
+                format!("Picked {count} {name}")
             }
             _ => continue,
         };

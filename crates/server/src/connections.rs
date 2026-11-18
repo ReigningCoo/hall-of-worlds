@@ -54,6 +54,7 @@ mod messages;
 mod moving;
 mod new_character;
 mod other_protocol;
+mod pick_fruit;
 mod pick_herb;
 mod playtime;
 mod roads;

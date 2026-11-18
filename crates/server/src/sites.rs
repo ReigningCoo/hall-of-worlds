@@ -23,7 +23,6 @@ mod dev_place;
 mod doors;
 mod enter;
 mod generator;
-mod herbs;
 mod keepers;
 mod key_place;
 mod leave;
@@ -32,6 +31,7 @@ mod moves;
 mod other_floors;
 mod place;
 mod place_name;
+mod plants;
 mod quest_dots;
 mod quest_place;
 mod remembered;
@@ -56,7 +56,6 @@ use enter::enter_site;
 pub(crate) use enter::test_enter_poi;
 pub(super) use enter::{dev_enter, enter_dungeon, enter_poi, generate, resume};
 pub(crate) use generator::{seen_poi, site_generator};
-pub(crate) use herbs::{HerbChange, herb_key, keep_harvest, picked_of, share_herbs, site_herbs};
 use keepers::{NewKeepers, keepers_in_window, keepers_of};
 pub(super) use keepers::{give_to_keeper, keeper_building, keeper_stock, take_from_keeper};
 pub(crate) use key_place::key_place;
@@ -67,6 +66,10 @@ pub(super) use moves::{moved, refused, set_cell, teleport};
 use other_floors::{OtherFloor, floors_of, see_other_floors};
 use place::{Arrival, Mirror, Place, SetIn};
 pub(crate) use place_name::place_name_of;
+pub(crate) use plants::{
+    PlantChange, keep_harvest, picked_of, plant_key, put_plants, set_picked, share_plants,
+    site_plants,
+};
 pub(crate) use quest_place::{QuestPlace, beside_giver, town_buildings};
 use sight::memory;
 pub(crate) use sight::update_sight;

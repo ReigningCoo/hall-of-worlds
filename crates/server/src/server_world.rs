@@ -85,8 +85,8 @@ pub struct ServerWorld {
     pub(crate) kills: Vec<crate::entities::Kill>,
     /// Doors changed lately (`sites::share_doors`), and where players stood then.
     pub(crate) door_changes: Vec<crate::sites::DoorChange>,
-    /// Herb patches harvested lately, for `sites::share_herbs`.
-    pub(crate) herb_changes: Vec<crate::sites::HerbChange>,
+    /// Herb patches harvested lately, for `sites::share_plants`.
+    pub(crate) plant_changes: Vec<crate::sites::PlantChange>,
     /// Furniture put down by hand (dev tools), for `sites::share_furniture`.
     pub(crate) furniture_changes: Vec<crate::sites::FurnitureChange>,
     pub(crate) standing: crate::sites::Standing,
@@ -194,7 +194,7 @@ impl ServerWorld {
             harmed: Vec::new(),
             kills: Vec::new(),
             door_changes: Vec::new(),
-            herb_changes: Vec::new(),
+            plant_changes: Vec::new(),
             furniture_changes: Vec::new(),
             standing: Default::default(),
             mobs_frozen: false,

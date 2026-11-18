@@ -14,6 +14,7 @@ fn field(livestock: bool, variety: u32) -> FieldLook {
         },
         livestock,
         variety,
+        orchard: false,
     }
 }
 
@@ -25,6 +26,18 @@ fn crops_go_through_every_stage_and_pasture_stays_short() {
     for variety in 0..20 {
         let stage = Stage::of(&field(true, variety));
         assert!(matches!(stage, Stage::Grass | Stage::Short));
+    }
+}
+
+/// An orchard is grass under its fruit plants, whatever its variety.
+#[test]
+fn orchards_are_grass() {
+    for variety in 0..10 {
+        let orchard = FieldLook {
+            orchard: true,
+            ..field(false, variety)
+        };
+        assert_eq!(Stage::of(&orchard), Stage::Grass);
     }
 }
 

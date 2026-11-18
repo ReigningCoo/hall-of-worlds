@@ -135,10 +135,12 @@ pub struct LevelSave {
     /// since 1970): they reset after nobody has been for a while.
     #[serde(default)]
     pub wild_blocks: BTreeMap<(i64, i64), u64>,
-    /// When each herb patch was last harvested (game minutes), by cell: it
-    /// grows back from then (`shared::herb::HerbPatch`). A reset never undoes it.
-    #[serde(default)]
-    pub herbs_picked: BTreeMap<(i64, i64), u64>,
+    /// When each herb patch and fruit plant was last harvested (game minutes),
+    /// by cell (never both on one): it grows back from then
+    /// (`shared::herb::HerbPatch`, `shared::fruit::FruitPlant`). A reset never
+    /// undoes it.
+    #[serde(default, alias = "herbs_picked")]
+    pub plants_picked: BTreeMap<(i64, i64), u64>,
 }
 
 /// What a mob has come to know and own.

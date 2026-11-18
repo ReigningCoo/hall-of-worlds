@@ -179,7 +179,7 @@ fn saves_are_read_back() {
                 dead: BTreeSet::from([3]),
                 scents: Default::default(),
                 wild_blocks: BTreeMap::from([((2, 5), 77)]),
-                herbs_picked: BTreeMap::from([((4, -3), 12_345)]),
+                plants_picked: BTreeMap::from([((4, -3), 12_345)]),
                 ground: [(
                     Spot::new(3, 4),
                     vec![Item::new(

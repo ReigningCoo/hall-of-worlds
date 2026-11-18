@@ -253,8 +253,8 @@ pub(crate) fn answer(
             client.waiting.push_back(Action::Consume { item });
             true
         }
-        ClientMessage::PickHerb { x, y } => {
-            client.waiting.push_back(Action::PickHerb { x, y });
+        ClientMessage::Pick { x, y } => {
+            client.waiting.push_back(Action::Pick { x, y });
             true
         }
         ClientMessage::DevGoToPlace(ask) => super::go_to_place::asked(client, ask, options),

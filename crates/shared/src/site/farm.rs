@@ -48,6 +48,11 @@ const POND_REACH: (i64, i64) = (2, 6);
 const ALL_CROPS_PERCENT: u64 = 50;
 const ALL_PASTURE_PERCENT: u64 = 25;
 
+/// Percentage chance a field of crops is an orchard instead (owner,
+/// 2026-11-17: a basic orchard on farms; first guess). Its cells stay `Field`,
+/// so saved farms are as they were: only how it looks and what grows change.
+const ORCHARD_PERCENT: u32 = 35;
+
 /// Of each 100 cells of a ruined farm's fence, how many start a gap, per level
 /// of ruin; and how long a gap may be.
 const FENCE_GAP_PERCENT: u32 = 4;

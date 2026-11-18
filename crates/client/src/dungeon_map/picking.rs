@@ -66,9 +66,11 @@ pub fn pick(
     if blocked {
         return None;
     }
-    // A closed door too: travel there opens it.
+    // A closed door too: travel there opens it. A fruit plant's trunk too, to
+    // pick it (`herbs::pick` goes beside it).
     let can_go = |&(x, y): &(i64, i64)| {
-        (level.is_walkable(x, y) || level.is_shut(x, y)) && sight.is_seen(x, y)
+        (level.is_walkable(x, y) || level.is_shut(x, y) || level.has_trunk(x, y))
+            && sight.is_seen(x, y)
     };
     if can_go(&(x, y)) {
         return Some((x, y));
