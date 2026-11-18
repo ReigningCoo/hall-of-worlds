@@ -17,6 +17,7 @@ mod herbs;
 mod plan;
 mod samples;
 mod scale;
+mod sea;
 mod water;
 
 #[cfg(test)]

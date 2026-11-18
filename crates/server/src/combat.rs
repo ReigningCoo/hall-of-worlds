@@ -20,6 +20,8 @@ pub(crate) enum Act {
     Kick(Swing),
     /// A kick at the door at this cell of the player's level.
     KickDoor((i64, i64)),
+    /// A bottle being filled at the water faced (players only).
+    CollectWater,
 }
 
 /// An ability begun and not landed yet.

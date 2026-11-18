@@ -134,6 +134,12 @@ impl Site {
         }
     }
 
+    /// Whether level `index` is under the ground: any of a cave's (its first
+    /// level's caves lie inside the hill), or a building's basement.
+    pub fn is_underground(&self, index: u32) -> bool {
+        self.is_cave() || (self.has_basement() && index + 1 == self.levels())
+    }
+
     /// How many levels it has.
     pub fn levels(&self) -> u32 {
         match &self.plan {

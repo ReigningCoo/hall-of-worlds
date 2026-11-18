@@ -10,6 +10,11 @@ impl Visit {
         self.position = Spot::middle_of(at);
     }
 
+    /// Changes a cell of the level, for tests.
+    pub(crate) fn set_cell_for_test(&mut self, (x, y): (i64, i64), cell: shared::dungeon::Cell) {
+        self.level.level.set(x, y, cell);
+    }
+
     /// Whether a cell of the level can be walked on, for tests.
     pub(crate) fn walkable_for_test(&self, (x, y): (i64, i64)) -> bool {
         self.level.level.is_walkable(x, y)

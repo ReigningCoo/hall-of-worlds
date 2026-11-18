@@ -6,6 +6,7 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 
 use super::Ability;
+use crate::item::Inventory;
 
 /// The abilities a character has learned, kept for good: none in a save from
 /// before learning. Saved as a list of names.
@@ -22,6 +23,12 @@ impl Learned {
     /// Learns it: `true` if it is new.
     pub fn learn(&mut self, ability: Ability) -> bool {
         self.0.insert(ability)
+    }
+
+    /// Learns what carrying these items teaches: Collect Water on a first
+    /// empty bottle (brewing plan, decision 5). `true` if anything is new.
+    pub fn learn_from(&mut self, carried: &Inventory) -> bool {
+        carried.empty_bottle().is_some() && self.learn(Ability::CollectWater)
     }
 
     /// Every ability learned, in the enum's order.

@@ -1,5 +1,5 @@
 //! The world's moons as quests see them: how many, and whether one is in the
-//! sky now (`shared::quest::Need::Moon`).
+//! sky now (`shared::quest::Need::Moon`); and whether it is moonlit.
 
 use shared::celestial::ColourName;
 
@@ -17,6 +17,15 @@ impl ServerWorld {
         let hours = self.minutes() / MINUTES_PER_HOUR;
         let index = self.celestial.sun_count() + usize::from(moon);
         (self.celestial.at(hours).get(index)).is_some_and(|now| now.is_up())
+    }
+
+    /// Whether no sun is in the sky now and at least one moon is: Moon Water
+    /// is drawn outside (`shared::potion::Source::moonlit`).
+    pub(crate) fn moonlit(&self) -> bool {
+        let hours = self.minutes() / MINUTES_PER_HOUR;
+        let now = self.celestial.at(hours);
+        let (suns, moons) = now.split_at(self.celestial.sun_count().min(now.len()));
+        !suns.iter().any(|sun| sun.is_up()) && moons.iter().any(|moon| moon.is_up())
     }
 
     /// Moon `moon`'s colour, by name, if it has one.

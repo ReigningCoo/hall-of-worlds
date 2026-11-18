@@ -16,6 +16,7 @@ fn app(own: OwnAbility) -> App {
         .init_resource::<Carried>()
         .init_resource::<crate::character::CharacterSheet>()
         .init_resource::<OwnVitals>()
+        .init_resource::<crate::common::CurrentDungeon>()
         .insert_resource(Target(Some(Id::for_test(1))))
         .insert_resource(own)
         .insert_resource(Manual {

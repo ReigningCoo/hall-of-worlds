@@ -20,4 +20,7 @@ pub enum Landed {
     /// A kick landed on a door (`target` is `None`): this much of it is left,
     /// per mille; 0 means it broke.
     Door { left: u16 },
+    /// A bottle was filled with this water (Collect Water: `target` is
+    /// `None`).
+    Filled(crate::potion::Water),
 }

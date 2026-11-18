@@ -9,6 +9,7 @@ Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding
 - `potion/liquid.rs`: `Liquid`, `LiquidKind`, `Water`, `Oil`.
 - `potion/form.rs`: `BottleForm` (and how it is read from saves and messages), `EMPTY_GRAMS`, `POTION_GRAMS`, `Item::bottle`.
 - `potion/roll.rs`: `roll_contents`, `bottle_to`, `MOST_EFFECTS`.
+- `potion/collect.rs`: Collect Water's rules (brewing decision 5): `Source`, `water_from`, `water_faced`, `fill_seconds`, `filled`, `Inventory::empty_bottle`. Tests in `potion/collect_tests.rs`.
 
 ## Public API
 
@@ -21,13 +22,15 @@ Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding
 - `roll_contents(rng, effects)`: that many doses (at most `MOST_EFFECTS`, 4) on different stats, the first 4 to 8 steps, the rest 2 to 6, each helpful two times in three: Give Item's potions until brewing makes them.
 - `bottle_to(rng, request, look)`: the bottle a `RollRequest` asks for (`liquid`, `effects`): with no liquid, a potion of `effects` (empty for 0 or none); a potion 1 to 4 effects (rolled if not given, refused at 0); a water or oil refuses effects above 0. Refusals are `Field::Effects`.
 
+- Collect Water: `Source { underground, sea, moonlit }` and `water_from` (Cave Water underground, else Salt Water from the sea, else Moon Water outside with no sun up and a moon, else Water: the server works out the source); `holds_water` (`Cell::Water`, `Shallows`), `water_faced(level, at, heading)` (the nearest water cell whose middle is within `COLLECT_REACH` (`shop::DOOR_REACH`) and within `FACING_HALF` (45°) of the heading, or underfoot); `fill_seconds(skills)` / `fill_ticks` (10 − ∛Water% whole seconds, 10 to 6; `WATER_SKILL` `gathering/water`), `COLLECT_PRACTICE` (8 a bottle), `filled(item, water)` (the bottle holding it, its look kept); `Inventory::empty_bottle()` (the stack filled next, smallest first, own grid before bags; also what `Ability::has_tool` and `Learned::learn_from` ask).
+
 ## Depends on
 
-- `herb` (`Stat`), `item` (`Item`), `item_form` (`ItemForm`, `RollRequest`, `Refused`), `rng`, `serde`.
+- `herb` (`Stat`, `cube_root`, `skill_value`), `dungeon` (`Level`, `Cell`), `facing` (`Heading`), `spot`, `shop` (`DOOR_REACH`), `energy`, `skill`, `item` (`Item`, `Inventory::stacks_where`), `item_form` (`ItemForm`, `RollRequest`, `Refused`), `rng`, `serde`.
 
 ## Used by
 
-- `item` (`ItemKind::Bottle`: 1 × 1, counted, with quality, Other; stacks compare its form without its look), `item_form` (`give_form_to` rolls a bottle through `bottle_to`; `Field::Liquid`, `Field::Effects`, `Choices::liquids`, `Choices::effects`), `shop` (`bottled`, `stock_request`: herbalists' and potion shops' waters and oils), client `item_art` (bottle and liquid pictures), `debug_menu` (Give Item's Liquid and Effects dropdowns, the Bottles pictures page) and `dev_tools` (`client.give_item`'s `liquid` and `effects`).
+- `ability` (Collect Water's empty bottle), server `connections/collect_water.rs`, client `abilities` (`water_faced` before asking), `item` (`ItemKind::Bottle`: 1 × 1, counted, with quality, Other; stacks compare its form without its look), `item_form` (`give_form_to` rolls a bottle through `bottle_to`; `Field::Liquid`, `Field::Effects`, `Choices::liquids`, `Choices::effects`), `shop` (`bottled`, `stock_request`: herbalists' and potion shops' waters and oils), client `item_art` (bottle and liquid pictures), `debug_menu` (Give Item's Liquid and Effects dropdowns, the Bottles pictures page) and `dev_tools` (`client.give_item`'s `liquid` and `effects`).
 
 ## Notes
 

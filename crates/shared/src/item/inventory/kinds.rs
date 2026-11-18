@@ -27,6 +27,15 @@ impl Inventory {
     /// Every carried stack of this kind (by its top), and whether it is in the
     /// character's own grid rather than in a bag.
     fn stacks_of(&self, kind: ItemKind) -> impl Iterator<Item = (&Item, bool)> {
+        self.stacks_where(move |top| top.kind == kind)
+    }
+
+    /// Every carried stack whose top passes `wanted`, and whether it is in the
+    /// character's own grid rather than in a bag; never a quest item.
+    pub(crate) fn stacks_where(
+        &self,
+        wanted: impl Fn(&Item) -> bool,
+    ) -> impl Iterator<Item = (&Item, bool)> {
         let mut found = Vec::new();
         fn search<'a>(placed: &'a [Placed], own: bool, found: &mut Vec<(&'a Item, bool)>) {
             for placed in placed {
@@ -40,6 +49,6 @@ impl Inventory {
         }
         found
             .into_iter()
-            .filter(move |(stack, _)| stack.top().kind == kind && !stack.holds_quest_item())
+            .filter(move |(stack, _)| wanted(stack.top()) && !stack.holds_quest_item())
     }
 }
