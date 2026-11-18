@@ -59,7 +59,7 @@ fn every_herb_has_a_picture() {
 #[test]
 fn herb_pages_keep_effects_out() {
     for (path, text) in pages(root()).expect("the pages") {
-        if path.ends_with("index.md") {
+        if path.ends_with("index.md") || !path.starts_with("docs/herbs") {
             continue;
         }
         assert!(
@@ -67,6 +67,27 @@ fn herb_pages_keep_effects_out() {
             "{} speaks of effects",
             path.display()
         );
+    }
+}
+
+/// Every fruit's and nut's page shows pictures that are there: a big fruit's
+/// slice too.
+#[test]
+fn every_fruit_has_a_picture() {
+    use shared::fruit::{Fruits, Unit};
+    for def in Fruits::built_in().items() {
+        let mut files = vec![def.key.clone()];
+        if def.unit == Unit::Whole {
+            files.push(format!("{}-slice", def.key));
+        }
+        for file in files {
+            let picture = root().join(format!("docs/assets/fruit/{file}.png"));
+            assert!(
+                picture.exists(),
+                "{} is missing: run `cargo xtask wiki --pictures`",
+                picture.display()
+            );
+        }
     }
 }
 

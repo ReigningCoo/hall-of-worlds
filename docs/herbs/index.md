@@ -39,6 +39,8 @@ Knowing a herb only changes what you are shown: an unknown herb works just the s
 
 Drag a herb onto your clothes, as you would food, to eat one. You get a weak dose of its first effect for 30 seconds: a little more or less of an attribute, or Health or Mana given back or taken away over time. It shows in the bar of effects at the top. Only the latest herb counts, and it runs alongside any food. A better herb gives a stronger dose, but only as far as your **Herbalism** skill lets you draw it out.
 
+A few herbs bear fruit, and eating one gives the fruit's healing too: see [Fruit and nuts](fruit).
+
 ## Where they grow
 
 Rare herbs are marked. Herbs of marshes grow in the wettest lands until the world has marshes of its own.
