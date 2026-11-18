@@ -14,6 +14,7 @@ fn app(own: OwnAbility) -> App {
     let mut app = App::new();
     app.init_resource::<Time>()
         .init_resource::<Carried>()
+        .init_resource::<crate::character::CharacterSheet>()
         .init_resource::<OwnVitals>()
         .insert_resource(Target(Some(Id::for_test(1))))
         .insert_resource(own)

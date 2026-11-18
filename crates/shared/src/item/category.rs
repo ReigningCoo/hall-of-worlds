@@ -138,6 +138,9 @@ impl ItemKind {
             Self::CopperCoin | Self::SilverCoin | Self::GoldCoin | Self::Gem => Valuables,
             Self::Stone | Self::Herb => Materials,
             Self::Lantern
+            | Self::OilPress
+            | Self::MortarAndPestle
+            | Self::Cauldron
             | Self::Bottle
             | Self::Key
             | Self::Keepsake

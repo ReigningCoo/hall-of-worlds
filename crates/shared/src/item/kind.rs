@@ -32,6 +32,8 @@ pub enum ItemKind {
     /// A glass bottle, empty or a potion (`shared::potion`), counted: what it
     /// holds is in its form.
     Bottle,
+    /// An iron pot for brewing potions (`ability::Ability::Brew`).
+    Cauldron,
     Caparison,
     Chausses,
     Cloak,
@@ -73,7 +75,11 @@ pub enum ItemKind {
     LegArmour,
     Longsword,
     Mantle,
+    /// For grinding herbs into ointment (`ability::Ability::Grind`).
+    MortarAndPestle,
     Necklace,
+    /// A small screw press for oil (`ability::Ability::PressOil`).
+    OilPress,
     PaddedChausses,
     PaddedGloves,
     /// A quest's delivery: wrapped in brown paper and tied with string (owner).
@@ -127,7 +133,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 98] = [
+    pub const ALL: [Self; 101] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -150,6 +156,7 @@ impl ItemKind {
         Self::BreastBand,
         Self::Cap,
         Self::Caparison,
+        Self::Cauldron,
         Self::Chausses,
         Self::Cloak,
         Self::Clogs,
@@ -191,8 +198,10 @@ impl ItemKind {
         Self::Loincloth,
         Self::Longsword,
         Self::Mantle,
+        Self::MortarAndPestle,
         Self::Necklace,
         Self::Neckwear,
+        Self::OilPress,
         Self::PaddedChausses,
         Self::PaddedGloves,
         Self::Parcel,

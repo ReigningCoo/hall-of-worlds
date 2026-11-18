@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 
 use super::Ability;
 use super::bar_slot::{BarSlot, BarThing, usable_from_bar};
-use crate::creature::CreatureKind;
 use crate::item::ItemKind;
 
 /// How many slots the bar has.
@@ -92,17 +91,17 @@ impl ActionBar {
         self.given = GIVEN.len() as u8;
     }
 
-    /// Makes the change for a creature in a body of kind `kind`, or says why not
-    /// (and changes nothing). An ability it no longer knows (after shapeshifting)
-    /// stays where it is, only it can't be used.
-    pub fn apply(&mut self, change: BarChange, kind: CreatureKind) -> Result<(), BarRefusal> {
+    /// Makes the change for a creature that knows `known` (`ability::known`), or
+    /// says why not (and changes nothing). An ability it no longer knows (after
+    /// shapeshifting) stays where it is, only it can't be used.
+    pub fn apply(&mut self, change: BarChange, known: &[Ability]) -> Result<(), BarRefusal> {
         match change {
             BarChange::Place { slot, ability } => {
                 let slot = index(slot)?;
                 if !ability.is_active() {
                     return Err(BarRefusal::Passive);
                 }
-                if !super::known(kind).contains(&ability) {
+                if !known.contains(&ability) {
                     return Err(BarRefusal::Unknown);
                 }
                 self.place(slot, BarThing::Ability(ability));

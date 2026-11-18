@@ -19,6 +19,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
         ItemKind::CopperCoin => return Some(Look::Coin(Material::Copper)),
         ItemKind::SilverCoin => return Some(Look::Coin(Material::Silver)),
         ItemKind::GoldCoin => return Some(Look::Coin(Material::Gold)),
+        kind @ (ItemKind::Cauldron | ItemKind::MortarAndPestle | ItemKind::OilPress) => {
+            return Some(Look::Tool(kind));
+        }
         kind @ (ItemKind::Bread | ItemKind::DwarvenBread | ItemKind::RawMeat) => {
             return Some(Look::Food(kind));
         }

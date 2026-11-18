@@ -9,16 +9,28 @@ use crate::site::BuildingKind;
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies, BreastBand,
-        Cap, Cloak, Clogs, Fruit, Gauntlets, Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood,
-        Hose, Keyring, Lantern, LinenCoif, Loincloth, Necklace, Neckwear, PaddedChausses,
-        PaddedGloves, Petticoat, Pouch, Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox,
-        Socks, Surcoat, Sword, Tabard, Trousers, Wimple,
+        Cap, Cauldron, Cloak, Clogs, Fruit, Gauntlets, Gloves, Hat, Headcloth, Headdress,
+        HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth, MortarAndPestle, Necklace,
+        Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat, Pouch, Ring, Sandals, Shawl,
+        Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Trousers, Wimple,
     };
     match kind {
-        BuildingKind::Blacksmith => &[(Sword, 2), (Gauntlets, 2), (Lantern, 1), (Keyring, 1)],
+        BuildingKind::Blacksmith => &[
+            (Sword, 2),
+            (Gauntlets, 2),
+            (Lantern, 1),
+            (Keyring, 1),
+            (Cauldron, 1),
+        ],
         // Their bottles hold waters and oils (`bottled`).
-        BuildingKind::Herbalist => &[(Fruit, 3), (Bottle, 2), (Pouch, 1), (HerbPouch, 1)],
-        BuildingKind::Carpenter => &[(SmallBox, 2), (Boomerang, 1), (Clogs, 1)],
+        BuildingKind::Herbalist => &[
+            (Fruit, 3),
+            (Bottle, 2),
+            (Pouch, 1),
+            (HerbPouch, 1),
+            (MortarAndPestle, 1),
+        ],
+        BuildingKind::Carpenter => &[(SmallBox, 2), (Boomerang, 1), (Clogs, 1), (OilPress, 1)],
         BuildingKind::Tailor => &[
             (Shirt, 3),
             (Braies, 2),
@@ -61,7 +73,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
         BuildingKind::Fletcher => &[(Boomerang, 1)],
         BuildingKind::Weaponsmith => &[(Sword, 2), (Boomerang, 1)],
         BuildingKind::Armoursmith => super::armoursmith::ARMOURSMITH,
-        BuildingKind::PotionShop => &[(Bottle, 3), (Fruit, 1), (SmallBox, 1)],
+        BuildingKind::PotionShop => &[(Bottle, 3), (Fruit, 1), (SmallBox, 1), (MortarAndPestle, 1)],
         BuildingKind::ScrollShop => &[(Lantern, 1), (SmallBox, 1)],
         BuildingKind::Jeweller => &[(Ring, 2), (Necklace, 1)],
         BuildingKind::GemCutter => &[(Ring, 1), (Necklace, 1)],

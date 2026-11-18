@@ -34,5 +34,7 @@ pub(in super::super) const GATHERING: Draft = branch(
         leaf("woodcutting", "Woodcutting", &[Strength, Toughness]),
         leaf("prospecting", "Prospecting", &[Perception, Intellect]),
         leaf("herbalism", "Herbalism", &[Intellect, Perception]),
+        // Finding and collecting water (owner, 2026-11-17): practised by Collect Water.
+        leaf("water", "Water", &[Perception]),
     ],
 );

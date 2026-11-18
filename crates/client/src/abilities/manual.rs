@@ -14,6 +14,7 @@ use super::item_look::can_eat;
 use super::own_bar::OwnBar;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
+use crate::character::CharacterSheet;
 use crate::common::{Other, OwnAbility, OwnVitals, Target};
 use crate::connection::ToServer;
 use crate::inventory::{Carried, EatKind};
@@ -75,7 +76,7 @@ impl Manual {
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
-    carried: Res<Carried>,
+    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     mut eat: MessageWriter<EatKind>,
@@ -95,7 +96,7 @@ pub(super) fn use_slots(
                 continue;
             }
         };
-        if !ability.can_use(carried.0.creature) {
+        if !ability.can_use(&carried.0, &sheet.0) {
             continue;
         }
         if ability.is_toggle() {
@@ -115,7 +116,7 @@ pub(super) fn use_slots(
 /// taken back first, so this goes in its place.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn ask_wanted(
-    carried: Res<Carried>,
+    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
     target: Res<Target>,
     others: Query<&Other>,
     vitals: Res<OwnVitals>,
@@ -133,7 +134,7 @@ pub(super) fn ask_wanted(
         return;
     }
     while let Some(ability) = manual.queued.pop_front() {
-        let fits = ability.can_use(carried.0.creature) && affords(ability, &vitals, now);
+        let fits = ability.can_use(&carried.0, &sheet.0) && affords(ability, &vitals, now);
         let Some(at) = fits.then(|| aim(ability, target.0, &others)).flatten() else {
             debug!("{} can't be done now", ability.name());
             continue;
@@ -163,6 +164,8 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // At the target, or with none (or none in reach: the server's to say)
         // the closed door beside the player.
         Ability::Kick => Some(target),
+        // Not done yet (brewing's later PRs): never asked for.
+        Ability::PressOil | Ability::Grind | Ability::Brew => None,
         _ => target.map(Some),
     }
 }

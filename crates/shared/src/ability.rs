@@ -3,18 +3,24 @@
 //!
 //! Active ones are done when asked (and can go on the action bar), toggles
 //! turned on and off there; passive ones work by themselves. Every creature
-//! knows Attack, Heal and Sneak; the rest come with its kind.
+//! knows Attack, Heal and Sneak; others come with its kind, from a skill
+//! (`skill.rs`) or are learned (`Learned`), and some need a tool (`tool.rs`).
 
 use serde::{Deserialize, Serialize};
 
-use crate::creature::CreatureKind;
 use crate::sheet::Attribute;
 
 mod bar;
 mod bar_slot;
+mod knowing;
+mod learned;
+mod skill;
+mod tool;
 
 pub use bar::{ActionBar, BAR_SLOTS, BarChange, BarRefusal};
 pub use bar_slot::{BarSlot, BarThing, usable_from_bar};
+pub use knowing::{known, known_by_kind};
+pub use learned::Learned;
 
 /// Something a creature can do.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -32,6 +38,15 @@ pub enum Ability {
     /// Moving slowly and quietly, under the pace Sneaking is learned at
     /// (`energy::SNEAK_TICKS_PER_CELL`): a toggle every creature knows.
     Sneak,
+    /// Vegetables, nuts or seeds pressed into a bottle of oil: from Alchemy,
+    /// with an oil press (`tool`).
+    PressOil,
+    /// Herbs and an oil ground into an ointment: from Alchemy, with a mortar
+    /// and pestle.
+    Grind,
+    /// An ointment and a bottle of water brewed into a potion: from Alchemy,
+    /// with a cauldron.
+    Brew,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -47,7 +62,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 7] = [
+    pub const ALL: [Ability; 10] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -55,6 +70,9 @@ impl Ability {
         Self::Kick,
         Self::NightVision,
         Self::Trample,
+        Self::PressOil,
+        Self::Grind,
+        Self::Brew,
     ];
 
     /// What it is called.
@@ -67,6 +85,9 @@ impl Ability {
             Self::NightVision => "Night Vision",
             Self::Trample => "Trample",
             Self::Sneak => "Sneak",
+            Self::PressOil => "Press Oil",
+            Self::Grind => "Grind",
+            Self::Brew => "Brew",
         }
     }
 
@@ -75,7 +96,14 @@ impl Ability {
         match self {
             Self::NightVision => Use::Passive,
             Self::Sneak => Use::Toggle,
-            Self::Attack | Self::Heal | Self::Flutter | Self::Kick | Self::Trample => Use::Active,
+            Self::Attack
+            | Self::Heal
+            | Self::Flutter
+            | Self::Kick
+            | Self::Trample
+            | Self::PressOil
+            | Self::Grind
+            | Self::Brew => Use::Active,
         }
     }
 
@@ -92,6 +120,8 @@ impl Ability {
             Self::Sneak => &[Agility],
             // As its skill, Healing, under Divine.
             Self::Heal => &[Empathy],
+            // As their skill, Alchemy.
+            Self::PressOil | Self::Grind | Self::Brew => &[Intellect],
         }
     }
 
@@ -105,6 +135,9 @@ impl Ability {
             Self::NightVision => "Sees in the dark.",
             Self::Trample => "Charges down whoever is in the way.",
             Self::Sneak => "Moves slowly and quietly while it is on.",
+            Self::PressOil => "Presses vegetables, nuts or seeds into a bottle of oil.",
+            Self::Grind => "Grinds herbs and an oil into an ointment.",
+            Self::Brew => "Brews an ointment and a bottle of water into a potion.",
         }
     }
 
@@ -134,31 +167,6 @@ impl Ability {
     pub const fn can_be_automatic(self) -> bool {
         matches!(self, Self::Attack | Self::Heal)
     }
-
-    /// Whether a creature in a body of kind `kind` can do it now. Only whether it
-    /// is active and known, for now; later also what it costs and how soon it can
-    /// be done again.
-    pub fn can_use(self, kind: CreatureKind) -> bool {
-        self.is_active() && known(kind).contains(&self)
-    }
-}
-
-/// What every creature knows, whatever its kind.
-const EVERYONE_KNOWS: [Ability; 3] = [Ability::Attack, Ability::Heal, Ability::Sneak];
-
-/// The abilities a creature in a body of kind `kind` knows, in `Ability::ALL`'s
-/// order: Attack, Heal, Sneak, and its kind's own. Shapeshifted, the form's.
-pub fn known(kind: CreatureKind) -> Vec<Ability> {
-    let own = kind.def().abilities;
-    Ability::ALL
-        .into_iter()
-        .filter(|ability| {
-            EVERYONE_KNOWS.contains(ability)
-                || own.contains(ability)
-                // Anyone with legs can kick (owner, 2026-11-09).
-                || (*ability == Ability::Kick && crate::body::has_legs(kind))
-        })
-        .collect()
 }
 
 #[cfg(test)]

@@ -54,8 +54,8 @@ Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles hold
 
 ## PRs
 
-1. **Liquids in bottles** (and this plan into `docs/context/`, with `decisions.md` and the table in `CLAUDE.md`): `potion`'s liquid (waters, oils, potions), names, stacking, saves (today's potions load as potions), Give Item choosing a liquid, the client's liquid colours for water and oil. Herbalists and Potion Shops sell water bottles and oils.
-2. **Abilities from skills and learned abilities; tools:** a rule for abilities known from a skill, abilities learned per character (saved), unusable without a tool; the oil press, mortar & pestle and cauldron as items with pictures (Carpenter, Herbalist / Potion Shop, Blacksmith); the Water skill. Needs 1.
+1. **Liquids in bottles** (built; and this plan into `docs/context/`, with `decisions.md` and the table in `CLAUDE.md`): `potion`'s liquid (waters, oils, potions), names, stacking, saves (today's potions load as potions), Give Item choosing a liquid, the client's liquid colours for water and oil. Herbalists and Potion Shops sell water bottles and oils.
+2. **Abilities from skills and learned abilities; tools** (built): a rule for abilities known from a skill, abilities learned per character (saved), unusable without a tool; the oil press, mortar & pestle and cauldron as items with pictures (Carpenter, Herbalist / Potion Shop, Blacksmith); the Water skill. Needs 1.
 3. **Collect Water:** learned on a first empty bottle; facing water within reach; which water by place and sky; filling until moved or harmed; practice. Needs 2.
 4. **The brewing rules** in `shared` (decisions 6 to 16 and 18): one pure function with tests, no interface. Needs 1. Independent of 2 and 3.
 5. **Press Oil:** vegetables, nuts or seeds into an empty bottle. Needs 2, and the Fruit and nuts and Vegetables chats' first PRs.
