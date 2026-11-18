@@ -26,9 +26,16 @@ impl Learned {
     }
 
     /// Learns what carrying these items teaches: Collect Water on a first
-    /// empty bottle (brewing plan, decision 5). `true` if anything is new.
+    /// empty bottle (brewing plan, decision 5), Fell Tree and Cut Kindling on
+    /// first holding a one-handed axe (woodcutting plan). `true` if anything
+    /// is new.
     pub fn learn_from(&mut self, carried: &Inventory) -> bool {
-        carried.empty_bottle().is_some() && self.learn(Ability::CollectWater)
+        let mut new = carried.empty_bottle().is_some() && self.learn(Ability::CollectWater);
+        if carried.held_axe().is_some() {
+            new |= self.learn(Ability::FellTree);
+            new |= self.learn(Ability::CutKindling);
+        }
+        new
     }
 
     /// Every ability learned, in the enum's order.

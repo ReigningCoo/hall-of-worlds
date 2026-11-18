@@ -16,10 +16,16 @@ impl Ability {
     }
 
     /// Whether `carried` has its tool, or it needs none. Collect Water needs an
-    /// empty bottle to fill, or a cask with room for water (`shared::cask`).
+    /// empty bottle to fill, or a cask with room for water (`shared::cask`);
+    /// Fell Tree and Cut Kindling a one-handed axe held, not just carried
+    /// (`shared::woodcutting`).
     pub fn has_tool(self, carried: &Inventory) -> bool {
-        if self == Self::CollectWater {
-            return carried.empty_bottle().is_some() || carried.cask_for_water();
+        match self {
+            Self::CollectWater => {
+                return carried.empty_bottle().is_some() || carried.cask_for_water();
+            }
+            Self::FellTree | Self::CutKindling => return carried.held_axe().is_some(),
+            _ => {}
         }
         self.tool().is_none_or(|kind| carried.count_of(kind) > 0)
     }

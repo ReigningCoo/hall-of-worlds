@@ -34,6 +34,7 @@ mod set_def;
 mod shape;
 mod stack;
 mod under_def;
+mod wood_def;
 
 pub use category::ItemCategory;
 pub use coin::{COINS, COINS_PER_NEXT, coin_items, coin_stacks};

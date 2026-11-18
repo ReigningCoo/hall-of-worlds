@@ -31,6 +31,7 @@ pub(in super::super) const GATHERING: Draft = branch(
                 leaf("gems", "Gems", &[]),
             ],
         ),
+        // Felling trees and splitting logs (woodcutting plan): Fell Tree, Cut Kindling.
         leaf("woodcutting", "Woodcutting", &[Strength, Toughness]),
         leaf("prospecting", "Prospecting", &[Perception, Intellect]),
         leaf("herbalism", "Herbalism", &[Intellect, Perception]),

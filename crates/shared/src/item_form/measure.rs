@@ -26,6 +26,8 @@ impl ItemForm {
             Self::Cask(cask) => Some(cask.size.shape()),
             Self::Vessel(vessel) => Some(vessel.vessel.shape()),
             Self::Flour(flour) => Some(flour.shape()),
+            Self::Log(log) => Some(log.shape()),
+            Self::Kindling(kindling) => Some(kindling.shape()),
             Self::Gem(_)
             | Self::Ring(_)
             | Self::Hands(_)
@@ -64,6 +66,8 @@ impl ItemForm {
             Self::Cask(cask) => Some(cask.grams()),
             Self::Vessel(vessel) => Some(vessel.grams()),
             Self::Flour(flour) => Some(flour.grams),
+            Self::Log(log) => Some(log.grams()),
+            Self::Kindling(_) => Some(crate::woodcutting::KINDLING_GRAMS),
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) => None,
         }
     }

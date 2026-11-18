@@ -51,6 +51,12 @@ pub enum Ability {
     /// Empty bottles filled at water faced, one after another (`potion`'s
     /// `collect`): learned on a first empty bottle.
     CollectWater,
+    /// A tree faced felled for logs, with a one-handed axe held
+    /// (`shared::woodcutting`): learned on first wielding one.
+    FellTree,
+    /// A log split into kindling, with a one-handed axe held: learned with
+    /// Fell Tree.
+    CutKindling,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -66,7 +72,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 11] = [
+    pub const ALL: [Ability; 13] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -78,6 +84,8 @@ impl Ability {
         Self::Grind,
         Self::Brew,
         Self::CollectWater,
+        Self::FellTree,
+        Self::CutKindling,
     ];
 
     /// What it is called.
@@ -94,6 +102,8 @@ impl Ability {
             Self::Grind => "Grind",
             Self::Brew => "Brew",
             Self::CollectWater => "Collect Water",
+            Self::FellTree => "Fell Tree",
+            Self::CutKindling => "Cut Kindling",
         }
     }
 
@@ -110,7 +120,9 @@ impl Ability {
             | Self::PressOil
             | Self::Grind
             | Self::Brew
-            | Self::CollectWater => Use::Active,
+            | Self::CollectWater
+            | Self::FellTree
+            | Self::CutKindling => Use::Active,
         }
     }
 
@@ -121,7 +133,9 @@ impl Ability {
         use Attribute::*;
         match self {
             Self::Attack | Self::Kick => &[Strength, Agility],
-            Self::Trample => &[Strength, Toughness],
+            // Trample by its body; Fell Tree and Cut Kindling as their skill,
+            // Woodcutting.
+            Self::Trample | Self::FellTree | Self::CutKindling => &[Strength, Toughness],
             Self::Flutter => &[Agility],
             // As its skill, Water.
             Self::NightVision | Self::CollectWater => &[Perception],
@@ -149,6 +163,8 @@ impl Ability {
             Self::CollectWater => {
                 "Fills your empty bottles, one after another, at the water you face."
             }
+            Self::FellTree => "Fells the tree you face with the one-handed axe you hold.",
+            Self::CutKindling => "Splits a log into kindling with the one-handed axe you hold.",
         }
     }
 

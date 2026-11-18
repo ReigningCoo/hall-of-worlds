@@ -8,18 +8,19 @@ Which way creatures face, and the field of view that goes with it (owner, 2026-1
 - `facing/heading.rs`: `Heading` (`u16`, `TURN` steps a turn, 0 east growing towards south: `EAST`, `SOUTH`, `WEST`, `NORTH`), `of(dx, dy)` and `towards(from, to)` (by a binary search on a whole-number sine), `turned`, `apart` (the short way), `unit` (a vector of about `UNIT`), `radians` / `from_radians` (client drawing and input only). `EIGHTH` (a tap of Turn Left/Right).
 - `facing/field.rs`: `Field { half, near, further }` (`of(kind, observation)`: the kind's `field_of_view` plus up to 40° and 3 cells of reach from Observation at 100%; `ALL_ROUND`; `is_all_round`), `NEAR` (a cell, in units), `observation_skill()` (`survival/observation`).
 - `facing/cone.rs`: `Cone { at, heading, field }`: `sees(spot)` (within the near circle or within half the width of the heading), `sees_cell`.
+- `facing/faced.rs`: `faced_cell(level, at, heading, reach, half, wanted)`: the nearest wanted cell whose middle is within `reach` units and `half` of the heading, or underfoot (Collect Water's water, Fell Tree's tree).
 
 ## Public API
 
-- `Heading`, `TURN`, `EIGHTH`, `UNIT`, `Field`, `NEAR`, `observation_skill`, `Cone` (above).
+- `Heading`, `TURN`, `EIGHTH`, `UNIT`, `Field`, `NEAR`, `observation_skill`, `Cone`, `faced_cell` (above).
 
 ## Depends on
 
-- `shared::spot` (`Spot`, `CELL_SPAN`), `shared::creature` (`CreatureKind::field_of_view`), `shared::skill` (`SkillId`, `VALUE_SCALE`), `serde`.
+- `shared::spot` (`Spot`, `CELL_SPAN`, `HALF_SPAN`), `shared::dungeon` (`Level`, for `faced_cell`), `shared::creature` (`CreatureKind::field_of_view`), `shared::skill` (`SkillId`, `VALUE_SCALE`), `serde`.
 
 ## Used by
 
-- `shared::dungeon` (`Sight::add_view_in`, `add_glimpses_in`), `protocol` (`EntityLook::heading`, `ClientMessage::Face`, `ServerMessage::Turned`), `server` (players' and mobs' headings, sight, noticing, Observation practice), client `common` (`Facing`, `PlayerField`, `PlayerCone`), `player`, `entities`, `view3d`, `dungeon_map`, `character`.
+- `shared::dungeon` (`Sight::add_view_in`, `add_glimpses_in`), `protocol` (`EntityLook::heading`, `ClientMessage::Face`, `ServerMessage::Turned`), `server` (players' and mobs' headings, sight, noticing, Observation practice), `shared::potion` (`water_faced`) and `shared::woodcutting` (`tree_faced`) by `faced_cell`, client `common` (`Facing`, `PlayerField`, `PlayerCone`), `player`, `entities`, `view3d`, `dungeon_map`, `character`.
 
 ## Notes
 
