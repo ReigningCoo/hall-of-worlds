@@ -126,7 +126,7 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld, in_hall: &[S
                         gender: mob.gender,
                         name: mob.escort.as_ref().map(|escort| escort.name.clone()),
                         appearance: mob.appearance.clone(),
-                        feeling: mob.feeling(my_kind, client.character_id.as_ref()),
+                        feeling: mob.feeling_shown(my_kind, client.character_id.as_ref()),
                         x,
                         y,
                         worn: mob.shown.clone(),

@@ -60,3 +60,6 @@ pub(super) fn nearest_cell(position: DVec2) -> MapPosition {
         y: position.y.round() as i64,
     }
 }
+
+#[cfg(test)]
+mod tests;

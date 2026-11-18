@@ -134,7 +134,7 @@ impl ServerWorld {
         let Some(population) = self.populations.0.get(&place) else {
             return Vec::new();
         };
-        let crowding = |mob: &Mob| match mob.feeling(kind, character) {
+        let crowding = |mob: &Mob| match mob.feeling_shown(kind, character) {
             Feeling::Unfriendly => Crowding::Block,
             _ => Crowding::Squeeze,
         };

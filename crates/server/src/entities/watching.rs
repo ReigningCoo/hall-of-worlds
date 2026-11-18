@@ -26,7 +26,7 @@ pub(crate) fn watched_warily(
     };
     population.mobs.iter().any(|mob| {
         matches!(mob.kind.temper(), Temper::Timid | Temper::Territorial)
-            && mob.feeling(kind, character) != Feeling::Unfriendly
+            && mob.feeling_shown(kind, character) != Feeling::Unfriendly
             && cells_apart(mob.position, at) <= mob.kind.senses().sight_range()
             && line_is_clear(&population.level, mob.position, at)
     })

@@ -34,6 +34,7 @@ mod escortee;
 mod facing;
 #[cfg(test)]
 mod facing_tests;
+mod feeling_shown;
 mod fight;
 mod gear;
 mod harmed_by;
@@ -305,6 +306,8 @@ impl Populations {
 mod dev_mob_tests;
 #[cfg(test)]
 mod doors_tests;
+#[cfg(test)]
+mod feeling_shown_tests;
 #[cfg(test)]
 mod harmed_tests;
 #[cfg(test)]
