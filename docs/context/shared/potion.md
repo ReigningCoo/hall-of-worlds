@@ -1,6 +1,6 @@
 # shared: potion
 
-Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding a liquid (a water, an oil, or a potion's effects), with a seed for its look. Filled with oil by Press Oil (`press.rs`). Not drinking or brewing yet (plan: `docs/context/brewing.md`); pictures are the client's `item_art`. Herbs' rule for potions: `docs/context/research-herbs.md`.
+Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding a liquid (a water, an oil, or a potion's effects), with a seed for its look. Filled with oil by Press Oil (`press.rs`); a water's bottle takes the potion Brew makes (`shared::brewing::brewed_into`). Not drinking yet (plan: `docs/context/brewing.md`); pictures are the client's `item_art`. Herbs' rule for potions: `docs/context/research-herbs.md`.
 
 ## Files
 

@@ -45,8 +45,10 @@ impl Client {
         let Some(pending) = self.fight.pending else {
             return true;
         };
-        if !matches!(pending.act, Act::CollectWater | Act::PressOil | Act::Grind)
-            || pending.lands_at <= now
+        if !matches!(
+            pending.act,
+            Act::CollectWater | Act::PressOil | Act::Grind | Act::Brew
+        ) || pending.lands_at <= now
         {
             return true;
         }

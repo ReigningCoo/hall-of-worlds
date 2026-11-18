@@ -87,6 +87,11 @@ fn show_notices(
                 landed: Landed::Ground(doses),
                 ..
             } => ground(*doses),
+            ServerMessage::AbilityLanded {
+                who: None,
+                landed: Landed::Brewed(quality),
+                ..
+            } => brewed(*quality),
             _ => continue,
         };
         dom.set_text("notices/words", words);
@@ -108,6 +113,14 @@ fn ground(doses: u32) -> String {
     match doses {
         0 => "The mix came to nothing".to_owned(),
         doses => format!("Ground {doses} Ointment"),
+    }
+}
+
+/// What a Brew made: "Brewed a Rare potion", or that none formed.
+fn brewed(quality: Option<shared::item::Quality>) -> String {
+    match quality {
+        Some(quality) => format!("Brewed a {quality:?} potion"),
+        None => "No potion formed".to_owned(),
     }
 }
 

@@ -11,6 +11,7 @@ use shared::potion::water_faced;
 use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
 
+use super::brew::Brewing;
 use super::grind::Mixing;
 use super::item_look::can_eat;
 use super::own_bar::OwnBar;
@@ -76,8 +77,8 @@ impl Manual {
 
 /// A slot used: its ability queued, or taken out of the queue; a toggle
 /// (Sneak) asked for at once, as it needs no target and takes no time; one of
-/// a kind of item eaten (`inventory::EatKind`); Press Oil's requester or
-/// Grind's mixing panel opened.
+/// a kind of item eaten (`inventory::EatKind`); Press Oil's requester,
+/// Grind's mixing panel or Brew's panel opened.
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
@@ -85,7 +86,7 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     mut eat: MessageWriter<EatKind>,
-    (mut press, mut mixing): (ResMut<PressChooser>, ResMut<Mixing>),
+    (mut press, mut mixing, mut brewing): (ResMut<PressChooser>, ResMut<Mixing>, ResMut<Brewing>),
 ) {
     for &UseSlot(slot) in used.read() {
         let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
@@ -111,6 +112,9 @@ pub(super) fn use_slots(
         } else if ability == Ability::Grind {
             // What to grind is chosen in the mixing panel (`grind/`).
             mixing.open = true;
+        } else if ability == Ability::Brew {
+            // What to brew is chosen in its panel (`brew.rs`).
+            brewing.open = true;
         } else if ability.is_toggle() {
             to_server.write(ToServer(ClientMessage::UseAbility {
                 ability,
@@ -185,8 +189,7 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // At the target, or with none (or none in reach: the server's to say)
         // the closed door beside the player.
         Ability::Kick => Some(target),
-        // Not done yet (brewing's later PRs): never asked for. Press Oil and
-        // Grind are asked for by their panels (`press_oil.rs`, `grind/`),
+        // Asked for by their panels (`press_oil.rs`, `grind/`, `brew.rs`),
         // never queued.
         Ability::PressOil | Ability::Grind | Ability::Brew => None,
         // On no one: the water faced.

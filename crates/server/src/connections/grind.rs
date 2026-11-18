@@ -141,7 +141,7 @@ fn empty_the_oil(client: &mut Client, world: &mut ServerWorld, stack: shared::id
 }
 
 /// Into what is carried, or onto the ground if there is no room.
-fn give(client: &mut Client, world: &mut ServerWorld, item: Item) {
+pub(super) fn give(client: &mut Client, world: &mut ServerWorld, item: Item) {
     if let Err(item) = client.inventory.give(item, world.stacks, &mut new_id) {
         crate::ground::put_down(client, world, item);
         client.ground_told.again = true;
@@ -149,7 +149,7 @@ fn give(client: &mut Client, world: &mut ServerWorld, item: Item) {
 }
 
 /// Practice in the skill at `path`, through its practice window.
-fn practise(client: &mut Client, path: &str, amount: u32, tick: u64) {
+pub(super) fn practise(client: &mut Client, path: &str, amount: u32, tick: u64) {
     if let Some(skill) = SkillId::find(path) {
         let amount = client.learning.skills.take(skill, amount, tick);
         client.sheet.skills.practise(skill, amount);

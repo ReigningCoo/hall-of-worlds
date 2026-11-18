@@ -69,6 +69,7 @@ impl Client {
             fight: Default::default(),
             pressing: None,
             grinding: None,
+            brewing: None,
             for_others: Vec::new(),
             learning: Default::default(),
             starting_as: None,
