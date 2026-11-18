@@ -255,6 +255,10 @@ pub(crate) fn answer(
             client.waiting.push_back(Action::Consume { item });
             true
         }
+        ClientMessage::Pour { from, into } => {
+            client.waiting.push_back(Action::Pour { from, into });
+            true
+        }
         ClientMessage::Pick { x, y } => {
             client.waiting.push_back(Action::Pick { x, y });
             true

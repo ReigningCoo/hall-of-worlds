@@ -32,6 +32,8 @@ pub struct Choices {
     pub effects: Vec<u8>,
     /// What size a cask may be, smallest first.
     pub cask_sizes: Vec<crate::cask::CaskSize>,
+    /// Which vessels, smallest first.
+    pub vessels: Vec<crate::vessel::VesselKind>,
     /// Whether it takes limits (sizes and weights, which aren't a list).
     pub limits: bool,
 }
@@ -60,6 +62,14 @@ pub fn choices(kind: ItemKind, quality: Quality, request: &RollRequest) -> Choic
                 woods.sort();
                 woods
             },
+            liquids: (crate::potion::LiquidKind::all().into_iter())
+                .filter(|liquid| *liquid != crate::potion::LiquidKind::Potion)
+                .collect(),
+            ..Choices::default()
+        },
+        // Any vessel; empty, or full of a water or an oil.
+        ItemKind::Vessel => Choices {
+            vessels: crate::vessel::VesselKind::ALL.to_vec(),
             liquids: (crate::potion::LiquidKind::all().into_iter())
                 .filter(|liquid| *liquid != crate::potion::LiquidKind::Potion)
                 .collect(),

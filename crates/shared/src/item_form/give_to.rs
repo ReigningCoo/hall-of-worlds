@@ -79,6 +79,11 @@ pub fn give_form_to(
             let cask = crate::cask::cask_to(&mut rng, request)?;
             (ItemForm::Cask(cask), Size::Medium)
         }
+        // Which vessel rolled or as asked, empty or full of a water or oil.
+        ItemKind::Vessel => {
+            let vessel = crate::vessel::vessel_to(&mut rng, request)?;
+            (ItemForm::Vessel(vessel), Size::Medium)
+        }
         // Rolled doses (1 to 4 effects, or as asked), its quality from them,
         // until Grind makes it (`brewing`).
         ItemKind::Ointment => {

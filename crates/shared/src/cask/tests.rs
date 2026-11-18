@@ -34,7 +34,7 @@ fn the_wood_changes_the_weight_and_the_liquid_adds_to_it() {
     let acacia = CaskForm::new(CaskSize::Pin, Material::Acacia);
     assert!(acacia.grams() > oak.grams());
     let full = oak.full_of(Liquid::Water(Water::Plain));
-    assert_eq!(full.litres, 20);
+    assert_eq!(full.ml, 20_000);
     assert_eq!(full.grams(), 28_000);
     assert_eq!(cask_item(1, full).own_weight(), 28_000);
 }
@@ -44,19 +44,21 @@ fn a_cask_holds_one_liquid_up_to_its_size() {
     let water = Liquid::Water(Water::Moon);
     let cask = CaskForm::new(CaskSize::Firkin, Material::Chestnut);
     assert_eq!(cask.name(), "Chestnut Firkin");
-    let (cask, added) = cask.poured(water.clone(), 30);
-    assert_eq!((cask.litres, added), (30, 30));
+    assert!(!cask.opened, "sealed when new");
+    let (cask, added) = cask.poured(water.clone(), 30_000);
+    assert_eq!((cask.ml, added), (30_000, 30_000));
+    assert!(cask.opened, "opened by adding to it");
     assert_eq!(cask.name(), "Chestnut Firkin of Moon Water");
-    let (cask, added) = cask.poured(water.clone(), 30);
-    assert_eq!((cask.litres, added), (40, 10), "only to the brim");
+    let (cask, added) = cask.poured(water.clone(), 30_000);
+    assert_eq!((cask.ml, added), (40_000, 10_000), "only to the brim");
     assert!(!cask.takes(&water), "full");
-    let half = CaskForm::new(CaskSize::Pin, Material::Oak).holding(Some(water), 5);
+    let half = CaskForm::new(CaskSize::Pin, Material::Oak).holding(Some(water), 5_000);
     let oil = Liquid::Oil(Oil::Nut);
     assert!(!half.takes(&oil), "never two liquids");
-    let (same, added) = half.clone().poured(oil, 5);
+    let (same, added) = half.clone().poured(oil, 5_000);
     assert_eq!((same, added), (half, 0));
     let empty = CaskForm::new(CaskSize::Pin, Material::Oak).holding(None, 5);
-    assert!(empty.is_empty() && empty.litres == 0);
+    assert!(empty.is_empty() && empty.ml == 0);
 }
 
 #[test]
@@ -70,7 +72,7 @@ fn give_item_rolls_or_keeps_to_what_is_asked() {
     };
     let cask = cask_to(&mut rng, &asked).unwrap();
     assert_eq!(
-        (cask.size, cask.wood, cask.litres),
+        (cask.size, cask.wood, cask.litres()),
         (CaskSize::Hogshead, Material::Cherry, 240)
     );
     assert_eq!(cask.liquid, Some(Liquid::Water(Water::Salt)));
@@ -118,7 +120,7 @@ fn collect_water_pours_into_a_carried_cask() {
         .unwrap();
     assert!(!Ability::CollectWater.has_tool(&inventory), "a cask of oil");
     let moon = Liquid::Water(Water::Moon);
-    let some = CaskForm::new(CaskSize::Pin, Material::Oak).holding(Some(moon.clone()), 4);
+    let some = CaskForm::new(CaskSize::Pin, Material::Oak).holding(Some(moon.clone()), 4_000);
     inventory
         .give(cask_item(2, some), StackLimits::NONE, stand_ins)
         .unwrap();
@@ -142,7 +144,7 @@ fn collect_water_pours_into_a_carried_cask() {
         .find(Id::for_test(2))
         .and_then(Item::cask)
         .unwrap();
-    assert_eq!(filled.litres, 20);
+    assert_eq!(filled.litres(), 20);
     assert_eq!(
         fill_cask_with(&mut inventory, Id::for_test(1), moon, 5),
         0,
@@ -158,4 +160,18 @@ fn pours_grow_with_the_water_skill() {
     skills.set_percent(water, 100);
     assert_eq!(cask_litres(&skills), 10);
     assert_eq!(cask_fill_ticks(), 5 * 20);
+}
+
+#[test]
+fn casks_load_from_saves_in_litres_sealed() {
+    let old = "(size: Pin, wood: Oak, liquid: Some(Water(Moon)), litres: 12)";
+    let cask: CaskForm = ron::from_str(old).unwrap();
+    assert_eq!((cask.ml, cask.opened), (12_000, false));
+    let now = CaskForm::new(CaskSize::Pin, Material::Oak)
+        .full_of(Liquid::Water(Water::Plain))
+        .opened();
+    let again: CaskForm = ron::from_str(&ron::to_string(&now).unwrap()).unwrap();
+    assert_eq!(again, now);
+    let wire: CaskForm = postcard::from_bytes(&postcard::to_allocvec(&now).unwrap()).unwrap();
+    assert_eq!(wire, now);
 }

@@ -35,6 +35,7 @@ mod save_picture;
 mod tool;
 mod under;
 mod vegetable;
+mod vessel;
 
 use bevy::prelude::*;
 use bevy::render::{ExtractSchedule, Render, RenderApp, RenderSystems};

@@ -147,7 +147,7 @@ fn a_cask_is_poured_into_once_the_bottles_are_full() {
     run(&mut test, 3 * 5 * 20 + 2, false);
     let litres = |test: &TestClient| {
         let cask = test.client.inventory.find(shared::id::Id::for_test(77));
-        cask.and_then(Item::cask).map(|cask| cask.litres)
+        cask.and_then(Item::cask).map(|cask| cask.litres())
     };
     let poured = litres(&test).unwrap();
     assert!((15..20).contains(&poured), "{poured}");

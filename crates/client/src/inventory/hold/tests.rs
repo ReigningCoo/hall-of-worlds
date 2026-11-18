@@ -196,3 +196,61 @@ fn on_a_closed_bag_it_goes_on_a_stack_inside_first() {
     assert_eq!(stack_onto(aim), Some(id(5)));
     assert_eq!(drop_move(&inventory, held(6), aim), None);
 }
+
+#[test]
+fn a_container_on_another_pours_into_it() {
+    use shared::cask::{CaskForm, CaskSize};
+    use shared::item_form::ItemForm;
+    use shared::material::Material;
+    use shared::potion::{Liquid, Water};
+    use shared::vessel::{VesselForm, VesselKind};
+    let water = Liquid::Water(Water::Plain);
+    let mut inventory = Inventory::default();
+    let cask = CaskForm::new(CaskSize::Pin, Material::Oak).full_of(water);
+    let things = [
+        (1, ItemKind::Cask, ItemForm::Cask(cask), 0),
+        (
+            2,
+            ItemKind::Vessel,
+            ItemForm::Vessel(VesselForm::new(VesselKind::Cup)),
+            3,
+        ),
+    ];
+    for (n, kind, form, x) in things {
+        let item = Item {
+            form: Some(form),
+            ..Item::new(id(n), kind)
+        };
+        inventory
+            .add(item, Holder::Inventory, x, 0, Rotation::None)
+            .unwrap();
+    }
+    let on_cup = Some((Holder::Inventory, 3, 0));
+    let aim = target(&inventory, held(1), on_cup, LIMITS);
+    assert_eq!(
+        aim,
+        Target::Pour {
+            into: id(2),
+            allowed: false
+        },
+        "no tap"
+    );
+    assert_eq!(drop_move(&inventory, held(1), aim), None);
+    inventory
+        .add(
+            Item::new(id(3), ItemKind::Tap),
+            Holder::Inventory,
+            5,
+            0,
+            Rotation::None,
+        )
+        .unwrap();
+    let aim = target(&inventory, held(1), on_cup, LIMITS);
+    assert_eq!(
+        aim,
+        Target::Pour {
+            into: id(2),
+            allowed: true
+        }
+    );
+}

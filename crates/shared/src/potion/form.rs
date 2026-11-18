@@ -19,13 +19,28 @@ pub struct BottleForm {
     /// A seed the client picks the bottle's shape, glass and stopper from. A
     /// stack shows its bottom one's; stacks don't compare it.
     pub look: u64,
+    /// Stoppered since it was filled from a cask (drinks decision 15): never
+    /// spoils until opened. Saves from before this (2026-11-18) load unsealed.
+    pub sealed: bool,
 }
 
 impl BottleForm {
     /// One holding this, or empty; a potion with no doses is an empty bottle.
     pub fn new(liquid: Option<Liquid>, look: u64) -> Self {
         let liquid = liquid.filter(|liquid| liquid.contents().is_none_or(|it| !it.is_empty()));
-        Self { liquid, look }
+        Self {
+            liquid,
+            look,
+            sealed: false,
+        }
+    }
+
+    /// The same, sealed if it holds something; unsealed if not.
+    pub fn with_seal(self, sealed: bool) -> Self {
+        Self {
+            sealed: sealed && self.liquid.is_some(),
+            ..self
+        }
     }
 
     /// Whether nothing is in it.
@@ -72,11 +87,11 @@ impl<'de> Deserialize<'de> for BottleForm {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         if !deserializer.is_human_readable() {
             let wire = Wire::deserialize(deserializer)?;
-            return Ok(Self::new(wire.liquid, wire.look));
+            return Ok(Self::new(wire.liquid, wire.look).with_seal(wire.sealed));
         }
         let saved = Saved::deserialize(deserializer)?;
         let liquid = saved.liquid.or(Some(Liquid::Potion(saved.contents)));
-        Ok(Self::new(liquid, saved.look))
+        Ok(Self::new(liquid, saved.look).with_seal(saved.sealed))
     }
 }
 
@@ -86,6 +101,7 @@ impl<'de> Deserialize<'de> for BottleForm {
 struct Wire {
     liquid: Option<Liquid>,
     look: u64,
+    sealed: bool,
 }
 
 /// A bottle as saved, now or before liquids.
@@ -97,6 +113,8 @@ struct Saved {
     #[serde(default)]
     contents: Contents,
     look: u64,
+    #[serde(default)]
+    sealed: bool,
 }
 
 impl Item {

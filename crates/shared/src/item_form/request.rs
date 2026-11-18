@@ -12,6 +12,7 @@ use crate::item_form::{Cut, Limits};
 use crate::material::Material;
 use crate::potion::LiquidKind;
 use crate::underclothes::UnderPiece;
+use crate::vessel::VesselKind;
 
 /// What a new item must be like. Anything left `None` is rolled as usual, so
 /// `RollRequest::NONE` rolls exactly what `give_form` does.
@@ -44,6 +45,8 @@ pub struct RollRequest {
     pub effects: Option<u8>,
     /// A cask's size (`shared::cask`).
     pub cask_size: Option<CaskSize>,
+    /// Which vessel (`shared::vessel`).
+    pub vessel: Option<VesselKind>,
 }
 
 /// One of the options in a `RollRequest`.
@@ -61,6 +64,7 @@ pub enum Field {
     Liquid,
     Effects,
     CaskSize,
+    Vessel,
 }
 
 /// A request that can't be met, naming the option that couldn't be: one the kind
@@ -82,6 +86,7 @@ impl RollRequest {
         liquid: None,
         effects: None,
         cask_size: None,
+        vessel: None,
     };
 
     /// The options it asks for.
@@ -99,6 +104,7 @@ impl RollRequest {
             (Field::Liquid, self.liquid.is_some()),
             (Field::Effects, self.effects.is_some()),
             (Field::CaskSize, self.cask_size.is_some()),
+            (Field::Vessel, self.vessel.is_some()),
         ];
         asked
             .into_iter()
@@ -121,6 +127,7 @@ impl RollRequest {
             Field::Liquid => self.liquid = None,
             Field::Effects => self.effects = None,
             Field::CaskSize => self.cask_size = None,
+            Field::Vessel => self.vessel = None,
         }
         self
     }
@@ -151,6 +158,7 @@ pub fn fields(kind: ItemKind) -> &'static [Field] {
         ItemKind::Bottle => &[Liquid, Effects],
         ItemKind::Ointment => &[Effects],
         ItemKind::Cask => &[CaskSize, Material, Liquid],
+        ItemKind::Vessel => &[Vessel, Liquid],
         ItemKind::Ring | ItemKind::Necklace => &[Material, Settings, GemMaterial, GemCut],
         // Their cloth is a material, and shoulders' finish is leather's own.
         ItemKind::Gauntlets

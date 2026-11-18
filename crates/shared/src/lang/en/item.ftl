@@ -4,11 +4,13 @@
 ## `about-` and the kind in kebab case.
 
 about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its inside adds to the end of your inventory.
-about-cask = A wooden cask, bound with iron hoops. It holds one liquid, by the litre.
+about-cask = A wooden cask, bound with iron hoops. It holds one liquid, by the litre. Drawing from it needs a tap.
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
 about-flour = Grain stone-ground into wholemeal flour, in an open hessian sack.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
+about-tap = A brass tap, knocked into a cask to draw from it. Carry it, and let go of a cask on a vessel or bottle to pour.
+about-vessel = For drinking from or carrying a drink. Let go of it on another vessel, a bottle or a cask to pour; on yourself to drink.
 
 ## Herbs: one whose name isn't known, and each of its four effects, known
 ## ("Slightly raises Toughness") or not ("?"). $way is raises or lowers,
@@ -44,7 +46,10 @@ item-drains = { $amount } { $stat } a second
 
 ## Health or Mana given or taken at once (ointment), signed ("+5", "−5").
 
-item-cask-holds = Holds { $litres } of { $most } litres
+item-holds = Holds { $amount } of { $most }
+item-sealed = sealed
+item-opened = opened
+item-sealed-bottle = Sealed
 item-at-once = { $amount } { $stat } at once
 
 ## Ointment whose doses come to nothing on the skin (a quarter of each).
