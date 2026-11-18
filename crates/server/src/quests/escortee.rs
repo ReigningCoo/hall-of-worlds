@@ -107,5 +107,6 @@ pub(super) fn made(
         name: who.name.clone(),
         following,
     };
-    escortee_mob(world, escortee_id(client, quest), &spawn, escort)
+    let at = client.world_position();
+    escortee_mob(world, (escortee_id(client, quest), at), &spawn, escort)
 }

@@ -19,14 +19,13 @@ use super::storage::{SAVE_FORMAT, SiteId, SiteSave, Storage, Unsaved};
 
 mod find_item;
 mod forgetting;
+mod habitat;
 mod lightning;
-pub(crate) use lightning::apart;
 mod sharing;
 mod sky;
 mod time;
 
-pub(crate) use forgetting::Forgotten;
-pub(crate) use sharing::Shared;
+pub(crate) use {forgetting::Forgotten, lightning::apart, sharing::Shared};
 
 /// One world the server runs (`ServerWorlds` holds them all).
 pub struct ServerWorld {

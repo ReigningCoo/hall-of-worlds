@@ -181,6 +181,7 @@ fn spawned(world: &mut ServerWorld, seed: Seed, block: BlockPos, at: (i64, i64))
                         &spawn.gear,
                         spawn.coins,
                         made_at,
+                        &land,
                     )
                 });
             let position = (spawn.position.0 + turns * width, spawn.position.1);

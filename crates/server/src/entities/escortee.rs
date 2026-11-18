@@ -26,8 +26,14 @@ pub(crate) struct Escortee {
     pub(crate) following: bool,
 }
 
-/// An escortee as rolled (`spawn`), dressed in what it was rolled with.
-pub(crate) fn escortee_mob(world: &ServerWorld, id: Id, spawn: &Spawn, escort: Escortee) -> Mob {
+/// An escortee as rolled (`spawn`), dressed in what it was rolled with, its
+/// food foraged near world map point `at`.
+pub(crate) fn escortee_mob(
+    world: &ServerWorld,
+    (id, at): (Id, (i64, i64)),
+    spawn: &Spawn,
+    escort: Escortee,
+) -> Mob {
     let spawn = Spawn {
         number: ESCORT_NUMBER,
         ..spawn.clone()
@@ -38,6 +44,7 @@ pub(crate) fn escortee_mob(world: &ServerWorld, id: Id, spawn: &Spawn, escort: E
         &spawn.gear,
         0,
         world.made_now(),
+        &world.habitat_at(at),
     );
     Mob {
         memory: Memory::default(),
@@ -46,14 +53,17 @@ pub(crate) fn escortee_mob(world: &ServerWorld, id: Id, spawn: &Spawn, escort: E
     }
 }
 
-/// What can be seen of what an escortee rolled as `spawn` wears.
+/// What can be seen of what an escortee rolled as `spawn` wears (never its
+/// food, so the land is any).
 pub(crate) fn escortee_worn(world: &ServerWorld, spawn: &Spawn) -> Vec<shared::wear::WornLook> {
+    let land = shared::mob::Habitat::typical(shared::climate::Biome::Grassland);
     dressed(
         spawn.kind,
         &spawn.attributes,
         &spawn.gear,
         0,
         world.made_now(),
+        &land,
     )
     .shown()
 }

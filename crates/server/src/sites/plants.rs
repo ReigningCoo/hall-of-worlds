@@ -42,8 +42,7 @@ pub(crate) struct SitePlants {
 /// (`plant_fields`), suiting the land at its poi, from its seed.
 /// Nothing on levels with neither.
 pub(crate) fn site_plants(world: &ServerWorld, poi: &Poi, level: &SiteLevel) -> SitePlants {
-    let wild = &world.wilderness.wild;
-    let habitat = wild.habitat_at(poi.x.rem_euclid(wild.points()), poi.y);
+    let habitat = world.habitat_of_poi(poi);
     let mut planted = level.level.clone();
     plant_beds(&mut planted, &world.herbs, &habitat, poi.seed);
     let herbs = (planted.herbs())

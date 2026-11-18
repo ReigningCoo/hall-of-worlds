@@ -44,7 +44,7 @@ Vegetables, pulses and grains (owner, 2026-11-17): what each is, the table of th
 
 ## Used by
 
-- `dungeon` (`Level`'s vegetable plants), `wilderness` (`vegetables.rs`), `protocol` (`SeenVegetable`, `PickNews::PickedVegetable`), server `sites/plants.rs` (fields), `connections/pick_vegetable.rs`, client `dungeon_map` (plant models by stage, picking, hover), `plants` (`plant`, `plant_look`, `part`, `look`, `set`, for models), `notices`.
+- `produce` (what shops sell and mobs carry, by `field_crops`, `wild_crops`, `wild_only_vegetables`, `choose_wild`), `dungeon` (`Level`'s vegetable plants), `wilderness` (`vegetables.rs`), `protocol` (`SeenVegetable`, `PickNews::PickedVegetable`), server `sites/plants.rs` (fields), `connections/pick_vegetable.rs`, client `dungeon_map` (plant models by stage, picking, hover), `plants` (`plant`, `plant_look`, `part`, `look`, `set`, for models), `notices`.
 - `item` (`ItemKind::Vegetable`, Food, counted, no quality; stacks compare a vegetable's form without its look), `item_form` (`give_form` rolls one; name, shape, grams), `bonus` (`Source::EatenVegetable`, `VegetableEffects`; `is_food` and `may_eat` take vegetables), server `connections/eat_vegetable.rs` (`eating`, `cut`), `eat_fruit.rs` (`servings_fit`, both cuts), `strength_room.rs`, `give_items.rs` (`dev_vegetable`), client `item_art` (`look`, `part`, `servings` for pictures), `effect_bar` (names by `by_tag`, `delapouite/carrot` for effects), `item_popup` (raw healing, effects, "Heals nothing raw", "Heals nothing until milled", servings), `debug_menu` (Give Item's dropdown, "Any vegetable", and preview), `dev_tools` (`client.give_item`'s `vegetable`), `xtask wiki` (a page per vegetable, pulse and grain in `docs/vegetables/`, raw effects only).
 
 ## Notes

@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::{Item, MadeAt, Quality};
 use shared::item_form::give_form_to;
+use shared::produce::{Source, suit_to_place};
 use shared::protocol::ServerMessage;
 use shared::rng::Seed;
 use shared::shop::{Shop, catch_up, sells, stock_request};
@@ -36,6 +37,7 @@ pub(crate) fn open_trade(client: &mut Client, world: &mut ServerWorld, with: Id)
     let seed = here.poi.seed.derive("shop");
     let seed = Seed::new(seed.at(&[here.index as i64, building as i64]));
     let (id, index) = (here.id, here.index);
+    let land = world.habitat_of_poi(&here.poi);
     let now = world.minutes();
     let made = world.made_now();
     let level = world.site_mut(id).levels.entry(index).or_default();
@@ -76,11 +78,13 @@ pub(crate) fn open_trade(client: &mut Client, world: &mut ServerWorld, with: Id)
             }),
             ..Item::new(new_id(), new.kind)
         };
-        // A bottle holds one of the shop's liquids.
+        // A bottle holds one of the shop's liquids; fruit and vegetables are
+        // what is grown near the town.
         let seed = item.id.seed();
         let request = stock_request(kind, new.kind, seed);
         give_form_to(&mut item, None, seed, &request, &mut new_id)
             .expect("a shop asks only for what can be made");
+        suit_to_place(&mut item, &land, Source::Grown);
         item.roll_secrets();
         item
     }));

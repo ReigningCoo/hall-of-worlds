@@ -56,6 +56,7 @@ impl ServerWorld {
         }
         let self_tick = self.action_clock.ticks();
         let made_at = self.made_now();
+        let land = self.habitat_of_poi(&poi);
         let saved = self.site_mut(id).levels.entry(index).or_default();
         let unsettled = std::mem::take(&mut saved.unsettled);
         let mut scents = std::mem::take(&mut saved.scents);
@@ -82,6 +83,7 @@ impl ServerWorld {
                             &spawn.gear,
                             spawn.coins,
                             made_at,
+                            &land,
                         )
                     })
                     .clone();
