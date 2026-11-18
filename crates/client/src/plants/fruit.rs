@@ -1,60 +1,60 @@
-//! Fruit plants' stand-in models (fruit plan PR 3; PR 4 builds the real ones):
-//! one simple shape per plant family (a trunk and a crown for trees, a low
-//! mound for the rest), small while young, with pale flowers when flowering
-//! and the fruit's own colour, unripe or ripe, when fruiting. Black outlines
-//! as every model has. Built once per fruit and stage.
+//! Fruit plants' models (fruit plan PR 4): one builder per plant family, from
+//! each fruit's `FruitPlantLook` (its height, spread, leaf and flower colours
+//! and sizes, and where its fruit hangs), at each stage: small while young,
+//! leafy, flowering, then fruiting in the fruit's unripe and ripe colours.
+//! Several variants each, from their own random numbers, which a plant keeps
+//! from stage to stage. Black outlines as every model has. Built once.
 
 use std::collections::HashMap;
+use std::f32::consts::TAU;
 
 use bevy::prelude::*;
 use shared::fruit::{FruitDef, FruitStage, PlantFamily};
+use shared::rng::{Rng, Seed};
 
-use super::models::PlantMeshes;
+use super::models::{PlantMeshes, VARIANTS};
 use super::pieces::Pieces;
-use super::plan::{METRE, colour};
+use super::plan::{METRE, between};
 
-/// Leaves, bark, flowers and a cactus's skin.
-const LEAF: Vec3 = Vec3::new(0.06, 0.25, 0.05);
-const BARK: Vec3 = Vec3::new(0.18, 0.1, 0.05);
-const FLOWER: Vec3 = Vec3::new(0.95, 0.85, 0.88);
-const CACTUS: Vec3 = Vec3::new(0.1, 0.3, 0.12);
+mod cactus;
+mod conifer;
+mod dress;
+mod giant;
+mod look;
+mod low;
+mod palm;
+mod rosette;
+mod shrub;
+mod tree;
+mod vine;
 
-/// A family's measures in metres: its height, its crown's (or mound's) width,
-/// and how far up the crown starts (0 for no trunk).
-fn measures(family: PlantFamily) -> (f32, f32, f32) {
-    match family {
-        PlantFamily::BroadleafTree => (2.5, 1.9, 1.0),
-        PlantFamily::Conifer => (2.7, 1.4, 0.6),
-        PlantFamily::Palm => (2.7, 1.9, 2.2),
-        PlantFamily::GiantHerb => (2.3, 1.5, 1.2),
-        PlantFamily::ColumnCactus => (2.3, 0.5, 0.0),
-        PlantFamily::Shrub => (1.4, 1.2, 0.0),
-        PlantFamily::Canes | PlantFamily::Vine => (1.5, 1.0, 0.0),
-        PlantFamily::PadCactus => (1.1, 1.0, 0.0),
-        PlantFamily::Rosette => (0.7, 0.9, 0.0),
-        PlantFamily::GroundVine => (0.4, 1.2, 0.0),
-        PlantFamily::LowMat | PlantFamily::LowHerb => (0.35, 0.8, 0.0),
-    }
-}
+use dress::Dress;
+use look::{Look, Show, drawn_metres};
 
-/// Fruit plant models built so far, by fruit, stage and ripeness.
+/// For the plants' own random numbers: the same everywhere, so every client
+/// draws a plant alike.
+const LOOKS: Seed = Seed::new(0x6672_7569_7473);
+
+/// Fruit plant models built so far, by fruit, stage and variant.
 #[derive(Resource, Default)]
 pub struct FruitModels {
-    built: HashMap<(String, FruitStage), PlantMeshes>,
+    built: HashMap<(String, FruitStage, u8), PlantMeshes>,
 }
 
 impl FruitModels {
-    /// `def`'s plant at `stage`, built if it hasn't been.
+    /// Variant `variant` of `def`'s plant at `stage`, built if it hasn't been.
     pub fn get(
         &mut self,
         def: &FruitDef,
         stage: FruitStage,
+        variant: u8,
         meshes: &mut Assets<Mesh>,
     ) -> PlantMeshes {
+        let variant = variant % VARIANTS;
         self.built
-            .entry((def.key.clone(), stage))
+            .entry((def.key.clone(), stage, variant))
             .or_insert_with(|| {
-                let pieces = build(def, stage);
+                let pieces = build(def, stage, variant);
                 PlantMeshes {
                     fill: meshes.add(pieces.fill.into_mesh()),
                     outline: meshes.add(pieces.outline.into_mesh()),
@@ -64,47 +64,52 @@ impl FruitModels {
     }
 }
 
-/// Builds `def`'s stand-in at `stage`, standing on the origin.
-fn build(def: &FruitDef, stage: FruitStage) -> Pieces {
-    let (height, width, trunk) = measures(def.plant);
-    let grown = if stage == FruitStage::Young {
-        0.45
-    } else {
-        1.0
+/// How tall `def`'s plant is drawn grown, and how far it reaches from its
+/// middle, in world units: what a click on it may land on.
+pub fn fruit_plant_size(def: &FruitDef) -> (f32, f32) {
+    let (height, width) = drawn_metres(def);
+    (height * METRE * 1.15, width / 2.0 * METRE * 1.1)
+}
+
+/// Builds variant `variant` of `def`'s plant at `stage`, standing on the
+/// origin.
+fn build(def: &FruitDef, stage: FruitStage, variant: u8) -> Pieces {
+    let seed = LOOKS.derive(&def.key);
+    let mut rng = Seed::new(seed.at(&[i64::from(variant)])).rng();
+    let look = Look::new(def, stage, &mut rng);
+    let mut dress = Dress {
+        look: &look,
+        rng: Seed::new(seed.derive("dress").at(&[i64::from(variant)])).rng(),
+        sits: false,
     };
-    let (height, width, trunk) = (
-        height * grown * METRE,
-        width * grown * METRE,
-        trunk * grown * METRE,
-    );
+    let build = match def.plant {
+        PlantFamily::BroadleafTree => tree::tree,
+        PlantFamily::Conifer => conifer::conifer,
+        PlantFamily::Palm => palm::palm,
+        PlantFamily::Shrub => shrub::shrub,
+        PlantFamily::Canes => shrub::canes,
+        PlantFamily::Vine => vine::vine,
+        PlantFamily::GroundVine => vine::ground_vine,
+        PlantFamily::LowMat => low::mat,
+        PlantFamily::LowHerb => low::herb,
+        PlantFamily::GiantHerb => giant::giant,
+        PlantFamily::Rosette => rosette::rosette,
+        PlantFamily::PadCactus => cactus::pads,
+        PlantFamily::ColumnCactus => cactus::column,
+    };
     let mut pieces = Pieces::default();
-    let cactus = matches!(
-        def.plant,
-        PlantFamily::ColumnCactus | PlantFamily::PadCactus
-    );
-    let leaf = if cactus { CACTUS } else { LEAF };
-    // The crown (or the whole plant), and where its outside is.
-    let middle = Vec3::Y * (trunk + (height - trunk) / 2.0);
-    let half = Vec3::new(width / 2.0, (height - trunk) / 2.0, width / 2.0);
-    if trunk > 0.0 {
-        let radius = 0.06 * height.max(METRE);
-        pieces.stem(Vec3::ZERO, middle, (radius, radius * 0.6), BARK);
-    }
-    pieces.blob(middle, half, leaf);
-    let dots = match stage {
-        FruitStage::Young | FruitStage::Leafy => return pieces,
-        FruitStage::Flowering => FLOWER,
-        FruitStage::Fruiting { ripe: false } => colour(def.look.unripe),
-        FruitStage::Fruiting { ripe: true } => colour(def.look.ripe),
-    };
-    // Dots round the crown's outside, a little above its middle.
-    let size = Vec3::splat((width * 0.12).max(0.08 * METRE));
-    for i in 0..6 {
-        let turn = i as f32 * std::f32::consts::TAU / 6.0;
-        let out = Vec3::new(turn.cos() * half.x, half.y * 0.3, turn.sin() * half.z) * 0.95;
-        pieces.blob(middle + out, size, dots);
-    }
+    build(&mut pieces, &look, &mut rng, &mut dress);
     pieces
+}
+
+/// The `i`th of `n` ways round, a little off even.
+fn around(i: usize, n: usize, rng: &mut Rng) -> f32 {
+    (i as f32 + between(rng, -0.3, 0.3)) / n as f32 * TAU
+}
+
+/// Outwards `angle` round, rising `rise` for each unit out.
+fn out(angle: f32, rise: f32) -> Vec3 {
+    Vec3::new(angle.cos(), rise, angle.sin())
 }
 
 #[cfg(test)]

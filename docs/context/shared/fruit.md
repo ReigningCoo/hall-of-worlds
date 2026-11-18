@@ -1,6 +1,6 @@
 # shared: fruit
 
-Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in), fruits as counted items (a whole big fruit cut into servings when eaten), what eating one does, and fruit plants: where they grow (wild, very rarely; farms' orchards), their stages and what picking gives (PR 3 of the fruit plan). Plant models are the client's (`plants::FruitModels`, stand-ins until PR 4), as are the items' pictures (`item_art`, `fruit.rs`). Herbs that bear fruit stay herbs (`shared::herb`), linked by `HerbDef::fruit`. Research and the owner's decisions: `docs/context/research-fruit.md`.
+Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in), fruits as counted items (a whole big fruit cut into servings when eaten), what eating one does, and fruit plants: where they grow (wild, very rarely; farms' orchards), their stages and what picking gives (PR 3 of the fruit plan). Plant models are the client's (`plants::FruitModels`, from each fruit's `FruitPlantLook`), as are the items' pictures (`item_art`, `fruit.rs`). Herbs that bear fruit stay herbs (`shared::herb`), linked by `HerbDef::fruit`. Research and the owner's decisions: `docs/context/research-fruit.md`.
 
 ## Files
 
@@ -9,6 +9,7 @@ Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in),
 - `fruit/def.rs`: `FruitDef`, `FruitSet`, `Unit`, `check`, `is_item`.
 - `fruit/traits.rs`: `Abundance`, `HarvestTier` (`range`), `PlantFamily`.
 - `fruit/look.rs`: `FruitLook`, `FruitShape`, `Skin` (data only, for the client).
+- `fruit/plant_look.rs`: `FruitPlantLook`, `FruitPosition` (data only, for the client's plant models).
 - `fruit/table.rs`: `Fruits`.
 - `fruit/tag.rs`: `FruitTag`.
 - `fruit/form.rs`: `FruitForm`, `new_item`, `APPLE`, `Item::fruit`.
@@ -23,8 +24,8 @@ Fruits and nuts (owner, 2026-11-17): what each is, the table of them (built in),
 
 ## Public API
 
-- `FruitDef { key, name, latin, set, herb, biomes, temperature, unit, kcal, servings, grams, exceptional, harmful_raw, effects, abundance, harvest, plant, look }`: `key` its id for good; `temperature` a `herb::Temperature` (yearly average °C); `unit` `One`, `Handful` (a unit under 25 kcal: 100 g of fruit or 20 g of kernels) or `Whole` (over 300 kcal, `servings` of about 100 kcal); `kcal` and `grams` for one item (all of a whole fruit); `effects` 0 to 2 `herb::Effect`s of ±1 or 2; `herb` for a herb's fruit, never an item of its own (`is_item`).
-- `Abundance::{Common, Uncommon, Rare, OrchardOnly}`, `HarvestTier::{One, UpToTwo, UpToThree, TwoToFour, ThreeToSix}` (`range`), `PlantFamily` (13 kinds of plant), `FruitLook { shape, size (mm), ripe, unripe, skin }`: for PRs 3 and 4.
+- `FruitDef { key, name, latin, set, herb, biomes, temperature, unit, kcal, servings, grams, exceptional, harmful_raw, effects, abundance, harvest, plant, plant_look, look }`: `key` its id for good; `temperature` a `herb::Temperature` (yearly average °C); `unit` `One`, `Handful` (a unit under 25 kcal: 100 g of fruit or 20 g of kernels) or `Whole` (over 300 kcal, `servings` of about 100 kcal); `kcal` and `grams` for one item (all of a whole fruit); `effects` 0 to 2 `herb::Effect`s of ±1 or 2; `herb` for a herb's fruit, never an item of its own (`is_item`).
+- `Abundance::{Common, Uncommon, Rare, OrchardOnly}`, `HarvestTier::{One, UpToTwo, UpToThree, TwoToFour, ThreeToSix}` (`range`), `PlantFamily` (13 kinds of plant), `FruitLook { shape, size (mm), ripe, unripe, skin }`: for the item pictures and the fruit on plants. `FruitPlantLook { height, spread (cm), leaf, leaf_size, flower, flower_size, fruits }` (fruit plan PR 4: measured from the research's height, spread, leaves, flowers and fruit position, picked out by a script and checked by hand; a climbing vine's height is its support's), `FruitPosition::{Clusters, Single, Tips, Trunk, Crown, Ground}`.
 - `Fruits`: `built_in()` (`&'static`), `read(ron_text)` (each checked), `new(defs)`, `get(key)`, `by_tag(tag)`, `iter` (herbs' fruits too), `items` (fruit items only), `len`.
 - `FruitTag(u64)`, `FruitTag::of(key)`: a fruit's key hashed through `rng::Seed`, so `bonus::Source` can name a fruit and stay `Copy`.
 - `FruitForm { fruit, serving, look, grams }` (`ItemForm::Fruit`): `new(def, seed)`, `serving(def, seed)` (grams a share of the whole, rounded up), `is_whole(def)`, `name()` ("Watermelon", "Watermelon Slice", "Fruit" for a key the table lacks), `shape()` (1 × 1; 2 × 1 from 1 kg; 2 × 2 from 4 kg). `new_item(def, count, id, made_at)`; `Item::fruit()`. `APPLE`: the key old apples, shops and mob loot use.

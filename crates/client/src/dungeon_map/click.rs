@@ -94,6 +94,7 @@ pub(super) fn pick_on_click(
     let (level, seen, walls) = (&dungeon.level, &dungeon.remembered, &shown.solid_faces);
     let picked = front
         .or_else(|| super::gate_picking::gate_clicked(ray, level, seen, walls, ground))
+        .or_else(|| super::fruit_picking::fruit_clicked(ray, level, seen, walls, ground))
         .or_else(|| super::picking::pick(ray, level, seen, walls, ground));
     if let Some((x, y)) = picked {
         // Dev tools: Teleport Mode jumps there instead (through walls), if the

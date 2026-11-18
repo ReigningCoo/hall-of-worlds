@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{Abundance, FruitLook, HarvestTier, PlantFamily};
+use super::{Abundance, FruitLook, FruitPlantLook, HarvestTier, PlantFamily};
 use crate::climate::Biome;
 use crate::herb::{Effect, Temperature};
 
@@ -65,6 +65,8 @@ pub struct FruitDef {
     pub harvest: HarvestTier,
     /// The kind of plant it grows on, for the client's models.
     pub plant: PlantFamily,
+    /// How its plant looks, for the client's models.
+    pub plant_look: FruitPlantLook,
     /// How the fruit looks, for the client's pictures.
     pub look: FruitLook,
 }

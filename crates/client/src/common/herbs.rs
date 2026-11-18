@@ -3,6 +3,7 @@
 //! then. Set by `connection`; for whatever shows herbs.
 
 use bevy::prelude::*;
+use shared::fruit::{FruitStage, PlantFamily};
 use shared::herb::Herbs;
 
 /// The herbs of the server being played on: its mods may add to or change the
@@ -21,3 +22,9 @@ impl Default for HerbTable {
 /// off.
 #[derive(Resource, Default, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct HerbShowcase(pub Option<u8>);
+
+/// The fruit showcase (debug API `client.fruit_showcase`): every fruit
+/// plant (of one family, if given) drawn at this stage in rows round the
+/// player, in place of the plants there; `None` off.
+#[derive(Resource, Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct FruitShowcase(pub Option<(FruitStage, Option<PlantFamily>)>);
