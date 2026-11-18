@@ -5,7 +5,7 @@ Grain is picked as 30 g sheaves (`shared::vegetable`, `Unit::Sheaf`) that heal n
 ## PRs
 
 1. **Flour items** (built): `ItemKind::Flour` and `shared::flour`; a `flour_yield` per grain; name, cells and weight, the popup, Give Item, a picture, and a Flour section on each grain's wiki page.
-2. **The miller** (needs 1): the miller's building in towns and his own small stock of flour. Not built yet.
+2. **The miller** (built): the miller's building in towns and his own small stock of flour.
 
 ## Flour (PR 1)
 
@@ -26,3 +26,4 @@ Grain is picked as 30 g sheaves (`shared::vegetable`, `Unit::Sheaf`) that heal n
 
 - **His building:** a miller's in towns, 9 × 9 with rounded corners, one storey, its door to the nearest road with a windmill sign, a tall cone roof, and the lower end of one sail above the door, fading with height (looks only; on the world map too). Placed after the town is finished, from the town's seed (`derive("miller")`), in free space inside the town (inside its walls), and skipped if none fits. Every town tries for one; a Town has a 20% chance of a second, a City 50% of a second and 25% of a third. The town generator's version goes up; new ids are appended.
 - **His own stock:** at most 10 sacks, of flours suiting the town's climate (grains growing there, as `shared::produce` suits fields), 2–3 new each game day, with no top-up for time away.
+- **As built (PR 2):** `BuildingKind::Miller` (`shared::site`, `town/miller.rs`; `TOWN_VERSION` up, `UNMILLED_TOWN_VERSION` kept for saved towns), his stock in `shared::shop` (`MILLER_MOST`, `tops_up`) and `shared::produce` (`flour_grain_for`), the door's windmill sign in the town atlas (game-icons' `delapouite/windmill`), the cone roof and fading sail in `dungeon_map/town/mill.rs` (a blended town surface, `TownBlend`), mills in the world map's town model (`poi_model/mill.rs`, `PoiLook::Town::millers`), and "<name>, miller" in the talk panel. Claude's choices: the mill's corners rounded with a radius of 4 cells; the door on the side nearest a road by walking; the world map shows as many mills as the town tries for (as it shows the buildings it aims for), so a town where none fitted still shows one; a grain where no field grain grows falls back to any grain.

@@ -46,7 +46,10 @@ pub(super) fn apply_theme(
     let solid = in_hall || has_floors_below(dungeon.info.as_ref());
     for (surface, handle) in Surface::ALL.iter().zip(&surfaces.memory) {
         if let Some(mut material) = materials.get_mut(handle) {
-            let (alpha, mode) = if solid || matches!(surface, Surface::Town | Surface::Furniture) {
+            let (alpha, mode) = if *surface == Surface::TownBlend {
+                // Fading by its corners' own opacity, solid or not.
+                (1.0, AlphaMode::Blend)
+            } else if solid || matches!(surface, Surface::Town | Surface::Furniture) {
                 (1.0, AlphaMode::Opaque)
             } else {
                 (MEMORY_ALPHA, AlphaMode::Blend)

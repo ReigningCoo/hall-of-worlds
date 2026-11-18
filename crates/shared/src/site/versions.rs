@@ -24,8 +24,12 @@ pub const CAVE_VERSION: u32 = 1 + BOXED_CAVE_VERSION;
 /// Caves from before: a cave mouth's top level the whole rectangle of rock.
 pub const BOXED_CAVE_VERSION: u32 = 1 + FORGET_BEFORE;
 
-/// The town generator's version (as `BUILDING_VERSION`).
-pub const TOWN_VERSION: u32 = 1 + FORGET_BEFORE;
+/// The town generator's version (as `BUILDING_VERSION`): millers fitted in
+/// once the town is finished.
+pub const TOWN_VERSION: u32 = 1 + UNMILLED_TOWN_VERSION;
+
+/// Towns from before millers, still made for saved towns.
+pub const UNMILLED_TOWN_VERSION: u32 = 1 + FORGET_BEFORE;
 
 /// The farm generator's version (as `BUILDING_VERSION`).
 pub const FARM_VERSION: u32 = 1 + FORGET_BEFORE;

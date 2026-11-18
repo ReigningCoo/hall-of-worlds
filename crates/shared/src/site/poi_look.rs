@@ -34,6 +34,9 @@ pub enum PoiLook {
         /// A wall round it: what it is made of and which sides its main
         /// roads leave by, through gates (its gaps are all 0).
         wall: Option<PoiWall>,
+        /// How many millers it tries to fit in (as `buildings` is what it
+        /// aims for): the model shows their mills.
+        millers: u8,
     },
     Farm {
         /// The farmhouse's ground floor, in cells.
@@ -79,6 +82,7 @@ impl PoiLook {
                 Self::Town {
                     buildings: plan.target() as u16,
                     wall: plan.poi_wall(),
+                    millers: plan.millers(),
                 }
             }
             Generator::Herbalist(options) => {

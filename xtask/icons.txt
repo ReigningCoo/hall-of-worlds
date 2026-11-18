@@ -159,3 +159,5 @@ skoll/pestle-mortar
 lorc/cauldron
 delapouite/carrot
 delapouite/covered-jar
+# The miller's door sign, drawn into the town atlas (tools/make_town_atlas.py)
+delapouite/windmill

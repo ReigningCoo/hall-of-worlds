@@ -76,6 +76,17 @@ def diamond(d):
     d.line((16, 22, 18, 15), fill=(70, 160, 200, 255))
 
 
+def windmill_sign():
+    """A sign with the game-icons.net windmill on it (`cargo xtask icons` draws
+    it first), in flour's white."""
+    out = signed(lambda d: None)
+    icon = Image.open("crates/client/assets/icons/delapouite/windmill.png").convert("RGBA")
+    icon = icon.resize((11, 11), Image.LANCZOS)
+    flour = Image.new("RGBA", icon.size, (235, 225, 200, 255))
+    out.paste(flour, (11, 10), icon)
+    return out
+
+
 def furrows():
     """Bare earth in ridges, one every quarter of a cell, so they meet the next
     cell's."""
@@ -140,6 +151,7 @@ atlas = [
     signed(diamond),  # Gem cutter
     tile("f", 8, 0),  # Black market
     tile("f", 2, 6),  # Cathedral
+    windmill_sign(),  # Miller
     # A farm's fields: ploughed with furrows running north to south, grass, and
     # the wood of fences.
     furrows(),

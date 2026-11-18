@@ -32,4 +32,4 @@ grand_parent: Items
 
 ![Sack of Finger millet Flour]({{ '/assets/flour/finger_millet.png' | relative_url }})
 
-A sheaf of finger millet mills into a sack of finger millet flour weighing 27 g: 90% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+A sheaf of finger millet mills into a sack of finger millet flour weighing 27 g: 90% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Town millers sell flour of the grains grown near them; milling your own sheaves is planned.

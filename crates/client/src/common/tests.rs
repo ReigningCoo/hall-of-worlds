@@ -83,6 +83,7 @@ fn learned_names_are_kept_by_chunk_until_sent_without() {
         look: shared::site::PoiLook::Town {
             buildings: 9,
             wall: None,
+            millers: 1,
         },
         chunk,
         x: 10,

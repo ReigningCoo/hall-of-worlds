@@ -28,6 +28,7 @@ mod grow;
 mod kind;
 mod looks;
 mod middle;
+mod miller;
 mod odds;
 mod place;
 mod place_building;
@@ -111,10 +112,18 @@ struct Town {
     arms: [bool; 4],
     /// What its wall is made of, if it has one.
     wall: Option<WallMaterial>,
+    /// How many millers to try to fit in once finished.
+    millers: u8,
 }
 
 impl Town {
-    fn new(seed: Seed, target: i64, arms: [bool; 4], wall: Option<WallMaterial>) -> Self {
+    fn new(
+        seed: Seed,
+        target: i64,
+        arms: [bool; 4],
+        wall: Option<WallMaterial>,
+        millers: u8,
+    ) -> Self {
         // A generous area, cut down to what is used at the end.
         let span = (target * 90).isqrt().max(24) + 2 * BORDER;
         let mut level = Level::new(0, 0, span, span);
@@ -136,6 +145,7 @@ impl Town {
             door_fronts: Vec::new(),
             arms,
             wall,
+            millers,
         }
     }
 
@@ -164,6 +174,8 @@ impl Town {
     }
 }
 
+#[cfg(test)]
+mod miller_tests;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]

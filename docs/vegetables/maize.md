@@ -32,4 +32,4 @@ grand_parent: Items
 
 ![Sack of Maize Flour]({{ '/assets/flour/maize.png' | relative_url }})
 
-A sheaf of maize mills into a sack of maize flour weighing 29 g: 95% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+A sheaf of maize mills into a sack of maize flour weighing 29 g: 95% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Town millers sell flour of the grains grown near them; milling your own sheaves is planned.

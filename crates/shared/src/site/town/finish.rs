@@ -81,6 +81,20 @@ impl Town {
         for (index, (building, kind)) in placed.iter().zip(kinds).enumerate() {
             buildings.push(self.make_building(index, building, kind));
         }
+        // Inside a wall, within what is built (its ground stays clear);
+        // otherwise anywhere on the town's level, its border too.
+        let area = if self.wall.is_some() {
+            built
+        } else {
+            let (x0, y0, width, height) = self.level.bounds();
+            Block {
+                x0,
+                y0,
+                x1: x0 + width,
+                y1: y0 + height,
+            }
+        };
+        self.add_millers(&mut buildings, area);
         self.add_windows(&buildings);
         SiteLevel {
             level: self.level,

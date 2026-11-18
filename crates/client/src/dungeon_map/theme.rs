@@ -109,7 +109,7 @@ impl Theme {
             Surface::Ground => GROUND,
             Surface::Water => WATER,
             Surface::Lava => LAVA,
-            Surface::Town => TOWN_ATLAS,
+            Surface::Town | Surface::TownBlend => TOWN_ATLAS,
             Surface::Furniture => FURNITURE_ATLAS,
         }
     }

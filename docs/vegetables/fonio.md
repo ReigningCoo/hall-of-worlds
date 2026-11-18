@@ -32,4 +32,4 @@ grand_parent: Items
 
 ![Sack of Fonio Flour]({{ '/assets/flour/fonio.png' | relative_url }})
 
-A sheaf of fonio mills into a sack of fonio flour weighing 21 g: 70% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+A sheaf of fonio mills into a sack of fonio flour weighing 21 g: 70% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Town millers sell flour of the grains grown near them; milling your own sheaves is planned.

@@ -18,7 +18,7 @@ fn walled() -> impl Iterator<Item = (i64, u64, SiteLevel)> {
                 let seed = seed * 37 + 11;
                 let mut rng = Seed::new(seed).derive("test arms").rng();
                 let arms = choose_arms(&mut rng, target, [false; 4]);
-                let town = Town::new(Seed::new(seed), target, arms, Some(WallMaterial::Stone));
+                let town = Town::new(Seed::new(seed), target, arms, Some(WallMaterial::Stone), 1);
                 (target, seed, town.generate())
             })
         })

@@ -33,8 +33,8 @@ pub(in crate::dungeon_map) fn follow_materials(
             let solid = (&surfaces.solid[index], &floor.solid[index].2);
             follow(&mut materials, solid, shade, None);
             let memory = (&surfaces.memory[index], &floor.memory[index].2);
-            // The wall's fade across the floor must still blend.
-            let solid_memory = surface != Surface::WallBlend;
+            // The wall's fade across the floor, and a sail's, must still blend.
+            let solid_memory = !matches!(surface, Surface::WallBlend | Surface::TownBlend);
             follow(&mut materials, memory, shade, solid_memory.then_some(1.0));
         }
     }

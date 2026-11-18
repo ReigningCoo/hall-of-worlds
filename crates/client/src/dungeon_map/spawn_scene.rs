@@ -59,6 +59,11 @@ pub(super) fn spawn_scene(
                     depth_bias: BLEND_DEPTH_BIAS,
                     ..unlit(picture)
                 }
+            } else if surface == Surface::TownBlend {
+                StandardMaterial {
+                    alpha_mode: AlphaMode::Blend,
+                    ..unlit(picture)
+                }
             } else if opacity < 1.0 {
                 // A surface with the bed showing through it, drawn before
                 // anything blended that stands in it.
@@ -82,7 +87,8 @@ pub(super) fn spawn_scene(
         .zip(&pictures)
         .map(|(&surface, picture)| {
             let base = StandardMaterial {
-                base_color: Color::srgba(1.0, 1.0, 1.0, MEMORY_ALPHA),
+                // A fade's opacity is its corners' own.
+                base_color: Color::srgba(1.0, 1.0, 1.0, memory_alpha(surface)),
                 // Solid even as memory: a whole town is remembered at once,
                 // and blended meshes wouldn't sort (nor would a table's
                 // legs under its top).
@@ -92,7 +98,7 @@ pub(super) fn spawn_scene(
                     AlphaMode::Blend
                 },
                 depth_bias: match surface {
-                    Surface::Wall | Surface::Town | Surface::Furniture => 0.0,
+                    Surface::Wall | Surface::Town | Surface::TownBlend | Surface::Furniture => 0.0,
                     Surface::WallBlend => BLEND_DEPTH_BIAS,
                     _ => -1.0,
                 },
@@ -211,4 +217,14 @@ pub(super) fn load_tile(asset_server: &AssetServer, path: &'static str) -> Handl
             settings.sampler = ImageSampler::nearest();
         })
         .load(path)
+}
+
+/// A surface's opacity when remembered: a fade (a mill's sail) keeps its
+/// corners' own.
+fn memory_alpha(surface: Surface) -> f32 {
+    if surface == Surface::TownBlend {
+        1.0
+    } else {
+        MEMORY_ALPHA
+    }
 }

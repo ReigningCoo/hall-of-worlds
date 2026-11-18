@@ -76,7 +76,7 @@ fn flour(def: &VegetableDef) -> String {
 
 ![{sack}]({{{{ '/assets/flour/{key}.png' | relative_url }}}})
 
-A sheaf of {name} mills into a sack of {name} flour weighing {grams} g: {percent}% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+A sheaf of {name} mills into a sack of {name} flour weighing {grams} g: {percent}% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Town millers sell flour of the grains grown near them; milling your own sheaves is planned.
 ",
         sack = flour.name(),
         grams = flour.grams,
