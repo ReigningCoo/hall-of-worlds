@@ -10,6 +10,7 @@ effect-fruit = { $fruit }
 effect-poison = Poisoned
 effect-dev = Dev Bonus
 effect-raw-herb = Raw herb
+effect-ointment = Ointment
 
 ## What ends it early, if anything does.
 

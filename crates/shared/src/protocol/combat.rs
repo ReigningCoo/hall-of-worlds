@@ -25,4 +25,8 @@ pub enum Landed {
     Filled(crate::potion::Water),
     /// A bottle was filled with this oil (Press Oil: `target` is `None`).
     Pressed(crate::potion::Oil),
+    /// Herbs and an oil were ground (Grind: `target` is `None`): this many
+    /// doses of ointment, 0 when the mix came to nothing (the ingredients are
+    /// used up all the same).
+    Ground(u32),
 }

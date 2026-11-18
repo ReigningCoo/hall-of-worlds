@@ -68,6 +68,7 @@ impl Client {
             waiting: VecDeque::new(),
             fight: Default::default(),
             pressing: None,
+            grinding: None,
             for_others: Vec::new(),
             learning: Default::default(),
             starting_as: None,

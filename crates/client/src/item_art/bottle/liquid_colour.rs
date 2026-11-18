@@ -95,13 +95,13 @@ pub(super) fn alpha(look: &LiquidLook) -> f32 {
 }
 
 /// The main colour, shaded.
-pub(super) fn main_colour(look: &LiquidLook) -> Color {
+pub(in crate::item_art) fn main_colour(look: &LiquidLook) -> Color {
     shaded(base_colour(look.main), look.net)
 }
 
 /// The second colour, shaded: the second strongest stat's, or the main one
 /// darker (or paler, if it is already dark) when there is only one.
-pub(super) fn second_colour(look: &LiquidLook) -> Color {
+pub(in crate::item_art) fn second_colour(look: &LiquidLook) -> Color {
     match look.second {
         Some(stat) => shaded(stat_colour(stat), look.net),
         None if look.net < 0 => main_colour(look).mix(&Color::WHITE, 0.35),

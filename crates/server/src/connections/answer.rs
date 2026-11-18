@@ -214,6 +214,7 @@ pub(crate) fn answer(
             }
             true
         }
+        ClientMessage::Grind(order) => super::grind::ask_grind(client, order),
         ClientMessage::CancelAbility => super::combat::cancel_ability(client, world),
         ClientMessage::WithdrawAbility => {
             client

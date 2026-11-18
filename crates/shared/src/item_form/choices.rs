@@ -50,6 +50,10 @@ pub fn choices(kind: ItemKind, quality: Quality, request: &RollRequest) -> Choic
         ItemKind::Ring => ring_choices(quality, request),
         ItemKind::Necklace => necklace_choices(quality, request),
         ItemKind::Bottle => bottle_choices(request),
+        ItemKind::Ointment => Choices {
+            effects: (1..=crate::potion::MOST_EFFECTS).collect(),
+            ..Choices::default()
+        },
         _ if kind.blade_family().is_some() => Choices {
             materials: passing(Material::ALL, |metal| {
                 keep_only(&mut blade::blade_metals(quality), Some(metal))

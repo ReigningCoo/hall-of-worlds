@@ -280,12 +280,10 @@ pub enum ClientMessage {
         ability: Ability,
         target: Option<Id>,
     },
-    /// Call off the ability winding up, if it hasn't landed: answered with
-    /// `AbilityLanded` and `Landed::Cancelled`.
+    /// Call off the ability winding up, if it hasn't landed: answered with `Landed::Cancelled`.
     CancelAbility,
-    /// Take back an ability asked for that is still waiting for the energy to
-    /// begin (the player moved or chose another): one already begun is left
-    /// alone, so nothing is lost for it. Not answered.
+    /// Take back an ability asked for that is still waiting for the energy to begin (the player
+    /// moved or chose another): one already begun is left alone, so nothing is lost. Not answered.
     WithdrawAbility,
     /// Open or close doors (`DoorAsk`), in turn with the player's steps.
     Door(DoorAsk),
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Pick { x: i64, y: i64 },
     /// Developer tools: learn or forget herbs (`DevHerbs`), answered with `Sheet`.
     DevHerbs(super::DevHerbs),
+    /// Grind herbs and an oil into ointment: answered as `UseAbility(Grind)` (`Landed::Ground`).
+    Grind(crate::brewing::GrindOrder),
 }

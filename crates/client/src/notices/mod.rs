@@ -3,7 +3,7 @@
 //! See `docs/context/client/notices.md`.
 
 use bevy::prelude::*;
-use shared::protocol::{PickNews, ServerMessage};
+use shared::protocol::{Landed, PickNews, ServerMessage};
 
 use crate::common::{HerbTable, words};
 use crate::connection::FromServer;
@@ -82,6 +82,11 @@ fn show_notices(
                 let name = fruits.get(fruit).map_or(fruit.as_str(), |def| &def.name);
                 format!("Picked {count} {name}")
             }
+            ServerMessage::AbilityLanded {
+                who: None,
+                landed: Landed::Ground(doses),
+                ..
+            } => ground(*doses),
             _ => continue,
         };
         dom.set_text("notices/words", words);
@@ -94,6 +99,15 @@ fn show_notices(
     if *showing != now {
         *showing = now;
         dom.set_flag("notices/row", "hidden", !now);
+    }
+}
+
+/// What a Grind made: "Ground 3 Ointment", or that it came to nothing (the
+/// ingredients are gone all the same).
+fn ground(doses: u32) -> String {
+    match doses {
+        0 => "The mix came to nothing".to_owned(),
+        doses => format!("Ground {doses} Ointment"),
     }
 }
 

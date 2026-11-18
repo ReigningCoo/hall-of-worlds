@@ -5,6 +5,7 @@
 
 about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its inside adds to the end of your inventory.
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
+about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
 
 ## Herbs: one whose name isn't known, and each of its four effects, known
@@ -38,6 +39,14 @@ item-restores = Restores { $amount } { $stat } a second
 ## Health or Mana taken away over time (poison), signed ("−1").
 
 item-drains = { $amount } { $stat } a second
+
+## Health or Mana given or taken at once (ointment), signed ("+5", "−5").
+
+item-at-once = { $amount } { $stat } at once
+
+## Ointment whose doses come to nothing on the skin (a quarter of each).
+
+item-too-weak = Too weak to do anything on the skin
 
 ## What food that doesn't suit the eater's kind does to them, before its line.
 

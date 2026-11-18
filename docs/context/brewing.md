@@ -59,7 +59,7 @@ Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles hold
 3. **Collect Water** (built): learned on a first empty bottle; facing water within reach; which water by place and sky; filling until moved or harmed; practice. Needs 2.
 4. **The brewing rules** (built, `shared::brewing`) in `shared` (decisions 6 to 16 and 18): one pure function with tests, no interface. Needs 1. Independent of 2 and 3.
 5. **Press Oil** (built): vegetables, nuts or seeds into an empty bottle. Needs 2, and the Fruit and nuts and Vegetables chats' first PRs.
-6. **Grind:** the mixing panel (herbs, an oil, doses), making ointment, ointment used on oneself; potions made before listed for making again. Needs 2 and 4.
+6. **Grind** (built): the mixing panel (herbs, an oil, doses), making ointment, ointment used on oneself; potions made before listed for making again. Needs 2 and 4.
 7. **Brew:** ointment and water into a potion; practice for Alchemy and Herbalism; wiki page on brewing. Needs 6.
 8. **Drinking:** decisions 17 to 22. Needs 1 (Give Item's potions can test it before 7).
 
@@ -70,6 +70,8 @@ Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles hold
 - The brewing rules (PR 4, `docs/context/shared/brewing.md`): a function per step (`grind`, `brew`, `quality`, `duration_seconds`, `on_skin`); the caller (Grind) passes one of each herb with `doses` sets wanted and takes them away. Claude's choices: a herb's steps round to the nearest (`change × potency`, so 1 × 80% gives 1), a helpful/harmful tie for the largest counts as helpful, Salt Water's tie takes the first stat, boosts keep a dose's sign.
 
 - Press Oil (PR 5, `docs/context/shared/potion.md`; Claude's first guesses for the owner to tune): a bottle takes about ten handfuls by weight (nuts 200 g, seeds 300 g, vegetables 1 kg), 15 − ∛Alchemy% seconds (15 to 11), 8 Alchemy practice a bottle. Nuts give Nut Oil; vegetables whose part is seeds (beans, peanuts) and herbs whose part is Seeds give Seed Oil; any other vegetable (grain too) Vegetable Oil; other fruit and herbs nothing. Choosing: using it opens a requester listing what is carried with a bottle's worth (name, count, bottles of which oil); Press presses that, bottle after bottle like Collect Water, until too little is left, the empty bottles run out, or the player moves or is harmed.
+
+- Grind (PR 6, `docs/context/shared/brewing.md`; Claude's choices and first guesses for the owner to tune): using Grind opens a mixing panel: a checkbox per carried herb stack (ticking one unticks any other stack of the same herb), the oil bottle, the doses there is enough of, what it would make, and the mixes made before (latest first, at most 20, saved on the sheet with what each made last; Use picks the best stack of each herb). What it would make shows its doses only once the character knows every effect of the herbs ticked, so grinding teaches nothing for free. Grinding takes 10 − ∛Alchemy% seconds (10 to 6), called off by moving or harm; it uses `doses` of each herb and one bottle of oil (the bottle comes back empty), and gives 8 Alchemy and 2 Herbalism a kind of herb, whatever comes of it. Ointment is a counted item (60 g a dose) in a small tin coloured as a potion of it would be; it is used like food (let go of on oneself), the latest ointment's effect replacing any earlier one; its Health and Mana come at once, 5 a step (decision 17).
 
 ## Later
 

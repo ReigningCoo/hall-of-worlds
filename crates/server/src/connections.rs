@@ -45,6 +45,7 @@ mod facing;
 mod for_others;
 mod give_items;
 mod go_to_place;
+mod grind;
 mod heal;
 mod keys_found;
 mod kick;
@@ -63,6 +64,7 @@ mod press_oil;
 mod roads;
 mod role;
 mod role_ask;
+mod rub_ointment;
 mod send_sheet;
 mod stack_parts;
 mod strength_room;
@@ -213,6 +215,8 @@ pub struct Client {
     fight: crate::combat::Fight,
     /// What Press Oil presses while it goes on (`press_oil.rs`).
     pressing: Option<shared::potion::Pressing>,
+    /// What Grind grinds while it winds up (`grind.rs`).
+    grinding: Option<shared::brewing::GrindOrder>,
     /// Its open practice windows, by skill and by kind of foe.
     learning: crate::combat::Learning,
     /// What a character being made here asked to be, for when they first join.

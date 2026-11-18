@@ -35,6 +35,9 @@ pub enum Source {
     /// A vegetable's effects (`vegetable::eating`): their own source, as a
     /// fruit's, and only the latest vegetable's count.
     VegetableEffects(crate::vegetable::VegetableTag),
+    /// Ointment rubbed on oneself (`brewing::skin_effect`): its own source,
+    /// alongside food and herbs, and only the latest ointment's counts.
+    Ointment,
     // New sources go at the end: messages carry one by its place in this list.
 }
 

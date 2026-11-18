@@ -81,6 +81,9 @@ pub enum ItemKind {
     /// For grinding herbs into ointment (`ability::Ability::Grind`).
     MortarAndPestle,
     Necklace,
+    /// Herbs and an oil ground together (`shared::brewing`), counted: its
+    /// doses are in its form.
+    Ointment,
     /// A small screw press for oil (`ability::Ability::PressOil`).
     OilPress,
     PaddedChausses,
@@ -136,7 +139,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 102] = [
+    pub const ALL: [Self; 103] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -205,6 +208,7 @@ impl ItemKind {
         Self::Necklace,
         Self::Neckwear,
         Self::OilPress,
+        Self::Ointment,
         Self::PaddedChausses,
         Self::PaddedGloves,
         Self::Parcel,

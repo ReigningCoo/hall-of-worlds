@@ -29,7 +29,8 @@ impl ItemForm {
             | Self::Set(_)
             | Self::Key(_)
             | Self::Herb(_)
-            | Self::Bottle(_) => None,
+            | Self::Bottle(_)
+            | Self::Ointment(_) => None,
         }
     }
 
@@ -54,6 +55,7 @@ impl ItemForm {
             Self::Set(set) => Some(set.grams_at(size)),
             Self::Herb(herb) => Some(herb.grams),
             Self::Bottle(bottle) => Some(bottle.grams()),
+            Self::Ointment(_) => Some(crate::brewing::OINTMENT_GRAMS),
             Self::Fruit(fruit) => Some(fruit.grams),
             Self::Vegetable(vegetable) => Some(vegetable.grams),
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) => None,
