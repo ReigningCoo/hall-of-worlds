@@ -11,8 +11,8 @@ use crate::item::{Item, ItemKind, MadeAt, Shape};
 use crate::item_form::ItemForm;
 use crate::rng::Seed;
 
-/// The fruit old saves' apples become, and what shops and mobs give until
-/// where fruit grows decides (PR 3 of the fruit plan).
+/// The fruit old saves' apples become, and what `item_form::give_form` gives
+/// (shops and mobs' gear are then suited to their place: `shared::produce`).
 pub const APPLE: &str = "apple";
 
 /// Which fruit an item is, and what one of it is like.

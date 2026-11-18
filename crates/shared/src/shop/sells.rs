@@ -5,14 +5,16 @@ use crate::item::{ItemKind, Quality};
 use crate::site::BuildingKind;
 
 /// What a kind of building sells, with how much each weighs: nothing if it isn't
-/// a shop. Only placeholders exist to sell for now.
+/// a shop. Fruit and vegetables are what is grown near the town
+/// (`shared::produce`, by the server).
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies, BreastBand,
         Cap, Cauldron, Cloak, Clogs, Fruit, Gauntlets, Gloves, Hat, Headcloth, Headdress,
         HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth, MortarAndPestle, Necklace,
         Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat, Pouch, Ring, Sandals, Shawl,
-        Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Trousers, Wimple,
+        Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Trousers, Vegetable,
+        Wimple,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -22,9 +24,11 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Keyring, 1),
             (Cauldron, 1),
         ],
-        // Their bottles hold waters and oils (`bottled`).
+        // Their bottles hold waters and oils (`bottled`); fruit and
+        // vegetables are what is grown near the town (`shared::produce`).
         BuildingKind::Herbalist => &[
             (Fruit, 3),
+            (Vegetable, 3),
             (Bottle, 2),
             (Pouch, 1),
             (HerbPouch, 1),

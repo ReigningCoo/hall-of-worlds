@@ -35,7 +35,14 @@ fn mobs_only_get_blades_they_can_carry_and_lift() {
         let (mut armed, tries) = (0, 200);
         for _ in 0..tries {
             let gear = [(ItemKind::Sword, Some(Quality::Common))];
-            let carrying = dressed(kind, &Sheet::new(kind).attributes, &gear, 0, made_at);
+            let carrying = dressed(
+                kind,
+                &Sheet::new(kind).attributes,
+                &gear,
+                0,
+                made_at,
+                &land(),
+            );
             assert!(carrying.total_weight() <= lifting);
             // Held when it can be, carried otherwise.
             armed += !(carrying.items.is_empty() && carrying.worn.is_empty()) as u32;
@@ -62,6 +69,7 @@ fn mobs_wear_clothes_made_for_them_and_carry_ordinary_things() {
         &gear,
         0,
         made_at,
+        &land(),
     );
     assert_eq!(beggar.worn[0].kind, ItemKind::Trousers);
     let giant = dressed(
@@ -70,9 +78,58 @@ fn mobs_wear_clothes_made_for_them_and_carry_ordinary_things() {
         &gear,
         0,
         made_at,
+        &land(),
     );
     assert_eq!(giant.worn[0].made.size, Size::Giant);
     assert_eq!(giant.items[0].item.made.size, Size::Medium);
+}
+
+/// Somewhere ordinary for mobs to forage.
+fn land() -> shared::mob::Habitat {
+    shared::mob::Habitat::typical(shared::climate::Biome::Grassland)
+}
+
+#[test]
+fn mobs_carry_food_foraged_where_they_live() {
+    use shared::climate::Biome;
+    use shared::item_form::ItemForm;
+    use shared::mob::Habitat;
+    let made_at = MadeAt {
+        world: WorldSeed::new(1).id(),
+        minute: 0,
+    };
+    let gear = [(ItemKind::Fruit, None), (ItemKind::Vegetable, None)];
+    let desert = Habitat::typical(Biome::Desert);
+    let fruits = shared::fruit::Fruits::built_in();
+    let vegetables = shared::vegetable::Vegetables::built_in();
+    let mut found = 0;
+    for _ in 0..20 {
+        let attributes = Sheet::new(CreatureKind::Beggar).attributes;
+        let beggar = dressed(
+            CreatureKind::Beggar,
+            &attributes,
+            &gear,
+            0,
+            made_at,
+            &desert,
+        );
+        // A big one may not fit a beggar's pockets.
+        found += beggar.items.len();
+        for placed in &beggar.items {
+            match &placed.item.form {
+                Some(ItemForm::Fruit(form)) => {
+                    let def = fruits.get(&form.fruit).unwrap();
+                    assert!(def.biomes.contains(&Biome::Desert), "{}", def.key);
+                }
+                Some(ItemForm::Vegetable(form)) => {
+                    let def = vegetables.get(&form.vegetable).unwrap();
+                    assert!(def.grows_wild(Biome::Desert), "{}", def.key);
+                }
+                other => panic!("{other:?}"),
+            }
+        }
+    }
+    assert!(found >= 20, "only {found} found");
 }
 
 fn seen_ids(answers: &[ServerMessage]) -> BTreeSet<Id> {

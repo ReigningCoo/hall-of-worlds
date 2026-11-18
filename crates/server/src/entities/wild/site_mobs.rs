@@ -35,6 +35,7 @@ pub(super) fn site_mobs(world: &mut ServerWorld, block: BlockPos, shift: i64) ->
         return Vec::new();
     }
     let made_at = world.made_now();
+    let land = world.wilderness.wild.habitat_of(block);
     let saved = world.site_mut(id).levels.entry(0).or_default();
     plan.into_iter()
         .filter(|spawn| !saved.dead.contains(&spawn.number))
@@ -50,6 +51,7 @@ pub(super) fn site_mobs(world: &mut ServerWorld, block: BlockPos, shift: i64) ->
                         &spawn.gear,
                         spawn.coins,
                         made_at,
+                        &land,
                     )
                 })
                 .clone();

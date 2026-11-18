@@ -44,8 +44,9 @@ pub fn give_form_to(
             };
             (form, size.unwrap_or(Size::Medium))
         }
-        // An apple, until where fruit grows decides (PR 3 of the fruit plan);
-        // Give Item's fruit is chosen as herbs are (`fruit::dev_fruit`).
+        // An apple: shops and mobs' gear are then suited to their place
+        // (`shared::produce`); Give Item's fruit is chosen as herbs are
+        // (`fruit::dev_fruit`).
         ItemKind::Fruit => {
             let def = crate::fruit::Fruits::built_in().get(crate::fruit::APPLE);
             let def = def.expect("the built-in fruits have the apple");

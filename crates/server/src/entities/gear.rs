@@ -6,7 +6,8 @@ use shared::dungeon::line_is_clear;
 use shared::id::Id;
 use shared::item::{Inventory, ItemKind, MadeAt, Quality, StackLimits, coin_items};
 use shared::item_form::give_blade_within;
-use shared::mob::GIVE_REACH;
+use shared::mob::{GIVE_REACH, Habitat};
+use shared::produce::{Source, suit_to_place};
 use shared::protocol::CharacterId;
 use shared::sheet::{Attributes, Sheet};
 
@@ -19,13 +20,15 @@ use crate::storage::{MobRecord, SiteId};
 /// A new mob's belongings: it wears what it can, and keeps the rest in its
 /// inventory while there is room, its money last as the fewest coins. Only what is
 /// worn or a blade is made to its size. Armour is made to suit its `attributes`
-/// where it can be (`suited`).
+/// where it can be (`suited`). Its fruit and vegetables are what it foraged on
+/// `land`.
 pub(super) fn dressed(
     kind: CreatureKind,
     attributes: &Attributes,
     gear: &[(ItemKind, Option<Quality>)],
     coins: u64,
     made_at: MadeAt,
+    land: &Habitat,
 ) -> Inventory {
     let mut carrying = Inventory {
         creature: kind,
@@ -52,6 +55,7 @@ pub(super) fn dressed(
                 continue;
             }
         }
+        suit_to_place(&mut new, land, Source::Foraged);
         new.roll_secrets();
         // Clothes go straight on, as they may be bigger than its inventory.
         if carrying.check_wear_new(&new).is_ok() {

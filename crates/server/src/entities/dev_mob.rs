@@ -87,6 +87,7 @@ fn create_mob(
     let maker = visit.spot();
     let cell = (order.x, order.y);
     let made_at = world.made_now();
+    let land = world.habitat_at(client.world_position());
     let population = world
         .populations
         .0
@@ -119,6 +120,7 @@ fn create_mob(
         &spawn.gear,
         spawn.coins,
         made_at,
+        &land,
     );
     let mut mob = Mob::new(new_id(), &spawn, &carrying, index);
     mob.still = order.still;

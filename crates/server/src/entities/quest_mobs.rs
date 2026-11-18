@@ -99,6 +99,7 @@ impl ServerWorld {
             &spawn.gear,
             spawn.coins,
             made_at,
+            &self.habitat_of_poi(poi),
         );
         let saved = self.site_mut(site).levels.entry(index).or_default();
         saved.mobs.insert(BOSS_NUMBER, id);
@@ -133,6 +134,7 @@ impl ServerWorld {
         }
         let tick = self.action_clock.ticks();
         let made_at = self.made_now();
+        let land = self.habitat_of_poi(poi);
         let Some(population) = self.populations.0.get_mut(&place) else {
             return 0;
         };
@@ -156,7 +158,14 @@ impl ServerWorld {
             number += 1;
             spawn.gear.clear();
             spawn.coins = 0;
-            let carrying = dressed(spawn.kind, &spawn.attributes, &spawn.gear, 0, made_at);
+            let carrying = dressed(
+                spawn.kind,
+                &spawn.attributes,
+                &spawn.gear,
+                0,
+                made_at,
+                &land,
+            );
             population
                 .mobs
                 .push(Mob::new(new_id(), &spawn, &carrying, place.1));
