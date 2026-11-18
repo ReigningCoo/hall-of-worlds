@@ -158,3 +158,4 @@ delapouite/olive
 skoll/pestle-mortar
 lorc/cauldron
 delapouite/carrot
+delapouite/covered-jar

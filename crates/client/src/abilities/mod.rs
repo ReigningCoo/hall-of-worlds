@@ -12,6 +12,7 @@ use crate::player::PlayerSystems;
 mod bar;
 mod cancel;
 mod drag;
+mod grind;
 mod held;
 mod icons;
 mod item_look;
@@ -35,8 +36,16 @@ impl Plugin for AbilitiesPlugin {
             .init_resource::<drag::Aim>()
             .init_resource::<manual::Manual>()
             .init_resource::<press_oil::PressChooser>()
+            .init_resource::<grind::Mixing>()
             .add_message::<use_ability::UseSlot>()
-            .add_systems(Startup, (bar::spawn_bar, press_oil::spawn_requester))
+            .add_systems(
+                Startup,
+                (
+                    bar::spawn_bar,
+                    press_oil::spawn_requester,
+                    grind::spawn_mixing,
+                ),
+            )
             // Before widgets take presses on panels, and the map clicks.
             // Before the system menu sees Esc.
             .add_systems(PreUpdate, cancel::cancel_by_escape.before(DomInput::Front))
@@ -70,6 +79,7 @@ impl Plugin for AbilitiesPlugin {
                     (bar::place_bar, bar::show_bar),
                     wait::show_wait,
                     (press_oil::answer_requester, press_oil::show_requester),
+                    (grind::answer_mixing, grind::show_mixing),
                 )
                     .chain()
                     // Knowing whether the player is moving this frame.

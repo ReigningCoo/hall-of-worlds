@@ -1,7 +1,8 @@
 //! Eating (`ClientMessage::Consume`): the top one of food, a fruit, a vegetable
 //! or a herb carried, or lying in reach, is taken and eaten (`Sheet::eat`, a
 //! fruit: `eat_fruit.rs`, a vegetable: `eat_vegetable.rs`, or a herb raw:
-//! `eat_herb.rs`), in turn with the player's steps.
+//! `eat_herb.rs`), in turn with the player's steps. Ointment is rubbed on
+//! the same way (`rub_ointment.rs`).
 
 use bevy::prelude::*;
 use shared::bonus::{edible, may_eat};
@@ -45,6 +46,10 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
         Ok(eaten) if eaten.fruit().is_some() => {
             super::eat_fruit::eat_fruit(client, world, (&eaten, carried), tick);
             handling_cost(eaten.total_weight())
+        }
+        Ok(used) if used.ointment().is_some() => {
+            super::rub_ointment::rub_ointment(client, &used, tick);
+            handling_cost(used.total_weight())
         }
         Ok(eaten) if eaten.vegetable().is_some() => {
             super::eat_vegetable::eat_vegetable(client, world, (&eaten, carried), tick);

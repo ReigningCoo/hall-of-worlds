@@ -24,6 +24,7 @@ mod looks;
 mod model;
 mod morph;
 mod necklace;
+mod ointment;
 mod parcel;
 mod pouch;
 mod ring;

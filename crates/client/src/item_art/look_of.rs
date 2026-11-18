@@ -33,6 +33,10 @@ pub fn look_of(item: &Item) -> Option<Look> {
             liquid: super::LiquidLook::of_bottle(bottle),
         });
     }
+    if let Some(ointment) = item.ointment() {
+        let salve = super::LiquidLook::of(&ointment.contents);
+        return Some(Look::Ointment(salve));
+    }
     if let Some(fruit) = item.fruit() {
         return Some(Look::Fruit(super::FruitItemLook::of(fruit)));
     }

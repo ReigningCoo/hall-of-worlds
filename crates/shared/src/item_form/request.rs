@@ -142,6 +142,7 @@ pub fn fields(kind: ItemKind) -> &'static [Field] {
     match kind {
         ItemKind::Gem => &[GemMaterial, GemCut],
         ItemKind::Bottle => &[Liquid, Effects],
+        ItemKind::Ointment => &[Effects],
         ItemKind::Ring | ItemKind::Necklace => &[Material, Settings, GemMaterial, GemCut],
         // Their cloth is a material, and shoulders' finish is leather's own.
         ItemKind::Gauntlets

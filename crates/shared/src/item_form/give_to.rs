@@ -66,6 +66,19 @@ pub fn give_form_to(
             let bottle = bottle_to(&mut rng, request, look)?;
             (ItemForm::Bottle(bottle), Size::Medium)
         }
+        // Rolled doses (1 to 4 effects, or as asked), its quality from them,
+        // until Grind makes it (`brewing`).
+        ItemKind::Ointment => {
+            use crate::potion::{MOST_EFFECTS, roll_contents};
+            let effects = request.effects.unwrap_or_else(|| rng.range_u64(1, 4) as u8);
+            if !(1..=MOST_EFFECTS).contains(&effects) {
+                return Err(Refused(Field::Effects));
+            }
+            let contents = roll_contents(&mut rng, effects);
+            item.quality = Some(crate::brewing::quality(&contents));
+            let form = crate::brewing::OintmentForm { contents };
+            (ItemForm::Ointment(form), Size::Medium)
+        }
         ItemKind::Gem => {
             let ask = GemAsk::of(request);
             ask.check(quality, true)?;

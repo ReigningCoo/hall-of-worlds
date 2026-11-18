@@ -24,6 +24,8 @@ mod stopper;
 mod surface;
 
 pub use liquid::LiquidLook;
+// The ointment's salve takes a potion's colours (`ointment.rs`).
+pub(super) use liquid_colour::{main_colour, second_colour};
 pub use look::{BottleLook, Glass, Shape, Stopper};
 use profiles::profile;
 use surface::Surface;

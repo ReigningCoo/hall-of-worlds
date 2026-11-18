@@ -1,6 +1,6 @@
 # shared: brewing
 
-The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/context/brewing.md`): herbs and an oil ground into an ointment, an ointment and a water brewed into a potion, a potion's quality and how long it lasts, and an ointment used on oneself. Pure functions on whole numbers, so client and server agree. Not the abilities, items or panels that use them (Grind and Brew, PRs 6 and 7), nor drinking (PR 8), nor practice.
+The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/context/brewing.md`): herbs and an oil ground into an ointment, an ointment and a water brewed into a potion, a potion's quality and how long it lasts, and an ointment used on oneself. Pure functions on whole numbers, so client and server agree. Also Grind's shared pieces (PR 6): the ointment item, the order checked against what is carried, ointment on the skin and the recipes a character remembers. Not Brew (PR 7), drinking (PR 8), nor the panels.
 
 ## Files
 
@@ -10,6 +10,10 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `brewing/cut.rs`: `cut_unwanted` (Herbalism's cuts).
 - `brewing/grind.rs`: `GroundHerb`, `Ointment`, `Refused`, `herb_steps`, `grind`.
 - `brewing/brew.rs`: `watered`, `brew`, `POTION_AT`, `KEPT_FROM`.
+- `brewing/ointment.rs`: `OintmentForm`, `new_ointment`, `OINTMENT_GRAMS`, `Item::ointment`.
+- `brewing/order.rs`: `GrindOrder`, `GrindRefused`, `HerbStack`, `OilStack`, `Inventory::herb_stacks`, `oil_stacks`, `check_grind`; `grind_seconds`, `grind_ticks`, `GRIND_PRACTICE`, `HERB_PRACTICE`. Tests in `brewing/grind_item_tests.rs` (with the other PR 6 pieces).
+- `brewing/recipe.rs`: `Recipe`, `Recipes`, `MOST_RECIPES`.
+- `brewing/skin.rs`: `Applied`, `applied`, `skin_effect`, `VITAL_PER_STEP`, `ATTRIBUTE_PER_STEP`.
 - `brewing/quality.rs`: `quality`, `duration_seconds`, `duration_ticks`, `on_skin` and their constants.
 
 ## Public API
@@ -25,13 +29,18 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `duration_seconds(quality)` / `duration_ticks`: `COMMON_SECONDS` (120) ± `SECONDS_PER_QUALITY` (30) a quality from Common: Poor 90 s to Legendary 240 s.
 - `on_skin(ointment)`: each dose ÷ `ON_SKIN_SHARE` (4), towards 0, zeros dropped; it lasts as `duration_*` of the ointment's own `quality`.
 
+- Ointment (PR 6): `ItemKind::Ointment` with `ItemForm::Ointment(OintmentForm { contents })`, counted, its quality `quality(contents)` (`new_ointment(contents, count, id)`), 60 g each.
+- `GrindOrder { herbs: Vec<Id>, oil: Id, doses }` (one carried stack per herb, a carried bottle of oil): `Inventory::check_grind(order, herbs, skills) -> Result<(Ointment, Oil), GrindRefused>` (`Herb`: missing or fewer than `doses`; `UnknownHerb`; `Oil`; `Rules(Refused)`), the same on both sides. `herb_stacks()` (by herb, best quality first; never worn or quest items) and `oil_stacks()` for the panel. `grind_seconds` 10 − ∛Alchemy% (10 to 6), `GRIND_PRACTICE` 8 Alchemy a grinding, `HERB_PRACTICE` 2 Herbalism a kind of herb (first guesses).
+- `Recipe { herbs (keys, sorted), oil, made }` (`new`, `same_mix`), `Recipes` (`remember`: to the front, the same mix replaced, at most `MOST_RECIPES` 20; `iter`): saved on `Sheet::recipes`, sent with the sheet.
+- `skin_effect(contents, now) -> Applied { effect, vitals }`: `on_skin`'s quarter, attributes `ATTRIBUTE_PER_STEP` (1 point) a step for `duration_ticks(quality(contents))` as `Source::Ointment`, Health and Mana `VITAL_PER_STEP` (5) a step at once (decision 17's rule, so drinking can share `applied`).
+
 ## Depends on
 
-- `herb` (`HerbDef`, `Effect`, `Stat`, `potency`, `cube_root`, `skill_value`, `skill_percent`, `HERBALISM`), `potion` (`Contents`, `Dose`, `Oil`, `Water`), `ability` (`ALCHEMY`), `sheet` (`Row`), `item` (`Quality`), `energy` (`ACTION_TICKS_PER_SECOND`), `skill` (`Skills`).
+- `herb` (`HerbDef`, `Effect`, `Stat`, `potency`, `cube_root`, `skill_value`, `skill_percent`, `HERBALISM`, `Herbs`), `potion` (`Contents`, `Dose`, `Oil`, `Water`, `Liquid`, `BottleForm`), `bonus` (`Effect`, `Source`, `Bonus`), `vitals` (`Vital`, `PER_POINT`), `id`, `item_form` (`ItemForm`), `ability` (`ALCHEMY`), `sheet` (`Row`), `item` (`Quality`), `energy` (`ACTION_TICKS_PER_SECOND`), `skill` (`Skills`).
 
 ## Used by
 
-- Nothing yet: Grind (PR 6), Brew (PR 7) and drinking (PR 8) will.
+- `item` (`ItemKind::Ointment`), `item_form` (`ItemForm::Ointment`, Give Item's), `sheet` (`Sheet::recipes`), `protocol` (`ClientMessage::Grind`), server `connections/grind.rs` and `rub_ointment.rs`, client `abilities/grind/`, `item_art` (`ointment.rs`), `item_popup` (`ointment.rs`). Brew (PR 7) and drinking (PR 8) will.
 
 ## Notes
 

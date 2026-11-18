@@ -12,6 +12,7 @@ mod copy;
 mod herb;
 mod keys;
 mod needs;
+mod ointment;
 mod open;
 mod place;
 mod show;

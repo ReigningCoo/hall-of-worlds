@@ -112,6 +112,11 @@ impl ItemKind {
                 // Counted with quality: a stack keys on its herb and quality
                 // (`shared::herb`). What one weighs is its form's, from its herb.
                 Self::Herb => plain("Herb", 10, square).counted(),
+                // Counted with quality: a stack keys on its contents and quality
+                // (`shared::brewing`).
+                Self::Ointment => {
+                    plain("Ointment", crate::brewing::OINTMENT_GRAMS, square).counted()
+                }
                 // Laminated to the knee, wrapping the thighs: Waist and Legs (the owner's
                 // decision). Its form says its cells and weight.
                 Self::CuirassierTassets => plain(

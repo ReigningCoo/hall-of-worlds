@@ -25,6 +25,9 @@ pub(crate) enum Act {
     /// A bottle being filled with oil pressed (players only): what is
     /// pressed is the client's `pressing`.
     PressOil,
+    /// Herbs being ground into ointment (players only): the order is the
+    /// client's `grinding`.
+    Grind,
 }
 
 /// An ability begun and not landed yet.

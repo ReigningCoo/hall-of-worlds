@@ -89,3 +89,8 @@ mod dropping {
 fn press_oils_requester_is_good_markup() {
     super::press_oil::PRESS_OIL.assert_good();
 }
+
+#[test]
+fn grinds_mixing_panel_is_good_markup() {
+    super::grind::GRIND.assert_good();
+}

@@ -189,6 +189,10 @@ pub struct Sheet {
     /// and skills give it: none in older saves.
     #[serde(default)]
     pub abilities: crate::ability::Learned,
+    /// The mixes it has ground before, for making again (`brewing::Recipes`):
+    /// none in older saves.
+    #[serde(default)]
+    pub recipes: crate::brewing::Recipes,
 }
 
 impl Default for Sheet {
@@ -219,6 +223,7 @@ impl Sheet {
             effects: Effects::default(),
             herbs: Default::default(),
             abilities: Default::default(),
+            recipes: Default::default(),
         }
     }
 
