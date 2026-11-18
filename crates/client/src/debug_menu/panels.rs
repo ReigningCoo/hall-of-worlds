@@ -19,6 +19,7 @@ mod necklaces;
 mod page;
 mod sets;
 mod under;
+mod vegetables;
 mod waist;
 
 // Split into files (`cargo xtask lint` keeps files small).

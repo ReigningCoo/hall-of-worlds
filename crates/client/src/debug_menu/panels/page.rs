@@ -7,7 +7,7 @@ use shared::material::Material;
 use super::{
     RING_ROWS, Shown, armour, arms, beast_heads, bottles, clothes, feet, footwear, fruit, hair,
     legs, markings, neck, necklaces, sets, spawn_blade_row, spawn_body_row, spawn_picture_heading,
-    spawn_picture_row, spawn_ring_row, under, waist,
+    spawn_picture_row, spawn_ring_row, under, vegetables, waist,
 };
 use crate::common::Preferences;
 
@@ -37,10 +37,11 @@ pub(in crate::debug_menu) enum PicturePage {
     Bottles,
     Coins,
     Fruit,
+    Vegetables,
 }
 
 impl PicturePage {
-    pub(super) const ALL: [Self; 21] = [
+    pub(super) const ALL: [Self; 22] = [
         Self::Bodies,
         Self::Hands,
         Self::Shoulders,
@@ -62,6 +63,7 @@ impl PicturePage {
         Self::Bottles,
         Self::Coins,
         Self::Fruit,
+        Self::Vegetables,
     ];
 
     pub(super) fn name(self) -> &'static str {
@@ -87,6 +89,7 @@ impl PicturePage {
             Self::Bottles => "Bottles",
             Self::Coins => "Coins",
             Self::Fruit => "Fruit",
+            Self::Vegetables => "Vegetables",
         }
     }
 
@@ -134,6 +137,7 @@ impl PicturePage {
             Self::Necklaces => necklaces::spawn_necklace_rows(grid),
             Self::Bottles => bottles::spawn_bottle_rows(grid),
             Self::Fruit => fruit::spawn_fruit_rows(grid),
+            Self::Vegetables => vegetables::spawn_vegetable_rows(grid),
             Self::Coins => {
                 let coins = [Material::Copper, Material::Silver, Material::Gold];
                 armour::spawn_row(grid, "Coins", coins.into_iter().map(Shown::Coin));

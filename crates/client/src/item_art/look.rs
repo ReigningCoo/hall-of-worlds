@@ -117,6 +117,9 @@ pub enum Look {
     /// A fruit or nuts, or a slice of a big fruit, by fruit and variant
     /// (`fruit.rs`).
     Fruit(super::FruitItemLook),
+    /// A vegetable, pulse or grain, or a slice of a big one, by vegetable and
+    /// variant (`vegetable.rs`).
+    Vegetable(super::VegetableItemLook),
     /// A herb: the part used, by herb and variant (`herb.rs`).
     Herb(super::HerbLook),
     /// A bottle, empty or a potion: its shape, glass and stopper from its look
@@ -182,6 +185,7 @@ impl Look {
             Self::Food(_) => (2, 1),
             Self::Tool(kind) => super::tool::cells(*kind),
             Self::Fruit(fruit) => fruit.cells,
+            Self::Vegetable(vegetable) => vegetable.cells,
             Self::Blade { blade, .. } => blade.cells,
             Self::Hands { hands, .. } => hands.cells,
             Self::Shoulders { shoulders, .. } => shoulders.cells,

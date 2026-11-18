@@ -32,6 +32,7 @@ mod ring;
 mod save_picture;
 mod tool;
 mod under;
+mod vegetable;
 
 use bevy::prelude::*;
 use bevy::render::{ExtractSchedule, Render, RenderApp, RenderSystems};
@@ -54,6 +55,7 @@ pub use model::CreatureModels;
 pub use morph::{MORPH_STEPS, MorphLook, morph_look};
 pub use necklace::NecklaceLook;
 pub use under::UnderLook;
+pub use vegetable::{VEGETABLE_VARIANTS, VegetableItemLook};
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod batch;

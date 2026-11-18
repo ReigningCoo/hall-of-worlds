@@ -152,10 +152,60 @@ impl<'a> Kit<'a> {
         });
     }
 
+    /// A matte material seen from both sides, for thin sheets (leaves, husks).
+    pub(in crate::item_art) fn sheet(&mut self, colour: Color) -> Handle<StandardMaterial> {
+        self.materials.add(StandardMaterial {
+            base_color: colour,
+            perceptual_roughness: 0.8,
+            reflectance: 0.12,
+            double_sided: true,
+            cull_mode: None,
+            ..default()
+        })
+    }
+
     /// Shrinks everything built about the middle, if need be, so it reaches no
     /// further than `half` along x and z.
     pub(in crate::item_art) fn fit(&mut self, half: Vec2) {
-        let mut most = Vec2::ZERO;
+        let shrink = (half / self.reach()).min_element();
+        if shrink < 1.0 {
+            self.scale(shrink);
+        }
+    }
+
+    /// Scales everything built about the middle, up or down, so it just reaches
+    /// `half` along x or z.
+    pub(in crate::item_art) fn fill(&mut self, half: Vec2) {
+        let scale = (half / self.reach()).min_element();
+        self.scale(scale);
+    }
+
+    /// Moves everything built so the middle of what it covers along x and z is
+    /// at the middle of the picture.
+    pub(in crate::item_art) fn centre(&mut self) {
+        let (low, high) = self.bounds();
+        let middle = (low + high) / 2.0;
+        let shift = Vec3::new(-middle.x, 0.0, -middle.y);
+        for part in &mut self.parts {
+            part.transform.translation += shift;
+        }
+    }
+
+    fn scale(&mut self, scale: f32) {
+        for part in &mut self.parts {
+            part.transform = Transform::from_scale(Vec3::splat(scale)) * part.transform;
+        }
+    }
+
+    /// How far from the middle anything built reaches along x and z.
+    fn reach(&self) -> Vec2 {
+        let (low, high) = self.bounds();
+        low.abs().max(high.abs()).max(Vec2::splat(f32::EPSILON))
+    }
+
+    /// The least and most x and z anything built reaches.
+    fn bounds(&self) -> (Vec2, Vec2) {
+        let (mut low, mut high) = (Vec2::splat(f32::MAX), Vec2::splat(f32::MIN));
         for part in &self.parts {
             let Some(mesh) = self.meshes.get(&part.mesh) else {
                 continue;
@@ -167,15 +217,14 @@ impl<'a> Kit<'a> {
             };
             for &point in points {
                 let at = part.transform.transform_point(Vec3::from(point));
-                most = most.max(Vec2::new(at.x.abs(), at.z.abs()));
+                low = low.min(Vec2::new(at.x, at.z));
+                high = high.max(Vec2::new(at.x, at.z));
             }
         }
-        let shrink = (half / most.max(Vec2::splat(f32::EPSILON))).min_element();
-        if shrink < 1.0 {
-            for part in &mut self.parts {
-                part.transform = Transform::from_scale(Vec3::splat(shrink)) * part.transform;
-            }
+        if low.x > high.x {
+            return (Vec2::ZERO, Vec2::ZERO);
         }
+        (low, high)
     }
 
     /// The parts built.

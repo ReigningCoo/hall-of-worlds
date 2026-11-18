@@ -12,10 +12,12 @@ use server::debug_api::{BrpError, BrpResult, Value, json, params, refused};
 use shared::item::Item;
 
 use shared::fruit::{FruitForm, Fruits};
+use shared::vegetable::{VegetableForm, Vegetables};
 
 use super::fruit::{FRUIT_VARIANTS, FruitItemLook};
 use super::herb::{HERB_VARIANTS, HerbLook};
 use super::pictures::Waiting;
+use super::vegetable::{VEGETABLE_VARIANTS, VegetableItemLook};
 use super::{Batch, ItemPictures, Look, look_of};
 use crate::common::HerbTable;
 
@@ -31,6 +33,8 @@ struct Asked {
     /// ...or a fruit by its key, with its variant, whole or a slice...
     fruit: Option<String>,
     serving: Option<bool>,
+    /// ...or a vegetable by its key, the same way...
+    vegetable: Option<String>,
     /// ...or any item, as saved, drawn as its look.
     item: Option<Item>,
 }
@@ -46,8 +50,8 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.save_picture", save_picture);
 }
 
-/// `client.save_picture {path, pixels, herb?, fruit?, serving?, variant?, item?}`: answers the
-/// full path, the picture's `width` and `height`, and `wait_for_file`.
+/// `client.save_picture {path, pixels, herb?, fruit?, vegetable?, serving?, variant?, item?}`:
+/// answers the full path, the picture's `width` and `height`, and `wait_for_file`.
 fn save_picture(
     In(request): In<Option<Value>>,
     mut pictures: ResMut<ItemPictures>,
@@ -59,6 +63,11 @@ fn save_picture(
     let look = match (asked.herb, asked.item) {
         (None, None) if asked.fruit.is_some() => fruit_look(
             asked.fruit.unwrap_or_default(),
+            asked.serving,
+            asked.variant,
+        )?,
+        (None, None) if asked.vegetable.is_some() => vegetable_look(
+            asked.vegetable.unwrap_or_default(),
             asked.serving,
             asked.variant,
         )?,
@@ -130,6 +139,33 @@ fn fruit_look(key: String, serving: Option<bool>, variant: Option<u8>) -> Result
         },
     };
     Ok(Look::Fruit(FruitItemLook::of(&form)))
+}
+
+/// A vegetable's look by key, whole or a slice, in a variant (0 if not given).
+fn vegetable_look(
+    key: String,
+    serving: Option<bool>,
+    variant: Option<u8>,
+) -> Result<Look, BrpError> {
+    let Some(def) = Vegetables::built_in().get(&key) else {
+        return Err(refused(format!("no vegetable has the key {key:?}")));
+    };
+    let variant = variant.unwrap_or(0);
+    if variant >= VEGETABLE_VARIANTS {
+        return Err(refused(format!(
+            "variant is 0 to {}",
+            VEGETABLE_VARIANTS - 1
+        )));
+    }
+    let form = match serving.unwrap_or(false) {
+        true => VegetableForm::serving(def, shared::rng::Seed::new(0)),
+        false => VegetableForm::new(def, shared::rng::Seed::new(0)),
+    };
+    let form = VegetableForm {
+        look: u64::from(variant),
+        ..form
+    };
+    Ok(Look::Vegetable(VegetableItemLook::of(&form)))
 }
 
 /// Once a picture asked for is drawn and copied off its page (no longer waiting
