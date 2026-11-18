@@ -4,6 +4,7 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::flour::dev_flour;
 use shared::fruit::dev_fruit;
 use shared::herb::{Herbs, dev_herb, new_item};
 use shared::id::Id;
@@ -157,6 +158,11 @@ fn one_of(
         // As the server makes them (`vegetable::dev_vegetable`).
         let def = dev_vegetable(herb.key, seed).ok_or(Refused(Field::Material))?;
         return Ok(shared::vegetable::new_item(def, 1, id, None));
+    }
+    if order.kind == ItemKind::Flour {
+        // As the server makes them (`flour::dev_flour`).
+        let def = dev_flour(herb.key, seed).ok_or(Refused(Field::Material))?;
+        return shared::flour::new_item(def, 1, id, None).ok_or(Refused(Field::Material));
     }
     try_make_item(order, wearer, id, seed, None, &mut new_id)
 }

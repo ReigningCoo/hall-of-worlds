@@ -14,6 +14,9 @@ pub enum ItemKind {
     /// A vegetable, pulse or grain (`shared::vegetable`), counted: which one
     /// is in its form.
     Vegetable,
+    /// A sack of flour milled from a grain (`shared::flour`), counted: which
+    /// grain is in its form.
+    Flour,
     Bread,
     DwarvenBread,
     RawMeat,
@@ -142,7 +145,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 104] = [
+    pub const ALL: [Self; 105] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -180,6 +183,7 @@ impl ItemKind {
         Self::Doublet,
         Self::DwarvenBread,
         Self::FingerlessGloves,
+        Self::Flour,
         Self::FootArmour,
         Self::Fruit,
         Self::FullArmour,

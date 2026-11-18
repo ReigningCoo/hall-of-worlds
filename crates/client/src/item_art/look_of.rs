@@ -27,6 +27,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
         }
         _ => {}
     }
+    if let Some(flour) = super::FlourLook::of(item) {
+        return Some(Look::Flour(flour));
+    }
     if let Some(cask) = item.cask() {
         return Some(Look::Cask(cask.look()));
     }

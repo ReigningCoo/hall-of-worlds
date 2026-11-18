@@ -537,7 +537,11 @@ fn counted_kinds_are_plain() {
         // its look (a vegetable's likewise), compared without the look.
         let form = matches!(
             kind,
-            ItemKind::Bottle | ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Ointment
+            ItemKind::Bottle
+                | ItemKind::Fruit
+                | ItemKind::Vegetable
+                | ItemKind::Flour
+                | ItemKind::Ointment
         );
         assert_eq!(item.form.is_some(), form, "{kind:?} has a form");
         assert!(item.name.is_none(), "{kind:?} has its own name");

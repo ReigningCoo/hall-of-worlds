@@ -112,6 +112,19 @@ fn every_vegetable_has_a_picture() {
     }
 }
 
+/// Every grain's page shows its flour's picture, which is there.
+#[test]
+fn every_flour_has_a_picture() {
+    for grain in shared::flour::grains() {
+        let picture = root().join(format!("docs/assets/flour/{}.png", grain.key));
+        assert!(
+            picture.exists(),
+            "{} is missing: run `cargo xtask wiki --pictures`",
+            picture.display()
+        );
+    }
+}
+
 /// A vegetable's page tells only its raw effects, as its popup does: what it
 /// would do cooked stays out until there is cooking.
 #[test]

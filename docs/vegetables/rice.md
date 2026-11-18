@@ -27,3 +27,9 @@ grand_parent: Items
 | Growth | Slow: full grown in 8 days of game time |
 | Picking | One to three when full grown, more with Foraging and Crops |
 | After picking | Dug up: nothing grows there for a whole growth, then it starts again from a shoot |
+
+## Flour
+
+![Sack of Rice Flour]({{ '/assets/flour/rice.png' | relative_url }})
+
+A sheaf of rice mills into a sack of rice flour weighing 20 g: 65% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.

@@ -1,6 +1,8 @@
 //! A page per built-in vegetable, pulse and grain: its picture (and a
-//! serving's, for one cut into servings), names and facts.
+//! serving's, for one cut into servings), names and facts, and for grain a
+//! Flour section with its flour's picture and yield.
 
+use shared::flour::FlourForm;
 use shared::vegetable::{VegetableDef, Vegetables};
 
 use super::herb_page::file_name;
@@ -55,7 +57,29 @@ grand_parent: Items
 
 | | |
 | - | - |
-{table}",
+{table}{flour}",
         latin = def.latin,
+        flour = flour(def),
+    )
+}
+
+/// A grain's Flour section: its flour's picture, what a sheaf mills into and
+/// the yield. Nothing for anything else.
+fn flour(def: &VegetableDef) -> String {
+    let Some(flour) = FlourForm::of(def) else {
+        return String::new();
+    };
+    let (key, name) = (&def.key, def.name.to_lowercase());
+    format!(
+        "
+## Flour
+
+![{sack}]({{{{ '/assets/flour/{key}.png' | relative_url }}}})
+
+A sheaf of {name} mills into a sack of {name} flour weighing {grams} g: {percent}% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+",
+        sack = flour.name(),
+        grams = flour.grams,
+        percent = def.flour_yield,
     )
 }

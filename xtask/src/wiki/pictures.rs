@@ -1,6 +1,6 @@
 //! `cargo xtask wiki --pictures`: starts a development copy of the game and has
-//! it save each herb's, fruit's and vegetable's (and a big one's slice) and
-//! named weapon's picture (`client.save_picture`) for the wiki.
+//! it save each herb's, fruit's and vegetable's (and a big one's slice), grain's
+//! flour and named weapon's picture (`client.save_picture`) for the wiki.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -37,6 +37,7 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
         }
     }
     let weapons = weapon_pictures(root)?;
+    let flours = super::flour_pictures::flour_pictures(root)?;
     let fruits = fruit_pictures(root)?;
     let vegetables = vegetable_pictures(root)?;
     let mut game = crate::scenario::start_game(root)?;
@@ -51,7 +52,7 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
         ])
     });
     let saved = saved.and_then(|()| {
-        weapons.iter().try_for_each(|(path, pixels, item)| {
+        (weapons.iter().chain(&flours)).try_for_each(|(path, pixels, item)| {
             crate::api::perform(&[
                 "client.save_picture".into(),
                 format!("item={item}"),
@@ -101,6 +102,11 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
     println!(
         "==> Saved {} weapon pictures in {WEAPON_PICTURES}",
         weapons.len()
+    );
+    println!(
+        "==> Saved {} flour pictures in {}",
+        flours.len(),
+        super::flour_pictures::FLOUR_PICTURES
     );
     Ok(())
 }

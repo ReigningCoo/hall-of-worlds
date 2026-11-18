@@ -29,6 +29,8 @@ pub(super) struct GiveItemParams {
     fruit: Option<String>,
     /// For `"Vegetable"`: the vegetable's key (`"carrot"`); any if missing.
     vegetable: Option<String>,
+    /// For `"Flour"`: the grain's key (`"rye"`); any grain's if missing.
+    flour: Option<String>,
     /// For `"Bottle"`: what it holds, `{ "Water": "Moon" }` (`Plain`, `Cave`,
     /// `Moon`, `Salt`), `{ "Oil": "Nut" }` (`Vegetable`, `Nut`, `Seed`) or
     /// `"Potion"`; by `effects` if missing.
@@ -43,7 +45,8 @@ pub(super) struct GiveItemParams {
 /// `client.give_item { "kind": "Ring", "quality": "Rare", "magical": true }`
 /// (or `{ "kind": "Herb", "herb": "roseroot", "count": 3 }`,
 /// `{ "kind": "Fruit", "fruit": "watermelon" }`,
-/// `{ "kind": "Vegetable", "vegetable": "carrot" }`, or
+/// `{ "kind": "Vegetable", "vegetable": "carrot" }`,
+/// `{ "kind": "Flour", "flour": "rye" }`, or
 /// `{ "kind": "Bottle", "effects": 2 }` for a potion, or
 /// `{ "kind": "Bottle", "liquid": { "Water": "Moon" } }`): into the
 /// inventory, as Give Item does. Saved.
@@ -60,6 +63,7 @@ pub(super) fn give_item(
         herb,
         fruit,
         vegetable,
+        flour,
         liquid,
         effects,
         count,
@@ -80,7 +84,7 @@ pub(super) fn give_item(
                 effects,
                 ..shared::item_form::RollRequest::NONE
             },
-            herb: herb.or(fruit).or(vegetable),
+            herb: herb.or(fruit).or(vegetable).or(flour),
             to: None,
         },
     )));

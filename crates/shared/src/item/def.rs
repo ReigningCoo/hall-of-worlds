@@ -32,6 +32,7 @@ impl ItemKind {
                 }
                 Self::Fruit
                 | Self::Vegetable
+                | Self::Flour
                 | Self::Bread
                 | Self::DwarvenBread
                 | Self::RawMeat => self.food_def(),
@@ -230,6 +231,7 @@ impl ItemKind {
         def.taking(match self {
             Self::Fruit
             | Self::Vegetable
+            | Self::Flour
             | Self::Bread
             | Self::DwarvenBread
             | Self::RawMeat
