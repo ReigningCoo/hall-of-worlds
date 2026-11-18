@@ -25,7 +25,9 @@ pub(super) fn let_go_of(
     (over_gifts, held_stock): (&HeldOverGifts, &mut ResMut<HeldStock>),
     out: &mut Outbox,
 ) {
-    if super::tie::let_go_on_slot(held, aim, holding, carried, out) {
+    if super::tie::let_go_on_slot(held, aim, holding, carried, out)
+        || super::pour::pour_on(held, aim, holding, carried, held_stock, out)
+    {
         return;
     }
     let Outbox {

@@ -8,8 +8,8 @@ What town shops have in stock, and working it out when one is opened. Only the s
 
 ## Public API
 
-- `sells(BuildingKind)`: what it sells, with weights; empty if it isn't a shop. Blacksmiths sell the Keyring, herbalists the Herb Pouch, fruit and vegetables (potion shops some fruit: which ones, by the town's climate, is `shared::produce`, chosen by the server); herbalists and potion shops sell bottles. Brewing's tools: carpenters sell the Oil Press and casks (`shared::cask`, the small sizes far more often), herbalists and potion shops the Mortar and Pestle, blacksmiths the Cauldron.
-- `bottled(BuildingKind)`: the liquids its bottles hold (herbalists and potion shops: Water, Cave Water, Moon Water and the three oils, never Salt Water); `stock_request(shop, item kind, seed)`: the `RollRequest` a new stock item is given its form by, a bottle's liquid picked from its seed, anything else `NONE`.
+- `sells(BuildingKind)`: what it sells, with weights; empty if it isn't a shop. Vessels (drinks PR 2) at carpenters (with taps), leatherworkers, jewellers and herbalists. Blacksmiths sell the Keyring, herbalists the Herb Pouch, fruit and vegetables (potion shops some fruit: which ones, by the town's climate, is `shared::produce`, chosen by the server); herbalists and potion shops sell bottles. Brewing's tools: carpenters sell the Oil Press and casks (`shared::cask`, the small sizes far more often), herbalists and potion shops the Mortar and Pestle, blacksmiths the Cauldron.
+- `bottled(BuildingKind)`: the liquids its bottles hold (herbalists and potion shops: Water, Cave Water, Moon Water and the three oils, never Salt Water); `stock_request(shop, item kind, seed)`: the `RollRequest` a new stock item is given its form by, a bottle's liquid picked from its seed, a vessel one the shop makes (`vessel::vessel_for_shop`), anything else `NONE`.
 - `Shop { kind, quality, trades, of_kind }`: `target`, `minimum` (80% of it), `make_minutes(quality, kind_percent)`, `replaced_after`.
 - `catch_up(seed, shop, stock qualities, last_made, last_visit, now) -> Restocked { keep, new, last_made }`.
 

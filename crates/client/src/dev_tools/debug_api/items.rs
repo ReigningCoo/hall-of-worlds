@@ -38,6 +38,8 @@ pub(super) struct GiveItemParams {
     /// For `"Bottle"`: how many effects the potion holds; empty if missing
     /// and no liquid is asked for.
     effects: Option<u8>,
+    /// For `"Vessel"`: which (`"Tankard"`, `"WineBottle"`, ...); any if missing.
+    vessel: Option<shared::vessel::VesselKind>,
     /// How many, alike (1 if missing).
     count: Option<u32>,
 }
@@ -47,7 +49,8 @@ pub(super) struct GiveItemParams {
 /// `{ "kind": "Fruit", "fruit": "watermelon" }`,
 /// `{ "kind": "Vegetable", "vegetable": "carrot" }`,
 /// `{ "kind": "Flour", "flour": "rye" }`, or
-/// `{ "kind": "Bottle", "effects": 2 }` for a potion, or
+/// `{ "kind": "Bottle", "effects": 2 }` for a potion,
+/// `{ "kind": "Vessel", "vessel": "Tankard", "liquid": { "Water": "Plain" } }`, or
 /// `{ "kind": "Bottle", "liquid": { "Water": "Moon" } }`): into the
 /// inventory, as Give Item does. Saved.
 pub(super) fn give_item(
@@ -66,6 +69,7 @@ pub(super) fn give_item(
         flour,
         liquid,
         effects,
+        vessel,
         count,
     } = params(request)?;
     to_server.write(ToServer(ClientMessage::DevGiveItem(
@@ -82,6 +86,7 @@ pub(super) fn give_item(
             request: shared::item_form::RollRequest {
                 liquid,
                 effects,
+                vessel,
                 ..shared::item_form::RollRequest::NONE
             },
             herb: herb.or(fruit).or(vegetable).or(flour),

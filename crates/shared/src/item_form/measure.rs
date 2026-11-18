@@ -24,6 +24,7 @@ impl ItemForm {
             Self::Fruit(fruit) => Some(fruit.shape()),
             Self::Vegetable(vegetable) => Some(vegetable.shape()),
             Self::Cask(cask) => Some(cask.size.shape()),
+            Self::Vessel(vessel) => Some(vessel.vessel.shape()),
             Self::Flour(flour) => Some(flour.shape()),
             Self::Gem(_)
             | Self::Ring(_)
@@ -61,6 +62,7 @@ impl ItemForm {
             Self::Fruit(fruit) => Some(fruit.grams),
             Self::Vegetable(vegetable) => Some(vegetable.grams),
             Self::Cask(cask) => Some(cask.grams()),
+            Self::Vessel(vessel) => Some(vessel.grams()),
             Self::Flour(flour) => Some(flour.grams),
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) => None,
         }

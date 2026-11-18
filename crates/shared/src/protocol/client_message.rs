@@ -175,6 +175,8 @@ pub enum ClientMessage {
     /// (`bonus::is_food`), in turn with steps: its effect starts (`Sheet::eat`).
     /// Answered with `Inventory` (and `GroundItems`), `Sheet` and `Vitals`.
     Consume { item: Id },
+    /// Pour a cask, vessel or bottle into another, carried or in reach (`shared::pour`): `Inventory`.
+    Pour { from: Id, into: Id },
     /// Developer tools: new items of this kind for the character or `to`, made for this size
     /// (or the one getting them's own) and their fingers, answered with `Inventory`.
     DevGiveItem(DevGive),
@@ -272,9 +274,7 @@ pub enum ClientMessage {
     DevGoToPlace(super::DevGoToPlace),
     /// Change the action bar (`ability::BarChange`): answered with `ActionBar`, made or refused.
     ActionBar(BarChange),
-    /// Use an ability on a creature, or on yourself when `target` is `None`
-    /// (Heal), when there is the energy: answered with `AbilityStarted`, or
-    /// nothing if it can't be done.
+    /// Use an ability on a creature, or on yourself with no `target`: `AbilityStarted`, or nothing.
     UseAbility {
         ability: Ability,
         target: Option<Id>,

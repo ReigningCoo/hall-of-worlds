@@ -44,6 +44,11 @@ pub(super) enum Action {
     Consume {
         item: Id,
     },
+    /// Pouring one container into another (`pour.rs`).
+    Pour {
+        from: Id,
+        into: Id,
+    },
     /// Harvesting the herb patch or fruit plant here (`pick_herb.rs`,
     /// `pick_fruit.rs`).
     Pick {

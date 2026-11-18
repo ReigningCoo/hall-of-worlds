@@ -53,13 +53,13 @@ impl Inventory {
     pub fn cask_to_fill(&self, liquid: &Liquid) -> Option<Id> {
         let takes = |top: &Item| top.cask().is_some_and(|cask| cask.takes(liquid));
         self.stacks_where(takes)
-            .max_by_key(|(cask, own)| (*own, cask.cask().map_or(0, |cask| cask.litres)))
+            .max_by_key(|(cask, own)| (*own, cask.cask().map_or(0, |cask| cask.ml)))
             .map(|(cask, _)| cask.id)
     }
 }
 
-/// Pours up to `litres` of `liquid` into the carried cask `id`: how many went
-/// in (0 if it isn't a cask that takes it).
+/// Pours up to `litres` of `liquid` into the carried cask `id`, opening it:
+/// how many whole litres went in (0 if it isn't a cask that takes it).
 pub fn fill_cask_with(inventory: &mut Inventory, id: Id, liquid: Liquid, litres: u32) -> u32 {
     let Some(item) = inventory.find_mut(id) else {
         return 0;
@@ -67,7 +67,7 @@ pub fn fill_cask_with(inventory: &mut Inventory, id: Id, liquid: Liquid, litres:
     let Some(ItemForm::Cask(cask)) = &mut item.form else {
         return 0;
     };
-    let (poured, added) = cask.clone().poured(liquid, litres);
+    let (poured, added) = cask.clone().poured(liquid, litres * 1000);
     *cask = poured;
-    added
+    added / 1000
 }

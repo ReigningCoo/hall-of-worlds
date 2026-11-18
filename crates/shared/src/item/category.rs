@@ -144,6 +144,8 @@ impl ItemKind {
             | Self::MortarAndPestle
             | Self::Cauldron
             | Self::Cask
+            | Self::Tap
+            | Self::Vessel
             | Self::Bottle
             | Self::Ointment
             | Self::Key

@@ -61,6 +61,7 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         | ItemForm::Fruit(_)
         | ItemForm::Vegetable(_)
         | ItemForm::Flour(_)
+        | ItemForm::Vessel(_)
         | ItemForm::Ointment(_) => {
             return None;
         }

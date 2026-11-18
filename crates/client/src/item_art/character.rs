@@ -130,6 +130,7 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
         | ItemForm::Herb(_)
         | ItemForm::Bottle(_)
         | ItemForm::Cask(_)
+        | ItemForm::Vessel(_)
         | ItemForm::Flour(_)
         | ItemForm::Ointment(_)
         | ItemForm::Fruit(_)

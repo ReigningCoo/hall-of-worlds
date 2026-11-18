@@ -1,5 +1,6 @@
 //! What a shop's bottles hold: Herbalists and Potion Shops sell waters (never
-//! Salt Water) and oils (brewing plan, owner, 2026-11-17).
+//! Salt Water) and oils (brewing plan, owner, 2026-11-17); which vessels a
+//! shop makes (drinks plan PR 2).
 
 use crate::item::ItemKind;
 use crate::item_form::RollRequest;
@@ -26,9 +27,19 @@ pub fn bottled(kind: BuildingKind) -> &'static [LiquidKind] {
 }
 
 /// What a new item of `item`'s kind in this shop's stock is asked to be, from
-/// its own seed: a bottle holds one of `bottled`'s liquids; anything else is
-/// rolled as usual.
+/// its own seed: a bottle holds one of `bottled`'s liquids; a vessel is one
+/// the shop makes, empty (`vessel::vessel_for_shop`); anything else is rolled
+/// as usual.
 pub fn stock_request(shop: BuildingKind, item: ItemKind, seed: Seed) -> RollRequest {
+    let vessels = crate::vessel::vessel_for_shop(shop);
+    if item == ItemKind::Vessel && !vessels.is_empty() {
+        let mut rng = seed.derive("shop vessel").rng();
+        let at = rng.range_u64(0, vessels.len() as u64) as usize;
+        return RollRequest {
+            vessel: Some(vessels[at]),
+            ..RollRequest::NONE
+        };
+    }
     let liquids = bottled(shop);
     if item != ItemKind::Bottle || liquids.is_empty() {
         return RollRequest::NONE;

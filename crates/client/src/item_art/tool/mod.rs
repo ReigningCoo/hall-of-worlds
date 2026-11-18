@@ -1,5 +1,5 @@
 //! Brewing's tools (`shared::ability::Ability::tool`): the cauldron, the mortar
-//! and pestle and the oil press. Each is built standing upright (y up) and then
+//! and pestle and the oil press; and the tap casks are drawn from (`tap.rs`). Each is built standing upright (y up) and then
 //! tipped towards the camera, so its picture shows it from the front and a
 //! little above rather than from the top.
 
@@ -11,6 +11,7 @@ use super::Part;
 mod cauldron;
 mod mortar;
 mod oil_press;
+mod tap;
 
 /// How far a tool is tipped back about x, so its front faces the camera more.
 const TIP: f32 = -0.7;
@@ -25,6 +26,7 @@ pub(super) fn tool_parts(
     let parts = match kind {
         ItemKind::Cauldron => cauldron::cauldron_parts(meshes, materials),
         ItemKind::MortarAndPestle => mortar::mortar_parts(meshes, materials),
+        ItemKind::Tap => tap::tap_parts(meshes, materials),
         _ => oil_press::oil_press_parts(meshes, materials),
     };
     let tipped = Transform::from_rotation(Quat::from_rotation_x(TIP));

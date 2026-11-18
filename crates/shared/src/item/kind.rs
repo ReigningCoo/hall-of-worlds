@@ -41,6 +41,11 @@ pub enum ItemKind {
     /// A wooden cask holding a liquid by the litre (`shared::cask`): its
     /// size, wood and what is in it are in its form.
     Cask,
+    /// A brass tap, knocked into a cask to draw from it (`shared::pour`).
+    Tap,
+    /// A drinking vessel or a jug, holding a liquid by the millilitre
+    /// (`shared::vessel`): which one and what is in it are in its form.
+    Vessel,
     /// An iron pot for brewing potions (`ability::Ability::Brew`).
     Cauldron,
     Caparison,
@@ -145,7 +150,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 105] = [
+    pub const ALL: [Self; 107] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -244,10 +249,12 @@ impl ItemKind {
         Self::Sword,
         Self::TShirt,
         Self::Tabard,
+        Self::Tap,
         Self::TorsoArmour,
         Self::Trousers,
         Self::Tunic,
         Self::Vegetable,
+        Self::Vessel,
         Self::Vest,
         Self::WaistArmour,
         Self::Wimple,

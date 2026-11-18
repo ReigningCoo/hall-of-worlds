@@ -19,7 +19,10 @@ pub fn look_of(item: &Item) -> Option<Look> {
         ItemKind::CopperCoin => return Some(Look::Coin(Material::Copper)),
         ItemKind::SilverCoin => return Some(Look::Coin(Material::Silver)),
         ItemKind::GoldCoin => return Some(Look::Coin(Material::Gold)),
-        kind @ (ItemKind::Cauldron | ItemKind::MortarAndPestle | ItemKind::OilPress) => {
+        kind @ (ItemKind::Cauldron
+        | ItemKind::MortarAndPestle
+        | ItemKind::OilPress
+        | ItemKind::Tap) => {
             return Some(Look::Tool(kind));
         }
         kind @ (ItemKind::Bread | ItemKind::DwarvenBread | ItemKind::RawMeat) => {
@@ -29,6 +32,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
     }
     if let Some(flour) = super::FlourLook::of(item) {
         return Some(Look::Flour(flour));
+    }
+    if let Some(vessel) = item.vessel() {
+        return Some(Look::Vessel(vessel.vessel));
     }
     if let Some(cask) = item.cask() {
         return Some(Look::Cask(cask.look()));

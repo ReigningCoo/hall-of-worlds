@@ -2,7 +2,8 @@
 //! be tested alone. The rules for whether it may are `shared::item`'s.
 
 use shared::id::Id;
-use shared::item::{Holder, Inventory, Item, Placed, Rotation, StackLimits};
+use shared::item::{Holder, Inventory, Item, ItemKind, Placed, Rotation, StackLimits};
+use shared::pour::{Held as Liquid, pour};
 
 mod quick;
 pub(super) use quick::{QuickFrom, quick_target};
@@ -41,6 +42,9 @@ pub(super) enum Target {
     },
     /// On something that looks the same: as much as fits would go on its stack.
     Stack { onto: Id, allowed: bool },
+    /// On another cask, vessel or bottle: poured into it (`shared::pour`), if it
+    /// can be.
+    Pour { into: Id, allowed: bool },
     /// On a closed bag: on the first stack in it it all fits on, or else wherever
     /// there is room in it, if there is.
     Bag {
@@ -82,9 +86,24 @@ fn onto_item(
             onto,
         });
     }
-    under.item.looks_like(item).then(|| Target::Stack {
-        onto: id,
-        allowed: inventory.stack_room(item, id, limits).is_ok(),
+    if under.item.looks_like(item) {
+        return Some(Target::Stack {
+            onto: id,
+            allowed: inventory.stack_room(item, id, limits).is_ok(),
+        });
+    }
+    pour_aim(inventory, item, &under.item)
+}
+
+/// Pouring `item` into `under`, if both are casks, vessels or bottles: allowed
+/// if `shared::pour` would (a tap carried to draw from a cask).
+fn pour_aim(inventory: &Inventory, item: &Item, under: &Item) -> Option<Target> {
+    let containers = Liquid::of(item.top()).zip(Liquid::of(under.top()));
+    containers?;
+    let tap = inventory.count_of(ItemKind::Tap) > 0;
+    Some(Target::Pour {
+        into: under.id,
+        allowed: pour(item.top(), under.top(), tap).is_ok(),
     })
 }
 
@@ -185,6 +204,7 @@ pub(super) fn drop_move(
         | Target::BagSlot { .. }
         | Target::Someone(_)
         | Target::Stack { .. }
+        | Target::Pour { .. }
         | Target::Cells { allowed: false, .. }
         | Target::Bag { place: None, .. }
         | Target::Bag { onto: Some(_), .. } => {

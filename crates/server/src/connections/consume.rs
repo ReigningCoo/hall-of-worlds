@@ -2,7 +2,8 @@
 //! or a herb carried, or lying in reach, is taken and eaten (`Sheet::eat`, a
 //! fruit: `eat_fruit.rs`, a vegetable: `eat_vegetable.rs`, or a herb raw:
 //! `eat_herb.rs`), in turn with the player's steps. Ointment is rubbed on
-//! the same way (`rub_ointment.rs`), and a potion drunk (`drink.rs`).
+//! the same way (`rub_ointment.rs`), a potion drunk (`drink.rs`), and water
+//! from a vessel, which stays (`drink_vessel.rs`).
 
 use bevy::prelude::*;
 use shared::bonus::{may_use_on_self, usable_on_self};
@@ -20,6 +21,9 @@ use crate::ids::new_id;
 /// Eats one of `item`, carried or on the ground. Whether the client is still
 /// there, and what it cost (handling it), nothing if it was refused.
 pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) -> (bool, u32) {
+    if let Some(drunk) = super::drink_vessel::drink_vessel(client, world, item) {
+        return drunk;
+    }
     let tick = world.action_clock.ticks();
     let carried = client.inventory.find(item).is_some();
     let food = match carried {

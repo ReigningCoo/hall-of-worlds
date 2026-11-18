@@ -42,6 +42,7 @@ pub(super) static GIVE_ITEM: Template = html!(
     <span id="form_line" valign="middle" hidden>
       Form
       <select id="cask_size" width="170" hidden><option>Any size</option></select>
+      <select id="vessel" width="170" hidden><option>Any vessel</option></select>
       <select id="style" width="170" hidden><option>Any style</option></select>
       <select id="construction" width="170" hidden><option>Any construction</option></select>
       <select id="material" width="170" hidden><option>Any material</option></select>

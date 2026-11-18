@@ -67,7 +67,11 @@ fn aimed(
             let cells = placed.cells().map(|(x, y)| (x as i32, y as i32)).collect();
             (holder, cells, place.is_some() || onto.is_some())
         }
-        Target::Stack { onto, allowed } => {
+        Target::Stack { onto, allowed }
+        | Target::Pour {
+            into: onto,
+            allowed,
+        } => {
             let (holder, placed) = carried.placed(onto)?;
             let cells = placed.cells().map(|(x, y)| (x as i32, y as i32)).collect();
             (holder, cells, allowed)

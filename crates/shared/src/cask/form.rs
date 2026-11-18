@@ -1,6 +1,9 @@
-//! `CaskForm`: what one cask is (size, wood) and what is in it, by the litre.
+//! `CaskForm`: what one cask is (size, wood) and what is in it, by the
+//! millilitre, and whether it has been opened.
 
 use serde::{Deserialize, Serialize};
+
+mod saved;
 
 use super::CaskSize;
 use crate::item::Item;
@@ -27,16 +30,20 @@ pub struct CaskLook {
     pub wood: Material,
 }
 
-/// A cask (`ItemKind::Cask`): its size and wood, and the one liquid in it,
-/// by the litre.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// A cask (`ItemKind::Cask`): its size and wood, the one liquid in it, by
+/// the millilitre, and whether it is still sealed (drinks decision 13).
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct CaskForm {
     pub size: CaskSize,
     pub wood: Material,
     /// What is in it, none when empty.
     pub liquid: Option<Liquid>,
-    /// How many litres of it: 0 when empty, never more than it holds.
-    pub litres: u32,
+    /// How many millilitres of it: 0 when empty, never more than it holds.
+    pub ml: u32,
+    /// Whether it has been opened: tapped, poured from or added to. A sealed
+    /// one never spoils (its best-before is drinks PR 6). Saves from before
+    /// this (2026-11-18) load sealed.
+    pub opened: bool,
 }
 
 impl CaskForm {
@@ -46,37 +53,59 @@ impl CaskForm {
             size,
             wood,
             liquid: None,
-            litres: 0,
+            ml: 0,
+            opened: false,
         }
     }
 
-    /// The same holding `litres` of `liquid`, no more than it holds; nothing
-    /// (or 0 litres) leaves it empty.
-    pub fn holding(self, liquid: Option<Liquid>, litres: u32) -> Self {
-        let litres = litres.min(self.size.litres());
+    /// How many millilitres it holds.
+    pub fn most_ml(&self) -> u32 {
+        self.size.litres() * 1000
+    }
+
+    /// The same holding `ml` of `liquid`, no more than it holds; nothing (or
+    /// 0 ml) leaves it empty. Whether it was opened stays.
+    pub fn holding(self, liquid: Option<Liquid>, ml: u32) -> Self {
+        let ml = ml.min(self.most_ml());
         match liquid {
-            Some(liquid) if litres > 0 => Self {
+            Some(liquid) if ml > 0 => Self {
                 liquid: Some(liquid),
-                litres,
+                ml,
                 ..self
             },
-            _ => Self::new(self.size, self.wood),
+            _ => Self {
+                opened: self.opened,
+                ..Self::new(self.size, self.wood)
+            },
         }
     }
 
     /// Full of `liquid`.
     pub fn full_of(self, liquid: Liquid) -> Self {
-        let litres = self.size.litres();
-        self.holding(Some(liquid), litres)
+        let ml = self.most_ml();
+        self.holding(Some(liquid), ml)
+    }
+
+    /// The same, opened.
+    pub fn opened(self) -> Self {
+        Self {
+            opened: true,
+            ..self
+        }
+    }
+
+    /// Whole litres in it, rounded down.
+    pub fn litres(&self) -> u32 {
+        self.ml / 1000
     }
 
     pub fn is_empty(&self) -> bool {
         self.liquid.is_none()
     }
 
-    /// How many more litres it takes.
+    /// How many more millilitres it takes.
     pub fn room(&self) -> u32 {
-        self.size.litres() - self.litres
+        self.most_ml() - self.ml
     }
 
     /// Whether `liquid` can be poured in: it has room, and is empty or holds
@@ -85,15 +114,15 @@ impl CaskForm {
         self.room() > 0 && self.liquid.as_ref().is_none_or(|held| held == liquid)
     }
 
-    /// The same with up to `litres` more of `liquid` (`takes` it), and how many
-    /// went in.
-    pub fn poured(self, liquid: Liquid, litres: u32) -> (Self, u32) {
+    /// The same with up to `ml` more of `liquid` (`takes` it), opened, and how
+    /// many millilitres went in.
+    pub fn poured(self, liquid: Liquid, ml: u32) -> (Self, u32) {
         if !self.takes(&liquid) {
             return (self, 0);
         }
-        let added = litres.min(self.room());
-        let total = self.litres + added;
-        (self.holding(Some(liquid), total), added)
+        let added = ml.min(self.room());
+        let total = self.ml + added;
+        (self.holding(Some(liquid), total).opened(), added)
     }
 
     /// "Oak Firkin", or with what is in it: "Oak Firkin of Moon Water".
@@ -116,7 +145,7 @@ impl CaskForm {
 
     /// What it weighs with what is in it: about a kilogram a litre.
     pub fn grams(&self) -> u32 {
-        self.empty_grams() + self.litres * 1000
+        self.empty_grams() + self.ml
     }
 
     pub fn look(&self) -> CaskLook {
