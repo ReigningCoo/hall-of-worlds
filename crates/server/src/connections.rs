@@ -25,6 +25,7 @@ mod answer;
 mod answer_dev;
 mod answer_items;
 mod bonuses;
+mod brew;
 mod change_kind;
 mod characters;
 mod client;
@@ -215,8 +216,9 @@ pub struct Client {
     fight: crate::combat::Fight,
     /// What Press Oil presses while it goes on (`press_oil.rs`).
     pressing: Option<shared::potion::Pressing>,
-    /// What Grind grinds while it winds up (`grind.rs`).
+    /// What Grind grinds and Brew brews while they wind up (`grind.rs`, `brew.rs`).
     grinding: Option<shared::brewing::GrindOrder>,
+    brewing: Option<shared::brewing::BrewOrder>,
     /// Its open practice windows, by skill and by kind of foe.
     learning: crate::combat::Learning,
     /// What a character being made here asked to be, for when they first join.

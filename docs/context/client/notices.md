@@ -1,6 +1,6 @@
 # client: notices
 
-Short notices that go by themselves (a snackbar), at the top middle of the window, under the bar of timed effects (`effect_bar`). For now "Found: <kind>" when the server says the player has found a poi in the wilderness, "Locked" when a door the player tried is locked (`DoorRefused` with `locked`), and "Picked 3 Roseroot" after a harvest (`PickNews::Picked`, named from `common::HerbTable`; `PickedFruit`, from `shared::fruit::Fruits`), and what a Grind made, "Ground 3 Ointment" or "The mix came to nothing" (`Landed::Ground`). Not for anything that needs an answer (that is a dialog).
+Short notices that go by themselves (a snackbar), at the top middle of the window, under the bar of timed effects (`effect_bar`). For now "Found: <kind>" when the server says the player has found a poi in the wilderness, "Locked" when a door the player tried is locked (`DoorRefused` with `locked`), and "Picked 3 Roseroot" after a harvest (`PickNews::Picked`, named from `common::HerbTable`; `PickedFruit`, from `shared::fruit::Fruits`), and what a Grind made, "Ground 3 Ointment" or "The mix came to nothing" (`Landed::Ground`), and what a Brew made, "Brewed a Rare potion" or "No potion formed" (`Landed::Brewed`). Not for anything that needs an answer (that is a dialog).
 
 ## Files
 

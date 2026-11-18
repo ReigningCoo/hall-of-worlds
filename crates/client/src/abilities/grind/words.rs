@@ -29,7 +29,7 @@ fn stat_name(stat: Stat) -> &'static str {
 }
 
 /// Doses in words: "+3 Strength, −1 Will", or "nothing".
-pub(super) fn doses(contents: &Contents) -> String {
+pub(in crate::abilities) fn doses(contents: &Contents) -> String {
     let words: Vec<String> = contents
         .doses()
         .iter()
@@ -48,13 +48,22 @@ pub(super) fn doses(contents: &Contents) -> String {
     }
 }
 
-/// A recipe's row: "Yarrow, Sage with Nut Oil: +3 Strength".
+/// A recipe's row: "Yarrow, Sage with Nut Oil: +3 Strength", and what it last
+/// brewed into ("; with Moon Water, +4 Strength").
 pub(super) fn recipe_row(recipe: &Recipe, herbs: &Herbs, known: &HerbKnowledge) -> String {
     let names: Vec<String> = (recipe.herbs.iter())
         .map(|key| herb_name(key, herbs, known))
         .collect();
     let made = doses(&recipe.made);
-    format!("{} with {}: {made}", names.join(", "), recipe.oil.name())
+    let brewed = match &recipe.brewed {
+        Some(brewed) => {
+            let potion = brewed.potion.as_ref().map_or("no potion".to_owned(), doses);
+            format!("; with {}, {potion}", brewed.water.name())
+        }
+        None => String::new(),
+    };
+    let oil = recipe.oil.name();
+    format!("{} with {oil}: {made}{brewed}", names.join(", "))
 }
 
 /// What the choice would make, or why it can't be ground. `foreseen` is

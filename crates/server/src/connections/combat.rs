@@ -103,20 +103,14 @@ pub(super) fn start_ability(
     {
         return (false, 0);
     }
-    if ability == Ability::Heal {
-        return super::heal::start_heal(client, world, target);
-    }
-    if ability == Ability::Kick {
-        return super::kick::start_kick(client, world, target);
-    }
-    if ability == Ability::CollectWater {
-        return super::collect_water::start_collect(client, world);
-    }
-    if ability == Ability::PressOil {
-        return super::press_oil::choose_press(client, world, target);
-    }
-    if ability == Ability::Grind {
-        return super::grind::start_grind(client, world);
+    match ability {
+        Ability::Heal => return super::heal::start_heal(client, world, target),
+        Ability::Kick => return super::kick::start_kick(client, world, target),
+        Ability::CollectWater => return super::collect_water::start_collect(client, world),
+        Ability::PressOil => return super::press_oil::choose_press(client, world, target),
+        Ability::Grind => return super::grind::start_grind(client, world),
+        Ability::Brew => return super::brew::start_brew(client, world),
+        _ => {}
     }
     let (Ability::Attack, Some(target)) = (ability, target) else {
         debug!("Not starting {ability:?}: not done yet, or no target");
@@ -169,6 +163,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::CollectWater => return super::collect_water::land_collect(client, world),
         Act::PressOil => return super::press_oil::land_press(client, world),
         Act::Grind => return super::grind::land_grind(client, world),
+        Act::Brew => return super::brew::land_brew(client, world),
     };
     client.fight.attacks += 1;
     let target = pending.target;
@@ -295,6 +290,8 @@ mod struck;
 
 #[cfg(test)]
 mod alignment_tests;
+#[cfg(test)]
+mod brew_tests;
 #[cfg(test)]
 mod collect_water_tests;
 #[cfg(test)]

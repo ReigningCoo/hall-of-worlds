@@ -29,4 +29,8 @@ pub enum Landed {
     /// doses of ointment, 0 when the mix came to nothing (the ingredients are
     /// used up all the same).
     Ground(u32),
+    /// An ointment and a water were brewed (Brew: `target` is `None`): the
+    /// potion's quality, `None` when no potion formed (both are used up all
+    /// the same, the bottle coming back empty).
+    Brewed(Option<crate::item::Quality>),
 }

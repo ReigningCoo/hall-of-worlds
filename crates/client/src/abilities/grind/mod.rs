@@ -19,6 +19,7 @@ pub(super) use answer::answer_mixing;
 pub(super) use markup::GRIND;
 pub(super) use markup::spawn_mixing;
 pub(super) use show::show_mixing;
+pub(super) use words::doses;
 
 /// Whether the panel is up, what it lists (in its rows' order) and what is
 /// chosen.

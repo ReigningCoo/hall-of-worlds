@@ -1,10 +1,11 @@
 //! What a character has made before, for making again (PR 6): each mix ground
 //! (its herbs by key and its oil) with what it gave last time, saved on its
-//! sheet (`Sheet::recipes`), latest first.
+//! sheet (`Sheet::recipes`), latest first; and what its ointment last brewed
+//! into (PR 7).
 
 use serde::{Deserialize, Serialize};
 
-use crate::potion::{Contents, Oil};
+use crate::potion::{Contents, Oil, Water};
 
 /// The most recipes kept: the oldest go first.
 pub const MOST_RECIPES: usize = 20;
@@ -16,6 +17,17 @@ pub struct Recipe {
     pub herbs: Vec<String>,
     pub oil: Oil,
     pub made: Contents,
+    /// What its ointment last brewed into, and with which water: none until
+    /// brewed (and in older saves).
+    #[serde(default)]
+    pub brewed: Option<BrewedWith>,
+}
+
+/// An ointment brewed: the water and the potion (`None` when none formed).
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct BrewedWith {
+    pub water: Water,
+    pub potion: Option<Contents>,
 }
 
 impl Recipe {
@@ -24,7 +36,12 @@ impl Recipe {
         let mut herbs: Vec<String> = herbs.into_iter().collect();
         herbs.sort();
         herbs.dedup();
-        Self { herbs, oil, made }
+        Self {
+            herbs,
+            oil,
+            made,
+            brewed: None,
+        }
     }
 
     /// Whether it is the same mix as `other`, whatever each made.
@@ -45,6 +62,14 @@ impl Recipes {
         self.0.retain(|old| !old.same_mix(&recipe));
         self.0.insert(0, recipe);
         self.0.truncate(MOST_RECIPES);
+    }
+
+    /// Notes what the ointment `made` brewed into on the latest mix that made
+    /// it, if one is remembered.
+    pub fn brewed(&mut self, made: &Contents, brewed: BrewedWith) {
+        if let Some(recipe) = self.0.iter_mut().find(|recipe| &recipe.made == made) {
+            recipe.brewed = Some(brewed);
+        }
     }
 
     /// Every one, latest first.

@@ -9,7 +9,7 @@ permalink: /herbs
 
 # Herbs
 
-Herbs grow wild across every land, and herbalists grow them in beds beside their huts. Each herb is a plant whose leaves, flowers, roots, seeds or bark are worth picking. They will be made into potions; for now you can eat them raw.
+Herbs grow wild across every land, and herbalists grow them in beds beside their huts. Each herb is a plant whose leaves, flowers, roots, seeds or bark are worth picking. They are [brewed into potions](brewing), and you can eat them raw.
 
 ## Finding and picking
 
@@ -31,7 +31,8 @@ You don't know a herb until you learn it. Until you know its name, it shows as *
 
 - Picking a herb teaches you its name.
 - Eating one raw teaches you its first effect.
-- The rest will come from Herbalism, potions, books and teachers.
+- [Brewing](brewing) a potion teaches you the effects of its herbs on what the potion does.
+- The rest will come from Herbalism, books and teachers.
 
 Knowing a herb only changes what you are shown: an unknown herb works just the same.
 

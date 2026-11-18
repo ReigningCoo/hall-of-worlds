@@ -28,6 +28,9 @@ pub(crate) enum Act {
     /// Herbs being ground into ointment (players only): the order is the
     /// client's `grinding`.
     Grind,
+    /// An ointment and a water being brewed (players only): the order is the
+    /// client's `brewing`.
+    Brew,
 }
 
 /// An ability begun and not landed yet.

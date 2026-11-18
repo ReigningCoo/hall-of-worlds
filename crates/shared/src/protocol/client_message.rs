@@ -270,8 +270,7 @@ pub enum ClientMessage {
     DevFurniture(DevFurniture),
     /// Developer tools: go to a debug report's place (Load in Debug Info).
     DevGoToPlace(super::DevGoToPlace),
-    /// Change the action bar (`ability::BarChange`), answered with `ActionBar`:
-    /// what it is now, whether the change was made or refused.
+    /// Change the action bar (`ability::BarChange`): answered with `ActionBar`, made or refused.
     ActionBar(BarChange),
     /// Use an ability on a creature, or on yourself when `target` is `None`
     /// (Heal), when there is the energy: answered with `AbilityStarted`, or
@@ -282,8 +281,7 @@ pub enum ClientMessage {
     },
     /// Call off the ability winding up, if it hasn't landed: answered with `Landed::Cancelled`.
     CancelAbility,
-    /// Take back an ability asked for that is still waiting for the energy to begin (the player
-    /// moved or chose another): one already begun is left alone, so nothing is lost. Not answered.
+    /// Take back an ability asked for still waiting to begin (moved, chose another); not answered.
     WithdrawAbility,
     /// Open or close doors (`DoorAsk`), in turn with the player's steps.
     Door(DoorAsk),
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     DevHerbs(super::DevHerbs),
     /// Grind herbs and an oil into ointment: answered as `UseAbility(Grind)` (`Landed::Ground`).
     Grind(crate::brewing::GrindOrder),
+    /// Brew an ointment and a water into a potion: answered as `UseAbility(Brew)` (`Landed::Brewed`).
+    Brew(crate::brewing::BrewOrder),
 }
