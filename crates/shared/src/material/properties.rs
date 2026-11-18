@@ -6,35 +6,6 @@ impl Material {
     /// How fine it is within its category, from 1. A first guess that rolls lean on.
     pub fn tier(self) -> u64 {
         match self {
-            Self::Amethyst
-            | Self::Bone
-            | Self::Brass
-            | Self::Citrine
-            | Self::Coir
-            | Self::Copper
-            | Self::Cork
-            | Self::Cotton
-            | Self::Felt
-            | Self::Garnet
-            | Self::Grass
-            | Self::Haircloth
-            | Self::Hemp
-            | Self::Horn
-            | Self::Leather
-            | Self::Linen
-            | Self::Onyx
-            | Self::Peridot
-            | Self::Ramie
-            | Self::Rattan
-            | Self::Rawhide
-            | Self::Straw
-            | Self::Wood
-            | Self::Acacia
-            | Self::Cherry
-            | Self::Chestnut
-            | Self::Oak
-            | Self::Pine
-            | Self::Wool => 1,
             Self::Aquamarine
             | Self::Bronze
             | Self::BuffLeather
@@ -51,6 +22,9 @@ impl Material {
             | Self::Silver
             | Self::Steel => 3,
             Self::Adamantine | Self::Diamond | Self::DragonScale | Self::Gold | Self::Mithril => 4,
+            // The plainest gems, bone, brass and copper, cork, cotton and the
+            // other plain cloths, leather, straw, and every wood.
+            _ => 1,
         }
     }
 
@@ -60,11 +34,9 @@ impl Material {
             Self::Cork | Self::Grass | Self::Straw => 2,
             Self::Felt => 3,
             Self::Rattan => 5,
-            Self::Wood | Self::Oak => 7,
-            // Casks' woods (`shared::cask`): seasoned, by their usual weights.
-            Self::Pine => 5,
-            Self::Cherry | Self::Chestnut => 6,
-            Self::Acacia => 8,
+            Self::Wood => 7,
+            // Trees' woods, seasoned (`wood.rs`).
+            _ if let Some(wood) = self.wood() => wood.density,
             Self::Coir => 12,
             Self::Suede => 8,
             Self::BuffLeather | Self::Fur | Self::Leather => 9,

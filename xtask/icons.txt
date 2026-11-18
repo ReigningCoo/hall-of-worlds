@@ -161,3 +161,5 @@ delapouite/carrot
 delapouite/covered-jar
 # The miller's door sign, drawn into the town atlas (tools/make_town_atlas.py)
 delapouite/windmill
+# Fell Tree (abilities/icons.rs; wood-axe is also the Woodcutting skill) and Cut Kindling
+delapouite/axe-in-log

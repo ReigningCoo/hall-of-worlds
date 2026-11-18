@@ -36,6 +36,7 @@ impl ItemKind {
                 | Self::Bread
                 | Self::DwarvenBread
                 | Self::RawMeat => self.food_def(),
+                Self::Log | Self::Kindling => self.wood_def(), // `wood_def.rs`
                 // Bags, boxes and backpacks: in `bag_def.rs`.
                 Self::Backpack
                 | Self::Bag

@@ -67,6 +67,14 @@ pub fn choices(kind: ItemKind, quality: Quality, request: &RollRequest) -> Choic
                 .collect(),
             ..Choices::default()
         },
+        // Any tree's wood.
+        ItemKind::Log | ItemKind::Kindling => Choices {
+            materials: crate::material::WOODS
+                .iter()
+                .map(|wood| wood.material)
+                .collect(),
+            ..Choices::default()
+        },
         // Any vessel; empty, or full of a water or an oil.
         ItemKind::Vessel => Choices {
             vessels: crate::vessel::VesselKind::ALL.to_vec(),

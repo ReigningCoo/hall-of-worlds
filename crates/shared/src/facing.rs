@@ -4,10 +4,12 @@
 //! `docs/context/shared/facing.md`.
 
 mod cone;
+mod faced;
 mod field;
 mod heading;
 
 pub use cone::Cone;
+pub use faced::faced_cell;
 pub use field::{Field, NEAR, observation_skill};
 pub use heading::{EIGHTH, Heading, TURN, UNIT};
 

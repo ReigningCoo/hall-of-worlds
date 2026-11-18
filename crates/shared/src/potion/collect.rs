@@ -6,12 +6,12 @@
 use super::{BottleForm, Water};
 use crate::dungeon::{Cell, Level};
 use crate::energy::ACTION_TICKS_PER_SECOND;
-use crate::facing::{EIGHTH, Heading};
+use crate::facing::{EIGHTH, Heading, faced_cell};
 use crate::herb::{cube_root, skill_percent, skill_value};
 use crate::id::Id;
 use crate::item::{Inventory, Item};
 use crate::skill::Skills;
-use crate::spot::{HALF_SPAN, Spot};
+use crate::spot::Spot;
 
 /// The Water skill's path in the skill tree, practised by Collect Water.
 pub const WATER_SKILL: &str = "gathering/water";
@@ -63,25 +63,8 @@ pub fn holds_water(cell: Cell) -> bool {
 /// nearest: its middle within `COLLECT_REACH` and within `FACING_HALF` of
 /// straight ahead (or underfoot, wading in it).
 pub fn water_faced(level: &Level, at: Spot, heading: Heading) -> Option<(i64, i64)> {
-    let (x, y) = at.cell();
-    let mut best: Option<(u64, (i64, i64))> = None;
-    for cy in y - 2..=y + 2 {
-        for cx in x - 2..=x + 2 {
-            if !holds_water(level.cell(cx, cy)) {
-                continue;
-            }
-            let middle = Spot::middle_of((cx, cy));
-            let distance = at.distance(middle);
-            let underfoot = distance <= HALF_SPAN as u64;
-            let ahead = Heading::towards(at, middle)
-                .is_some_and(|towards| towards.apart(heading) <= FACING_HALF);
-            let faced = distance <= COLLECT_REACH && (underfoot || ahead);
-            if faced && best.is_none_or(|(nearest, _)| distance < nearest) {
-                best = Some((distance, (cx, cy)));
-            }
-        }
-    }
-    best.map(|(_, cell)| cell)
+    let water = |level: &Level, x, y| holds_water(level.cell(x, y));
+    faced_cell(level, at, heading, COLLECT_REACH, FACING_HALF, water)
 }
 
 /// How long one bottle takes, in whole seconds: 10 less the cube root of the

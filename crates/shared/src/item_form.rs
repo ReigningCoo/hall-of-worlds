@@ -113,6 +113,10 @@ pub enum ItemForm {
     Cask(crate::cask::CaskForm),
     /// A sack of flour (`shared::flour`): which grain it was milled from.
     Flour(crate::flour::FlourForm),
+    /// A log (`shared::woodcutting`): its wood.
+    Log(crate::woodcutting::LogForm),
+    /// Kindling (`shared::woodcutting`): its wood.
+    Kindling(crate::woodcutting::KindlingForm),
     /// A vessel (`shared::vessel`): which one and what is in it.
     Vessel(crate::vessel::VesselForm),
 }
@@ -148,6 +152,8 @@ impl ItemForm {
             Self::Ointment(_) => "Ointment".to_owned(),
             Self::Cask(cask) => cask.name(),
             Self::Flour(flour) => flour.name(),
+            Self::Log(log) => log.name(),
+            Self::Kindling(kindling) => kindling.name(),
             Self::Vessel(vessel) => vessel.name(),
         }
     }
@@ -193,6 +199,8 @@ impl ItemForm {
             | Self::Ointment(_)
             | Self::Cask(_)
             | Self::Flour(_)
+            | Self::Log(_)
+            | Self::Kindling(_)
             | Self::Vessel(_) => &[],
         };
         settings.iter().filter_map(|setting| setting.gem.as_ref())

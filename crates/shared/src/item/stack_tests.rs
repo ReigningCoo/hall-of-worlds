@@ -541,6 +541,7 @@ fn counted_kinds_are_plain() {
                 | ItemKind::Fruit
                 | ItemKind::Vegetable
                 | ItemKind::Flour
+                | ItemKind::Kindling
                 | ItemKind::Ointment
         );
         assert_eq!(item.form.is_some(), form, "{kind:?} has a form");

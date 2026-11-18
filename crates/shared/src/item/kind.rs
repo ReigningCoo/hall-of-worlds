@@ -17,6 +17,12 @@ pub enum ItemKind {
     /// A sack of flour milled from a grain (`shared::flour`), counted: which
     /// grain is in its form.
     Flour,
+    /// A log of a tree's wood, felled (`shared::woodcutting`): which wood is in
+    /// its form.
+    Log,
+    /// Kindling split from a log (`shared::woodcutting`), counted: which wood
+    /// is in its form.
+    Kindling,
     Bread,
     DwarvenBread,
     RawMeat,
@@ -150,7 +156,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 107] = [
+    pub const ALL: [Self; 109] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -210,10 +216,12 @@ impl ItemKind {
         Self::Keepsake,
         Self::Key,
         Self::Keyring,
+        Self::Kindling,
         Self::Knife,
         Self::Lantern,
         Self::LegArmour,
         Self::LinenCoif,
+        Self::Log,
         Self::Loincloth,
         Self::Longsword,
         Self::Mantle,

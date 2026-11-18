@@ -67,6 +67,16 @@ pub fn give_form_to(
             let form = crate::flour::FlourForm::of(def).expect("grain mills");
             (ItemForm::Flour(form), Size::Medium)
         }
+        // A log or kindling of the wood asked for, or rolled from the seed
+        // (`woodcutting::dev_wood`).
+        ItemKind::Log | ItemKind::Kindling => {
+            let wood = crate::woodcutting::dev_wood(request.material, seed)?;
+            let form = match item.kind {
+                ItemKind::Log => ItemForm::Log(crate::woodcutting::LogForm { wood }),
+                _ => ItemForm::Kindling(crate::woodcutting::KindlingForm { wood }),
+            };
+            (form, Size::Medium)
+        }
         // Empty unless asked for a liquid or effects: potions are brewed
         // (later), not rolled.
         ItemKind::Bottle => {
