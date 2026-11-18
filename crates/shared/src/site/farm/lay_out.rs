@@ -7,7 +7,7 @@ use super::super::pond::{PondShape, dig_pond};
 use super::super::town::Rect;
 use super::{
     ALL_CROPS_PERCENT, ALL_PASTURE_PERCENT, BORDER, FarmOptions, FieldLook, LANE, MIN_FIELD,
-    PLACE_SIZE, POND_BLOBS, POND_PERCENT, POND_REACH, fence_field, lay_tracks,
+    ORCHARD_PERCENT, PLACE_SIZE, POND_BLOBS, POND_PERCENT, POND_REACH, fence_field, lay_tracks,
 };
 use crate::dungeon::{Cell, Level};
 use crate::rng::{Rng, Seed};
@@ -51,6 +51,8 @@ pub(super) fn lay_out(options: &FarmOptions, seed: Seed, house: &building::Plan)
         }
         let gate = fence_field(&mut level, &mut rng, plot, entrance, ruin);
         gates.push(gate);
+        let livestock = farming.unwrap_or_else(|| chance(&mut rng, 40));
+        let variety = rng.next_u64() as u32;
         fields.push(FieldLook {
             rect: Rect {
                 x: plot.x0 + 1,
@@ -58,8 +60,10 @@ pub(super) fn lay_out(options: &FarmOptions, seed: Seed, house: &building::Plan)
                 width: plot.x1 - plot.x0 - 2,
                 height: plot.y1 - plot.y0 - 2,
             },
-            livestock: farming.unwrap_or_else(|| chance(&mut rng, 40)),
-            variety: rng.next_u64() as u32,
+            livestock,
+            variety,
+            // From the variety, drawing nothing more: the rest is as before.
+            orchard: !livestock && variety % 100 < ORCHARD_PERCENT,
         });
     }
     lay_tracks(&mut level, house, entrance, &gates);

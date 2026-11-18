@@ -27,8 +27,12 @@ impl Stage {
     ];
     const PASTURE: [Self; 2] = [Self::Grass, Self::Short];
 
-    /// The stage of a field. Pasture is only ever kept grazed.
+    /// The stage of a field. Pasture is only ever kept grazed, and an
+    /// orchard is grass under its fruit plants.
     pub fn of(field: &FieldLook) -> Self {
+        if field.orchard {
+            return Self::Grass;
+        }
         let choices: &[Self] = if field.livestock {
             &Self::PASTURE
         } else {

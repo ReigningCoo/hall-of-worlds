@@ -57,8 +57,10 @@ pub(crate) struct WildChunk {
     /// cells: its site's entrance, or beside its way down (`sites::wild`).
     pub(crate) entrance: Option<(i64, i64)>,
     /// The herbs in a set-in first level's beds (a herbalist's), in
-    /// wilderness cells (`sites::plant_site_herbs`).
+    /// wilderness cells (`sites::site_plants`).
     pub(crate) herbs: Vec<((i64, i64), shared::herb::HerbPatch)>,
+    /// The fruit plants in its orchards (a farm's), the same way.
+    pub(crate) fruit: Vec<((i64, i64), shared::fruit::FruitPlant)>,
 }
 
 /// The wilderness of one world.
@@ -131,7 +133,8 @@ impl WildernessMaps {
         self.chunks.insert(chunk.plan.chunk(), chunk);
     }
 
-    /// A block's cells, with the herbs growing wild on them (`herbs`, the
+    /// A block's cells, with the herbs (`herbs`, the server's) and fruit
+    /// plants growing wild on them,
     /// server's), made if they aren't kept. Its chunk's plan must be kept.
     pub(crate) fn block(&mut self, block: BlockPos, herbs: &shared::herb::Herbs) -> &Level {
         let block = BlockPos {
@@ -148,6 +151,9 @@ impl WildernessMaps {
             let mut level = self.wild.block(block, plan);
             for ((x, y), patch) in self.wild.herb_patches(block, plan, &level, herbs) {
                 level.set_herb(x, y, patch);
+            }
+            for ((x, y), plant) in self.wild.fruit_plants(block, plan, &level) {
+                level.set_fruit(x, y, plant);
             }
             self.blocks.insert(block, level);
         }

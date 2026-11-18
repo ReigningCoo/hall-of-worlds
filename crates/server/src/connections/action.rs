@@ -44,8 +44,9 @@ pub(super) enum Action {
     Consume {
         item: Id,
     },
-    /// Harvesting the herb patch here (`pick_herb.rs`).
-    PickHerb {
+    /// Harvesting the herb patch or fruit plant here (`pick_herb.rs`,
+    /// `pick_fruit.rs`).
+    Pick {
         x: i64,
         y: i64,
     },

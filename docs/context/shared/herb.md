@@ -51,7 +51,7 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 
 ## Used by
 
-- `item` (`ItemKind::Herb`, stacks compare a herb's form without its look), `sheet` (`Sheet::herbs`), `dungeon` (`Level`'s herbs), `wilderness` (`herbs.rs`), `protocol` (`ServerMessage::Herbs`, `LevelChunk::herbs`, `HerbNews`), server `sites/herbs.rs`, `connections/pick_herb.rs`, `eat_herb.rs` (`raw_dose`), `dev_herbs.rs` and `give_items.rs` (`dev_herb`), server `herbs.rs` (loading mods) and `connections/welcome.rs` (sending), client `common::HerbTable`, `item_art` (`herb.rs`: pictures from `PlantLook`), `item_popup` (`herb.rs`: names and effects as known), `debug_menu` (Give Item's herb, the Herbs panel), `notices`, and `cargo xtask wiki` (the wiki's page per herb, never its effects). Herbs from outside go into a tied Herb Pouch first (`ItemKind::HerbPouch`, `Inventory::route_for`, in `item`).
+- `item` (`ItemKind::Herb`, stacks compare a herb's form without its look), `sheet` (`Sheet::herbs`), `dungeon` (`Level`'s herbs), `wilderness` (`herbs.rs`), `protocol` (`ServerMessage::Herbs`, `LevelChunk::herbs`, `PickNews`), server `sites/plants.rs`, `connections/pick_herb.rs`, `eat_herb.rs` (`raw_dose`), `dev_herbs.rs` and `give_items.rs` (`dev_herb`), server `herbs.rs` (loading mods) and `connections/welcome.rs` (sending), client `common::HerbTable`, `item_art` (`herb.rs`: pictures from `PlantLook`), `item_popup` (`herb.rs`: names and effects as known), `debug_menu` (Give Item's herb, the Herbs panel), `notices`, and `cargo xtask wiki` (the wiki's page per herb, never its effects). Herbs from outside go into a tied Herb Pouch first (`ItemKind::HerbPouch`, `Inventory::route_for`, in `item`).
 
 ## Notes
 

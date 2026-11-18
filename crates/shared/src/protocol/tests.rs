@@ -163,7 +163,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ClientMessage::Door(super::DoorAsk::Open { x: -2, y: 5 }),
         ClientMessage::Door(super::DoorAsk::CloseNear),
         ClientMessage::Door(super::DoorAsk::DevAll { open: false }),
-        ClientMessage::PickHerb { x: 4, y: -9 },
+        ClientMessage::Pick { x: 4, y: -9 },
         ClientMessage::DevHerbs(super::DevHerbs::Learn("roseroot".to_owned())),
         ClientMessage::DevHerbs(super::DevHerbs::LearnAll),
         ClientMessage::DevHerbs(super::DevHerbs::ForgetAll),
@@ -531,6 +531,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 doors: Vec::new(),
                 furniture: Vec::new(),
                 herbs: Vec::new(),
+                fruit: Vec::new(),
                 remembered: true,
             }],
         }),
@@ -555,8 +556,9 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 width: 8,
                 height: 9,
             },
-            livestock: true,
+            livestock: false,
             variety: 77,
+            orchard: true,
         }]),
         ServerMessage::Walls(vec![crate::site::WallLook {
             rect: crate::site::Rect {
@@ -618,16 +620,31 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                     picked: Some(98_765),
                 },
             }],
+            fruit: vec![super::SeenFruit {
+                x: -5,
+                y: 16,
+                plant: crate::fruit::FruitPlant {
+                    fruit: "apple".into(),
+                    phase: 4321,
+                    picked: None,
+                },
+            }],
             remembered: true,
         }),
-        ServerMessage::Herb(super::HerbNews::Picked {
+        ServerMessage::Pick(super::PickNews::Picked {
             x: -6,
             y: 16,
             herb: "chamomile".into(),
             quality: crate::item::Quality::Uncommon,
             count: 3,
         }),
-        ServerMessage::Herb(super::HerbNews::Refused { x: 1, y: -2 }),
+        ServerMessage::Pick(super::PickNews::PickedFruit {
+            x: -5,
+            y: 16,
+            fruit: "apple".into(),
+            count: 4,
+        }),
+        ServerMessage::Pick(super::PickNews::Refused { x: 1, y: -2 }),
         ServerMessage::DoorRefused {
             x: 3,
             y: -4,

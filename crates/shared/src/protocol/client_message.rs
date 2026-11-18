@@ -293,8 +293,8 @@ pub enum ClientMessage {
     Face(crate::facing::Heading),
     /// About quests (`QuestAsk`).
     Quest(super::QuestAsk),
-    /// Harvest the herb patch at `(x, y)`: answered with `Herb` (`HerbNews`).
-    PickHerb { x: i64, y: i64 },
+    /// Harvest the herb patch or fruit plant at `(x, y)`: answered with `Pick`.
+    Pick { x: i64, y: i64 },
     /// Developer tools: learn or forget herbs (`DevHerbs`), answered with `Sheet`.
     DevHerbs(super::DevHerbs),
 }

@@ -295,6 +295,6 @@ pub enum ServerMessage {
     Clock { tick: u64 },
     /// Developer tools: how a `DevGoToPlace` went (`PlaceAnswer`).
     DevPlace(super::PlaceAnswer),
-    /// About harvesting a herb patch (`HerbNews`).
-    Herb(super::HerbNews),
+    /// About harvesting a herb patch or fruit plant (`PickNews`).
+    Pick(super::PickNews),
 }

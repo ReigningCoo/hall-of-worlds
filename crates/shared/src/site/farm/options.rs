@@ -23,6 +23,10 @@ pub struct FieldLook {
     pub livestock: bool,
     /// A number for looks, so fields differ.
     pub variety: u32,
+    /// Fruit plants grow in rows here (a server puts them in, by the place's
+    /// warmth: `fruit::plant_orchards`), on grass rather than crops.
+    #[serde(default)]
+    pub orchard: bool,
 }
 
 impl FieldLook {

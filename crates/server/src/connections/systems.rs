@@ -84,7 +84,7 @@ pub(crate) fn share_doors(mut connections: ResMut<Connections>, mut worlds: ResM
     for_each_world(&mut connections.clients, &mut worlds, |clients, world| {
         crate::sites::share_furniture(clients, world);
         crate::sites::share_doors(clients, world);
-        crate::sites::share_herbs(clients, world);
+        crate::sites::share_plants(clients, world);
     });
 }
 
