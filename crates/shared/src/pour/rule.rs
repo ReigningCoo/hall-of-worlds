@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::held::{BOTTLE_ML, Held, holding};
 use crate::energy::handling_cost;
 use crate::item::{Item, ItemKind};
+use crate::juice::{Mixed, mix};
 use crate::potion::Liquid;
 
 /// Why something can't be poured.
@@ -26,6 +27,9 @@ pub enum PourRefused {
     NeedsTap,
     /// A bottle is only ever filled whole: there isn't a bottle's worth.
     TooLittle,
+    /// Cordial takes at least as much juice as water.
+    TooWatery,
+    // New refusals go at the end: messages carry one by its place in this list.
 }
 
 impl PourRefused {
@@ -40,6 +44,7 @@ impl PourRefused {
             Self::Full => "There is no room for it.",
             Self::NeedsTap => "Drawing from a cask needs a tap.",
             Self::TooLittle => "There isn't enough to fill a bottle.",
+            Self::TooWatery => "A cordial needs at least as much juice as water.",
         }
     }
 }
@@ -53,7 +58,9 @@ pub struct Poured {
 }
 
 /// Pours `from` into `into` (one each, not stacks): as much as there is, up
-/// to what `into` takes. `tap`: whether the one pouring carries a tap, which
+/// to what `into` takes. Juice and water make cordial (`juice::mix`): water
+/// poured into juice goes in only up to the juice's amount, and juice poured
+/// into water must be at least as much as the water. `tap`: whether the one pouring carries a tap, which
 /// drawing from a cask needs. `into` is sealed (if it can be) when it was
 /// empty and filled from a cask; everything poured from or into opens.
 pub fn pour(from: &Item, into: &Item, tap: bool) -> Result<Poured, PourRefused> {
@@ -69,14 +76,26 @@ pub fn pour(from: &Item, into: &Item, tap: bool) -> Result<Poured, PourRefused> 
     if matches!(liquid, Liquid::Potion(_)) {
         return Err(PourRefused::Potion);
     }
-    if target.liquid.as_ref().is_some_and(|held| *held != liquid) {
-        return Err(PourRefused::Different);
-    }
     let from_cask = from.kind == ItemKind::Cask;
+    let mut ml = source.ml.min(target.room);
+    let mut made = liquid.clone();
+    if let Some(held) = target.liquid.as_ref().filter(|held| **held != liquid) {
+        match mix(&liquid, held) {
+            // No more water than the juice already there.
+            Some(Mixed::WaterIntoJuice(cordial)) => {
+                ml = ml.min(target.ml);
+                made = cordial;
+            }
+            Some(Mixed::JuiceIntoWater(_)) if ml < target.ml => {
+                return Err(PourRefused::TooWatery);
+            }
+            Some(Mixed::JuiceIntoWater(cordial)) => made = cordial,
+            None => return Err(PourRefused::Different),
+        }
+    }
     if from_cask && !tap {
         return Err(PourRefused::NeedsTap);
     }
-    let ml = source.ml.min(target.room);
     if ml == 0 || (from.kind == ItemKind::Bottle && ml < source.ml) {
         return Err(PourRefused::Full);
     }
@@ -86,7 +105,7 @@ pub fn pour(from: &Item, into: &Item, tap: bool) -> Result<Poured, PourRefused> 
     let sealed = from_cask && target.ml == 0;
     Ok(Poured {
         from: holding(from, &liquid, source.ml - ml, false),
-        into: holding(into, &liquid, target.ml + ml, sealed),
+        into: holding(into, &made, target.ml + ml, sealed),
         ml,
     })
 }

@@ -1,9 +1,11 @@
 //! `LiquidLook`: what a bottle's liquid looks like, worked out from the liquid
 //! alone (owner, 2026-11-17), never the bottle's seed or quality, so the same
 //! effects look the same in any bottle and at any rarity. Waters and oils have
-//! their own colours (brewing plan, PR 1).
+//! their own colours (brewing plan, PR 1), and juices their fruit's (drinks
+//! plan, PR 3).
 
-use shared::herb::Stat;
+use shared::fruit::Fruits;
+use shared::herb::{Rgb, Stat};
 use shared::potion::{BottleForm, Contents, Dose, Liquid, Oil, Water};
 use shared::rng::Seed;
 
@@ -19,6 +21,11 @@ pub enum Base {
     Stat(Stat),
     Water(Water),
     Oil(Oil),
+    /// A juice (or, `cordial`, juice and water): its fruit's ripe colour.
+    Juice {
+        colour: Rgb,
+        cordial: bool,
+    },
 }
 
 impl Base {
@@ -28,6 +35,11 @@ impl Base {
             Self::Stat(stat) => stat as i64,
             Self::Water(water) => 100 + water as i64,
             Self::Oil(oil) => 200 + oil as i64,
+            Self::Juice { colour, cordial } => {
+                let Rgb(r, g, b) = colour;
+                let packed = (i64::from(r) << 16) | (i64::from(g) << 8) | i64::from(b);
+                300 + packed * 2 + i64::from(cordial)
+            }
         }
     }
 }
@@ -79,6 +91,8 @@ impl LiquidLook {
             Liquid::Potion(contents) => Self::of(contents),
             Liquid::Water(water) => Some(plain(Base::Water(*water))),
             Liquid::Oil(oil) => Some(plain(Base::Oil(*oil))),
+            Liquid::Juice(fruit) => Some(plain(juice(fruit, false))),
+            Liquid::Cordial(fruit) => Some(plain(juice(fruit, true))),
         }
     }
 
@@ -128,6 +142,15 @@ impl LiquidLook {
         ]);
         Seed::new(value)
     }
+}
+
+/// A juice's or cordial's base: its fruit's ripe colour (an orange's for a
+/// fruit the table lacks).
+fn juice(fruit: &str, cordial: bool) -> Base {
+    let colour = Fruits::built_in()
+        .get(fruit)
+        .map_or(Rgb(240, 150, 40), |def| def.look.ripe);
+    Base::Juice { colour, cordial }
 }
 
 /// The dose moving its stat furthest, the first in `Stat`'s order on a tie.

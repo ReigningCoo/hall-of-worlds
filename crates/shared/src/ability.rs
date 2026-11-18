@@ -57,6 +57,9 @@ pub enum Ability {
     /// A log split into kindling, with a one-handed axe held: learned with
     /// Fell Tree.
     CutKindling,
+    /// Fruit pressed into juice, into a carried cask or vessel
+    /// (`shared::juice`): from Alchemy, with an oil press.
+    PressJuice,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -72,7 +75,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 13] = [
+    pub const ALL: [Ability; 14] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -81,6 +84,7 @@ impl Ability {
         Self::NightVision,
         Self::Trample,
         Self::PressOil,
+        Self::PressJuice,
         Self::Grind,
         Self::Brew,
         Self::CollectWater,
@@ -99,6 +103,7 @@ impl Ability {
             Self::Trample => "Trample",
             Self::Sneak => "Sneak",
             Self::PressOil => "Press Oil",
+            Self::PressJuice => "Press Juice",
             Self::Grind => "Grind",
             Self::Brew => "Brew",
             Self::CollectWater => "Collect Water",
@@ -118,6 +123,7 @@ impl Ability {
             | Self::Kick
             | Self::Trample
             | Self::PressOil
+            | Self::PressJuice
             | Self::Grind
             | Self::Brew
             | Self::CollectWater
@@ -143,7 +149,7 @@ impl Ability {
             // As its skill, Healing, under Divine.
             Self::Heal => &[Empathy],
             // As their skill, Alchemy.
-            Self::PressOil | Self::Grind | Self::Brew => &[Intellect],
+            Self::PressOil | Self::PressJuice | Self::Grind | Self::Brew => &[Intellect],
         }
     }
 
@@ -158,6 +164,7 @@ impl Ability {
             Self::Trample => "Charges down whoever is in the way.",
             Self::Sneak => "Moves slowly and quietly while it is on.",
             Self::PressOil => "Presses vegetables, nuts or seeds into a bottle of oil.",
+            Self::PressJuice => "Presses fruit into juice, in a cask or vessel you carry.",
             Self::Grind => "Grinds herbs and an oil into an ointment.",
             Self::Brew => "Brews an ointment and a bottle of water into a potion.",
             Self::CollectWater => {

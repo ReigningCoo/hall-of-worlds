@@ -25,6 +25,9 @@ pub(crate) enum Act {
     /// A bottle being filled with oil pressed (players only): what is
     /// pressed is the client's `pressing`.
     PressOil,
+    /// Fruit being pressed into juice (players only): the fruit is the
+    /// client's `pressing`.
+    PressJuice,
     /// Herbs being ground into ointment (players only): the order is the
     /// client's `grinding`.
     Grind,

@@ -12,7 +12,7 @@ Brewing turns [herbs](herbs) into potions, in four steps: fill a bottle with wat
 
 | Tool | Used for | Sold by |
 | ---- | -------- | ------- |
-| Oil Press | Press Oil | Carpenters |
+| Oil Press | Press Oil, and Press Juice ([vessels](vessels)) | Carpenters |
 | Mortar and Pestle | Grind | Herbalists and potion shops |
 | Cauldron | Brew | Blacksmiths |
 

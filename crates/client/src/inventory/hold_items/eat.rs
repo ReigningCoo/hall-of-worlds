@@ -2,8 +2,10 @@
 //! food or a herb (`bonus::edible`), or a potion, drunk, carried or from the
 //! ground, as the server will (`ClientMessage::Consume`); the rest of its stack
 //! stays where it was. Also one of a kind, or a bottle of a potion, asked for
-//! from the action bar (`EatKind`, `DrinkPotion`). Water drunk from a vessel
-//! leaves the vessel where it is, a serving emptier (`vessel::VesselForm::drunk`).
+//! from the action bar (`EatKind`, `DrinkPotion`). A drink (water, juice or
+//! cordial) from a vessel leaves the vessel where it is, a serving emptier
+//! (`vessel::VesselForm::drunk`); a bottle of one is drunk whole, and the
+//! server gives it back empty.
 
 use bevy::prelude::*;
 use shared::bonus::{may_eat, usable_on_self};

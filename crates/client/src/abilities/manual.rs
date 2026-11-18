@@ -15,6 +15,7 @@ use super::brew::Brewing;
 use super::grind::Mixing;
 use super::item_look::{can_drink, can_eat};
 use super::own_bar::OwnBar;
+use super::press_juice::JuiceChooser;
 use super::press_oil::PressChooser;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
@@ -94,7 +95,12 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
-    (mut press, mut mixing, mut brewing): (ResMut<PressChooser>, ResMut<Mixing>, ResMut<Brewing>),
+    (mut press, mut juice, mut mixing, mut brewing): (
+        ResMut<PressChooser>,
+        ResMut<JuiceChooser>,
+        ResMut<Mixing>,
+        ResMut<Brewing>,
+    ),
 ) {
     for &UseSlot(slot) in used.read() {
         let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
@@ -126,6 +132,9 @@ pub(super) fn use_slots(
         if ability == Ability::PressOil {
             // What to press is chosen first (`press_oil.rs`).
             press.open = true;
+        } else if ability == Ability::PressJuice {
+            // And the fruit for Press Juice (`press_juice.rs`).
+            juice.open = true;
         } else if ability == Ability::Grind {
             // What to grind is chosen in the mixing panel (`grind/`).
             mixing.open = true;
@@ -206,9 +215,9 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // At the target, or with none (or none in reach: the server's to say)
         // the closed door beside the player.
         Ability::Kick => Some(target),
-        // Asked for by their panels (`press_oil.rs`, `grind/`, `brew.rs`),
-        // never queued.
-        Ability::PressOil | Ability::Grind | Ability::Brew => None,
+        // Asked for by their panels (`press_oil.rs`, `press_juice.rs`,
+        // `grind/`, `brew.rs`), never queued.
+        Ability::PressOil | Ability::PressJuice | Ability::Grind | Ability::Brew => None,
         // On no one: the water faced.
         Ability::CollectWater => Some(None),
         _ => target.map(Some),

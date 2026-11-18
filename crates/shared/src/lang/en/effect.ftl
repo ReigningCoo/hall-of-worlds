@@ -3,7 +3,8 @@
 
 ## An effect's name: what was eaten (its kind's, fruit's or vegetable's name),
 ## a fruit's or vegetable's effects (its name), poison, the debug menu's
-## bonus, a herb eaten raw, ointment, a potion's dose on one stat (its name).
+## bonus, a herb eaten raw, ointment, a potion's dose on one stat (its name),
+## juice or cordial drunk (its fruit's name).
 
 effect-eaten = Eating: { $item }
 effect-fruit = { $fruit }
@@ -12,6 +13,8 @@ effect-dev = Dev Bonus
 effect-raw-herb = Raw herb
 effect-ointment = Ointment
 effect-potion = Potion: { $stat }
+effect-juice = { $fruit } Juice
+effect-cordial = { $fruit } Cordial
 
 ## What ends it early, if anything does.
 

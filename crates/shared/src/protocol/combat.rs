@@ -33,4 +33,7 @@ pub enum Landed {
     /// potion's quality, `None` when no potion formed (both are used up all
     /// the same, the bottle coming back empty).
     Brewed(Option<crate::item::Quality>),
+    /// Fruit was pressed (Press Juice: `target` is `None`): this many
+    /// millilitres of juice went into a cask or vessel.
+    Juiced(u32),
 }

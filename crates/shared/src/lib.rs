@@ -37,6 +37,7 @@ pub mod id;
 pub mod item;
 pub mod item_form;
 pub mod item_text;
+pub mod juice;
 pub mod lang;
 pub mod magic;
 pub mod material;

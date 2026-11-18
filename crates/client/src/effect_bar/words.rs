@@ -11,7 +11,8 @@ use shared::vegetable::{VegetableTag, Vegetables};
 use crate::common::{amount_of, bonus_line, written};
 
 /// "Eating: Bread", "Eating: Apple", "Apple" (a fruit's or vegetable's effects),
-/// "Poisoned", "Dev Bonus", "Raw herb", "Ointment", "Potion: Strength".
+/// "Poisoned", "Dev Bonus", "Raw herb", "Ointment", "Potion: Strength",
+/// "Apple Juice", "Apple Cordial".
 pub(super) fn name(source: Source, lang: &Lang) -> String {
     let words = match source {
         Source::Eaten(kind) => {
@@ -41,6 +42,14 @@ pub(super) fn name(source: Source, lang: &Lang) -> String {
         Source::Potion(stat) => {
             let name = stat.attribute().map_or("Potion", |it| it.name());
             lang.render("effect-potion", &Args::new().text("stat", name))
+        }
+        Source::Juice(tag) => {
+            let args = Args::new().text("fruit", fruit_name(tag));
+            lang.render("effect-juice", &args)
+        }
+        Source::Cordial(tag) => {
+            let args = Args::new().text("fruit", fruit_name(tag));
+            lang.render("effect-cordial", &args)
         }
     };
     written(words)
