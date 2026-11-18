@@ -145,5 +145,6 @@ pub(super) fn ability_id(ability: Ability) -> &'static str {
         Ability::PressOil => "press_oil",
         Ability::Grind => "grind",
         Ability::Brew => "brew",
+        Ability::CollectWater => "collect_water",
     }
 }

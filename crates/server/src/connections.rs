@@ -28,6 +28,7 @@ mod bonuses;
 mod change_kind;
 mod characters;
 mod client;
+mod collect_water;
 mod combat;
 mod connections_impl;
 mod consume;

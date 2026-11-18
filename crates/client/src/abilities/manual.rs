@@ -7,6 +7,7 @@ use std::collections::VecDeque;
 use bevy::prelude::*;
 use shared::ability::{Ability, BarThing};
 use shared::id::Id;
+use shared::potion::water_faced;
 use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
 
@@ -15,9 +16,10 @@ use super::own_bar::OwnBar;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
 use crate::character::CharacterSheet;
-use crate::common::{Other, OwnAbility, OwnVitals, Target};
+use crate::common::{CurrentDungeon, Facing, Other, OwnAbility, OwnVitals, SpotPosition, Target};
 use crate::connection::ToServer;
 use crate::inventory::{Carried, EatKind};
+use crate::player::Player;
 
 /// The abilities the player chose by hand, from pressing them until the last
 /// lands.
@@ -110,6 +112,9 @@ pub(super) fn use_slots(
     }
 }
 
+/// Where the player stands and which way they face.
+type PlayerFacing<'w, 's> = Query<'w, 's, (&'static SpotPosition, &'static Facing), With<Player>>;
+
 /// Asks for the first queued ability that can be done, at the target, as soon
 /// as the player can act; those that can't be done when their turn comes are
 /// passed over. An automatic one asked for and still waiting on the server is
@@ -124,6 +129,7 @@ pub(super) fn ask_wanted(
     mut manual: ResMut<Manual>,
     mut own: ResMut<OwnAbility>,
     mut to_server: MessageWriter<ToServer>,
+    (dungeon, player): (Res<CurrentDungeon>, PlayerFacing),
 ) {
     let now = time.elapsed_secs_f64();
     if manual.queued.is_empty() {
@@ -135,6 +141,11 @@ pub(super) fn ask_wanted(
     }
     while let Some(ability) = manual.queued.pop_front() {
         let fits = ability.can_use(&carried.0, &sheet.0) && affords(ability, &vitals, now);
+        // Collect Water is only done facing water, as the server checks.
+        let faces_water = player
+            .single()
+            .is_ok_and(|(at, facing)| water_faced(&dungeon.level, at.0, facing.0).is_some());
+        let fits = fits && (ability != Ability::CollectWater || faces_water);
         let Some(at) = fits.then(|| aim(ability, target.0, &others)).flatten() else {
             debug!("{} can't be done now", ability.name());
             continue;
@@ -166,6 +177,8 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         Ability::Kick => Some(target),
         // Not done yet (brewing's later PRs): never asked for.
         Ability::PressOil | Ability::Grind | Ability::Brew => None,
+        // On no one: the water faced.
+        Ability::CollectWater => Some(None),
         _ => target.map(Some),
     }
 }

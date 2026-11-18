@@ -14,11 +14,11 @@ Abilities, the named things a creature can do: active ones done when asked (and 
 
 ## Public API
 
-- `Ability`: `Attack`, `Heal` and `Sneak` (every creature; Heal as there is no way to learn spells yet; Sneak a toggle, holding moves on levels to a sneaking pace, `energy::sneak_move_energy`), and the kinds' own `Flutter`, `Kick`, `NightVision` (passive), `Trample`; and Alchemy's `PressOil`, `Grind` and `Brew` (brewing, `docs/context/brewing.md`; active, leaning on Intellect, not done yet: the client never asks for them and the server does nothing). Also `sheet::Ability`. Messages carry it by its place, so new ones go at the end of the enum; `ALL` is the order players see (Attack first).
+- `Ability`: `Attack`, `Heal` and `Sneak` (every creature; Heal as there is no way to learn spells yet; Sneak a toggle, holding moves on levels to a sneaking pace, `energy::sneak_move_energy`), and the kinds' own `Flutter`, `Kick`, `NightVision` (passive), `Trample`; and Alchemy's `PressOil`, `Grind` and `Brew` (brewing, `docs/context/brewing.md`; active, leaning on Intellect, not done yet: the client never asks for them and the server does nothing); `CollectWater` (learned, leaning on Perception as the Water skill: empty bottles filled one after another at the water faced, `potion`'s `collect.rs`, server `connections/collect_water.rs`). Also `sheet::Ability`. Messages carry it by its place, so new ones go at the end of the enum; `ALL` is the order players see (Attack first).
 - `known_by_kind(kind)`: what a body alone knows: Attack, Heal, Sneak, Kick for any kind with legs (`body::has_legs`, owner 2026-11-09), and the kind's own (`CreatureDef::abilities`), for the body it is in now, so shapeshifting changes them.
 - `known(kind, sheet)` and `Ability::is_known(kind, sheet)`: everything known, in `ALL`'s order: the body's, those from a skill the sheet knows (`Ability::skill`, a path: Press Oil, Grind and Brew from `ALCHEMY`, `crafting/alchemy`, given to everyone for now, TODO `todo-learn-alchemy`), and those learned (`Sheet::abilities`).
-- `Learned` (`knows`, `learn` (true if new), `iter`): the abilities one character has learned, saved on `Sheet::abilities` as a list of names, empty in older saves. Nothing learns one yet: Collect Water will (brewing PR 3).
-- `Ability::tool()`: the item kind it needs carried (Press Oil an Oil Press, Grind a Mortar and Pestle, Brew a Cauldron); `has_tool(carried)`: anywhere in what is carried, bags too (`Inventory::count_of`).
+- `Learned` (`knows`, `learn` (true if new), `iter`): the abilities one character has learned, saved on `Sheet::abilities` as a list of names, empty in older saves. `learn_from(carried)`: Collect Water on a first empty bottle (`Inventory::empty_bottle`; the server asks each time it sends the inventory, sending the sheet when it is new).
+- `Ability::tool()`: the item kind it needs carried (Press Oil an Oil Press, Grind a Mortar and Pestle, Brew a Cauldron); `has_tool(carried)`: anywhere in what is carried, bags too (`Inventory::count_of`); Collect Water needs an empty bottle instead.
 - `Ability::can_be_automatic()`: whether a slot may be made automatic, done whenever it can be (owner, 2026-11-07): Attack and Heal so far; `BarChange::ToggleAuto` refuses the rest (`BarRefusal::NotAutomatic`), though turning one off always works.
 - `Ability::can_use(carried, sheet)`: active, known (`is_known`, the body being `carried.creature`) and with its tool carried. The client greys out what fails it, and what costs more Mana (`mana_cost`) than there is; the server refuses it.
 - `BarThing::{Ability(Ability), Item(ItemKind)}` (`ability()`, `item()`, `can_be_automatic()`: abilities that may be, never items); `From` an `Ability` or an `ItemKind`. `usable_from_bar(kind)`: food (`bonus::is_food`) so far.
@@ -27,7 +27,7 @@ Abilities, the named things a creature can do: active ones done when asked (and 
 
 ## Depends on
 
-- `creature` (`CreatureKind::def().abilities`), `item` (`ItemKind`, `Inventory::count_of` for tools), `bonus` (`is_food`), `sheet` (`Sheet::skills`, `Sheet::abilities`), `skill` (`SkillId::find`, `Skills::knows`).
+- `creature` (`CreatureKind::def().abilities`), `item` (`ItemKind`, `Inventory::count_of` for tools), `bonus` (`is_food`), `potion` (`Inventory::empty_bottle`), `sheet` (`Sheet::skills`, `Sheet::abilities`), `skill` (`SkillId::find`, `Skills::knows`).
 
 ## Used by
 

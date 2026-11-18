@@ -5,16 +5,23 @@
 //! also by quality, whatever they look like. Drinking and brewing are still
 //! to come (`docs/context/brewing.md`). See `docs/context/shared/potion.md`.
 
+mod collect;
 mod contents;
 mod form;
 mod liquid;
 mod roll;
 
+pub use collect::{
+    COLLECT_PRACTICE, COLLECT_REACH, FACING_HALF, Source, WATER_SKILL, fill_seconds, fill_ticks,
+    filled, holds_water, water_faced, water_from,
+};
 pub use contents::{Contents, Dose};
 pub use form::{BottleForm, EMPTY_GRAMS, POTION_GRAMS};
 pub use liquid::{Liquid, LiquidKind, Oil, Water};
 pub use roll::{MOST_EFFECTS, bottle_to, roll_contents};
 
+#[cfg(test)]
+mod collect_tests;
 #[cfg(test)]
 mod liquid_tests;
 #[cfg(test)]

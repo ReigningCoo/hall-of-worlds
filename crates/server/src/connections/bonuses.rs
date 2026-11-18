@@ -81,6 +81,10 @@ impl Client {
     /// Ends the effects this ends, telling the client if any were. `false` if
     /// it has gone.
     pub(crate) fn cancel_effects(&mut self, cancel: Cancel, now: u64) -> bool {
+        // Filling bottles ends the same ways (`collect_water.rs`).
+        if !self.stop_collecting(now) {
+            return false;
+        }
         let (sheet, situation) = self.sheet_and_situation();
         if !sheet.cancel_effects(cancel, situation, now) {
             return true;

@@ -47,6 +47,9 @@ pub enum Ability {
     /// An ointment and a bottle of water brewed into a potion: from Alchemy,
     /// with a cauldron.
     Brew,
+    /// Empty bottles filled at water faced, one after another (`potion`'s
+    /// `collect`): learned on a first empty bottle.
+    CollectWater,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -62,7 +65,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 10] = [
+    pub const ALL: [Ability; 11] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -73,6 +76,7 @@ impl Ability {
         Self::PressOil,
         Self::Grind,
         Self::Brew,
+        Self::CollectWater,
     ];
 
     /// What it is called.
@@ -88,6 +92,7 @@ impl Ability {
             Self::PressOil => "Press Oil",
             Self::Grind => "Grind",
             Self::Brew => "Brew",
+            Self::CollectWater => "Collect Water",
         }
     }
 
@@ -103,7 +108,8 @@ impl Ability {
             | Self::Trample
             | Self::PressOil
             | Self::Grind
-            | Self::Brew => Use::Active,
+            | Self::Brew
+            | Self::CollectWater => Use::Active,
         }
     }
 
@@ -116,7 +122,8 @@ impl Ability {
             Self::Attack | Self::Kick => &[Strength, Agility],
             Self::Trample => &[Strength, Toughness],
             Self::Flutter => &[Agility],
-            Self::NightVision => &[Perception],
+            // As its skill, Water.
+            Self::NightVision | Self::CollectWater => &[Perception],
             Self::Sneak => &[Agility],
             // As its skill, Healing, under Divine.
             Self::Heal => &[Empathy],
@@ -138,6 +145,9 @@ impl Ability {
             Self::PressOil => "Presses vegetables, nuts or seeds into a bottle of oil.",
             Self::Grind => "Grinds herbs and an oil into an ointment.",
             Self::Brew => "Brews an ointment and a bottle of water into a potion.",
+            Self::CollectWater => {
+                "Fills your empty bottles, one after another, at the water you face."
+            }
         }
     }
 

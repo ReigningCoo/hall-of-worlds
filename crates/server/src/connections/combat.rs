@@ -109,6 +109,9 @@ pub(super) fn start_ability(
     if ability == Ability::Kick {
         return super::kick::start_kick(client, world, target);
     }
+    if ability == Ability::CollectWater {
+        return super::collect_water::start_collect(client, world);
+    }
     let (Ability::Attack, Some(target)) = (ability, target) else {
         debug!("Not starting {ability:?}: not done yet, or no target");
         return (true, 0);
@@ -157,6 +160,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::Heal => return super::heal::land_heal(client, world, pending.target),
         Act::Kick(swing) => return super::kick::land_kick(client, world, pending.target, swing),
         Act::KickDoor(at) => return super::kick::land_door_kick(client, world, at),
+        Act::CollectWater => return super::collect_water::land_collect(client, world),
     };
     client.fight.attacks += 1;
     let target = pending.target;
@@ -283,6 +287,8 @@ mod struck;
 
 #[cfg(test)]
 mod alignment_tests;
+#[cfg(test)]
+mod collect_water_tests;
 #[cfg(test)]
 mod death_tests;
 #[cfg(test)]

@@ -138,6 +138,13 @@ impl Client {
         if self.inventory.settle_parts() {
             self.unsaved = true;
         }
+        // A first empty bottle teaches Collect Water.
+        if self.sheet.abilities.learn_from(&self.inventory) {
+            self.unsaved = true;
+            if !self.link.send(&ServerMessage::Sheet(self.sheet.as_sent())) {
+                return false;
+            }
+        }
         let mut seen = self.inventory.clone();
         if !self.truesight {
             seen.hide_secrets();
