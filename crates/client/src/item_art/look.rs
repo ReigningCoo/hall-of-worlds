@@ -112,6 +112,8 @@ pub enum Look {
     /// One of brewing's tools: a cauldron, a mortar and pestle or an oil
     /// press, by its kind (`tool/`).
     Tool(shared::item::ItemKind),
+    /// A cask, by its size and wood (`cask.rs`).
+    Cask(shared::cask::CaskLook),
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
     Food(shared::item::ItemKind),
     /// A fruit or nuts, or a slice of a big fruit, by fruit and variant
@@ -184,6 +186,7 @@ impl Look {
             Self::Keyring | Self::HerbPouch => (2, 1),
             Self::Food(_) => (2, 1),
             Self::Tool(kind) => super::tool::cells(*kind),
+            Self::Cask(cask) => super::cask::cells(*cask),
             Self::Fruit(fruit) => fruit.cells,
             Self::Vegetable(vegetable) => vegetable.cells,
             Self::Blade { blade, .. } => blade.cells,

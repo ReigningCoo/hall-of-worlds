@@ -4,6 +4,7 @@
 ## `about-` and the kind in kebab case.
 
 about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its inside adds to the end of your inventory.
+about-cask = A wooden cask, bound with iron hoops. It holds one liquid, by the litre.
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
@@ -42,6 +43,7 @@ item-drains = { $amount } { $stat } a second
 
 ## Health or Mana given or taken at once (ointment), signed ("+5", "−5").
 
+item-cask-holds = Holds { $litres } of { $most } litres
 item-at-once = { $amount } { $stat } at once
 
 ## Ointment whose doses come to nothing on the skin (a quarter of each).

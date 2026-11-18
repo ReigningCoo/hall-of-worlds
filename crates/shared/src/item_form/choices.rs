@@ -30,6 +30,8 @@ pub struct Choices {
     pub liquids: Vec<crate::potion::LiquidKind>,
     /// How many effects a bottle may hold, 0 (empty) first.
     pub effects: Vec<u8>,
+    /// What size a cask may be, smallest first.
+    pub cask_sizes: Vec<crate::cask::CaskSize>,
     /// Whether it takes limits (sizes and weights, which aren't a list).
     pub limits: bool,
 }
@@ -50,6 +52,19 @@ pub fn choices(kind: ItemKind, quality: Quality, request: &RollRequest) -> Choic
         ItemKind::Ring => ring_choices(quality, request),
         ItemKind::Necklace => necklace_choices(quality, request),
         ItemKind::Bottle => bottle_choices(request),
+        // Any size and wood; empty, or full of a water or an oil.
+        ItemKind::Cask => Choices {
+            cask_sizes: crate::cask::CaskSize::ALL.to_vec(),
+            materials: {
+                let mut woods = crate::cask::WOODS.to_vec();
+                woods.sort();
+                woods
+            },
+            liquids: (crate::potion::LiquidKind::all().into_iter())
+                .filter(|liquid| *liquid != crate::potion::LiquidKind::Potion)
+                .collect(),
+            ..Choices::default()
+        },
         ItemKind::Ointment => Choices {
             effects: (1..=crate::potion::MOST_EFFECTS).collect(),
             ..Choices::default()

@@ -5,6 +5,7 @@ use bevy::image::{ImageAddressMode, ImageSampler, ImageSamplerDescriptor};
 use bevy::mesh::{Indices, PrimitiveTopology};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, Face, TextureDimension, TextureFormat};
+use shared::cask::{CaskLook, CaskSize, WOODS};
 use shared::ground::Load;
 use std::collections::BTreeMap;
 
@@ -81,16 +82,28 @@ pub(super) fn make_assets(
     mut xray: ResMut<Assets<XrayMaterial>>,
 ) {
     let mut bags = BTreeMap::new();
-    for load in Load::ALL {
-        let scale = sparkle_scale(load);
-        for variety in 0..super::bag::VARIETIES {
+    let casks = CaskSize::ALL.into_iter().flat_map(|size| {
+        WOODS.map(|wood| {
+            let (lit, for_outline) = super::cask::cask_models(CaskLook { size, wood });
+            (Load::Cask(CaskLook { size, wood }), 0, lit, for_outline)
+        })
+    });
+    let looks = Load::ALL.into_iter().flat_map(|load| {
+        (0..super::bag::VARIETIES).map(move |variety| {
             let model = super::bag::bag(load, variety);
+            let for_outline = model.clone();
+            (load, variety, model, for_outline)
+        })
+    });
+    for (load, variety, model, for_outline) in looks.chain(casks) {
+        let scale = sparkle_scale(load);
+        {
             let star_outline = super::bag::star(STAR_LONG, STAR_SHORT, STAR_OUTLINE / scale);
             let star_hover_outline =
                 super::bag::star(STAR_LONG, STAR_SHORT, STAR_HOVER_OUTLINE / scale);
             let remembered = meshes.add(to_mesh(model.greyed()));
-            let outline = meshes.add(to_mesh(super::bag::outline(&model)));
-            let hover_outline = meshes.add(to_mesh(super::bag::hover_outline(&model)));
+            let outline = meshes.add(to_mesh(super::bag::outline(&for_outline)));
+            let hover_outline = meshes.add(to_mesh(super::bag::hover_outline(&for_outline)));
             let lit = meshes.add(to_mesh(model));
             bags.insert(
                 (load, variety),
@@ -116,6 +129,14 @@ pub(super) fn make_assets(
         }),
         remembered: materials.add(StandardMaterial {
             base_color_texture: Some(weave),
+            unlit: true,
+            ..default()
+        }),
+        cask_lit: materials.add(StandardMaterial {
+            perceptual_roughness: 0.75,
+            ..default()
+        }),
+        cask_remembered: materials.add(StandardMaterial {
             unlit: true,
             ..default()
         }),

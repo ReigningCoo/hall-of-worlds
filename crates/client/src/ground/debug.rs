@@ -1,6 +1,7 @@
 //! Looking at the bags (`dev_tools`).
 
 use bevy::prelude::*;
+use shared::cask::{CaskLook, CaskSize, WOODS};
 use shared::ground::Load;
 use shared::spot::Spot;
 
@@ -25,7 +26,13 @@ pub(super) fn run_debug(
     mut commands: Commands,
 ) {
     for GroundDebug::ShowLooks in asked.read() {
-        for (index, load) in Load::ALL.into_iter().enumerate() {
+        let casks = CaskSize::ALL.map(|size| {
+            Load::Cask(CaskLook {
+                size,
+                wood: WOODS[size as usize % WOODS.len()],
+            })
+        });
+        for (index, load) in Load::ALL.into_iter().chain(casks).enumerate() {
             let at = Spot::middle_of((player.x + index as i64, player.y));
             set_bag(&mut bags, &mut commands, &assets, at, load);
         }

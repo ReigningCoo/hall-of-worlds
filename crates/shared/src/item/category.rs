@@ -143,6 +143,7 @@ impl ItemKind {
             | Self::OilPress
             | Self::MortarAndPestle
             | Self::Cauldron
+            | Self::Cask
             | Self::Bottle
             | Self::Ointment
             | Self::Key

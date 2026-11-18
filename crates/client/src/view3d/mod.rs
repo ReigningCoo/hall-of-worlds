@@ -25,7 +25,7 @@ pub use grid::ViewGrid;
 use token::{BaseTilt, IconAnchor, ModelAnchor, TokenAssets, TokenBase};
 pub use token::{
     ClickedToken, DIAMETER as TOKEN_DIAMETER, HALF_THICKNESS as TOKEN_HALF_THICKNESS, HoveredToken,
-    TokenFlash, TokenView, XRAY_WHITE, XrayMaterial,
+    MODEL_SCALE, TokenFlash, TokenView, XRAY_WHITE, XrayMaterial,
 };
 
 /// Vertical field of view. Narrow (a "long lens" from far away) flattens the

@@ -3,7 +3,7 @@
 use super::MEMORY_SHADE;
 
 /// What a shape is made of, ready for a Bevy mesh.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub(in crate::ground) struct Model {
     pub positions: Vec<[f32; 3]>,
     pub normals: Vec<[f32; 3]>,

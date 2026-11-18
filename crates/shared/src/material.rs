@@ -21,8 +21,9 @@ pub enum Category {
 }
 
 /// A material. Saved by name, so new ones can go anywhere in the list.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Material {
+    Acacia,
     Adamantine,
     Amethyst,
     Aquamarine,
@@ -30,6 +31,8 @@ pub enum Material {
     Brass,
     Bronze,
     BuffLeather,
+    Cherry,
+    Chestnut,
     Chitin,
     Citrine,
     Coir,
@@ -53,8 +56,10 @@ pub enum Material {
     Leather,
     Linen,
     Mithril,
+    Oak,
     Onyx,
     Peridot,
+    Pine,
     Ramie,
     Rattan,
     Rawhide,
@@ -72,7 +77,8 @@ pub enum Material {
 
 impl Material {
     /// Every material, alphabetically by name.
-    pub const ALL: [Self; 44] = [
+    pub const ALL: [Self; 49] = [
+        Self::Acacia,
         Self::Adamantine,
         Self::Amethyst,
         Self::Aquamarine,
@@ -80,6 +86,8 @@ impl Material {
         Self::Brass,
         Self::Bronze,
         Self::BuffLeather,
+        Self::Cherry,
+        Self::Chestnut,
         Self::Chitin,
         Self::Citrine,
         Self::Coir,
@@ -102,8 +110,10 @@ impl Material {
         Self::Leather,
         Self::Linen,
         Self::Mithril,
+        Self::Oak,
         Self::Onyx,
         Self::Peridot,
+        Self::Pine,
         Self::Ramie,
         Self::Rattan,
         Self::Rawhide,
@@ -179,6 +189,11 @@ impl Material {
             Self::Suede => "Suede",
             Self::Topaz => "Topaz",
             Self::Wood => "Wood",
+            Self::Acacia => "Acacia",
+            Self::Cherry => "Cherry",
+            Self::Chestnut => "Chestnut",
+            Self::Oak => "Oak",
+            Self::Pine => "Pine",
             Self::Wool => "Wool",
         }
     }
@@ -210,7 +225,9 @@ impl Material {
             | Self::Ramie
             | Self::Silk
             | Self::Wool => Category::Textile,
-            Self::Wood => Category::Wood,
+            Self::Acacia | Self::Cherry | Self::Chestnut | Self::Oak | Self::Pine | Self::Wood => {
+                Category::Wood
+            }
             _ => Category::Gem,
         }
     }

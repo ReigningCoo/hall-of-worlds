@@ -105,7 +105,7 @@ impl Inventory {
     }
 
     /// The carried item with this id, to change.
-    pub(super) fn find_mut(&mut self, id: Id) -> Option<&mut Item> {
+    pub(crate) fn find_mut(&mut self, id: Id) -> Option<&mut Item> {
         if self.in_bin(id) {
             return self.bin.as_mut();
         }

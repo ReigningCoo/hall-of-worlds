@@ -13,6 +13,7 @@ use crate::view3d::View3dSystems;
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod assets;
+mod cask;
 mod clicks;
 #[cfg(not(target_arch = "wasm32"))]
 mod debug;

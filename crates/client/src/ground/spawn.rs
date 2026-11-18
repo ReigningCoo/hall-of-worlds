@@ -26,7 +26,15 @@ pub(super) fn spawn_bag(
     load: Load,
 ) -> Entity {
     let hash = spot_hash(at);
-    let variety = (hash % super::bag::VARIETIES as u32) as u8;
+    let cask = matches!(load, Load::Cask(_));
+    let variety = match cask {
+        true => 0,
+        false => (hash % super::bag::VARIETIES as u32) as u8,
+    };
+    let (lit, remembered) = match cask {
+        true => (&assets.cask_lit, &assets.cask_remembered),
+        false => (&assets.lit, &assets.remembered),
+    };
     let meshes = &assets.bags[&(load, variety)];
     let size = size_of(load);
     let turned = Quat::from_rotation_y((hash >> 8) as f32 % 8.0 * std::f32::consts::FRAC_PI_4);
@@ -43,7 +51,7 @@ pub(super) fn spawn_bag(
                 BagPart::Lit,
                 of_bag,
                 Mesh3d(meshes.lit.clone()),
-                MeshMaterial3d(assets.lit.clone()),
+                MeshMaterial3d(lit.clone()),
                 body,
                 hidden,
             ))
@@ -53,7 +61,7 @@ pub(super) fn spawn_bag(
                 BagPart::Remembered,
                 of_bag,
                 Mesh3d(meshes.remembered.clone()),
-                MeshMaterial3d(assets.remembered.clone()),
+                MeshMaterial3d(remembered.clone()),
                 body,
                 hidden,
             ))

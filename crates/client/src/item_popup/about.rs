@@ -1,5 +1,6 @@
 //! An item's description in its popup: for kinds with one in `item.ftl`
-//! (`about-<kind>`, such as `about-dwarven-bread`), a line under its name.
+//! (`about-<kind>`, such as `about-dwarven-bread`), a line under its name; a
+//! cask's says how many litres it holds too.
 
 use shared::item::{Item, ItemKind};
 use shared::lang::{Args, Lang};
@@ -10,8 +11,20 @@ use crate::common::written;
 /// is its top's.
 pub(super) fn about(item: &Item, lang: &Lang) -> Option<String> {
     let id = about_id(item.top().kind);
-    lang.has(&id)
-        .then(|| written(lang.render(&id, &Args::new())))
+    let about = lang
+        .has(&id)
+        .then(|| written(lang.render(&id, &Args::new())));
+    let Some(cask) = item.top().cask() else {
+        return about;
+    };
+    let args = Args::new()
+        .count("litres", i64::from(cask.litres))
+        .count("most", i64::from(cask.size.litres()));
+    let holds = written(lang.render("item-cask-holds", &args));
+    Some(match about {
+        Some(about) => format!("{about}\n{holds}"),
+        None => holds,
+    })
 }
 
 /// `about-` and the kind's name in kebab case: `about-dwarven-bread`.

@@ -4,11 +4,15 @@
 //! place gives (`potion::water_from`), Water is practised, and the next empty
 //! bottle starts, until there are none, the water is no longer faced, or the
 //! player moves or is harmed (`stop_collecting`, as eating's effects end).
+//! Once no empty bottle is left, it pours into a carried cask that takes the
+//! water instead (`shared::cask`), `cask_litres` each `cask_fill_ticks`.
 
 use bevy::prelude::*;
 use shared::ability::Ability;
+use shared::cask::{CASK_PRACTICE, cask_fill_ticks, cask_litres, fill_cask_with};
 use shared::potion::{
-    COLLECT_PRACTICE, Source, WATER_SKILL, Water, fill_ticks, filled, water_faced, water_from,
+    COLLECT_PRACTICE, Liquid, Source, WATER_SKILL, Water, fill_ticks, filled, water_faced,
+    water_from,
 };
 use shared::protocol::{Landed, ServerMessage};
 use shared::skill::SkillId;
@@ -62,15 +66,38 @@ impl Client {
     }
 }
 
-/// Begins filling the next empty bottle, if there is one and water is faced:
-/// whether the client is still there, and what it cost.
-pub(super) fn start_collect(client: &mut Client, world: &mut ServerWorld) -> (bool, u32) {
-    if client.inventory.empty_bottle().is_none() || client.water_here(world).is_none() {
-        debug!("Not starting Collect Water: no empty bottle, or no water faced");
-        return (true, 0);
+/// What is filled next: an empty bottle, else a cask that takes this water.
+enum Vessel {
+    Bottle(shared::id::Id),
+    Cask(shared::id::Id),
+}
+
+impl Client {
+    fn vessel_for(&self, water: Water) -> Option<Vessel> {
+        let bottle = self.inventory.empty_bottle().map(Vessel::Bottle);
+        let cask = || {
+            let cask = self.inventory.cask_to_fill(&Liquid::Water(water));
+            cask.map(Vessel::Cask)
+        };
+        bottle.or_else(cask)
     }
+}
+
+/// Begins filling the next empty bottle or pouring into a cask, if there is
+/// one and water is faced: whether the client is still there, and what it cost.
+pub(super) fn start_collect(client: &mut Client, world: &mut ServerWorld) -> (bool, u32) {
+    let vessel = client
+        .water_here(world)
+        .and_then(|water| client.vessel_for(water));
+    let Some(vessel) = vessel else {
+        debug!("Not starting Collect Water: nothing to fill, or no water faced");
+        return (true, 0);
+    };
     let tick = world.action_clock.ticks();
-    let lands_in = fill_ticks(&client.sheet.skills);
+    let lands_in = match vessel {
+        Vessel::Bottle(_) => fill_ticks(&client.sheet.skills),
+        Vessel::Cask(_) => cask_fill_ticks(),
+    };
     client.fight.pending = Some(Pending {
         target: client.entity_id(),
         act: Act::CollectWater,
@@ -88,30 +115,40 @@ pub(super) fn start_collect(client: &mut Client, world: &mut ServerWorld) -> (bo
     (stayed, cost)
 }
 
-/// A bottle's wind-up is over: it is filled (if the water is still faced and
-/// an empty bottle still carried) and Water practised, then the next begins.
-/// `false` if the client has gone.
+/// A wind-up is over: a bottle is filled, or a cask poured into (if the water
+/// is still faced and something to fill still carried) and Water practised,
+/// then the next begins. `false` if the client has gone.
 pub(super) fn land_collect(client: &mut Client, world: &mut ServerWorld) -> bool {
     let tick = world.action_clock.ticks();
     let water = client.water_here(world);
-    let stack = client.inventory.empty_bottle();
-    let (Some(water), Some(stack)) = (water, stack) else {
+    let vessel = water.and_then(|water| client.vessel_for(water));
+    let (Some(water), Some(vessel)) = (water, vessel) else {
         return client.link.send(&ServerMessage::AbilityLanded {
             who: None,
             target: None,
             landed: Landed::Fizzled,
         });
     };
-    let Some(bottle) = client.inventory.take_one(stack, &mut new_id) else {
-        return true;
+    let practice = match vessel {
+        Vessel::Bottle(stack) => {
+            let Some(bottle) = client.inventory.take_one(stack, &mut new_id) else {
+                return true;
+            };
+            let full = filled(bottle, water);
+            if let Err(item) = client.inventory.give(full, world.stacks, &mut new_id) {
+                crate::ground::put_down(client, world, item);
+                client.ground_told.again = true;
+            }
+            COLLECT_PRACTICE
+        }
+        Vessel::Cask(cask) => {
+            let litres = cask_litres(&client.sheet.skills);
+            fill_cask_with(&mut client.inventory, cask, Liquid::Water(water), litres);
+            CASK_PRACTICE
+        }
     };
-    let full = filled(bottle, water);
-    if let Err(item) = client.inventory.give(full, world.stacks, &mut new_id) {
-        crate::ground::put_down(client, world, item);
-        client.ground_told.again = true;
-    }
     if let Some(skill) = SkillId::find(WATER_SKILL) {
-        let amount = client.learning.skills.take(skill, COLLECT_PRACTICE, tick);
+        let amount = client.learning.skills.take(skill, practice, tick);
         client.sheet.skills.practise(skill, amount);
         client.sheet.skills.used(skill, client.activity.played);
     }

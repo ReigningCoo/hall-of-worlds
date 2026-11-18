@@ -166,6 +166,8 @@ impl ItemKind {
                 Self::OilPress => plain("Oil Press", 6000, Shape::rectangle(2, 2)),
                 Self::MortarAndPestle => plain("Mortar and Pestle", 1500, square),
                 Self::Cauldron => plain("Cauldron", 4000, Shape::rectangle(2, 2)),
+                // Its form says its size, wood, cells and weight (`shared::cask`).
+                Self::Cask => plain("Cask", 14_000, Shape::rectangle(3, 3)),
                 // Both legs, or a single Classical greave; its form says its name, cells
                 // and weight.
                 Self::LegArmour => plain("Leg Armour", 3000, Shape::rectangle(2, 3)).worn(wear(

@@ -1,4 +1,5 @@
-//! What can be told of something on the ground from afar: how full its bag looks.
+//! What can be told of something on the ground from afar: how full its bag looks,
+//! or the cask standing there.
 //! What is in it is only told to someone within reach of it. See
 //! `docs/context/shared/ground.md`.
 
@@ -10,8 +11,8 @@ mod reach;
 
 pub use reach::{ARM_REACH, in_reach, nearest_in_reach, reach};
 
-/// How full a bag on the ground looks, by the weight of all in it. Saved in what
-/// characters remember.
+/// How full a bag on the ground looks, by the weight of all in it, or the
+/// biggest cask lying loose in it. Saved in what characters remember.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Load {
     /// Almost flat.
@@ -20,9 +21,12 @@ pub enum Load {
     Half,
     Full,
     Bulging,
+    /// A cask standing there (`shared::cask`), whatever else is with it.
+    Cask(crate::cask::CaskLook),
 }
 
 impl Load {
+    /// Every bag's look (casks have their own).
     pub const ALL: [Self; 5] = [
         Self::Flat,
         Self::Slack,
@@ -42,8 +46,15 @@ impl Load {
         }
     }
 
-    /// How full a bag holding these looks.
+    /// How full a bag holding these looks, or the biggest cask among them.
     pub fn of(items: &[Item]) -> Self {
+        let cask = items
+            .iter()
+            .filter_map(Item::cask)
+            .max_by_key(|cask| cask.size);
+        if let Some(cask) = cask {
+            return Self::Cask(cask.look());
+        }
         let grams = items.iter().map(Item::total_weight).sum();
         Self::of_weight(grams)
     }
