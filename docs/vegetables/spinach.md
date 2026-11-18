@@ -1,0 +1,29 @@
+---
+title: Spinach
+nav_order: 71
+parent: Vegetables, pulses and grains
+grand_parent: Items
+---
+
+<!-- Written by `cargo xtask wiki` from the game's vegetables: change them, not this page. -->
+
+# Spinach
+
+![Spinach]({{ '/assets/vegetables/spinach.png' | relative_url }})
+
+*Spinacia oleracea*. Back to [Vegetables, pulses and grains](../vegetables).
+
+| | |
+| - | - |
+| Kind | Vegetable |
+| Rarity | Very rare wild; farmed in fields |
+| Grows in | Seasonal forest; farms' fields there too |
+| Part picked | The leaves |
+| Comes as | A handful |
+| Weight | 100 g a handful |
+| Eating | It gives back a little Health eaten raw, until you move or are hurt |
+| Effects | Raises Strength a little for a while |
+| Plant | A rosette of leaves, about 22 cm tall and 22 cm across |
+| Growth | Fast: full grown in 2 days of game time |
+| Picking | One or two when full grown, more with Foraging and Crops |
+| After picking | Picked: it grows again from its third stage |

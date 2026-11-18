@@ -2,12 +2,14 @@
 //! game's data, so they say what the game does: a page per built-in herb
 //! (`docs/herbs/`) and the Herbs page's "Where they grow" table, from
 //! `shared::herb`; a page per fruit and nut (`docs/fruit/`) and the Fruit and
-//! nuts page's tables, from `shared::fruit`; and the Weapons page, a page per
+//! nuts page's tables, from `shared::fruit`; a page per vegetable, pulse and
+//! grain (`docs/vegetables/`) and that page's table, from `shared::vegetable`;
+//! and the Weapons page, a page per
 //! family and a page per named weapon (`docs/weapons/`), from `shared::blade`. A test fails if the pages
 //! checked in differ from what this writes. With `--pictures` it also starts a
-//! development copy of the game and saves each herb's, fruit's and named
-//! weapon's picture into `docs/assets/herbs/`, `docs/assets/fruit/` and
-//! `docs/assets/weapons/`.
+//! development copy of the game and saves each herb's, fruit's, vegetable's and
+//! named weapon's picture into `docs/assets/herbs/`, `docs/assets/fruit/`,
+//! `docs/assets/vegetables/` and `docs/assets/weapons/`.
 
 mod fruit_facts;
 mod fruit_page;
@@ -17,6 +19,9 @@ mod herb_table;
 mod pictures;
 #[cfg(test)]
 mod tests;
+mod vegetable_facts;
+mod vegetable_page;
+mod vegetable_table;
 mod weapon_facts;
 mod weapon_family;
 mod weapon_lines;
@@ -28,16 +33,19 @@ use std::process::ExitCode;
 
 use shared::fruit::Fruits;
 use shared::herb::Herbs;
+use shared::vegetable::Vegetables;
 
 pub const USAGE: &str = "\
   wiki [--pictures]
             Write the wiki pages made from the game's data: a page per herb
             in docs/herbs/ and the Herbs page's table, a page per fruit and nut
-            in docs/fruit/ and that page's tables, and the weapons' pages in
-            docs/weapons/. --pictures also builds and starts the game (debug
-            API on, scratch data, title \"Dev:\") and saves each herb's,
-            fruit's and named weapon's picture into docs/assets/herbs/,
-            docs/assets/fruit/ and docs/assets/weapons/.";
+            in docs/fruit/ and that page's tables, a page per vegetable,
+            pulse and grain in docs/vegetables/ and that page's table, and the
+            weapons' pages in docs/weapons/. --pictures also builds and starts
+            the game (debug API on, scratch data, title \"Dev:\") and saves
+            each herb's, fruit's, vegetable's and named weapon's picture into
+            docs/assets/herbs/, docs/assets/fruit/, docs/assets/vegetables/
+            and docs/assets/weapons/.";
 
 /// Where the herbs' pages are, from the workspace root.
 const HERB_FOLDER: &str = "docs/herbs";
@@ -48,6 +56,11 @@ const FRUIT_FOLDER: &str = "docs/fruit";
 /// The Fruit and nuts page, whose tables are written between `fruit_table`'s
 /// comments.
 const FRUIT_INDEX: &str = "docs/fruit/index.md";
+/// Where the vegetables', pulses' and grains' pages are, from the workspace root.
+const VEGETABLE_FOLDER: &str = "docs/vegetables";
+/// The Vegetables, pulses and grains page, whose table is written between
+/// `vegetable_table`'s comments.
+const VEGETABLE_INDEX: &str = "docs/vegetables/index.md";
 /// Where the weapons' pages are, from the workspace root: the Weapons page and
 /// a folder per family.
 const WEAPON_FOLDER: &str = "docs/weapons";
@@ -74,7 +87,7 @@ pub fn run(root: &Path, args: &[String]) -> ExitCode {
 
 /// Every page this writes, by its path from the root, with its text: the
 /// herbs' pages and the Herbs page with its table put right, the same for
-/// fruit, and the weapons' pages.
+/// fruit and vegetables, and the weapons' pages.
 pub(crate) fn pages(root: &Path) -> Result<Vec<(PathBuf, String)>, String> {
     let herbs = Herbs::built_in();
     let mut pages: Vec<_> = herb_page::pages(&herbs)
@@ -93,6 +106,16 @@ pub(crate) fn pages(root: &Path) -> Result<Vec<(PathBuf, String)>, String> {
         FRUIT_INDEX.into(),
         fruit_table::put_in(&index, fruits, &herbs)?,
     ));
+    let vegetables = Vegetables::built_in();
+    let vegetable_pages = vegetable_page::pages(vegetables).into_iter();
+    pages
+        .extend(vegetable_pages.map(|(file, text)| (Path::new(VEGETABLE_FOLDER).join(file), text)));
+    let index = fs::read_to_string(root.join(VEGETABLE_INDEX))
+        .map_err(|error| format!("Can't read {VEGETABLE_INDEX}: {error}"))?;
+    pages.push((
+        VEGETABLE_INDEX.into(),
+        vegetable_table::put_in(&index, vegetables)?,
+    ));
     let weapons = weapon_family::pages().into_iter();
     pages.extend(weapons.map(|(file, text)| (Path::new(WEAPON_FOLDER).join(file), text)));
     Ok(pages)
@@ -103,7 +126,7 @@ pub(crate) fn pages(root: &Path) -> Result<Vec<(PathBuf, String)>, String> {
 pub(crate) fn folders() -> Vec<PathBuf> {
     let families = weapon_family::FAMILIES.iter();
     let families = families.map(|family| Path::new(WEAPON_FOLDER).join(family.folder));
-    [HERB_FOLDER, FRUIT_FOLDER, WEAPON_FOLDER]
+    [HERB_FOLDER, FRUIT_FOLDER, VEGETABLE_FOLDER, WEAPON_FOLDER]
         .into_iter()
         .map(PathBuf::from)
         .chain(families)

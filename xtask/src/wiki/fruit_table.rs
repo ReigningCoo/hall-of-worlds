@@ -17,7 +17,7 @@ pub(super) const HERBS_START: &str =
 pub(super) const HERBS_END: &str = "<!-- end of herbs bearing fruit -->\n";
 
 /// The lands in the table's order, as the Herbs page has them.
-const LANDS: [Biome; 9] = [
+pub(super) const LANDS: [Biome; 9] = [
     Biome::Tundra,
     Biome::BorealForest,
     Biome::Woodland,

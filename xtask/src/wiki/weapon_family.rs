@@ -118,7 +118,7 @@ fn overview() -> String {
     format!(
         "---
 title: Weapons
-nav_order: 8
+nav_order: 9
 parent: Items
 grand_parent: Gameplay
 has_children: true

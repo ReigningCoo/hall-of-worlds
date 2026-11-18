@@ -1,0 +1,29 @@
+---
+title: Arrowroot
+nav_order: 4
+parent: Vegetables, pulses and grains
+grand_parent: Items
+---
+
+<!-- Written by `cargo xtask wiki` from the game's vegetables: change them, not this page. -->
+
+# Arrowroot
+
+![Arrowroot]({{ '/assets/vegetables/arrowroot.png' | relative_url }})
+
+*Maranta arundinacea*. Back to [Vegetables, pulses and grains](../vegetables).
+
+| | |
+| - | - |
+| Kind | Vegetable |
+| Rarity | Rare wild; farmed in fields |
+| Grows in | Tropical rainforest; farms' fields there too |
+| Part picked | The tuber |
+| Comes as | One at a time |
+| Weight | 200 g each |
+| Eating | Seldom eaten raw: eaten as it is, it gives back no Health |
+| Effects | None |
+| Plant | An upright leafy plant, about 90 cm tall and 50 cm across |
+| Growth | Very slow: full grown in 16 days of game time |
+| Picking | One to three when full grown, more with Foraging and Crops |
+| After picking | Dug up: nothing grows there for a whole growth, then it starts again from a shoot |

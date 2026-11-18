@@ -138,7 +138,7 @@ fn growth(growth: Growth) -> String {
     format!("{speed}: full grown in {} days of game time", growth.days())
 }
 
-fn picking(regrow: Regrow) -> String {
+pub(super) fn picking(regrow: Regrow) -> String {
     match regrow {
         Regrow::Cut => "Cut: it grows again from its second stage".into(),
         Regrow::Pick => "Picked: it grows again from its third stage".into(),
