@@ -21,6 +21,7 @@ pub use bar::{ActionBar, BAR_SLOTS, BarChange, BarRefusal};
 pub use bar_slot::{BarSlot, BarThing, usable_from_bar};
 pub use knowing::{known, known_by_kind};
 pub use learned::Learned;
+pub use skill::ALCHEMY;
 
 /// Something a creature can do.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
