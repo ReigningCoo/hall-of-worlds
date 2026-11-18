@@ -102,6 +102,9 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
             if let Some(plant) = made.fruit_at(wrapped, cy) {
                 level.set_fruit(cx, cy, plant.clone());
             }
+            if let Some(plant) = made.vegetable_at(wrapped, cy) {
+                level.set_vegetable(cx, cy, plant.clone());
+            }
         }
     }
     let mut window = Window {
@@ -252,6 +255,12 @@ fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &
     }
     for ((x, y), plant) in &wild_chunk.fruit {
         window.level.level.set_fruit(x + turn, *y, plant.clone());
+    }
+    for ((x, y), plant) in &wild_chunk.vegetables {
+        window
+            .level
+            .level
+            .set_vegetable(x + turn, *y, plant.clone());
     }
     for stairs in &wild_chunk.stairs {
         let x = stairs.x + turn;

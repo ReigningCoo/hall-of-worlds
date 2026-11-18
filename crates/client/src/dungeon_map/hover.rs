@@ -1,4 +1,4 @@
-//! Naming the door, stairs, herb, fruit plant or border the pointer is over,
+//! Naming the door, stairs, herb, fruit plant, vegetable or border the pointer is over,
 //! for the hover box.
 
 use bevy::prelude::*;
@@ -22,7 +22,7 @@ const BORDER_NAME: &str = "Way back to the world map";
 
 /// Names what the pointer is over on the site's map: a building's door (a
 /// shop's by what it sells), the border round a poi, a herb patch, a fruit
-/// plant, or stairs. Nothing elsewhere, or off the site.
+/// plant, a vegetable, or stairs. Nothing elsewhere, or off the site.
 pub(super) fn name_hovered_place(
     view: Res<State<GameView>>,
     pointer: Res<PointerPosition>,
@@ -72,6 +72,9 @@ pub(super) fn name_hovered_place(
                 return Some(name);
             }
             if let Some(name) = super::fruit::fruit_name(&dungeon.level, now, (x, y)) {
+                return Some(name);
+            }
+            if let Some(name) = super::vegetables::vegetable_name(&dungeon.level, now, (x, y)) {
                 return Some(name);
             }
             let stairs = dungeon.stairs.iter().find(|s| (s.x, s.y) == (x, y))?;

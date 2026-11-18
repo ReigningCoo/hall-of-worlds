@@ -532,6 +532,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 furniture: Vec::new(),
                 herbs: Vec::new(),
                 fruit: Vec::new(),
+                vegetables: Vec::new(),
                 remembered: true,
             }],
         }),
@@ -629,6 +630,15 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                     picked: None,
                 },
             }],
+            vegetables: vec![super::SeenVegetable {
+                x: -4,
+                y: 16,
+                plant: crate::vegetable::VegetablePlant {
+                    vegetable: "turnip".into(),
+                    phase: 777,
+                    picked: Some(12),
+                },
+            }],
             remembered: true,
         }),
         ServerMessage::Pick(super::PickNews::Picked {
@@ -643,6 +653,12 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             y: 16,
             fruit: "apple".into(),
             count: 4,
+        }),
+        ServerMessage::Pick(super::PickNews::PickedVegetable {
+            x: -4,
+            y: 16,
+            vegetable: "turnip".into(),
+            count: 2,
         }),
         ServerMessage::Pick(super::PickNews::Refused { x: 1, y: -2 }),
         ServerMessage::DoorRefused {

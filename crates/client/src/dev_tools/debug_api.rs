@@ -19,6 +19,7 @@ mod moving;
 mod panels;
 mod places;
 mod state;
+mod vegetables;
 mod view;
 mod world;
 
@@ -65,6 +66,7 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.herbs", herbs::herbs)
         .add_debug_method("client.fruit_plants", fruit::fruit_plants)
         .add_debug_method("client.fruit_showcase", fruit::fruit_showcase)
+        .add_debug_method("client.vegetable_plants", vegetables::vegetable_plants)
         .add_debug_method("client.celestial", celestial)
         .add_debug_method("client.token", token)
         // What is open.

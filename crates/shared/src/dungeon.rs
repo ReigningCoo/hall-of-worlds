@@ -18,6 +18,7 @@ mod herbs;
 mod level;
 mod line;
 mod sight;
+mod vegetables;
 mod wall_shape;
 
 pub use bars::WallBar;

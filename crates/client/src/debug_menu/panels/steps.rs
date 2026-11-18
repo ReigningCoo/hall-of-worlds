@@ -6,7 +6,7 @@ use bevy::prelude::*;
 use shared::dungeon::Cell;
 use shared::site::StairsStyle;
 
-use crate::common::{CurrentDungeon, GameView, HerbGrowthShift};
+use crate::common::{CropGrowthShift, CurrentDungeon, GameView, HerbGrowthShift};
 use crate::dom::Template;
 use crate::dungeon_map::{CROP_STAGES, HERB_STAGES};
 use crate::html;
@@ -87,7 +87,9 @@ pub(super) fn can_step(drawn: Drawn, view: GameView, dungeon: &CurrentDungeon) -
     view == GameView::Dungeon
         && match drawn {
             Drawn::Stairs => !dungeon.stairs.is_empty(),
-            Drawn::Fields => !dungeon.fields.is_empty(),
+            Drawn::Fields => {
+                !dungeon.fields.is_empty() || dungeon.level.vegetable_plants().next().is_some()
+            }
             Drawn::Herbs => dungeon.level_has(Cell::HerbBed),
         }
 }
@@ -105,7 +107,7 @@ pub(in crate::debug_menu) fn press_panel_buttons(
     mut pressed: MessageReader<ButtonPressed>,
     buttons: Query<&StepButton>,
     mut dungeon: ResMut<CurrentDungeon>,
-    mut shift: ResMut<HerbGrowthShift>,
+    (mut shift, mut crops): (ResMut<HerbGrowthShift>, ResMut<CropGrowthShift>),
 ) {
     for press in pressed.read() {
         let Ok(&StepButton { drawn, forward }) = buttons.get(press.0) else {
@@ -122,10 +124,10 @@ pub(in crate::debug_menu) fn press_panel_buttons(
                 }
             }
             Drawn::Fields => {
-                for field in &mut dungeon.fields {
-                    // As crops, which alone go through every stage.
-                    field.livestock = false;
-                    let by = if forward { 1 } else { CROP_STAGES as u32 - 1 };
+                // Crops by their plants' growth; pasture by its variety.
+                let by = if forward { 1 } else { CROP_STAGES as u32 - 1 };
+                crops.0 = (crops.0 + by) % CROP_STAGES as u32;
+                for field in dungeon.fields.iter_mut().filter(|field| field.livestock) {
                     field.variety = field.variety.wrapping_add(by);
                 }
             }

@@ -1,4 +1,5 @@
-//! The game's and the server's clocks, the night light, and herbs' growth shift.
+//! The game's and the server's clocks, the night light, and herbs' and crops'
+//! growth shifts.
 
 use bevy::prelude::*;
 use shared::world::{MINUTES_PER_HOUR, WorldTime};
@@ -15,6 +16,12 @@ pub struct GameClock {
 /// (debug menu, dev tools): only what this client draws.
 #[derive(Resource, Default)]
 pub struct HerbGrowthShift(pub u32);
+
+/// Stages added to how far vegetables have grown by the clock, drawn as crops
+/// (debug menu's Fields row): only what this client draws, going round
+/// `dungeon_map::CROP_STAGES`.
+#[derive(Resource, Default)]
+pub struct CropGrowthShift(pub u32);
 
 /// The server's clock as well as the client can tell, and the world's time
 /// worked out from it: game minutes since the world began. Unlike `GameClock`

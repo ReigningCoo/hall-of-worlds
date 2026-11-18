@@ -1,6 +1,6 @@
 # shared: vegetable
 
-Vegetables, pulses and grains (owner, 2026-11-17): what each is, the table of them (built in), vegetables as counted items (a whole big one or a piece cut into servings when eaten), and what eating one raw does. Cooking and milling come later; their figures are kept. Each has a look for its pictures (PR 2). Where they grow and plant models are PRs 3 and 4 of the vegetable plan; the wiki pages PR 5. Modelled on `shared::fruit`, with its own kind and table (see `decisions.md`, 2026-11-18). Research and the owner's decisions: `docs/context/research-vegetables.md`.
+Vegetables, pulses and grains (owner, 2026-11-17): what each is, the table of them (built in), vegetables as counted items (a whole big one or a piece cut into servings when eaten), and what eating one raw does. Cooking and milling come later; their figures are kept. Each has a look for its pictures (PR 2). Where they grow, how they grow and what picking gives (PR 3): wild (`wilderness::vegetables`) and in farms' fields. Plant models are PR 4 (the client draws crops for now); the wiki pages PR 5. Modelled on `shared::fruit`, with its own kind and table (see `decisions.md`, 2026-11-18). Research and the owner's decisions: `docs/context/research-vegetables.md`.
 
 ## Files
 
@@ -16,6 +16,10 @@ Vegetables, pulses and grains (owner, 2026-11-17): what each is, the table of th
 - `vegetable/eating.rs`: `eating`, `raw_ticks`, `effect_ticks`, `cooked_ticks`, `healing`, `RAW_SHARE`.
 - `vegetable/cut.rs`: `cut`.
 - `vegetable/dev.rs`: `dev_vegetable`.
+- `vegetable/plant.rs`: `VegetablePlant` (`stage`, `can_pick`). Tests for plants, harvests, places and fields in `vegetable/plant_tests.rs`.
+- `vegetable/harvest.rs`: `CROPS`, `harvest_range`, `harvest`.
+- `vegetable/place.rs`: `VegetableDef::grows_wild`, `Abundance::wild_weight`, `wild_crops`, `wild_only_vegetables`, `field_crops`, `choose_wild`.
+- `vegetable/fields.rs`: `plant_fields`.
 
 ## Public API
 
@@ -26,14 +30,19 @@ Vegetables, pulses and grains (owner, 2026-11-17): what each is, the table of th
 - `VegetableForm { vegetable, serving, look, grams }` (`ItemForm::Vegetable`): `new(def, seed)`, `serving(def, seed)`, `is_whole(def)` (a whole one or piece of several servings), `name()` ("Pumpkin", "Pumpkin Slice", "Vegetable" for a key the table lacks), `shape()` (as fruit's: 1 × 1; 2 × 1 from 1 kg; 2 × 2 from 4 kg). `new_item(def, count, id, made_at)`; `Item::vegetable()`.
 - `eating(def, now) -> Vec<Effect>`: one serving eaten raw: healing (`Source::EatenVegetable(tag)`, `fruit::RESTORE` 1 Health a second, ended by moving or being hurt) for `raw_ticks(def)`, and the raw and both effects (`Source::VegetableEffects(tag)`, by fruit's `ATTRIBUTE` and `VITAL` a step, ended by nothing) for `effect_ticks(def)`. `raw_ticks`: `RAW_SHARE` (¼) of a serving's kcal ÷ 4, in whole seconds rounded to the nearest, only for `Commonly` or `Sometimes` and never grain. `effect_ticks`: a serving's kcal ÷ 4 in whole seconds, rounded down. `cooked_ticks`: that, × `fruit::EXCEPTIONAL` if exceptional, kept for cooking. `healing(def)`: raw Health in all.
 - `cut(whole, new_id) -> Option<(eaten, Option<rest>)>`: as `fruit::cut`.
+- `VegetablePlant { vegetable, phase, picked }` (a cell's plant; kept on `dungeon::Level`, sent in `protocol::LevelChunk::vegetables`): `stage(def, now)` (game minutes: 1 to `herb::STAGES`, 0 while dug up; `herb::grown_stage`, as herbs grow: up the stages at its `growth`, full grown as long again, round again; picked, back to its `regrow`'s stage, dug up gone for a whole growth), `can_pick(def, now)` (full grown, and grown a stage since last picked).
+- `harvest(def, (foraging, crops), rng)`: how many items picking gives, in `harvest_range(def, foraging, crops)`: its `HarvestTier` (1 to 6), the cube root of Foraging's percent added to the most and of Crops' (`CROPS`, `gathering/farming/crops`) to both.
+- `VegetableDef::grows_wild(biome)` (by biome alone: the table has no temperatures); `wild_crops(table, biome)` (farmed ones), `wild_only_vegetables(table, biome)`, `field_crops(table, biome)` (cultivated ones growing there, else every cultivated one); `choose_wild(list, rng)` by `Abundance::wild_weight` (9/3/1/1).
+- `plant_fields(table, fields, biome, seed)`: every cell of each field of crops (not pasture, not an orchard) one crop from `field_crops`, rolled from the site's seed and the field's corner, all its plants sharing a phase (sown together).
 - `dev_vegetable(key, seed)`: Give Item's vegetable, by key or rolled from the seed, the same on both sides; also `item_form::give_form`'s.
 
 ## Depends on
 
-- `herb` (`Stat`, `Effect`, `Growth`, `Regrow`), `fruit` (`HarvestTier`, `RESTORE`, `EXCEPTIONAL`, `bonus_of`), `climate` (`Biome`), `bonus` (`Effect`, `Source`), `item` (`Item`, `ItemKind::Vegetable`, `Shape`), `item_form` (`ItemForm::Vegetable`), `rng`, `id`, `ron`, `serde`.
+- `herb` (`Stat`, `Effect`, `Growth`, `Regrow`, `grown_stage`, `skill_percent`, `cube_root`), `site` (`FieldLook`), `fruit` (`HarvestTier`, `RESTORE`, `EXCEPTIONAL`, `bonus_of`), `climate` (`Biome`), `bonus` (`Effect`, `Source`), `item` (`Item`, `ItemKind::Vegetable`, `Shape`), `item_form` (`ItemForm::Vegetable`), `rng`, `id`, `ron`, `serde`.
 
 ## Used by
 
+- `dungeon` (`Level`'s vegetable plants), `wilderness` (`vegetables.rs`), `protocol` (`SeenVegetable`, `PickNews::PickedVegetable`), server `sites/plants.rs` (fields), `connections/pick_vegetable.rs`, client `dungeon_map` (crops by stage, picking, hover), `notices`.
 - `item` (`ItemKind::Vegetable`, Food, counted, no quality; stacks compare a vegetable's form without its look), `item_form` (`give_form` rolls one; name, shape, grams), `bonus` (`Source::EatenVegetable`, `VegetableEffects`; `is_food` and `may_eat` take vegetables), server `connections/eat_vegetable.rs` (`eating`, `cut`), `eat_fruit.rs` (`servings_fit`, both cuts), `strength_room.rs`, `give_items.rs` (`dev_vegetable`), client `item_art` (`look`, `part`, `servings` for pictures), `effect_bar` (names by `by_tag`, `delapouite/carrot` for effects), `item_popup` (raw healing, effects, "Heals nothing raw", "Heals nothing until milled", servings), `debug_menu` (Give Item's dropdown, "Any vegetable", and preview), `dev_tools` (`client.give_item`'s `vegetable`).
 
 ## Notes
@@ -41,4 +50,6 @@ Vegetables, pulses and grains (owner, 2026-11-17): what each is, the table of th
 - Built in only, no mods yet: both sides read the same table, so nothing is sent. Saves and messages name a vegetable by key; effects by `VegetableTag`.
 - No quality, never magical, blessed or cursed. A stack keys on vegetable and serving; each keeps its own look seed.
 - Grain is eaten like anything else but does nothing (no raw healing, and grains' effects are for cooking). What is rarely or never eaten raw heals nothing, though its raw harm applies (owner: harm raw is a real effect), lasting as long as cooked healing would.
-- Pictures in `item_art` (`vegetable.rs`); no plants yet (PRs 3 and 4).
+- Pictures in `item_art` (`vegetable.rs`); plant models are PR 4, drawn as crops until then.
+- Growing (PR 3, owner): as herbs (`growth` and `regrow` from the research), picked only full grown; no seasons yet. Harvests are kept by cell with herbs' and fruit's (the server's `plants_picked`).
+- Where they grow (PR 3, owner): each farm field of crops grows one crop chosen by the farm's biome from the cultivated ones (no wild-only); pasture stays grass; orchards keep their fruit. Wild: farmed crops 1.5 times as often as wild fruit (those only farmed very rarely), wild-only plants as often as herbs (`wilderness.md`). Placing isn't part of any generator's version: harvests are kept by cell. Water plants grow on open ground too, as there are no marshes yet.

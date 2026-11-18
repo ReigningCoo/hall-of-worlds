@@ -37,6 +37,7 @@ mod sight_lines;
 mod stairs;
 mod theme;
 mod town;
+mod vegetables;
 mod walls;
 
 pub use theme::TOWN_ATLAS;

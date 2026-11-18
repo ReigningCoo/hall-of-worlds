@@ -1,6 +1,6 @@
 # client: hover
 
-The box near the bottom middle of the window naming what the pointer is over: another creature (a mob by its kind, another player by their character's name), a world map poi or World Gate, a building's door (a shop's by what it sells), stairs, a fruit plant (its fruit and how it is growing), a herb patch ("Unknown plant" until the character knows its name), a bag on the ground, or a sun or moon by the minimap. It only shows names: each module that knows what is under the pointer says so through `common`.
+The box near the bottom middle of the window naming what the pointer is over: another creature (a mob by its kind, another player by their character's name), a world map poi or World Gate, a building's door (a shop's by what it sells), stairs, a fruit plant (its fruit and how it is growing), a vegetable plant (likewise), a herb patch ("Unknown plant" until the character knows its name), a bag on the ground, or a sun or moon by the minimap. It only shows names: each module that knows what is under the pointer says so through `common`.
 
 ## Files
 

@@ -18,8 +18,8 @@
 //!   (e.g. off the stairs they arrived on, to see them).
 //! - `HOW_DEBUG_STAIRS=n`: draw all stairs as this style (an index into
 //!   `StairsStyle::ALL`).
-//! - `HOW_DEBUG_FIELDS=n`: draw every field as this stage (its `variety`: for crops
-//!   0 ploughed, 1 grass, 2 short, 3 tall, 4 ripe).
+//! - `HOW_DEBUG_FIELDS=n`: draw every crop `n` stages further on (of 5: dug up,
+//!   sown, short, tall, ripe), going round, and pasture as its `variety` `n`.
 //! - `HOW_DEBUG_FURNITURE=style[,material]`: draw every table in this style and
 //!   material (indexes), or each in turn (`all`).
 //! - `HOW_DEBUG_HERBS=n`: draw every herb patch `n` stages further on, going round.

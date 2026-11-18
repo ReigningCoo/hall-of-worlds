@@ -140,6 +140,9 @@ pub struct LevelChunk {
     /// The fruit plants on those cells, grown by the clock as herbs are
     /// (`FruitPlant::stage`).
     pub fruit: Vec<SeenFruit>,
+    /// The vegetable plants on those cells, grown by the clock as herbs are
+    /// (`VegetablePlant::stage`).
+    pub vegetables: Vec<SeenVegetable>,
     /// Whether these are cells the player saw on an earlier visit (sent on
     /// arriving), rather than ones they are about to see.
     pub remembered: bool,
@@ -181,6 +184,14 @@ pub struct SeenFruit {
     pub x: i64,
     pub y: i64,
     pub plant: crate::fruit::FruitPlant,
+}
+
+/// A vegetable plant on a cell (`shared::vegetable`).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SeenVegetable {
+    pub x: i64,
+    pub y: i64,
+    pub plant: crate::vegetable::VegetablePlant,
 }
 
 /// A staircase as the player sees it: where it leads stays with the server.

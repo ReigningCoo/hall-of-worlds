@@ -7,6 +7,7 @@ use crate::door::Swing;
 use crate::fruit::FruitPlant;
 use crate::furniture::Piece;
 use crate::herb::HerbPatch;
+use crate::vegetable::VegetablePlant;
 
 /// Which room of a level a cell belongs to, as planned by its generator
 /// (corridors, walls and outside ground belong to none). For mobs later. In a
@@ -43,6 +44,8 @@ pub struct Level {
     pub(super) herbs: BTreeMap<(i64, i64), HerbPatch>,
     /// Fruit plants by cell (see `fruit.rs`).
     pub(super) fruit: BTreeMap<(i64, i64), FruitPlant>,
+    /// Vegetable plants by cell (see `vegetables.rs`).
+    pub(super) vegetables: BTreeMap<(i64, i64), VegetablePlant>,
     /// Whether its walls are natural, wider at the foot (`PoiKind::natural_walls`).
     natural_walls: bool,
 }
@@ -64,6 +67,7 @@ impl Level {
             furniture_cells: BTreeMap::new(),
             herbs: BTreeMap::new(),
             fruit: BTreeMap::new(),
+            vegetables: BTreeMap::new(),
             natural_walls: false,
         }
     }

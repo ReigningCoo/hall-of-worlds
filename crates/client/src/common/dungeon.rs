@@ -203,16 +203,20 @@ impl CurrentDungeon {
             // Its move costs then match the server's.
             self.level.place_furniture(*piece);
         }
-        // The chunk's herb patches and fruit plants replace any its cells had.
+        // The chunk's herb patches and plants replace any its cells had.
         for (x, y) in chunk.positions() {
             self.level.remove_herb(x, y);
             self.level.remove_fruit(x, y);
+            self.level.remove_vegetable(x, y);
         }
         for seen in &chunk.herbs {
             self.level.set_herb(seen.x, seen.y, seen.patch.clone());
         }
         for seen in &chunk.fruit {
             self.level.set_fruit(seen.x, seen.y, seen.plant.clone());
+        }
+        for seen in &chunk.vegetables {
+            self.level.set_vegetable(seen.x, seen.y, seen.plant.clone());
         }
         for stairs in &chunk.stairs {
             if !self.stairs.contains(stairs) {

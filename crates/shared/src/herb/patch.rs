@@ -7,7 +7,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{EARLY_STAGE, HerbDef, STAGES};
+use super::{EARLY_STAGE, Growth, HerbDef, Regrow, STAGES};
 
 /// Game minutes in a game day.
 pub const MINUTES_PER_DAY: u64 = 24 * 60;
@@ -27,31 +27,50 @@ pub struct HerbPatch {
 
 /// Game minutes a herb takes to grow one stage.
 pub fn stage_minutes(def: &HerbDef) -> u64 {
-    u64::from(def.growth.days()) * MINUTES_PER_DAY / u64::from(STAGES)
+    growth_stage_minutes(def.growth)
+}
+
+/// Game minutes a plant growing at `growth` takes to grow one stage.
+pub fn growth_stage_minutes(growth: Growth) -> u64 {
+    u64::from(growth.days()) * MINUTES_PER_DAY / u64::from(STAGES)
+}
+
+/// The stage a plant growing at `growth` has grown to at game minute `now`,
+/// starting at `phase` in its round and last harvested at `picked` (if ever),
+/// growing again from where `regrow` says: 1 to `STAGES`, or 0 while it is
+/// gone (dug up). Herb patches and vegetable plants grow alike.
+pub fn grown_stage(
+    growth: Growth,
+    regrow: Regrow,
+    phase: u32,
+    picked: Option<u64>,
+    now: u64,
+) -> u8 {
+    let step = growth_stage_minutes(growth);
+    let growing = step * u64::from(STAGES);
+    let round = 2 * growing;
+    let at = match picked {
+        None => now + u64::from(phase),
+        Some(picked) => match regrow.back_to() {
+            // Gone for as long as it takes to grow, then from the start.
+            None if now < picked + growing => return 0,
+            None => now - picked - growing,
+            Some(back_to) => u64::from(back_to - 1) * step + now.saturating_sub(picked),
+        },
+    };
+    let at = at % round;
+    if at >= growing {
+        STAGES
+    } else {
+        1 + (at / step) as u8
+    }
 }
 
 impl HerbPatch {
     /// The stage it has grown to at game minute `now`: 1 to `STAGES`, or 0
     /// while it is gone (dug up).
     pub fn stage(&self, def: &HerbDef, now: u64) -> u8 {
-        let step = stage_minutes(def);
-        let growing = step * u64::from(STAGES);
-        let round = 2 * growing;
-        let at = match self.picked {
-            None => now + u64::from(self.phase),
-            Some(picked) => match def.regrow.back_to() {
-                // Gone for as long as it takes to grow, then from the start.
-                None if now < picked + growing => return 0,
-                None => now - picked - growing,
-                Some(back_to) => u64::from(back_to - 1) * step + now.saturating_sub(picked),
-            },
-        };
-        let at = at % round;
-        if at >= growing {
-            STAGES
-        } else {
-            1 + (at / step) as u8
-        }
+        grown_stage(def.growth, def.regrow, self.phase, self.picked, now)
     }
 
     /// Whether it can be harvested at game minute `now`: grown to

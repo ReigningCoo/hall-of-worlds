@@ -82,6 +82,13 @@ fn show_notices(
                 let name = fruits.get(fruit).map_or(fruit.as_str(), |def| &def.name);
                 format!("Picked {count} {name}")
             }
+            ServerMessage::Pick(PickNews::PickedVegetable {
+                vegetable, count, ..
+            }) => {
+                let vegetables = shared::vegetable::Vegetables::built_in();
+                let name = (vegetables.get(vegetable)).map_or(vegetable.as_str(), |def| &def.name);
+                format!("Picked {count} {name}")
+            }
             ServerMessage::AbilityLanded {
                 who: None,
                 landed: Landed::Ground(doses),

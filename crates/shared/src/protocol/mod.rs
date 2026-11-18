@@ -17,7 +17,7 @@ pub use address::{DEFAULT_PORT, FALLBACK_PORT, ServerAddress};
 pub use characters::{CharacterSummary, ListedCharacter};
 pub use level::{
     ENTER_REACH, LEVEL_CHUNK_SIZE, LevelChunk, LevelInfo, LevelKind, RememberedLevel, SeenFruit,
-    SeenHerb, SeenStairs, level_chunk,
+    SeenHerb, SeenStairs, SeenVegetable, level_chunk,
 };
 pub use link::{ClientLink, Link, LinkError, ServerLink, Wire, local_pair, wired};
 pub use login::{
@@ -78,7 +78,7 @@ pub use world_chunk::{GateInfo, SeenPoi, WorldChunk, WorldInfo};
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 124;
+pub const PROTOCOL_VERSION: u32 = 125;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

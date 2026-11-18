@@ -17,7 +17,7 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 - `herb/settle.rs`: `settle_herbs` (old saves' herbs put right on loading).
 - `herb/potency.rs`: `HERBALISM`, `quality_percent`, `skill_cap`, `potency`.
 - `herb/knowledge.rs`: `HerbKnowledge`, `KnownHerb`.
-- `herb/patch.rs`: `HerbPatch` (`stage`, `can_pick`), `stage_minutes`, `MINUTES_PER_DAY`.
+- `herb/patch.rs`: `HerbPatch` (`stage`, `can_pick`), `stage_minutes`, `growth_stage_minutes`, `grown_stage`, `MINUTES_PER_DAY`.
 - `herb/harvest.rs`: `Harvest`, `harvest`, `harvest_range`, `FULL_HARVEST`.
 - `herb/place.rs`: `HerbDef::grows_in` / `suits`, `MARSH_STAND_INS`, `Abundance::wild_weight` / `bed_weight`, `wild_herbs`, `bed_herbs`, `choose`.
 - `herb/beds.rs`: `plant_beds`.
@@ -36,7 +36,7 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 - `skill_value(skills, path)` (a check's total along the path, at most 10,000 = 100%), `skill_percent(value)` (whole percent), `cube_root(n)` (whole, rounded down); `FORAGING`, `HERBS` (`gathering/farming/herbs`), `HERBALISM` (paths).
 - `settle_herbs(inventory, herbs, limits)`: every carried herb (any grid, bag, the bin) given its plant's rarity, then stacks alike in each grid joined as far as `limits` allow; herbs the table lacks left alone; how many changed. The server runs it on loading a character (`connections/welcome.rs`).
 - `potency(quality, herbalism)`, `quality_percent(quality)` (Poor 80 to Artifact 200), `skill_cap(herbalism)` (80 at none to 200 at 100%).
-- `HerbPatch { herb, phase, picked }` (a cell's herb; kept on `dungeon::Level`, sent in `protocol::LevelChunk::herbs`): `stage(def, now)` (game minutes: 1 to `STAGES`, 0 while dug up), `can_pick(def, now)` (at `EARLY_STAGE` or more, and grown a stage since last picked). `stage_minutes(def)` (a quarter of its `Growth::days`).
+- `HerbPatch { herb, phase, picked }` (a cell's herb; kept on `dungeon::Level`, sent in `protocol::LevelChunk::herbs`): `stage(def, now)` (game minutes: 1 to `STAGES`, 0 while dug up), `can_pick(def, now)` (at `EARLY_STAGE` or more, and grown a stage since last picked). `stage_minutes(def)` (a quarter of its `Growth::days`; `growth_stage_minutes(growth)` the same by speed). `grown_stage(growth, regrow, phase, picked, now)`: the rule `stage` follows, shared with `vegetable::VegetablePlant`.
 - `harvest(def, stage, (foraging, herbs), rng) -> Option<Harvest { count, quality }>`: full grown a number in `harvest_range(foraging, herbs)`; at `EARLY_STAGE` its `Early::taken` share of it (rounded; `None` if nothing); quality its rarity. `harvest_range`: `FULL_HARVEST` (1 to 3), the cube root of Foraging's percent added to the most and of Herbs' to both (100% Foraging 1 to 7, Herbs 5 to 7, both 5 to 11).
 - `HerbDef::grows_in(biome)`, `suits(&mob::Habitat)` (biome and `temperature`); `wild_herbs(herbs, habitat)`, `bed_herbs(herbs, habitat)` (wild ones, else those nearest its warmth); `choose(herbs, weight, rng)` by `Abundance::wild_weight` (9/3/1) or `bed_weight` (3/2/1).
 - `plant_beds(level, herbs, habitat, seed)`: each bed (`HerbBed` cells joined side by side: one strip) one herb from `bed_herbs`, rolled from the site's seed and the bed's first cell; each patch's phase from its cell.

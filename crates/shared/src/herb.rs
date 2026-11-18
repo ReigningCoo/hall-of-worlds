@@ -33,7 +33,7 @@ pub use form::{HerbForm, new_item};
 pub use growth::{EARLY_STAGE, Early, Growth, Regrow, STAGES};
 pub use harvest::{FULL_HARVEST, Harvest, harvest, harvest_range};
 pub use knowledge::{HerbKnowledge, KnownHerb};
-pub use patch::{HerbPatch, MINUTES_PER_DAY, stage_minutes};
+pub use patch::{HerbPatch, MINUTES_PER_DAY, grown_stage, growth_stage_minutes, stage_minutes};
 pub use place::{MARSH_STAND_INS, bed_herbs, choose, wild_herbs};
 pub use plant::{PartSize, PlantLook, PlantShape, Rgb};
 pub use potency::{HERBALISM, potency, quality_percent, skill_cap};

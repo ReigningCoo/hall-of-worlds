@@ -61,6 +61,8 @@ pub(crate) struct WildChunk {
     pub(crate) herbs: Vec<((i64, i64), shared::herb::HerbPatch)>,
     /// The fruit plants in its orchards (a farm's), the same way.
     pub(crate) fruit: Vec<((i64, i64), shared::fruit::FruitPlant)>,
+    /// The vegetables in its fields of crops (a farm's), the same way.
+    pub(crate) vegetables: Vec<((i64, i64), shared::vegetable::VegetablePlant)>,
 }
 
 /// The wilderness of one world.
@@ -133,8 +135,8 @@ impl WildernessMaps {
         self.chunks.insert(chunk.plan.chunk(), chunk);
     }
 
-    /// A block's cells, with the herbs (`herbs`, the server's) and fruit
-    /// plants growing wild on them,
+    /// A block's cells, with the herbs (`herbs`, the server's), vegetables and
+    /// fruit plants growing wild on them,
     /// server's), made if they aren't kept. Its chunk's plan must be kept.
     pub(crate) fn block(&mut self, block: BlockPos, herbs: &shared::herb::Herbs) -> &Level {
         let block = BlockPos {
@@ -151,6 +153,9 @@ impl WildernessMaps {
             let mut level = self.wild.block(block, plan);
             for ((x, y), patch) in self.wild.herb_patches(block, plan, &level, herbs) {
                 level.set_herb(x, y, patch);
+            }
+            for ((x, y), plant) in self.wild.vegetable_patches(block, plan, &level) {
+                level.set_vegetable(x, y, plant);
             }
             for ((x, y), plant) in self.wild.fruit_plants(block, plan, &level) {
                 level.set_fruit(x, y, plant);
