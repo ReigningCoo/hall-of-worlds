@@ -4,7 +4,7 @@
 //! and less see-through the stronger it is.
 
 use bevy::prelude::*;
-use shared::herb::Stat;
+use shared::herb::{Rgb, Stat};
 use shared::potion::{Oil, Water};
 
 use super::liquid::{Base, LiquidLook, MOST_NET, MOST_STRENGTH};
@@ -19,6 +19,11 @@ const STRONGEST_ALPHA: f32 = 0.97;
 /// How see-through waters and oils are: water nearly clear, oil less so.
 const WATER_ALPHA: f32 = 0.4;
 const OIL_ALPHA: f32 = 0.82;
+/// How see-through juice is, and cordial (half water).
+const JUICE_ALPHA: f32 = 0.78;
+const CORDIAL_ALPHA: f32 = 0.6;
+/// How far cordial goes towards water's colour.
+const CORDIAL_WATER: f32 = 0.45;
 
 /// A water's colour: faintly tinted, as water in glass is.
 fn water_colour(water: Water) -> Color {
@@ -49,6 +54,14 @@ fn base_colour(base: Base) -> Color {
         Base::Stat(stat) => stat_colour(stat),
         Base::Water(water) => water_colour(water),
         Base::Oil(oil) => oil_colour(oil),
+        Base::Juice { colour, cordial } => {
+            let Rgb(r, g, b) = colour;
+            let juice = Color::srgb_u8(r, g, b);
+            match cordial {
+                true => juice.mix(&water_colour(Water::Plain), CORDIAL_WATER),
+                false => juice,
+            }
+        }
     }
 }
 
@@ -88,6 +101,8 @@ pub(super) fn alpha(look: &LiquidLook) -> f32 {
     match look.main {
         Base::Water(_) => return WATER_ALPHA,
         Base::Oil(_) => return OIL_ALPHA,
+        Base::Juice { cordial: false, .. } => return JUICE_ALPHA,
+        Base::Juice { cordial: true, .. } => return CORDIAL_ALPHA,
         Base::Stat(_) => {}
     }
     let share = look.strength as f32 / MOST_STRENGTH as f32;

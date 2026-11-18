@@ -99,6 +99,11 @@ fn show_notices(
                 landed: Landed::Brewed(quality),
                 ..
             } => brewed(*quality),
+            ServerMessage::AbilityLanded {
+                who: None,
+                landed: Landed::Juiced(ml),
+                ..
+            } => format!("Pressed {ml} ml of juice"),
             _ => continue,
         };
         dom.set_text("notices/words", words);

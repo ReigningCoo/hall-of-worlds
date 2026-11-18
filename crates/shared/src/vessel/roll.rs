@@ -2,12 +2,14 @@
 
 use super::{VesselForm, VesselKind};
 use crate::item_form::{Field, Refused, RollRequest};
+use crate::juice::juice_fruit;
 use crate::potion::{Liquid, LiquidKind};
 use crate::rng::Rng;
 use crate::site::BuildingKind;
 
 /// The vessel a `RollRequest` asks for: which one (`vessel`) rolled unless
-/// asked, empty unless asked for a water or an oil (then full). Refused for a
+/// asked, empty unless asked for a water, an oil, a juice or a cordial (then
+/// full, the fruit rolled). Refused for a
 /// potion (`Field::Liquid`): potions stay in bottles.
 pub fn vessel_to(rng: &mut Rng, request: &RollRequest) -> Result<VesselForm, Refused> {
     let vessel = match request.vessel {
@@ -19,6 +21,8 @@ pub fn vessel_to(rng: &mut Rng, request: &RollRequest) -> Result<VesselForm, Ref
         None => Ok(empty),
         Some(LiquidKind::Water(water)) => Ok(empty.full_of(Liquid::Water(water))),
         Some(LiquidKind::Oil(oil)) => Ok(empty.full_of(Liquid::Oil(oil))),
+        Some(LiquidKind::Juice) => Ok(empty.full_of(Liquid::Juice(juice_fruit(rng)))),
+        Some(LiquidKind::Cordial) => Ok(empty.full_of(Liquid::Cordial(juice_fruit(rng)))),
         Some(LiquidKind::Potion) => Err(Refused(Field::Liquid)),
     }
 }

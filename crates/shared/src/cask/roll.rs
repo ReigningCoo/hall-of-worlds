@@ -2,6 +2,7 @@
 
 use super::{CaskForm, CaskSize, WOODS};
 use crate::item_form::{Field, Refused, RollRequest, keep_only};
+use crate::juice::juice_fruit;
 use crate::material::Material;
 use crate::potion::{Liquid, LiquidKind};
 use crate::rng::Rng;
@@ -32,7 +33,7 @@ pub fn cask_wood_weights() -> [(Material, u64); 5] {
 
 /// The cask a `RollRequest` asks for: its size (`cask_size`) and wood
 /// (`material`, one of `WOODS`) rolled unless asked, empty unless asked for a
-/// water or an oil (then full). Refused for another material (`Field::Material`)
+/// water, an oil, a juice or a cordial (then full, the fruit rolled). Refused for another material (`Field::Material`)
 /// or a potion (`Field::Liquid`).
 pub fn cask_to(rng: &mut Rng, request: &RollRequest) -> Result<CaskForm, Refused> {
     let mut sizes = SIZE_WEIGHTS;
@@ -50,6 +51,8 @@ pub fn cask_to(rng: &mut Rng, request: &RollRequest) -> Result<CaskForm, Refused
         None => Ok(cask),
         Some(LiquidKind::Water(water)) => Ok(cask.full_of(Liquid::Water(water))),
         Some(LiquidKind::Oil(oil)) => Ok(cask.full_of(Liquid::Oil(oil))),
+        Some(LiquidKind::Juice) => Ok(cask.full_of(Liquid::Juice(juice_fruit(rng)))),
+        Some(LiquidKind::Cordial) => Ok(cask.full_of(Liquid::Cordial(juice_fruit(rng)))),
         Some(LiquidKind::Potion) => Err(Refused(Field::Liquid)),
     }
 }

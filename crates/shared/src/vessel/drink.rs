@@ -1,6 +1,6 @@
-//! Drinking from a vessel (`ClientMessage::Consume`): a serving of water at a
-//! time, which does nothing yet (drinks plan PR 2). Drinks with effects come
-//! with juice and alcohol (PRs 3 and 7).
+//! Drinking from a vessel (`ClientMessage::Consume`): a serving at a time of
+//! water (which does nothing), juice or cordial (Mana: `juice::drink_effect`).
+//! Alcohol comes with drinks plan PR 7.
 
 use super::VesselForm;
 use crate::item::Item;
@@ -10,9 +10,10 @@ use crate::potion::Liquid;
 pub const SERVING_ML: u32 = 250;
 
 impl VesselForm {
-    /// Whether it can be drunk from: it holds a water (oil can't be drunk).
+    /// Whether it can be drunk from: it holds a water, a juice or a cordial
+    /// (`Liquid::is_drink`; oil can't be drunk).
     pub fn drinkable(&self) -> bool {
-        matches!(self.liquid, Some(Liquid::Water(_)))
+        self.liquid.as_ref().is_some_and(Liquid::is_drink)
     }
 
     /// The same after one drink, and how many millilitres were drunk: none if

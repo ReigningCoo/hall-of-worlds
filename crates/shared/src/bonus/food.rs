@@ -90,11 +90,17 @@ pub fn may_eat(kind: ItemKind, eater: CreatureKind) -> bool {
 /// `edible` by its kind, a bottle holding a potion, drunk (brewing PR 8), or
 /// a vessel holding water, drunk a serving at a time (drinks PR 2).
 pub fn usable_on_self(item: &Item) -> bool {
-    edible(item.kind) || item.is_potion() || item.is_drinkable_vessel()
+    edible(item.kind)
+        || item.is_potion()
+        || item.is_drinkable_vessel()
+        || item.is_drinkable_bottle()
 }
 
 /// Whether a creature of this kind may use this one on itself: anyone may
-/// drink a potion, or water from a vessel; otherwise `may_eat`.
+/// drink a potion, or a drink from a vessel or bottle; otherwise `may_eat`.
 pub fn may_use_on_self(item: &Item, eater: CreatureKind) -> bool {
-    item.is_potion() || item.is_drinkable_vessel() || may_eat(item.kind, eater)
+    item.is_potion()
+        || item.is_drinkable_vessel()
+        || item.is_drinkable_bottle()
+        || may_eat(item.kind, eater)
 }

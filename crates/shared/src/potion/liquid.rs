@@ -63,6 +63,11 @@ pub enum Liquid {
     Water(Water),
     Oil(Oil),
     Potion(Contents),
+    /// A fruit's juice, by the fruit's key (`shared::juice`, drinks plan PR 3).
+    Juice(String),
+    /// A fruit's juice and as much water or less (`shared::juice`'s `mix`).
+    Cordial(String),
+    // New liquids go at the end: messages carry one by its place in this list.
 }
 
 impl Liquid {
@@ -72,6 +77,16 @@ impl Liquid {
             Self::Water(water) => LiquidKind::Water(*water),
             Self::Oil(oil) => LiquidKind::Oil(*oil),
             Self::Potion(_) => LiquidKind::Potion,
+            Self::Juice(_) => LiquidKind::Juice,
+            Self::Cordial(_) => LiquidKind::Cordial,
+        }
+    }
+
+    /// A juice's or cordial's fruit, by key.
+    pub fn fruit(&self) -> Option<&str> {
+        match self {
+            Self::Juice(fruit) | Self::Cordial(fruit) => Some(fruit),
+            _ => None,
         }
     }
 
@@ -83,9 +98,17 @@ impl Liquid {
         }
     }
 
-    /// What a bottle of it is called: "Water", "Nut Oil", "Potion".
-    pub fn name(&self) -> &'static str {
-        self.kind().name()
+    /// What a bottle of it is called: "Water", "Nut Oil", "Potion", "Apple
+    /// Juice", "Apple Cordial" (just "Juice" for a fruit the table lacks).
+    pub fn name(&self) -> String {
+        let kind = self.kind().name();
+        let fruit = self
+            .fruit()
+            .and_then(|key| crate::fruit::Fruits::built_in().get(key));
+        match fruit {
+            Some(def) => format!("{} {kind}", def.name),
+            None => kind.to_owned(),
+        }
     }
 }
 
@@ -95,17 +118,21 @@ pub enum LiquidKind {
     Water(Water),
     Oil(Oil),
     Potion,
+    /// Some fruit's juice: Give Item rolls the fruit.
+    Juice,
+    /// Some fruit's cordial.
+    Cordial,
 }
 
 impl LiquidKind {
-    /// Every kind: the waters, the oils, then a potion.
+    /// Every kind: the waters, the oils, a potion, juice and cordial.
     pub fn all() -> Vec<LiquidKind> {
         let waters = Water::ALL.map(Self::Water);
         let oils = Oil::ALL.map(Self::Oil);
         waters
             .into_iter()
             .chain(oils)
-            .chain([Self::Potion])
+            .chain([Self::Potion, Self::Juice, Self::Cordial])
             .collect()
     }
 
@@ -115,6 +142,8 @@ impl LiquidKind {
             Self::Water(water) => water.name(),
             Self::Oil(oil) => oil.name(),
             Self::Potion => "Potion",
+            Self::Juice => "Juice",
+            Self::Cordial => "Cordial",
         }
     }
 }

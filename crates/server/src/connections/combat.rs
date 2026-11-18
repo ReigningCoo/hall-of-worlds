@@ -108,6 +108,7 @@ pub(super) fn start_ability(
         Ability::Kick => return super::kick::start_kick(client, world, target),
         Ability::CollectWater => return super::collect_water::start_collect(client, world),
         Ability::PressOil => return super::press_oil::choose_press(client, world, target),
+        Ability::PressJuice => return super::press_juice::choose_juice(client, world, target),
         Ability::Grind => return super::grind::start_grind(client, world),
         Ability::Brew => return super::brew::start_brew(client, world),
         _ => {}
@@ -162,6 +163,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::KickDoor(at) => return super::kick::land_door_kick(client, world, at),
         Act::CollectWater => return super::collect_water::land_collect(client, world),
         Act::PressOil => return super::press_oil::land_press(client, world),
+        Act::PressJuice => return super::press_juice::land_juice(client, world),
         Act::Grind => return super::grind::land_grind(client, world),
         Act::Brew => return super::brew::land_brew(client, world),
     };
@@ -308,6 +310,8 @@ mod heal_tests;
 mod kick_tests;
 #[cfg(test)]
 mod pour_tests;
+#[cfg(test)]
+mod press_juice_tests;
 #[cfg(test)]
 mod press_oil_tests;
 #[cfg(test)]

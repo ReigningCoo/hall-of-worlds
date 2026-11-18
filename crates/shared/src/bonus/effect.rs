@@ -42,17 +42,23 @@ pub enum Source {
     /// stat, so a new potion's dose there replaces the old one's while the
     /// old potion's other stats carry on (brewing decision 19).
     Potion(crate::herb::Stat),
+    /// Juice drunk (`juice::drink_effect`): Mana restored; the latest drink's
+    /// replaces any earlier juice or cordial.
+    Juice(crate::fruit::FruitTag),
+    /// Cordial drunk, as juice.
+    Cordial(crate::fruit::FruitTag),
     // New sources go at the end: messages carry one by its place in this list.
 }
 
 impl Source {
     /// Whether a new effect from `new` takes the place of one from this: the
     /// same source, or both eaten, as only the latest food counts, or both a
-    /// fruit's or both a vegetable's effects.
+    /// fruit's or both a vegetable's effects, or both a juice or cordial drunk.
     pub fn replaced_by(self, new: Source) -> bool {
         match (self, new) {
             (Source::FruitEffects(_), Source::FruitEffects(_)) => true,
             (Source::VegetableEffects(_), Source::VegetableEffects(_)) => true,
+            (Source::Juice(_) | Source::Cordial(_), Source::Juice(_) | Source::Cordial(_)) => true,
             _ => self.is_eaten() && new.is_eaten() || self == new,
         }
     }

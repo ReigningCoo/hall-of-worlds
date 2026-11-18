@@ -5,6 +5,7 @@
 use super::{BottleForm, Contents, Dose, Liquid, LiquidKind};
 use crate::herb::Stat;
 use crate::item_form::{Field, Refused, RollRequest};
+use crate::juice::juice_fruit;
 use crate::rng::Rng;
 
 /// The most effects Give Item can ask a potion to have.
@@ -31,7 +32,7 @@ pub fn roll_contents(rng: &mut Rng, effects: u8) -> Contents {
 /// The bottle Give Item asks for (`RollRequest::liquid` and `effects`): with
 /// no liquid asked for, a potion of that many effects, or empty for none; a
 /// potion asked for has 1 to `MOST_EFFECTS` unless told how many (never 0);
-/// a water or an oil takes no effects.
+/// a water, an oil, a juice or a cordial (its fruit rolled) takes no effects.
 pub fn bottle_to(rng: &mut Rng, request: &RollRequest, look: u64) -> Result<BottleForm, Refused> {
     let refused = Err(Refused(Field::Effects));
     let liquid = match (request.liquid, request.effects) {
@@ -46,6 +47,8 @@ pub fn bottle_to(rng: &mut Rng, request: &RollRequest, look: u64) -> Result<Bott
         (Some(_), Some(effects)) if effects > 0 => return refused,
         (Some(LiquidKind::Water(water)), _) => Some(Liquid::Water(water)),
         (Some(LiquidKind::Oil(oil)), _) => Some(Liquid::Oil(oil)),
+        (Some(LiquidKind::Juice), _) => Some(Liquid::Juice(juice_fruit(rng))),
+        (Some(LiquidKind::Cordial), _) => Some(Liquid::Cordial(juice_fruit(rng))),
     };
     // An empty potion is an empty bottle.
     Ok(BottleForm::new(liquid, look))

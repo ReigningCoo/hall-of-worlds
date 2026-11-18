@@ -8,7 +8,7 @@ impl Ability {
     /// The tool it needs carried, if any: anywhere in what is carried, bags too.
     pub const fn tool(self) -> Option<ItemKind> {
         match self {
-            Self::PressOil => Some(ItemKind::OilPress),
+            Self::PressOil | Self::PressJuice => Some(ItemKind::OilPress),
             Self::Grind => Some(ItemKind::MortarAndPestle),
             Self::Brew => Some(ItemKind::Cauldron),
             _ => None,

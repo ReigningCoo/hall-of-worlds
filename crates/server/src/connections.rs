@@ -65,6 +65,7 @@ mod pick_herb;
 mod pick_vegetable;
 mod playtime;
 mod pour;
+mod press_juice;
 mod press_oil;
 mod roads;
 mod role;
@@ -218,7 +219,8 @@ pub struct Client {
     waiting: VecDeque<Action>,
     /// The ability it is winding up, and its attacks so far.
     fight: crate::combat::Fight,
-    /// What Press Oil presses while it goes on (`press_oil.rs`).
+    /// What Press Oil (`press_oil.rs`) or Press Juice (a fruit,
+    /// `press_juice.rs`) presses while it goes on.
     pressing: Option<shared::potion::Pressing>,
     /// What Grind grinds and Brew brews while they wind up (`grind.rs`, `brew.rs`).
     grinding: Option<shared::brewing::GrindOrder>,

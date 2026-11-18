@@ -2,8 +2,9 @@
 //! or a herb carried, or lying in reach, is taken and eaten (`Sheet::eat`, a
 //! fruit: `eat_fruit.rs`, a vegetable: `eat_vegetable.rs`, or a herb raw:
 //! `eat_herb.rs`), in turn with the player's steps. Ointment is rubbed on
-//! the same way (`rub_ointment.rs`), a potion drunk (`drink.rs`), and water
-//! from a vessel, which stays (`drink_vessel.rs`).
+//! the same way (`rub_ointment.rs`), a potion drunk (`drink.rs`), and a drink
+//! from a vessel, which stays, or a bottle, given back empty
+//! (`drink_vessel.rs`).
 
 use bevy::prelude::*;
 use shared::bonus::{may_use_on_self, usable_on_self};
@@ -59,6 +60,10 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
         }
         Ok(drunk) if drunk.is_potion() => {
             super::drink::drink(client, world, drunk, tick);
+            handling_cost(POTION_GRAMS)
+        }
+        Ok(drunk) if drunk.is_drinkable_bottle() => {
+            super::drink_vessel::drink_bottle(client, world, drunk, tick);
             handling_cost(POTION_GRAMS)
         }
         Ok(used) if used.ointment().is_some() => {

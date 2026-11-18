@@ -51,7 +51,7 @@ impl Client {
         };
         if !matches!(
             pending.act,
-            Act::CollectWater | Act::PressOil | Act::Grind | Act::Brew
+            Act::CollectWater | Act::PressOil | Act::PressJuice | Act::Grind | Act::Brew
         ) || pending.lands_at <= now
         {
             return true;
