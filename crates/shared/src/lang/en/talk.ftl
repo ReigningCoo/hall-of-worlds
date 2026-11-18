@@ -30,6 +30,7 @@ occupation-bank = banker
 occupation-gem-cutter = gem cutter
 occupation-black-market = fence
 occupation-cathedral = bishop
+occupation-miller = miller
 
 ## What the panel says with nothing to offer.
 

@@ -32,4 +32,4 @@ grand_parent: Items
 
 ![Sack of Spelt Flour]({{ '/assets/flour/spelt.png' | relative_url }})
 
-A sheaf of spelt mills into a sack of spelt flour weighing 23 g: 75% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+A sheaf of spelt mills into a sack of spelt flour weighing 23 g: 75% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Town millers sell flour of the grains grown near them; milling your own sheaves is planned.

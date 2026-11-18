@@ -21,6 +21,10 @@ pub struct TownOptions {
     pub wall_percent: u32,
     /// What a wall may be made of, and how likely each is.
     pub wall_materials: &'static [(WallMaterial, u32)],
+    /// Percentage chances of trying for a second miller, and a third (out of
+    /// the same roll, so a third is never without a second). Every town tries
+    /// for one.
+    pub millers: [u32; 2],
 }
 
 /// A town's plan: how many buildings it aims for, its main roads and wall.
@@ -31,6 +35,8 @@ pub struct Plan {
     /// Which arms its middle has: north, east, south, west.
     arms: [bool; 4],
     wall: Option<WallMaterial>,
+    /// How many millers it tries to fit in once finished.
+    millers: u8,
 }
 
 impl Plan {
@@ -46,12 +52,27 @@ impl Plan {
         let arms = choose_arms(&mut rng, target, options.sides);
         let walled = seed.derive("town wall").at(&[0]) % 100 < u64::from(options.wall_percent);
         let wall = walled.then(|| WallMaterial::pick(seed, options.wall_materials));
+        let roll = seed.derive("miller").at(&[0]) % 100;
+        let [second, third] = options.millers.map(u64::from);
+        let millers = 1 + u8::from(roll < second) + u8::from(roll < third);
         Self {
             seed,
             target,
             arms,
             wall,
+            millers,
         }
+    }
+
+    /// As made before towns had millers (`UNMILLED_TOWN_VERSION`).
+    pub(in crate::site) fn without_millers(self) -> Self {
+        Self { millers: 0, ..self }
+    }
+
+    /// How many millers it tries to fit in (the world map shows these, as it
+    /// does `target`, without generating the town).
+    pub fn millers(&self) -> u8 {
+        self.millers
     }
 
     /// Which arms its middle has: north, east, south, west.
@@ -74,6 +95,6 @@ impl Plan {
 
     /// Generates the town (its only level).
     pub fn level(&self) -> SiteLevel {
-        Town::new(self.seed, self.target, self.arms, self.wall).generate()
+        Town::new(self.seed, self.target, self.arms, self.wall, self.millers).generate()
     }
 }

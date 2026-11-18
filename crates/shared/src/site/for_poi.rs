@@ -85,12 +85,15 @@ impl Generator {
         };
         // Owner, 2026-11-13: the smaller, the likelier a wall. Main roads
         // follow the road network's sides once `for_site` knows them.
-        let town = |buildings, wall_percent, wall_materials| {
+        // Owner, 2026-11-18: every town tries for a miller; towns and cities
+        // may try for more (percent for a second, and for a third).
+        let town = |buildings, wall_percent, wall_materials, millers| {
             Self::Town(TownOptions {
                 buildings,
                 sides: [false; 4],
                 wall_percent,
                 wall_materials,
+                millers,
             })
         };
         let at_least_three_floors = |generator| match generator {
@@ -101,10 +104,10 @@ impl Generator {
             other => other,
         };
         match kind {
-            Hamlet => town((3, 8), 60, HAMLET_WALLS),
-            Village => town((9, 25), 45, VILLAGE_WALLS),
-            Town => town((26, 60), 30, TOWN_WALLS),
-            City => town((61, 150), 15, CITY_WALLS),
+            Hamlet => town((3, 8), 60, HAMLET_WALLS, [0, 0]),
+            Village => town((9, 25), 45, VILLAGE_WALLS, [0, 0]),
+            Town => town((26, 60), 30, TOWN_WALLS, [20, 0]),
+            City => town((61, 150), 15, CITY_WALLS, [50, 25]),
             Farm => Self::Farm(FarmOptions {
                 house: BuildingOptions {
                     width: (13, 19),

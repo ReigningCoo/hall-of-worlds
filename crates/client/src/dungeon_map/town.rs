@@ -22,6 +22,7 @@ mod faces;
 mod flat;
 mod hedge;
 mod hedges;
+mod mill;
 mod opening;
 mod roof;
 
@@ -39,6 +40,7 @@ pub use flat::build_flat;
 pub(super) use flat::{flat_layer, flat_patch, layer_colour};
 use hedge::Hedge;
 pub use hedges::build_hedges;
+use mill::{MILL_ROOF_RISE, build_mill};
 use opening::Opening;
 use roof::{Roof, roof_centre};
 
@@ -56,9 +58,9 @@ const FIRST_ROOF_TILE: usize = 13;
 const WINDOW_TILE: usize = 18;
 const LIT_WINDOW_TILE: usize = 19;
 const FIRST_DOOR_TILE: usize = 20;
-pub(super) const PLOUGHED_TILE: usize = 43;
-pub(super) const GRASS_TILE: usize = 44;
-pub(super) const FENCE_TILE: usize = 45;
+pub(super) const PLOUGHED_TILE: usize = 44;
+pub(super) const GRASS_TILE: usize = 45;
+pub(super) const FENCE_TILE: usize = 46;
 
 const HALF_CELL: f32 = CELL_SIZE / 2.0;
 

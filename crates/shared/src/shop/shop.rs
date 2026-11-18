@@ -1,8 +1,9 @@
 //! A town shop: how much it keeps in stock, and its rolls.
 
 use super::{
-    MINIMUM_SHARE, REPLACED_AFTER, SPEED_AT_BEST, SPEED_AT_WORST, STOCK_AT_BEST, STOCK_AT_WORST,
-    base_minutes, sells, steps_from_common,
+    MILLER_MOST, MILLER_SACKS_AT_BEST, MILLER_SACKS_AT_WORST, MINIMUM_SHARE, MINUTES_PER_DAY,
+    REPLACED_AFTER, SPEED_AT_BEST, SPEED_AT_WORST, STOCK_AT_BEST, STOCK_AT_WORST, base_minutes,
+    sells, steps_from_common,
 };
 use crate::item::{ItemKind, ODDS_OUT_OF, Quality};
 use crate::rng::Rng;
@@ -23,12 +24,26 @@ pub struct Shop {
 impl Shop {
     /// How many things it aims to have.
     pub fn target(&self) -> u64 {
+        if self.is_miller() {
+            return MILLER_MOST;
+        }
         STOCK_AT_WORST + (STOCK_AT_BEST - STOCK_AT_WORST) * self.quality as u64 / 1000
     }
 
     /// The fewest it may have on reopening before being topped up.
     pub fn minimum(&self) -> u64 {
         (self.target() * MINIMUM_SHARE).div_ceil(100)
+    }
+
+    /// Whether it is a miller, who has his own setting: `MILLER_MOST`.
+    fn is_miller(&self) -> bool {
+        self.kind == BuildingKind::Miller
+    }
+
+    /// Whether reopening it after a while below its `minimum` tops it up.
+    /// A miller's stock is only what he has milled.
+    pub fn tops_up(&self) -> bool {
+        !self.is_miller()
     }
 
     /// `sqrt` is one of the float functions that is the same everywhere.
@@ -45,6 +60,12 @@ impl Shop {
     /// The minutes this shop takes to make something this good, of a kind taking
     /// this percentage of the usual time.
     pub fn make_minutes(&self, quality: Quality, kind_percent: u64) -> u64 {
+        if self.is_miller() {
+            // Flour has no quality: only the miller's own counts.
+            let spread = MILLER_SACKS_AT_BEST - MILLER_SACKS_AT_WORST;
+            let per_thousand_days = MILLER_SACKS_AT_WORST * 1000 + spread * self.quality as u64;
+            return MINUTES_PER_DAY * 1000 / per_thousand_days;
+        }
         let spread = (SPEED_AT_WORST - SPEED_AT_BEST) * self.quality as u64 / 1000;
         let speed = SPEED_AT_WORST - spread;
         let usual = base_minutes(quality) * kind_percent * speed;

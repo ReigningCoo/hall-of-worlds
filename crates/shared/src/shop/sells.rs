@@ -10,11 +10,11 @@ use crate::site::BuildingKind;
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies, BreastBand,
-        Cap, Cask, Cauldron, Cloak, Clogs, Fruit, Gauntlets, Gloves, Hat, Headcloth, Headdress,
-        HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth, MortarAndPestle, Necklace,
-        Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat, Pouch, Ring, Sandals, Shawl,
-        Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Tap, Trousers, Vegetable,
-        Vessel, Wimple,
+        Cap, Cask, Cauldron, Cloak, Clogs, Flour, Fruit, Gauntlets, Gloves, Hat, Headcloth,
+        Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth, MortarAndPestle,
+        Necklace, Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat, Pouch, Ring,
+        Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Tap,
+        Trousers, Vegetable, Vessel, Wimple,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -92,6 +92,9 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
         BuildingKind::Jeweller => &[(Ring, 2), (Necklace, 1), (Vessel, 1)],
         BuildingKind::GemCutter => &[(Ring, 1), (Necklace, 1)],
         BuildingKind::BlackMarket => &[(Sword, 1), (Ring, 1), (Necklace, 1), (Cloak, 1)],
+        // Flour of grains grown near the town (`shared::produce`); his own
+        // setting is in `Shop` (`MILLER_MOST`).
+        BuildingKind::Miller => &[(Flour, 1)],
         _ => &[],
     }
 }

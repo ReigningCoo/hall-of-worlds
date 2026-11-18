@@ -4,6 +4,7 @@ use super::building::BuildingOptions;
 use super::{
     BOXED_CAVE_VERSION, BUILDING_VERSION, CAVE_VERSION, DEV_AREA_VERSION, Exit, FARM_VERSION,
     Generator, HERBALIST_VERSION, OASIS_VERSION, SiteLevel, Stairs, StairsStyle, TOWN_VERSION,
+    UNMILLED_TOWN_VERSION,
 };
 use crate::poi::PoiKind;
 use crate::rng::Seed;
@@ -75,6 +76,9 @@ impl Site {
             }
             Generator::Town(options) if version == TOWN_VERSION => {
                 Plan::Town(super::town::Plan::new(&options, seed))
+            }
+            Generator::Town(options) if version == UNMILLED_TOWN_VERSION => {
+                Plan::Town(super::town::Plan::new(&options, seed).without_millers())
             }
             Generator::Farm(options) if version == FARM_VERSION => {
                 Plan::Farm(super::farm::Plan::new(&options, seed))

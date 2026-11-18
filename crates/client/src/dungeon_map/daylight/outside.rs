@@ -95,7 +95,10 @@ pub(in crate::dungeon_map) fn tint_outside(
         material.base_color = Color::linear_rgba(by.x, by.y, by.z, alpha);
     };
     for surface in Surface::ALL {
-        let outside = matches!(surface, Surface::Ground | Surface::Town);
+        let outside = matches!(
+            surface,
+            Surface::Ground | Surface::Town | Surface::TownBlend
+        );
         let by = if outside { lit.max_element() } else { 1.0 };
         if let Some(mut material) = materials.get_mut(&surfaces.memory[surface as usize]) {
             tint(&mut material.base, Vec3::splat(by * dim));

@@ -65,6 +65,7 @@ fn bigger_towns_have_more_to_them() {
             PoiLook::Town {
                 buildings,
                 wall: None,
+                millers: 1,
             },
             0,
         )

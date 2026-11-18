@@ -28,10 +28,12 @@ pub enum BuildingKind {
     GemCutter,
     BlackMarket,
     Cathedral,
+    /// Placed after the town is finished, where a round mill fits.
+    Miller,
 }
 
 impl BuildingKind {
-    pub const ALL: [Self; 23] = [
+    pub const ALL: [Self; 24] = [
         Self::House,
         Self::Shrine,
         Self::Inn,
@@ -55,6 +57,7 @@ impl BuildingKind {
         Self::GemCutter,
         Self::BlackMarket,
         Self::Cathedral,
+        Self::Miller,
     ];
 
     /// What players call it.
@@ -83,6 +86,7 @@ impl BuildingKind {
             Self::GemCutter => "Gem cutter",
             Self::BlackMarket => "Black market",
             Self::Cathedral => "Cathedral",
+            Self::Miller => "Miller",
         }
     }
 
@@ -113,6 +117,8 @@ impl BuildingKind {
             Self::GemCutter => (40, 1, 4),
             Self::BlackMarket => (40, 1, 2),
             Self::Cathedral => (50, 1, 1),
+            // Never chosen by weight: `miller.rs` places it where it fits.
+            Self::Miller => (i64::MAX, 0, 0),
         }
     }
 }

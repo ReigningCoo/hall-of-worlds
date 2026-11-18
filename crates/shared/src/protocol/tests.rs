@@ -489,6 +489,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 look: PoiLook::Town {
                     buildings: 9,
                     wall: None,
+                    millers: 1,
                 },
                 chunk: ChunkPos { x: 1, y: -2 },
                 x: 70,

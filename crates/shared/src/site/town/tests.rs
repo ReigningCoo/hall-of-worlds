@@ -14,7 +14,7 @@ fn town(target: i64, seed: u64) -> SiteLevel {
 fn new_town(target: i64, seed: u64, wall: Option<WallMaterial>) -> Town {
     let mut rng = Seed::new(seed).derive("test arms").rng();
     let arms = arms::choose_arms(&mut rng, target, [false; 4]);
-    Town::new(Seed::new(seed), target, arms, wall)
+    Town::new(Seed::new(seed), target, arms, wall, 1)
 }
 
 /// Towns of every size, from a few seeds.
@@ -43,7 +43,11 @@ fn the_same_seed_makes_the_same_town() {
 #[test]
 fn towns_have_about_the_buildings_asked_for() {
     for (target, site) in towns() {
-        let count = site.buildings.len() as i64;
+        let millers = site
+            .buildings
+            .iter()
+            .filter(|b| b.look.kind == BuildingKind::Miller);
+        let count = site.buildings.len() as i64 - millers.count() as i64;
         assert!(count >= 3, "{target}: only {count}");
         assert!(
             count <= target && count * 10 >= target * 6,
@@ -99,7 +103,7 @@ fn gardens_hold_a_three_by_three_and_nothing_sticks_out() {
 }
 
 /// Doors stand in straight walls facing something walkable, a road unless
-/// the building is a house.
+/// the building is a house or a mill (whose door is the nearest it can be).
 #[test]
 fn doors_face_the_right_ground() {
     for (_, site) in towns() {
@@ -110,8 +114,9 @@ fn doors_face_the_right_ground() {
             assert_eq!(level.cell(x, y), Cell::BuildingDoor);
             let front = level.cell(x + dx, y + dy);
             assert!(front.is_walkable());
-            if building.look.kind != BuildingKind::House {
-                assert!(front.is_road(), "{:?}", building.look.kind);
+            let kind = building.look.kind;
+            if !matches!(kind, BuildingKind::House | BuildingKind::Miller) {
+                assert!(front.is_road(), "{kind:?}");
             }
             let same = |nx, ny| level.room(nx, ny) == Some(RoomId(building.look.id));
             assert!(same(x + dy, y + dx) && same(x - dy, y - dx));
@@ -156,9 +161,14 @@ fn numbers_stay_in_range_and_grow_with_the_town() {
 #[test]
 fn building_kinds_follow_their_rules() {
     for (_, site) in towns() {
-        let count = site.buildings.len() as i64;
+        // Millers are put in afterwards, where they fit (`miller_tests.rs`).
+        let chosen = site
+            .buildings
+            .iter()
+            .filter(|b| b.look.kind != BuildingKind::Miller);
+        let count = chosen.clone().count() as i64;
         let mut copies: BTreeMap<BuildingKind, i64> = BTreeMap::new();
-        for building in &site.buildings {
+        for building in chosen {
             *copies.entry(building.look.kind).or_default() += 1;
             assert!(building.look.kind.odds().0 <= count);
         }

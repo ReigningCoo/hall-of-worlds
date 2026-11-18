@@ -32,4 +32,4 @@ grand_parent: Items
 
 ![Sack of Oats Flour]({{ '/assets/flour/oats.png' | relative_url }})
 
-A sheaf of oats mills into a sack of oats flour weighing 20 g: 65% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+A sheaf of oats mills into a sack of oats flour weighing 20 g: 65% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Town millers sell flour of the grains grown near them; milling your own sheaves is planned.

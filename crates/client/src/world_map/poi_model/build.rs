@@ -6,7 +6,7 @@ use shared::site::{Outline, PoiLook, PoiWall};
 
 use super::{
     ADOBE, DARK_STONE, EARTH, FARMHOUSE_SHARE, GRASS, GREY_ROOF, MOSS, PLASTER, PoiModel, REACH,
-    RED_ROOF, STONE, THATCH, WOOD, building, half_size, hashed, oasis, rectangle, ruined,
+    RED_ROOF, STONE, THATCH, WOOD, building, half_size, hashed, mill, oasis, rectangle, ruined,
     underground,
 };
 
@@ -21,7 +21,11 @@ const TOWN_WALL_PER_CELL: f32 = 0.5;
 pub fn build(kind: PoiKind, look: PoiLook, variety: u64) -> PoiModel {
     let mut model = PoiModel::default();
     match look {
-        PoiLook::Town { buildings, wall } => town(&mut model, buildings, wall, variety),
+        PoiLook::Town {
+            buildings,
+            wall,
+            millers,
+        } => town(&mut model, buildings, wall, millers, variety),
         PoiLook::Building {
             outline,
             width,
@@ -74,7 +78,14 @@ pub fn build(kind: PoiKind, look: PoiLook, variety: u64) -> PoiModel {
 /// More houses the bigger it is, packed in a disc; the biggest get a keep, and
 /// a walled town its wall round them all. Spread by the golden angle, which
 /// fills a disc evenly.
-pub(super) fn town(model: &mut PoiModel, buildings: u16, wall: Option<PoiWall>, variety: u64) {
+/// Houses in a disc, the outermost `millers` of them mills.
+pub(super) fn town(
+    model: &mut PoiModel,
+    buildings: u16,
+    wall: Option<PoiWall>,
+    millers: u8,
+    variety: u64,
+) {
     const GOLDEN_ANGLE: f32 = 2.399_963;
     let count = 3 + (f32::from(buildings).sqrt() * 1.6) as usize;
     let big = buildings >= 26;
@@ -97,6 +108,10 @@ pub(super) fn town(model: &mut PoiModel, buildings: u16, wall: Option<PoiWall>, 
         let pick = (i as u64 + variety).wrapping_mul(2_654_435_761) >> 7;
         let walls = [PLASTER, ADOBE, STONE, WOOD][(pick % 4) as usize];
         let roof = [RED_ROOF, GREY_ROOF, THATCH, RED_ROOF][((pick >> 3) % 4) as usize];
+        if i + usize::from(millers) >= count {
+            mill(model, at, walls, roof);
+            continue;
+        }
         let size = 0.6 + ((pick >> 5) % 4) as f32 * 0.1;
         model.house(at, Vec2::new(size, size * 0.8), 1.0 + size, walls, roof);
     }

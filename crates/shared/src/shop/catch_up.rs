@@ -101,7 +101,7 @@ pub fn catch_up(
     // Left long enough, it has made up what was missing. Those extras take none of
     // its time, and are spread over the time it was left.
     let left_for = last_visit.map_or(u64::MAX, |visit| now.saturating_sub(visit));
-    if left_for >= TOP_UP_AFTER && (slots.len() as u64) < shop.minimum() {
+    if shop.tops_up() && left_for >= TOP_UP_AFTER && (slots.len() as u64) < shop.minimum() {
         let mut rng = rolls(1, now);
         let goal = rng.range_u64(shop.minimum(), shop.target() + 1) as usize;
         let extras = goal - slots.len();

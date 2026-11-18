@@ -32,4 +32,4 @@ grand_parent: Items
 
 ![Sack of Quinoa Flour]({{ '/assets/flour/quinoa.png' | relative_url }})
 
-A sheaf of quinoa mills into a sack of quinoa flour weighing 26 g: 85% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Milling is planned.
+A sheaf of quinoa mills into a sack of quinoa flour weighing 26 g: 85% of the sheaf, ground whole between millstones. Sacks of the same flour stack, and flour never goes stale. Town millers sell flour of the grains grown near them; milling your own sheaves is planned.

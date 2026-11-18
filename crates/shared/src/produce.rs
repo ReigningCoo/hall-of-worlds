@@ -7,12 +7,13 @@
 //! or what is grown there when nothing does. Either way the commoner more
 //! often, chosen as `herb::wild_herbs` chooses herbs: by biome and warmth.
 
+use crate::flour::FlourForm;
 use crate::fruit::{self, Abundance as FruitAbundance, FruitDef, FruitForm, Fruits};
 use crate::item::{Item, ItemKind};
 use crate::item_form::ItemForm;
 use crate::mob::Habitat;
 use crate::rng::Seed;
-use crate::vegetable::{self, VegetableDef, VegetableForm, Vegetables};
+use crate::vegetable::{self, VegetableDef, VegetableForm, VegetableSet, Vegetables};
 
 /// Where food comes from, which decides what may be chosen.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -74,7 +75,27 @@ pub fn vegetable_for<'a>(
     vegetable::choose_wild(&vegetable::field_crops(vegetables, biome), &mut rng)
 }
 
-/// Makes a fruit or vegetable item one suiting a place like this, chosen from
+/// The grain a place like this mills into flour, from `seed`, the commoner
+/// more often: one of the farms' crops there (`field_crops`) that is a grain,
+/// else any grain (a miller buys in what isn't grown near).
+pub fn flour_grain_for<'a>(
+    vegetables: &'a Vegetables,
+    habitat: &Habitat,
+    seed: Seed,
+) -> Option<&'a VegetableDef> {
+    let mut rng = seed.derive("produce flour").rng();
+    let is_grain = |def: &&VegetableDef| def.set == VegetableSet::Grain;
+    let grown: Vec<_> = (vegetable::field_crops(vegetables, habitat.biome).into_iter())
+        .filter(is_grain)
+        .collect();
+    if !grown.is_empty() {
+        return vegetable::choose_wild(&grown, &mut rng);
+    }
+    let any: Vec<_> = vegetables.iter().filter(is_grain).collect();
+    vegetable::choose_wild(&any, &mut rng)
+}
+
+/// Makes a fruit, vegetable or flour item one suiting a place like this, chosen from
 /// its own id's seed, so the same item is always the same; anything else is
 /// left alone. Its count and everything else stay as they were.
 pub fn suit_to_place(item: &mut Item, habitat: &Habitat, source: Source) {
@@ -84,6 +105,9 @@ pub fn suit_to_place(item: &mut Item, habitat: &Habitat, source: Source) {
             .map(|def| ItemForm::Fruit(FruitForm::new(def, seed))),
         ItemKind::Vegetable => vegetable_for(Vegetables::built_in(), habitat, source, seed)
             .map(|def| ItemForm::Vegetable(VegetableForm::new(def, seed))),
+        ItemKind::Flour => flour_grain_for(Vegetables::built_in(), habitat, seed)
+            .and_then(FlourForm::of)
+            .map(ItemForm::Flour),
         _ => None,
     };
     if form.is_some() {

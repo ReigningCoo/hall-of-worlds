@@ -8,9 +8,9 @@ What town shops have in stock, and working it out when one is opened. Only the s
 
 ## Public API
 
-- `sells(BuildingKind)`: what it sells, with weights; empty if it isn't a shop. Vessels (drinks PR 2) at carpenters (with taps), leatherworkers, jewellers and herbalists. Blacksmiths sell the Keyring, herbalists the Herb Pouch, fruit and vegetables (potion shops some fruit: which ones, by the town's climate, is `shared::produce`, chosen by the server); herbalists and potion shops sell bottles. Brewing's tools: carpenters sell the Oil Press and casks (`shared::cask`, the small sizes far more often), herbalists and potion shops the Mortar and Pestle, blacksmiths the Cauldron.
+- `sells(BuildingKind)`: what it sells, with weights; empty if it isn't a shop. Vessels (drinks PR 2) at carpenters (with taps), leatherworkers, jewellers and herbalists. Blacksmiths sell the Keyring, herbalists the Herb Pouch, fruit and vegetables (potion shops some fruit: which ones, by the town's climate, is `shared::produce`, chosen by the server); herbalists and potion shops sell bottles. Brewing's tools: carpenters sell the Oil Press and casks (`shared::cask`, the small sizes far more often), herbalists and potion shops the Mortar and Pestle, blacksmiths the Cauldron. Millers sell only flour (which grain, by the town's climate, is `shared::produce`'s `flour_grain_for`).
 - `bottled(BuildingKind)`: the liquids its bottles hold (herbalists and potion shops: Water, Cave Water, Moon Water and the three oils, never Salt Water); `stock_request(shop, item kind, seed)`: the `RollRequest` a new stock item is given its form by, a bottle's liquid picked from its seed, a vessel one the shop makes (`vessel::vessel_for_shop`), anything else `NONE`.
-- `Shop { kind, quality, trades, of_kind }`: `target`, `minimum` (80% of it), `make_minutes(quality, kind_percent)`, `replaced_after`.
+- `Shop { kind, quality, trades, of_kind }`: `target`, `minimum` (80% of it), `tops_up`, `make_minutes(quality, kind_percent)`, `replaced_after`.
 - `catch_up(seed, shop, stock qualities, last_made, last_visit, now) -> Restocked { keep, new, last_made }`.
 
 ## Depends on
@@ -29,4 +29,5 @@ What town shops have in stock, and working it out when one is opened. Only the s
 - A roll is hashed from the minute making began, so what is part made stays the same however often a shop is looked at.
 - Past `replaced_after` (90 days ÷ √rivals) old stock is gone and only that much time is run, so a long absence costs no more.
 - Reopening after `TOP_UP_AFTER` (a game day) below `minimum` adds extras up to a random count between it and the target, using none of the shop's time.
+- A miller has his own setting (owner, 2026-11-18; `MILLER_MOST` and `MILLER_SACKS_AT_*` in `shop.rs`): at most 10 sacks, made at 2 a game day for the worst miller to 3 for the best (not by rivals or the flour, which has no quality), and never topped up on reopening (`tops_up`). Players' sheaves milled for them, when paid trade exists, are apart from this (`docs/context/milling.md`).
 - All numbers are first guesses. Design: `decisions.md`, 2026-11-02, item quality.

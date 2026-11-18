@@ -37,6 +37,15 @@ pub const TOP_UP_AFTER: u64 = MINUTES_PER_DAY;
 const STOCK_AT_WORST: u64 = 5;
 const STOCK_AT_BEST: u64 = 30;
 
+/// A miller's own setting (owner, 2026-11-18): a small stock of flour, a few
+/// sacks a game day from his own grain (more for a better miller), and no
+/// top-up on reopening. The flour he mills from players' sheaves, when trade
+/// is built, is apart from this (`docs/context/milling.md`).
+const MILLER_MOST: u64 = 10;
+/// Sacks a game day for the worst and best of millers.
+const MILLER_SACKS_AT_WORST: u64 = 2;
+const MILLER_SACKS_AT_BEST: u64 = 3;
+
 /// The share of its count, in 100, below which a shop reopening is topped up.
 const MINIMUM_SHARE: u64 = 80;
 
@@ -54,5 +63,7 @@ pub fn beside_door(at: crate::spot::Spot, door: (i64, i64)) -> bool {
     at.distance(crate::spot::Spot::middle_of(door)) <= DOOR_REACH
 }
 
+#[cfg(test)]
+mod miller_tests;
 #[cfg(test)]
 mod tests;

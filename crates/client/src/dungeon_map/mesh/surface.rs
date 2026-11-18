@@ -15,12 +15,14 @@ pub enum Surface {
     WallBlend,
     /// A town's roads, gardens, buildings and hedges, from one picture.
     Town,
+    /// The same picture fading out by each corner's opacity: a mill's sail.
+    TownBlend,
     /// Tables, chairs and benches: wood grain and stone, tinted per vertex.
     Furniture,
 }
 
 impl Surface {
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 10] = [
         Self::Floor,
         Self::Wall,
         Self::Door,
@@ -29,6 +31,7 @@ impl Surface {
         Self::Lava,
         Self::WallBlend,
         Self::Town,
+        Self::TownBlend,
         Self::Furniture,
     ];
 
