@@ -29,6 +29,8 @@ const RUN_TIME_DATA: &[(&str, &[&str])] = &[
             "docs/assets/herbs",
             "docs/fruit",
             "docs/assets/fruit",
+            "docs/vegetables",
+            "docs/assets/vegetables",
             "docs/weapons",
             "docs/assets/weapons",
             "crates/client/assets/fonts/HallOfWorldsTitle.ttf",

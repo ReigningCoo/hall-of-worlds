@@ -1,0 +1,29 @@
+---
+title: Bamboo shoot
+nav_order: 8
+parent: Vegetables, pulses and grains
+grand_parent: Items
+---
+
+<!-- Written by `cargo xtask wiki` from the game's vegetables: change them, not this page. -->
+
+# Bamboo shoot
+
+![Bamboo shoot]({{ '/assets/vegetables/bamboo_shoot.png' | relative_url }})
+
+*Phyllostachys edulis*. Back to [Vegetables, pulses and grains](../vegetables).
+
+| | |
+| - | - |
+| Kind | Vegetable |
+| Rarity | Uncommon wild; farmed in fields |
+| Grows in | Tropical rainforest; farms' fields there too |
+| Part picked | The young shoots |
+| Comes as | One at a time |
+| Weight | About 1.2 kg each |
+| Eating | Seldom eaten raw: eaten as it is, it gives back no Health |
+| Effects | Drains Health for a while |
+| Plant | A grove of bamboo, about 6 m tall and 2 m across |
+| Growth | Very slow: full grown in 16 days of game time |
+| Picking | One when full grown, more with Foraging and Crops |
+| After picking | Coppiced: cut to the ground, it grows again from a shoot |

@@ -122,7 +122,7 @@ fn eating(def: &FruitDef) -> String {
 }
 
 /// Its effects as the item's popup shows them, in words.
-fn effects(effects: &[Effect]) -> String {
+pub(super) fn effects(effects: &[Effect]) -> String {
     if effects.is_empty() {
         return "None".into();
     }

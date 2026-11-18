@@ -91,6 +91,50 @@ fn every_fruit_has_a_picture() {
     }
 }
 
+/// Every vegetable's, pulse's and grain's page shows pictures that are there:
+/// a slice too, for one cut into servings.
+#[test]
+fn every_vegetable_has_a_picture() {
+    use super::vegetable_facts::has_slice;
+    for def in shared::vegetable::Vegetables::built_in().iter() {
+        let mut files = vec![def.key.clone()];
+        if has_slice(def) {
+            files.push(format!("{}-slice", def.key));
+        }
+        for file in files {
+            let picture = root().join(format!("docs/assets/vegetables/{file}.png"));
+            assert!(
+                picture.exists(),
+                "{} is missing: run `cargo xtask wiki --pictures`",
+                picture.display()
+            );
+        }
+    }
+}
+
+/// A vegetable's page tells only its raw effects, as its popup does: what it
+/// would do cooked stays out until there is cooking.
+#[test]
+fn vegetable_pages_keep_cooked_effects_out() {
+    use shared::vegetable::Vegetables;
+    let pages = pages(root()).expect("the pages");
+    for def in Vegetables::built_in().iter() {
+        let file = format!("{}.md", super::herb_page::file_name(&def.key));
+        let path = Path::new("docs/vegetables").join(file);
+        let (_, text) = pages
+            .iter()
+            .find(|(page, _)| *page == path)
+            .expect("its page");
+        let row = text
+            .lines()
+            .find(|line| line.starts_with("| Effects |"))
+            .expect("an Effects row");
+        if def.effects.iter().all(|effect| !effect.when.raw()) {
+            assert_eq!(row, "| Effects | None |", "{}", path.display());
+        }
+    }
+}
+
 /// Every named weapon has its line, and every line a weapon.
 #[test]
 fn every_weapon_has_a_line() {

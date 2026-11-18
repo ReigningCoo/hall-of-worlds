@@ -1,7 +1,6 @@
 //! `cargo xtask wiki --pictures`: starts a development copy of the game and has
-//! it save each herb's, fruit's (and a big fruit's slice) and named weapon's
-//! picture (`client.save_picture`) for
-//! the wiki.
+//! it save each herb's, fruit's and vegetable's (and a big one's slice) and
+//! named weapon's picture (`client.save_picture`) for the wiki.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -15,6 +14,8 @@ const HERB_PICTURES: &str = "docs/assets/herbs";
 const HERB_PIXELS: u32 = 128;
 /// Where fruits' and nuts' pictures go, from the workspace root.
 const FRUIT_PICTURES: &str = "docs/assets/fruit";
+/// Where vegetables', pulses' and grains' pictures go, from the workspace root.
+const VEGETABLE_PICTURES: &str = "docs/assets/vegetables";
 /// Where weapons' pictures go, from the workspace root.
 const WEAPON_PICTURES: &str = "docs/assets/weapons";
 
@@ -37,6 +38,7 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
     }
     let weapons = weapon_pictures(root)?;
     let fruits = fruit_pictures(root)?;
+    let vegetables = vegetable_pictures(root)?;
     let mut game = crate::scenario::start_game(root)?;
     let saved = herbs.iter().try_for_each(|herb| {
         let path = folder.join(format!("{}.png", herb.key));
@@ -70,6 +72,20 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
             ])
         })
     });
+    let saved = saved.and_then(|()| {
+        vegetables
+            .iter()
+            .try_for_each(|(path, pixels, key, serving)| {
+                crate::api::perform(&[
+                    "client.save_picture".into(),
+                    format!("vegetable={key}"),
+                    format!("serving={serving}"),
+                    "variant=0".into(),
+                    format!("pixels={pixels}"),
+                    format!("path={}", path.display()),
+                ])
+            })
+    });
     let _ = game.kill();
     let _ = game.wait();
     saved?;
@@ -77,6 +93,10 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
     println!(
         "==> Saved {} fruit pictures in {FRUIT_PICTURES}",
         fruits.len()
+    );
+    println!(
+        "==> Saved {} vegetable pictures in {VEGETABLE_PICTURES}",
+        vegetables.len()
     );
     println!(
         "==> Saved {} weapon pictures in {WEAPON_PICTURES}",
@@ -144,6 +164,35 @@ fn fruit_pictures(root: &Path) -> Result<Vec<(PathBuf, u32, String, bool)>, Stri
             let _ = fs::remove_file(entry.path());
             println!(
                 "==> Removed {FRUIT_PICTURES}/{}",
+                entry.file_name().to_string_lossy()
+            );
+        }
+    }
+    Ok(pictures)
+}
+
+/// Each vegetable's, pulse's and grain's picture to save, variant 0 (and a
+/// slice of one cut into servings): where, its pixels along its longest side,
+/// its key and whether a serving. Removes pictures no vegetable has any more.
+fn vegetable_pictures(root: &Path) -> Result<Vec<(PathBuf, u32, String, bool)>, String> {
+    use super::vegetable_facts::{has_slice, pixels};
+    let folder = root.join(VEGETABLE_PICTURES);
+    fs::create_dir_all(&folder)
+        .map_err(|error| format!("Can't make {}: {error}", folder.display()))?;
+    let mut pictures = Vec::new();
+    for def in shared::vegetable::Vegetables::built_in().iter() {
+        let path = folder.join(format!("{}.png", def.key));
+        pictures.push((path, pixels(def, false), def.key.clone(), false));
+        if has_slice(def) {
+            let path = folder.join(format!("{}-slice.png", def.key));
+            pictures.push((path, pixels(def, true), def.key.clone(), true));
+        }
+    }
+    for entry in fs::read_dir(&folder).into_iter().flatten().flatten() {
+        if !pictures.iter().any(|(path, ..)| *path == entry.path()) {
+            let _ = fs::remove_file(entry.path());
+            println!(
+                "==> Removed {VEGETABLE_PICTURES}/{}",
                 entry.file_name().to_string_lossy()
             );
         }
