@@ -1,11 +1,11 @@
 # client: plants
 
-Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (shape, height, spread, leaf and flower colours and sizes) at each of the four stages, in a few variants each, with black outlines; and where a patch's plants stand in its cell. Fruit plants' models too, by family from each fruit's `FruitPlantLook`, at their four stages. Placing them on the maps, and when, is `dungeon_map`'s (`herbs.rs`, `fruit.rs`).
+Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (shape, height, spread, leaf and flower colours and sizes) at each of the four stages, in a few variants each, with black outlines; and where a patch's plants stand in its cell. Fruit plants' models too, by family from each fruit's `FruitPlantLook`, at their four stages; and vegetable plants', a cell of them at a time, by plant shape. Placing them on the maps, and when, is `dungeon_map`'s (`herbs.rs`, `fruit.rs`, `vegetable_plants.rs`).
 
 ## Files
 
 - `crates/client/src/plants/mod.rs`: `PlantsPlugin` (keeps `PlantModels`; `forget_on_new_table`). Tests in `tests.rs` (every herb builds at every stage, sizes, layouts in their cell).
-- `crates/client/src/plants/triangles.rs`: `Triangles`: loose triangles with flat normals and colours, shaded once from a fixed light as they are added (`add` turns each away from the solid's middle); `into_mesh` with picture coordinates and a second set keeping the sight mask from counting anything as a raised top (`sight_mask.wesl`).
+- `crates/client/src/plants/triangles.rs`: `Triangles`: loose triangles with flat normals and colours, shaded once from a fixed light as they are added (`add` turns each away from the solid's middle; `append_moved` adds another's, turned and moved); `into_mesh` with picture coordinates and a second set keeping the sight mask from counting anything as a raised top (`sight_mask.wesl`).
 - `crates/client/src/plants/pieces.rs`: `Pieces` (fill and outline): `stem` (a box between square ends), `leaf` (two pyramids back to back, lying flat), `blob`, `blob_turned` (a rounded lump), `ball` (rounder: 7 round, 3 rings; turned about the upright); each also added grown by `OUTLINE_WIDTH` (0.35 units) and black into the outline, an inverted hull.
 - `crates/client/src/plants/plan.rs`: `Plan` (one plant's height, radius, leaf length, colours, flower size, `Growth`, lean, in world units; `count`, `leaned`, `stem_colour`), `Growth::of(stage)` (size 0.4, 0.65, 1, 1; flowers at 4), `shown_metres` (the exaggeration: `0.35 + 0.6 × m^0.7`), `plants_in_patch` (1 to 4, fewer the wider), `METRE`, `WOOD`, `colour` (sRGB to linear), `between`.
 - `crates/client/src/plants/shapes.rs`: `build(shape, plan, rng)`, and helpers (`around`, `out`, `stem_radius`, `flower_head`, `bud`, `top`). In `shapes/`: `rosette.rs` (rosette, succulent), `upright.rs` (spike, clump), `woody.rs` (bush, tree: leaves as masses), `umbel.rs`, `vine.rs`, `grass.rs` (grass, aquatic), `fern.rs`, `creeper.rs`.
@@ -14,19 +14,24 @@ Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (sh
   - `look.rs`: `Look` (one plant's measures in world units from `FruitPlantLook`, 0.45 as big while young; leaf and flower colours and sizes; fruit's half width from its `FruitLook` size, at least 10 cm on trunk plants; what shows, `Show::{Leaves, Flowers, Fruit(colour)}`; `wide`, spread over height in life), `drawn_metres` (trunk plants `0.6 + 1.1 √m` tall up to 4.4 m and up to 3 m wide; others as herbs, low ones up to 0.6 m, up to 1.6 m wide).
   - `dress.rs`: `Dress`: flowers and fruit by `FruitPosition` (clusters on a stalk, single, at tips), fruit by `FruitShape` (round, oval, long, pod, pear as two balls) hanging, or sitting (`sits`: cacti, the pineapple) or lying on the ground; `over` spreads them over a mass of leaves.
   - `tree.rs` (broadleaf: trunk, branches, a crown of balls round, spreading or upright by `wide`; fruit on the trunk for cacao and jackfruit), `conifer.rs` (tiers narrowing up, or an umbrella crown when `wide` > 0.55; cones near the top for `Tips`), `palm.rs` (curving trunk, drooping fronds, bunches under the crown), `shrub.rs` (shrubs; bramble canes arching), `vine.rs` (climbing vines on a two-post trellis; ground vines' runners with fruit lying beside them), `low.rs` (low mats; low herbs with flowers and fruit on stems of their own), `rosette.rs` (the pineapple: fruit sitting on a stalk with its leafy crown), `cactus.rs` (pads standing on each other's edges; a rounded column with arms, fruit at the tips), `giant.rs` (banana with a hanging bunch and purple heart, by a `Long` fruit; else papaya, fruit round the trunk top).
+- `crates/client/src/plants/vegetable.rs`: vegetable plants' models (vegetable plan PR 4): `VegetableModels` (`get(def, stage, variant, meshes)`: a whole cell's plants at stage 1 to 4, `None` dug up; cached by vegetable key, stage and variant (`VARIANTS`)), `build_cell` (the cell's plants by `layout::spots`, each built and moved into one mesh), `build` (a builder per `PlantShape`; two random sequences per plant, one for its shape and one for flowers and what is picked (`Crop`), so it keeps its shape from stage to stage). Tests in `vegetable/vegetable_tests.rs` (every vegetable at every stage and variant, at most 1600 triangles a cell, shape kept from stage 3 to 4, what is picked shows, young smaller, small plants within their cell). In `vegetable/`:
+  - `look.rs`: `Look` (one plant's measures from `VegetablePlantLook`, sizes as herbs' (up to 2.4 m tall; bamboo and the thorny tree as fruit trees, up to 4.4 m), 0.35, 0.65, 1 and 1 as big by stage, held within its room; leaf and flower colours, grain's leaves turning to straw when ripe; what is picked in its item's colour and accent, about 1.5 times its size; `Bears` (fruit, pods fresh or dry, heads, a shoulder, a heart, shoots, hidden), `Show` by stage (leaves; then flowers before fruit and pods, green heads before ripe ones; full grown what is picked, or flowers where it is underground), `cob` for maize), `drawn_metres`, `STRAW`.
+  - `crop.rs`: `Crop`: flowers, fruit and pods hanging or lying, ears and heads, a root's or bulb's shoulder, shoots round the foot, flowers over a hidden crop.
+  - `layout.rs`: `per_side` (1 to 3 a side by width; grain 3; vines, climbers on poles, bamboo, trees and agave alone), `slot_metres`, `spots` (rows, jittered and turned).
+  - `rooted.rs` (leaves over a root, bulb clumps), `rosette.rs` (leafy rosettes with a head, stalks or flower head; succulents; agave), `upright.rs` (upright leafy herbs, bushes), `climber.rs` (ground vines, climbers on a pole and on sticks), `grass.rs` (tufts of grain and water grasses, tall grass with maize's tassel and cobs), `water.rs` (reeds, water plants on stalks, ferns with fiddleheads), `tall.rs` (bamboo groves, thorny trees).
 - `crates/client/src/plants/layout.rs`: `patch_layout(look, seed)`: a patch's plants (`PlantSpot`: offset from the cell's middle, turn, scale, variant), in a ring round the middle.
 
 ## Public API
 
-- `PlantsPlugin`, `PlantModels`, `FruitModels` (resources), `patch_layout`, `fruit_plant_size`.
+- `PlantsPlugin`, `PlantModels`, `FruitModels`, `VegetableModels` (resources), `patch_layout`, `fruit_plant_size`.
 
 ## Depends on
 
-- `common` (`HerbTable`), `dungeon_map` (`CELL_SIZE`), `shared::herb` (`PlantLook`, `PlantShape`, `PartSize`, `Rgb`, `HerbDef`), `shared::fruit` (`FruitDef`, `FruitStage`, `PlantFamily`, `FruitPlantLook`, `FruitPosition`, `FruitShape`), `shared::rng`.
+- `common` (`HerbTable`), `dungeon_map` (`CELL_SIZE`), `shared::herb` (`PlantLook`, `PlantShape`, `PartSize`, `Rgb`, `HerbDef`), `shared::fruit` (`FruitDef`, `FruitStage`, `PlantFamily`, `FruitPlantLook`, `FruitPosition`, `FruitShape`), `shared::vegetable` (`VegetableDef`, `PlantShape`, `Part`, `VegetableSet`, `VegetablePlantLook`, `VegetableLook`), `shared::rng`.
 
 ## Used by
 
-- `dungeon_map` (`herbs/draw.rs`, `fruit.rs`, `fruit_picking.rs`).
+- `dungeon_map` (`herbs/draw.rs`, `fruit.rs`, `fruit_picking.rs`, `vegetable_plants.rs`).
 
 ## Notes
 
@@ -34,3 +39,4 @@ Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (sh
 - Only looks, the same on every client (seeded from the herb's key and the patch's cell), never game rules.
 - The maps' surfaces are unlit, so shading is baked into vertex colours; the outside light tints the plants' material (`dungeon_map::daylight::tint_outside`).
 - Fruit plants (fruit plan PR 4): trees kept within reason for a camera looking down (4.4 m at most); fruit drawn larger than life so it shows. Fruit on plants is built here from balls in the fruit's own ripe or unripe colour, not from `item_art`'s fruit pictures (another mesh kit, drawn for close views), so the two share colours and shape kinds rather than meshes.
+- Vegetable plants (vegetable plan PR 4): a model is a whole cell, so a field draws one entity a cell sharing a few meshes; cells stay under 1600 triangles (and as many for the outline), so small bushes have two stems and few leaf masses. Roots and bulbs show their shoulder only full grown, when they can be picked.

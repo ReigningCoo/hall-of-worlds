@@ -37,6 +37,8 @@ mod sight_lines;
 mod stairs;
 mod theme;
 mod town;
+mod vegetable_plants;
+mod vegetable_showcase;
 mod vegetables;
 mod walls;
 
@@ -56,7 +58,6 @@ use crate::view3d::{TOKEN_DIAMETER, View3dSystems};
 mod click;
 mod face_point;
 mod flowing;
-mod growth;
 mod hover;
 mod lights;
 mod parts;
@@ -71,13 +72,12 @@ mod wild_ground;
 
 pub use click::DoorClicked;
 use click::pick_on_click;
-use growth::update_crops;
 use herbs::{DrawnPatches, HerbHeading, aim_at_herbs, pick_on_arrival, update_herbs};
 use lights::sync_lights;
 pub use parts::Shown;
 use parts::{
-    CropPart, DungeonScene, MemoryPart, SeeThroughPart, SolidPart, StairsThroughPart,
-    SurfaceMaterials, TokenLight,
+    DungeonScene, MemoryPart, SeeThroughPart, SolidPart, StairsThroughPart, SurfaceMaterials,
+    TokenLight,
 };
 use pictures::{apply_theme, colour_ground, grey_pictures};
 use showing::{hide_scene, hide_unseen_tokens, show_scene};
@@ -124,6 +124,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<DrawnPatches>()
             .init_resource::<HerbHeading>()
             .init_resource::<fruit::DrawnFruit>()
+            .init_resource::<vegetable_plants::DrawnVegetables>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -163,10 +164,10 @@ impl Plugin for DungeonMapPlugin {
                     )
                         .chain(),
                     outlined::apply_outlined,
-                    update_crops,
                     (
                         update_herbs,
                         fruit::update_fruit,
+                        vegetable_plants::update_vegetables,
                         aim_at_herbs,
                         pick_on_arrival,
                     ),

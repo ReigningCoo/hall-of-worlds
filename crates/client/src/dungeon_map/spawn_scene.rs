@@ -11,8 +11,8 @@ use super::mesh::Surface;
 use super::sight_lines::{MaskSide, SightMask, SurfaceMaterial};
 use super::theme::Theme;
 use super::{
-    BLEND_DEPTH_BIAS, CropPart, DungeonScene, MEMORY_ALPHA, MemoryPart, SEE_THROUGH_ALPHA,
-    SeeThroughPart, SolidPart, StairsThroughPart, SurfaceMaterials,
+    BLEND_DEPTH_BIAS, DungeonScene, MEMORY_ALPHA, MemoryPart, SEE_THROUGH_ALPHA, SeeThroughPart,
+    SolidPart, StairsThroughPart, SurfaceMaterials,
 };
 use crate::common::GameView;
 
@@ -172,23 +172,6 @@ pub(super) fn spawn_scene(
         ));
     }
     super::outlined::spawn_outlined(&mut commands, scene, &mut meshes, &mut materials, &mut xray);
-    commands.entity(scene).with_child((
-        CropPart,
-        Mesh3d(meshes.add(Mesh::from(Cuboid::from_length(0.0)))),
-        MeshMaterial3d(surface_materials.add(masked(
-            StandardMaterial {
-                base_color_texture: Some(load_tile(&asset_server, super::field::CROPS_PICTURE)),
-                unlit: true,
-                alpha_mode: AlphaMode::Mask(0.5),
-                // Seen from both sides.
-                cull_mode: None,
-                ..default()
-            },
-            MaskSide::InSight,
-        ))),
-        NoFrustumCulling,
-        NotShadowCaster,
-    ));
     commands.insert_resource(super::herbs::HerbMaterials {
         fill: surface_materials.add(masked(
             StandardMaterial {

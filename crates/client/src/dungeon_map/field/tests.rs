@@ -25,17 +25,6 @@ fn crops_grow_on_ploughed_fields_and_pasture_stays_short() {
     for variety in 0..10 {
         assert_eq!(Stage::of(&field(false, variety)), Stage::Ploughed);
     }
-    let stages: Vec<Stage> = (0..CROP_STAGES as u8).map(Stage::of_plant).collect();
-    assert_eq!(
-        stages,
-        [
-            Stage::Ploughed,
-            Stage::Ploughed,
-            Stage::Short,
-            Stage::Tall,
-            Stage::Ripe
-        ]
-    );
     for variety in 0..20 {
         let stage = Stage::of(&field(true, variety));
         assert!(matches!(stage, Stage::Grass | Stage::Short));
@@ -52,13 +41,6 @@ fn orchards_are_grass() {
         };
         assert_eq!(Stage::of(&orchard), Stage::Grass);
     }
-}
-
-#[test]
-fn crops_grow_taller() {
-    let heights = [Stage::Short, Stage::Tall, Stage::Ripe].map(|s| s.crop().unwrap().1);
-    assert_eq!(heights, [6.0, 12.0, 18.0]);
-    assert_eq!(Stage::Grass.crop(), None);
 }
 
 /// About 20% land, 20% ploughed and 60% grass.

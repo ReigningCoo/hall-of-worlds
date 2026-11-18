@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{Abundance, Effect, Part, PlantShape, Raw, VegetableLook};
+use super::{Abundance, Effect, Part, PlantShape, Raw, VegetableLook, VegetablePlantLook};
 use crate::climate::Biome;
 use crate::fruit::HarvestTier;
 use crate::herb::{Growth, Regrow};
@@ -77,6 +77,8 @@ pub struct VegetableDef {
     pub harvest: HarvestTier,
     /// The kind of plant it grows on, for the client's models.
     pub plant: PlantShape,
+    /// How its plant looks, for the client's models.
+    pub plant_look: VegetablePlantLook,
     /// The part picked, for the client's pictures.
     pub part: Part,
     /// What one item of it looks like.
@@ -123,6 +125,9 @@ impl VegetableDef {
         {
             return Err(format!("{key}: at most 2 effects, each 1 to 3 either way"));
         }
+        self.plant_look
+            .check()
+            .map_err(|error| format!("{key}: {error}"))?;
         self.look.check().map_err(|error| format!("{key}: {error}"))
     }
 }
