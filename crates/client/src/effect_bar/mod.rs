@@ -5,26 +5,26 @@
 //! never show. See `docs/context/client/effect_bar.md`.
 
 mod bar;
-mod clock;
 mod looks;
 mod popup;
 mod words;
 
 use bevy::prelude::*;
 
+use crate::common::{ServerTick, take_clock};
 use crate::dom::{BuildDocuments, ClosePopups};
 
 pub struct EffectBarPlugin;
 
 impl Plugin for EffectBarPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<clock::ServerTick>()
+        app.init_resource::<ServerTick>()
             .init_resource::<popup::EffectPopup>()
             .add_systems(Startup, bar::spawn_bar)
             .add_systems(
                 Update,
                 (
-                    clock::take_clock,
+                    take_clock,
                     bar::bind_canvas,
                     bar::draw_icons,
                     bar::show_shades,

@@ -99,3 +99,33 @@ fn grinds_mixing_panel_is_good_markup() {
 fn brews_panel_is_good_markup() {
     super::brew::BREW.assert_good();
 }
+
+#[test]
+fn potions_are_described_and_greyed_while_cooling_down() {
+    use shared::brewing::{Combination, DRINK_COOLDOWN_TICKS};
+    use shared::herb::Stat;
+    use shared::potion::{Contents, Dose, PotionKey};
+    use shared::sheet::Sheet;
+
+    use super::item_look::{can_drink, potion_words};
+
+    let contents = Contents::new([
+        Dose {
+            stat: Stat::Strength,
+            step: 4,
+        },
+        Dose {
+            stat: Stat::Health,
+            step: -2,
+        },
+    ]);
+    let potion = PotionKey::of(&contents);
+    assert_eq!(potion_words(potion), "Strength +4, Health −2");
+    let mut sheet = Sheet::default();
+    assert!(can_drink(potion, 1, &sheet, Some(10.0)));
+    assert!(!can_drink(potion, 0, &sheet, Some(10.0)));
+    sheet.drinks.drank(Combination::of(&contents), 10);
+    assert!(!can_drink(potion, 1, &sheet, Some(11.0)));
+    let later = (10 + DRINK_COOLDOWN_TICKS) as f64;
+    assert!(can_drink(potion, 1, &sheet, Some(later)));
+}

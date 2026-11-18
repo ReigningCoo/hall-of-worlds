@@ -2,8 +2,9 @@
 //! Abilities page onto a slot puts it there; from one slot onto another swaps them;
 //! from a slot onto the page takes it off the bar; anywhere else nothing changes.
 //! An item dragged from a grid onto a slot puts its kind there (the item itself
-//! goes back where it was), and a kind of item dragged from a slot onto any of
-//! the Character panel takes it off (owner, 2026-11-15). A click or tap on a
+//! goes back where it was; a potion puts that potion there, brewing decision
+//! 22), and a kind of item or potion dragged from a slot onto any of the
+//! Character panel takes it off (owner, 2026-11-15). A click or tap on a
 //! slot uses it; a right-click or a finger held still on one turns its
 //! automatic use on or off.
 //!
@@ -14,6 +15,7 @@
 use bevy::prelude::*;
 use shared::ability::{BarChange, BarThing, known};
 
+use super::bar::count_of;
 use super::item_look::thing_look;
 use super::own_bar::OwnBar;
 use super::page::usable;
@@ -66,7 +68,9 @@ pub(super) fn drop_change(thing: BarThing, from: From, spot: Option<Spot>) -> Op
         }
         (From::Slot(a), Spot::Slot(b), _) if a != b => Some(BarChange::Swap { a, b }),
         (From::Slot(slot), Spot::Page | Spot::Listed(_), _) => Some(BarChange::Clear { slot }),
-        (From::Slot(slot), Spot::Panel, BarThing::Item(_)) => Some(BarChange::Clear { slot }),
+        (From::Slot(slot), Spot::Panel, BarThing::Item(_) | BarThing::Potion(_)) => {
+            Some(BarChange::Clear { slot })
+        }
         _ => None,
     }
 }
@@ -108,8 +112,12 @@ pub(super) fn drag_abilities(
         drag.pressed = pointer.0.map(|at| (thing, from, at));
     }
     let mut pick_up = |thing: BarThing, from: From, by: Hand, drag: &mut Drag| {
-        let count = thing.item().map_or(0, |item| carried.0.count_of(item));
-        let usable = (thing.ability()).is_none_or(|ability| usable(ability, &carried, &sheet));
+        let count = count_of(thing, &carried.0);
+        let usable = match thing {
+            BarThing::Ability(ability) => usable(ability, &carried, &sheet),
+            BarThing::Potion(_) => count > 0,
+            BarThing::Item(_) => true,
+        };
         let thing = AbilityThing {
             thing,
             look: thing_look(thing, count, kind, usable, &assets),
@@ -195,11 +203,17 @@ pub(super) fn drop_abilities(
 /// go in a slot.
 fn held_change(held: &HeldThing, from: Option<From>, spot: Option<Spot>) -> Option<BarChange> {
     if let Some(item) = held.item() {
-        let item = item.item.top().kind;
-        return match spot? {
-            Spot::Slot(slot) => Some(BarChange::PlaceItem { slot, item }),
-            _ => None,
+        let top = item.item.top();
+        let Spot::Slot(slot) = spot? else {
+            return None;
         };
+        return Some(match top.potion_key() {
+            Some(potion) => BarChange::PlacePotion { slot, potion },
+            None => BarChange::PlaceItem {
+                slot,
+                item: top.kind,
+            },
+        });
     }
     drop_change(held.ability()?.thing, from?, spot)
 }

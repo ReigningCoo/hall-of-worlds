@@ -3,7 +3,7 @@
 //! sure to agree with is shown at once.
 
 use bevy::prelude::*;
-use shared::bonus::may_eat;
+use shared::bonus::{may_use_on_self, usable_on_self};
 use shared::energy::handling_cost;
 use shared::item::Item;
 use shared::protocol::ClientMessage;
@@ -63,7 +63,8 @@ pub(super) fn let_go_of(
             to_server.write(ToServer(ClientMessage::BinFromGround { item: id }));
             took.write(TookItem { with, item: id });
         } else if aim == (Target::Body { allowed: true })
-            && may_eat(item.top().kind, carried.0.creature)
+            && usable_on_self(item.top())
+            && may_use_on_self(item.top(), carried.0.creature)
         {
             super::eat::eat_from_ground(held.item.id, item, with, out);
         } else if aim == (Target::Body { allowed: true }) {

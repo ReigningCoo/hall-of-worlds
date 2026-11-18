@@ -36,7 +36,7 @@ mod wear_note;
 #[cfg(not(target_arch = "wasm32"))]
 use debug::run_debug;
 use finger::{item_cell_in_front, pick_up_by_finger};
-use hold_items::{aim_items, eat_kind, hold_items};
+use hold_items::{aim_items, drink_potion, eat_kind, hold_items};
 use holding::{Hand, HeldBy, Holding, cancel_held};
 pub use server::Stacks;
 use server::read_server;
@@ -65,6 +65,7 @@ impl Plugin for InventoryPlugin {
             .add_message::<TookItem>()
             .add_message::<OpenCharacter>()
             .add_message::<EatKind>()
+            .add_message::<DrinkPotion>()
             .add_message::<GaveItem>()
             .add_systems(
                 Startup,
@@ -136,7 +137,7 @@ impl Plugin for InventoryPlugin {
             panels::mark_grids.after(crate::dom::DrawObjects),
         );
         app.add_systems(Update, early_pictures::ask_early);
-        app.add_systems(Update, eat_kind.before(panels::show_grids));
+        app.add_systems(Update, (eat_kind, drink_potion).before(panels::show_grids));
         app.add_systems(
             Update,
             (quest_drop::answer_requester, quest_drop::show_requester).chain(),
@@ -160,6 +161,12 @@ pub struct OpenCharacter;
 /// if none is carried, or the player's kind won't eat it.
 #[derive(Message, Clone, Copy, Debug)]
 pub struct EatKind(pub shared::item::ItemKind);
+
+/// Drink a bottle of this potion (from the action bar): from the stack
+/// `Inventory::potion_to_use` chooses, as letting go of it on the clothes
+/// panel does. Nothing if none is carried.
+#[derive(Message, Clone, Copy, Debug)]
+pub struct DrinkPotion(pub shared::potion::PotionKey);
 
 /// What the character carries, as last heard from the server plus any move
 /// since, which it answers.

@@ -1,5 +1,5 @@
 //! The action bar: ten slots, each holding an active ability, a kind of item
-//! used from there (food), or nothing, kept per character. Keys 1 to 0 use them,
+//! used from there (food), a particular potion, or nothing, kept per character. Keys 1 to 0 use them,
 //! and a slot with an ability can be set to use it by itself (`auto`). The
 //! client changes it with `BarChange`s, which the server checks with the same
 //! `ActionBar::apply`.
@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::Ability;
 use super::bar_slot::{BarSlot, BarThing, usable_from_bar};
 use crate::item::ItemKind;
+use crate::potion::PotionKey;
 
 /// How many slots the bar has.
 pub const BAR_SLOTS: usize = 10;
@@ -44,6 +45,10 @@ pub enum BarChange {
     /// Put a kind of item in a slot, from a grid of items, replacing what was
     /// there. If it was already in another slot, it moves.
     PlaceItem { slot: u8, item: ItemKind },
+    /// Put a particular potion in a slot, from a grid of items, replacing what
+    /// was there (brewing decision 22). If it was already in another slot, it
+    /// moves.
+    PlacePotion { slot: u8, potion: PotionKey },
 }
 
 /// Why a change was refused.
@@ -59,7 +64,8 @@ pub enum BarRefusal {
     Empty,
     /// It can't be made automatic (`BarThing::can_be_automatic`).
     NotAutomatic,
-    /// That kind of item can't be used from the bar (`usable_from_bar`).
+    /// That kind of item can't be used from the bar (`usable_from_bar`), or
+    /// the potion holds nothing.
     NotUsable,
 }
 
@@ -113,6 +119,13 @@ impl ActionBar {
                 }
                 self.place(slot, BarThing::Item(item));
             }
+            BarChange::PlacePotion { slot, potion } => {
+                let slot = index(slot)?;
+                if potion.is_empty() {
+                    return Err(BarRefusal::NotUsable);
+                }
+                self.place(slot, BarThing::Potion(potion));
+            }
             BarChange::Clear { slot } => self.slots[index(slot)?] = None,
             BarChange::Swap { a, b } => {
                 let (a, b) = (index(a)?, index(b)?);
@@ -138,7 +151,7 @@ impl ActionBar {
         self.slots[slot] = Some(BarSlot { thing, auto });
     }
 
-    /// The slot holding this ability or kind of item, if any.
+    /// The slot holding this ability, kind of item or potion, if any.
     pub fn slot_of(&self, thing: impl Into<BarThing>) -> Option<usize> {
         let thing = thing.into();
         self.slots

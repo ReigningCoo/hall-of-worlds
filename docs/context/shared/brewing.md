@@ -1,6 +1,6 @@
 # shared: brewing
 
-The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/context/brewing.md`): herbs and an oil ground into an ointment, an ointment and a water brewed into a potion, a potion's quality and how long it lasts, and an ointment used on oneself. Pure functions on whole numbers, so client and server agree. Also Grind's shared pieces (PR 6): the ointment item, the order checked against what is carried, ointment on the skin and the recipes a character remembers. And Brew's (PR 7): the order checked against what is carried, the bottle of water turned into the potion, what brewing teaches of herbs. Not drinking (PR 8), nor the panels.
+The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/context/brewing.md`): herbs and an oil ground into an ointment, an ointment and a water brewed into a potion, a potion's quality and how long it lasts, and an ointment used on oneself. Pure functions on whole numbers, so client and server agree. Also Grind's shared pieces (PR 6): the ointment item, the order checked against what is carried, ointment on the skin and the recipes a character remembers. And Brew's (PR 7): the order checked against what is carried, the bottle of water turned into the potion, what brewing teaches of herbs. And drinking's (PR 8): a potion's effects and the cooldowns. Not the panels.
 
 ## Files
 
@@ -15,6 +15,8 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `brewing/recipe.rs`: `Recipe`, `BrewedWith`, `Recipes`, `MOST_RECIPES`.
 - `brewing/brew_order.rs`: `BrewOrder`, `BrewRefused`, `Brewed`, `OintmentStack`, `WaterStack`, `Inventory::ointment_stacks`, `water_stacks`, `check_brew`; `brew_seconds`, `brew_ticks`, `brewed_into`, `BREW_PRACTICE`, `BREW_HERB_PRACTICE`. Tests in `brewing/brew_item_tests.rs` (with `lesson.rs` and recipes' brewing).
 - `brewing/lesson.rs`: `learn_from_potion`.
+- `brewing/drink.rs`: `Drunk`, `drunk`. Tests in `brewing/drink_tests.rs` (with `cooldown.rs`).
+- `brewing/cooldown.rs`: `Combination`, `Cooldowns`, `DRINK_COOLDOWN_SECONDS`, `DRINK_COOLDOWN_TICKS`.
 - `brewing/skin.rs`: `Applied`, `applied`, `skin_effect`, `VITAL_PER_STEP`, `ATTRIBUTE_PER_STEP`.
 - `brewing/quality.rs`: `quality`, `duration_seconds`, `duration_ticks`, `on_skin` and their constants.
 
@@ -36,7 +38,9 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `Recipe { herbs (keys, sorted), oil, made, brewed }` (`new`, `same_mix`; `brewed: Option<BrewedWith { water, potion }>`, what its ointment last brewed into, none in older saves), `Recipes` (`remember`: to the front, the same mix replaced, at most `MOST_RECIPES` 20; `brewed(made, with)`: noted on the latest mix whose `made` is those doses; `iter`): saved on `Sheet::recipes`, sent with the sheet.
 - Brew (PR 7): `BrewOrder { ointment, water }` (carried stacks): `Inventory::check_brew(order) -> Result<Brewed { ointment, water, potion }, BrewRefused>` (`Ointment`, `Water`: not a carried ointment or bottle of water, never worn), the same on both sides; `ointment_stacks()` (best quality first) and `water_stacks()` (by water) for the panel. `brewed_into(bottle, potion)`: the bottle holding the potion, its look kept and its quality `quality(potion)`, or empty. `brew_seconds` 15 − ∛Alchemy% (15 to 11), `BREW_PRACTICE` 10 Alchemy and `BREW_HERB_PRACTICE` 2 Herbalism a brewing (first guesses).
 - `learn_from_potion(known, recipes, herbs, ointment, potion)`: each herb of the mix remembered as making `ointment` learns its effects on the potion's stats; whether anything was new. An ointment no remembered mix made teaches nothing.
-- `skin_effect(contents, now) -> Applied { effect, vitals }`: `on_skin`'s quarter, attributes `ATTRIBUTE_PER_STEP` (1 point) a step for `duration_ticks(quality(contents))` as `Source::Ointment`, Health and Mana `VITAL_PER_STEP` (5) a step at once (decision 17's rule, so drinking can share `applied`).
+- `skin_effect(contents, now) -> Applied { effect, vitals }`: `on_skin`'s quarter, attributes `ATTRIBUTE_PER_STEP` (1 point) a step for `duration_ticks(quality(contents))` as `Source::Ointment`, Health and Mana `VITAL_PER_STEP` (5) a step at once (decision 17's rule, which drinking shares through `applied`).
+- Drinking (PR 8, decisions 17 to 21): `drunk(contents, quality, now) -> Drunk { effects, vitals }`: each attribute's dose its own `Effect` (`Source::Potion(stat)`, `ATTRIBUTE_PER_STEP` a step) for `duration_ticks(quality)` of the bottle's quality, so a new dose on a stat replaces only that stat's; Health and Mana `VITAL_PER_STEP` a step at once.
+- `Combination::of(contents)`: a bit per stat and sign, whatever the strength. `Cooldowns` (`ready_at`, `ready`, `drank`: forgets those over), saved on `Sheet::drinks` and sent with it: `DRINK_COOLDOWN_SECONDS` (30) before the same combination can be drunk again (decision 20).
 
 ## Depends on
 
@@ -44,7 +48,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 
 ## Used by
 
-- `item` (`ItemKind::Ointment`), `item_form` (`ItemForm::Ointment`, Give Item's), `sheet` (`Sheet::recipes`), `protocol` (`ClientMessage::Grind`), server `connections/grind.rs`, `brew.rs` and `rub_ointment.rs`, client `abilities/grind/` and `abilities/brew.rs`, `item_art` (`ointment.rs`), `item_popup` (`ointment.rs`). Drinking (PR 8) will.
+- `item` (`ItemKind::Ointment`), `item_form` (`ItemForm::Ointment`, Give Item's), `sheet` (`Sheet::recipes`), `protocol` (`ClientMessage::Grind`), server `connections/grind.rs`, `brew.rs`, `rub_ointment.rs`, `drink.rs` and `strength_room.rs`, client `abilities/grind/`, `abilities/brew.rs` and `abilities/item_look.rs` (`can_drink`), `item_art` (`ointment.rs`), `item_popup` (`ointment.rs`).
 
 ## Notes
 

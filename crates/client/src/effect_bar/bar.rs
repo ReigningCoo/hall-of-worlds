@@ -5,9 +5,9 @@
 use bevy::prelude::*;
 use shared::bonus::Source;
 
-use super::clock::ServerTick;
 use super::looks::{colour, gone, icon_path, timed};
 use crate::character::CharacterSheet;
+use crate::common::ServerTick;
 use crate::dom::{Solid, Template, document, top_strip};
 use crate::html;
 use crate::widgets::{ABILITY, ITEM_EDGE, UiId, spawn_outlined_icon};

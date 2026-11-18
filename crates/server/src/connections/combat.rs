@@ -297,6 +297,8 @@ mod collect_water_tests;
 #[cfg(test)]
 mod death_tests;
 #[cfg(test)]
+mod drink_tests;
+#[cfg(test)]
 mod grind_tests;
 #[cfg(test)]
 mod grudge_tests;

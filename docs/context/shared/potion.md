@@ -1,10 +1,12 @@
 # shared: potion
 
-Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding a liquid (a water, an oil, or a potion's effects), with a seed for its look. Filled with oil by Press Oil (`press.rs`); a water's bottle takes the potion Brew makes (`shared::brewing::brewed_into`). Not drinking yet (plan: `docs/context/brewing.md`); pictures are the client's `item_art`. Herbs' rule for potions: `docs/context/research-herbs.md`.
+Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding a liquid (a water, an oil, or a potion's effects), with a seed for its look. Filled with oil by Press Oil (`press.rs`); a water's bottle takes the potion Brew makes (`shared::brewing::brewed_into`). Drunk through `shared::brewing::drunk` (plan: `docs/context/brewing.md`); pictures are the client's `item_art`. Herbs' rule for potions: `docs/context/research-herbs.md`.
 
 ## Files
 
-- `crates/shared/src/potion.rs`: the module list and re-exports. Tests in `potion/tests.rs` and `potion/liquid_tests.rs`.
+- `crates/shared/src/potion.rs`: the module list and re-exports. Tests in `potion/tests.rs`, `potion/liquid_tests.rs` and `potion/key_tests.rs`.
+- `potion/key.rs`: `PotionKey`.
+- `potion/carried.rs`: `Item::is_potion`, `Item::potion_key`, `Inventory::count_of_potion`, `Inventory::potion_to_use`.
 - `potion/contents.rs`: `Contents`, `Dose`.
 - `potion/liquid.rs`: `Liquid`, `LiquidKind`, `Water`, `Oil`.
 - `potion/form.rs`: `BottleForm` (and how it is read from saves and messages), `EMPTY_GRAMS`, `POTION_GRAMS`, `Item::bottle`.
@@ -18,6 +20,7 @@ Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding
 - `Contents`: doses in one normal order, so equal effects compare equal: `new(doses)` adds those of one stat together, drops any at 0 and sorts by `Stat`; read back from saves and messages the same way (`serde(from)`). `EMPTY`, `is_empty`, `doses`.
 - `Water` (`Plain`, `Cave`, `Moon`, `Salt`; `ALL`, `name`: "Water", "Cave Water", ...), `Oil` (`Vegetable`, `Nut`, `Seed`; `ALL`, `name`: "Nut Oil", ...). What each does to a brew is `shared::brewing`'s (`watered`, `oil_suits`).
 - `Liquid`: `Water(Water)`, `Oil(Oil)` or `Potion(Contents)`; `kind`, `contents` (a potion's), `name`.
+- `PotionKey` (brewing decision 22): a potion's doses as a step per stat in a fixed array, so the action bar's slots stay `Copy`; `of(contents)`, `contents()`, `is_empty`; saved and sent as its `Contents`. `Item::is_potion` (a bottle holding a potion), `Item::potion_key`; `Inventory::count_of_potion(key)` and `potion_to_use(key)` (as `stack_to_use`: the smallest stack in the own grid, else in a bag; never a quest item).
 - `LiquidKind`: the same without a potion's contents (`Potion`), for asking for one: `all()` (waters, oils, Potion), `name`.
 - `BottleForm { liquid: Option<Liquid>, look }` (`ItemForm::Bottle`): `new(liquid, look)` (a potion with no doses becomes empty), `is_empty`, `is_potion`, `contents` (a potion's, else empty), `name` ("Empty Bottle", "Potion", "Bottle of Moon Water", which `Item::name` says), `grams` (`EMPTY_GRAMS` 120, any full one `POTION_GRAMS` 220). `look` is a seed (from the item's id, through `give_form`) the client picks the shape, glass and stopper from. `Item::bottle()`.
 - `roll_contents(rng, effects)`: that many doses (at most `MOST_EFFECTS`, 4) on different stats, the first 4 to 8 steps, the rest 2 to 6, each helpful two times in three: Give Item's potions until brewing makes them.

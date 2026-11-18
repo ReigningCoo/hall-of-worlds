@@ -2,13 +2,14 @@
 //! or a herb carried, or lying in reach, is taken and eaten (`Sheet::eat`, a
 //! fruit: `eat_fruit.rs`, a vegetable: `eat_vegetable.rs`, or a herb raw:
 //! `eat_herb.rs`), in turn with the player's steps. Ointment is rubbed on
-//! the same way (`rub_ointment.rs`).
+//! the same way (`rub_ointment.rs`), and a potion drunk (`drink.rs`).
 
 use bevy::prelude::*;
-use shared::bonus::{edible, may_eat};
+use shared::bonus::{may_use_on_self, usable_on_self};
 use shared::energy::handling_cost;
 use shared::id::Id;
 use shared::item::Item;
+use shared::potion::POTION_GRAMS;
 
 use super::Client;
 use super::eat_fruit::servings_fit;
@@ -25,6 +26,11 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
         true => client.inventory.find(item).map(|found| found.top().clone()),
         false => crate::ground::food_lying(client, world, item),
     };
+    if let Some(potion) = food.as_ref().filter(|food| food.is_potion())
+        && !super::drink::may_drink(client, potion, tick)
+    {
+        return (client.send_sheet(tick) && client.send_inventory(), 0);
+    }
     let allowed = food
         .as_ref()
         .is_none_or(|food| eating_allowed(client, world, (item, food), tick));
@@ -46,6 +52,10 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
         Ok(eaten) if eaten.fruit().is_some() => {
             super::eat_fruit::eat_fruit(client, world, (&eaten, carried), tick);
             handling_cost(eaten.total_weight())
+        }
+        Ok(drunk) if drunk.is_potion() => {
+            super::drink::drink(client, world, drunk, tick);
+            handling_cost(POTION_GRAMS)
         }
         Ok(used) if used.ointment().is_some() => {
             super::rub_ointment::rub_ointment(client, &used, tick);
@@ -77,10 +87,10 @@ pub(super) fn consume(client: &mut Client, world: &mut ServerWorld, item: Id) ->
 /// Takes the top one of a carried stack of food or herbs, to be eaten.
 fn take_carried(client: &mut Client, item: Id) -> Result<Item, &'static str> {
     let found = client.inventory.find(item).ok_or("it isn't carried")?;
-    if !edible(found.top().kind) {
+    if !usable_on_self(found.top()) {
         return Err("it can't be eaten");
     }
-    if !may_eat(found.top().kind, client.inventory.creature) {
+    if !may_use_on_self(found.top(), client.inventory.creature) {
         return Err("it isn't for its kind");
     }
     if found.holds_quest_item() || client.inventory.is_worn(item) {

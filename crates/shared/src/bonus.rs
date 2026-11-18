@@ -19,7 +19,7 @@ mod totals;
 pub use eating::{POISON_DRAIN, POISON_TICKS, eating, food_effect, poison};
 pub use effect::{Cancel, Effect, EndsOn, Source};
 pub use effects::Effects;
-pub use food::{Food, Others, edible, food, is_food, may_eat};
+pub use food::{Food, Others, edible, food, is_food, may_eat, may_use_on_self, usable_on_self};
 pub use item::{
     AGILITY_PER_KG, HAIR_SHIRT_WILL, MANA_PER_KG, TOUGHNESS_PER_KG, item_bonuses, quality_factor,
 };

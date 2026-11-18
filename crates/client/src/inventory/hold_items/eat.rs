@@ -1,28 +1,29 @@
 //! Eating what is held by letting go of it on the clothes panel: the top one of
-//! food or a herb (`bonus::edible`), carried or from the ground, as the server will
-//! (`ClientMessage::Consume`); the rest of its stack stays where it was. Also
-//! one of a kind, asked for from the action bar (`EatKind`).
+//! food or a herb (`bonus::edible`), or a potion, drunk, carried or from the
+//! ground, as the server will (`ClientMessage::Consume`); the rest of its stack
+//! stays where it was. Also one of a kind, or a bottle of a potion, asked for
+//! from the action bar (`EatKind`, `DrinkPotion`).
 
 use bevy::prelude::*;
-use shared::bonus::{edible, may_eat};
+use shared::bonus::{may_eat, usable_on_self};
 use shared::energy::handling_cost;
 use shared::id::Id;
 use shared::item::{Inventory, Item};
 use shared::protocol::ClientMessage;
 
-use super::super::{Carried, EatKind, Holding};
+use super::super::{Carried, DrinkPotion, EatKind, Holding};
 use super::Outbox;
 use crate::common::{SpentEnergy, TookItem};
 use crate::connection::ToServer;
 
 /// The carried stack `held` is, or is part of (`Holding::group` or `counted`),
-/// if it is food or a herb: its id, as its top one is what is eaten.
+/// if it is food, a herb or a potion: its id, as its top one is what is eaten.
 pub(super) fn carried_food(carried: &Inventory, holding: &Holding, held: Id) -> Option<Id> {
     let group = holding.group.as_ref().map(|(stack, _)| *stack);
     let counted = holding.counted.map(|(stack, _)| stack);
     let stack = group.or(counted).unwrap_or(held);
     let item = carried.find(stack)?;
-    (edible(item.top().kind) && !carried.is_worn(stack)).then_some(stack)
+    (usable_on_self(item.top()) && !carried.is_worn(stack)).then_some(stack)
 }
 
 /// Eats one of each kind asked for, from the stack `Inventory::stack_to_use`
@@ -38,6 +39,22 @@ pub(in crate::inventory) fn eat_kind(
             continue;
         }
         if let Some(stack) = carried.0.stack_to_use(kind) {
+            eat_carried(stack, &mut carried.0, &mut || holding.stand_in(), &mut out);
+        }
+    }
+}
+
+/// Drinks a bottle of each potion asked for, from the stack
+/// `Inventory::potion_to_use` chooses, unless none is carried. The server
+/// gives the bottle back empty.
+pub(in crate::inventory) fn drink_potion(
+    mut asked: MessageReader<DrinkPotion>,
+    mut carried: ResMut<Carried>,
+    mut holding: ResMut<Holding>,
+    mut out: Outbox,
+) {
+    for &DrinkPotion(potion) in asked.read() {
+        if let Some(stack) = carried.0.potion_to_use(potion) {
             eat_carried(stack, &mut carried.0, &mut || holding.stand_in(), &mut out);
         }
     }

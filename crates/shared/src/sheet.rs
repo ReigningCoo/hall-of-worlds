@@ -193,6 +193,10 @@ pub struct Sheet {
     /// none in older saves.
     #[serde(default)]
     pub recipes: crate::brewing::Recipes,
+    /// The potions drunk lately, by their stats and signs, not to be drunk
+    /// again yet (`brewing::Cooldowns`): none in older saves.
+    #[serde(default)]
+    pub drinks: crate::brewing::Cooldowns,
 }
 
 impl Default for Sheet {
@@ -224,6 +228,7 @@ impl Sheet {
             herbs: Default::default(),
             abilities: Default::default(),
             recipes: Default::default(),
+            drinks: Default::default(),
         }
     }
 

@@ -78,6 +78,14 @@ pub(super) fn eating_allowed(
         refill: client.playing_on().refill_ticks(),
     };
     match food.herb() {
+        _ if food.is_potion() => {
+            let bottle = food.bottle().map(|it| it.contents().clone());
+            let quality = food.quality.unwrap_or(Quality::Common);
+            let drunk = shared::brewing::drunk(&bottle.unwrap_or_default(), quality, now);
+            for effect in drunk.effects {
+                sheet.add_effect(effect, situation, now);
+            }
+        }
         Some(form) => {
             let herbalism = skill_value(&sheet.skills, HERBALISM);
             let quality = food.quality.unwrap_or(Quality::Common);

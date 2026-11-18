@@ -13,15 +13,17 @@ use shared::sheet::Feeling;
 
 use super::brew::Brewing;
 use super::grind::Mixing;
-use super::item_look::can_eat;
+use super::item_look::{can_drink, can_eat};
 use super::own_bar::OwnBar;
 use super::press_oil::PressChooser;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
 use crate::character::CharacterSheet;
-use crate::common::{CurrentDungeon, Facing, Other, OwnAbility, OwnVitals, SpotPosition, Target};
+use crate::common::{
+    CurrentDungeon, Facing, Other, OwnAbility, OwnVitals, ServerTick, SpotPosition, Target,
+};
 use crate::connection::ToServer;
-use crate::inventory::{Carried, EatKind};
+use crate::inventory::{Carried, DrinkPotion, EatKind};
 use crate::player::Player;
 
 /// The abilities the player chose by hand, from pressing them until the last
@@ -77,15 +79,21 @@ impl Manual {
 
 /// A slot used: its ability queued, or taken out of the queue; a toggle
 /// (Sneak) asked for at once, as it needs no target and takes no time; one of
-/// a kind of item eaten (`inventory::EatKind`); Press Oil's requester,
-/// Grind's mixing panel or Brew's panel opened.
+/// a kind of item eaten (`inventory::EatKind`), a potion drunk
+/// (`DrinkPotion`); Press Oil's requester, Grind's mixing panel or Brew's
+/// panel opened.
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
-    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
+    (carried, sheet, clock, time): (
+        Res<Carried>,
+        Res<CharacterSheet>,
+        Res<ServerTick>,
+        Res<Time>,
+    ),
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
-    mut eat: MessageWriter<EatKind>,
+    (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
     (mut press, mut mixing, mut brewing): (ResMut<PressChooser>, ResMut<Mixing>, ResMut<Brewing>),
 ) {
     for &UseSlot(slot) in used.read() {
@@ -99,6 +107,15 @@ pub(super) fn use_slots(
                 let count = carried.0.count_of(kind);
                 if can_eat(kind, count, carried.0.creature) {
                     eat.write(EatKind(kind));
+                }
+                continue;
+            }
+            // Drunk at once too, unless cooling down.
+            BarThing::Potion(potion) => {
+                let count = carried.0.count_of_potion(potion);
+                let now = clock.now(time.elapsed_secs_f64());
+                if can_drink(potion, count, &sheet.0, now) {
+                    drink.write(DrinkPotion(potion));
                 }
                 continue;
             }

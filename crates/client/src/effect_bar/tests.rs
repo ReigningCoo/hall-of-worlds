@@ -4,10 +4,10 @@ use shared::item::ItemKind;
 use shared::lang::{Lang, Language};
 
 use super::bar::EFFECT_BAR;
-use super::clock::ServerTick;
 use super::looks::{gone, icon_path, is_harmful, timed};
 use super::popup::EFFECT_POPUP;
 use super::words::{bonus_lines, ends_early, ends_in, name};
+use crate::common::ServerTick;
 
 const SECOND: f64 = ACTION_TICKS_PER_SECOND;
 
