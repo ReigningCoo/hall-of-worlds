@@ -1,7 +1,7 @@
 //! Vegetable plants in farms' fields and the wilderness: what one is called on
 //! hover, by how it has grown by the world's clock (`VegetablePlant::stage`).
-//! They are drawn as crops (`field::build_crops`) until they have models of
-//! their own; picking them by click or tap is `herbs::pick`'s, as for herbs.
+//! Their models are `vegetable_plants`'; picking them by click or tap is
+//! `herbs::pick`'s, as for herbs.
 
 use shared::dungeon::Level;
 use shared::herb::STAGES;

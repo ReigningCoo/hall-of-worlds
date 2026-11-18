@@ -48,6 +48,17 @@ impl Triangles {
         }
     }
 
+    /// Adds `other`'s triangles turned `turn` about the upright and moved by
+    /// `offset`, keeping their shading.
+    pub fn append_moved(&mut self, other: &Self, offset: Vec3, turn: f32) {
+        let rotation = Quat::from_rotation_y(turn);
+        let moved = |p: &[f32; 3]| (rotation * Vec3::from_array(*p) + offset).to_array();
+        let turned = |n: &[f32; 3]| (rotation * Vec3::from_array(*n)).to_array();
+        self.positions.extend(other.positions.iter().map(moved));
+        self.normals.extend(other.normals.iter().map(turned));
+        self.colours.extend_from_slice(&other.colours);
+    }
+
     /// How many triangles there are.
     #[cfg(test)]
     pub fn len(&self) -> usize {

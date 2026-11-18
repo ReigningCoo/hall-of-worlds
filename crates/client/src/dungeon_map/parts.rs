@@ -60,10 +60,6 @@ pub(super) struct SeeThroughPart;
 #[derive(Component)]
 pub(super) struct StairsThroughPart(pub(super) Surface);
 
-/// The mesh of crops standing in fields.
-#[derive(Component)]
-pub(super) struct CropPart;
-
 /// A real light for tokens, following `owner`'s `LightSource`.
 #[derive(Component)]
 pub(super) struct TokenLight {

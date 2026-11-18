@@ -12,10 +12,12 @@ mod pieces;
 mod plan;
 mod shapes;
 mod triangles;
+mod vegetable;
 
 pub use fruit::{FruitModels, fruit_plant_size};
 pub use layout::patch_layout;
 pub use models::PlantModels;
+pub use vegetable::VegetableModels;
 
 /// Keeps the plant models built so far.
 pub struct PlantsPlugin;
@@ -24,6 +26,7 @@ impl Plugin for PlantsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlantModels>()
             .init_resource::<FruitModels>()
+            .init_resource::<VegetableModels>()
             .add_systems(Update, models::forget_on_new_table);
     }
 }
