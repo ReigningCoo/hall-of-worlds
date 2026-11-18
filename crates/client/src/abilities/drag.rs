@@ -12,12 +12,14 @@
 //! it, and `drop_abilities` says what a drop would do, and does it, after.
 
 use bevy::prelude::*;
-use shared::ability::{BarChange, BarThing};
+use shared::ability::{BarChange, BarThing, known};
 
 use super::item_look::thing_look;
 use super::own_bar::OwnBar;
+use super::page::usable;
 use super::spots::{Spot, Spots};
 use super::use_ability::UseSlot;
+use crate::character::CharacterSheet;
 use crate::common::{TouchGesture, UiPointer, in_interface};
 use crate::connection::ToServer;
 use crate::dom::{AbilityThing, Dropped, Hand, HeldObject, HeldThing, HeldWhat};
@@ -80,13 +82,14 @@ pub(super) fn drag_abilities(
     ui_scale: Res<UiScale>,
     spots: Spots,
     mut bar: ResMut<OwnBar>,
-    carried: Res<Carried>,
+    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
     assets: Res<AssetServer>,
     (mut drag, mut object): (ResMut<Drag>, ResMut<HeldObject>),
     mut to_server: MessageWriter<ToServer>,
     mut used: MessageWriter<UseSlot>,
 ) {
     let kind = carried.0.creature;
+    let known = known(kind, &sheet.0);
     let spot = pointer.0.and_then(|at| spots.at(at));
     // Something already held (an item, say) isn't for the bar.
     let free = object.thing().is_none();
@@ -95,7 +98,7 @@ pub(super) fn drag_abilities(
         && let Some(Spot::Slot(slot)) = spot
     {
         mouse.clear_just_pressed(MouseButton::Right);
-        bar.change(BarChange::ToggleAuto { slot }, kind, &mut to_server);
+        bar.change(BarChange::ToggleAuto { slot }, &known, &mut to_server);
     }
     if mouse.just_pressed(MouseButton::Left)
         && free
@@ -106,9 +109,10 @@ pub(super) fn drag_abilities(
     }
     let mut pick_up = |thing: BarThing, from: From, by: Hand, drag: &mut Drag| {
         let count = thing.item().map_or(0, |item| carried.0.count_of(item));
+        let usable = (thing.ability()).is_none_or(|ability| usable(ability, &carried, &sheet));
         let thing = AbilityThing {
             thing,
-            look: thing_look(thing, count, kind, &assets),
+            look: thing_look(thing, count, kind, usable, &assets),
         };
         let what = HeldWhat::Ability(thing);
         // (No place and time picked up: letting the button go drops it.)
@@ -141,7 +145,7 @@ pub(super) fn drag_abilities(
         && let Some(Spot::Slot(slot)) = spots.at(still)
     {
         drag.held_still = Some(still);
-        bar.change(BarChange::ToggleAuto { slot }, kind, &mut to_server);
+        bar.change(BarChange::ToggleAuto { slot }, &known, &mut to_server);
     }
     if free && mouse.just_released(MouseButton::Left) {
         if let Some((_, From::Slot(slot), _)) = drag.pressed {
@@ -159,17 +163,17 @@ pub(super) fn drop_abilities(
     mut dropped: MessageReader<Dropped>,
     spots: Spots,
     mut bar: ResMut<OwnBar>,
-    carried: Res<Carried>,
+    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
     (mut drag, mut aim): (ResMut<Drag>, ResMut<Aim>),
     mut to_server: MessageWriter<ToServer>,
 ) {
-    let kind = carried.0.creature;
+    let known = known(carried.0.creature, &sheet.0);
     let over = object.over.front.and_then(|front| spots.of(front));
     let change = object
         .thing()
         .and_then(|held| held_change(held, drag.from, over));
     let aimed = change.and_then(|change| match over {
-        Some(Spot::Slot(slot)) => Some((slot, bar.0.clone().apply(change, kind).is_ok())),
+        Some(Spot::Slot(slot)) => Some((slot, bar.0.clone().apply(change, &known).is_ok())),
         _ => None,
     });
     aim.set_if_neq(Aim(aimed));
@@ -177,7 +181,7 @@ pub(super) fn drop_abilities(
         let from = drag.from.take();
         let over = drop.over.front.and_then(|front| spots.of(front));
         if let Some(change) = held_change(&drop.thing, from, over) {
-            bar.change(change, kind, &mut to_server);
+            bar.change(change, &known, &mut to_server);
         }
     }
     if object.thing().and_then(HeldThing::ability).is_none() {

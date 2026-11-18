@@ -151,3 +151,9 @@ lorc/shiny-apple
 lorc/swap-bag
 # The bug button, opening Debug Info (debug_info/button.rs)
 delapouite/ladybug
+# The Water skill (skills_page/icons.rs)
+delapouite/water-flask
+# Press Oil, Grind and Brew (abilities/icons.rs)
+delapouite/olive
+skoll/pestle-mortar
+lorc/cauldron

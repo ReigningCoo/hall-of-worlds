@@ -1,5 +1,28 @@
 use super::*;
 use crate::creature::CreatureKind;
+use crate::id::Id;
+use crate::item::{Inventory, Item, ItemKind, StackLimits};
+use crate::sheet::Sheet;
+
+/// Whether a plain creature of this kind, carrying `carried`, can use it.
+fn can_use_carrying(ability: Ability, kind: CreatureKind, carried: &[ItemKind]) -> bool {
+    let mut inventory = Inventory {
+        creature: kind,
+        ..Inventory::default()
+    };
+    for (index, &item) in carried.iter().enumerate() {
+        let item = Item::new(Id::for_test(index as u128 + 1), item);
+        inventory
+            .give(item, StackLimits::NONE, &mut crate::id::stand_ins())
+            .expect("room");
+    }
+    ability.can_use(&inventory, &Sheet::new(kind))
+}
+
+/// Whether a plain creature of this kind, carrying nothing, can use it.
+fn usable(ability: Ability, kind: CreatureKind) -> bool {
+    can_use_carrying(ability, kind, &[])
+}
 
 /// A kind that knows Kick and Trample besides Attack.
 fn kicker() -> CreatureKind {
@@ -19,7 +42,11 @@ fn slot(ability: Ability, auto: bool) -> Option<BarSlot> {
 #[test]
 fn every_creature_knows_attack_first() {
     for kind in CreatureKind::ALL {
-        assert_eq!(known(kind).first(), Some(&Ability::Attack), "{kind:?}");
+        assert_eq!(
+            known_by_kind(kind).first(),
+            Some(&Ability::Attack),
+            "{kind:?}"
+        );
     }
 }
 
@@ -43,7 +70,7 @@ fn attack_only() -> ActionBar {
 #[test]
 fn every_creature_knows_heal() {
     for kind in CreatureKind::ALL {
-        assert!(Ability::Heal.can_use(kind), "{kind:?}");
+        assert!(usable(Ability::Heal, kind), "{kind:?}");
     }
     assert!(Ability::Heal.can_be_automatic());
 }
@@ -63,8 +90,11 @@ fn an_old_bar_is_given_heal_once_in_the_first_empty_slot() {
     bar.catch_up();
     assert_eq!(bar.slots[1], slot(Ability::Heal, false));
     // Taken off, it stays off.
-    bar.apply(BarChange::Clear { slot: 1 }, CreatureKind::Human)
-        .unwrap();
+    bar.apply(
+        BarChange::Clear { slot: 1 },
+        &known_by_kind(CreatureKind::Human),
+    )
+    .unwrap();
     bar.catch_up();
     assert_eq!(bar.slot_of(Ability::Heal), None);
     // A bar saved without `given` reads as 0.
@@ -86,14 +116,20 @@ fn passive_and_unknown_abilities_stay_off_the_bar() {
     let mut bar = attack_only();
     let place = |ability| BarChange::Place { slot: 3, ability };
     assert_eq!(
-        bar.apply(place(Ability::NightVision), CreatureKind::Human),
+        bar.apply(
+            place(Ability::NightVision),
+            &known_by_kind(CreatureKind::Human)
+        ),
         Err(BarRefusal::Passive)
     );
     assert_eq!(
-        bar.apply(place(Ability::Trample), CreatureKind::Human),
+        bar.apply(place(Ability::Trample), &known_by_kind(CreatureKind::Human)),
         Err(BarRefusal::Unknown)
     );
-    assert_eq!(bar.apply(place(Ability::Kick), kicker()), Ok(()));
+    assert_eq!(
+        bar.apply(place(Ability::Kick), &known_by_kind(kicker())),
+        Ok(())
+    );
     assert_eq!(bar.slots[3], slot(Ability::Kick, false));
 }
 
@@ -101,13 +137,14 @@ fn passive_and_unknown_abilities_stay_off_the_bar() {
 fn placing_an_ability_already_on_the_bar_moves_it_with_its_auto() {
     let mut bar = attack_only();
     let kind = CreatureKind::Human;
-    bar.apply(BarChange::ToggleAuto { slot: 0 }, kind).unwrap();
+    bar.apply(BarChange::ToggleAuto { slot: 0 }, &known_by_kind(kind))
+        .unwrap();
     bar.apply(
         BarChange::Place {
             slot: 4,
             ability: Ability::Attack,
         },
-        kind,
+        &known_by_kind(kind),
     )
     .unwrap();
     assert_eq!(bar.slots[0], None);
@@ -123,20 +160,23 @@ fn swapping_keeps_each_auto_and_clearing_forgets_it() {
             slot: 1,
             ability: Ability::Kick,
         },
-        kind,
+        &known_by_kind(kind),
     )
     .unwrap();
-    bar.apply(BarChange::ToggleAuto { slot: 0 }, kind).unwrap();
-    bar.apply(BarChange::Swap { a: 0, b: 1 }, kind).unwrap();
+    bar.apply(BarChange::ToggleAuto { slot: 0 }, &known_by_kind(kind))
+        .unwrap();
+    bar.apply(BarChange::Swap { a: 0, b: 1 }, &known_by_kind(kind))
+        .unwrap();
     assert_eq!(bar.slots[0], slot(Ability::Kick, false));
     assert_eq!(bar.slots[1], slot(Ability::Attack, true));
-    bar.apply(BarChange::Clear { slot: 1 }, kind).unwrap();
+    bar.apply(BarChange::Clear { slot: 1 }, &known_by_kind(kind))
+        .unwrap();
     bar.apply(
         BarChange::Place {
             slot: 1,
             ability: Ability::Attack,
         },
-        kind,
+        &known_by_kind(kind),
     )
     .unwrap();
     assert_eq!(bar.slots[1], slot(Ability::Attack, false));
@@ -151,15 +191,18 @@ fn only_some_abilities_can_be_made_automatic() {
             slot: 1,
             ability: Ability::Kick,
         },
-        kind,
+        &known_by_kind(kind),
     )
     .unwrap();
     assert_eq!(
-        bar.apply(BarChange::ToggleAuto { slot: 1 }, kind),
+        bar.apply(BarChange::ToggleAuto { slot: 1 }, &known_by_kind(kind)),
         Err(BarRefusal::NotAutomatic)
     );
     assert!(Ability::Attack.can_be_automatic());
-    assert!(bar.apply(BarChange::ToggleAuto { slot: 0 }, kind).is_ok());
+    assert!(
+        bar.apply(BarChange::ToggleAuto { slot: 0 }, &known_by_kind(kind))
+            .is_ok()
+    );
 }
 
 #[test]
@@ -168,11 +211,11 @@ fn bad_slots_and_empty_autos_are_refused_without_change() {
     let before = bar.clone();
     let kind = CreatureKind::Human;
     assert_eq!(
-        bar.apply(BarChange::Swap { a: 0, b: 10 }, kind),
+        bar.apply(BarChange::Swap { a: 0, b: 10 }, &known_by_kind(kind)),
         Err(BarRefusal::NoSlot)
     );
     assert_eq!(
-        bar.apply(BarChange::ToggleAuto { slot: 5 }, kind),
+        bar.apply(BarChange::ToggleAuto { slot: 5 }, &known_by_kind(kind)),
         Err(BarRefusal::Empty)
     );
     assert_eq!(bar, before);
@@ -180,12 +223,65 @@ fn bad_slots_and_empty_autos_are_refused_without_change() {
 
 #[test]
 fn only_known_active_abilities_can_be_used() {
-    assert!(Ability::Attack.can_use(CreatureKind::Human));
+    assert!(usable(Ability::Attack, CreatureKind::Human));
     // Anyone with legs kicks (owner, 2026-11-09); trampling is a kind's own.
-    assert!(Ability::Kick.can_use(CreatureKind::Human));
-    assert!(!Ability::Trample.can_use(CreatureKind::Human));
-    assert!(Ability::Trample.can_use(kicker()));
-    assert!(!Ability::NightVision.can_use(CreatureKind::Human));
+    assert!(usable(Ability::Kick, CreatureKind::Human));
+    assert!(!usable(Ability::Trample, CreatureKind::Human));
+    assert!(usable(Ability::Trample, kicker()));
+    assert!(!usable(Ability::NightVision, CreatureKind::Human));
+}
+
+#[test]
+fn alchemy_gives_everyone_its_abilities_for_now() {
+    let sheet = Sheet::new(CreatureKind::Human);
+    for ability in [Ability::PressOil, Ability::Grind, Ability::Brew] {
+        assert_eq!(ability.skill(), Some(skill::ALCHEMY));
+        assert!(ability.is_known(CreatureKind::Human, &sheet), "{ability:?}");
+        assert!(known(CreatureKind::Wolf, &sheet).contains(&ability));
+        assert!(!known_by_kind(CreatureKind::Human).contains(&ability));
+    }
+    assert!(crate::skill::SkillId::find(skill::ALCHEMY).is_some());
+}
+
+#[test]
+fn abilities_with_a_tool_need_it_carried() {
+    let human = CreatureKind::Human;
+    let tools = [
+        (Ability::PressOil, ItemKind::OilPress),
+        (Ability::Grind, ItemKind::MortarAndPestle),
+        (Ability::Brew, ItemKind::Cauldron),
+    ];
+    for (ability, tool) in tools {
+        assert_eq!(ability.tool(), Some(tool));
+        assert!(!usable(ability, human), "{ability:?} without its tool");
+        assert!(can_use_carrying(ability, human, &[tool]), "{ability:?}");
+        // Inside a bag counts too.
+        let mut inventory = Inventory::default();
+        let bag = Item::new(Id::for_test(1), ItemKind::Backpack);
+        let mut ids = crate::id::stand_ins();
+        inventory.give(bag, StackLimits::NONE, &mut ids).unwrap();
+        let inside = crate::item::Holder::Inside(Id::for_test(1));
+        let tool = Item::new(Id::for_test(2), tool);
+        inventory
+            .add(tool, inside, 0, 0, crate::item::Rotation::None)
+            .unwrap();
+        assert!(ability.has_tool(&inventory), "{ability:?} in a bag");
+    }
+    assert!(Ability::Attack.tool().is_none());
+}
+
+#[test]
+fn learned_abilities_are_known_and_saved() {
+    let mut sheet = Sheet::new(CreatureKind::Human);
+    assert!(!Ability::Trample.is_known(CreatureKind::Human, &sheet));
+    assert!(sheet.abilities.learn(Ability::Trample));
+    assert!(!sheet.abilities.learn(Ability::Trample), "learned once");
+    assert!(Ability::Trample.is_known(CreatureKind::Human, &sheet));
+    assert!(known(CreatureKind::Human, &sheet).contains(&Ability::Trample));
+    let text = ron::to_string(&sheet.abilities).unwrap();
+    assert_eq!(text, "[Trample]");
+    let back: Learned = ron::from_str(&text).unwrap();
+    assert_eq!(back, sheet.abilities);
 }
 
 #[test]
@@ -208,6 +304,6 @@ fn everyone_knows_sneak_a_toggle_for_the_bar() {
     assert!(Ability::Sneak.is_active(), "it goes on the bar");
     assert!(!Ability::Sneak.can_be_automatic());
     for kind in CreatureKind::ALL {
-        assert!(known(kind).contains(&Ability::Sneak), "{kind:?}");
+        assert!(known_by_kind(kind).contains(&Ability::Sneak), "{kind:?}");
     }
 }

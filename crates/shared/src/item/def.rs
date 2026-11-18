@@ -153,6 +153,10 @@ impl ItemKind {
                 )),
                 Self::Knife => plain("Knife", 200, Shape::rectangle(1, 2)).worn(HELD),
                 Self::Lantern => plain("Lantern", 800, Shape::rectangle(1, 2)),
+                // Brewing's tools (`ability::Ability::tool`): weights first guesses.
+                Self::OilPress => plain("Oil Press", 6000, Shape::rectangle(2, 2)),
+                Self::MortarAndPestle => plain("Mortar and Pestle", 1500, square),
+                Self::Cauldron => plain("Cauldron", 4000, Shape::rectangle(2, 2)),
                 // Both legs, or a single Classical greave; its form says its name, cells
                 // and weight.
                 Self::LegArmour => plain("Leg Armour", 3000, Shape::rectangle(2, 3)).worn(wear(

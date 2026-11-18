@@ -4,8 +4,7 @@
 //! with the bar, which puts right any it refused.
 
 use bevy::prelude::*;
-use shared::ability::{ActionBar, BarChange};
-use shared::creature::CreatureKind;
+use shared::ability::{Ability, ActionBar, BarChange};
 use shared::protocol::{ClientMessage, ServerMessage};
 
 use crate::connection::{FromServer, ToServer};
@@ -25,14 +24,14 @@ pub(super) fn take_bar(mut from_server: MessageReader<FromServer>, mut bar: ResM
 
 impl OwnBar {
     /// Makes the change here and asks the server for it, if the rules allow it for
-    /// a body of kind `kind`.
+    /// a character knowing `known` (`ability::known`).
     pub(super) fn change(
         &mut self,
         change: BarChange,
-        kind: CreatureKind,
+        known: &[Ability],
         to_server: &mut MessageWriter<ToServer>,
     ) {
-        match self.0.apply(change, kind) {
+        match self.0.apply(change, known) {
             Ok(()) => {
                 to_server.write(ToServer(ClientMessage::ActionBar(change)));
             }

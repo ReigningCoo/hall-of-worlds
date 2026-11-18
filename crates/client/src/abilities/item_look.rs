@@ -29,15 +29,17 @@ pub(super) fn can_eat(kind: ItemKind, count: u32, eater: CreatureKind) -> bool {
     count > 0 && may_eat(kind, eater)
 }
 
-/// How an ability or a kind of item looks, with `count` carried of an item.
+/// How an ability or a kind of item looks, with `count` carried of an item;
+/// an ability greyed unless `usable` (`page::usable`).
 pub(super) fn thing_look(
     thing: BarThing,
     count: u32,
     eater: CreatureKind,
+    usable: bool,
     assets: &AssetServer,
 ) -> AbilityLook {
     match thing {
-        BarThing::Ability(ability) => look(ability, eater, assets),
+        BarThing::Ability(ability) => look(ability, usable, assets),
         BarThing::Item(kind) => item_look(kind, count, eater),
     }
 }

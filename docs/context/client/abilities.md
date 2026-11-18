@@ -1,11 +1,11 @@
 # client: abilities
 
-What the character can do: the Character panel's Abilities page (B), every ability they know (`shared::ability::known`, for the body they are in) as ability widgets flowing in rows, Attack first; and the action bar, ten slots, five either side of the Health and Mana circle, with dragging between them. Not the panel or its tabs: those are `inventory`'s, which spawns the page as a `common::AbilitiesPage` node. Native and web.
+What the character can do: the Character panel's Abilities page (B), every ability they know (`shared::ability::known`: by the body they are in, from skills, or learned) as ability widgets flowing in rows, Attack first; and the action bar, ten slots, five either side of the Health and Mana circle, with dragging between them. Not the panel or its tabs: those are `inventory`'s, which spawns the page as a `common::AbilitiesPage` node. Native and web.
 
 ## Files
 
 - `crates/client/src/abilities/mod.rs`: `AbilitiesPlugin`, the module list.
-- `crates/client/src/abilities/page.rs`: `fill_pages` (gives each new `AbilitiesPage` its `PageList`, a `dom::AbilityGridShown` of what the body knows, which draws itself; again when the body changes: `DrawnFor`), `PageAbility` (on each ability drawn there), `name_abilities` (says how every ability looks for this body, by its id, in `dom::KnownAbilities`, for an `<object type="ability">` anywhere), `look` (how an ability shows, also on the bar and while dragged), `ability_id` (widget ids `abilities/<id>`).
+- `crates/client/src/abilities/page.rs`: `fill_pages` (gives each new `AbilitiesPage` its `PageList`, a `dom::AbilityGridShown` of what the character knows, which draws itself; again when what is known or usable changes (another body, an ability learned, a tool picked up or put down): `DrawnFor`), `PageAbility` (on each ability drawn there), `name_abilities` (says how every ability looks now, by its id, in `dom::KnownAbilities`, for an `<object type="ability">` anywhere, again on the same changes), `usable` (`Ability::can_use` with `character::CharacterSheet`, passive ones always), `look` (how an ability shows, greyed unless usable, also on the bar and while dragged), `ability_id` (widget ids `abilities/<id>`).
 - `crates/client/src/abilities/item_look.rs`: `item_look` (a kind of item on the bar: its picture, its name, greyed when none is carried or the player's kind won't eat it), `can_eat`, `thing_look` (an ability's or item's).
 - `crates/client/src/abilities/icons.rs`: `icon_path`: each ability's game-icons.net icon in `assets/icons/` (listed in `xtask/icons.txt`; a test checks each is there).
 - `crates/client/src/abilities/own_bar.rs`: `OwnBar` (the bar as the server last said, with changes since), `take_bar`, `OwnBar::change` (checked by `ActionBar::apply`, made here and sent as `ClientMessage::ActionBar`).
@@ -42,6 +42,6 @@ What the character can do: the Character panel's Abilities page (B), every abili
 - The bar takes presses (each side's row is `dom::Opaque`), so clicks on it never walk the player; right-clicks on a slot never target.
 - Each ability stands on the colour of what it leans on (`widgets::attribute_colour` of `Ability::leans`), dark when active and pastel when passive, on the page, the bar and while dragged.
 - Heal by hand (owner, 2026-11-07): the target if it isn't an enemy, otherwise the player; never an enemy, though the server allows it (healing one, for taming, is to come from the right-press menu of choices).
-- Passive abilities are drawn round and never greyed; active ones the player can't use now are greyed with a dull red frame (also on the bar, after a shapeshift, and while there isn't the Mana). The tip names the ability (on the bar with its key in full) over its `description`.
+- Passive abilities are drawn round and never greyed; active ones the player can't use now are greyed with a dull red frame (also on the bar, after a shapeshift, without its tool carried, and while there isn't the Mana). Press Oil, Grind and Brew are never asked for yet (`manual.rs`'s `aim`). The tip names the ability (on the bar with its key in full) over its `description`.
 - Ids: `abilities/<ability>` (`attack`, `heal`, `night_vision`, ...), `bar/slot.<0..9>`.
 - Narrow screens will show only the first few slots and may move the circle: a later mobile task (owner).

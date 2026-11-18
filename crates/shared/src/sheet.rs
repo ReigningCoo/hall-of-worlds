@@ -185,6 +185,10 @@ pub struct Sheet {
     /// What it has found out about herbs (`shared::herb`): nothing in older saves.
     #[serde(default)]
     pub herbs: crate::herb::HerbKnowledge,
+    /// The abilities it has learned (`ability::Learned`), beside those its body
+    /// and skills give it: none in older saves.
+    #[serde(default)]
+    pub abilities: crate::ability::Learned,
 }
 
 impl Default for Sheet {
@@ -214,6 +218,7 @@ impl Sheet {
             foes: Foes::default(),
             effects: Effects::default(),
             herbs: Default::default(),
+            abilities: Default::default(),
         }
     }
 

@@ -12,6 +12,7 @@ use shared::sheet::Feeling;
 use super::manual::Manual;
 use super::own_bar::OwnBar;
 use super::vitals_now::{affords, wants_healing};
+use crate::character::CharacterSheet;
 use crate::common::{
     CurrentDungeon, DrawnGround, GameView, Other, OwnAbility, OwnVitals, PlayerSize, PlayerSpeed,
     SpentEnergy, SpotPosition, Target,
@@ -95,7 +96,7 @@ pub(super) fn ask(
 pub(super) fn use_automatic(
     view: Res<State<GameView>>,
     bar: Res<OwnBar>,
-    carried: Res<Carried>,
+    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
     target: Res<Target>,
     (dungeon, ground): (Res<CurrentDungeon>, Res<DrawnGround>),
     (time, vitals): (Res<Time>, Res<OwnVitals>),
@@ -113,13 +114,12 @@ pub(super) fn use_automatic(
     {
         return;
     }
-    let kind = carried.0.creature;
     let automatic = bar.0.slots[..BAR_SLOTS]
         .iter()
         .flatten()
         .filter(|slot| slot.auto)
         .filter_map(|slot| slot.ability())
-        .filter(|ability| ability.can_use(kind))
+        .filter(|ability| ability.can_use(&carried.0, &sheet.0))
         .filter(|ability| affords(*ability, &vitals, now));
     for ability in automatic {
         let at = match ability {

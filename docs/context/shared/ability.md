@@ -1,30 +1,37 @@
 # shared: ability
 
-Abilities, the named things a creature can do: active ones done when asked (and put on the action bar), toggles turned on and off there, passive ones always at work. It also holds the action bar's slots and the rules for changing them, which the client predicts with and the server checks by. How Attack works when used is `shared::combat`'s and the server's, Heal's `shared::magic`'s; abilities don't hook onto skills by name yet, Attack using the held weapon's node and Heal Healing's. Plan: `docs/context/abilities-skills.md`.
+Abilities, the named things a creature can do: active ones done when asked (and put on the action bar), toggles turned on and off there, passive ones always at work. It also holds the action bar's slots and the rules for changing them, which the client predicts with and the server checks by. How Attack works when used is `shared::combat`'s and the server's, Heal's `shared::magic`'s. A creature knows an ability by its body (its kind), from a skill it knows (`skill.rs`), or by having learned it (`Learned`, saved on its sheet); some need a tool carried (`tool.rs`). Attack uses the held weapon's skill node and Heal Healing's. Plan: `docs/context/abilities-skills.md`.
 
 ## Files
 
-- `crates/shared/src/ability.rs`: `Ability` (`ALL`, `name`, `description` (a line for its tip), `leans` (the attributes it leans on, which colour it: Attack and Kick Strength and Agility, Trample Strength and Toughness, Flutter Agility, Night Vision Perception, Heal Empathy as Healing), `mana_cost`, `use_kind`, `is_active` (active or a toggle: it goes on the bar), `is_toggle`, `can_use`), `Use::{Active, Passive, Toggle}`, `known(kind)`. Tests.
+- `crates/shared/src/ability.rs`: `Ability` (`ALL`, `name`, `description` (a line for its tip), `leans` (the attributes it leans on, which colour it: Attack and Kick Strength and Agility, Trample Strength and Toughness, Flutter Agility, Night Vision Perception, Heal Empathy as Healing), `mana_cost`, `use_kind`, `is_active` (active or a toggle: it goes on the bar), `is_toggle`), `Use::{Active, Passive, Toggle}`. Tests.
+- `crates/shared/src/ability/knowing.rs`: `known_by_kind`, `known`, `Ability::is_known`, `Ability::can_use`.
+- `crates/shared/src/ability/learned.rs`: `Learned`.
+- `crates/shared/src/ability/skill.rs`: `Ability::skill`, `ALCHEMY`, and which skills' abilities everyone has for now.
+- `crates/shared/src/ability/tool.rs`: `Ability::tool`, `Ability::has_tool`.
 - `crates/shared/src/ability/bar.rs`: `ActionBar`, `BarChange`, `BarRefusal`, `BAR_SLOTS`.
 - `crates/shared/src/ability/bar_slot.rs`: `BarThing`, `BarSlot` (with its two shapes: saves write `(ability: Attack, auto: false)` as before items, or `(item: Apple)`, by `is_human_readable`; messages carry it as it is), `usable_from_bar`.
 
 ## Public API
 
-- `Ability`: `Attack`, `Heal` and `Sneak` (every creature; Heal as there is no way to learn spells yet; Sneak a toggle, holding moves on levels to a sneaking pace, `energy::sneak_move_energy`), and the kinds' own `Flutter`, `Kick`, `NightVision` (passive), `Trample`. Also `sheet::Ability`. Messages carry it by its place, so new ones go at the end of the enum; `ALL` is the order players see (Attack first).
-- `known(kind)`: Attack, Heal, Sneak, Kick for any kind with legs (`body::has_legs`, owner 2026-11-09), and the kind's own (`CreatureDef::abilities`), for the body it is in now, so shapeshifting changes them.
+- `Ability`: `Attack`, `Heal` and `Sneak` (every creature; Heal as there is no way to learn spells yet; Sneak a toggle, holding moves on levels to a sneaking pace, `energy::sneak_move_energy`), and the kinds' own `Flutter`, `Kick`, `NightVision` (passive), `Trample`; and Alchemy's `PressOil`, `Grind` and `Brew` (brewing, `docs/context/brewing.md`; active, leaning on Intellect, not done yet: the client never asks for them and the server does nothing). Also `sheet::Ability`. Messages carry it by its place, so new ones go at the end of the enum; `ALL` is the order players see (Attack first).
+- `known_by_kind(kind)`: what a body alone knows: Attack, Heal, Sneak, Kick for any kind with legs (`body::has_legs`, owner 2026-11-09), and the kind's own (`CreatureDef::abilities`), for the body it is in now, so shapeshifting changes them.
+- `known(kind, sheet)` and `Ability::is_known(kind, sheet)`: everything known, in `ALL`'s order: the body's, those from a skill the sheet knows (`Ability::skill`, a path: Press Oil, Grind and Brew from `ALCHEMY`, `crafting/alchemy`, given to everyone for now, TODO `todo-learn-alchemy`), and those learned (`Sheet::abilities`).
+- `Learned` (`knows`, `learn` (true if new), `iter`): the abilities one character has learned, saved on `Sheet::abilities` as a list of names, empty in older saves. Nothing learns one yet: Collect Water will (brewing PR 3).
+- `Ability::tool()`: the item kind it needs carried (Press Oil an Oil Press, Grind a Mortar and Pestle, Brew a Cauldron); `has_tool(carried)`: anywhere in what is carried, bags too (`Inventory::count_of`).
 - `Ability::can_be_automatic()`: whether a slot may be made automatic, done whenever it can be (owner, 2026-11-07): Attack and Heal so far; `BarChange::ToggleAuto` refuses the rest (`BarRefusal::NotAutomatic`), though turning one off always works.
-- `Ability::can_use(kind)`: active and known. The client greys out what fails it, and what costs more Mana (`mana_cost`) than there is.
+- `Ability::can_use(carried, sheet)`: active, known (`is_known`, the body being `carried.creature`) and with its tool carried. The client greys out what fails it, and what costs more Mana (`mana_cost`) than there is; the server refuses it.
 - `BarThing::{Ability(Ability), Item(ItemKind)}` (`ability()`, `item()`, `can_be_automatic()`: abilities that may be, never items); `From` an `Ability` or an `ItemKind`. `usable_from_bar(kind)`: food (`bonus::is_food`) so far.
-- `ActionBar { slots: [Option<BarSlot { thing, auto }>; 10], given }` (`BarSlot::new(thing)`, `BarSlot::ability()`): `Default` is a new character's (Heal in the first slot and Attack in the second, so healing comes first if both are automatic: Claude's suggestion, 2026-11-07; also for saves from before the bar); `apply(change, kind)`, `slot_of(ability or item kind)`, `catch_up` (a bar saved before an ability was added to new bars gets it once, in its first empty slot, counted by `given`; the server calls it on loading). Automatic slots take turns from the first: the first whose ability can be done is (owner, 2026-11-07).
+- `ActionBar { slots: [Option<BarSlot { thing, auto }>; 10], given }` (`BarSlot::new(thing)`, `BarSlot::ability()`): `Default` is a new character's (Heal in the first slot and Attack in the second, so healing comes first if both are automatic: Claude's suggestion, 2026-11-07; also for saves from before the bar); `apply(change, known)` (`known`: what the character knows, `ability::known`), `slot_of(ability or item kind)`, `catch_up` (a bar saved before an ability was added to new bars gets it once, in its first empty slot, counted by `given`; the server calls it on loading). Automatic slots take turns from the first: the first whose ability can be done is (owner, 2026-11-07).
 - `BarChange::{Place { slot, ability }, Clear { slot }, Swap { a, b }, ToggleAuto { slot }, PlaceItem { slot, item }}`; `BarRefusal::{NoSlot, Passive, Unknown, Empty, NotAutomatic, NotUsable}`.
 
 ## Depends on
 
-- `creature` (`CreatureKind::def().abilities`), `item` (`ItemKind`), `bonus` (`is_food`).
+- `creature` (`CreatureKind::def().abilities`), `item` (`ItemKind`, `Inventory::count_of` for tools), `bonus` (`is_food`), `sheet` (`Sheet::skills`, `Sheet::abilities`), `skill` (`SkillId::find`, `Skills::knows`).
 
 ## Used by
 
-- `sheet` (re-exports `Ability`), `creature` (kinds' abilities), `protocol` (`ClientMessage::ActionBar`, `ServerMessage::ActionBar`), server `connections/action_bar.rs` and `storage` (`CharacterSave::action_bar`), client `abilities` (the Abilities page and the action bar).
+- `sheet` (re-exports `Ability`; `Sheet::abilities` is a `Learned`), `creature` (kinds' abilities), `protocol` (`ClientMessage::ActionBar`, `ServerMessage::ActionBar`), server `connections/action_bar.rs` and `storage` (`CharacterSave::action_bar`), client `abilities` (the Abilities page and the action bar).
 
 ## Notes
 

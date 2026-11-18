@@ -13,7 +13,9 @@ use super::drag::Aim;
 use super::item_look::thing_look;
 use super::manual::Manual;
 use super::own_bar::OwnBar;
+use super::page::usable;
 use super::vitals_now::affords;
+use crate::character::CharacterSheet;
 use crate::common::{Action, OwnVitals, Preferences, Sneaking, VitalsCircle, interface_area};
 use crate::dom::{AbilitySlotShown, AbilityThing};
 use crate::inventory::Carried;
@@ -98,13 +100,16 @@ pub(super) struct Shown {
     sneaking: bool,
     /// How many are carried of each slot's kind of item (0 for the rest).
     counts: Vec<u32>,
+    /// Whether each slot's ability can be used now (`page::usable`; true for
+    /// the rest): known, with its tool.
+    usable: Vec<bool>,
 }
 
 /// Says what each slot shows again when that changes.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn show_bar(
     bar: Res<OwnBar>,
-    carried: Res<Carried>,
+    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
     preferences: Res<Preferences>,
     (aim, manual, sneaking): (Res<Aim>, Res<Manual>, Res<Sneaking>),
     (vitals, time): (Res<OwnVitals>, Res<Time>),
@@ -135,6 +140,12 @@ pub(super) fn show_bar(
                 item.map_or(0, |kind| carried.0.count_of(kind))
             })
             .collect(),
+        usable: (bar.0.slots.iter())
+            .map(|held| {
+                let ability = held.and_then(|held| held.ability());
+                ability.is_none_or(|ability| usable(ability, &carried, &sheet))
+            })
+            .collect(),
     };
     if shown.as_ref() == Some(&now) {
         return;
@@ -155,8 +166,9 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
     let held = now.bar.slots[slot as usize];
     let (short, full) = &now.keys[slot as usize];
     let count = now.counts[slot as usize];
+    let usable = now.usable[slot as usize];
     let thing = held.map(|held| {
-        let mut look = thing_look(held.thing, count, now.kind, assets);
+        let mut look = thing_look(held.thing, count, now.kind, usable, assets);
         let (name, description) = match held.thing {
             BarThing::Ability(ability) => (ability.name(), ability.description()),
             BarThing::Item(kind) => (kind.def().name, ""),

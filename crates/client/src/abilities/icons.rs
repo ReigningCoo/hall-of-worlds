@@ -13,5 +13,8 @@ pub(super) fn icon_path(ability: Ability) -> &'static str {
         Ability::NightVision => "icons/delapouite/night-vision.png",
         Ability::Trample => "icons/lorc/boot-stomp.png",
         Ability::Sneak => "icons/skoll/footsteps.png",
+        Ability::PressOil => "icons/delapouite/olive.png",
+        Ability::Grind => "icons/skoll/pestle-mortar.png",
+        Ability::Brew => "icons/lorc/cauldron.png",
     }
 }

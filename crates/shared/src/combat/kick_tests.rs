@@ -36,8 +36,9 @@ fn a_kick_is_slower_than_two_punches_and_weaker_than_one() {
 
 #[test]
 fn people_and_beasts_with_legs_know_kick() {
-    use crate::ability::{Ability, known};
+    use crate::ability::{Ability, known_by_kind};
     assert!(crate::body::has_legs(CreatureKind::Human));
-    assert!(known(CreatureKind::Human).contains(&Ability::Kick));
-    assert!(Ability::Kick.can_use(CreatureKind::Human));
+    assert!(known_by_kind(CreatureKind::Human).contains(&Ability::Kick));
+    let carried = crate::item::Inventory::default();
+    assert!(Ability::Kick.can_use(&carried, &crate::sheet::Sheet::new(CreatureKind::Human)));
 }

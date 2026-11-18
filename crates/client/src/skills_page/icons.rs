@@ -129,6 +129,7 @@ const ICONS: &[(&str, &str)] = &[
     ("gathering/woodcutting", "lorc/wood-axe"),
     ("gathering/prospecting", "delapouite/gold-nuggets"),
     ("gathering/herbalism", "delapouite/herbs-bundle"),
+    ("gathering/water", "delapouite/water-flask"),
     ("crafting", "lorc/hammer-nails"),
     ("crafting/building", "delapouite/brick-wall"),
     ("crafting/smithing", "lorc/anvil"),
