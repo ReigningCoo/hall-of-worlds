@@ -29,6 +29,11 @@ impl Material {
             | Self::Rawhide
             | Self::Straw
             | Self::Wood
+            | Self::Acacia
+            | Self::Cherry
+            | Self::Chestnut
+            | Self::Oak
+            | Self::Pine
             | Self::Wool => 1,
             Self::Aquamarine
             | Self::Bronze
@@ -55,7 +60,11 @@ impl Material {
             Self::Cork | Self::Grass | Self::Straw => 2,
             Self::Felt => 3,
             Self::Rattan => 5,
-            Self::Wood => 7,
+            Self::Wood | Self::Oak => 7,
+            // Casks' woods (`shared::cask`): seasoned, by their usual weights.
+            Self::Pine => 5,
+            Self::Cherry | Self::Chestnut => 6,
+            Self::Acacia => 8,
             Self::Coir => 12,
             Self::Suede => 8,
             Self::BuffLeather | Self::Fur | Self::Leather => 9,

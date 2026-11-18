@@ -35,6 +35,9 @@ pub enum ItemKind {
     /// A glass bottle, empty or a potion (`shared::potion`), counted: what it
     /// holds is in its form.
     Bottle,
+    /// A wooden cask holding a liquid by the litre (`shared::cask`): its
+    /// size, wood and what is in it are in its form.
+    Cask,
     /// An iron pot for brewing potions (`ability::Ability::Brew`).
     Cauldron,
     Caparison,
@@ -139,7 +142,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 103] = [
+    pub const ALL: [Self; 104] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -162,6 +165,7 @@ impl ItemKind {
         Self::BreastBand,
         Self::Cap,
         Self::Caparison,
+        Self::Cask,
         Self::Cauldron,
         Self::Chausses,
         Self::Cloak,

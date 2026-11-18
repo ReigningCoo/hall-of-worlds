@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::armour::{Construction, Dye, Finish, Style};
+use crate::cask::CaskSize;
 use crate::clothing::ClothingPiece;
 use crate::footwear::FootwearPiece;
 use crate::item::ItemKind;
@@ -41,6 +42,8 @@ pub struct RollRequest {
     /// How many effects a bottle's potion has: 0 for an empty bottle when no
     /// liquid is asked for.
     pub effects: Option<u8>,
+    /// A cask's size (`shared::cask`).
+    pub cask_size: Option<CaskSize>,
 }
 
 /// One of the options in a `RollRequest`.
@@ -57,6 +60,7 @@ pub enum Field {
     Limits,
     Liquid,
     Effects,
+    CaskSize,
 }
 
 /// A request that can't be met, naming the option that couldn't be: one the kind
@@ -77,6 +81,7 @@ impl RollRequest {
         limits: None,
         liquid: None,
         effects: None,
+        cask_size: None,
     };
 
     /// The options it asks for.
@@ -93,6 +98,7 @@ impl RollRequest {
             (Field::Limits, self.limits.is_some()),
             (Field::Liquid, self.liquid.is_some()),
             (Field::Effects, self.effects.is_some()),
+            (Field::CaskSize, self.cask_size.is_some()),
         ];
         asked
             .into_iter()
@@ -114,6 +120,7 @@ impl RollRequest {
             Field::Limits => self.limits = None,
             Field::Liquid => self.liquid = None,
             Field::Effects => self.effects = None,
+            Field::CaskSize => self.cask_size = None,
         }
         self
     }
@@ -143,6 +150,7 @@ pub fn fields(kind: ItemKind) -> &'static [Field] {
         ItemKind::Gem => &[GemMaterial, GemCut],
         ItemKind::Bottle => &[Liquid, Effects],
         ItemKind::Ointment => &[Effects],
+        ItemKind::Cask => &[CaskSize, Material, Liquid],
         ItemKind::Ring | ItemKind::Necklace => &[Material, Settings, GemMaterial, GemCut],
         // Their cloth is a material, and shoulders' finish is leather's own.
         ItemKind::Gauntlets

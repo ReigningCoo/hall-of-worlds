@@ -11,6 +11,7 @@ pub mod blade;
 pub mod body;
 pub mod bonus;
 pub mod brewing;
+pub mod cask;
 pub mod celestial;
 pub mod clearance;
 pub mod climate;

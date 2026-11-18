@@ -17,6 +17,7 @@ What every 3D view shares: the one camera (orbiting the player: turn, tilt, zoom
 
 ## Public API
 
+- `MODEL_SCALE`: world units a millimetre of a model is drawn (`ground`'s casks are drawn to it).
 - `View3dPlugin`, `View3dSystems::Click` (systems handling clicks run after it) and `::Place` (views that adjust token heights run after it).
 - `ClickedToken(Option<Entity>)` (resource): the `common::Clickable` entity whose token the left button was just pressed on, this frame only. Views skip their ground click when it is set; `site` uses it.
 - `HoveredToken(Option<Entity>)` (resource): the entity the mouse is over whose token is `common::Clickable` or has a `common::HoverName`, every frame; `world_map` outlines it and `hover` names it. `ClickedToken` is only ever a clickable one, the nearest under the pointer even when a named one stands in front.

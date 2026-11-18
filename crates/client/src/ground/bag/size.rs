@@ -13,12 +13,26 @@ pub(in crate::ground) struct Size {
 }
 
 pub(in crate::ground) fn size_of(load: Load) -> Size {
+    // A cask stands as tall as it is, and is drawn at full size up to the
+    // biggest bag's height.
+    if let Load::Cask(cask) = load {
+        let height = crate::ground::cask::cask_units(cask);
+        let radius = height * crate::item_art::cask_radius_share(cask.size);
+        let scale = (height / BULGING_HEIGHT).clamp(0.5, 1.0);
+        return Size {
+            radius,
+            height,
+            lean: 0.0,
+            scale,
+        };
+    }
     let (radius, height, lean, scale) = match load {
         Load::Flat => (8.5, 3.6, 4.0, 0.5),
         Load::Slack => (7.5, 6.5, 2.0, 0.625),
         Load::Half => (7.0, 10.5, 1.0, 0.75),
         Load::Full => (8.0, 13.5, 0.6, 0.875),
-        Load::Bulging => (9.5, 16.0, 0.3, 1.0),
+        Load::Bulging => (9.5, BULGING_HEIGHT, 0.3, 1.0),
+        Load::Cask(_) => unreachable!("casks are sized above"),
     };
     Size {
         radius: radius * scale,
@@ -36,7 +50,8 @@ pub(super) fn profile(load: Load) -> [(f32, f32); 10] {
         Load::Flat | Load::Slack => (0.2, 0.42),
         Load::Half => (0.26, 0.5),
         Load::Full => (0.33, 0.56),
-        Load::Bulging => (0.38, 0.6),
+        // Casks aren't bags: drawn by `cask.rs`.
+        Load::Bulging | Load::Cask(_) => (0.38, 0.6),
     };
     [
         (0.0, 0.0),
@@ -51,6 +66,9 @@ pub(super) fn profile(load: Load) -> [(f32, f32); 10] {
         (0.0, 0.88),
     ]
 }
+
+/// How tall the fullest bag is.
+const BULGING_HEIGHT: f32 = 16.0;
 
 /// How far up its height the rope is.
 pub(super) const TIED_AT: f32 = 0.78;

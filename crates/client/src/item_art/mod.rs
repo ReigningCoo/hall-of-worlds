@@ -6,6 +6,7 @@ mod bag;
 mod blade;
 mod body;
 mod bottle;
+mod cask;
 mod character;
 mod clothing;
 mod coin;
@@ -40,6 +41,7 @@ use bevy::render::{ExtractSchedule, Render, RenderApp, RenderSystems};
 pub use bottle::{
     BottleLook, Glass as BottleGlass, LiquidLook, Shape as BottleShape, Stopper as BottleStopper,
 };
+pub use cask::{CaskMesh, cask_mesh, cask_radius_share, height_of as cask_height};
 pub use character::{character_look, portrait_look};
 pub use clothing::ClothingLook;
 pub use colours::Colours;

@@ -27,6 +27,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
         }
         _ => {}
     }
+    if let Some(cask) = item.cask() {
+        return Some(Look::Cask(cask.look()));
+    }
     if let Some(bottle) = item.bottle() {
         return Some(Look::Bottle {
             bottle: super::BottleLook::of(bottle),

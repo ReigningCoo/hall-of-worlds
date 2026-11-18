@@ -24,10 +24,14 @@ pub(super) struct Heading(pub(super) Option<Spot>);
 #[derive(Resource)]
 pub(super) struct BagAssets {
     /// By look and variety: the bag in colour, in grey and its outlines.
+    /// Casks have one variety, 0.
     pub(super) bags: BTreeMap<(Load, u8), BagMeshes>,
     pub(super) star: Handle<Mesh>,
     pub(super) lit: Handle<StandardMaterial>,
     pub(super) remembered: Handle<StandardMaterial>,
+    /// Casks', coloured by their meshes alone (no weave).
+    pub(super) cask_lit: Handle<StandardMaterial>,
+    pub(super) cask_remembered: Handle<StandardMaterial>,
     pub(super) sparkle: Handle<StandardMaterial>,
     pub(super) outline: Handle<StandardMaterial>,
     pub(super) star_edge: Handle<StandardMaterial>,

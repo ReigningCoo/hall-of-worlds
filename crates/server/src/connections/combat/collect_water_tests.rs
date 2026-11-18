@@ -5,6 +5,7 @@ use shared::ability::Ability;
 use shared::dungeon::Cell;
 use shared::facing::Heading;
 use shared::item::{Item, ItemKind, Quality};
+use shared::material::Material;
 use shared::potion::{Liquid, WATER_SKILL};
 use shared::protocol::{ClientMessage, Landed, ServerMessage};
 use shared::skill::SkillId;
@@ -125,4 +126,32 @@ fn nothing_is_filled_facing_away() {
     let mut test = at_the_water(1);
     test.send(&[ClientMessage::Face(Heading::WEST), collect()]);
     assert!(test.client.fight.pending.is_none());
+}
+
+#[test]
+fn a_cask_is_poured_into_once_the_bottles_are_full() {
+    let mut test = at_the_water(1);
+    let mut cask = Item::new(shared::id::Id::for_test(77), ItemKind::Cask);
+    let pin = shared::cask::CaskForm::new(shared::cask::CaskSize::Pin, Material::Oak);
+    cask.form = Some(shared::item_form::ItemForm::Cask(pin));
+    let stand_ins = &mut shared::id::stand_ins();
+    (test.client.inventory)
+        .give(cask, shared::item::StackLimits::NONE, stand_ins)
+        .unwrap();
+    test.send(&[collect()]);
+    run(&mut test, ONE_BOTTLE, false);
+    assert!(matches!(bottles(&test)[..], [(Some(Liquid::Water(_)), 1)]));
+    assert!(test.client.fight.pending.is_some(), "the cask next");
+    // Three pours of 5 litres or a little more (the bottle practised Water),
+    // each 5 seconds.
+    run(&mut test, 3 * 5 * 20 + 2, false);
+    let litres = |test: &TestClient| {
+        let cask = test.client.inventory.find(shared::id::Id::for_test(77));
+        cask.and_then(Item::cask).map(|cask| cask.litres)
+    };
+    let poured = litres(&test).unwrap();
+    assert!((15..20).contains(&poured), "{poured}");
+    run(&mut test, 2 * 5 * 20, false);
+    assert_eq!(litres(&test), Some(20), "only to the brim");
+    assert!(test.client.fight.pending.is_none(), "nothing left to fill");
 }

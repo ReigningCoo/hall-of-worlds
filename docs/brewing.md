@@ -20,7 +20,7 @@ An ability whose tool you don't carry is greyed out. A tool in a bag counts.
 
 ## Waters
 
-Herbalists and potion shops sell bottles of water. The first time you have an empty bottle, you learn **Collect Water**: face water close by (a pond, a river, the sea) and use it to fill your empty bottles one after another, until you move or are hurt. Practice in the **Water** skill makes it quicker.
+Herbalists and potion shops sell bottles of water. The first time you have an empty bottle, you learn **Collect Water**: face water close by (a pond, a river, the sea) and use it to fill your empty bottles one after another, and then any [cask](casks) you carry, until you move or are hurt. Practice in the **Water** skill makes it quicker.
 
 Where you fill a bottle decides which water you get:
 

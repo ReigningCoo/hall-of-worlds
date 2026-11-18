@@ -62,8 +62,9 @@
 //!   `HOW_DEBUG_DROP=true`: put all but the first of what is in the inventory on the
 //!   ground underfoot first (in a site). `HOW_DEBUG_SECRETS=true`: truesight on, and
 //!   things that are magical, blessed and cursed, to look at how they glow.
-//! - `HOW_DEBUG_BAGS=true`: two seconds after starting, show a bag of every look in
-//!   a row east from the player, only to look at (in a site).
+//! - `HOW_DEBUG_BAGS=true`: two seconds after starting, show a bag of every look,
+//!   then a cask of each size, in a row east from the player, only to look at (in a
+//!   site).
 //! - `HOW_DEBUG_CURSOR=x,y`: the game points here (logical pixels) in place of
 //!   the mouse, to look at what hovering shows; the real pointer doesn't move.
 //! - `HOW_DEBUG_SCREENSHOT=path.png`: save a screenshot after `HOW_DEBUG_SCREENSHOT_DELAY`

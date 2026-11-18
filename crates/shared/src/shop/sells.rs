@@ -10,7 +10,7 @@ use crate::site::BuildingKind;
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies, BreastBand,
-        Cap, Cauldron, Cloak, Clogs, Fruit, Gauntlets, Gloves, Hat, Headcloth, Headdress,
+        Cap, Cask, Cauldron, Cloak, Clogs, Fruit, Gauntlets, Gloves, Hat, Headcloth, Headdress,
         HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth, MortarAndPestle, Necklace,
         Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat, Pouch, Ring, Sandals, Shawl,
         Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Trousers, Vegetable,
@@ -34,7 +34,13 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (HerbPouch, 1),
             (MortarAndPestle, 1),
         ],
-        BuildingKind::Carpenter => &[(SmallBox, 2), (Boomerang, 1), (Clogs, 1), (OilPress, 1)],
+        BuildingKind::Carpenter => &[
+            (SmallBox, 2),
+            (Boomerang, 1),
+            (Clogs, 1),
+            (OilPress, 1),
+            (Cask, 1),
+        ],
         BuildingKind::Tailor => &[
             (Shirt, 3),
             (Braies, 2),

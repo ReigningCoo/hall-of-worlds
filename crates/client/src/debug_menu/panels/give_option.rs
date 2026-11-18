@@ -2,12 +2,14 @@
 //! their words, and reading and setting them in a request.
 
 use shared::armour::{Construction, Dye, Finish, Style};
+use shared::cask::CaskSize;
 use shared::item_form::{Choices, Cut, Field, Limits, RollRequest};
 use shared::material::Material;
 use shared::potion::LiquidKind;
 
 /// Every option, in the order the panel shows them.
-pub(super) const FIELDS: [Field; 11] = [
+pub(super) const FIELDS: [Field; 12] = [
+    Field::CaskSize,
     Field::Style,
     Field::Construction,
     Field::Material,
@@ -41,6 +43,8 @@ pub(in crate::debug_menu) enum OptionValue {
     Liquid(LiquidKind),
     /// How many effects a bottle holds, 0 for an empty one.
     Effects(u8),
+    /// How big a cask is.
+    CaskSize(CaskSize),
 }
 
 /// What the dropdown says when nothing is asked for.
@@ -58,6 +62,7 @@ pub(super) fn ui_name(field: Field) -> &'static str {
         Field::Limits => "limits",
         Field::Liquid => "liquid",
         Field::Effects => "effects",
+        Field::CaskSize => "cask_size",
     }
 }
 
@@ -74,6 +79,7 @@ pub(super) fn any(field: Field) -> &'static str {
         Field::Limits => "Any length",
         Field::Liquid => "Empty or potion",
         Field::Effects => "Empty",
+        Field::CaskSize => "Any size",
     }
 }
 
@@ -100,6 +106,7 @@ pub(super) fn values(field: Field, choices: &Choices) -> Vec<OptionValue> {
         Field::Effects => (choices.effects.iter().filter(|&&v| v > 0))
             .map(|&v| V::Effects(v))
             .collect(),
+        Field::CaskSize => choices.cask_sizes.iter().map(|&v| V::CaskSize(v)).collect(),
     }
 }
 
@@ -120,6 +127,7 @@ pub(super) fn words(value: OptionValue) -> String {
         OptionValue::Liquid(liquid) => liquid.name().to_owned(),
         OptionValue::Effects(1) => "Potion, 1 effect".to_owned(),
         OptionValue::Effects(count) => format!("Potion, {count} effects"),
+        OptionValue::CaskSize(size) => format!("{} ({} L)", size.name(), size.litres()),
     }
 }
 
@@ -140,6 +148,7 @@ pub(super) fn asked(request: &RollRequest, field: Field) -> Option<OptionValue> 
             .and_then(|limits| limits.at_least_long.map(V::Long)),
         Field::Liquid => request.liquid.map(V::Liquid),
         Field::Effects => request.effects.filter(|&v| v > 0).map(V::Effects),
+        Field::CaskSize => request.cask_size.map(V::CaskSize),
     }
 }
 
@@ -184,6 +193,10 @@ pub(super) fn asking(request: RollRequest, value: OptionValue) -> RollRequest {
         },
         OptionValue::Effects(count) => RollRequest {
             effects: Some(count),
+            ..request
+        },
+        OptionValue::CaskSize(size) => RollRequest {
+            cask_size: Some(size),
             ..request
         },
         OptionValue::Long(cells) => {
