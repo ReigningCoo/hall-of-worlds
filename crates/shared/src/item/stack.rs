@@ -194,6 +194,10 @@ impl Item {
             // Each one looks a little different: a stack keys on fruit and serving.
             fruit.look = 0;
         }
+        if let Some(ItemForm::Vegetable(vegetable)) = &mut copy.form {
+            // As fruit: a stack keys on vegetable and serving.
+            vegetable.look = 0;
+        }
         if let Some(ItemForm::Bottle(bottle)) = &mut copy.form {
             // Shapes differ in a stack: it keys on the liquid, and a potion's
             // on quality too (owner, 2026-11-17).

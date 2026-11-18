@@ -10,6 +10,7 @@ use shared::id::Id;
 use shared::item::{Inventory, Item, ItemKind, StackLimits};
 use shared::item_form::{Field, ItemOrder, Refused, RollRequest, batch_seed, try_make_item};
 use shared::protocol::LevelKind;
+use shared::vegetable::dev_vegetable;
 
 use super::{GiveButton, GiveChoice, GiveCount, GiveForm, GivePreview, GiveTo, any};
 use crate::common::{CurrentDungeon, GameView, HerbTable};
@@ -151,6 +152,11 @@ fn one_of(
         // As the server makes them (`fruit::dev_fruit`).
         let def = dev_fruit(herb.key, seed).ok_or(Refused(Field::Material))?;
         return Ok(shared::fruit::new_item(def, 1, id, None));
+    }
+    if order.kind == ItemKind::Vegetable {
+        // As the server makes them (`vegetable::dev_vegetable`).
+        let def = dev_vegetable(herb.key, seed).ok_or(Refused(Field::Material))?;
+        return Ok(shared::vegetable::new_item(def, 1, id, None));
     }
     try_make_item(order, wearer, id, seed, None, &mut new_id)
 }

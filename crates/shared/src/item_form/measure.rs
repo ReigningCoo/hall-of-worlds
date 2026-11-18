@@ -22,6 +22,7 @@ impl ItemForm {
             Self::Under(under) => Some(under.shape()),
             Self::Clothing(clothing) => Some(clothing.shape()),
             Self::Fruit(fruit) => Some(fruit.shape()),
+            Self::Vegetable(vegetable) => Some(vegetable.shape()),
             Self::Gem(_)
             | Self::Ring(_)
             | Self::Hands(_)
@@ -54,6 +55,7 @@ impl ItemForm {
             Self::Herb(herb) => Some(herb.grams),
             Self::Bottle(bottle) => Some(bottle.grams()),
             Self::Fruit(fruit) => Some(fruit.grams),
+            Self::Vegetable(vegetable) => Some(vegetable.grams),
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) => None,
         }
     }

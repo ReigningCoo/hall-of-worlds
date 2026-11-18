@@ -139,8 +139,12 @@ pub(in crate::debug_menu) fn press_give_button(
                 count: form.count,
                 identical: form.identical || form.count == 1,
                 request: order.request,
-                herb: (form.herb.clone())
-                    .filter(|_| matches!(order.kind, ItemKind::Herb | ItemKind::Fruit)),
+                herb: (form.herb.clone()).filter(|_| {
+                    matches!(
+                        order.kind,
+                        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable
+                    )
+                }),
                 to: to.0.map(|(id, _)| id),
             },
         )));

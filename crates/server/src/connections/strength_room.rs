@@ -6,11 +6,13 @@
 //! dropping what has none, but only where there is ground to drop it on.
 
 use bevy::prelude::*;
-use shared::fruit::{Fruits, eating};
+use shared::bonus::Effect;
+use shared::fruit::Fruits;
 use shared::herb::{HERBALISM, eating_herb, skill_value};
 use shared::id::Id;
 use shared::item::{Inventory, Item, MoveRefused, Quality, StackLimits, cells_for_strength};
 use shared::sheet::{Sheet, Situation};
+use shared::vegetable::Vegetables;
 
 use super::Client;
 use crate::ServerWorld;
@@ -85,12 +87,9 @@ pub(super) fn eating_allowed(
                 sheet.add_effect(effect, situation, now);
             }
         }
-        None => match food
-            .fruit()
-            .and_then(|form| Fruits::built_in().get(&form.fruit))
-        {
-            Some(def) => {
-                for effect in eating(def, now) {
+        None => match eaten_effects(food, now) {
+            Some(effects) => {
+                for effect in effects {
                     sheet.add_effect(effect, situation, now);
                 }
             }
@@ -110,6 +109,19 @@ pub(super) fn eating_allowed(
         );
     }
     allowed.is_ok()
+}
+
+/// What eating a fruit or vegetable does (`fruit::eating`, `vegetable::eating`),
+/// or `None` for anything else.
+fn eaten_effects(food: &Item, now: u64) -> Option<Vec<Effect>> {
+    if let Some(form) = food.fruit() {
+        return Fruits::built_in()
+            .get(&form.fruit)
+            .map(|def| shared::fruit::eating(def, now));
+    }
+    let form = food.vegetable()?;
+    let def = Vegetables::built_in().get(&form.vegetable)?;
+    Some(shared::vegetable::eating(def, now))
 }
 
 /// On joining, its attributes worked out: sizes its own grid by Strength if

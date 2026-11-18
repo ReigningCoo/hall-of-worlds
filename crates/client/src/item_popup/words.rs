@@ -6,6 +6,7 @@ use shared::bonus::{Others, food, food_effect, item_bonuses, poison};
 use shared::fruit::{Fruits, eating};
 use shared::item::Item;
 use shared::lang::{Args, Lang};
+use shared::vegetable::{self, VegetableSet, Vegetables};
 
 use crate::common::{amount_of, bonus_line, effect_lines, written};
 
@@ -21,6 +22,7 @@ pub(super) fn bonus_lines(item: &Item, lang: &Lang) -> Vec<String> {
         lines.extend(effect_lines(&effect, lang));
     }
     lines.extend(fruit_lines(item, lang));
+    lines.extend(vegetable_lines(item, lang));
     if food(item.kind).is_some_and(|food| food.others == Others::Poisoned) {
         // "Poisons other kinds: −1 Health a second for 60 s".
         for line in effect_lines(&poison(0), lang) {
@@ -42,6 +44,32 @@ fn fruit_lines(item: &Item, lang: &Lang) -> Vec<String> {
     };
     let effects = eating(def, 0);
     let mut lines: Vec<String> = effects.iter().flat_map(|e| effect_lines(e, lang)).collect();
+    if form.is_whole(def) {
+        let args = Args::new().count("count", i64::from(def.servings));
+        lines.push(written(lang.render("item-servings", &args)));
+    }
+    lines
+}
+
+/// A vegetable's raw healing and effects for one serving (`vegetable::eating`),
+/// "Heals nothing raw" or "Heals nothing until milled" when it doesn't, and a
+/// whole one's servings.
+fn vegetable_lines(item: &Item, lang: &Lang) -> Vec<String> {
+    let Some(form) = item.vegetable() else {
+        return Vec::new();
+    };
+    let Some(def) = Vegetables::built_in().get(&form.vegetable) else {
+        return Vec::new();
+    };
+    let effects = vegetable::eating(def, 0);
+    let mut lines: Vec<String> = effects.iter().flat_map(|e| effect_lines(e, lang)).collect();
+    if vegetable::healing(def) == 0 {
+        let key = match def.set {
+            VegetableSet::Grain => "item-unmilled",
+            _ => "item-not-raw",
+        };
+        lines.push(written(lang.render(key, &Args::new())));
+    }
     if form.is_whole(def) {
         let args = Args::new().count("count", i64::from(def.servings));
         lines.push(written(lang.render("item-servings", &args)));

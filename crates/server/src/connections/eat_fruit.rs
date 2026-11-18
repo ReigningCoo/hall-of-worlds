@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use shared::fruit::{Fruits, cut, eating};
 use shared::id::Id;
 use shared::item::Item;
+use shared::vegetable;
 
 use super::Client;
 use crate::ServerWorld;
@@ -40,8 +41,8 @@ pub(super) fn eat_fruit(
     client.refresh_attributes(now);
 }
 
-/// The servings left of a cut fruit, back where it came from.
-fn put_back(client: &mut Client, world: &mut ServerWorld, rest: Item, carried: bool) {
+/// The servings left of a cut fruit or vegetable, back where it came from.
+pub(super) fn put_back(client: &mut Client, world: &mut ServerWorld, rest: Item, carried: bool) {
     let rest = match carried {
         true => match client.inventory.give(rest, world.stacks, &mut new_id) {
             Ok(()) => return,
@@ -53,10 +54,11 @@ fn put_back(client: &mut Client, world: &mut ServerWorld, rest: Item, carried: b
 }
 
 /// Whether eating the top one of carried `item` leaves its servings somewhere:
-/// anything but a whole fruit does, and one does if they fit in what is carried
-/// or there is ground to put them on (in a site).
+/// anything but a whole fruit or vegetable does, and one does if they fit in
+/// what is carried or there is ground to put them on (in a site).
 pub(super) fn servings_fit(client: &Client, world: &ServerWorld, item: Id, food: &Item) -> bool {
-    let Some((_, Some(rest))) = cut(food, &mut || Id::NOBODY) else {
+    let cut = cut(food, &mut || Id::NOBODY).or_else(|| vegetable::cut(food, &mut || Id::NOBODY));
+    let Some((_, Some(rest))) = cut else {
         return true;
     };
     if client.visit.is_some() {

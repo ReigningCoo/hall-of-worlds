@@ -40,6 +40,7 @@ mod dev_skills;
 pub(crate) mod difficulty;
 mod eat_fruit;
 mod eat_herb;
+mod eat_vegetable;
 mod facing;
 mod for_others;
 mod give_items;
@@ -283,6 +284,8 @@ mod shapeshift_tests;
 mod strength_room_tests;
 #[cfg(test)]
 pub(crate) mod tests;
+#[cfg(test)]
+mod vegetable_tests;
 #[cfg(test)]
 mod vitals_tests;
 #[cfg(test)]

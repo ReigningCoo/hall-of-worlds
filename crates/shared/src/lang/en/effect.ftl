@@ -1,8 +1,9 @@
 ### English: the bar of timed effects at the top of the window, and an
 ### effect's popup there.
 
-## An effect's name: what was eaten (its kind's or fruit's name), a fruit's
-## effects (the fruit's name), poison, the debug menu's bonus, a herb eaten raw.
+## An effect's name: what was eaten (its kind's, fruit's or vegetable's name),
+## a fruit's or vegetable's effects (its name), poison, the debug menu's
+## bonus, a herb eaten raw.
 
 effect-eaten = Eating: { $item }
 effect-fruit = { $fruit }

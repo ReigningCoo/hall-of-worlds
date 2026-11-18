@@ -1,11 +1,13 @@
-//! Give Item's herb or fruit (for the Herb and Fruit kinds): a dropdown of the
-//! server's herbs, or the fruits, by name, "Any herb" or "Any fruit" first for
-//! one rolled from the seed (`herb::dev_herb`, `fruit::dev_fruit`), on the Form
-//! line, which only herbs, fruit and kinds with a form show.
+//! Give Item's herb, fruit or vegetable (for the Herb, Fruit and Vegetable
+//! kinds): a dropdown of the server's herbs, the fruits or the vegetables, by
+//! name, "Any herb", "Any fruit" or "Any vegetable" first for one rolled from
+//! the seed (`herb::dev_herb`, `fruit::dev_fruit`, `vegetable::dev_vegetable`),
+//! on the Form line, which only these and kinds with a form show.
 
 use bevy::prelude::*;
 use shared::fruit::Fruits;
 use shared::item::ItemKind;
+use shared::vegetable::Vegetables;
 
 use super::GiveForm;
 use crate::common::HerbTable;
@@ -36,7 +38,10 @@ pub(in crate::debug_menu) fn fill_give_herb(
     if !(added || form.is_changed() || table.is_changed()) {
         return;
     }
-    let shown = matches!(form.kind, ItemKind::Herb | ItemKind::Fruit);
+    let shown = matches!(
+        form.kind,
+        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable
+    );
     dom.set_flag("debug.give_item/herb", "hidden", !shown);
     if shown {
         dom.set_flag("debug.give_item/form_line", "hidden", false);
@@ -50,6 +55,13 @@ pub(in crate::debug_menu) fn fill_give_herb(
                 (
                     fruits.map(|def| (&def.name, &def.key)).collect(),
                     "Any fruit",
+                )
+            }
+            ItemKind::Vegetable => {
+                let vegetables = Vegetables::built_in().iter();
+                (
+                    vegetables.map(|def| (&def.name, &def.key)).collect(),
+                    "Any vegetable",
                 )
             }
             _ => (

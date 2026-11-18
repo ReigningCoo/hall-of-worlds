@@ -81,8 +81,8 @@ pub fn eating(def: &FruitDef, now: u64) -> Vec<Effect> {
     effects
 }
 
-/// One effect of a fruit as a bonus.
-fn bonus_of(stat: Stat, change: i8) -> Option<Bonus> {
+/// One effect of a fruit (or a vegetable, `vegetable::eating`) as a bonus.
+pub(crate) fn bonus_of(stat: Stat, change: i8) -> Option<Bonus> {
     let vital = |vital: Vital| {
         let amount = i32::from(change) * VITAL;
         match amount > 0 {

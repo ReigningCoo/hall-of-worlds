@@ -157,3 +157,4 @@ delapouite/water-flask
 delapouite/olive
 skoll/pestle-mortar
 lorc/cauldron
+delapouite/carrot
