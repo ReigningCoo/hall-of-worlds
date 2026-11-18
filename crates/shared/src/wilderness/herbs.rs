@@ -94,7 +94,11 @@ impl Wilderness {
 
 /// A clump's cells in point `(px, py)`: a short wander from a first cell
 /// away from the point's edge, taking each cell `free` says it may.
-fn clump(rng: &mut Rng, (px, py): (i64, i64), free: &dyn Fn(i64, i64) -> bool) -> Vec<(i64, i64)> {
+pub(super) fn clump(
+    rng: &mut Rng,
+    (px, py): (i64, i64),
+    free: &dyn Fn(i64, i64) -> bool,
+) -> Vec<(i64, i64)> {
     let span = (SCALE - 2 * CLUMP_MARGIN) as u64;
     let mut at = (
         px * SCALE + CLUMP_MARGIN + rng.range_u64(0, span) as i64,

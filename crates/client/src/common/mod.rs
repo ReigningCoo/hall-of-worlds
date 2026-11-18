@@ -75,7 +75,7 @@ pub use account_role::{AccountRole, OpenAccounts};
 pub use bonus_words::{amount_of, bonus_line, effect_lines, stat_words, written};
 pub use browser::open_in_browser;
 pub use characters::{CharacterChoice, CharacterSelect, PlayFor, PlayableHere};
-pub use clock::{GameClock, HerbGrowthShift, NIGHT_LIGHT, ServerClock};
+pub use clock::{CropGrowthShift, GameClock, HerbGrowthShift, NIGHT_LIGHT, ServerClock};
 pub use creatures::{
     AbilitiesPage, CancelledEnergy, CarryLimit, CharacterRefused, Dressing, EscortGait,
     MakesCharacters, MakingCharacter, Other, PlayerGait, PlayerSize, PlayerSpeed, SkillsPage,
@@ -184,6 +184,7 @@ impl Plugin for CommonPlugin {
             .init_state::<GameView>()
             .init_resource::<GameClock>()
             .init_resource::<HerbGrowthShift>()
+            .init_resource::<CropGrowthShift>()
             .init_resource::<ServerClock>()
             .add_message::<WorldChanged>()
             .add_message::<LightningStrike>()

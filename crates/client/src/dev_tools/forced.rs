@@ -1,21 +1,27 @@
-//! What dev tools keep as they are while set: stairs' style, fields' stage.
+//! What dev tools keep as they are while set: stairs' style, how far crops
+//! are drawn on.
 
 use bevy::prelude::*;
 use shared::site::StairsStyle;
 use std::env;
 
-use crate::common::CurrentDungeon;
+use crate::common::{CropGrowthShift, CurrentDungeon};
+use crate::dungeon_map::CROP_STAGES;
 
 /// What dev tools keep as they are while set, however the game changes them:
-/// every stairs' style, every field's stage (`HOW_DEBUG_STAIRS`,
-/// `HOW_DEBUG_FIELDS`). The debug API sets them too.
+/// every stairs' style, and crops drawn this many stages on with pasture as
+/// this variety (`HOW_DEBUG_STAIRS`, `HOW_DEBUG_FIELDS`). The debug API sets them too.
 #[derive(Resource, Default)]
 pub(super) struct Forced {
     pub(super) stairs: Option<StairsStyle>,
     pub(super) fields: Option<u32>,
 }
 
-pub(super) fn apply_forced(forced: Res<Forced>, mut dungeon: ResMut<CurrentDungeon>) {
+pub(super) fn apply_forced(
+    forced: Res<Forced>,
+    mut dungeon: ResMut<CurrentDungeon>,
+    mut crops: ResMut<CropGrowthShift>,
+) {
     if let Some(style) = forced.stairs
         && dungeon.stairs.iter().any(|stairs| stairs.style != style)
     {
@@ -23,11 +29,16 @@ pub(super) fn apply_forced(forced: Res<Forced>, mut dungeon: ResMut<CurrentDunge
             stairs.style = style;
         }
     }
-    if let Some(variety) = forced.fields
-        && dungeon.fields.iter().any(|field| field.variety != variety)
-    {
-        for field in &mut dungeon.fields {
-            field.variety = variety;
+    let Some(stages) = forced.fields else {
+        return;
+    };
+    let shift = stages % CROP_STAGES as u32;
+    if crops.0 != shift {
+        crops.0 = shift;
+    }
+    if (dungeon.fields.iter()).any(|field| field.livestock && field.variety != stages) {
+        for field in dungeon.fields.iter_mut().filter(|field| field.livestock) {
+            field.variety = stages;
         }
     }
 }

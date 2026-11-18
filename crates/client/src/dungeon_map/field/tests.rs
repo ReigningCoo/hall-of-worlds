@@ -18,11 +18,24 @@ fn field(livestock: bool, variety: u32) -> FieldLook {
     }
 }
 
+/// A field of crops is ploughed, its plants standing on it as they grow;
+/// pasture stays short.
 #[test]
-fn crops_go_through_every_stage_and_pasture_stays_short() {
-    for (variety, stage) in Stage::CROPS.into_iter().enumerate() {
-        assert_eq!(Stage::of(&field(false, variety as u32)), stage);
+fn crops_grow_on_ploughed_fields_and_pasture_stays_short() {
+    for variety in 0..10 {
+        assert_eq!(Stage::of(&field(false, variety)), Stage::Ploughed);
     }
+    let stages: Vec<Stage> = (0..CROP_STAGES as u8).map(Stage::of_plant).collect();
+    assert_eq!(
+        stages,
+        [
+            Stage::Ploughed,
+            Stage::Ploughed,
+            Stage::Short,
+            Stage::Tall,
+            Stage::Ripe
+        ]
+    );
     for variety in 0..20 {
         let stage = Stage::of(&field(true, variety));
         assert!(matches!(stage, Stage::Grass | Stage::Short));

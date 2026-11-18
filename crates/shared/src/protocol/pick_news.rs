@@ -1,6 +1,6 @@
-//! Harvesting herb patches and fruit plants: what the server answers a
+//! Harvesting herb patches, fruit plants and vegetables: what the server answers a
 //! `ClientMessage::Pick { x, y }` with (the patch or plant beside or under the
-//! player, `LevelChunk::herbs` or `fruit`, in turn with their steps).
+//! player, `LevelChunk::herbs`, `fruit` or `vegetables`, in turn with their steps).
 
 use serde::{Deserialize, Serialize};
 
@@ -26,6 +26,15 @@ pub enum PickNews {
         x: i64,
         y: i64,
         fruit: String,
+        count: u32,
+    },
+    /// The vegetable plant at `(x, y)` was picked: `count` of the vegetable with
+    /// key `vegetable` now carried (or on the ground under the player).
+    /// `Inventory`, `Sheet` and the plant's chunk follow.
+    PickedVegetable {
+        x: i64,
+        y: i64,
+        vegetable: String,
         count: u32,
     },
     /// Nothing could be harvested at `(x, y)`: no patch there, out of reach,

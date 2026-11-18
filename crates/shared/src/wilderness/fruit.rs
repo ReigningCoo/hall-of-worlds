@@ -2,7 +2,7 @@
 //! world map point for a single plant, chosen by the point's biome and warmth
 //! (`fruit::wild_fruits`), the commoner fruits more often. Only on open land
 //! with open land all round, so a trunk never closes a way, and never on a
-//! herb patch.
+//! herb patch or vegetable.
 
 use super::{BlockPos, ChunkPlan, SCALE, Wilderness};
 use crate::dungeon::{Cell, Level};
@@ -35,6 +35,7 @@ impl Wilderness {
         };
         let free = |x: i64, y: i64| {
             cells.herb_at(x, y).is_none()
+                && cells.vegetable_at(x, y).is_none()
                 && (-1..=1).all(|dy| (-1..=1).all(|dx| open(x + dx, y + dy)))
         };
         let tries = self.seed.derive("wild fruit");

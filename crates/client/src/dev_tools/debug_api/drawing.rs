@@ -37,7 +37,8 @@ pub(super) fn stairs_style(
 
 #[derive(Deserialize)]
 pub(super) struct StageParams {
-    /// A field's `variety`, or none to draw fields as they are.
+    /// Stages to draw crops on (and pasture's `variety`), or none to draw
+    /// them as they are.
     stage: Option<u32>,
 }
 

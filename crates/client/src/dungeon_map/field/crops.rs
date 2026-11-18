@@ -1,42 +1,41 @@
-//! Everything standing in the fields that anyone can see.
+//! The crops standing anywhere seen: a vegetable plant's (`VegetablePlant`),
+//! in farms' fields and the wilderness, by how it has grown.
 
 use bevy::prelude::*;
-use shared::dungeon::Sight;
-use shared::site::FieldLook;
+use shared::dungeon::{Level, Sight};
+use shared::vegetable::Vegetables;
 
 use super::super::CELL_SIZE;
 use super::super::mesh::Builder;
 use super::super::town::{self};
-use super::{CELL_PIXELS, CROP_ROWS, CROP_TILES, HALF_CELL, Stage};
+use super::{CELL_PIXELS, CROP_ROWS, CROP_STAGES, CROP_TILES, HALF_CELL, Stage};
 
-/// Everything standing in the fields, wherever anyone can see it, each on its
-/// cell's `ground`: nothing is
-/// drawn of it from memory, or in a ruin, whose fields have run to seed.
+/// The crops of every vegetable plant on `level` anyone can see, each on its
+/// cell's `ground`, grown to game minute `now` and `shift` stages on (the
+/// debug menu's): nothing is drawn of them from memory, as they will have
+/// grown since.
 pub fn build_crops(
-    fields: &[FieldLook],
-    sight: &Sight,
-    remembered: &Sight,
-    ruined: bool,
+    level: &Level,
+    (sight, remembered): (&Sight, &Sight),
+    (now, shift): (u64, u32),
     ground: &dyn Fn(Vec3) -> f32,
 ) -> Builder {
     let mut crops = Builder::default();
-    if ruined {
-        return crops;
-    }
-    for field in fields {
-        let Some((tile, pixels)) = Stage::of(field).crop() else {
+    let vegetables = Vegetables::built_in();
+    for ((x, y), plant) in level.vegetable_plants() {
+        if !sight.is_seen(x, y) || !remembered.is_seen(x, y) {
+            continue;
+        }
+        let Some(def) = vegetables.get(&plant.vegetable) else {
             continue;
         };
-        let rect = field.rect;
-        for y in rect.y..rect.y + rect.height {
-            for x in rect.x..rect.x + rect.width {
-                if sight.is_seen(x, y) && remembered.is_seen(x, y) {
-                    let from = crops.positions.len();
-                    cell_crops(&mut crops, town::cell_centre(x, y), tile, pixels);
-                    crops.drape(from, ground);
-                }
-            }
-        }
+        let stage = (u32::from(plant.stage(def, now)) + shift) % CROP_STAGES as u32;
+        let Some((tile, pixels)) = Stage::of_plant(stage as u8).crop() else {
+            continue;
+        };
+        let from = crops.positions.len();
+        cell_crops(&mut crops, town::cell_centre(x, y), tile, pixels);
+        crops.drape(from, ground);
     }
     crops
 }

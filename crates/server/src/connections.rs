@@ -60,6 +60,7 @@ mod new_character;
 mod other_protocol;
 mod pick_fruit;
 mod pick_herb;
+mod pick_vegetable;
 mod playtime;
 mod press_oil;
 mod roads;
