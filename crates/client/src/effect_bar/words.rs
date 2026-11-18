@@ -6,10 +6,11 @@ use shared::bonus::{Effect, Source};
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::fruit::{FruitTag, Fruits};
 use shared::lang::{Args, Lang};
+use shared::vegetable::{VegetableTag, Vegetables};
 
 use crate::common::{amount_of, bonus_line, written};
 
-/// "Eating: Bread", "Eating: Apple", "Apple" (a fruit's effects),
+/// "Eating: Bread", "Eating: Apple", "Apple" (a fruit's or vegetable's effects),
 /// "Poisoned", "Dev Bonus", "Raw herb".
 pub(super) fn name(source: Source, lang: &Lang) -> String {
     let words = match source {
@@ -25,6 +26,14 @@ pub(super) fn name(source: Source, lang: &Lang) -> String {
             let args = Args::new().text("fruit", fruit_name(tag));
             lang.render("effect-fruit", &args)
         }
+        Source::EatenVegetable(tag) => {
+            let args = Args::new().text("item", vegetable_name(tag));
+            lang.render("effect-eaten", &args)
+        }
+        Source::VegetableEffects(tag) => {
+            let args = Args::new().text("fruit", vegetable_name(tag));
+            lang.render("effect-fruit", &args)
+        }
         Source::Poison => lang.render("effect-poison", &Args::new()),
         Source::Dev => lang.render("effect-dev", &Args::new()),
         Source::RawHerb => lang.render("effect-raw-herb", &Args::new()),
@@ -37,6 +46,13 @@ fn fruit_name(tag: FruitTag) -> &'static str {
     Fruits::built_in()
         .by_tag(tag)
         .map_or("Fruit", |def| def.name.as_str())
+}
+
+/// A vegetable's name by its tag, or "Vegetable" for one the table lacks.
+fn vegetable_name(tag: VegetableTag) -> &'static str {
+    Vegetables::built_in()
+        .by_tag(tag)
+        .map_or("Vegetable", |def| def.name.as_str())
 }
 
 /// A line for each bonus it gives: "Restores 1 Health a second".

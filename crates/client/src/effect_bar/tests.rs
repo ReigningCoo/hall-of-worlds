@@ -68,6 +68,15 @@ fn the_popup_says_what_it_is_what_ends_it_and_when() {
         name(Source::FruitEffects(tag("kola_nut")), &lang),
         "Kola nut"
     );
+    let vegetable = shared::vegetable::VegetableTag::of;
+    assert_eq!(
+        name(Source::EatenVegetable(vegetable("carrot")), &lang),
+        "Eating: Carrot"
+    );
+    assert_eq!(
+        name(Source::VegetableEffects(vegetable("cassava")), &lang),
+        "Cassava"
+    );
     assert_eq!(
         bonus_lines(&bread, &lang),
         vec!["Restores 1 Health a second"]

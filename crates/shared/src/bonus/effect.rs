@@ -29,23 +29,33 @@ pub enum Source {
     /// A fruit's effects (`fruit::eating`): their own source, alongside food
     /// and herbs, and only the latest fruit's count.
     FruitEffects(crate::fruit::FruitTag),
+    /// Eating a vegetable raw (`vegetable::eating`): its healing, food like
+    /// any eaten.
+    EatenVegetable(crate::vegetable::VegetableTag),
+    /// A vegetable's effects (`vegetable::eating`): their own source, as a
+    /// fruit's, and only the latest vegetable's count.
+    VegetableEffects(crate::vegetable::VegetableTag),
     // New sources go at the end: messages carry one by its place in this list.
 }
 
 impl Source {
     /// Whether a new effect from `new` takes the place of one from this: the
     /// same source, or both eaten, as only the latest food counts, or both a
-    /// fruit's effects.
+    /// fruit's or both a vegetable's effects.
     pub fn replaced_by(self, new: Source) -> bool {
         match (self, new) {
             (Source::FruitEffects(_), Source::FruitEffects(_)) => true,
+            (Source::VegetableEffects(_), Source::VegetableEffects(_)) => true,
             _ => self.is_eaten() && new.is_eaten() || self == new,
         }
     }
 
-    /// Whether it is eaten food's healing: any food, or a fruit.
+    /// Whether it is eaten food's healing: any food, a fruit or a vegetable.
     pub fn is_eaten(self) -> bool {
-        matches!(self, Source::Eaten(_) | Source::EatenFruit(_))
+        matches!(
+            self,
+            Source::Eaten(_) | Source::EatenFruit(_) | Source::EatenVegetable(_)
+        )
     }
 }
 

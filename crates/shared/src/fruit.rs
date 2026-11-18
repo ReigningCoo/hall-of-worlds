@@ -24,6 +24,7 @@ mod traits;
 pub use cut::cut;
 pub use def::{FruitDef, FruitSet, Unit};
 pub use dev::dev_fruit;
+pub(crate) use eating::bonus_of;
 pub use eating::{ATTRIBUTE, EXCEPTIONAL, RESTORE, VITAL, eating, healing, ticks};
 pub use form::{APPLE, FruitForm, new_item};
 pub use growth::GIANTS;

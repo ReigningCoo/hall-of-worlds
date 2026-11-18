@@ -1,5 +1,5 @@
 //! Food's rows of the table of kinds (`def.rs`): what each is to carry. What
-//! eating one does is `bonus::food` (fruit's: `fruit::eating`). Bread, Dwarven Bread and Raw Meat are
+//! eating one does is `bonus::food` (fruit's: `fruit::eating`, vegetables': `vegetable::eating`). Bread, Dwarven Bread and Raw Meat are
 //! placeholders for trying the rules (owner, 2026-11-14), not sold yet.
 
 use super::item_def::plain;
@@ -14,6 +14,9 @@ impl ItemKind {
             Self::RawMeat => plain("Raw Meat", 500, Shape::rectangle(2, 1)),
             // Counted, a stack keying on its fruit (`shared::fruit`): its form
             // says its name, cells and weight.
+            // Counted, a stack keying on its vegetable (`shared::vegetable`),
+            // as fruit.
+            Self::Vegetable => plain("Vegetable", 100, Shape::rectangle(1, 1)).counted(),
             _ => plain("Fruit", 150, Shape::rectangle(1, 1)).counted(),
         };
         def.without_quality()

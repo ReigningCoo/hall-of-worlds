@@ -52,6 +52,13 @@ pub fn give_form_to(
             let form = crate::fruit::FruitForm::new(def, seed);
             (ItemForm::Fruit(form), Size::Medium)
         }
+        // Any vegetable, rolled from the seed (`vegetable::dev_vegetable`).
+        ItemKind::Vegetable => {
+            let def = crate::vegetable::dev_vegetable(None, seed);
+            let def = def.expect("the built-in vegetables");
+            let form = crate::vegetable::VegetableForm::new(def, seed);
+            (ItemForm::Vegetable(form), Size::Medium)
+        }
         // Empty unless asked for a liquid or effects: potions are brewed
         // (later), not rolled.
         ItemKind::Bottle => {

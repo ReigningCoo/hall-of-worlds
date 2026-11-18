@@ -47,9 +47,15 @@ item-poisons = Poisons other kinds: { $line }
 
 item-lasts = { $line } for { $seconds } s
 
-## A whole fruit's servings, which eating it cuts it into.
+## A whole fruit's or vegetable's servings, which eating it cuts it into.
 
 item-servings = Cut into { $count } servings when eaten
+
+## A vegetable that heals nothing raw: one rarely or never eaten raw (for
+## cooking, later), or grain (for milling, later).
+
+item-not-raw = Heals nothing raw
+item-unmilled = Heals nothing until milled
 
 ## What ends it early, after its line.
 

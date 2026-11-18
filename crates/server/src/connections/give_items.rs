@@ -11,6 +11,7 @@ use shared::herb::{dev_herb, new_item};
 use shared::id::Id;
 use shared::item::{Item, ItemKind};
 use shared::item_form::{Field, ItemOrder, Refused, batch_seed, try_make_item};
+use shared::vegetable::dev_vegetable;
 
 use super::Client;
 use crate::ServerWorld;
@@ -120,6 +121,12 @@ fn count_made(
             let def = dev_fruit(batch.herb.as_deref(), seed);
             let def = def.ok_or(Refused(Field::Material))?;
             return Ok(shared::fruit::new_item(def, 1, new_id(), made_at));
+        }
+        if batch.order.kind == ItemKind::Vegetable {
+            // Chosen as fruit is (`vegetable::dev_vegetable`).
+            let def = dev_vegetable(batch.herb.as_deref(), seed);
+            let def = def.ok_or(Refused(Field::Material))?;
+            return Ok(shared::vegetable::new_item(def, 1, new_id(), made_at));
         }
         try_make_item(&batch.order, wearer, new_id(), seed, made_at, &mut new_id)
     };

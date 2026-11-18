@@ -61,6 +61,7 @@ pub mod spot;
 pub mod story;
 pub mod surface;
 pub mod underclothes;
+pub mod vegetable;
 pub mod vegetation;
 pub mod vitals;
 pub mod wear;

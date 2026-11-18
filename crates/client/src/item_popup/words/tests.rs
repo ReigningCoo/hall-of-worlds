@@ -41,6 +41,29 @@ fn fruit_says_its_healing_its_effects_and_its_servings() {
 }
 
 #[test]
+fn vegetables_say_their_raw_healing_or_none() {
+    let lang = Lang::new(Language::English);
+    let vegetables = shared::vegetable::Vegetables::built_in();
+    let item = |key: &str| {
+        let def = vegetables.get(key).unwrap();
+        shared::vegetable::new_item(def, 1, Id::for_test(1), None)
+    };
+    assert_eq!(
+        bonus_lines(&item("turnip"), &lang),
+        vec!["Restores 1 Health a second for 4 s; stops on moving or being hurt"]
+    );
+    assert_eq!(
+        bonus_lines(&item("wheat"), &lang),
+        vec!["Heals nothing until milled"]
+    );
+    let pumpkin = bonus_lines(&item("pumpkin"), &lang);
+    assert_eq!(
+        pumpkin,
+        vec!["Heals nothing raw", "Cut into 12 servings when eaten"]
+    );
+}
+
+#[test]
 fn armour_gives_toughness_and_costs_agility_and_mana() {
     let lang = Lang::new(Language::English);
     let order = ItemOrder::plain(ItemKind::TorsoArmour, Quality::Common);

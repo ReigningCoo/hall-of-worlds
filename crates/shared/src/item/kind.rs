@@ -11,6 +11,9 @@ pub enum ItemKind {
     /// Saved apples load as fruit, given the apple's form (`item::Saved`).
     #[serde(alias = "Apple")]
     Fruit,
+    /// A vegetable, pulse or grain (`shared::vegetable`), counted: which one
+    /// is in its form.
+    Vegetable,
     Bread,
     DwarvenBread,
     RawMeat,
@@ -133,7 +136,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 101] = [
+    pub const ALL: [Self; 102] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -232,6 +235,7 @@ impl ItemKind {
         Self::TorsoArmour,
         Self::Trousers,
         Self::Tunic,
+        Self::Vegetable,
         Self::Vest,
         Self::WaistArmour,
         Self::Wimple,
