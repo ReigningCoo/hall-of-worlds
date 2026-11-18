@@ -102,7 +102,8 @@ pub(in crate::debug_menu) fn show_pictures(
                 | Shown::Footwear(_)
                 | Shown::Under(_)
                 | Shown::Clothes(_)
-                | Shown::Fruit(_) => (
+                | Shown::Fruit(_)
+                | Shown::Vegetable(_) => (
                     HANDS_PICTURE,
                     look.longest() as u32 * crate::widgets::PICTURE_PIXELS_PER_CELL,
                 ),

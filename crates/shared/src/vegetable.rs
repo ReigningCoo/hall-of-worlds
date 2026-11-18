@@ -2,8 +2,9 @@
 //! of them (`Vegetables`, built in), vegetables as items (`VegetableForm`; a
 //! whole big one is cut into servings when eaten, `cut`), and what eating one
 //! raw does (`eating`). Cooking and milling come later; their figures are kept
-//! (`cooked_ticks`). Where they grow, their pictures and plant models are later
-//! PRs of the vegetable plan. Research and the owner's decisions:
+//! (`cooked_ticks`). Each has a look (`VegetableLook`: colours, size) for its
+//! pictures. Where they grow and plant models are later PRs of the vegetable
+//! plan. Research and the owner's decisions:
 //! `docs/context/research-vegetables.md`.
 
 mod cut;
@@ -12,6 +13,7 @@ mod dev;
 mod eating;
 mod effect;
 mod form;
+mod look;
 mod table;
 mod tag;
 mod traits;
@@ -22,6 +24,7 @@ pub use dev::dev_vegetable;
 pub use eating::{RAW_SHARE, cooked_ticks, eating, effect_ticks, healing, raw_ticks};
 pub use effect::{Effect, When};
 pub use form::{VegetableForm, new_item};
+pub use look::{MOST_COLOURS, VegetableLook};
 pub use table::Vegetables;
 pub use tag::VegetableTag;
 pub use traits::{Abundance, Part, PlantShape, Raw};

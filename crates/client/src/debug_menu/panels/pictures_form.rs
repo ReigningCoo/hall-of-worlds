@@ -95,6 +95,8 @@ pub(super) enum Shown {
     Coin(shared::material::Material),
     /// The `n`th fruit item in the table, whole or a slice, in a variant.
     Fruit(super::fruit::FruitShown),
+    /// The `n`th vegetable in the table, whole or a slice, in a variant.
+    Vegetable(super::vegetables::VegetableShown),
 }
 
 impl Shown {
@@ -142,6 +144,7 @@ impl Shown {
             Self::Bottle(bottle, liquid) => Some(Look::Bottle { bottle, liquid }),
             Self::Coin(metal) => Some(Look::Coin(metal)),
             Self::Fruit(shown) => shown.look(),
+            Self::Vegetable(shown) => shown.look(),
         }
     }
 }
