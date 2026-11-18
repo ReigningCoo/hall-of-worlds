@@ -16,6 +16,8 @@ mod daylight;
 mod door_swing;
 mod field;
 mod fruit;
+mod fruit_picking;
+mod fruit_showcase;
 mod furniture;
 mod herbs;
 pub use field::CROP_STAGES;

@@ -2,6 +2,9 @@
 //! convex solid, drawn in its colour and again grown and black for its outline
 //! (an inverted hull: only its inside faces are drawn).
 
+use std::f32::consts::{PI, TAU};
+use std::sync::LazyLock;
+
 use bevy::prelude::*;
 
 use super::triangles::Triangles;
@@ -48,6 +51,27 @@ const DOUBLE_PYRAMID_FACES: [[usize; 3]; 8] = [
     [1, 3, 5],
     [1, 5, 2],
 ];
+
+/// Corners round a ball, and rings of them between its poles.
+const BALL_AROUND: usize = 7;
+const BALL_RINGS: usize = 3;
+
+/// A ball's faces: its corners are the bottom pole, the rings from the bottom
+/// up, then the top pole.
+static BALL_FACES: LazyLock<Vec<[usize; 3]>> = LazyLock::new(|| {
+    let ring = |r: usize, i: usize| 1 + r * BALL_AROUND + i % BALL_AROUND;
+    let top = 1 + BALL_RINGS * BALL_AROUND;
+    let mut faces = Vec::new();
+    for i in 0..BALL_AROUND {
+        faces.push([0, ring(0, i), ring(0, i + 1)]);
+        for r in 0..BALL_RINGS - 1 {
+            faces.push([ring(r, i), ring(r + 1, i), ring(r + 1, i + 1)]);
+            faces.push([ring(r, i), ring(r + 1, i + 1), ring(r, i + 1)]);
+        }
+        faces.push([top, ring(BALL_RINGS - 1, i), ring(BALL_RINGS - 1, i + 1)]);
+    }
+    faces
+});
 
 impl Pieces {
     /// Adds a solid made by `solid`, given how much to grow it: in `colour`,
@@ -153,6 +177,37 @@ impl Pieces {
                     centre - south * s.z,
                 ];
                 (corners, &DOUBLE_PYRAMID_FACES)
+            },
+            colour,
+        );
+    }
+
+    /// A ball (a fruit, a crown of leaves): `size` its half widths east, up
+    /// and south, turned `turn` about the upright. Rounder than a blob.
+    pub fn ball(&mut self, centre: Vec3, size: Vec3, turn: f32, colour: Vec3) {
+        let (sin, cos) = turn.sin_cos();
+        let east = Vec3::new(cos, 0.0, sin);
+        let south = Vec3::new(-sin, 0.0, cos);
+        self.add(
+            move |grow| {
+                let s = size + Vec3::splat(grow);
+                let mut corners = vec![centre - Vec3::Y * s.y];
+                for r in 0..BALL_RINGS {
+                    let up = -PI / 2.0 + (r + 1) as f32 * PI / (BALL_RINGS + 1) as f32;
+                    for i in 0..BALL_AROUND {
+                        let round = (i as f32 + 0.5 * r as f32) * TAU / BALL_AROUND as f32;
+                        let (y, flat) = up.sin_cos();
+                        let (z, x) = round.sin_cos();
+                        corners.push(
+                            centre
+                                + east * x * flat * s.x
+                                + Vec3::Y * y * s.y
+                                + south * z * flat * s.z,
+                        );
+                    }
+                }
+                corners.push(centre + Vec3::Y * s.y);
+                (corners, BALL_FACES.as_slice())
             },
             colour,
         );

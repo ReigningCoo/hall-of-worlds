@@ -1,7 +1,7 @@
 //! Herbs' plants as 3D models, built from each herb's `PlantLook` (its shape,
 //! sizes and colours) at each of its four stages, in a few variants, with
-//! black outlines; and where a patch's plants stand. Fruit plants' stand-in
-//! models too (`FruitModels`). The maps place them (`dungeon_map`).
+//! black outlines; and where a patch's plants stand. Fruit plants' models too,
+//! by family (`FruitModels`). The maps place them (`dungeon_map`).
 
 use bevy::prelude::*;
 
@@ -13,7 +13,7 @@ mod plan;
 mod shapes;
 mod triangles;
 
-pub use fruit::FruitModels;
+pub use fruit::{FruitModels, fruit_plant_size};
 pub use layout::patch_layout;
 pub use models::PlantModels;
 

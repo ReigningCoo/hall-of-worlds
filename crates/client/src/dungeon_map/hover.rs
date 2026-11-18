@@ -8,6 +8,7 @@ use shared::sheet::Sheet;
 use shared::site::StairsDirection;
 
 use super::Shown;
+use super::fruit_picking::fruit_clicked;
 use super::ground_hit::Ground;
 use super::picking::{door_clicked, pick};
 use crate::character::CharacterSheet;
@@ -43,6 +44,12 @@ pub(super) fn name_hovered_place(
                 let building = dungeon.buildings.iter().find(|b| b.id == id)?;
                 return Some(building.kind.name().to_owned());
             }
+            let now = clock.minutes.max(0.0) as u64;
+            let (level, seen) = (&dungeon.level, &dungeon.remembered);
+            let plant = fruit_clicked(ray, level, seen, &shown.solid_faces, ground);
+            if let Some(name) = plant.and_then(|at| super::fruit::fruit_name(level, now, at)) {
+                return Some(name);
+            }
             let (x, y) = pick(
                 ray,
                 &dungeon.level,
@@ -61,7 +68,6 @@ pub(super) fn name_hovered_place(
                     (false, false) => name.to_owned(),
                 });
             }
-            let now = clock.minutes.max(0.0) as u64;
             if let Some(name) = herb_name(&dungeon.level, &table, &sheet.0, now, (x, y)) {
                 return Some(name);
             }
