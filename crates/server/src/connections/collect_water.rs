@@ -38,13 +38,14 @@ impl Client {
         }))
     }
 
-    /// Calls off a bottle being filled, as moving or being harmed does: the
-    /// player can act again at once. `false` if the client has gone.
+    /// Calls off a bottle being filled, with water or oil pressed
+    /// (`press_oil.rs`), as moving or being harmed does: the player can act
+    /// again at once. `false` if the client has gone.
     pub(crate) fn stop_collecting(&mut self, now: u64) -> bool {
         let Some(pending) = self.fight.pending else {
             return true;
         };
-        if !matches!(pending.act, Act::CollectWater) || pending.lands_at <= now {
+        if !matches!(pending.act, Act::CollectWater | Act::PressOil) || pending.lands_at <= now {
             return true;
         }
         self.fight.pending = None;

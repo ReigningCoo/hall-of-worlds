@@ -22,6 +22,9 @@ pub(crate) enum Act {
     KickDoor((i64, i64)),
     /// A bottle being filled at the water faced (players only).
     CollectWater,
+    /// A bottle being filled with oil pressed (players only): what is
+    /// pressed is the client's `pressing`.
+    PressOil,
 }
 
 /// An ability begun and not landed yet.

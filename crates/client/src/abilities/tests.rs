@@ -84,3 +84,8 @@ mod dropping {
         );
     }
 }
+
+#[test]
+fn press_oils_requester_is_good_markup() {
+    super::press_oil::PRESS_OIL.assert_good();
+}

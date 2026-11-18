@@ -1,6 +1,6 @@
 # shared: potion
 
-Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding a liquid (a water, an oil, or a potion's effects), with a seed for its look. Not drinking or brewing yet (plan: `docs/context/brewing.md`); pictures are the client's `item_art`. Herbs' rule for potions: `docs/context/research-herbs.md`.
+Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding a liquid (a water, an oil, or a potion's effects), with a seed for its look. Filled with oil by Press Oil (`press.rs`). Not drinking or brewing yet (plan: `docs/context/brewing.md`); pictures are the client's `item_art`. Herbs' rule for potions: `docs/context/research-herbs.md`.
 
 ## Files
 
@@ -9,6 +9,7 @@ Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding
 - `potion/liquid.rs`: `Liquid`, `LiquidKind`, `Water`, `Oil`.
 - `potion/form.rs`: `BottleForm` (and how it is read from saves and messages), `EMPTY_GRAMS`, `POTION_GRAMS`, `Item::bottle`.
 - `potion/roll.rs`: `roll_contents`, `bottle_to`, `MOST_EFFECTS`.
+- `potion/press.rs`: Press Oil's rules (brewing PR 5): `Pressing`, `PressChoice`, `grams_per_bottle`, `press_seconds`, `press_ticks`, `pressed`, `PRESS_PRACTICE`, `Inventory::grams_of`, `stack_to_press`, `can_press`, `press_choices`. Tests in `potion/press_tests.rs`.
 - `potion/collect.rs`: Collect Water's rules (brewing decision 5): `Source`, `water_from`, `water_faced`, `fill_seconds`, `filled`, `Inventory::empty_bottle`. Tests in `potion/collect_tests.rs`.
 
 ## Public API
@@ -24,13 +25,15 @@ Bottles (owner, 2026-11-17): one item kind, `ItemKind::Bottle`, empty or holding
 
 - Collect Water: `Source { underground, sea, moonlit }` and `water_from` (Cave Water underground, else Salt Water from the sea, else Moon Water outside with no sun up and a moon, else Water: the server works out the source); `holds_water` (`Cell::Water`, `Shallows`), `water_faced(level, at, heading)` (the nearest water cell whose middle is within `COLLECT_REACH` (`shop::DOOR_REACH`) and within `FACING_HALF` (45°) of the heading, or underfoot); `fill_seconds(skills)` / `fill_ticks` (10 − ∛Water% whole seconds, 10 to 6; `WATER_SKILL` `gathering/water`), `COLLECT_PRACTICE` (8 a bottle), `filled(item, water)` (the bottle holding it, its look kept); `Inventory::empty_bottle()` (the stack filled next, smallest first, own grid before bags; also what `Ability::has_tool` and `Learned::learn_from` ask).
 
+- Press Oil (brewing PR 5): `Pressing::{Fruit, Vegetable, Herb}(key)` (`of(item, herbs)`, `oil(herbs)`, `is(item)`): nuts (`FruitSet::Nut`) give Nut Oil, vegetables whose part is Seeds (beans, peanuts) and herbs whose part is Seeds give Seed Oil, other vegetables (grains too) Vegetable Oil, anything else none. `grams_per_bottle` (first guesses, about ten handfuls: Nut 200, Seed 300, Vegetable 1000), weighed by `own_weight` (a whole fruit counts whole; the last one taken may give more than needed). `press_seconds` 15 − ∛Alchemy% (15 to 11), `PRESS_PRACTICE` 8 Alchemy a bottle. `Inventory::can_press(pressing, herbs)` (a bottle's worth and an empty bottle), `stack_to_press` (smallest, own grid first), `press_choices(herbs)` (one `PressChoice { pressing, oil, stack, count, bottles }` per thing with a bottle's worth, bottles capped by the empty ones), `pressed(item, oil)`.
+
 ## Depends on
 
-- `herb` (`Stat`, `cube_root`, `skill_value`), `dungeon` (`Level`, `Cell`), `facing` (`Heading`), `spot`, `shop` (`DOOR_REACH`), `energy`, `skill`, `item` (`Item`, `Inventory::stacks_where`), `item_form` (`ItemForm`, `RollRequest`, `Refused`), `rng`, `serde`.
+- `herb` (`Stat`, `cube_root`, `skill_value`, `Herbs`, `Part`), `fruit` (`Fruits`, `FruitSet`), `vegetable` (`Vegetables`, `Part`), `ability` (`ALCHEMY`), `dungeon` (`Level`, `Cell`), `facing` (`Heading`), `spot`, `shop` (`DOOR_REACH`), `energy`, `skill`, `item` (`Item`, `Inventory::stacks_where`), `item_form` (`ItemForm`, `RollRequest`, `Refused`), `rng`, `serde`.
 
 ## Used by
 
-- `ability` (Collect Water's empty bottle), server `connections/collect_water.rs`, client `abilities` (`water_faced` before asking), `item` (`ItemKind::Bottle`: 1 × 1, counted, with quality, Other; stacks compare its form without its look), `item_form` (`give_form_to` rolls a bottle through `bottle_to`; `Field::Liquid`, `Field::Effects`, `Choices::liquids`, `Choices::effects`), `shop` (`bottled`, `stock_request`: herbalists' and potion shops' waters and oils), client `item_art` (bottle and liquid pictures), `debug_menu` (Give Item's Liquid and Effects dropdowns, the Bottles pictures page) and `dev_tools` (`client.give_item`'s `liquid` and `effects`).
+- `ability` (Collect Water's empty bottle), server `connections/collect_water.rs`, `connections/press_oil.rs`, client `abilities` (`press_oil.rs`: `press_choices`), client `abilities` (`water_faced` before asking), `item` (`ItemKind::Bottle`: 1 × 1, counted, with quality, Other; stacks compare its form without its look), `item_form` (`give_form_to` rolls a bottle through `bottle_to`; `Field::Liquid`, `Field::Effects`, `Choices::liquids`, `Choices::effects`), `shop` (`bottled`, `stock_request`: herbalists' and potion shops' waters and oils), client `item_art` (bottle and liquid pictures), `debug_menu` (Give Item's Liquid and Effects dropdowns, the Bottles pictures page) and `dev_tools` (`client.give_item`'s `liquid` and `effects`).
 
 ## Notes
 

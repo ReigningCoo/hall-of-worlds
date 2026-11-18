@@ -59,6 +59,7 @@ mod other_protocol;
 mod pick_fruit;
 mod pick_herb;
 mod playtime;
+mod press_oil;
 mod roads;
 mod role;
 mod role_ask;
@@ -210,6 +211,8 @@ pub struct Client {
     waiting: VecDeque<Action>,
     /// The ability it is winding up, and its attacks so far.
     fight: crate::combat::Fight,
+    /// What Press Oil presses while it goes on (`press_oil.rs`).
+    pressing: Option<shared::potion::Pressing>,
     /// Its open practice windows, by skill and by kind of foe.
     learning: crate::combat::Learning,
     /// What a character being made here asked to be, for when they first join.

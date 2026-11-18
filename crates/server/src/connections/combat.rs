@@ -112,6 +112,9 @@ pub(super) fn start_ability(
     if ability == Ability::CollectWater {
         return super::collect_water::start_collect(client, world);
     }
+    if ability == Ability::PressOil {
+        return super::press_oil::choose_press(client, world, target);
+    }
     let (Ability::Attack, Some(target)) = (ability, target) else {
         debug!("Not starting {ability:?}: not done yet, or no target");
         return (true, 0);
@@ -161,6 +164,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::Kick(swing) => return super::kick::land_kick(client, world, pending.target, swing),
         Act::KickDoor(at) => return super::kick::land_door_kick(client, world, at),
         Act::CollectWater => return super::collect_water::land_collect(client, world),
+        Act::PressOil => return super::press_oil::land_press(client, world),
     };
     client.fight.attacks += 1;
     let target = pending.target;
@@ -297,5 +301,7 @@ mod grudge_tests;
 mod heal_tests;
 #[cfg(test)]
 mod kick_tests;
+#[cfg(test)]
+mod press_oil_tests;
 #[cfg(test)]
 mod tests;

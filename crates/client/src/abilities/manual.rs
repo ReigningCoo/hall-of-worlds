@@ -13,6 +13,7 @@ use shared::sheet::Feeling;
 
 use super::item_look::can_eat;
 use super::own_bar::OwnBar;
+use super::press_oil::PressChooser;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
 use crate::character::CharacterSheet;
@@ -74,7 +75,7 @@ impl Manual {
 
 /// A slot used: its ability queued, or taken out of the queue; a toggle
 /// (Sneak) asked for at once, as it needs no target and takes no time; one of
-/// a kind of item eaten (`inventory::EatKind`).
+/// a kind of item eaten (`inventory::EatKind`); Press Oil's requester opened.
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
@@ -82,6 +83,7 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     mut eat: MessageWriter<EatKind>,
+    mut press: ResMut<PressChooser>,
 ) {
     for &UseSlot(slot) in used.read() {
         let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
@@ -101,7 +103,10 @@ pub(super) fn use_slots(
         if !ability.can_use(&carried.0, &sheet.0) {
             continue;
         }
-        if ability.is_toggle() {
+        if ability == Ability::PressOil {
+            // What to press is chosen first (`press_oil.rs`).
+            press.open = true;
+        } else if ability.is_toggle() {
             to_server.write(ToServer(ClientMessage::UseAbility {
                 ability,
                 target: None,
@@ -175,7 +180,8 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // At the target, or with none (or none in reach: the server's to say)
         // the closed door beside the player.
         Ability::Kick => Some(target),
-        // Not done yet (brewing's later PRs): never asked for.
+        // Not done yet (brewing's later PRs): never asked for. Press Oil is
+        // asked for by its requester (`press_oil.rs`), never queued.
         Ability::PressOil | Ability::Grind | Ability::Brew => None,
         // On no one: the water faced.
         Ability::CollectWater => Some(None),

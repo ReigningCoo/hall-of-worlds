@@ -19,6 +19,7 @@ mod manual;
 mod mark;
 mod own_bar;
 mod page;
+mod press_oil;
 mod sneak;
 mod spots;
 mod use_ability;
@@ -33,8 +34,9 @@ impl Plugin for AbilitiesPlugin {
             .init_resource::<drag::Drag>()
             .init_resource::<drag::Aim>()
             .init_resource::<manual::Manual>()
+            .init_resource::<press_oil::PressChooser>()
             .add_message::<use_ability::UseSlot>()
-            .add_systems(Startup, bar::spawn_bar)
+            .add_systems(Startup, (bar::spawn_bar, press_oil::spawn_requester))
             // Before widgets take presses on panels, and the map clicks.
             // Before the system menu sees Esc.
             .add_systems(PreUpdate, cancel::cancel_by_escape.before(DomInput::Front))
@@ -67,6 +69,7 @@ impl Plugin for AbilitiesPlugin {
                     use_ability::use_automatic,
                     (bar::place_bar, bar::show_bar),
                     wait::show_wait,
+                    (press_oil::answer_requester, press_oil::show_requester),
                 )
                     .chain()
                     // Knowing whether the player is moving this frame.

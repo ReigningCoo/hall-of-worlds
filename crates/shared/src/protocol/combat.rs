@@ -23,4 +23,6 @@ pub enum Landed {
     /// A bottle was filled with this water (Collect Water: `target` is
     /// `None`).
     Filled(crate::potion::Water),
+    /// A bottle was filled with this oil (Press Oil: `target` is `None`).
+    Pressed(crate::potion::Oil),
 }
