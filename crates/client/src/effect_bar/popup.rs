@@ -7,9 +7,9 @@ use bevy::prelude::*;
 use shared::bonus::{Effect, Source};
 
 use super::bar::EffectIcon;
-use super::clock::ServerTick;
 use super::words::{bonus_lines, ends_early, ends_in, name};
 use crate::character::CharacterSheet;
+use crate::common::ServerTick;
 use crate::common::Wording;
 use crate::dom::{Dom, HeldObject, Hit, KeptOpen, Popup, Template, UiEvent, UiValue, document};
 use crate::html;

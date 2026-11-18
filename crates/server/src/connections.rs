@@ -39,6 +39,7 @@ mod dev_audit;
 mod dev_herbs;
 mod dev_skills;
 pub(crate) mod difficulty;
+mod drink;
 mod eat_fruit;
 mod eat_herb;
 mod eat_vegetable;

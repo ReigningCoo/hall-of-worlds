@@ -18,6 +18,7 @@ The Character panel, in tabs: Character (what the character is like, `character`
 
 - `InventoryPlugin`.
 - `EatKind(ItemKind)` (message): eat one of this kind, as from the action bar (`abilities`), the same way as on the clothes panel (`Consume`, the energy, shown at once).
+- `DrinkPotion(PotionKey)` (message): drink a bottle of this potion (from `Inventory::potion_to_use`), as from the action bar, the same way (`Consume`; the server gives the bottle back empty). Letting go of a potion on the clothes panel drinks it too (`bonus::usable_on_self`, `may_use_on_self`).
 - `OpenCharacter` (message): opens the Character panel on its Inventory tab, or brings it to the front (`ground`).
 - `Carried(Inventory)` (resource): what is carried, as the server last said plus any move since.
 - `Stacks(StackLimits)` (resource): how big the server lets stacks get, from `Welcome` (`debug_menu`'s Give Item).
@@ -29,7 +30,7 @@ The Character panel, in tabs: Character (what the character is like, `character`
 
 ## Used by
 
-- `dev_tools`, `debug_menu` (`Carried`, `Stacks`), `abilities` (`Carried`, `EatKind`).
+- `dev_tools`, `debug_menu` (`Carried`, `Stacks`), `abilities` (`Carried`, `EatKind`, `DrinkPotion`).
 
 ## Notes
 

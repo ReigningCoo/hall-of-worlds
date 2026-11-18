@@ -31,6 +31,7 @@ use bevy::prelude::*;
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod account_role;
+mod action_tick;
 mod bonus_words;
 mod clock;
 mod creatures;
@@ -72,6 +73,7 @@ mod wording;
 mod world;
 
 pub use account_role::{AccountRole, OpenAccounts};
+pub use action_tick::{ServerTick, take_clock};
 pub use bonus_words::{amount_of, bonus_line, effect_lines, stat_words, written};
 pub use browser::open_in_browser;
 pub use characters::{CharacterChoice, CharacterSelect, PlayFor, PlayableHere};
@@ -145,6 +147,7 @@ impl Plugin for CommonPlugin {
         let preferences = preferences::load_preferences();
         window_open::open_as_saved(app, &preferences.window);
         app.init_resource::<ChosenServer>()
+            .init_resource::<ServerTick>()
             .init_resource::<HomeServer>()
             .insert_resource(DisplayInUse(preferences.window.display))
             .insert_resource(frame_settings(true, &preferences.graphics))

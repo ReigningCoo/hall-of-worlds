@@ -1,7 +1,7 @@
-//! Eating from the ground: the top one of food or a herb in a bag in the
-//! player's reach.
+//! Eating from the ground: the top one of food or a herb (or a potion, drunk)
+//! in a bag in the player's reach.
 
-use shared::bonus::{edible, may_eat};
+use shared::bonus::{may_use_on_self, usable_on_self};
 use shared::id::Id;
 use shared::item::Item;
 
@@ -18,10 +18,10 @@ pub(crate) fn take_food(
     item: Id,
 ) -> Result<Item, &'static str> {
     let mut found = lying(client, world, item)?;
-    if !edible(found.top().kind) {
+    if !usable_on_self(found.top()) {
         return Err("it can't be eaten");
     }
-    if !may_eat(found.top().kind, client.inventory.creature) {
+    if !may_use_on_self(found.top(), client.inventory.creature) {
         return Err("it isn't for its kind");
     }
     let top = found.take_top(&mut new_id);

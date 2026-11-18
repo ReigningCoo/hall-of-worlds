@@ -3,7 +3,7 @@
 
 use crate::creature::CreatureKind;
 use crate::energy::ACTION_TICKS_PER_SECOND;
-use crate::item::ItemKind;
+use crate::item::{Item, ItemKind};
 use crate::vitals::PER_POINT;
 
 /// What happens to a creature of a kind a food doesn't suit.
@@ -84,4 +84,16 @@ pub fn may_eat(kind: ItemKind, eater: CreatureKind) -> bool {
         kind,
         ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Ointment
     ) || food(kind).is_some_and(|food| food.suits(eater) || food.others != Others::Refused)
+}
+
+/// Whether this one can be used on oneself by letting go of it on the body:
+/// `edible` by its kind, or a bottle holding a potion, drunk (brewing PR 8).
+pub fn usable_on_self(item: &Item) -> bool {
+    edible(item.kind) || item.is_potion()
+}
+
+/// Whether a creature of this kind may use this one on itself: anyone may
+/// drink a potion; otherwise `may_eat`.
+pub fn may_use_on_self(item: &Item, eater: CreatureKind) -> bool {
+    item.is_potion() || may_eat(item.kind, eater)
 }

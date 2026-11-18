@@ -38,6 +38,10 @@ pub enum Source {
     /// Ointment rubbed on oneself (`brewing::skin_effect`): its own source,
     /// alongside food and herbs, and only the latest ointment's counts.
     Ointment,
+    /// A potion's dose on one stat (`brewing::drunk`): its own source per
+    /// stat, so a new potion's dose there replaces the old one's while the
+    /// old potion's other stats carry on (brewing decision 19).
+    Potion(crate::herb::Stat),
     // New sources go at the end: messages carry one by its place in this list.
 }
 

@@ -120,3 +120,33 @@ fn saves_keep_the_old_shape_for_abilities_and_round_trip() {
     let sent = postcard::to_allocvec(&bar).unwrap();
     assert_eq!(postcard::from_bytes::<ActionBar>(&sent).unwrap(), bar);
 }
+
+#[test]
+fn a_particular_potion_goes_on_the_bar_and_is_saved() {
+    use crate::herb::Stat;
+    use crate::potion::{Contents, Dose, PotionKey};
+    let mut bar = ActionBar::default();
+    let known = known_by_kind(CreatureKind::Human);
+    let held = Contents::new([Dose {
+        stat: Stat::Mana,
+        step: 5,
+    }]);
+    let potion = PotionKey::of(&held);
+    let change = |slot| BarChange::PlacePotion { slot, potion };
+    assert_eq!(bar.apply(change(3), &known), Ok(()));
+    bar.apply(change(5), &known).unwrap();
+    assert_eq!(bar.slot_of(potion), Some(5));
+    assert_eq!(bar.slots[3], None);
+    let empty = PotionKey::of(&Contents::EMPTY);
+    let refused = BarChange::PlacePotion {
+        slot: 1,
+        potion: empty,
+    };
+    assert_eq!(bar.apply(refused, &known), Err(BarRefusal::NotUsable));
+    assert!(!BarThing::Potion(potion).can_be_automatic());
+    let saved = ron::to_string(&bar).unwrap();
+    assert!(saved.contains("(potion:"), "{saved}");
+    assert_eq!(ron::from_str::<ActionBar>(&saved).unwrap(), bar);
+    let sent = postcard::to_allocvec(&bar).unwrap();
+    assert_eq!(postcard::from_bytes::<ActionBar>(&sent).unwrap(), bar);
+}

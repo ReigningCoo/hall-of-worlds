@@ -1,15 +1,17 @@
-//! What one slot of the action bar holds: an ability, or a kind of item that can
-//! be used from there (food, eaten), and whether it is used by itself.
+//! What one slot of the action bar holds: an ability, a kind of item that can
+//! be used from there (food, eaten), or a particular potion (drunk), and
+//! whether it is used by itself.
 //!
 //! Saves (human-readable, RON) write a slot as `(ability: Attack, auto: false)`,
-//! as before items could go on the bar, or `(item: Apple)`; messages (postcard)
-//! carry `BarSlot` as it is.
+//! as before items could go on the bar, `(item: Apple)` or `(potion: [...])`;
+//! messages (postcard) carry `BarSlot` as it is.
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use super::Ability;
 use crate::bonus::is_food;
 use crate::item::ItemKind;
+use crate::potion::PotionKey;
 
 /// What a slot holds.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -18,6 +20,9 @@ pub enum BarThing {
     /// A kind of item: the slot stands for every one of it carried, and using
     /// it uses one of them (owner, 2026-11-15).
     Item(ItemKind),
+    /// A particular potion, by its contents (brewing decision 22): the slot
+    /// stands for every bottle of it carried, and using it drinks one.
+    Potion(PotionKey),
 }
 
 impl BarThing {
@@ -25,7 +30,7 @@ impl BarThing {
     pub fn ability(self) -> Option<Ability> {
         match self {
             Self::Ability(ability) => Some(ability),
-            Self::Item(_) => None,
+            Self::Item(_) | Self::Potion(_) => None,
         }
     }
 
@@ -33,7 +38,15 @@ impl BarThing {
     pub fn item(self) -> Option<ItemKind> {
         match self {
             Self::Item(kind) => Some(kind),
-            Self::Ability(_) => None,
+            Self::Ability(_) | Self::Potion(_) => None,
+        }
+    }
+
+    /// The potion, if it is one.
+    pub fn potion(self) -> Option<PotionKey> {
+        match self {
+            Self::Potion(potion) => Some(potion),
+            Self::Ability(_) | Self::Item(_) => None,
         }
     }
 
@@ -53,6 +66,12 @@ impl From<Ability> for BarThing {
 impl From<ItemKind> for BarThing {
     fn from(kind: ItemKind) -> Self {
         Self::Item(kind)
+    }
+}
+
+impl From<PotionKey> for BarThing {
+    fn from(potion: PotionKey) -> Self {
+        Self::Potion(potion)
     }
 }
 
@@ -105,6 +124,9 @@ enum SavedSlot {
     Item {
         item: ItemKind,
     },
+    Potion {
+        potion: PotionKey,
+    },
 }
 
 impl Serialize for BarSlot {
@@ -122,6 +144,7 @@ impl Serialize for BarSlot {
                 auto: self.auto,
             },
             BarThing::Item(item) => SavedSlot::Item { item },
+            BarThing::Potion(potion) => SavedSlot::Potion { potion },
         };
         saved.serialize(serializer)
     }
@@ -140,6 +163,10 @@ impl<'de> Deserialize<'de> for BarSlot {
             },
             SavedSlot::Item { item } => Self {
                 thing: BarThing::Item(item),
+                auto: false,
+            },
+            SavedSlot::Potion { potion } => Self {
+                thing: BarThing::Potion(potion),
                 auto: false,
             },
         })

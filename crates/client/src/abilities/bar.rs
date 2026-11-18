@@ -8,15 +8,18 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use shared::ability::{Ability, ActionBar, BAR_SLOTS, BarSlot, BarThing};
 use shared::creature::CreatureKind;
+use shared::item::Inventory;
 
 use super::drag::Aim;
-use super::item_look::thing_look;
+use super::item_look::{can_drink, potion_words, thing_look};
 use super::manual::Manual;
 use super::own_bar::OwnBar;
 use super::page::usable;
 use super::vitals_now::affords;
 use crate::character::CharacterSheet;
-use crate::common::{Action, OwnVitals, Preferences, Sneaking, VitalsCircle, interface_area};
+use crate::common::{
+    Action, OwnVitals, Preferences, ServerTick, Sneaking, VitalsCircle, interface_area,
+};
 use crate::dom::{AbilitySlotShown, AbilityThing};
 use crate::inventory::Carried;
 use crate::widgets::{ABILITY, UiId};
@@ -98,10 +101,12 @@ pub(super) struct Shown {
     queued: Vec<Ability>,
     /// Sneak is on: its slot is edged.
     sneaking: bool,
-    /// How many are carried of each slot's kind of item (0 for the rest).
+    /// How many are carried of each slot's kind of item or potion (0 for the
+    /// rest).
     counts: Vec<u32>,
-    /// Whether each slot's ability can be used now (`page::usable`; true for
-    /// the rest): known, with its tool.
+    /// Whether each slot's ability can be used now (`page::usable`): known,
+    /// with its tool; a potion's, whether it can be drunk (`can_drink`); true
+    /// for the rest.
     usable: Vec<bool>,
 }
 
@@ -112,7 +117,7 @@ pub(super) fn show_bar(
     (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
     preferences: Res<Preferences>,
     (aim, manual, sneaking): (Res<Aim>, Res<Manual>, Res<Sneaking>),
-    (vitals, time): (Res<OwnVitals>, Res<Time>),
+    (vitals, time, clock): (Res<OwnVitals>, Res<Time>, Res<ServerTick>),
     assets: Res<AssetServer>,
     mut slots: Query<(&SlotNode, &mut AbilitySlotShown)>,
     mut shown: Local<Option<Shown>>,
@@ -135,15 +140,17 @@ pub(super) fn show_bar(
             .0
             .slots
             .iter()
-            .map(|held| {
-                let item = held.and_then(|held| held.thing.item());
-                item.map_or(0, |kind| carried.0.count_of(kind))
-            })
+            .map(|held| held.map_or(0, |held| count_of(held.thing, &carried.0)))
             .collect(),
         usable: (bar.0.slots.iter())
-            .map(|held| {
-                let ability = held.and_then(|held| held.ability());
-                ability.is_none_or(|ability| usable(ability, &carried, &sheet))
+            .map(|held| match held.map(|held| held.thing) {
+                Some(BarThing::Ability(ability)) => usable(ability, &carried, &sheet),
+                Some(BarThing::Potion(potion)) => {
+                    let count = carried.0.count_of_potion(potion);
+                    let now = clock.now(time.elapsed_secs_f64());
+                    can_drink(potion, count, &sheet.0, now)
+                }
+                _ => true,
             })
             .collect(),
     };
@@ -170,8 +177,9 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
     let thing = held.map(|held| {
         let mut look = thing_look(held.thing, count, now.kind, usable, assets);
         let (name, description) = match held.thing {
-            BarThing::Ability(ability) => (ability.name(), ability.description()),
-            BarThing::Item(kind) => (kind.def().name, ""),
+            BarThing::Ability(ability) => (ability.name(), ability.description().to_owned()),
+            BarThing::Item(kind) => (kind.def().name, String::new()),
+            BarThing::Potion(potion) => ("Potion", potion_words(potion)),
         };
         if !full.is_empty() {
             look.name = format!(
@@ -190,7 +198,7 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
         }
     });
     let ability = held.and_then(BarSlot::ability);
-    let item = held.and_then(|held| held.thing.item());
+    let item = held.filter(|held| held.ability().is_none());
     AbilitySlotShown {
         thing,
         key: short.clone(),
@@ -205,5 +213,15 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
             .filter(|(aimed, _)| *aimed == slot)
             .map(|(_, allowed)| allowed),
         count: item.map(|_| count),
+    }
+}
+
+/// How many are carried of what a slot holds: a kind of item, or a potion; 0
+/// for an ability.
+pub(super) fn count_of(thing: BarThing, carried: &Inventory) -> u32 {
+    match thing {
+        BarThing::Ability(_) => 0,
+        BarThing::Item(kind) => carried.count_of(kind),
+        BarThing::Potion(potion) => carried.count_of_potion(potion),
     }
 }

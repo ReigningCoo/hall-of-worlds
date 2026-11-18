@@ -1,12 +1,11 @@
 //! How an ability looks: its icon, outlined in black, in a frame half again as big
 //! as an item's cell, named on hovering, over the colour of the attributes it leans
 //! on (`attribute_colour`). Square for active abilities, round for passive ones;
-//! greyed, with a dull red frame, when it can't be used now. A kind of item on
-//! the action bar is drawn in the same frame, with its picture.
+//! greyed, with a dull red frame, when it can't be used now. A kind of item or
+//! a potion on the action bar is drawn in the same frame, with its picture.
 
 use bevy::prelude::*;
-use shared::id::Id;
-use shared::item::{Item, ItemKind, Rotation};
+use shared::item::{Item, Rotation};
 
 use super::{
     CELL, HoverTip, ITEM_EDGE, ITEM_LABEL_FONT, PICTURE_PIXELS_PER_CELL, item_colour, item_label,
@@ -38,9 +37,9 @@ pub struct AbilityLook {
     pub usable: bool,
     /// Behind the icon: `attribute_colour` of what it leans on.
     pub colour: Color,
-    /// A kind of item rather than an ability: its picture is drawn in place
-    /// of the icon (which is then unused).
-    pub item: Option<ItemKind>,
+    /// An item rather than an ability (one standing for a kind, or a potion):
+    /// its picture is drawn in place of the icon (which is then unused).
+    pub item: Option<Item>,
 }
 
 /// An ability, `ABILITY` across. Returns its frame.
@@ -79,7 +78,7 @@ pub fn spawn_ability(parent: &mut ChildSpawnerCommands, look: AbilityLook) -> En
             HoverTip(look.name),
         ))
         .with_children(|frame| match look.item {
-            Some(kind) => spawn_item_picture(frame, kind, look.usable),
+            Some(item) => spawn_item_picture(frame, &item, look.usable),
             None => spawn_outlined_icon(frame, look.icon, icon),
         })
         .id()
@@ -88,9 +87,9 @@ pub fn spawn_ability(parent: &mut ChildSpawnerCommands, look: AbilityLook) -> En
 /// Behind an item that can't be used now, over its picture.
 const UNUSABLE_SHADE: Color = Color::srgba(0.16, 0.15, 0.14, 0.6);
 
-/// A kind of item's picture filling its parent, or its label until it has
-/// one; greyed when it can't be used now.
-fn spawn_item_picture(parent: &mut ChildSpawnerCommands, kind: ItemKind, usable: bool) {
+/// An item's picture filling its parent, or its label until it has one;
+/// greyed when it can't be used now.
+fn spawn_item_picture(parent: &mut ChildSpawnerCommands, item: &Item, usable: bool) {
     let filling = Node {
         width: percent(100.0),
         height: percent(100.0),
@@ -98,11 +97,10 @@ fn spawn_item_picture(parent: &mut ChildSpawnerCommands, kind: ItemKind, usable:
         align_items: AlignItems::Center,
         ..default()
     };
-    // Every one of a kind looks alike so far (food): a plain one stands for them.
-    let picture = look_of(&Item::new(Id::stand_in(0), kind));
+    let picture = look_of(item);
     let colour = match picture {
         Some(_) => Color::NONE,
-        None => item_colour(kind),
+        None => item_colour(item.kind),
     };
     parent
         .spawn((filling, BackgroundColor(colour)))
@@ -114,7 +112,7 @@ fn spawn_item_picture(parent: &mut ChildSpawnerCommands, kind: ItemKind, usable:
                     inside.spawn(item_picture(look, pixels, node, Rotation::None));
                 }
                 None => {
-                    let words = Text::new(item_label(kind));
+                    let words = Text::new(item_label(item.kind));
                     inside.spawn((words, ITEM_LABEL_FONT.font(), TextColor(ITEM_EDGE)));
                 }
             }

@@ -6,7 +6,7 @@ parent: Gameplay
 
 # Brewing
 
-Brewing turns [herbs](herbs) into potions, in four steps: fill a bottle with water, press an oil, grind herbs and the oil into an ointment, then brew the ointment with the water. Each step is an ability on the Abilities page (B), and the last three need a tool carried. The **Alchemy** skill makes every step better, and **Herbalism** helps with the herbs. Drinking potions is planned.
+Brewing turns [herbs](herbs) into potions, in four steps: fill a bottle with water, press an oil, grind herbs and the oil into an ointment, then brew the ointment with the water. Each step is an ability on the Abilities page (B), and the last three need a tool carried. The **Alchemy** skill makes every step better, and **Herbalism** helps with the herbs.
 
 ## Tools
 
@@ -63,6 +63,16 @@ You can rub an ointment on yourself, as you eat food, for a quarter of its stren
 The purer a potion, the better its quality: one strong effect makes a better potion than several of the same strength. A better potion lasts longer.
 
 Brewing a potion teaches you the effects of the herbs in its ointment on what the potion does, so you learn more about herbs as you brew.
+
+## Drinking a potion
+
+Drink a potion as you eat food: let go of it on yourself in the Character panel, or put it on the action bar and press its key. The bottle comes back empty, into your bags, or onto the ground if there is no room.
+
+Health and Mana come at once. Other effects last a while: 2 minutes for a common potion, longer for a better one and shorter for a poor one. Each thing a potion changes is a separate effect, so a new potion's effect on, say, Strength replaces the old one's, while the old potion's other effects carry on.
+
+After drinking a potion, you must wait 30 seconds before drinking another that changes the same things the same way, however strong it is. A potion that changes something else can be drunk at once.
+
+A slot on the action bar holds one particular potion, and shows how many of it you carry.
 
 ## Practice
 
