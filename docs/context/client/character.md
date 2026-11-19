@@ -6,6 +6,7 @@ What the character is like: the Character panel's Character tab, which `inventor
 
 - `crates/client/src/character/mod.rs`: `CharacterPlugin`, `CharacterSheet`, `WithBonuses`, `describe` (what the panel says; unit tested).
 - `crates/client/src/character/attribute_lines.rs`: the nine attributes a row to a line, each with what bonuses make of it: "Agility 95 (-5)", from the server's `Attributes` (as they are until it has said).
+- `crates/client/src/character/collapse.rs`: `spend_collapse` (after `publish_speed`): when the sheet first holds a `Stage::Collapsed` effect (`shared::alcohol`), writes `SpentEnergy` of the player's speed for every tick it lasts, as the server spends, so nothing is tried meanwhile. Speed itself (`publish_speed`) already goes by drink's stage through `Sheet::speed`.
 - `crates/client/src/character/listed.rs`: `describe_listed(ListedCharacter)`: what the tab would say of a character offered to choose from, as far as their save tells (gender, kind, attributes, carrying, difficulty, looks; no Health, Mana or speed), for `character_select`.
 - `crates/client/src/character/vitals_lines.rs`: "Health 31 (Toughness 26, +5 bonuses)": the most from the last `Vitals`, its parts from the sheet with what is worn and its effects' bonuses (`Sheet::totals`); playtime isn't sent, so its part ("play") is what the others leave. The server sends `Sheet` again when practice or effects do, so the parts stay right.
 
@@ -18,7 +19,7 @@ What the character is like: the Character panel's Character tab, which `inventor
 
 ## Depends on
 
-- `common` (`PlayerSpeed`, `PlayerGait`, `CarryLimit`, `OwnVitals`), `connection` (`FromServer`), `inventory` (`Carried`), `widgets`, `shared::sheet`, `shared::item`, `shared::protocol`.
+- `common` (`PlayerSpeed`, `PlayerGait`, `CarryLimit`, `OwnVitals`, `SpentEnergy`), `connection` (`FromServer`), `inventory` (`Carried`), `widgets`, `shared::sheet`, `shared::item`, `shared::protocol`.
 
 ## Used by
 

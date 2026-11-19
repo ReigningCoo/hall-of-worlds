@@ -11,7 +11,7 @@ mod pressing;
 mod roll;
 
 pub use carried::{JuiceChoice, with_juice};
-pub use drink::{CORDIAL_SECONDS, JUICE_SECONDS, MANA_A_SECOND, drink_effect};
+pub use drink::{CORDIAL_SECONDS, DRINK_TIMES, JUICE_SECONDS, MANA_A_SECOND, drink_effect};
 pub use mix::{Mixed, mix};
 pub use pressing::{
     JUICE_PRACTICE, PRESSING_GRAMS, juicable, juice_fruits, kcal_per_litre, ml_from, press_ticks,

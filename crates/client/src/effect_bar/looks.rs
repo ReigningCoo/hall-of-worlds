@@ -2,6 +2,7 @@
 //! (game-icons.net, listed in `xtask/icons.txt`) and the colour behind them.
 
 use bevy::prelude::*;
+use shared::alcohol::Stage;
 use shared::bonus::{Amount, Effect, Source, Stat};
 
 /// Behind an effect that helps: a calm blue-green.
@@ -46,7 +47,15 @@ pub(super) fn icon_path(source: Source) -> &'static str {
         Source::RawHerb => "icons/delapouite/herbs-bundle.png",
         Source::Ointment => "icons/delapouite/covered-jar.png",
         Source::Potion(_) => "icons/lorc/fizzing-flask.png",
-        Source::Juice(_) | Source::Cordial(_) => "icons/delapouite/drinking.png",
+        Source::Juice(_) | Source::Cordial(_) | Source::Drink => "icons/delapouite/drinking.png",
+        Source::Alcohol(stage) => match stage {
+            Stage::Tipsy => "icons/lorc/wine-glass.png",
+            Stage::Drunk => "icons/lorc/beer-stein.png",
+            Stage::VeryDrunk => "icons/delapouite/beer-bottle.png",
+            Stage::Collapsed => "icons/delapouite/knocked-out-stars.png",
+            Stage::Poisoned => "icons/lorc/vomiting.png",
+            Stage::Hangover => "icons/lorc/brain-freeze.png",
+        },
     }
 }
 

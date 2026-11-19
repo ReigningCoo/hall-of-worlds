@@ -21,6 +21,7 @@ use crate::storage::CharacterWorldSave;
 
 mod action;
 mod action_bar;
+mod alcohol;
 mod answer;
 mod answer_dev;
 mod answer_items;
@@ -78,6 +79,7 @@ mod rub_ointment;
 mod send_sheet;
 mod stack_parts;
 mod strength_room;
+mod stumble;
 mod systems;
 mod visited_gates;
 mod vitals;

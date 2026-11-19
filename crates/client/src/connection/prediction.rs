@@ -26,6 +26,8 @@ pub(super) struct Prediction {
     /// player will be once the server has taken them all. The player may be
     /// shown further on, along a stretch not yet sent.
     sent: Option<(i64, i64)>,
+    /// The map is the Hall.
+    hall: bool,
 }
 
 impl Prediction {
@@ -41,12 +43,28 @@ impl Prediction {
     /// The message for a move just taken on a level or in the Hall, from one
     /// spot to another, remembered until it is confirmed.
     pub fn moved(&mut self, from: Spot, to: Spot) -> ClientMessage {
+        self.moved_to(from, to, to)
+    }
+
+    /// The message for a move towards `to` that `landed` somewhere else (a
+    /// stumble, which the server works out from the move asked for).
+    pub fn moved_to(&mut self, from: Spot, to: Spot, landed: Spot) -> ClientMessage {
         self.last += 1;
         self.pending
-            .push_back((self.last, (to.x - from.x, to.y - from.y)));
-        self.sent = Some((to.x, to.y));
+            .push_back((self.last, (landed.x - from.x, landed.y - from.y)));
+        self.sent = Some((landed.x, landed.y));
         let (map, number) = (self.map, self.last);
         ClientMessage::Move { map, number, to }
+    }
+
+    /// The map and number the next step or move sent will have.
+    pub fn next(&self) -> (u32, u32) {
+        (self.map, self.last + 1)
+    }
+
+    /// Whether the map is the Hall, where nobody stumbles.
+    pub fn in_hall(&self) -> bool {
+        self.hall
     }
 
     /// Where the player is expected to be by the server's word: where the
@@ -63,8 +81,14 @@ impl Prediction {
     /// The server has put the player on another map: steps on the last one
     /// will never be confirmed.
     pub fn changed_map(&mut self, on_level: bool) {
+        self.changed_map_to(on_level, false);
+    }
+
+    /// The same, saying whether it is the Hall.
+    pub fn changed_map_to(&mut self, on_level: bool, hall: bool) {
         self.map += 1;
         self.on_level = on_level;
+        self.hall = hall;
         self.pending.clear();
         self.sent = None;
     }

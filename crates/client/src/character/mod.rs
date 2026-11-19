@@ -1,5 +1,5 @@
 //! What the character is like: the Character panel's Character tab, which
-//! `inventory` opens, and how fast they go. See `docs/context/client/character.md`.
+//! `inventory` opens, and how fast they go (collapsing drunk too). See `docs/context/client/character.md`.
 
 use bevy::prelude::*;
 use shared::energy::NORMAL_SPEED;
@@ -16,6 +16,7 @@ use crate::inventory::Carried;
 use crate::widgets::UiId;
 
 mod attribute_lines;
+mod collapse;
 mod listed;
 mod vitals_lines;
 
@@ -35,6 +36,7 @@ impl Plugin for CharacterPlugin {
                 (
                     read_server,
                     publish_speed,
+                    collapse::spend_collapse,
                     publish_field,
                     publish_limit,
                     show_words,
