@@ -41,7 +41,10 @@ fn spaces_grow_as_they_fill() {
         places(0, &bench.steps[0]),
         [Place::Herb(0, 0), Place::Oil(0)]
     );
-    assert_eq!(places(1, &bench.steps[1]), [Place::Liquid(1, 0)]);
+    assert_eq!(
+        places(1, &bench.steps[1]),
+        [Place::Liquid(1, 0), Place::Solid(1)]
+    );
     for n in 0..MOST_HERBS + 2 {
         put(
             &mut bench,
@@ -57,7 +60,7 @@ fn spaces_grow_as_they_fill() {
     put(&mut bench, Place::Liquid(1, 0), Some(Id::stand_in(50)));
     put(&mut bench, Place::Liquid(1, 1), Some(Id::stand_in(50)));
     let order = bench.order(1);
-    let shared::alchemy::OrderStep::Retort { liquids } = &order.steps[1] else {
+    let shared::alchemy::OrderStep::Retort { liquids, .. } = &order.steps[1] else {
         panic!("a Retort");
     };
     assert_eq!(liquids, &[Id::stand_in(50), Id::stand_in(50)]);

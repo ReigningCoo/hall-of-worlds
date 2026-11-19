@@ -113,7 +113,7 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 - Each Pelican adds another 20% of the score (two make × 140%), each costing a step towards the chance like any other. It needs something before it (`NothingToCirculate`), changes nothing in what it holds, and counts wherever it stands, even before a Crucible.
 - 30 s untrained, the slowest step; it always practises Circulating. Sold where the Mortar is (herbalists, potion shops); 1.2 kg, 2 × 2, a glass flask with two arms looping back into its belly.
 
-## Retort solids and Darkvision (PR 8)
+## Retort solids and Darkvision (PR 8, built)
 
 | Solid | Source | Effect |
 | ----- | ------ | ------ |
@@ -121,6 +121,13 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 | Sulphur | Sold only, potion shops and herbalists | Mind row +25%, Body and Spirit −25% |
 | Mercury | Sold only, potion shops and herbalists | Spirit row +25%, Body and Mind −25% |
 | Carrot | Grown, bought | With Perception: **Darkvision**, seeing in the dark up to N cells, N from how pure and strong the Perception dose is. Every helpful effect becomes Darkvision; harmful effects stay. |
+
+`shared::alchemy`'s `solid.rs` and `transform.rs`, `shared::dungeon`'s `darkness.rs`; `ItemKind::Sulphur` and `Mercury`. Claude's choices (first guesses for the owner to tune):
+
+- The solid acts after the Retort's liquids; with something before it, a Retort may hold a solid and no liquid (a Paste and a Carrot make a Darkvision Paste). Each lean rounds a dose towards 0; Health counts as Body and Mana as Mind, as for oils.
+- Transformations are a table (`TRANSFORMATIONS`: a vegetable, the stat it needs helpful, the stat it makes), so more can be added. Darkvision takes the Perception dose's strength, then dilutes, filters and counts for purity and quality like any dose (Sulphur leans it as Mind). A Carrot without helpful Perception does nothing, and is still used up; other vegetables don't go in.
+- Darkvision is `herb::Stat::Darkvision` (last, so saves and messages still load) and `bonus::Stat::Darkvision`: drinking gives an effect of `darkvision_reach(step, quality)` cells: the 6 cells every player's light reaches (`CARRIED_LIGHT`), +2 a step, +1 a quality step over Poor, at most 24 (a Common 4-step potion 15). The client lights every cell seen within it a dim, even grey; walls stop it as they stop light. Sight itself has no darkness rule, so the server has nothing more to agree on. It is learned through the Perception effects of the herbs that made it.
+- Sulphur (10 g) and Mercury (30 g, a phial) are counted, without quality, sold one at a time by herbalists and potion shops; the effect bar shows Darkvision with `delapouite/night-vision`.
 
 ## PRs
 
@@ -135,7 +142,7 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 | 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) (built) | 3 and drinks PR 6 (Ferment, merged) |
 | 6 | Crucible and Filter, Powder (built) | 3 |
 | 7 | Pelican (built) | 3 |
-| 8 | Retort solids: Salt, Sulphur, Mercury, Carrot to Darkvision with Darkvision in the sight rules | 5 for Salt |
+| 8 | Retort solids: Salt, Sulphur, Mercury, Carrot to Darkvision with Darkvision in the sight rules (built) | 5 for Salt |
 
 ## Later
 

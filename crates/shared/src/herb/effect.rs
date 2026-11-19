@@ -18,10 +18,14 @@ pub enum Stat {
     Aura,
     Health,
     Mana,
+    /// Seeing in the dark (Alchemy plan PR 8): never a herb's, only made by a
+    /// transformation (`alchemy::TRANSFORMATIONS`, Carrot with Perception);
+    /// its step and the potion's quality set how far (`dungeon::darkvision_reach`).
+    Darkvision,
 }
 
 impl Stat {
-    pub const ALL: [Stat; 11] = [
+    pub const ALL: [Stat; 12] = [
         Self::Strength,
         Self::Agility,
         Self::Toughness,
@@ -33,7 +37,20 @@ impl Stat {
         Self::Aura,
         Self::Health,
         Self::Mana,
+        Self::Darkvision,
     ];
+
+    /// Its name in English: an attribute's, "Health", "Mana" or "Darkvision".
+    pub const fn name(self) -> &'static str {
+        match self.attribute() {
+            Some(attribute) => attribute.name(),
+            None => match self {
+                Self::Health => "Health",
+                Self::Mana => "Mana",
+                _ => "Darkvision",
+            },
+        }
+    }
 
     /// The attribute it is, if it is one.
     pub const fn attribute(self) -> Option<Attribute> {
@@ -47,7 +64,7 @@ impl Stat {
             Self::Presence => Attribute::Presence,
             Self::Empathy => Attribute::Empathy,
             Self::Aura => Attribute::Aura,
-            Self::Health | Self::Mana => return None,
+            Self::Health | Self::Mana | Self::Darkvision => return None,
         })
     }
 }

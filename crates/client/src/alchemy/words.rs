@@ -5,7 +5,6 @@
 use bevy::prelude::*;
 use shared::alchemy::{CERTAIN, Form, OrderRefused, Planned, Product, Refused, Seen, new_mixture};
 use shared::brewing::stat_row;
-use shared::herb::Stat;
 use shared::id::Id;
 use shared::item::{Item, ItemKind, Quality};
 use shared::item_form::ItemForm;
@@ -98,11 +97,7 @@ pub(super) fn effect_words(seen: &[Seen]) -> String {
 
 /// "Strength +4", "Health −2".
 fn dose_words(dose: Dose) -> String {
-    let name = match (dose.stat.attribute(), dose.stat) {
-        (Some(attribute), _) => attribute.name(),
-        (None, Stat::Health) => "Health",
-        (None, _) => "Mana",
-    };
+    let name = dose.stat.name();
     let sign = if dose.step < 0 { "−" } else { "+" };
     format!("{name} {sign}{}", dose.step.unsigned_abs())
 }
@@ -131,6 +126,7 @@ pub(super) fn refused_words(why: OrderRefused) -> &'static str {
         OrderRefused::Herb | OrderRefused::UnknownHerb => "A herb isn't carried.",
         OrderRefused::Solvent => "The oil or pure alcohol isn't carried.",
         OrderRefused::Liquid => "A liquid isn't carried.",
+        OrderRefused::Solid => "The Retort's solid isn't carried.",
         OrderRefused::TooFew => "Not enough is carried for one run.",
         OrderRefused::Rules(why) => match why {
             Refused::Empty => "Add a step.",
@@ -146,6 +142,7 @@ pub(super) fn refused_words(why: OrderRefused) -> &'static str {
             Refused::NothingToFilter => "A Filter needs something before it to filter.",
             Refused::NoPowder => "Put a Powder in the Filter.",
             Refused::NothingToCirculate => "A Pelican needs something before it to circulate.",
+            Refused::Solid => "That solid changes nothing in a Retort.",
             Refused::NotBuilt(_) => "That apparatus can't be used yet.",
         },
     }

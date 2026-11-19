@@ -123,6 +123,7 @@ pub(super) fn place_gates(
                 LightSource {
                     radius: GATE_LIGHT_RADIUS,
                     colour: Color::WHITE,
+                    darkvision: 0,
                 },
             ));
         }

@@ -168,19 +168,18 @@ impl ItemKind {
                 )),
                 Self::Knife => plain("Knife", 200, Shape::rectangle(1, 2)).worn(HELD),
                 Self::Lantern => plain("Lantern", 800, Shape::rectangle(1, 2)),
-                // Alchemy's tools and apparatus (`ability::Ability::tool`,
-                // `alchemy::Apparatus::item`): weights first guesses.
-                Self::OilPress => plain("Oil Press", 6000, Shape::rectangle(2, 2)),
-                Self::MortarAndPestle => plain("Mortar and Pestle", 1500, square),
-                Self::Retort => plain("Retort", 900, Shape::rectangle(1, 2)),
-                Self::Alembic => plain("Alembic", 1800, Shape::rectangle(2, 2)),
-                Self::Crucible => plain("Crucible", 1200, square),
-                Self::Filter => plain("Filter", 300, square),
-                Self::Pelican => plain("Pelican", 1200, Shape::rectangle(2, 2)),
-                Self::Salt => plain("Salt", crate::alchemy::SALT_GRAMS, square)
-                    .without_quality()
-                    .counted(),
-                Self::Cauldron => plain("Cauldron", 4000, Shape::rectangle(2, 2)),
+                // Alchemy's tools, apparatus and solids: in `alchemy_def.rs`.
+                Self::OilPress
+                | Self::MortarAndPestle
+                | Self::Retort
+                | Self::Alembic
+                | Self::Crucible
+                | Self::Filter
+                | Self::Pelican
+                | Self::Salt
+                | Self::Sulphur
+                | Self::Mercury
+                | Self::Cauldron => self.alchemy_def(),
                 // Its form says its size, wood, cells and weight (`shared::cask`).
                 Self::Cask => plain("Cask", 14_000, Shape::rectangle(3, 3)),
                 Self::Tap => plain("Tap", 300, square),

@@ -58,7 +58,10 @@ fn mortar(herbs: &[HerbDef], solvent: Solvent) -> Step<'_> {
 }
 
 fn retort<'a>(liquids: Vec<Liquid>) -> Step<'a> {
-    Step::Retort { liquids }
+    Step::Retort {
+        liquids,
+        solid: None,
+    }
 }
 
 fn alembic<'a>(fed: Option<Liquid>) -> Step<'a> {

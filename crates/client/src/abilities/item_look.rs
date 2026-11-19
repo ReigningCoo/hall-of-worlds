@@ -9,7 +9,6 @@ use shared::ability::BarThing;
 use shared::bonus::may_eat;
 use shared::brewing::Combination;
 use shared::creature::CreatureKind;
-use shared::herb::Stat;
 use shared::id::Id;
 use shared::item::{Item, ItemKind, Quality};
 use shared::item_form::ItemForm;
@@ -78,11 +77,7 @@ pub(super) fn can_drink(potion: PotionKey, count: u32, sheet: &Sheet, now: Optio
 pub(super) fn potion_words(potion: PotionKey) -> String {
     let words: Vec<String> = (potion.contents().doses().iter())
         .map(|dose| {
-            let name = match (dose.stat.attribute(), dose.stat) {
-                (Some(attribute), _) => attribute.name(),
-                (None, Stat::Health) => "Health",
-                (None, _) => "Mana",
-            };
+            let name = dose.stat.name();
             let sign = if dose.step < 0 { "−" } else { "+" };
             format!("{name} {sign}{}", dose.step.unsigned_abs())
         })

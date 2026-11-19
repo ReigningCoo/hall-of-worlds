@@ -9,7 +9,7 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 - `herb/def.rs`: `HerbDef`, `EFFECTS` (4), `HerbDef::check`.
 - `herb/traits.rs`: `Abundance` (`quality`), `Temperature` (`suits`), `Part`.
 - `herb/growth.rs`: `Growth` (`days`), `Regrow` (`back_to`), `Early`, `STAGES`, `EARLY_STAGE`.
-- `herb/effect.rs`: `Stat` (the nine attributes, Health, Mana; `ALL`, `attribute`), `Effect` (`strength`, `raises`).
+- `herb/effect.rs`: `Stat` (the nine attributes, Health, Mana, and Darkvision last: never a herb's, only from a transformation, `alchemy::TRANSFORMATIONS`; `ALL`, `name`, `attribute`), `Effect` (`strength`, `raises`).
 - `herb/plant.rs`: `PlantLook`, `PlantShape`, `PartSize`, `Rgb`.
 - `herb/table.rs`: `Herbs`.
 - `herb/form.rs`: `HerbForm`, `new_item`, `Item::herb`.

@@ -3,6 +3,11 @@
 use bevy::prelude::*;
 use shared::dungeon::{Level, Sight};
 
+use crate::common::LightSource;
+
+/// How bright Darkvision shows the dark: a dim, cool grey, without colour.
+const DARKVISION_LIGHT: Vec3 = Vec3::new(0.32, 0.36, 0.4);
+
 /// How much light reaches each cell of a level, as linear RGB from 0 (only
 /// the dull ambient light) to 1 (fully lit).
 pub struct LightGrid {
@@ -86,6 +91,21 @@ impl LightGrid {
                     self.light[i] = brighter(self.light[i], colour * strength);
                 }
             }
+        }
+    }
+
+    /// A `LightSource` at `(x, y)`: its light, and past it its Darkvision,
+    /// dim and even to its edge (walls stop it as they stop light).
+    pub fn add_source(&mut self, level: &Level, (x, y): (i64, i64), source: &LightSource) {
+        let colour = LinearRgba::from(source.colour);
+        let colour = Vec3::new(colour.red, colour.green, colour.blue);
+        self.add_light(level, (x, y), source.radius, colour);
+        if source.darkvision > source.radius {
+            let mut seen = Sight::new(level);
+            seen.add_view(level, x, y, Some(source.darkvision));
+            self.add(DARKVISION_LIGHT, |cx, cy| {
+                f32::from(u8::from(seen.is_seen(cx, cy)))
+            });
         }
     }
 

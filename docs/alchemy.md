@@ -19,6 +19,7 @@ Alchemy turns [herbs](herbs) into potions. Fill bottles with water and press oil
 | Crucible | Alchemy: calcining | Blacksmiths |
 | Filter | Alchemy: filtering | Herbalists and potion shops |
 | Pelican | Alchemy: circulating | Herbalists and potion shops |
+| Sulphur, Mercury | Alchemy: solids for the Retort | Herbalists and potion shops |
 
 An ability whose tool you don't carry is greyed out. A tool in a bag counts. Alchemy needs at least one apparatus. The first time you carry an apparatus, you learn its skill: **Grinding** for the Mortar and Pestle, **Infusing** for the Retort, **Distilling** for the Alembic, **Calcining** for the Crucible, **Filtering** for the Filter, **Circulating** for the Pelican.
 
@@ -64,11 +65,26 @@ Herbalists and potion shops sell oils as well.
 While it runs, the panel is locked and its steps fade, then colour fills along them, from black through white and gold to the potion's own colour. What it made shows at the end of the row. **Stop**, moving or being hurt calls it off.
 
 - **Mortar and Pestle** (first step only): one of each herb, ground dry into a **Paste**, with a bottle of oil into an **Ointment**, or with a bottle of pure alcohol into a **Tincture**. A herb's effects add up and opposite effects cancel out; how strong each is depends on its quality and your Herbalism, and Herbalism trims away effects you don't want. A tincture is already a liquid, 100 ml of it: its oil strengthens nothing, but every effect is a twentieth stronger, and on its own it makes a potion in one step.
-- **Retort**: up to five bottles of water, oil, [drink](drinks) or pure alcohol, each acting on what came before (see the tables above; drinks and pure alcohol do nothing to the effects). Each bottle is 100 ml, and the result fills one bottle per 100 ml.
+- **Retort**: up to five bottles of water, oil, [drink](drinks) or pure alcohol, each acting on what came before (see the tables above; drinks and pure alcohol do nothing to the effects), and one solid (see Solids, below), which acts after them. Each bottle is 100 ml, and the result fills one bottle per 100 ml. With something before it, a Retort may take a solid and no liquid.
 - **Alembic**: distils what came before, which must be a liquid. Feed it a bottle of a drink or pure alcohol, and the stronger that is, the more it boils away: drinks under 10% not at all, wine (10% to 19%) half, pure alcohol all but a tenth. The effects stay as strong as they were, so a potion comes out stronger in fewer bottles (never fewer than one). Salt Water leaves **Salt** behind, one for each bottle distilled.
 - **Crucible**: calcines whatever came before, paste, ointment or liquid, into a **Powder**, three quarters as strong. Any liquid is driven off, so a potion becomes a powder again.
 - **Filter**: put a Powder in it. An effect that both what came before and the Powder have is added together (opposite effects cancel); an effect only one of them has is taken out. Used well, it strengthens what you want and clears away the rest.
 - **Pelican**: circulates whatever came before, over and over. It changes nothing in it, but makes it purer: the quality is worked out as though its purity were a fifth more. That helps most when a potion is close to the next quality. Each Pelican takes a step, and two count twice.
+
+### Solids
+
+A Retort's solid space takes one of these, used up each run:
+
+| Solid | From | What it does |
+| ----- | ---- | ------------ |
+| Salt | Distilling Salt Water in an Alembic | Strength, Agility, Toughness and Health a quarter stronger; every other effect a quarter weaker |
+| Sulphur | Herbalists and potion shops | Intellect, Perception, Will, Mana and Darkvision a quarter stronger; every other effect a quarter weaker |
+| Mercury | Herbalists and potion shops | Presence, Empathy and Aura a quarter stronger; every other effect a quarter weaker |
+| [Carrot](vegetables/carrot) | Grown on farms; herbalists sell what grows nearby | Turns raised Perception into **Darkvision**: every helpful effect is taken away and Darkvision takes its place, as strong as the Perception was. Harmful effects stay. Without raised Perception it does nothing. |
+
+### Darkvision
+
+A Darkvision potion lets you see in the dark further than your own light reaches: the dark round you shows dimly, without colour, as far as walls let you see. How far depends on how strong the Darkvision is (2 cells a step) and on the potion's quality (a cell for each quality above Poor), starting from your light's 6 cells, up to 24. A Common potion of 4 steps sees 15 cells. It lasts as long as other potions of its quality. You learn what a Darkvision potion holds by learning Perception on the herbs that made it.
 
 ### Pure alcohol
 

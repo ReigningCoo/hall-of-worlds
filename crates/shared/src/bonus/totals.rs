@@ -78,6 +78,11 @@ impl Totals {
             .clamp(0, i64::from(u32::MAX)) as u32
     }
 
+    /// How far in cells one sees in the dark (Darkvision): 0 without.
+    pub fn darkvision(&self) -> u32 {
+        (self.sum(Stat::Darkvision).flat / MILLI).clamp(0, i64::from(u32::MAX)) as u32
+    }
+
     /// Whether there are no bonuses at all.
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()

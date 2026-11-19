@@ -86,6 +86,7 @@ fn a_crucible_makes_a_powder_three_quarters_as_strong() {
         dry(&herbs),
         Step::Retort {
             liquids: vec![water.clone(), water],
+            solid: None,
         },
         Step::Crucible,
     ];
@@ -103,7 +104,14 @@ fn a_crucible_makes_a_powder_three_quarters_as_strong() {
 fn a_powder_infused_makes_a_potion_and_is_never_old() {
     let source = Some(powder(&[(Stat::Aura, 12)]));
     let water = vec![Liquid::Water(Water::Plain)];
-    let planned = run(source, vec![Step::Retort { liquids: water }]).unwrap();
+    let planned = run(
+        source,
+        vec![Step::Retort {
+            liquids: water,
+            solid: None,
+        }],
+    )
+    .unwrap();
     assert!(matches!(
         planned.product,
         Product::Potion { bottles: 1, .. }

@@ -80,6 +80,7 @@ pub(super) fn spawn_player(mut commands: Commands) {
         LightSource {
             radius: LIGHT_RADIUS,
             colour: Color::WHITE,
+            darkvision: 0,
         },
     ));
 }

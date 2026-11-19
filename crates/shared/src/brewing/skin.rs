@@ -4,7 +4,9 @@
 
 use super::{duration_ticks, on_skin, quality};
 use crate::bonus::{Bonus, Effect, EndsOn, Source, Stat as BonusStat};
+use crate::dungeon::darkvision_reach;
 use crate::herb::Stat;
+use crate::item::Quality;
 use crate::potion::Contents;
 use crate::vitals::{PER_POINT, Vital};
 
@@ -22,9 +24,16 @@ pub struct Applied {
     pub vitals: Vec<(Vital, i32)>,
 }
 
-/// What these doses do from `now`, lasting as a potion of `quality` would, the
-/// effect from `source`.
-pub fn applied(contents: &Contents, lasts: u64, source: Source, now: u64) -> Applied {
+/// What these doses do from `now`, for `lasts` ticks, the effect from
+/// `source`; Darkvision reaching as far as `quality` lets it
+/// (`dungeon::darkvision_reach`).
+pub fn applied(
+    contents: &Contents,
+    quality: Quality,
+    lasts: u64,
+    source: Source,
+    now: u64,
+) -> Applied {
     let mut bonuses = Vec::new();
     let mut vitals = Vec::new();
     for dose in contents.doses() {
@@ -32,6 +41,12 @@ pub fn applied(contents: &Contents, lasts: u64, source: Source, now: u64) -> App
         match dose.stat {
             Stat::Health => vitals.push((Vital::Health, step * VITAL_PER_STEP * PER_POINT as i32)),
             Stat::Mana => vitals.push((Vital::Mana, step * VITAL_PER_STEP * PER_POINT as i32)),
+            Stat::Darkvision => {
+                let cells = darkvision_reach(dose.step, quality);
+                if cells > 0 {
+                    bonuses.push(Bonus::flat(BonusStat::Darkvision, cells as i32 * 1000));
+                }
+            }
             stat => {
                 if let Some(attribute) = stat.attribute() {
                     let amount = step * ATTRIBUTE_PER_STEP;
@@ -54,6 +69,7 @@ pub fn applied(contents: &Contents, lasts: u64, source: Source, now: u64) -> App
 /// each dose, lasting as long as the ointment's own quality says. Only the
 /// latest ointment's effect counts (`Source::Ointment`).
 pub fn skin_effect(contents: &Contents, now: u64) -> Applied {
-    let lasts = duration_ticks(quality(contents));
-    applied(&on_skin(contents), lasts, Source::Ointment, now)
+    let quality = quality(contents);
+    let lasts = duration_ticks(quality);
+    applied(&on_skin(contents), quality, lasts, Source::Ointment, now)
 }

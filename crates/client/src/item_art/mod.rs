@@ -36,6 +36,7 @@ mod ring;
 mod salt;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod save_picture;
+mod solids;
 mod tool;
 mod under;
 mod vegetable;

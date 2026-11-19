@@ -41,8 +41,7 @@ pub(super) fn name(source: Source, lang: &Lang) -> String {
         Source::RawHerb => lang.render("effect-raw-herb", &Args::new()),
         Source::Ointment => lang.render("effect-ointment", &Args::new()),
         Source::Potion(stat) => {
-            let name = stat.attribute().map_or("Potion", |it| it.name());
-            lang.render("effect-potion", &Args::new().text("stat", name))
+            lang.render("effect-potion", &Args::new().text("stat", stat.name()))
         }
         Source::Juice(tag) => {
             let args = Args::new().text("fruit", fruit_name(tag));

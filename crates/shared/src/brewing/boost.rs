@@ -21,7 +21,7 @@ pub fn boosted(step: i32) -> i32 {
 pub fn stat_row(stat: Stat) -> Row {
     match stat {
         Stat::Health => Row::Body,
-        Stat::Mana => Row::Mind,
+        Stat::Mana | Stat::Darkvision => Row::Mind,
         other => other.attribute().map_or(Row::Body, |a| a.row()),
     }
 }

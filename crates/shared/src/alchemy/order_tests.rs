@@ -74,6 +74,7 @@ fn an_order_is_checked_against_what_is_carried() {
             mortar.clone(),
             OrderStep::Retort {
                 liquids: vec![water, water],
+                solid: None,
             },
         ],
         count: 1,
@@ -87,6 +88,7 @@ fn an_order_is_checked_against_what_is_carried() {
             mortar.clone(),
             OrderStep::Retort {
                 liquids: vec![water, water, water],
+                solid: None,
             },
         ],
         ..order.clone()
@@ -161,6 +163,7 @@ fn a_stored_paste_can_start_a_process() {
         source: Some(Id::for_test(7)),
         steps: vec![OrderStep::Retort {
             liquids: vec![water],
+            solid: None,
         }],
         count: 1,
     };

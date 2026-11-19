@@ -28,6 +28,7 @@ pub fn drunk(contents: &Contents, quality: Quality, now: u64) -> Drunk {
     for &dose in contents.doses() {
         let one = applied(
             &Contents::new([dose]),
+            quality,
             lasts,
             Source::Potion(dose.stat),
             now,

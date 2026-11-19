@@ -141,8 +141,8 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
 
 /// Takes what one run uses: the source, one of each herb, the solvent (an
 /// oil's bottle given back empty, pure alcohol's kept as a tincture's), the
-/// liquids' bottles, returned for the product, the Alembic's alcohol (its
-/// bottle given back empty) and the Filter's Powder.
+/// liquids' bottles, returned for the product, the Retort's solid, the
+/// Alembic's alcohol (its bottle given back empty) and the Filter's Powder.
 fn use_up(client: &mut Client, world: &mut ServerWorld, order: &AlchemyOrder) -> Vec<Item> {
     let mut bottles = Vec::new();
     if let Some(source) = order.source {
@@ -161,9 +161,12 @@ fn use_up(client: &mut Client, world: &mut ServerWorld, order: &AlchemyOrder) ->
                     None => {}
                 }
             }
-            OrderStep::Retort { liquids } => {
+            OrderStep::Retort { liquids, solid } => {
                 for &liquid in liquids {
                     bottles.extend(client.inventory.take_one(liquid, &mut new_id));
+                }
+                if let Some(solid) = solid {
+                    client.inventory.take_one(*solid, &mut new_id);
                 }
             }
             OrderStep::Alembic { alcohol } => {

@@ -10,6 +10,7 @@ use bevy::prelude::*;
 use crate::common::{CancelledEnergy, GameView, ServerStatus, SpentEnergy};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod darkvision;
 mod door_key;
 mod doors;
 mod drawn_ground;
@@ -46,7 +47,7 @@ use travel::travel;
 use wild_heights::keep_wild_heights;
 
 /// How far the player's light reaches in dungeons, in cells.
-const LIGHT_RADIUS: u32 = 6;
+const LIGHT_RADIUS: u32 = shared::dungeon::CARRIED_LIGHT;
 
 /// Travel speed at `NORMAL_SPEED`, in grid units per second: world map points
 /// (towards a clicked point), or cells on levels (walking or travelling).
@@ -78,7 +79,7 @@ impl Plugin for PlayerPlugin {
                 (PlayerSystems::Input, PlayerSystems::Travel).chain(),
             )
             .add_systems(Startup, spawn_player)
-            .add_systems(Update, size_token)
+            .add_systems(Update, (size_token, darkvision::follow_darkvision))
             // Turning: after moving, which turns them too.
             .add_systems(
                 Update,

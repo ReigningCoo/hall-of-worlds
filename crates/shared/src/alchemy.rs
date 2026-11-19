@@ -26,6 +26,8 @@ mod retort;
 mod run;
 mod salt;
 mod skills;
+mod solid;
+mod transform;
 
 pub use alembic::{STRENGTH_A_DIVISION, reduced_by};
 pub use apparatus::{Apparatus, CALCINING, CIRCULATING, DISTILLING, FILTERING, GRINDING, INFUSING};
@@ -45,6 +47,8 @@ pub use quality::{LUCKY_ONCE, LUCKY_TWICE, least_quality, luck_steps, moved, ski
 pub use run::{HERB_PRACTICE, STEP_PRACTICE, learn_sub_skills, run_seconds, run_ticks};
 pub use salt::{SALT_GRAMS, new_salt};
 pub use skills::AlchemySkills;
+pub use solid::{LEAN_PERCENT, MERCURY_GRAMS, SULPHUR_GRAMS, Solid, new_solid};
+pub use transform::{TRANSFORMATIONS, Transformation, made_from, transformation};
 
 #[cfg(test)]
 mod alembic_tests;
@@ -54,5 +58,7 @@ mod crucible_tests;
 mod order_tests;
 #[cfg(test)]
 mod pelican_tests;
+#[cfg(test)]
+mod solid_tests;
 #[cfg(test)]
 mod tests;
