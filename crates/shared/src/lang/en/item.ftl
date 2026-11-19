@@ -7,6 +7,7 @@ about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its
 about-cask = A wooden cask, bound with iron hoops. It holds one liquid, by the litre. Drawing from it needs a tap.
 about-crucible = A clay crucible that takes the fire: Alchemy's apparatus for calcining whatever came before into a Powder, three quarters as strong. Carrying one teaches Calcining.
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
+about-pelican = A glass flask whose two curved arms bend back into its belly: Alchemy's apparatus for circulating what came before, its vapours running back down again and again. It changes nothing in what it holds but leaves it a fifth purer, which can lift it to the next quality. Carrying one teaches Circulating.
 about-filter = A glass funnel lined with paper: Alchemy's apparatus for filtering what came before through a Powder. What both hold adds together; the rest is taken out. Carrying one teaches Filtering.
 about-flour = Grain stone-ground into wholemeal flour, in an open hessian sack.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.

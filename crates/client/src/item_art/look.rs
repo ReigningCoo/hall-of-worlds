@@ -110,7 +110,7 @@ pub enum Look {
     /// The Herb Pouch: green linen with a leaf on it (`herb_pouch.rs`).
     HerbPouch,
     /// One of brewing's and Alchemy's tools (a cauldron, a mortar and pestle,
-    /// a retort, an alembic, a crucible, a filter or an oil press) or a tap, by its kind (`tool/`).
+    /// a retort, an alembic, a crucible, a filter, a pelican or an oil press) or a tap, by its kind (`tool/`).
     Tool(shared::item::ItemKind),
     /// A sack of flour, by its flour's colour (`flour.rs`).
     Flour(super::FlourLook),

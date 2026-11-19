@@ -18,8 +18,9 @@ Alchemy turns [herbs](herbs) into potions. Fill bottles with water and press oil
 | Alembic | Alchemy: distilling | Herbalists and potion shops |
 | Crucible | Alchemy: calcining | Blacksmiths |
 | Filter | Alchemy: filtering | Herbalists and potion shops |
+| Pelican | Alchemy: circulating | Herbalists and potion shops |
 
-An ability whose tool you don't carry is greyed out. A tool in a bag counts. Alchemy needs at least one apparatus. The first time you carry an apparatus, you learn its skill: **Grinding** for the Mortar and Pestle, **Infusing** for the Retort, **Distilling** for the Alembic, **Calcining** for the Crucible, **Filtering** for the Filter.
+An ability whose tool you don't carry is greyed out. A tool in a bag counts. Alchemy needs at least one apparatus. The first time you carry an apparatus, you learn its skill: **Grinding** for the Mortar and Pestle, **Infusing** for the Retort, **Distilling** for the Alembic, **Calcining** for the Crucible, **Filtering** for the Filter, **Circulating** for the Pelican.
 
 ## Waters
 
@@ -67,6 +68,7 @@ While it runs, the panel is locked and its steps fade, then colour fills along t
 - **Alembic**: distils what came before, which must be a liquid. Feed it a bottle of a drink or pure alcohol, and the stronger that is, the more it boils away: drinks under 10% not at all, wine (10% to 19%) half, pure alcohol all but a tenth. The effects stay as strong as they were, so a potion comes out stronger in fewer bottles (never fewer than one). Salt Water leaves **Salt** behind, one for each bottle distilled.
 - **Crucible**: calcines whatever came before, paste, ointment or liquid, into a **Powder**, three quarters as strong. Any liquid is driven off, so a potion becomes a powder again.
 - **Filter**: put a Powder in it. An effect that both what came before and the Powder have is added together (opposite effects cancel); an effect only one of them has is taken out. Used well, it strengthens what you want and clears away the rest.
+- **Pelican**: circulates whatever came before, over and over. It changes nothing in it, but makes it purer: the quality is worked out as though its purity were a fifth more. That helps most when a potion is close to the next quality. Each Pelican takes a step, and two count twice.
 
 ### Pure alcohol
 

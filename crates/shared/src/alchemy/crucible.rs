@@ -21,6 +21,7 @@ pub(super) fn crucible(batch: &mut Batch) -> Result<(), Refused> {
         mix: batch.mix,
         form: Some(Form::Powder),
         salt_made: batch.salt_made,
+        circulated: batch.circulated,
         ..Batch::default()
     };
     Ok(())

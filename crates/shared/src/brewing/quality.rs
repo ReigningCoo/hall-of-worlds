@@ -17,6 +17,12 @@ pub const ON_SKIN_SHARE: i16 = 4;
 /// better: 2 or less Poor, 3–4 Common, 5–6 Uncommon, 7–8 Rare, 9–10 Epic, 11
 /// or more Legendary; never Artifact.
 pub fn quality(contents: &Contents) -> Quality {
+    quality_of_purity(purity(contents))
+}
+
+/// The purity score `quality` bands: the strongest dose's steps less the next
+/// strongest's, either way (0 for none).
+pub fn purity(contents: &Contents) -> i32 {
     let mut sizes: Vec<i32> = contents
         .doses()
         .iter()
@@ -25,7 +31,13 @@ pub fn quality(contents: &Contents) -> Quality {
     sizes.sort_unstable_by(|a, b| b.cmp(a));
     let strongest = sizes.first().copied().unwrap_or(0);
     let next = sizes.get(1).copied().unwrap_or(0);
-    match (strongest - next) / 3 {
+    strongest - next
+}
+
+/// The quality a purity score gives (`quality`'s bands), so Alchemy's Pelican
+/// can raise the score first.
+pub fn quality_of_purity(score: i32) -> Quality {
+    match score / 3 {
         ..=2 => Quality::Poor,
         3..=4 => Quality::Common,
         5..=6 => Quality::Uncommon,

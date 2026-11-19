@@ -145,6 +145,7 @@ pub(super) fn refused_words(why: OrderRefused) -> &'static str {
             Refused::NothingToCalcine => "A Crucible needs something before it to calcine.",
             Refused::NothingToFilter => "A Filter needs something before it to filter.",
             Refused::NoPowder => "Put a Powder in the Filter.",
+            Refused::NothingToCirculate => "A Pelican needs something before it to circulate.",
             Refused::NotBuilt(_) => "That apparatus can't be used yet.",
         },
     }

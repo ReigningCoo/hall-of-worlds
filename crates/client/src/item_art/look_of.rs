@@ -25,6 +25,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
         | ItemKind::Alembic
         | ItemKind::Crucible
         | ItemKind::Filter
+        | ItemKind::Pelican
         | ItemKind::OilPress
         | ItemKind::Tap) => {
             return Some(Look::Tool(kind));

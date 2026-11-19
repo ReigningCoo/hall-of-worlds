@@ -29,6 +29,9 @@ pub(super) struct Batch {
     /// Whether its last step was an Alembic that reduced it: only then is
     /// what holds alcohol and no doses pure alcohol.
     pub distilled: bool,
+    /// Pelicans it has been through, each raising the product's purity score
+    /// (`circulated_quality`).
+    pub circulated: u32,
 }
 
 impl Batch {
