@@ -4,13 +4,15 @@
 //! `shared::herb`; a page per fruit and nut (`docs/fruit/`) and the Fruit and
 //! nuts page's tables, from `shared::fruit`; a page per vegetable, pulse and
 //! grain (`docs/vegetables/`), grains' with a Flour section (`shared::flour`),
-//! and that page's table, from `shared::vegetable`;
+//! and that page's table, from `shared::vegetable`; the Logs and kindling
+//! page's table of woods (`shared::tree`, `shared::woodcutting`);
 //! and the Weapons page, a page per
 //! family and a page per named weapon (`docs/weapons/`), from `shared::blade`. A test fails if the pages
 //! checked in differ from what this writes. With `--pictures` it also starts a
 //! development copy of the game and saves each herb's, fruit's, vegetable's,
-//! flour's and named weapon's picture into `docs/assets/herbs/`,
-//! `docs/assets/fruit/`, `docs/assets/vegetables/`, `docs/assets/flour/` and
+//! flour's, log's and named weapon's picture into `docs/assets/herbs/`,
+//! `docs/assets/fruit/`, `docs/assets/vegetables/`, `docs/assets/flour/`,
+//! `docs/assets/logs/` and
 //! `docs/assets/weapons/`.
 
 mod flour_pictures;
@@ -19,6 +21,7 @@ mod fruit_page;
 mod fruit_table;
 mod herb_page;
 mod herb_table;
+mod log_pictures;
 mod pictures;
 #[cfg(test)]
 mod tests;
@@ -29,6 +32,7 @@ mod weapon_facts;
 mod weapon_family;
 mod weapon_lines;
 mod weapon_page;
+mod wood_table;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -43,11 +47,13 @@ pub const USAGE: &str = "\
             Write the wiki pages made from the game's data: a page per herb
             in docs/herbs/ and the Herbs page's table, a page per fruit and nut
             in docs/fruit/ and that page's tables, a page per vegetable,
-            pulse and grain in docs/vegetables/ and that page's table, and the
+            pulse and grain in docs/vegetables/ and that page's table, the
+            Logs and kindling page's table of woods, and the
             weapons' pages in docs/weapons/. --pictures also builds and starts
             the game (debug API on, scratch data, title \"Dev:\") and saves
-            each herb's, fruit's, vegetable's and named weapon's picture into
-            docs/assets/herbs/, docs/assets/fruit/, docs/assets/vegetables/
+            each herb's, fruit's, vegetable's, flour's, log's and named
+            weapon's picture into docs/assets/herbs/, docs/assets/fruit/,
+            docs/assets/vegetables/, docs/assets/flour/, docs/assets/logs/
             and docs/assets/weapons/.";
 
 /// Where the herbs' pages are, from the workspace root.
@@ -67,6 +73,9 @@ const VEGETABLE_INDEX: &str = "docs/vegetables/index.md";
 /// Where the weapons' pages are, from the workspace root: the Weapons page and
 /// a folder per family.
 const WEAPON_FOLDER: &str = "docs/weapons";
+/// The Logs and kindling page, whose table of woods is written between
+/// `wood_table`'s comments.
+const LOGS_PAGE: &str = "docs/logs.md";
 
 pub fn run(root: &Path, args: &[String]) -> ExitCode {
     let pictures = match args {
@@ -119,6 +128,9 @@ pub(crate) fn pages(root: &Path) -> Result<Vec<(PathBuf, String)>, String> {
         VEGETABLE_INDEX.into(),
         vegetable_table::put_in(&index, vegetables)?,
     ));
+    let logs = fs::read_to_string(root.join(LOGS_PAGE))
+        .map_err(|error| format!("Can't read {LOGS_PAGE}: {error}"))?;
+    pages.push((LOGS_PAGE.into(), wood_table::put_in(&logs)?));
     let weapons = weapon_family::pages().into_iter();
     pages.extend(weapons.map(|(file, text)| (Path::new(WEAPON_FOLDER).join(file), text)));
     Ok(pages)

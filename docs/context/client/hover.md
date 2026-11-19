@@ -14,7 +14,7 @@ The box near the bottom middle of the window naming what the pointer is over: an
 
 ## Depends on
 
-- `common` (`HoverName`, `StaffMark`, `HoveredOnMap`, `HoveredInSky`, `HoveredBag`, `Portal`, `poi_name`, `CurrentWorld`, `KnownPois`, `BottomHud`, `GameView`), `view3d` (`HoveredToken`), `minimap` (`FullMap`), `dom` (`Template`, `Dom`, `document`, `bottom_strip`).
+- `common` (`HoverName`, `StaffMark`, `HoveredOnMap`, `HoveredInSky`, `HoveredLoad`, `Portal`, `poi_name`, `CurrentWorld`, `KnownPois`, `BottomHud`, `GameView`), `view3d` (`HoveredToken`), `minimap` (`FullMap`), `dom` (`Template`, `Dom`, `document`, `bottom_strip`).
 
 ## Used by
 
@@ -22,7 +22,7 @@ The box near the bottom middle of the window naming what the pointer is over: an
 
 ## Notes
 
-- Who finds what: `view3d` the hovered token (clickable, or with a `common::HoverName`: `entities` gives every other creature one); `ground` the bag (`HoveredBag`); `dungeon_map` the door, herb patch, fruit plant or stairs (`HoveredOnMap`); `minimap` the sun or moon (`HoveredInSky`). World map pois and gates are named from their `Portal`; a town, castle or fort whose name the player has learned by its name ("Ruined" before a ruin's) (`CurrentWorld`'s `KnownPois::name_of`, passed in `Found::pois`), never before (owner).
+- Who finds what: `view3d` the hovered token (clickable, or with a `common::HoverName`: `entities` gives every other creature one); `ground` the bag (`HoveredLoad`: a bag is "Bag", a cask "Oak Cask", logs "Oak Log" or "Oak Logs", `name::bag_name`); `dungeon_map` the door, herb patch, fruit plant or stairs (`HoveredOnMap`); `minimap` the sun or moon (`HoveredInSky`). World map pois and gates are named from their `Portal`; a town, castle or fort whose name the player has learned by its name ("Ruined" before a ruin's) (`CurrentWorld`'s `KnownPois::name_of`, passed in `Found::pois`), never before (owner).
 - Order when several are under the pointer: the sky (drawn over everything), then a token, then a bag, then the map's door or stairs.
 - Hidden while the full map is open: it has its own box (`minimap`).
 - Lifted above whatever the interface keeps at the bottom (`BottomHud`: the vitals circle). By touch, a name shows while a finger is down, as the pointer is there only then.

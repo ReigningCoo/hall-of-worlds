@@ -125,6 +125,24 @@ fn every_flour_has_a_picture() {
     }
 }
 
+/// Every picture the Logs and kindling page shows is there.
+#[test]
+fn every_log_has_a_picture() {
+    let page = std::fs::read_to_string(root().join("docs/logs.md")).unwrap();
+    let pictures: Vec<&str> = (page.split("{{ '/").skip(1))
+        .filter_map(|rest| rest.split_once('\'').map(|(path, _)| path))
+        .collect();
+    assert!(pictures.len() > 50, "{}", pictures.len());
+    for path in pictures {
+        let picture = root().join("docs").join(path);
+        assert!(
+            picture.exists(),
+            "{} is missing: run `cargo xtask wiki --pictures`",
+            picture.display()
+        );
+    }
+}
+
 /// A vegetable's page tells only its raw effects, as its popup does: what it
 /// would do cooked stays out until there is cooking.
 #[test]
