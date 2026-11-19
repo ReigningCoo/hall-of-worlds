@@ -152,6 +152,7 @@ pub(crate) fn answer(
             true
         }
         ClientMessage::Mark(ask) => client.answer_mark(ask, world),
+        ClientMessage::Yeast(ask) => super::feed_yeast::answer(client, world, ask),
         ClientMessage::LookUpItems(ids) => {
             client.ask_after(ids);
             true

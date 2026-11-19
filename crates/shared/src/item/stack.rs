@@ -208,8 +208,12 @@ impl Item {
         }
         if let Some(ItemForm::Yeast(yeast)) = &mut copy.form {
             // Each keeps its own clock and progress (owner, 2026-11-18): a
-            // stack keys on quality.
-            *yeast = crate::yeast::YeastForm::default();
+            // stack keys on quality, and whether it is a starter still
+            // developing.
+            *yeast = crate::yeast::YeastForm {
+                developing: u32::from(yeast.developing > 0),
+                ..Default::default()
+            };
         }
         if let Some(ItemForm::Ring(ring)) = &mut copy.form {
             for gem in ring

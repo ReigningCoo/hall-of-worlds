@@ -5,7 +5,9 @@ use shared::id::Id;
 use shared::item::{Holder, Inventory, Item, ItemKind, Placed, Rotation, StackLimits};
 use shared::pour::{Held as Liquid, pour};
 
+mod feed;
 mod quick;
+pub(super) use feed::feeding;
 pub(super) use quick::{QuickFrom, quick_target};
 
 /// An item picked up and following the pointer. Nothing has changed anywhere
@@ -45,6 +47,9 @@ pub(super) enum Target {
     /// On another cask, vessel or bottle: poured into it (`shared::pour`), if it
     /// can be.
     Pour { into: Id, allowed: bool },
+    /// Flour on yeast, fed with it, or on a bottle of fresh water, beginning
+    /// a starter (`shared::yeast`), if it can be.
+    Feed { onto: Id, allowed: bool },
     /// On a closed bag: on the first stack in it it all fits on, or else wherever
     /// there is room in it, if there is.
     Bag {
@@ -92,7 +97,7 @@ fn onto_item(
             allowed: inventory.stack_room(item, id, limits).is_ok(),
         });
     }
-    pour_aim(inventory, item, &under.item)
+    feed::feed_aim(inventory, item, &under.item).or_else(|| pour_aim(inventory, item, &under.item))
 }
 
 /// Pouring `item` into `under`, if both are casks, vessels or bottles: allowed
@@ -205,6 +210,7 @@ pub(super) fn drop_move(
         | Target::Someone(_)
         | Target::Stack { .. }
         | Target::Pour { .. }
+        | Target::Feed { .. }
         | Target::Cells { allowed: false, .. }
         | Target::Bag { place: None, .. }
         | Target::Bag { onto: Some(_), .. } => {

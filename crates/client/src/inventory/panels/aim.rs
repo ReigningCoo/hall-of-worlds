@@ -71,7 +71,8 @@ fn aimed(
         | Target::Pour {
             into: onto,
             allowed,
-        } => {
+        }
+        | Target::Feed { onto, allowed } => {
             let (holder, placed) = carried.placed(onto)?;
             let cells = placed.cells().map(|(x, y)| (x as i32, y as i32)).collect();
             (holder, cells, allowed)
