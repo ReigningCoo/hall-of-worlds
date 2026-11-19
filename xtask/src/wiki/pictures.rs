@@ -38,6 +38,7 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
     }
     let weapons = weapon_pictures(root)?;
     let flours = super::flour_pictures::flour_pictures(root)?;
+    let logs = super::log_pictures::log_pictures(root)?;
     let fruits = fruit_pictures(root)?;
     let vegetables = vegetable_pictures(root)?;
     let mut game = crate::scenario::start_game(root)?;
@@ -52,7 +53,7 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
         ])
     });
     let saved = saved.and_then(|()| {
-        (weapons.iter().chain(&flours)).try_for_each(|(path, pixels, item)| {
+        (weapons.iter().chain(&flours).chain(&logs)).try_for_each(|(path, pixels, item)| {
             crate::api::perform(&[
                 "client.save_picture".into(),
                 format!("item={item}"),
@@ -107,6 +108,11 @@ pub(super) fn save(root: &Path) -> Result<(), String> {
         "==> Saved {} flour pictures in {}",
         flours.len(),
         super::flour_pictures::FLOUR_PICTURES
+    );
+    println!(
+        "==> Saved {} log and kindling pictures in {}",
+        logs.len(),
+        super::log_pictures::LOG_PICTURES
     );
     Ok(())
 }

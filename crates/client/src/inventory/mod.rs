@@ -5,6 +5,7 @@ mod bag_slots;
 mod body;
 mod give;
 mod ground;
+mod ground_shown;
 mod hands;
 mod hold;
 mod panels;
@@ -36,6 +37,7 @@ mod wear_note;
 #[cfg(not(target_arch = "wasm32"))]
 use debug::run_debug;
 use finger::{item_cell_in_front, pick_up_by_finger};
+pub use ground_shown::GroundShown;
 use hold_items::{aim_items, drink_potion, eat_kind, hold_items};
 use holding::{Hand, HeldBy, Holding, cancel_held};
 pub use server::Stacks;
@@ -57,6 +59,7 @@ impl Plugin for InventoryPlugin {
             .init_resource::<OpenGrids>()
             .init_resource::<NearbyPanel>()
             .init_resource::<ground::Ground>()
+            .init_resource::<GroundShown>()
             .init_resource::<HeldOverGifts>()
             .init_resource::<HeldStock>()
             .init_resource::<wear_note::WearNote>()
@@ -106,7 +109,12 @@ impl Plugin for InventoryPlugin {
                     panels::show_bins,
                     panels::show_drop,
                     (ground::read_server, filter::keep_filters).chain(),
-                    (ground::bind_section, ground::show_section).chain(),
+                    (
+                        ground::bind_section,
+                        ground::show_section,
+                        ground_shown::keep_ground_shown,
+                    )
+                        .chain(),
                     ground::show_aim,
                     (
                         (panels::bind_frames, panels::bind_pages),

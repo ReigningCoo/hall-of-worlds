@@ -26,13 +26,24 @@ pub(in crate::ground) fn size_of(load: Load) -> Size {
             scale,
         };
     }
+    // Logs lie at their own size too, scaled by height as casks are.
+    if let Load::Logs { count, .. } = load {
+        let (height, radius) = crate::ground::logs::pile_units(count);
+        let scale = (height / BULGING_HEIGHT).clamp(0.5, 1.0);
+        return Size {
+            radius,
+            height,
+            lean: 0.0,
+            scale,
+        };
+    }
     let (radius, height, lean, scale) = match load {
         Load::Flat => (8.5, 3.6, 4.0, 0.5),
         Load::Slack => (7.5, 6.5, 2.0, 0.625),
         Load::Half => (7.0, 10.5, 1.0, 0.75),
         Load::Full => (8.0, 13.5, 0.6, 0.875),
         Load::Bulging => (9.5, BULGING_HEIGHT, 0.3, 1.0),
-        Load::Cask(_) => unreachable!("casks are sized above"),
+        Load::Cask(_) | Load::Logs { .. } => unreachable!("casks and logs are sized above"),
     };
     Size {
         radius: radius * scale,
@@ -51,7 +62,7 @@ pub(super) fn profile(load: Load) -> [(f32, f32); 10] {
         Load::Half => (0.26, 0.5),
         Load::Full => (0.33, 0.56),
         // Casks aren't bags: drawn by `cask.rs`.
-        Load::Bulging | Load::Cask(_) => (0.38, 0.6),
+        Load::Bulging | Load::Cask(_) | Load::Logs { .. } => (0.38, 0.6),
     };
     [
         (0.0, 0.0),

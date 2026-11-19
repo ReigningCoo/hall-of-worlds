@@ -74,6 +74,40 @@ pub(super) fn weave_picture() -> Image {
     image
 }
 
+/// A look's meshes: lit and remembered, its outlines and its sparkle's.
+fn meshes_of(
+    load: Load,
+    model: Model,
+    for_outline: &Model,
+    meshes: &mut Assets<Mesh>,
+) -> BagMeshes {
+    let scale = sparkle_scale(load);
+    let star_outline = super::bag::star(STAR_LONG, STAR_SHORT, STAR_OUTLINE / scale);
+    let star_hover_outline = super::bag::star(STAR_LONG, STAR_SHORT, STAR_HOVER_OUTLINE / scale);
+    BagMeshes {
+        remembered: meshes.add(to_mesh(model.greyed())),
+        outline: meshes.add(to_mesh(super::bag::outline(for_outline))),
+        hover_outline: meshes.add(to_mesh(super::bag::hover_outline(for_outline))),
+        lit: meshes.add(to_mesh(model)),
+        star_outline: meshes.add(to_mesh(star_outline)),
+        star_hover_outline: meshes.add(to_mesh(star_hover_outline)),
+    }
+}
+
+/// Makes a log pile's meshes the first time one is seen: there are too many
+/// woods to make them all at the start.
+pub(super) fn ensure_meshes(assets: &mut BagAssets, meshes: &mut Assets<Mesh>, load: Load) {
+    let Load::Logs { wood, count } = load else {
+        return;
+    };
+    if assets.bags.contains_key(&(load, 0)) {
+        return;
+    }
+    let (lit, for_outline) = super::logs::log_models(wood, count);
+    let made = meshes_of(load, lit, &for_outline, meshes);
+    assets.bags.insert((load, 0), made);
+}
+
 pub(super) fn make_assets(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -96,27 +130,8 @@ pub(super) fn make_assets(
         })
     });
     for (load, variety, model, for_outline) in looks.chain(casks) {
-        let scale = sparkle_scale(load);
-        {
-            let star_outline = super::bag::star(STAR_LONG, STAR_SHORT, STAR_OUTLINE / scale);
-            let star_hover_outline =
-                super::bag::star(STAR_LONG, STAR_SHORT, STAR_HOVER_OUTLINE / scale);
-            let remembered = meshes.add(to_mesh(model.greyed()));
-            let outline = meshes.add(to_mesh(super::bag::outline(&for_outline)));
-            let hover_outline = meshes.add(to_mesh(super::bag::hover_outline(&for_outline)));
-            let lit = meshes.add(to_mesh(model));
-            bags.insert(
-                (load, variety),
-                BagMeshes {
-                    lit,
-                    remembered,
-                    outline,
-                    hover_outline,
-                    star_outline: meshes.add(to_mesh(star_outline)),
-                    star_hover_outline: meshes.add(to_mesh(star_hover_outline)),
-                },
-            );
-        }
+        let made = meshes_of(load, model, &for_outline, &mut meshes);
+        bags.insert((load, variety), made);
     }
     let weave = images.add(weave_picture());
     commands.insert_resource(BagAssets {
@@ -134,6 +149,11 @@ pub(super) fn make_assets(
         }),
         cask_lit: materials.add(StandardMaterial {
             perceptual_roughness: 0.75,
+            ..default()
+        }),
+        log_lit: materials.add(StandardMaterial {
+            perceptual_roughness: 0.95,
+            reflectance: 0.1,
             ..default()
         }),
         cask_remembered: materials.add(StandardMaterial {

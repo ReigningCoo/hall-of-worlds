@@ -1,4 +1,7 @@
-use super::name::{Found, mark_of, name_of};
+use shared::ground::Load;
+use shared::material::Material;
+
+use super::name::{Found, bag_name, mark_of, name_of};
 use crate::common::HoverName;
 
 #[test]
@@ -16,7 +19,7 @@ fn names_a_creature_by_its_hover_name() {
 fn the_sky_comes_before_the_map() {
     let found = Found {
         sky: Some("Sol"),
-        bag: true,
+        bag: Some(Load::Half),
         place: Some("Inn"),
         ..Found::default()
     };
@@ -26,7 +29,7 @@ fn the_sky_comes_before_the_map() {
 #[test]
 fn a_bag_comes_before_the_place_under_it() {
     let found = Found {
-        bag: true,
+        bag: Some(Load::Half),
         place: Some("Stairs up"),
         ..Found::default()
     };
@@ -66,4 +69,15 @@ fn the_box_is_good_markup_starting_at_its_lowest() {
     super::spawn::HOVER.assert_good();
     let bottom = format!(r#"bottom="{}""#, super::spawn::LOWEST);
     assert!(super::spawn::HOVER.source.contains(&bottom));
+}
+
+#[test]
+fn logs_and_casks_on_the_ground_are_named_by_their_wood() {
+    let logs = |count| Load::Logs {
+        wood: Material::Oak,
+        count,
+    };
+    assert_eq!(bag_name(logs(1)), "Oak Log");
+    assert_eq!(bag_name(logs(3)), "Oak Logs");
+    assert_eq!(bag_name(Load::Flat), "Bag");
 }

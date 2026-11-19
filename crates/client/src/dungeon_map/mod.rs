@@ -68,6 +68,7 @@ mod plain_pictures;
 mod put_meshes;
 mod showing;
 mod spawn_scene;
+mod tree_flash;
 mod update_meshes;
 mod viewers;
 mod wild_ground;
@@ -127,6 +128,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<HerbHeading>()
             .init_resource::<fruit::DrawnFruit>()
             .init_resource::<trees::DrawnTrees>()
+            .init_resource::<tree_flash::TreeFlashes>()
             .init_resource::<vegetable_plants::DrawnVegetables>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
@@ -170,7 +172,12 @@ impl Plugin for DungeonMapPlugin {
                     (
                         update_herbs,
                         fruit::update_fruit,
-                        trees::update_trees,
+                        (
+                            trees::update_trees,
+                            tree_flash::take_chops,
+                            tree_flash::flash_trees,
+                        )
+                            .chain(),
                         vegetable_plants::update_vegetables,
                         aim_at_herbs,
                         pick_on_arrival,

@@ -22,6 +22,7 @@ mod herb;
 mod herb_pouch;
 mod key;
 mod keyring;
+mod log;
 mod looks;
 mod model;
 mod morph;
@@ -53,6 +54,7 @@ pub use footwear::FootwearLook;
 pub use fruit::{FRUIT_VARIANTS, FruitItemLook};
 pub use herb::HerbLook;
 pub use key::KeyLook;
+pub use log::{GROUND_DETAIL, LOG_LENGTH, LOG_RADIUS, LogMesh, log_mesh};
 pub use looks::{
     ArmsLook, BladeLook, FeetLook, HandsLook, HeadLook, LegsLook, NeckLook, SetLook, ShouldersLook,
     TorsoLook, WaistLook,

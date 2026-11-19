@@ -83,6 +83,12 @@ fn share(test: &mut TestClient) {
 
 /// The logs on the ground on the player's level.
 fn logs_lying(test: &mut TestClient) -> usize {
+    lying(test, ItemKind::Log)
+}
+
+/// How many of `kind` are on the ground on the player's level, counting
+/// stacks' items.
+fn lying(test: &mut TestClient, kind: ItemKind) -> usize {
     let visit = test.client.visit.as_ref().unwrap();
     let (site, index, _) = visit.plant_key(0, 0);
     let level = test.world.site(site).levels.get(&index).cloned();
@@ -90,8 +96,9 @@ fn logs_lying(test: &mut TestClient) -> usize {
     ground
         .values()
         .flat_map(|bag| bag.iter())
-        .filter(|item| item.kind == ItemKind::Log)
-        .count()
+        .filter(|item| item.kind == kind)
+        .map(|item| item.count() as usize)
+        .sum()
 }
 
 fn felled_at(test: &TestClient, (x, y): (i64, i64)) -> Option<TreeStage> {
@@ -212,4 +219,41 @@ fn a_log_is_split_into_kindling() {
         .find(|placed| placed.item.kind == ItemKind::Kindling)
         .map(|placed| placed.item.count());
     assert!(kindling.is_some_and(|count| count >= 30), "{kindling:?}");
+}
+
+#[test]
+fn a_ripe_banana_falls_with_its_fruit_and_gives_kindling() {
+    let (mut test, tree) = at_a_tree();
+    let def = shared::fruit::Fruits::built_in().get("banana").unwrap();
+    let now = test.world.minutes() as u64;
+    let round = shared::fruit::round_minutes(def);
+    // A phase putting it in the middle of a round's ripe quarter now.
+    let phase = (0..16)
+        .map(|eighth| (round + eighth * round / 16) as u32)
+        .find(|&phase| {
+            let plant = shared::fruit::FruitPlant {
+                fruit: "banana".to_owned(),
+                phase: phase + (round / 32) as u32,
+                picked: None,
+            };
+            plant.can_pick(def, now) && plant.can_pick(def, now + round / 16)
+        })
+        .unwrap();
+    let plant = shared::fruit::FruitPlant {
+        fruit: "banana".to_owned(),
+        phase: phase + (round / 32) as u32,
+        picked: None,
+    };
+    assert!(plant.can_pick(def, now), "{:?}", plant.stage(def, now));
+    let visit = test.client.visit.as_mut().unwrap();
+    visit.set_cell_for_test(tree, Cell::Floor);
+    visit.set_fruit_for_test(tree, plant);
+    test.send(&[use_ability(Ability::FellTree)]);
+    let whole = whole(&test);
+    run(&mut test, whole + 50, false);
+    share(&mut test);
+    assert_eq!(felled_at(&test, tree), Some(TreeStage::Stump));
+    assert_eq!(logs_lying(&mut test), 0, "no true wood");
+    assert_eq!(lying(&mut test, ItemKind::Kindling), 10, "a grown banana's");
+    assert!(lying(&mut test, ItemKind::Fruit) > 0, "its ripe fruit");
 }

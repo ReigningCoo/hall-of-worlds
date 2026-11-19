@@ -101,8 +101,8 @@ pub use graphics::{
 pub use hover::{HoverName, HoveredInSky, HoveredOnMap, StaffMark, poi_name, words};
 pub use item_text::{DroppedOnText, HeldOverText, KnownItem, KnownItems, TakesItemText};
 pub use items::{
-    BandShift, GROUND, GaveItem, HeldGift, HeldOverGifts, HeldStock, HoveredBag, NO_QUALITY_NAME,
-    StockCell, TakesGifts, TookItem, quality_colour,
+    BandShift, GROUND, GaveItem, HeldGift, HeldOverGifts, HeldStock, HoveredBag, HoveredLoad,
+    NO_QUALITY_NAME, StockCell, TakesGifts, TookItem, quality_colour,
 };
 pub use kind_words::kinds_words;
 pub use lightning::{BoltStruck, Lightning, LightningStrike};

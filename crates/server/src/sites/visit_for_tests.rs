@@ -1,5 +1,6 @@
 //! Helpers on `Visit` for tests.
 
+use shared::fruit::FruitPlant;
 use shared::spot::Spot;
 
 use super::Visit;
@@ -13,6 +14,11 @@ impl Visit {
     /// Changes a cell of the level, for tests.
     pub(crate) fn set_cell_for_test(&mut self, (x, y): (i64, i64), cell: shared::dungeon::Cell) {
         self.level.level.set(x, y, cell);
+    }
+
+    /// Puts a fruit plant on a cell of the level, for tests.
+    pub(crate) fn set_fruit_for_test(&mut self, (x, y): (i64, i64), plant: FruitPlant) {
+        self.level.level.set_fruit(x, y, plant);
     }
 
     /// Whether a cell of the level can be walked on, for tests.

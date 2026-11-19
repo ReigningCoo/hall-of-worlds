@@ -26,12 +26,13 @@ pub(super) fn spawn_bag(
     load: Load,
 ) -> Entity {
     let hash = spot_hash(at);
-    let cask = matches!(load, Load::Cask(_));
+    let cask = matches!(load, Load::Cask(_) | Load::Logs { .. });
     let variety = match cask {
         true => 0,
         false => (hash % super::bag::VARIETIES as u32) as u8,
     };
     let (lit, remembered) = match cask {
+        true if matches!(load, Load::Logs { .. }) => (&assets.log_lit, &assets.cask_remembered),
         true => (&assets.cask_lit, &assets.cask_remembered),
         false => (&assets.lit, &assets.remembered),
     };

@@ -1,10 +1,11 @@
 //! Deciding what the hover box says.
 
 use bevy::prelude::*;
+use shared::ground::Load;
 
 use super::spawn::{LIFT, LOWEST};
 use crate::common::{
-    BottomHud, CurrentWorld, HoverName, HoveredBag, HoveredInSky, HoveredOnMap, KnownPois, Portal,
+    BottomHud, CurrentWorld, HoverName, HoveredInSky, HoveredLoad, HoveredOnMap, KnownPois, Portal,
     StaffMark, poi_name,
 };
 use crate::dom::Dom;
@@ -18,7 +19,8 @@ pub(super) struct Found<'a> {
     pub(super) sky: Option<&'a str>,
     /// What the hovered token is.
     pub(super) token: Option<(Option<&'a Portal>, Option<&'a HoverName>)>,
-    pub(super) bag: bool,
+    /// A bag, a cask or logs on the ground, by how it looks.
+    pub(super) bag: Option<Load>,
     /// A door or stairs on the site's map.
     pub(super) place: Option<&'a str>,
     /// The pois known, for the names learned of them.
@@ -41,8 +43,19 @@ pub(super) fn name_of(found: Found) -> Option<String> {
         .sky
         .map(str::to_owned)
         .or(token)
-        .or_else(|| found.bag.then(|| "Bag".to_owned()))
+        .or_else(|| found.bag.map(bag_name))
         .or_else(|| found.place.map(str::to_owned))
+}
+
+/// What something on the ground is called from afar: "Bag", "Oak Cask",
+/// "Oak Log" or "Oak Logs".
+pub(super) fn bag_name(load: Load) -> String {
+    match load {
+        Load::Cask(cask) => format!("{} Cask", cask.wood.name()),
+        Load::Logs { wood, count: 1 } => format!("{} Log", wood.name()),
+        Load::Logs { wood, .. } => format!("{} Logs", wood.name()),
+        _ => "Bag".to_owned(),
+    }
 }
 
 /// The role a hovered player is shown as, when their name is what the box
@@ -71,7 +84,7 @@ pub(super) fn show_name(
     marks: Query<&StaffMark>,
     (sky, bag, place, world): (
         Res<HoveredInSky>,
-        Res<HoveredBag>,
+        Res<HoveredLoad>,
         Res<HoveredOnMap>,
         Option<Res<CurrentWorld>>,
     ),
@@ -82,7 +95,7 @@ pub(super) fn show_name(
     let found = Found {
         sky: sky.0.as_deref(),
         token: hovered.0.and_then(|token| tokens.get(token).ok()),
-        bag: bag.0.is_some(),
+        bag: bag.0,
         place: place.0.as_deref(),
         pois: world.as_deref().map(|world| &world.pois),
     };

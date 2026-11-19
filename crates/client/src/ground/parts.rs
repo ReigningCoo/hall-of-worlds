@@ -32,6 +32,8 @@ pub(super) struct BagAssets {
     /// Casks', coloured by their meshes alone (no weave).
     pub(super) cask_lit: Handle<StandardMaterial>,
     pub(super) cask_remembered: Handle<StandardMaterial>,
+    /// Logs' bark: rougher, with no sheen.
+    pub(super) log_lit: Handle<StandardMaterial>,
     pub(super) sparkle: Handle<StandardMaterial>,
     pub(super) outline: Handle<StandardMaterial>,
     pub(super) star_edge: Handle<StandardMaterial>,

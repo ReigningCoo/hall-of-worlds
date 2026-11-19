@@ -1,4 +1,4 @@
-use super::fruit_wood::FRUIT_WOODS;
+use super::fruit_wood::{FRUIT_KINDLING, FRUIT_WOODS};
 use super::*;
 use crate::climate::Biome;
 use crate::fruit::Fruits;
@@ -42,6 +42,10 @@ fn every_trunked_fruit_tree_has_a_wood_but_three() {
     for def in fruits.iter().filter(|def| def.plant.has_trunk()) {
         let listed = fruit_wood(&def.key).is_some();
         assert_eq!(listed, !no_wood.contains(&def.key.as_str()), "{}", def.key);
+    }
+    for (key, wood, pieces) in FRUIT_KINDLING {
+        assert!(no_wood.contains(&key), "{key}");
+        assert!(wood.wood().is_some() && (5..=15).contains(&pieces), "{key}");
     }
     for (key, wood, logs) in FRUIT_WOODS {
         let def = fruits
@@ -145,7 +149,13 @@ fn young_trees_give_fewer_logs() {
         (Some(crate::material::Material::Oak), 11)
     );
     let banana = Tree::Fruit("banana".to_owned());
-    assert_eq!((banana.wood(), banana.logs(TreeStage::Grown)), (None, 0));
+    assert_eq!(
+        (banana.wood(), banana.logs(TreeStage::Grown)),
+        (Some(crate::material::Material::Banana), 0)
+    );
+    assert_eq!(banana.kindling(TreeStage::Grown), 10);
+    assert_eq!(banana.kindling(TreeStage::Young), 3, "a quarter, as logs");
+    assert_eq!(oak.kindling(TreeStage::Grown), 0, "oak gives logs");
     let apple = Tree::Fruit("apple".to_owned());
     assert_eq!(apple.logs(TreeStage::Young), 1);
 }

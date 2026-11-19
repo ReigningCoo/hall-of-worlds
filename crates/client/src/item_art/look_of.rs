@@ -37,6 +37,12 @@ pub fn look_of(item: &Item) -> Option<Look> {
     if let Some(vessel) = item.vessel() {
         return Some(Look::Vessel(vessel.vessel));
     }
+    if let Some(log) = item.log() {
+        return Some(Look::Log(log.wood));
+    }
+    if let Some(kindling) = item.kindling() {
+        return Some(Look::Kindling(kindling.wood));
+    }
     if let Some(cask) = item.cask() {
         return Some(Look::Cask(cask.look()));
     }

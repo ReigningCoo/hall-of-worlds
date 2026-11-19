@@ -14,6 +14,7 @@ fn app(own: OwnAbility) -> App {
     let mut app = App::new();
     app.init_resource::<Time>()
         .init_resource::<Carried>()
+        .init_resource::<crate::inventory::GroundShown>()
         .init_resource::<crate::character::CharacterSheet>()
         .init_resource::<OwnVitals>()
         .init_resource::<crate::common::CurrentDungeon>()
@@ -24,6 +25,7 @@ fn app(own: OwnAbility) -> App {
             ..default()
         })
         .add_message::<ToServer>()
+        .add_message::<crate::common::FaceTowards>()
         .add_systems(Update, ask_wanted);
     app
 }

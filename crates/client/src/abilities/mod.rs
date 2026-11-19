@@ -28,6 +28,7 @@ mod spots;
 mod use_ability;
 mod vitals_now;
 mod wait;
+mod woodcutting;
 
 pub struct AbilitiesPlugin;
 

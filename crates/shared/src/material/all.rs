@@ -4,7 +4,7 @@ use super::Material;
 
 impl Material {
     /// Every material, alphabetically by name.
-    pub const ALL: [Self; 104] = [
+    pub const ALL: [Self; 107] = [
         Self::Acacia,
         Self::Adamantine,
         Self::Alder,
@@ -14,6 +14,7 @@ impl Material {
         Self::Ash,
         Self::Aspen,
         Self::Avocado,
+        Self::Banana,
         Self::Baobab,
         Self::Beech,
         Self::Birch,
@@ -78,6 +79,7 @@ impl Material {
         Self::Olive,
         Self::Onyx,
         Self::Palm,
+        Self::Papaya,
         Self::Pear,
         Self::Peridot,
         Self::Persimmon,
@@ -90,6 +92,7 @@ impl Material {
         Self::Rawhide,
         Self::RedCedar,
         Self::Ruby,
+        Self::Saguaro,
         Self::Sandalwood,
         Self::Sapphire,
         Self::Shea,

@@ -118,6 +118,10 @@ pub enum Look {
     Yeast,
     /// A cask, by its size and wood (`cask.rs`).
     Cask(shared::cask::CaskLook),
+    /// A log, by its wood (`log.rs`).
+    Log(Material),
+    /// Kindling, by its wood (`log.rs`).
+    Kindling(Material),
     /// A vessel, by which it is (`vessel.rs`).
     Vessel(shared::vessel::VesselKind),
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
@@ -195,6 +199,8 @@ impl Look {
             Self::Food(_) => (2, 1),
             Self::Tool(kind) => super::tool::cells(*kind),
             Self::Cask(cask) => super::cask::cells(*cask),
+            Self::Log(_) => (8, 3),
+            Self::Kindling(_) => (2, 1),
             Self::Vessel(vessel) => super::vessel::cells(*vessel),
             Self::Fruit(fruit) => fruit.cells,
             Self::Vegetable(vegetable) => vegetable.cells,

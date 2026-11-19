@@ -7,7 +7,7 @@ Any tree can be felled with a one-handed axe, for logs that can be split into ki
 1. **Shared rules** (built): tree kinds (`shared::tree`), the woods as materials, the Log and Kindling items, Fell Tree and Cut Kindling with the Woodcutting skill, felling times, logs per tree, growth stages with their walking costs, damage fading (`shared::woodcutting`).
 2. **The server** (built): felling (cancelled by moving or Esc, damage kept), the log pile dropped where the feller stands, felled trees saved per cell on world time, regrowing, Cut Kindling, walking costs on levels, changes sent to clients.
 3. **Tree models** (built) per kind and stage, and stumps, in the fruit trees' style.
-4. **The client:** damage flashes for everyone near, log and kindling pictures (bark sides, plain ends), the log pile model (1, 2, 3 or more), the abilities in use, Give Item, a debug tool to age felled trees, the wiki.
+4. **The client** (built): damage flashes for everyone near, log and kindling pictures (bark sides, plain ends), the log pile model (1, 2, 3 or more), the abilities in use, Give Item, the wiki (`woodcutting.md`, `logs.md`); and the owner's answers to the research (kindling-only trees, fig's weight, fruit falling with its tree).
 
 ## Owner's decisions
 
@@ -21,14 +21,13 @@ Any tree can be felled with a one-handed axe, for logs that can be split into ki
 - **Regrowing:** the stump is gone after 24 hours; the tree grows again from 5 days after felling, about a week a stage; its saved entry is dropped when full grown (the seed takes over again, checked on loading). All on world time (paused with the server, moved by the debug actions that change the time).
 - **Walking:** a stump costs 1.5×, a sapling 1×, a young tree 1.5×, a half-grown one 3×; a grown tree blocks.
 
-## Research questions (Claude's defaults, overturnable)
-
-The owner hasn't answered the research's questions yet; these defaults were used (they are also in `TODO.local.md`):
+## Research questions (owner's answers, 2026-11-19)
 
 1. **Acacia stays black locust** (the casks keep it); a new **Thorn** wood is added for the savanna acacias (umbrella thorn and camel thorn).
 2. **Pine's weight stays 5** (500 kg/m³; Scots pine is 550).
-3. **Banana, papaya and saguaro give no logs** when felled, but still leave a stump and grow back.
-4. **The research's estimated densities** are used where nothing better was found (fig's 730 too).
+3. **Banana, papaya and saguaro** can be felled, and give 5 to 15 pieces of Kindling instead of logs (banana 10, papaya 5, saguaro 15 grown, fewer younger as logs are), each of a wood of its own (`Banana`, `Papaya`, `Saguaro`: fibre, pith and ribs).
+4. **Fig's weight is 5** (500 to 600 kg/m³, not the one study's 730); the research's other estimated densities stay.
+5. **A ripe fruit tree felled** (`FruitPlant::can_pick`) drops its fruit by the stump too, harvested as at 0 Orchards and Foraging.
 
 ## Claude's choices in PR 1 (overturnable)
 
@@ -59,3 +58,15 @@ The owner hasn't answered the research's questions yet; these defaults were used
 - **Felled fruit trees** grow back as their own model in leaf, smaller (the same three sizes), and leave a stump in the fruit trees' bark; once grown they are their fruit plant again.
 - **Remembered:** unlike other plants, trees are drawn where remembered, in grey, so woods stay on the map.
 - **Clicks:** a click on a standing tree's crown sends the player to the free cell beside it nearest them; hover names a tree by its kind and how it has grown back ("Oak, sapling").
+
+## Claude's choices in PR 4 (overturnable)
+
+- **Bark:** drawn procedurally from the research's colours and descriptions (seven reliefs: smooth, furrowed, plated, scaly, stringy, ringed for palms, ribbed for saguaro; lenticel dashes for birch, cherry, aspen, plum and papaya; flaked patches for guava, marula and banana), as a mesh's shape and colours, since Wikimedia kept refusing the bark photos (only 5 of 110 downloaded). No photo is used, so nothing is credited.
+- **Ends:** heartwood paling to a sapwood rim, growth rings by the research's end-grain contrast, fibre dots for palms, banana, papaya and saguaro, a dark pith and two drying cracks; a band of bark round the edge.
+- **Pictures:** the log lies along its 8 × 3 cells, rolled up at its right end so that end shows; kindling is three split wedges with a strip of bark.
+- **Flash:** a tree's coloured copy is drawn red for 0.15 s at each blow (a little longer than a token's 0.1 s, as blows come every 2 s), for everyone who sees it, the feller too.
+- **Facing:** Fell Tree used with no tree faced turns the player to the nearest tree in reach (any way round) first, telling the server of the turn just before asking.
+- **Cut Kindling's ground log:** the first log the ground's grid shows, while that grid is on screen (`inventory::GroundShown`).
+- **Ground:** a pile shows its first log's wood; three or more look alike (owner). Piles' meshes are made the first time each wood and count is seen.
+- **Kindling-only trees:** banana 10, papaya 5, saguaro 15 pieces grown, fewer younger as logs are; each with a wood of its own (Banana, Papaya, Saguaro). Fig's weight is 5 (its 500 to 600 kg/m³ rounded as Scots pine's 550 is).
+- **No ageing tool:** the debug menu's World Time already moves felled trees on, which was enough to check them.

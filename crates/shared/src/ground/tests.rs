@@ -41,3 +41,21 @@ fn the_nearest_bag_in_reach() {
         None
     );
 }
+
+#[test]
+fn logs_show_as_a_pile_of_up_to_three() {
+    use crate::id::Id;
+    use crate::material::Material;
+    use crate::woodcutting::{new_kindling, new_log};
+    let log = |n| new_log(Material::Oak, Id::for_test(n), None);
+    let kindling = new_kindling(Material::Oak, 3, Id::for_test(9), None);
+    let pile = |count| Load::Logs {
+        wood: Material::Oak,
+        count,
+    };
+    assert_eq!(Load::of(&[kindling.clone(), log(1)]), pile(1));
+    assert_eq!(Load::of(&[log(1), log(2)]), pile(2));
+    let many: Vec<Item> = (1..=7).map(log).collect();
+    assert_eq!(Load::of(&many), pile(MOST_LOGS));
+    assert!(!matches!(Load::of(&[kindling]), Load::Logs { .. }));
+}

@@ -5,8 +5,8 @@
 use crate::material::Material::{self, *};
 
 /// Each trunked fruit plant's wood and logs, by its fruit's key. Banana,
-/// papaya and saguaro have trunks but no true wood: felled, they give no logs
-/// (woodcutting plan's default), so they are left out.
+/// papaya and saguaro have trunks but no true wood: felled, they give
+/// kindling instead (`FRUIT_KINDLING`), so they are left out.
 #[rustfmt::skip]
 pub(super) const FRUIT_WOODS: [(&str, Material, u8); 57] = [
     ("apple", Apple, 1), ("crab_apple", Apple, 1),
@@ -48,10 +48,27 @@ pub(super) const FRUIT_WOODS: [(&str, Material, u8); 57] = [
     ("juniper", Juniper, 1),
 ];
 
+/// The trunks without true wood, felled for kindling instead of logs: each
+/// one's wood and the pieces a grown one gives, 5 to 15 (owner, 2026-11-19;
+/// a saguaro's ribs the most, a papaya's hollow stem the least).
+#[rustfmt::skip]
+pub(super) const FRUIT_KINDLING: [(&str, Material, u8); 3] = [
+    ("banana", Banana, 10), ("papaya", Papaya, 5), ("saguaro_fruit", Saguaro, 15),
+];
+
 /// A trunked fruit plant's wood and grown logs, by its fruit's key; `None`
-/// for one without true wood (banana, papaya, saguaro) or no trunk.
+/// for one without true wood (banana, papaya, saguaro: `fruit_kindling`) or
+/// no trunk.
 pub fn fruit_wood(key: &str) -> Option<(Material, u8)> {
     (FRUIT_WOODS.iter())
         .find(|(fruit, ..)| *fruit == key)
         .map(|&(_, wood, logs)| (wood, logs))
+}
+
+/// A fruit plant without true wood (banana, papaya, saguaro): its wood and
+/// the kindling a grown one gives, by its fruit's key; `None` for any other.
+pub fn fruit_kindling(key: &str) -> Option<(Material, u8)> {
+    (FRUIT_KINDLING.iter())
+        .find(|(fruit, ..)| *fruit == key)
+        .map(|&(_, wood, pieces)| (wood, pieces))
 }
