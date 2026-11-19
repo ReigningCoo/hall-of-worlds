@@ -15,13 +15,15 @@ use shared::ground::in_reach;
 pub(super) type InReach = (Vec<Spot>, Vec<(shared::id::Id, u32)>);
 
 /// Tells each player what is in their reach, when it isn't what they were last
-/// told. A client that has gone is noticed when its messages are next read.
+/// told, and forgets their automatic marks on piles now gone. A client that has
+/// gone is noticed when its messages are next read.
 pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld) {
     settle_yeast(clients, world);
     for client in clients {
         if client.phase != Phase::Playing {
             continue;
         }
+        client.forget_gone_piles(world);
         let Some((id, index, at)) = standing_at(client) else {
             continue;
         };

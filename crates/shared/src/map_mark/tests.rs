@@ -7,6 +7,7 @@ fn mark(n: u128, auto: bool) -> MapMark {
         icon: MarkIcon::Flag,
         colour: MarkColour::Red,
         auto,
+        pile: None,
     }
 }
 
@@ -50,4 +51,20 @@ fn only_hand_marks_count_towards_the_limit() {
     marks.extend((1000..1100).map(|n| mark(n, true)));
     assert_eq!(hand_marks(&marks), MOST_HAND_MARKS - 1);
     assert!(may_add_by_hand(&marks));
+}
+
+#[test]
+fn a_pile_is_marked_white_on_its_cell() {
+    // 100 world map points round: 1,600 cells; a pile beyond the seam comes round.
+    let pile = Spot::middle_of((1_603, 20));
+    let mark = MapMark::for_pile(Id::for_test(1), pile, 100, true).unwrap();
+    assert_eq!(
+        (mark.at, mark.icon, mark.colour),
+        ((3, 20), MarkIcon::Logs, MarkColour::White)
+    );
+    assert!(mark.auto);
+    assert_eq!(mark.pile, Some(pile));
+    let bag = MapMark::for_pile(Id::for_test(2), pile, 100, false).unwrap();
+    assert_eq!(bag.icon, MarkIcon::Bag);
+    assert!(may_add_by_hand(&vec![mark; MOST_HAND_MARKS]));
 }

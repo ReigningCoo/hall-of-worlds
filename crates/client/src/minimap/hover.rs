@@ -53,12 +53,22 @@ pub(super) fn name_what_is_hovered(
         if gate.is_some() {
             return None;
         }
-        // One of the player's own marks, over anything under it.
-        if let Some(world) = world.as_deref().filter(|_| view == GameView::WorldMap) {
+        // One of the player's own marks, over anything under it: on the world
+        // map's maps or the wilderness's.
+        let wild = view == GameView::Dungeon && dungeon.is_wilderness();
+        if let Some(world) = world
+            .as_deref()
+            .filter(|_| view == GameView::WorldMap || wild)
+        {
             let reach = f64::from(super::mark_paint::MARK_PIXELS * full.zoom / 2.0);
-            let width = world.surface.width();
-            if let Some(mark) = marks.near(spot, reach * units_per_pixel, width) {
-                return Some(mark_name(&wording.0, mark.icon));
+            let (reach, width) = (reach * units_per_pixel, world.surface.width());
+            let mark = if wild {
+                marks.near_cell(spot, reach, width)
+            } else {
+                marks.near(spot, reach, width)
+            };
+            if let Some(mark) = mark {
+                return Some(mark_name(&wording.0, mark));
             }
         }
         hovered_name(

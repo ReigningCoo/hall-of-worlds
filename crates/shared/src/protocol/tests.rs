@@ -453,6 +453,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             icon: crate::map_mark::MarkIcon::Logs,
             colour: crate::map_mark::MarkColour::White,
             auto: true,
+            pile: Some(crate::spot::Spot::new(9_720, -1_800)),
         }])),
         ServerMessage::Marks(super::MarkNews::Removed(Id::for_test(6))),
         ServerMessage::Quest(super::QuestNews::Dots(vec![super::QuestDots {

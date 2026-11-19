@@ -233,10 +233,18 @@ pub(super) fn draw_maps(
             super::quest_marks::draw(&mut canvas, &projection, world, &quest_pois, area, icon);
             let size = super::mark_paint::MARK_PIXELS * zoom * dots;
             let width = world.surface.width();
-            super::map_marks_draw::draw(&mut canvas, &projection, &marks, width, size);
+            super::map_marks_draw::draw(&mut canvas, &projection, &marks, (width, false), size);
         }
         if let Some(looks) = &looks {
             super::site_icons::draw(&mut canvas, looks, dungeon, &projection, zoom * dots, dots);
+        }
+        // The wilderness's maps carry the marks too (never sites' or the Hall's).
+        if let (Some(_), Some(world)) = (&looks, world.as_deref())
+            && dungeon.is_wilderness()
+        {
+            let size = super::mark_paint::MARK_PIXELS * zoom * dots;
+            let width = world.surface.width();
+            super::map_marks_draw::draw(&mut canvas, &projection, &marks, (width, true), size);
         }
         if full.open {
             kept.forget();

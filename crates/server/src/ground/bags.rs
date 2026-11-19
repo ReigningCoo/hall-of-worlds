@@ -4,7 +4,7 @@
 use shared::creature::Size;
 use shared::ground::in_reach;
 use shared::id::Id;
-use shared::item::Item;
+use shared::item::{Item, ItemKind};
 use shared::spot::Spot;
 
 use crate::ServerWorld;
@@ -36,14 +36,15 @@ pub(super) fn bags_in_reach(bags: &Bags, size: Size, at: Spot) -> Vec<Spot> {
 }
 
 /// Puts these on the ground for someone of this size at `at`: into the nearest
-/// bag in reach, or a new one at their feet.
+/// bag in reach, or a new one at their feet, whose place is returned.
 pub(crate) fn drop_at(
     bags: &mut Bags,
     size: Size,
     at: Spot,
     items: impl IntoIterator<Item = Item>,
-) {
-    let into = bags_in_reach(bags, size, at).first().copied().unwrap_or(at);
+) -> Option<Spot> {
+    let nearest = bags_in_reach(bags, size, at).first().copied();
+    let into = nearest.unwrap_or(at);
     // Yeast and casks on the ground go by real time (`shared::yeast`,
     // `shared::ferment`).
     let now = crate::quests::unix_now().max(0) as u64;
@@ -53,10 +54,12 @@ pub(crate) fn drop_at(
         item
     });
     bags.entry(into).or_default().extend(items);
+    nearest.is_none().then_some(into)
 }
 
-/// Puts this on the ground by the player, as the newest in its bag.
-pub(crate) fn put_down(client: &Client, world: &mut ServerWorld, mut item: Item) {
+/// Puts this on the ground by the player, as the newest in its bag. A new pile
+/// on the wilderness's ground gets the player an automatic map mark.
+pub(crate) fn put_down(client: &mut Client, world: &mut ServerWorld, mut item: Item) {
     // Quest items are destroyed rather than left for anyone (owner): one on
     // its own, or any inside what is put down.
     if item.is_quest_item() {
@@ -64,10 +67,19 @@ pub(crate) fn put_down(client: &Client, world: &mut ServerWorld, mut item: Item)
     }
     item.strip_quest_items();
     let size = client.size();
-    if let Some((.., at)) = standing_at(client)
-        && let Some(level) = level_mut(world, client)
+    let logs = item.kind == ItemKind::Log;
+    let Some((site, index, at)) = standing_at(client) else {
+        return;
+    };
+    let Some(level) = level_mut(world, client) else {
+        return;
+    };
+    let started = drop_at(&mut level.ground, size, at, [item]);
+    if let Some(pile) = started
+        && site == SiteId::Wilderness
+        && index == 0
     {
-        drop_at(&mut level.ground, size, at, [item]);
+        client.mark_pile(pile, logs, world.width);
     }
 }
 
@@ -88,6 +100,7 @@ pub(super) fn take_up(client: &Client, world: &mut ServerWorld, item: Id) -> Opt
     let place = pile.iter().position(|one| one.id == item)?;
     let taken = pile.remove(place);
     if pile.is_empty() {
+        // Anyone's automatic mark on it goes (`Client::forget_gone_piles`).
         level.ground.remove(&bag);
     }
     Some(taken)

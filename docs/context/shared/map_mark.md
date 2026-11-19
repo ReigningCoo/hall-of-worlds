@@ -10,13 +10,13 @@ Personal map marks (owner's design, 2026-11-19): a character's own places on a p
 
 - `MarkIcon` (10: Flag, House, Cave, Mine, Farm, Orchard, Bag, Logs, Camp, Danger; `ALL`, `key()` / `from_key` in kebab case for language files and debug tools). Serde by name, new ones at the end.
 - `MarkColour` (8: Red, Orange, Yellow, Green, Cyan, Blue, Purple, White; `ALL`, `rgb()`, `key()` / `from_key`; Red the default).
-- `MapMark { id, at, icon, colour, auto }`: `at` in wilderness cells (`wilderness::SCALE`, 16, a world map point), `x` within the planet's width; `auto` (serde default) for marks the game places (PR 2), which don't count.
+- `MapMark { id, at, icon, colour, auto, pile }`: `at` in wilderness cells (`wilderness::SCALE`, 16, a world map point), `x` within the planet's width; `auto` (serde default) for marks the game places, which don't count; `pile` (serde default) an automatic mark's pile, its `Spot` on the wilderness's level as the server keeps it (beyond the seam too). `MapMark::for_pile(id, pile, points, logs)`: the white Logs or Bag mark for a new pile, `None` past the ice.
 - `MOST_HAND_MARKS` (100 per character per planet), `hand_marks`, `may_add_by_hand`.
 - `middle_of_point` (a mark placed on the world map goes in the middle of its point), `point_of`, `place(at, points)`: `x` brought round the planet, `None` past the ice caps (`movement::past_the_ice`).
 
 ## Depends on
 
-- `id`, `movement` (`past_the_ice`), `wilderness` (`SCALE`).
+- `id`, `movement` (`past_the_ice`), `spot`, `wilderness` (`SCALE`).
 
 ## Used by
 
@@ -24,5 +24,6 @@ Personal map marks (owner's design, 2026-11-19): a character's own places on a p
 
 ## Notes
 
-- Not in sites or the Hall (owner): marks are planet-wide places on the world map's maps (PR 2 adds the wilderness's).
-- The plan: PR 1 by hand (this), PR 2 automatic white marks on piles a player starts on wilderness ground (logs icon for log piles, bag otherwise), PR 3 marks in the 3D world map.
+- Not in sites or the Hall (owner): marks are planet-wide places on the world map's maps and the wilderness's.
+- The plan: PR 1 by hand, PR 2 automatic white marks on piles a player starts on wilderness ground (logs icon for log piles, bag otherwise; felling makes none, as trees regrow), gone with the pile however it is emptied, PR 3 marks in the 3D world map.
+- `MapMark` is in messages, so a field added to it changes the protocol (postcard isn't self-describing); saves (RON) take the serde defaults.
