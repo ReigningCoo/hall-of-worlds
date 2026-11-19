@@ -42,6 +42,7 @@ pub mod item_text;
 pub mod juice;
 pub mod lang;
 pub mod magic;
+pub mod map_mark;
 pub mod material;
 pub mod mob;
 pub mod movement;

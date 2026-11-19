@@ -11,7 +11,7 @@ Words in the player's language: every word sits in a language file (Fluent `.ftl
 - `lang/variables.rs`: `Lang::variables` and `missing`, read from the messages' syntax trees.
 - `lang/rules.rs`: the `Rules` trait. `lang/english.rs`: English's.
 - `lang/functions.rs`: the rules as functions files call: `A`, `POSSESSIVE`, `CAP` (and Fluent's `NUMBER`).
-- `lang/files.rs`: the built-in files per language. `lang/en/common.ftl`: genders by name, pronouns. `lang/en/story.ftl`: names' order, and `shared::story`'s values (epithets, pets, places, directions, distances). `lang/en/story-plots.ftl`: stories' facts, creatures, coins, beats (five wordings each, as attributes), titles and steps. `lang/en/talk.ftl`: the talk panel's words: givers' titles and occupations by building kind, hints in the giver's words, refusals, the reward line. `lang/en/quest-log.ftl`: the Quest Log's headings, "Here", who gave a quest, where it stands, the places to go, a line per giver of dailies. `lang/en/item.ftl`: an item's popup: bonuses ("+40 Toughness", restoring, how long, what ends it) and stats' names. `lang/en/effect.ftl`: the effect bar's popup: an effect's name ("Eating: Apple", "Poisoned"), what ends it early, "Ends in N s".
+- `lang/files.rs`: the built-in files per language. `lang/en/common.ftl`: genders by name, pronouns. `lang/en/story.ftl`: names' order, and `shared::story`'s values (epithets, pets, places, directions, distances). `lang/en/story-plots.ftl`: stories' facts, creatures, coins, beats (five wordings each, as attributes), titles and steps. `lang/en/talk.ftl`: the talk panel's words: givers' titles and occupations by building kind, hints in the giver's words, refusals, the reward line. `lang/en/quest-log.ftl`: the Quest Log's headings, "Here", who gave a quest, where it stands, the places to go, a line per giver of dailies. `lang/en/item.ftl`: an item's popup: bonuses ("+40 Toughness", restoring, how long, what ends it) and stats' names. `lang/en/effect.ftl`: the effect bar's popup: an effect's name ("Eating: Apple", "Poisoned"), what ends it early, "Ends in N s". `lang/en/map-mark.ftl`: personal map marks' icons by key, "Your mark: Camp", and the hand marks' limit.
 
 ## Public API
 
@@ -28,7 +28,7 @@ Words in the player's language: every word sits in a language file (Fluent `.ftl
 
 ## Used by
 
-- `shared::story` (its values are selectors; names, places, and whole stories rendered). The client's quest text, and `item_popup` (bonus lines).
+- `shared::story` (its values are selectors; names, places, and whole stories rendered). The client's quest text, `item_popup` (bonus lines) and `map_marks` (mark names).
 
 ## Notes
 

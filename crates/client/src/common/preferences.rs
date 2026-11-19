@@ -63,6 +63,8 @@ pub struct Preferences {
     /// The servers this computer has a character on, as `connection` names them
     /// (the built-in one too), for Play.
     pub played_on: std::collections::BTreeSet<String>,
+    /// The colour new map marks are placed in, as last chosen in their popup.
+    pub mark_colour: shared::map_mark::MarkColour,
 }
 
 /// The movement pad as last left: open unless closed with its button, and

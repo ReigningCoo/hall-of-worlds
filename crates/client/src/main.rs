@@ -30,6 +30,7 @@ mod item_text;
 mod lightning;
 mod loading_screen;
 mod login;
+mod map_marks;
 mod minimap;
 mod notices;
 mod planet_view;
@@ -154,6 +155,7 @@ fn main() {
     app.add_plugins(tracked_quest::TrackedQuestPlugin);
     app.add_plugins(app_icon::AppIconPlugin);
     app.add_plugins(item_popup::ItemPopupPlugin);
+    app.add_plugins(map_marks::MapMarksPlugin);
 
     // Native only: developer tools. (The embedded single-player server is
     // started by `connection`.)

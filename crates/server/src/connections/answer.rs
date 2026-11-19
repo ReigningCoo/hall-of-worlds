@@ -151,6 +151,7 @@ pub(crate) fn answer(
             client.waiting.push_back(Action::Quest(ask));
             true
         }
+        ClientMessage::Mark(ask) => client.answer_mark(ask, world),
         ClientMessage::LookUpItems(ids) => {
             client.ask_after(ids);
             true

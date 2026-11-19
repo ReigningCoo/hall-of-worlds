@@ -59,6 +59,7 @@ mod lightning;
 pub(crate) mod lockdown;
 mod login;
 mod look_up;
+mod map_marks;
 mod messages;
 mod moving;
 mod new_character;
@@ -294,6 +295,8 @@ mod lockdown_tests;
 mod login_tests;
 #[cfg(test)]
 mod look_up_tests;
+#[cfg(test)]
+mod map_marks_tests;
 #[cfg(test)]
 mod new_character_tests;
 #[cfg(test)]

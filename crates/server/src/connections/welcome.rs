@@ -193,4 +193,5 @@ pub(super) fn send_welcome(
         && client.send_inventory()
         && client.send_difficulty(options.difficulties)
         && client.send_lockdown(options)
+        && client.send_marks()
 }

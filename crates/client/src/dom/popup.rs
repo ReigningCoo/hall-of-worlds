@@ -42,18 +42,30 @@ pub struct Popup {
     pub hover: bool,
 }
 
+/// How far in front of its layer's darkening a popup with a `depth` is: in front
+/// of the layer's own document (one above it), behind the next layer.
+const OVER_LAYER: i32 = 5;
+
 /// On a popup's padlock: the popup it locks.
 #[derive(Component, Clone, Copy)]
 pub(super) struct PopupLock(Entity);
 
-/// A popup's box, with its padlock: in front of the panels, taking presses,
+/// A popup's box, with its padlock: in front of the panels (or, with a
+/// `depth`, of that full-screen layer, as one opened over it), taking presses,
 /// and placed by `follow_surfaces` as its element's `left` and `top` say.
-pub(super) fn spawn_popup(commands: &mut Commands, assets: &AssetServer, hover: bool) -> Entity {
+pub(super) fn spawn_popup(
+    commands: &mut Commands,
+    assets: &AssetServer,
+    hover: bool,
+    depth: Option<i32>,
+) -> Entity {
     let node = Node {
         position_type: PositionType::Absolute,
         ..default()
     };
-    let front = GlobalZIndex(HELD_ITEM_Z - 1);
+    let front = GlobalZIndex(depth.map_or(HELD_ITEM_Z - 1, |depth| {
+        crate::widgets::layer_z(depth) + OVER_LAYER
+    }));
     let popup = commands
         .spawn((
             Popup {

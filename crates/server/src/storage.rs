@@ -23,6 +23,7 @@ use crate::saves::{LoadError, Save, SaveKey};
 mod characters;
 mod dev_return;
 mod dungeon_stay;
+mod forget_sites;
 mod known_poi;
 mod quest_book;
 mod roads;

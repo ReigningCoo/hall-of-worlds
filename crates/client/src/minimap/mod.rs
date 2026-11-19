@@ -24,6 +24,7 @@ use crate::player::PlayerSystems;
 use crate::view3d::View3dSystems;
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod click;
 mod close;
 mod draw;
 mod forget;
@@ -33,6 +34,9 @@ mod hold;
 mod hover;
 mod input;
 mod layout;
+mod map_marks_draw;
+mod mark_paint;
+mod mark_shapes;
 mod marks;
 mod markup;
 mod names;
@@ -51,6 +55,7 @@ mod spawn;
 mod stamps;
 mod teleport;
 
+pub use click::FullMapClick;
 use draw::draw_maps;
 pub use full_map::FullMap;
 use hover::{find_hovered_body, name_what_is_hovered, spot_on_full_map};
@@ -59,6 +64,7 @@ use layout::{
     full_map_area, full_map_corner, full_map_picture_corner, full_map_side, minimap_across,
     minimap_picture_size, minimap_trim,
 };
+pub use mark_paint::{mark_pixels, swatch_pixels};
 use marks::{full_map_compass, minimap_border, minimap_marks};
 use names::{hovered_name, hovered_poi, location_title};
 use parts::{HoverRunesPicture, MapPart, MapPictures};
@@ -156,6 +162,7 @@ impl Plugin for MinimapPlugin {
             .init_resource::<MapRivers>()
             .init_resource::<Sprites>()
             .init_resource::<overlay::MarksLayer>()
+            .add_message::<FullMapClick>()
             .add_systems(Startup, markup::spawn_maps)
             .add_systems(
                 Update,
@@ -169,6 +176,7 @@ impl Plugin for MinimapPlugin {
                     go_into_clicked_poi,
                     hold::hold_minimap,
                     take_input,
+                    click::report_click,
                     floors::back_to_own_floor,
                 )
                     .chain()

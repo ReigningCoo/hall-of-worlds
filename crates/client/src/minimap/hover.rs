@@ -13,7 +13,8 @@ use super::{
     minimap_trim, under_the_sky, units_per_pixel,
 };
 use crate::common::{
-    CurrentDungeon, CurrentWorld, GameView, HoveredInSky, OtherLevels, SkyNow, SmoothPosition,
+    CurrentDungeon, CurrentWorld, GameView, HoveredInSky, MapMarks, OtherLevels, SkyNow,
+    SmoothPosition, Wording, mark_name,
 };
 use crate::dom::{Dom, Hit};
 use crate::player::Player;
@@ -33,6 +34,7 @@ pub(super) fn name_what_is_hovered(
     levels: Res<OtherLevels>,
     full: Res<FullMap>,
     (hit, parts): (Res<Hit>, Query<&super::MapPart>),
+    (marks, wording): (Res<MapMarks>, Res<Wording>),
     mut dom: Dom,
     mut runes: RunesBox,
     mut was: Local<Named>,
@@ -50,6 +52,14 @@ pub(super) fn name_what_is_hovered(
         gate = gate_runes::hovered_gate(levels.shown(&dungeon), spot);
         if gate.is_some() {
             return None;
+        }
+        // One of the player's own marks, over anything under it.
+        if let Some(world) = world.as_deref().filter(|_| view == GameView::WorldMap) {
+            let reach = f64::from(super::mark_paint::MARK_PIXELS * full.zoom / 2.0);
+            let width = world.surface.width();
+            if let Some(mark) = marks.near(spot, reach * units_per_pixel, width) {
+                return Some(mark_name(&wording.0, mark.icon));
+            }
         }
         hovered_name(
             view,

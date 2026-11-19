@@ -265,27 +265,9 @@ pub struct CharacterWorldSave {
     /// Their quests on this planet, and their standing in its towns.
     #[serde(default)]
     pub quests: super::QuestBook,
-}
-
-impl CharacterWorldSave {
-    /// Forgets everything they knew of a site: what they saw, the bags and
-    /// doors there, its version and where they walked out.
-    pub fn forget_site(&mut self, id: &SiteId) {
-        self.memory.remove(id);
-        self.bags.remove(id);
-        self.doors.remove(id);
-        self.site_versions.remove(id);
-        self.left_at.remove(id);
-    }
-
-    /// Forgets every site, as `forget_site` does.
-    pub fn forget_sites(&mut self) {
-        self.memory.clear();
-        self.bags.clear();
-        self.doors.clear();
-        self.site_versions.clear();
-        self.left_at.clear();
-    }
+    /// Their personal map marks on this planet (`shared::map_mark`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub marks: Vec<shared::map_mark::MapMark>,
 }
 
 /// The bags a character remembers on a level, by where each is in units.
