@@ -17,17 +17,17 @@ pub struct PlayDifficulty {
 pub fn difficulty_words(difficulty: Difficulty) -> &'static str {
     match difficulty {
         Difficulty::Easy => {
-            "Easy: you take a fifth less harm, Health and Mana refill twice as fast, and dying \
-             costs nothing."
+            "Easy: you take a fifth less harm, Health and Mana refill twice as fast, you see \
+             all round, and dying costs nothing."
         }
-        Difficulty::Normal => "Normal: the game as it is meant to be played.",
+        Difficulty::Normal => "Normal: the game as it is meant to be played, seeing all round.",
         Difficulty::Hard => {
-            "Hard: you take a fifth more harm, and dying drops everything but what is worn \
-             against the skin."
+            "Hard: you take a fifth more harm, you see only in a cone ahead, and dying drops \
+             everything but what is worn against the skin."
         }
         Difficulty::Ironman => {
-            "Ironman: you take a fifth more harm, and death is permanent. Only chosen when \
-             making a character."
+            "Ironman: you take a fifth more harm, you see only in a cone ahead, and death is \
+             permanent. Only chosen when making a character."
         }
     }
 }

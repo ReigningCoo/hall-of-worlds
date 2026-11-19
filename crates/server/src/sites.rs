@@ -293,6 +293,8 @@ impl Visit {
 #[cfg(test)]
 mod dev_area_tests;
 #[cfg(test)]
+mod difficulty_sight_tests;
+#[cfg(test)]
 mod leave_key_tests;
 #[cfg(test)]
 mod left_at_tests;

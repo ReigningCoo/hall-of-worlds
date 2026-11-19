@@ -69,15 +69,21 @@ fn read_server(
     }
 }
 
-/// What the player sees round them, by kind and Observation (`PlayerField`).
+/// What the player sees round them, by kind, Observation and difficulty
+/// (`PlayerField`).
 fn publish_field(
     sheet: Res<CharacterSheet>,
     carried: Res<Carried>,
+    difficulty: Res<crate::common::PlayDifficulty>,
     mut field: ResMut<crate::common::PlayerField>,
 ) {
     use shared::facing::{Field, observation_skill};
     let observation = sheet.0.skills.value(observation_skill());
-    let now = Field::of(carried.0.creature, observation);
+    let now = match difficulty.current {
+        Some(on) => Field::for_player(carried.0.creature, observation, on),
+        // Not told yet: the cone, as on the hardest.
+        None => Field::of(carried.0.creature, observation),
+    };
     field.set_if_neq(crate::common::PlayerField(now));
 }
 
