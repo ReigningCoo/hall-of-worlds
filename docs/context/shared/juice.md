@@ -27,7 +27,7 @@ Juice and cordial (drinks plan PR 3, `docs/context/drinks.md`): fruit pressed in
 
 ## Used by
 
-- `pour` (`mix`), `bonus` (`usable_on_self`), `vessel` (`drinkable`), `cask`, `vessel`, `potion` (Give Item's `juice_fruit`), `ability` (`PressJuice`), server `connections/press_juice.rs`, `drink_vessel.rs`, client `abilities/press_juice.rs`, `item_art` (a juice's colour is its fruit's ripe colour, cordial paler), `effect_bar` (names and icon).
+- `fermentation` (`kcal_per_litre`, `ml_from`: what juice and fruit ferment to), `pour` (`mix`), `bonus` (`usable_on_self`), `vessel` (`drinkable`), `cask`, `vessel`, `potion` (Give Item's `juice_fruit`), `ability` (`PressJuice`), server `connections/press_juice.rs`, `drink_vessel.rs`, client `abilities/press_juice.rs`, `item_art` (a juice's colour is its fruit's ripe colour, cordial paler), `effect_bar` (names and icon).
 
 ## Notes
 

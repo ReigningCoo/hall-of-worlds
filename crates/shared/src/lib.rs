@@ -24,6 +24,7 @@ pub mod door;
 pub mod dungeon;
 pub mod energy;
 pub mod facing;
+pub mod fermentation;
 pub mod floor_sight;
 pub mod flour;
 pub mod footwear;
