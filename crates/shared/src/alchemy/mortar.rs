@@ -1,9 +1,10 @@
 //! The Mortar step (Alchemy plan): the mortar's values and decisions as
 //! brewing had them (`brewing::ground_doses`), herbs alone making a Paste and
-//! with an oil an Ointment; more kinds than Alchemy allows halve the chance
-//! instead of being refused.
+//! with an oil an Ointment, with pure alcohol a Tincture (no row boost, every
+//! dose +5%); more kinds than Alchemy allows halve the chance instead of being
+//! refused.
 
-use super::{Apparatus, Form, Mix, Refused, Solvent};
+use super::{Form, Mix, Refused, Solvent};
 use crate::brewing::{BrewSkills, GroundHerb, ground_doses, herb_steps, most_kinds};
 use crate::herb::Stat;
 
@@ -19,6 +20,9 @@ pub struct Contribution {
     /// Its steps, either way (`brewing::herb_steps`).
     pub steps: i32,
 }
+
+/// A tincture's doses in percent of the dry grind's.
+pub const TINCTURE_PERCENT: i32 = 105;
 
 /// What the Mortar makes.
 pub(super) struct Ground {
@@ -45,7 +49,7 @@ pub(super) fn mortar(
     let (oil, form) = match solvent {
         Solvent::Dry => (None, Form::Paste),
         Solvent::Oil(oil) => (Some(oil), Form::Ointment),
-        Solvent::Alcohol => return Err(Refused::NotBuilt(Apparatus::Mortar)),
+        Solvent::Alcohol => (None, Form::Tincture),
     };
     let mut contributions = Vec::new();
     for herb in herbs {
@@ -58,8 +62,12 @@ pub(super) fn mortar(
             });
         }
     }
+    let mut mix = Mix::of(&ground_doses(herbs, oil, skills));
+    if form == Form::Tincture {
+        mix.scale(TINCTURE_PERCENT);
+    }
     Ok(Ground {
-        mix: Mix::of(&ground_doses(herbs, oil, skills)),
+        mix,
         form,
         contributions,
         extra_kinds: herbs.len().saturating_sub(most_kinds(skills)) as u32,

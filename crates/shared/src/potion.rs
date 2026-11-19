@@ -23,7 +23,7 @@ pub use collect::{
 pub use contents::{Contents, Dose};
 pub use form::{BottleForm, EMPTY_GRAMS, POTION_GRAMS};
 pub use key::PotionKey;
-pub use liquid::{Liquid, LiquidKind, Oil, Water};
+pub use liquid::{Liquid, LiquidKind, Oil, PURE_STRENGTH, Water};
 pub use press::{
     PRESS_PRACTICE, PressChoice, Pressing, grams_per_bottle, press_seconds, press_ticks, pressed,
 };

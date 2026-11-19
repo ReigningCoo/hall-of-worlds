@@ -27,7 +27,7 @@ struct AlchemyParams {
     /// The steps, emptied, by apparatus names (`"Mortar"`, `"Retort"`).
     steps: Option<Vec<Apparatus>>,
     /// A stack put in a space by its widget id's name: `source`,
-    /// `herb.<step × 100 + n>`, `oil.<step>`, `liquid.<step × 100 + n>`;
+    /// `herb.<step × 100 + n>`, `oil.<step>`, `liquid.<step × 100 + n>`, `alcohol.<step>`;
     /// no `stack` empties it.
     put: Option<PutParams>,
     count: Option<u32>,
@@ -71,6 +71,7 @@ fn alchemy(
                 "apparatus": station.apparatus,
                 "herbs": station.herbs,
                 "oil": station.oil,
+                "alcohol": station.alcohol,
                 "liquids": station.liquids,
             })
         })
@@ -96,6 +97,7 @@ fn place_named(name: &str) -> Option<Place> {
     match kind {
         "herb" => Some(Place::Herb(at / 100, at % 100)),
         "oil" => Some(Place::Oil(at)),
+        "alcohol" => Some(Place::Alcohol(at)),
         "liquid" => Some(Place::Liquid(at / 100, at % 100)),
         _ => None,
     }

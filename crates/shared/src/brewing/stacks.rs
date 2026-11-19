@@ -67,4 +67,11 @@ impl Inventory {
         found.sort_by_key(|stack| stack.oil);
         found
     }
+
+    /// How many carried bottles hold `liquid`, worn or not.
+    pub fn bottles_of(&self, liquid: &Liquid) -> u32 {
+        let holds = |item: &Item| item.bottle().and_then(|b| b.liquid.as_ref()) == Some(liquid);
+        let stacks = self.stacks_where(|top| holds(top));
+        stacks.map(|(stack, _)| stack.count()).sum()
+    }
 }

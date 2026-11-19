@@ -110,12 +110,14 @@ pub enum Look {
     /// The Herb Pouch: green linen with a leaf on it (`herb_pouch.rs`).
     HerbPouch,
     /// One of brewing's and Alchemy's tools (a cauldron, a mortar and pestle,
-    /// a retort or an oil press) or a tap, by its kind (`tool/`).
+    /// a retort, an alembic or an oil press) or a tap, by its kind (`tool/`).
     Tool(shared::item::ItemKind),
     /// A sack of flour, by its flour's colour (`flour.rs`).
     Flour(super::FlourLook),
     /// A crock of yeast, the same for every one (`yeast.rs`).
     Yeast,
+    /// A heap of Salt, the same for every one (`salt.rs`).
+    Salt,
     /// A cask, by its size and wood (`cask.rs`).
     Cask(shared::cask::CaskLook),
     /// A log, by its wood (`log.rs`).
@@ -195,6 +197,7 @@ impl Look {
             | Self::Paste(_)
             | Self::Flour(_)
             | Self::Yeast
+            | Self::Salt
             | Self::Coin(_) => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),

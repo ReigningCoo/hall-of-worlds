@@ -15,8 +15,9 @@ use crate::potion::Contents;
 pub const PASTE_GRAMS: u32 = 40;
 
 /// `count` of a Paste or an Ointment holding `contents` at `quality` (as
-/// Alchemy settled it, luck and all). A Powder can't be made yet (PR 6): an
-/// Ointment stands in, so nothing is lost.
+/// Alchemy settled it, luck and all). A Powder can't be made yet (PR 6), and a
+/// Tincture is a liquid (a potion when last): an Ointment stands in, so
+/// nothing is lost.
 pub fn new_mixture(form: Form, contents: Contents, quality: Quality, count: u32, id: Id) -> Item {
     let mut item = match form {
         Form::Paste => {
@@ -25,7 +26,7 @@ pub fn new_mixture(form: Form, contents: Contents, quality: Quality, count: u32,
             item.count = count.max(1);
             item
         }
-        Form::Ointment | Form::Powder => new_ointment(contents, count, id),
+        Form::Ointment | Form::Powder | Form::Tincture => new_ointment(contents, count, id),
     };
     item.quality = Some(quality);
     item

@@ -19,12 +19,14 @@ impl Station {
         match self.apparatus {
             Apparatus::Mortar => OrderStep::Mortar {
                 herbs: self.herbs.clone(),
-                oil: self.oil,
+                solvent: self.oil,
             },
             Apparatus::Retort => OrderStep::Retort {
                 liquids: self.liquids.clone(),
             },
-            Apparatus::Alembic => OrderStep::Alembic,
+            Apparatus::Alembic => OrderStep::Alembic {
+                alcohol: self.alcohol,
+            },
             Apparatus::Crucible => OrderStep::Crucible,
             Apparatus::Filter => OrderStep::Filter,
             Apparatus::Pelican => OrderStep::Pelican,

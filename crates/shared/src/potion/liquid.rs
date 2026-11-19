@@ -87,6 +87,9 @@ pub enum Liquid {
     /// What an opened drink turns into once past its best (drinks decision
     /// 13), by what the drink was made from. Boxed as `Drink` is.
     Vinegar(Box<crate::fermentation::Base>),
+    /// Pure alcohol, distilled in the Alembic (`shared::alchemy`, Alchemy plan
+    /// PR 5): a Mortar's solvent for a tincture, or fed to an Alembic.
+    Alcohol,
     // New liquids go at the end: messages carry one by its place in this list.
 }
 
@@ -101,6 +104,17 @@ impl Liquid {
             Self::Cordial(_) => LiquidKind::Cordial,
             Self::Drink(_) => LiquidKind::Drink,
             Self::Vinegar(_) => LiquidKind::Vinegar,
+            Self::Alcohol => LiquidKind::Alcohol,
+        }
+    }
+
+    /// How much alcohol it holds, in tenths of a percent: a drink's strength,
+    /// pure alcohol's 1000, nothing else any (vinegar's has turned).
+    pub fn alcohol_strength(&self) -> u32 {
+        match self {
+            Self::Drink(drink) => drink.strength,
+            Self::Alcohol => PURE_STRENGTH,
+            _ => 0,
         }
     }
 
@@ -139,6 +153,9 @@ impl Liquid {
     }
 }
 
+/// Pure alcohol's strength in tenths of a percent.
+pub const PURE_STRENGTH: u32 = 1000;
+
 /// A kind of liquid, a potion without its contents: what Give Item asks for.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum LiquidKind {
@@ -153,6 +170,8 @@ pub enum LiquidKind {
     Drink,
     /// Some vinegar.
     Vinegar,
+    /// Pure alcohol.
+    Alcohol,
 }
 
 impl LiquidKind {
@@ -169,6 +188,7 @@ impl LiquidKind {
                 Self::Cordial,
                 Self::Drink,
                 Self::Vinegar,
+                Self::Alcohol,
             ])
             .collect()
     }
@@ -183,6 +203,7 @@ impl LiquidKind {
             Self::Cordial => "Cordial",
             Self::Drink => "Drink",
             Self::Vinegar => "Vinegar",
+            Self::Alcohol => "Pure Alcohol",
         }
     }
 }

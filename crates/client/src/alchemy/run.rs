@@ -41,7 +41,7 @@ pub(super) fn follow_run(
             } => running.started = true,
             ServerMessage::AbilityLanded {
                 who: None,
-                landed: Landed::Alchemy { made, left },
+                landed: Landed::Alchemy { made, left, .. },
                 ..
             } => {
                 if let (Alchemised::Made { quality, .. }, Some(planned)) = (made, &running.planned)

@@ -13,8 +13,10 @@ pub(super) struct Station {
     pub(super) apparatus: Apparatus,
     /// A Mortar's herb stacks, one of each kind.
     pub(super) herbs: Vec<Id>,
-    /// A Mortar's oil bottle, or none (dry: a Paste).
+    /// A Mortar's bottle of oil or pure alcohol, or none (dry: a Paste).
     pub(super) oil: Option<Id>,
+    /// An Alembic's bottle of a drink or pure alcohol fed in, or none.
+    pub(super) alcohol: Option<Id>,
     /// A Retort's liquids, a 100 ml bottle each, in order (one stack may be
     /// listed again).
     pub(super) liquids: Vec<Id>,
@@ -26,6 +28,7 @@ impl Station {
             apparatus,
             herbs: Vec::new(),
             oil: None,
+            alcohol: None,
             liquids: Vec::new(),
         }
     }
@@ -112,6 +115,7 @@ impl Bench {
             let herbs = station.herbs.iter().copied();
             herbs
                 .chain(station.oil)
+                .chain(station.alcohol)
                 .chain(station.liquids.iter().copied())
         });
         self.source.into_iter().chain(steps)
@@ -127,6 +131,9 @@ impl Bench {
             station.liquids.retain(|id| carried(*id));
             if station.oil.is_some_and(|id| !carried(id)) {
                 station.oil = None;
+            }
+            if station.alcohol.is_some_and(|id| !carried(id)) {
+                station.alcohol = None;
             }
         }
     }

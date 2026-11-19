@@ -95,6 +95,8 @@ impl LiquidLook {
             Liquid::Cordial(fruit) => Some(plain(juice(fruit, true))),
             Liquid::Drink(drink) => Some(plain(brewed(&drink.base, false))),
             Liquid::Vinegar(base) => Some(plain(brewed(base, true))),
+            // As clear as water.
+            Liquid::Alcohol => Some(plain(Base::Water(Water::Plain))),
         }
     }
 

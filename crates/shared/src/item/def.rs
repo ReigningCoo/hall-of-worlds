@@ -172,6 +172,10 @@ impl ItemKind {
                 Self::OilPress => plain("Oil Press", 6000, Shape::rectangle(2, 2)),
                 Self::MortarAndPestle => plain("Mortar and Pestle", 1500, square),
                 Self::Retort => plain("Retort", 900, Shape::rectangle(1, 2)),
+                Self::Alembic => plain("Alembic", 1800, Shape::rectangle(2, 2)),
+                Self::Salt => plain("Salt", crate::alchemy::SALT_GRAMS, square)
+                    .without_quality()
+                    .counted(),
                 Self::Cauldron => plain("Cauldron", 4000, Shape::rectangle(2, 2)),
                 // Its form says its size, wood, cells and weight (`shared::cask`).
                 Self::Cask => plain("Cask", 14_000, Shape::rectangle(3, 3)),

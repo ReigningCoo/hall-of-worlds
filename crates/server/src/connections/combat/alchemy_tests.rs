@@ -51,7 +51,7 @@ fn carrying(test: &mut TestClient, mortar: bool, count: u32) -> AlchemyOrder {
         source: None,
         steps: vec![OrderStep::Mortar {
             herbs: vec![Id::for_test(91)],
-            oil: Some(Id::for_test(92)),
+            solvent: Some(Id::for_test(92)),
         }],
         count,
     }
@@ -71,7 +71,7 @@ fn landed(test: &mut TestClient) -> Vec<(Alchemised, u32)> {
     let messages = received(test);
     let landed = messages.iter().filter_map(|message| match message {
         ServerMessage::AbilityLanded {
-            landed: Landed::Alchemy { made, left },
+            landed: Landed::Alchemy { made, left, .. },
             ..
         } => Some((*made, *left)),
         _ => None,
@@ -180,4 +180,58 @@ fn ointment_is_rubbed_on_for_its_effect() {
             .iter()
             .any(|effect| effect.source == Source::Ointment)
     );
+}
+
+/// A cider (6%) or a wine (12%).
+fn drink(strength: u32) -> Liquid {
+    Liquid::Drink(Box::new(shared::fermentation::Drink {
+        base: shared::fermentation::Base::Fruit("apple".into()),
+        strength,
+        sweetness: shared::fermentation::Sweetness::Dry,
+        quality: shared::item::Quality::Common,
+        vinegar: 0,
+    }))
+}
+
+#[test]
+fn an_alembic_distils_drinks_into_pure_alcohol_and_salt_water_into_salt() {
+    let mut test = TestClient::new();
+    test.enter_a_castle();
+    // Enough Alchemy that two steps are certain.
+    let alchemy = SkillId::find(shared::ability::ALCHEMY).unwrap();
+    test.client.sheet.skills.practise(alchemy, 100_000);
+    give(&mut test, Item::new(Id::for_test(94), ItemKind::Retort));
+    give(&mut test, Item::new(Id::for_test(95), ItemKind::Alembic));
+    give(&mut test, bottle(drink(60), 5, 96));
+    give(&mut test, bottle(drink(120), 1, 97));
+    give(&mut test, bottle(Liquid::Water(Water::Salt), 2, 98));
+    let order = AlchemyOrder {
+        source: None,
+        steps: vec![
+            OrderStep::Retort {
+                liquids: vec![Id::for_test(96); 4]
+                    .into_iter()
+                    .chain([Id::for_test(98)])
+                    .collect(),
+            },
+            OrderStep::Alembic {
+                alcohol: Some(Id::for_test(97)),
+            },
+        ],
+        count: 1,
+    };
+    test.send(&[ClientMessage::Alchemy(order)]);
+    assert!(test.client.fight.pending.is_some(), "it winds up");
+    run(&mut test, 35 * 20 + 2, false);
+    assert!(practised(&test, shared::alchemy::DISTILLING));
+    let landed = landed(&mut test);
+    assert_eq!(landed, vec![(Alchemised::Alcohol { count: 2 }, 0)]);
+    let count = test.client.inventory.bottles_of(&Liquid::Alcohol);
+    assert_eq!(count, 2, "5 units halved, 24 ml of alcohol enough for both");
+    assert_eq!(
+        count_of(&test, ItemKind::Salt),
+        1,
+        "one Salt Water distilled"
+    );
+    assert_eq!(count_of(&test, ItemKind::Bottle), 8, "every bottle back");
 }

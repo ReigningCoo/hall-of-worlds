@@ -20,6 +20,7 @@ mod food_def;
 mod item;
 mod item_def;
 mod kind;
+mod kind_all;
 mod look_up;
 mod made;
 mod neck_def;

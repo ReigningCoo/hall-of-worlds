@@ -9,12 +9,12 @@ use crate::site::BuildingKind;
 /// (`shared::produce`, by the server).
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
-        ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies, BreastBand,
-        Cap, Cask, Cauldron, Cloak, Clogs, Flour, Fruit, Gauntlets, Gloves, Hat, Headcloth,
-        Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth, MortarAndPestle,
-        Necklace, Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat, Pouch, Retort, Ring,
-        Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Tap,
-        Trousers, Vegetable, Vessel, Wimple, Yeast,
+        Alembic, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies,
+        BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Flour, Fruit, Gauntlets, Gloves, Hat,
+        Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth,
+        MortarAndPestle, Necklace, Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat,
+        Pouch, Retort, Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat,
+        Sword, Tabard, Tap, Trousers, Vegetable, Vessel, Wimple, Yeast,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -35,6 +35,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (HerbPouch, 1),
             (MortarAndPestle, 1),
             (Retort, 1),
+            (Alembic, 1),
             (Vessel, 1),
             (Yeast, 1),
         ],
@@ -96,6 +97,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (SmallBox, 1),
             (MortarAndPestle, 1),
             (Retort, 1),
+            (Alembic, 1),
         ],
         BuildingKind::ScrollShop => &[(Lantern, 1), (SmallBox, 1)],
         BuildingKind::Jeweller => &[(Ring, 2), (Necklace, 1), (Vessel, 1)],

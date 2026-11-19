@@ -92,9 +92,9 @@ fn show_notices(
             }
             ServerMessage::AbilityLanded {
                 who: None,
-                landed: Landed::Alchemy { made, left },
+                landed: Landed::Alchemy { made, salt, left },
                 ..
-            } => alchemised(*made, *left),
+            } => alchemised(*made, *salt, *left),
             ServerMessage::AbilityLanded {
                 who: None,
                 landed: Landed::Juiced(ml),
@@ -122,8 +122,9 @@ fn show_notices(
 }
 
 /// What a run of Alchemy made: "Made 2 Rare potions", that it failed or came to
-/// nothing (the ingredients are gone all the same), and the runs left.
-fn alchemised(made: Alchemised, left: u32) -> String {
+/// nothing (the ingredients are gone all the same), any Salt left behind, and
+/// the runs left.
+fn alchemised(made: Alchemised, salt: u32, left: u32) -> String {
     let made = match made {
         Alchemised::Failed => "The process failed".to_owned(),
         Alchemised::Nothing => "The mix came to nothing".to_owned(),
@@ -136,6 +137,12 @@ fn alchemised(made: Alchemised, left: u32) -> String {
             count => format!("Made {count} {quality:?} potions"),
         },
         Alchemised::Made { kind, quality, .. } => format!("Made {quality:?} {}", kind.def().name),
+        Alchemised::Alcohol { count: 1 } => "Made a bottle of pure alcohol".to_owned(),
+        Alchemised::Alcohol { count } => format!("Made {count} bottles of pure alcohol"),
+    };
+    let made = match salt {
+        0 => made,
+        salt => format!("{made}, and {salt} Salt"),
     };
     match left {
         0 => made,
