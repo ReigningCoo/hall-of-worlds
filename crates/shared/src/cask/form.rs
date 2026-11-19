@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 mod saved;
 
-use super::CaskSize;
+use super::{CaskSize, CaskTime};
 use crate::item::Item;
 use crate::item_form::ItemForm;
 use crate::material::Material;
@@ -44,6 +44,9 @@ pub struct CaskForm {
     /// one never spoils (its best-before is drinks PR 6). Saves from before
     /// this (2026-11-18) load sealed.
     pub opened: bool,
+    /// Its clocks: fermenting, ageing, opened (drinks plan PR 6). Emptied
+    /// casks start again. Boxed, so every item doesn't grow by them.
+    pub time: Box<CaskTime>,
 }
 
 impl CaskForm {
@@ -55,6 +58,7 @@ impl CaskForm {
             liquid: None,
             ml: 0,
             opened: false,
+            time: Box::default(),
         }
     }
 
@@ -64,7 +68,8 @@ impl CaskForm {
     }
 
     /// The same holding `ml` of `liquid`, no more than it holds; nothing (or
-    /// 0 ml) leaves it empty. Whether it was opened stays.
+    /// 0 ml) leaves it empty, its clocks starting again. Whether it was opened
+    /// stays, and when it was put on the ground.
     pub fn holding(self, liquid: Option<Liquid>, ml: u32) -> Self {
         let ml = ml.min(self.most_ml());
         match liquid {
@@ -75,6 +80,10 @@ impl CaskForm {
             },
             _ => Self {
                 opened: self.opened,
+                time: Box::new(CaskTime {
+                    lying_since: self.time.lying_since,
+                    ..CaskTime::default()
+                }),
                 ..Self::new(self.size, self.wood)
             },
         }

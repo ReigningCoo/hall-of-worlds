@@ -31,6 +31,6 @@ Juice and cordial (drinks plan PR 3, `docs/context/drinks.md`): fruit pressed in
 
 ## Notes
 
-- Opened juice should ferment wild into a Poor cider (drinks decision 14): left for drinks PR 6, which brings the clocks, best-before and fermenting.
+- Opened juice (and cordial) in a cask ferments wild into a Poor drink after 2 game days (drinks decision 14): `shared::ferment`'s clocks.
 - Juice is never sealed by pressing; a cask pressed into is opened.
 - Pressing loses any juice beyond the target's room (the last fruit taken may give more than fits).

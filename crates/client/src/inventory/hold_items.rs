@@ -201,7 +201,7 @@ fn quick_from(
         return Some(QuickFrom::Carried(cell.id));
     }
     let cell = stock_cells.get(entity).ok()?;
-    (cell.with == GROUND).then(|| QuickFrom::Ground(cell.item.clone()))
+    (cell.with == GROUND).then(|| QuickFrom::Ground(Box::new(cell.item.clone())))
 }
 
 /// What letting go of what is held would do, and doing it when `dom` says it

@@ -111,6 +111,7 @@ pub(super) fn start_ability(
         Ability::PressJuice => return super::press_juice::choose_juice(client, world, target),
         Ability::Grind => return super::grind::start_grind(client, world),
         Ability::Brew => return super::brew::start_brew(client, world),
+        Ability::Ferment => return super::ferment::start_ferment(client, world),
         Ability::FellTree => return super::fell_tree::start_fell(client, world),
         Ability::CutKindling => return super::cut_kindling::start_cut(client, world, target),
         _ => {}
@@ -168,6 +169,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::PressJuice => return super::press_juice::land_juice(client, world),
         Act::Grind => return super::grind::land_grind(client, world),
         Act::Brew => return super::brew::land_brew(client, world),
+        Act::Ferment => return super::ferment::land_ferment(client, world),
         Act::FellTree { at, ticks } => {
             return super::fell_tree::land_fell(client, world, at, ticks);
         }

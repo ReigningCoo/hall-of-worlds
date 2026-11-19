@@ -13,6 +13,7 @@ mod bar;
 mod brew;
 mod cancel;
 mod drag;
+mod ferment;
 mod grind;
 mod held;
 mod icons;
@@ -42,6 +43,7 @@ impl Plugin for AbilitiesPlugin {
             .init_resource::<press_juice::JuiceChooser>()
             .init_resource::<grind::Mixing>()
             .init_resource::<brew::Brewing>()
+            .init_resource::<ferment::Fermenting>()
             .add_message::<use_ability::UseSlot>()
             .add_systems(
                 Startup,
@@ -51,6 +53,7 @@ impl Plugin for AbilitiesPlugin {
                     press_juice::spawn_requester,
                     grind::spawn_mixing,
                     brew::spawn_panel,
+                    ferment::spawn_panel,
                 ),
             )
             // Before widgets take presses on panels, and the map clicks.
@@ -89,6 +92,7 @@ impl Plugin for AbilitiesPlugin {
                     (press_juice::answer_requester, press_juice::show_requester),
                     (grind::answer_mixing, grind::show_mixing),
                     (brew::answer_panel, brew::show_panel),
+                    (ferment::answer_panel, ferment::show_panel),
                 )
                     .chain()
                     // Knowing whether the player is moving this frame.

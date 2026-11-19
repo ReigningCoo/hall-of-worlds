@@ -42,7 +42,7 @@ pub(super) fn quick_move(
     holding.group = None;
     holding.counted = None;
     holding.stock = match from {
-        QuickFrom::Ground(item) => Some((GROUND, item)),
+        QuickFrom::Ground(item) => Some((GROUND, *item)),
         QuickFrom::Carried(_) => None,
     };
     let held = HeldBy {

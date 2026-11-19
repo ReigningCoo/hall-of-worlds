@@ -13,7 +13,7 @@ pub(in crate::inventory) enum QuickFrom {
     /// Something carried, by its id.
     Carried(Id),
     /// Something on the ground (`common::GROUND`'s stock).
-    Ground(Item),
+    Ground(Box<Item>),
 }
 
 /// Why it can't go.

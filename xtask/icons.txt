@@ -167,3 +167,5 @@ delapouite/axe-in-log
 # Press Juice (abilities/icons.rs) and juice or cordial drunk (effect_bar/looks.rs)
 delapouite/manual-juicer
 delapouite/drinking
+# Ferment (abilities/icons.rs)
+delapouite/barrel

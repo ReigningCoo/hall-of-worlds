@@ -295,4 +295,6 @@ pub enum ServerMessage {
     DevPlace(super::PlaceAnswer),
     /// About harvesting a herb patch or fruit plant (`PickNews`).
     Pick(super::PickNews),
+    /// An opened drink in a cask carried or in reach will soon be vinegar: the cask's name.
+    VinegarSoon(String),
 }

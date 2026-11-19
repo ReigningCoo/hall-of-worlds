@@ -57,6 +57,7 @@ impl Client {
                 | Act::PressJuice
                 | Act::Grind
                 | Act::Brew
+                | Act::Ferment
                 | Act::FellTree { .. }
                 | Act::CutKindling(_)
         ) || pending.lands_at <= now

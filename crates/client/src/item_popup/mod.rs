@@ -8,6 +8,7 @@
 //! is on through `widgets::PointedItem`.
 
 mod about;
+mod cask;
 mod copy;
 mod herb;
 mod keys;

@@ -8,14 +8,16 @@ use crate::skill::{SkillId, Skills};
 pub const ALCHEMY: &str = "crafting/alchemy";
 
 /// Skills whose abilities everyone knows for now, skill or not: Alchemy, until
-/// it can be learned (TODO `todo-learn-alchemy`).
-const GIVEN_FOR_NOW: &[&str] = &[ALCHEMY];
+/// it can be learned (TODO `todo-learn-alchemy`), and Fermenting, until
+/// something teaches it.
+const GIVEN_FOR_NOW: &[&str] = &[ALCHEMY, crate::ferment::FERMENTING];
 
 impl Ability {
     /// The skill it comes from, by path, if any.
     pub const fn skill(self) -> Option<&'static str> {
         match self {
             Self::PressOil | Self::PressJuice | Self::Grind | Self::Brew => Some(ALCHEMY),
+            Self::Ferment => Some(crate::ferment::FERMENTING),
             _ => None,
         }
     }

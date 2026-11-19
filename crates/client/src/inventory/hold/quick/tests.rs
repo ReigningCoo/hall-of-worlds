@@ -28,7 +28,7 @@ fn carrying(kinds: &[ItemKind]) -> Inventory {
 fn from_the_ground_onto_a_stack_first() {
     let inventory = carrying(&[ItemKind::Stone, ItemKind::CopperCoin]);
     let coin = Item::new(id(9), ItemKind::CopperCoin);
-    let from = QuickFrom::Ground(coin);
+    let from = QuickFrom::Ground(Box::new(coin));
     let (held, aim) = quick_target(&inventory, &from, &[], LIMITS, true)
         .unwrap()
         .unwrap();
@@ -46,7 +46,7 @@ fn from_the_ground_onto_a_stack_first() {
 fn from_the_ground_to_the_first_free_place() {
     let inventory = carrying(&[ItemKind::Stone]);
     let ring = Item::new(id(9), ItemKind::Ring);
-    let from = QuickFrom::Ground(ring.clone());
+    let from = QuickFrom::Ground(Box::new(ring.clone()));
     let (held, aim) = quick_target(&inventory, &from, &[], LIMITS, true)
         .unwrap()
         .unwrap();

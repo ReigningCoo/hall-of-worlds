@@ -104,6 +104,12 @@ fn show_notices(
                 landed: Landed::Juiced(ml),
                 ..
             } => format!("Pressed {ml} ml of juice"),
+            ServerMessage::AbilityLanded {
+                who: None,
+                landed: Landed::Fermented { days },
+                ..
+            } => fermenting(*days),
+            ServerMessage::VinegarSoon(cask) => format!("{cask} turns to vinegar soon"),
             _ => continue,
         };
         dom.set_text("notices/words", words);
@@ -125,6 +131,14 @@ fn ground(doses: u32) -> String {
     match doses {
         0 => "The mix came to nothing".to_owned(),
         doses => format!("Ground {doses} Ointment"),
+    }
+}
+
+/// A cask set fermenting: "Fermenting: ready in 36 days".
+fn fermenting(days: u32) -> String {
+    match days {
+        1 => "Fermenting: ready in a day".to_owned(),
+        days => format!("Fermenting: ready in {days} days"),
     }
 }
 

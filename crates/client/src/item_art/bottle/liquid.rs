@@ -93,6 +93,8 @@ impl LiquidLook {
             Liquid::Oil(oil) => Some(plain(Base::Oil(*oil))),
             Liquid::Juice(fruit) => Some(plain(juice(fruit, false))),
             Liquid::Cordial(fruit) => Some(plain(juice(fruit, true))),
+            Liquid::Drink(drink) => Some(plain(brewed(&drink.base, false))),
+            Liquid::Vinegar(base) => Some(plain(brewed(base, true))),
         }
     }
 
@@ -151,6 +153,18 @@ fn juice(fruit: &str, cordial: bool) -> Base {
         .get(fruit)
         .map_or(Rgb(240, 150, 40), |def| def.look.ripe);
     Base::Juice { colour, cordial }
+}
+
+/// A fermented drink: its fruit's colour, or amber for ale; vinegar paler
+/// (drawn as a cordial is).
+fn brewed(base: &shared::fermentation::Base, vinegar: bool) -> Base {
+    match base {
+        shared::fermentation::Base::Fruit(fruit) => juice(fruit, vinegar),
+        shared::fermentation::Base::Grain(_) => Base::Juice {
+            colour: Rgb(200, 130, 40),
+            cordial: vinegar,
+        },
+    }
 }
 
 /// The dose moving its stat furthest, the first in `Stat`'s order on a tie.

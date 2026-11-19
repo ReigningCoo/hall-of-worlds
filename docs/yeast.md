@@ -15,7 +15,7 @@ Yeast has to be fed with flour. Fed between 12 and 24 hours after its last feed,
 
 Several crocks stack, each keeping its own clock. The popup lists them, the one that needs feeding soonest first: "Feed in 7 h", or once a feed is due, "Feed now: weakens in 5 h".
 
-Between feeds, a yeast can start one thing without being used up; the popup says when it has been used since it was fed. Feeding, and fermenting with it, are coming.
+Between feeds, a yeast can start one thing without being used up; the popup says when it has been used since it was fed. See [Drinks](drinks) for fermenting with it. Feeding is coming.
 
 ## Fermenting
 

@@ -13,6 +13,7 @@ use shared::sheet::Feeling;
 use shared::spot::Spot;
 
 use super::brew::Brewing;
+use super::ferment::Fermenting;
 use super::grind::Mixing;
 use super::item_look::{can_drink, can_eat};
 use super::own_bar::OwnBar;
@@ -98,12 +99,7 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
-    (mut press, mut juice, mut mixing, mut brewing): (
-        ResMut<PressChooser>,
-        ResMut<JuiceChooser>,
-        ResMut<Mixing>,
-        ResMut<Brewing>,
-    ),
+    (mut press, mut juice, mut mixing, mut brewing, mut fermenting): Panels,
 ) {
     for &UseSlot(slot) in used.read() {
         let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
@@ -144,6 +140,9 @@ pub(super) fn use_slots(
         } else if ability == Ability::Brew {
             // What to brew is chosen in its panel (`brew.rs`).
             brewing.open = true;
+        } else if ability == Ability::Ferment {
+            // And Ferment's in its own (`ferment/`).
+            fermenting.open = true;
         } else if ability.is_toggle() {
             to_server.write(ToServer(ClientMessage::UseAbility {
                 ability,
@@ -154,6 +153,15 @@ pub(super) fn use_slots(
         }
     }
 }
+
+/// The requesters and panels abilities open.
+type Panels<'w> = (
+    ResMut<'w, PressChooser>,
+    ResMut<'w, JuiceChooser>,
+    ResMut<'w, Mixing>,
+    ResMut<'w, Brewing>,
+    ResMut<'w, Fermenting>,
+);
 
 /// Where the player stands and which way they face.
 type PlayerFacing<'w, 's> = Query<'w, 's, (&'static SpotPosition, &'static Facing), With<Player>>;
@@ -236,8 +244,12 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // the closed door beside the player.
         Ability::Kick => Some(target),
         // Asked for by their panels (`press_oil.rs`, `press_juice.rs`,
-        // `grind/`, `brew.rs`), never queued.
-        Ability::PressOil | Ability::PressJuice | Ability::Grind | Ability::Brew => None,
+        // `grind/`, `brew.rs`, `ferment/`), never queued.
+        Ability::PressOil
+        | Ability::PressJuice
+        | Ability::Grind
+        | Ability::Brew
+        | Ability::Ferment => None,
         // On no one: the water or tree faced, or the log chosen
         // (`ask_wanted`).
         Ability::CollectWater | Ability::FellTree | Ability::CutKindling => Some(None),

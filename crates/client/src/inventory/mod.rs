@@ -37,7 +37,7 @@ mod wear_note;
 #[cfg(not(target_arch = "wasm32"))]
 use debug::run_debug;
 use finger::{item_cell_in_front, pick_up_by_finger};
-pub use ground_shown::GroundShown;
+pub use ground_shown::{GroundInReach, GroundShown};
 use hold_items::{aim_items, drink_potion, eat_kind, hold_items};
 use holding::{Hand, HeldBy, Holding, cancel_held};
 pub use server::Stacks;
@@ -60,6 +60,7 @@ impl Plugin for InventoryPlugin {
             .init_resource::<NearbyPanel>()
             .init_resource::<ground::Ground>()
             .init_resource::<GroundShown>()
+            .init_resource::<GroundInReach>()
             .init_resource::<HeldOverGifts>()
             .init_resource::<HeldStock>()
             .init_resource::<wear_note::WearNote>()

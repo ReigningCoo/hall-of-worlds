@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::held::{BOTTLE_ML, Held, holding};
 use crate::energy::handling_cost;
 use crate::item::{Item, ItemKind};
+use crate::item_form::ItemForm;
 use crate::juice::{Mixed, mix};
 use crate::potion::Liquid;
 
@@ -29,6 +30,8 @@ pub enum PourRefused {
     TooLittle,
     /// Cordial takes at least as much juice as water.
     TooWatery,
+    /// A cask still fermenting is left sealed.
+    Fermenting,
     // New refusals go at the end: messages carry one by its place in this list.
 }
 
@@ -45,6 +48,7 @@ impl PourRefused {
             Self::NeedsTap => "Drawing from a cask needs a tap.",
             Self::TooLittle => "There isn't enough to fill a bottle.",
             Self::TooWatery => "A cordial needs at least as much juice as water.",
+            Self::Fermenting => "It is still fermenting.",
         }
     }
 }
@@ -76,6 +80,9 @@ pub fn pour(from: &Item, into: &Item, tap: bool) -> Result<Poured, PourRefused> 
     if matches!(liquid, Liquid::Potion(_)) {
         return Err(PourRefused::Potion);
     }
+    if [from, into].iter().any(|item| fermenting(item)) {
+        return Err(PourRefused::Fermenting);
+    }
     let from_cask = from.kind == ItemKind::Cask;
     let mut ml = source.ml.min(target.room);
     let mut made = liquid.clone();
@@ -90,7 +97,13 @@ pub fn pour(from: &Item, into: &Item, tap: bool) -> Result<Poured, PourRefused> 
                 return Err(PourRefused::TooWatery);
             }
             Some(Mixed::JuiceIntoWater(cordial)) => made = cordial,
-            None => return Err(PourRefused::Different),
+            // Vinegar added to a drink speeds its turning (drinks decision 13).
+            None => match (&liquid, held) {
+                (Liquid::Vinegar(_), Liquid::Drink(drink)) => {
+                    made = Liquid::Drink(Box::new((**drink).clone().with_vinegar(target.ml, ml)));
+                }
+                _ => return Err(PourRefused::Different),
+            },
         }
     }
     if from_cask && !tap {
@@ -103,11 +116,27 @@ pub fn pour(from: &Item, into: &Item, tap: bool) -> Result<Poured, PourRefused> 
         return Err(PourRefused::TooLittle);
     }
     let sealed = from_cask && target.ml == 0;
+    let into_after = holding(into, &made, target.ml + ml, sealed);
     Ok(Poured {
         from: holding(from, &liquid, source.ml - ml, false),
-        into: holding(into, &made, target.ml + ml, sealed),
+        into: kept_clock(from, into_after),
         ml,
     })
+}
+
+/// Whether `item` is a cask still fermenting.
+fn fermenting(item: &Item) -> bool {
+    item.cask().is_some_and(|cask| cask.time.is_fermenting())
+}
+
+/// A cask poured into from another keeps the older opened clock of the two,
+/// so pouring from cask to cask never sets a drink's turning back.
+fn kept_clock(from: &Item, mut into: Item) -> Item {
+    let older = from.cask().map(|cask| cask.time.opened_for);
+    if let (Some(older), Some(ItemForm::Cask(cask))) = (older, &mut into.form) {
+        cask.time.opened_for = cask.time.opened_for.max(older);
+    }
+    into
 }
 
 /// What pouring this many millilitres costs: handling their weight, a gram

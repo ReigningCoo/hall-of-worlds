@@ -63,6 +63,25 @@ item-holds = Holds { $amount } of { $most }
 item-sealed = sealed
 item-opened = opened
 item-sealed-bottle = Sealed
+
+## A drink in a cask (drinks plan PR 6): its strength ("5.8%"), sweetness
+## ("dry", "off-dry", "medium", "sweet") and quality; game days until it is
+## ready, until an opened one turns to vinegar, or until opened juice
+## ferments by itself.
+
+item-drink = { $strength }, { $sweetness }, { $quality }
+item-fermenting = { $days ->
+    [one] Fermenting: ready in a day
+   *[other] Fermenting: ready in { $days } days
+}
+item-turns-vinegar = { $days ->
+    [one] Turns to vinegar in a day
+   *[other] Turns to vinegar in { $days } days
+}
+item-turns-wild = { $days ->
+    [one] Ferments by itself in a day
+   *[other] Ferments by itself in { $days } days
+}
 item-at-once = { $amount } { $stat } at once
 
 ## Ointment whose doses come to nothing on the skin (a quarter of each).

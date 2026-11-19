@@ -47,6 +47,7 @@ mod eat_herb;
 mod eat_vegetable;
 mod facing;
 mod fell_tree;
+mod ferment;
 mod for_others;
 mod give_items;
 mod go_to_place;
@@ -226,6 +227,8 @@ pub struct Client {
     pressing: Option<shared::potion::Pressing>,
     /// What Grind grinds and Brew brews while they wind up (`grind.rs`, `brew.rs`).
     grinding: Option<shared::brewing::GrindOrder>,
+    /// What Ferment sets going while it winds up (`ferment.rs`).
+    fermenting: Option<shared::ferment::FermentOrder>,
     brewing: Option<shared::brewing::BrewOrder>,
     /// Its open practice windows, by skill and by kind of foe.
     learning: crate::combat::Learning,
