@@ -111,6 +111,8 @@ pub(super) fn start_ability(
         Ability::PressJuice => return super::press_juice::choose_juice(client, world, target),
         Ability::Grind => return super::grind::start_grind(client, world),
         Ability::Brew => return super::brew::start_brew(client, world),
+        Ability::FellTree => return super::fell_tree::start_fell(client, world),
+        Ability::CutKindling => return super::cut_kindling::start_cut(client, world, target),
         _ => {}
     }
     let (Ability::Attack, Some(target)) = (ability, target) else {
@@ -166,6 +168,10 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::PressJuice => return super::press_juice::land_juice(client, world),
         Act::Grind => return super::grind::land_grind(client, world),
         Act::Brew => return super::brew::land_brew(client, world),
+        Act::FellTree { at, ticks } => {
+            return super::fell_tree::land_fell(client, world, at, ticks);
+        }
+        Act::CutKindling(log) => return super::cut_kindling::land_cut(client, world, log),
     };
     client.fight.attacks += 1;
     let target = pending.target;
@@ -300,6 +306,8 @@ mod collect_water_tests;
 mod death_tests;
 #[cfg(test)]
 mod drink_tests;
+#[cfg(test)]
+mod fell_tree_tests;
 #[cfg(test)]
 mod grind_tests;
 #[cfg(test)]

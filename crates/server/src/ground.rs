@@ -15,12 +15,14 @@ use crate::ids::new_id;
 mod bags;
 mod eat;
 mod pour;
+mod take;
 mod tell;
 
 pub(crate) use bags::{drop_at, put_down};
 use bags::{leave_on_ground, lying, standing_at, take_up};
 pub(crate) use eat::{food_lying, take_food};
 pub(crate) use pour::{lying_stack, replace_lying, take_top_lying};
+pub(crate) use take::take_lying;
 use tell::InReach;
 pub(crate) use tell::sync;
 

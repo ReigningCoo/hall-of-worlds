@@ -79,10 +79,11 @@ impl LevelWay<'_> {
     }
 
     /// `cost` waded or slowed by the ground at `at`, and by any furniture
-    /// there (`Level::furniture_cost_per_mille`: a table or a seat).
+    /// there (`Level::move_cost_per_mille`: a table, a seat, a felled tree
+    /// growing back).
     fn footed(&self, at: Spot, cost: u32) -> u32 {
         let (x, y) = at.cell();
-        let cost = cost * self.level.furniture_cost_per_mille(x, y) / 1000;
+        let cost = cost * self.level.move_cost_per_mille(x, y) / 1000;
         let footing = footing_on(self.level, at.cell(), self.terrain);
         match (footing.wades(), footing.slowed_by()) {
             (true, _) => self.gait.swim(cost),

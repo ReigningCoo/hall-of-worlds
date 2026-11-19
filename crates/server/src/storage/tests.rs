@@ -180,6 +180,16 @@ fn saves_are_read_back() {
                 scents: Default::default(),
                 wild_blocks: BTreeMap::from([((2, 5), 77)]),
                 plants_picked: BTreeMap::from([((4, -3), 12_345)]),
+                trees: BTreeMap::from([(
+                    (5, -3),
+                    super::TreeSave {
+                        damage: Some(shared::woodcutting::Damage {
+                            per_mille: 300,
+                            at: 12_000,
+                        }),
+                        felled: Some(11_000),
+                    },
+                )]),
                 ground: [(
                     Spot::new(3, 4),
                     vec![Item::new(

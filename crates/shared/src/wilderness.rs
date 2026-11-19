@@ -18,6 +18,7 @@ mod plan;
 mod samples;
 mod scale;
 mod sea;
+mod trees;
 mod vegetables;
 mod water;
 
@@ -35,6 +36,7 @@ pub use gate::{GATE_PAD, GateSpot};
 pub use herbs::{CLUMP_MOST, CLUMP_PERCENT, CLUMP_TRIES};
 pub use plan::{ChunkPlan, gates_of};
 pub use scale::{BLOCK_SIZE, BlockPos, SCALE};
+pub use trees::NEAR_WATER;
 pub use vegetables::{WILD_CROP_PER_MILLE, WILD_PATCH_MOST};
 
 use crate::climate::Climate;

@@ -59,6 +59,15 @@ impl Population {
             doors.open.place_furniture(piece);
         }
     }
+
+    /// A tree on its level was felled or has grown (`sites::share_trees`), so
+    /// its mobs walk round or through it as players do.
+    pub(crate) fn set_felled(&mut self, (x, y): (i64, i64), stage: shared::tree::TreeStage) {
+        self.level.set_felled(x, y, Some(stage));
+        if let Some(doors) = &mut self.doors {
+            doors.open.set_felled(x, y, Some(stage));
+        }
+    }
 }
 
 /// The level a mob finds its way by: one with hands goes as if every door were

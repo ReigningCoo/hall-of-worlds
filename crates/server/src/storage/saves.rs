@@ -141,6 +141,11 @@ pub struct LevelSave {
     /// undoes it.
     #[serde(default, alias = "herbs_picked")]
     pub plants_picked: BTreeMap<(i64, i64), u64>,
+    /// Trees chopped at or felled (woodcutting plan), by cell as plants are:
+    /// damage kept a day, and when one was felled, until it has grown again
+    /// (`sites::trees`). A reset never undoes it.
+    #[serde(default)]
+    pub trees: BTreeMap<(i64, i64), super::TreeSave>,
 }
 
 /// What a mob has come to know and own.

@@ -14,7 +14,8 @@
 //! - A fence is a thin bar through its cell towards the fences and gates
 //!   beside it, shaped as walls are; it can be jumped.
 //! - A tree is its trunk, round, at its cell's middle, and so is a fruit
-//!   plant with a trunk (`Level::has_trunk`), on whatever cell it grows.
+//!   plant with a trunk (`Level::has_trunk`), on whatever cell it grows; not
+//!   once felled, until it is grown again (`Level::stands_tree`).
 
 use super::{Blocker, Shape};
 use crate::dungeon::{CELL_UNITS, Cell, Level, WALL_HALF_UNITS, WallShape};
@@ -93,7 +94,7 @@ pub fn cell_blockers(level: &Level, x: i64, y: i64, out: &mut Vec<Blocker>) {
             shape,
             fence: Some((x, y)),
         }));
-    } else if cell == Cell::Tree || level.has_trunk(x, y) {
+    } else if level.stands_tree(x, y) {
         out.push(solid(Shape::Post {
             at: middle,
             radius: TRUNK_RADIUS,

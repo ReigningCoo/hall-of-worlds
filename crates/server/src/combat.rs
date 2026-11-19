@@ -34,6 +34,11 @@ pub(crate) enum Act {
     /// An ointment and a water being brewed (players only): the order is the
     /// client's `brewing`.
     Brew,
+    /// A blow at the tree at this cell of the player's level, `ticks` long
+    /// (players only, `connections/fell_tree.rs`).
+    FellTree { at: (i64, i64), ticks: u64 },
+    /// A log being split into kindling (players only).
+    CutKindling(shared::woodcutting::LogAt),
 }
 
 /// An ability begun and not landed yet.

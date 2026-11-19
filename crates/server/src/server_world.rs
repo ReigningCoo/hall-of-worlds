@@ -41,8 +41,7 @@ pub struct ServerWorld {
     pub(crate) herbs: Arc<shared::herb::Herbs>,
     /// The steps along every road found so far, which cost less.
     pub(crate) road_steps: shared::road::RoadSteps,
-    /// The rivers, and the points they run through near where anyone has
-    /// walked (`training.rs`), which are waded.
+    /// The rivers, and the points they run through near where anyone walked, which are waded.
     pub(crate) rivers: shared::river::Rivers,
     pub(crate) river_points: shared::river::RiverPoints,
     params: WorldParams,
@@ -54,8 +53,7 @@ pub struct ServerWorld {
     time: WorldTime,
     /// What creatures' energy goes by (the server's).
     pub(crate) action_clock: ActionClock,
-    /// The time's whole hours. The tide follows this, so it moves once an
-    /// hour rather than all the time.
+    /// The time's whole hours: the tide follows this, moving once an hour.
     pub(crate) hour: u32,
     /// `time` has been moved or sped up, which everyone in the world needs telling.
     pub(crate) clock_moved: bool,
@@ -86,6 +84,8 @@ pub struct ServerWorld {
     pub(crate) door_changes: Vec<crate::sites::DoorChange>,
     /// Herb patches harvested lately, for `sites::share_plants`.
     pub(crate) plant_changes: Vec<crate::sites::PlantChange>,
+    /// Trees chopped at, felled or grown lately, for `sites::share_trees`.
+    pub(crate) tree_changes: Vec<crate::sites::TreeChange>,
     /// Furniture put down by hand (dev tools), for `sites::share_furniture`.
     pub(crate) furniture_changes: Vec<crate::sites::FurnitureChange>,
     pub(crate) standing: crate::sites::Standing,
@@ -194,6 +194,7 @@ impl ServerWorld {
             kills: Vec::new(),
             door_changes: Vec::new(),
             plant_changes: Vec::new(),
+            tree_changes: Vec::new(),
             furniture_changes: Vec::new(),
             standing: Default::default(),
             mobs_frozen: false,

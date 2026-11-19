@@ -34,10 +34,13 @@ impl Level {
         }
     }
 
-    /// Whether a fruit plant with a trunk stands at `(x, y)`.
+    /// Whether a fruit plant with a trunk stands at `(x, y)`: not while it is
+    /// felled and growing back (`felled.rs`).
     pub fn has_trunk(&self, x: i64, y: i64) -> bool {
-        self.fruit_at(x, y)
-            .and_then(|plant| Fruits::built_in().get(&plant.fruit))
-            .is_some_and(|def| def.plant.has_trunk())
+        self.felled_at(x, y).is_none()
+            && self
+                .fruit_at(x, y)
+                .and_then(|plant| Fruits::built_in().get(&plant.fruit))
+                .is_some_and(|def| def.plant.has_trunk())
     }
 }

@@ -107,23 +107,25 @@ fn where_nothing_suits_the_nearest_kind_grows() {
 #[test]
 fn a_felled_tree_grows_back_a_stage_a_week() {
     let day = MINUTES_PER_DAY;
-    assert_eq!(TreeStage::after_felling(0), Some(TreeStage::Stump));
-    assert_eq!(TreeStage::after_felling(day - 1), Some(TreeStage::Stump));
-    assert_eq!(TreeStage::after_felling(day), None, "the stump gone");
-    assert_eq!(TreeStage::after_felling(5 * day - 1), None);
-    assert_eq!(TreeStage::after_felling(5 * day), Some(TreeStage::Sapling));
-    assert_eq!(TreeStage::after_felling(12 * day), Some(TreeStage::Young));
+    assert_eq!(TreeStage::after_felling(0), TreeStage::Stump);
+    assert_eq!(TreeStage::after_felling(day - 1), TreeStage::Stump);
     assert_eq!(
-        TreeStage::after_felling(19 * day),
-        Some(TreeStage::HalfGrown)
+        TreeStage::after_felling(day),
+        TreeStage::Cleared,
+        "the stump gone"
     );
-    assert_eq!(TreeStage::after_felling(26 * day), Some(TreeStage::Grown));
+    assert_eq!(TreeStage::after_felling(5 * day - 1), TreeStage::Cleared);
+    assert_eq!(TreeStage::after_felling(5 * day), TreeStage::Sapling);
+    assert_eq!(TreeStage::after_felling(12 * day), TreeStage::Young);
+    assert_eq!(TreeStage::after_felling(19 * day), TreeStage::HalfGrown);
+    assert_eq!(TreeStage::after_felling(26 * day), TreeStage::Grown);
 }
 
 #[test]
 fn walking_through_each_stage() {
     assert_eq!(TreeStage::Stump.cost_per_mille(), Some(1500));
     assert_eq!(TreeStage::Sapling.cost_per_mille(), Some(1000));
+    assert_eq!(TreeStage::Cleared.cost_per_mille(), Some(1000));
     assert_eq!(TreeStage::Young.cost_per_mille(), Some(1500));
     assert_eq!(TreeStage::HalfGrown.cost_per_mille(), Some(3000));
     assert_eq!(TreeStage::Grown.cost_per_mille(), None, "blocks");

@@ -51,6 +51,9 @@ fn pick_fruit(client: &mut Client, world: &mut ServerWorld, x: i64, y: i64) -> (
     let Some(plant) = visit.fruit_at(x, y).cloned() else {
         return refused(client, "no fruit plant there");
     };
+    if visit.cells().felled_at(x, y).is_some() {
+        return refused(client, "felled, and growing back");
+    }
     let Some(def) = Fruits::built_in().get(&plant.fruit) else {
         return refused(client, "a fruit this server doesn't have");
     };

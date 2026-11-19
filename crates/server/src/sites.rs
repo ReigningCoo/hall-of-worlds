@@ -38,6 +38,7 @@ mod remembered;
 mod shop_here;
 mod sight;
 mod trade;
+mod trees;
 mod up_down;
 mod wild;
 
@@ -75,6 +76,9 @@ use sight::memory;
 pub(crate) use sight::update_sight;
 pub(super) use sight::{forget_level, reveal_level, truesight_changed};
 pub(super) use trade::open_trade;
+pub(crate) use trees::{
+    TreeChange, TreeNews, grow_trees, keep_tree, saved_tree, share_trees, tree_here, tree_stage,
+};
 pub(super) use up_down::{go_down, go_up};
 pub(crate) use wild::wild_chunk;
 pub(super) use wild::{area_level, explore, follow, leave_by_key};
