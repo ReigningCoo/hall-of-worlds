@@ -104,3 +104,13 @@ fn bottles_saved_before_liquids_load() {
     let form = ItemForm::Bottle(form);
     assert!(ron::from_str::<ItemForm>(&ron::to_string(&form).unwrap()).is_ok());
 }
+
+#[test]
+fn old_vegetable_oil_loads_as_neutral_oil() {
+    // Saves (RON) by name, messages (postcard) by place.
+    let saved: Liquid = ron::from_str("Oil(Vegetable)").expect("loads");
+    assert_eq!(saved, Liquid::Oil(Oil::Neutral));
+    let bytes = postcard::to_allocvec(&Oil::Neutral).unwrap();
+    assert_eq!(bytes, [0], "Neutral keeps Vegetable's place");
+    assert_eq!(ron::to_string(&Oil::Neutral).unwrap(), "Neutral");
+}

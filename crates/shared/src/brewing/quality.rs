@@ -1,15 +1,14 @@
 //! A potion's quality from its doses (decision 16), how long one lasts by its
-//! quality (decision 18), and an ointment used on oneself (decision 8).
+//! quality (Alchemy plan, owner, 2026-11-19), and an ointment used on oneself
+//! (decision 8).
 
 use crate::energy::ACTION_TICKS_PER_SECOND;
 use crate::item::Quality;
 use crate::potion::{Contents, Dose};
 
-/// How long a Common potion's attributes last, in seconds.
-pub const COMMON_SECONDS: u32 = 120;
-/// How much longer each quality above Common lasts, and how much shorter Poor
-/// is, in seconds.
-pub const SECONDS_PER_QUALITY: u32 = 30;
+/// How long a Poor potion's attributes last, in seconds; each quality above
+/// lasts twice as long as the one before.
+pub const POOR_SECONDS: u32 = 30;
 /// An ointment on the skin gives its doses divided by this.
 pub const ON_SKIN_SHARE: i16 = 4;
 
@@ -36,12 +35,12 @@ pub fn quality(contents: &Contents) -> Quality {
     }
 }
 
-/// How long a potion of this quality changes attributes, in seconds: two
-/// minutes, 30 s more for each quality above Common, 30 s less for Poor (Poor
-/// 90 s to Legendary 4 minutes; Artifact, which brewing never makes, 4½).
+/// How long a potion of this quality changes attributes, in seconds: Poor
+/// 30 s, doubling with each quality (Common 1 minute, Uncommon 2, Rare 4, Epic
+/// 8, Legendary 16; Artifact, which alchemy never makes, 32).
 pub fn duration_seconds(quality: Quality) -> u32 {
     let steps = Quality::ALL.iter().position(|&q| q == quality).unwrap_or(1) as u32;
-    COMMON_SECONDS + steps * SECONDS_PER_QUALITY - SECONDS_PER_QUALITY
+    POOR_SECONDS << steps
 }
 
 /// `duration_seconds` in action ticks, as effects' ends are kept.

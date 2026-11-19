@@ -1,7 +1,8 @@
 //! Collect Water (brewing plan, decision 5): which water a bottle is filled
-//! with, where someone faces water near enough to fill from, how long a
-//! bottle takes, and which empty bottle is filled next. The server decides;
-//! the client predicts with the same rules.
+//! with, where someone faces water near enough to fill from, when rain can be
+//! caught instead (Alchemy plan), how long a bottle takes, and which empty
+//! bottle is filled next. The server decides; the client predicts with the
+//! same rules.
 
 use super::{BottleForm, Water};
 use crate::dungeon::{Cell, Level};
@@ -52,6 +53,20 @@ pub fn water_from(source: Source) -> Water {
         Source { moonlit: true, .. } => Water::Moon,
         _ => Water::Plain,
     }
+}
+
+/// How hard it has to rain (`weather::WeatherSample::rain`, 0 to 1) for
+/// Collect Water to catch Rain Water: steady rain, not a drizzle.
+pub const RAIN_AT: f64 = 0.25;
+
+/// Whether rain can be caught where someone stands: outside on their own cell
+/// (not under a roof, not underground), and raining there at least `RAIN_AT`
+/// warm enough not to be sleet or snow (`weather::LIGHTNING_WARMEST`, the
+/// shaders' sleet line; `temperature` as `climate` gives it at sea level, as
+/// the drawn rain is). Water faced still wins over rain: the caller asks this
+/// only when `water_faced` finds none.
+pub fn catches_rain(outside: bool, rain: f64, temperature: f64) -> bool {
+    outside && rain >= RAIN_AT && temperature >= crate::weather::LIGHTNING_WARMEST
 }
 
 /// Whether a cell can be filled from: water, deep or shallow.

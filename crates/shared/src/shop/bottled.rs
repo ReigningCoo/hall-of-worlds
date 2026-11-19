@@ -1,5 +1,5 @@
 //! What a shop's bottles hold: Herbalists and Potion Shops sell waters (never
-//! Salt Water) and oils (brewing plan, owner, 2026-11-17); which vessels a
+//! Salt Water or Rain Water) and oils (brewing plan, owner, 2026-11-17); which vessels a
 //! shop makes (drinks plan PR 2).
 
 use crate::item::ItemKind;
@@ -13,7 +13,8 @@ const BREWERS: &[LiquidKind] = &[
     LiquidKind::Water(Water::Plain),
     LiquidKind::Water(Water::Cave),
     LiquidKind::Water(Water::Moon),
-    LiquidKind::Oil(Oil::Vegetable),
+    LiquidKind::Oil(Oil::Neutral),
+    LiquidKind::Oil(Oil::Grain),
     LiquidKind::Oil(Oil::Nut),
     LiquidKind::Oil(Oil::Seed),
 ];

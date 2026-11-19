@@ -18,38 +18,52 @@ pub enum Water {
     Moon,
     /// From the sea: takes away the strongest helpful dose.
     Salt,
+    /// Caught from the rain, outside: takes away the strongest harmful dose
+    /// (Alchemy plan, owner, 2026-11-19).
+    Rain,
+    // New waters go at the end: messages carry one by its place in this list.
 }
 
 impl Water {
-    pub const ALL: [Water; 4] = [Self::Plain, Self::Cave, Self::Moon, Self::Salt];
+    pub const ALL: [Water; 5] = [Self::Plain, Self::Cave, Self::Moon, Self::Salt, Self::Rain];
 
-    /// "Water", "Cave Water", "Moon Water" or "Salt Water".
+    /// "Water", "Cave Water", "Moon Water", "Salt Water" or "Rain Water".
     pub fn name(self) -> &'static str {
         match self {
             Self::Plain => "Water",
             Self::Cave => "Cave Water",
             Self::Moon => "Moon Water",
             Self::Salt => "Salt Water",
+            Self::Rain => "Rain Water",
         }
     }
 }
 
-/// An oil, pressed from vegetables, nuts or seeds; kept generic. Each will
-/// suit one row of the attributes: Vegetable Body, Nut Mind, Seed Spirit.
+/// An oil, pressed from vegetables, grain, nuts or seeds; kept generic. Each
+/// but Neutral suits one row of the attributes: Grain Body, Nut Mind, Seed
+/// Spirit (Alchemy plan, owner, 2026-11-19).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Oil {
-    Vegetable,
+    /// From vegetables other than grain and seeds: no effect at all. Saves
+    /// holding the old Vegetable Oil load as this (same place, so messages
+    /// too).
+    #[serde(alias = "Vegetable")]
+    Neutral,
     Nut,
     Seed,
+    /// From grain: boosts the Body row.
+    Grain,
+    // New oils go at the end: messages carry one by its place in this list.
 }
 
 impl Oil {
-    pub const ALL: [Oil; 3] = [Self::Vegetable, Self::Nut, Self::Seed];
+    pub const ALL: [Oil; 4] = [Self::Neutral, Self::Grain, Self::Nut, Self::Seed];
 
-    /// "Vegetable Oil", "Nut Oil" or "Seed Oil".
+    /// "Neutral Oil", "Grain Oil", "Nut Oil" or "Seed Oil".
     pub fn name(self) -> &'static str {
         match self {
-            Self::Vegetable => "Vegetable Oil",
+            Self::Neutral => "Neutral Oil",
+            Self::Grain => "Grain Oil",
             Self::Nut => "Nut Oil",
             Self::Seed => "Seed Oil",
         }

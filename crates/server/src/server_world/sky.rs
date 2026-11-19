@@ -1,5 +1,6 @@
 //! The world's moons as quests see them: how many, and whether one is in the
-//! sky now (`shared::quest::Need::Moon`); and whether it is moonlit.
+//! sky now (`shared::quest::Need::Moon`); whether it is moonlit; and whether
+//! rain can be caught at a place (Rain Water).
 
 use shared::celestial::ColourName;
 
@@ -26,6 +27,19 @@ impl ServerWorld {
         let now = self.celestial.at(hours);
         let (suns, moons) = now.split_at(self.celestial.sun_count().min(now.len()));
         !suns.iter().any(|sun| sun.is_up()) && moons.iter().any(|moon| moon.is_up())
+    }
+
+    /// Whether someone `outside` at this world map point catches Rain Water
+    /// (`shared::potion::catches_rain`), by the weather now there, worked out
+    /// as clients work out the rain they draw (at sea level's temperature).
+    pub(crate) fn catches_rain(&self, x: i64, y: i64, outside: bool) -> bool {
+        if !outside {
+            return false;
+        }
+        let hours = self.minutes() / MINUTES_PER_HOUR;
+        let rain = self.weather.sample(x, y, hours).rain;
+        let temperature = self.climate.sample(x, y, self.params.sea_level);
+        shared::potion::catches_rain(outside, rain, temperature.temperature)
     }
 
     /// Moon `moon`'s colour, by name, if it has one.

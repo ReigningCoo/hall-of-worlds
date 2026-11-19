@@ -1,7 +1,8 @@
 //! A player collecting water (`Ability::CollectWater`, brewing plan decision
 //! 5): facing water within reach with an empty bottle, each bottle a wind-up
 //! of `potion::fill_ticks`; when one lands it is filled with the water the
-//! place gives (`potion::water_from`), Water is practised, and the next empty
+//! place gives (`potion::water_from`), or, facing none, with Rain Water if
+//! rain is caught outside (`potion::catches_rain`), Water is practised, and the next empty
 //! bottle starts, until there are none, the water is no longer faced, or the
 //! player moves or is harmed (`stop_collecting`, as eating's effects end).
 //! Once no empty bottle is left, it pours into a carried cask that takes the
@@ -24,16 +25,21 @@ use crate::ids::new_id;
 
 impl Client {
     /// The water the player faces within reach on their level, and which water
-    /// it gives: `None` off levels, or facing none.
+    /// it gives; facing none, Rain Water if rain is caught where they stand:
+    /// `None` off levels, or neither.
     fn water_here(&self, world: &ServerWorld) -> Option<Water> {
         let visit = self.visit.as_ref()?;
-        let (x, y) = water_faced(visit.cells(), visit.spot(), self.heading)?;
         let underground = visit
             .site()
             .is_some_and(|site| site.is_underground(visit.index()));
-        let sea = visit.is_wilderness() && world.wilderness.wild.is_sea(x, y);
         let (own_x, own_y) = visit.position();
         let outside = visit.cells().cell(own_x, own_y).is_outside();
+        let Some((x, y)) = water_faced(visit.cells(), visit.spot(), self.heading) else {
+            let (px, py) = self.world_position();
+            let rain = world.catches_rain(px, py, outside && !underground);
+            return rain.then_some(Water::Rain);
+        };
+        let sea = visit.is_wilderness() && world.wilderness.wild.is_sea(x, y);
         let moonlit = !underground && outside && world.moonlit();
         Some(water_from(Source {
             underground,

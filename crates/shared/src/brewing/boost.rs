@@ -26,11 +26,13 @@ pub fn stat_row(stat: Stat) -> Row {
     }
 }
 
-/// The row an oil boosts (decision 3): Vegetable Body, Nut Mind, Seed Spirit.
-pub fn oil_suits(oil: Oil) -> Row {
+/// The row an oil boosts (decision 3, Alchemy plan): Grain Body, Nut Mind,
+/// Seed Spirit; Neutral none.
+pub fn oil_suits(oil: Oil) -> Option<Row> {
     match oil {
-        Oil::Vegetable => Row::Body,
-        Oil::Nut => Row::Mind,
-        Oil::Seed => Row::Spirit,
+        Oil::Neutral => None,
+        Oil::Grain => Some(Row::Body),
+        Oil::Nut => Some(Row::Mind),
+        Oil::Seed => Some(Row::Spirit),
     }
 }

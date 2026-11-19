@@ -56,6 +56,18 @@ fn salt_water_takes_the_strongest_helpful_dose() {
 }
 
 #[test]
+fn rain_water_takes_the_strongest_harmful_dose() {
+    let mix = contents(&[(S, 5), (W, -3), (H, -6)]);
+    assert_eq!(doses(&watered(&mix, Water::Rain)), [(S, 5), (W, -3)]);
+    // A tie: the first in `Stat`'s order goes.
+    let tie = contents(&[(W, -4), (H, -4)]);
+    assert_eq!(doses(&watered(&tie, Water::Rain)), [(H, -4)]);
+    // Nothing harmful: nothing goes.
+    let helpful = contents(&[(S, 5)]);
+    assert_eq!(watered(&helpful, Water::Rain), helpful);
+}
+
+#[test]
 fn a_potion_needs_a_dose_of_four() {
     assert_eq!(brew(&contents(&[(S, 3), (W, -3)]), Water::Plain), None);
     assert_eq!(brew(&Contents::EMPTY, Water::Moon), None);
@@ -100,8 +112,8 @@ fn quality_from_purity() {
 #[test]
 fn durations_by_quality() {
     let secs: Vec<u32> = Quality::ALL.map(duration_seconds).to_vec();
-    assert_eq!(secs, [90, 120, 150, 180, 210, 240, 270]);
-    assert_eq!(duration_ticks(Quality::Common), 120 * 20);
+    assert_eq!(secs, [30, 60, 120, 240, 480, 960, 1920]);
+    assert_eq!(duration_ticks(Quality::Common), 60 * 20);
 }
 
 #[test]
@@ -130,7 +142,7 @@ fn herbs_to_potion() {
         def: &def,
         quality: Quality::Artifact,
     };
-    let ointment = grind(&[herb], Oil::Vegetable, 5, skills).unwrap();
+    let ointment = grind(&[herb], Oil::Grain, 5, skills).unwrap();
     // 6 boosted to 7; Will -2 cut away by Herbalism.
     assert_eq!(doses(&ointment.contents), [(S, 7)]);
     let potion = brew(&ointment.contents, Water::Moon).unwrap();

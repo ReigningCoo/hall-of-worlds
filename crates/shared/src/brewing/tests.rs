@@ -165,7 +165,8 @@ fn oil_boosts_its_row_only() {
     let h = Stat::Health;
     let m = Stat::Mana;
     let e = Stat::Empathy;
-    assert_eq!(by(Oil::Vegetable), [(e, 3), (h, 4), (m, 3)]);
+    assert_eq!(by(Oil::Neutral), [(e, 3), (h, 3), (m, 3)]);
+    assert_eq!(by(Oil::Grain), [(e, 3), (h, 4), (m, 3)]);
     assert_eq!(by(Oil::Nut), [(e, 3), (h, 3), (m, 4)]);
     assert_eq!(by(Oil::Seed), [(e, 4), (h, 3), (m, 3)]);
 }
@@ -185,7 +186,10 @@ fn rows_of_stats_and_oils() {
     assert_eq!(stat_row(Stat::Perception), Row::Mind);
     assert_eq!(stat_row(Stat::Aura), Row::Spirit);
     let rows = Oil::ALL.map(oil_suits);
-    assert_eq!(rows, [Row::Body, Row::Mind, Row::Spirit]);
+    assert_eq!(
+        rows,
+        [None, Some(Row::Body), Some(Row::Mind), Some(Row::Spirit)]
+    );
 }
 
 #[test]
@@ -194,12 +198,12 @@ fn each_stat_capped() {
         .map(|i| herb(&format!("h{i}"), &[(Stat::Strength, 3)]))
         .collect();
     let mix: Vec<GroundHerb> = defs.iter().map(common).collect();
-    // Untrained: each herb gives 1, four of them 4, Vegetable Oil makes 5,
+    // Untrained: each herb gives 1, four of them 4, Grain Oil makes 5,
     // capped at 4.
-    let made = grind(&mix, Oil::Vegetable, 1, skills(0, 0)).unwrap();
+    let made = grind(&mix, Oil::Grain, 1, skills(0, 0)).unwrap();
     assert_eq!(doses(&made.contents), [(Stat::Strength, 4)]);
     // At 25% Alchemy: each 3 (cap 6), 12, boosted 15, cap 24.
-    let made = grind(&mix, Oil::Vegetable, 1, skills(25, 100)).unwrap();
+    let made = grind(&mix, Oil::Grain, 1, skills(25, 100)).unwrap();
     assert_eq!(doses(&made.contents), [(Stat::Strength, 15)]);
 }
 

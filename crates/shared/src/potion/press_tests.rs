@@ -39,13 +39,14 @@ fn carrying(items: Vec<Item>) -> Inventory {
 }
 
 #[test]
-fn nuts_seeds_and_vegetables_give_their_oils() {
+fn nuts_seeds_grain_and_vegetables_give_their_oils() {
     let herbs = Herbs::built_in();
     let oil = |item: &Item| Pressing::of(item, &herbs).and_then(|p| p.oil(&herbs));
     assert_eq!(oil(&fruit("walnut", 1, 1)), Some(Oil::Nut));
     assert_eq!(oil(&fruit("apple", 1, 2)), None, "not a nut");
     assert_eq!(oil(&vegetable("lentil", 1, 3)), Some(Oil::Seed));
-    assert_eq!(oil(&vegetable("carrot", 1, 4)), Some(Oil::Vegetable));
+    assert_eq!(oil(&vegetable("carrot", 1, 4)), Some(Oil::Neutral));
+    assert_eq!(oil(&vegetable("wheat", 1, 8)), Some(Oil::Grain));
     assert_eq!(oil(&herb(&herbs, "mustard", 1, 5)), Some(Oil::Seed));
     assert_eq!(oil(&herb(&herbs, "chamomile", 1, 6)), None, "not seeds");
     assert_eq!(oil(&empty_bottles(1, 7)), None);

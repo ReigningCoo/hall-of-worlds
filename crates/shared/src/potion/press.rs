@@ -12,7 +12,7 @@ use crate::id::Id;
 use crate::item::{Inventory, Item};
 use crate::item_form::ItemForm;
 use crate::skill::Skills;
-use crate::vegetable::{Part, Vegetables};
+use crate::vegetable::{Part, VegetableSet, Vegetables};
 
 /// How long the first bottle takes untrained, in seconds.
 const FIRST_SECONDS: u32 = 15;
@@ -43,10 +43,10 @@ impl Pressing {
         pressing.oil(herbs).map(|_| pressing)
     }
 
-    /// The oil it gives (decision 3): nuts Nut Oil; vegetables whose seeds
-    /// are eaten (beans, peanuts) and herbs whose part used is their seeds
-    /// Seed Oil; any other vegetable Vegetable Oil. Fruit other than nuts and
-    /// other herbs give none.
+    /// The oil it gives (decision 3, Alchemy plan): nuts Nut Oil; vegetables
+    /// whose seeds are eaten (beans, peanuts) and herbs whose part used is
+    /// their seeds Seed Oil; grain Grain Oil; any other vegetable Neutral Oil.
+    /// Fruit other than nuts and other herbs give none.
     pub fn oil(&self, herbs: &Herbs) -> Option<Oil> {
         match self {
             Self::Fruit(key) => {
@@ -55,10 +55,12 @@ impl Pressing {
             }
             Self::Vegetable(key) => {
                 let def = Vegetables::built_in().get(key)?;
-                Some(if def.part == Part::Seeds {
+                Some(if def.set == VegetableSet::Grain {
+                    Oil::Grain
+                } else if def.part == Part::Seeds {
                     Oil::Seed
                 } else {
-                    Oil::Vegetable
+                    Oil::Neutral
                 })
             }
             Self::Herb(key) => {
@@ -80,12 +82,13 @@ impl Pressing {
 }
 
 /// How many grams pressed fill one bottle (first guesses, about ten handfuls
-/// each): nuts are richest in oil, then seeds, and vegetables give least.
+/// each): nuts are richest in oil, then seeds, and grain and other vegetables
+/// give least.
 pub fn grams_per_bottle(oil: Oil) -> u32 {
     match oil {
         Oil::Nut => 200,
         Oil::Seed => 300,
-        Oil::Vegetable => 1000,
+        Oil::Grain | Oil::Neutral => 1000,
     }
 }
 

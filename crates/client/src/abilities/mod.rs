@@ -24,6 +24,7 @@ mod own_bar;
 mod page;
 mod press_juice;
 mod press_oil;
+mod rain_here;
 mod sneak;
 mod spots;
 mod use_ability;
