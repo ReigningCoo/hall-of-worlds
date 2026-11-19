@@ -17,6 +17,16 @@ fn in_a_site() -> TestClient {
         level: 0,
         ruin: 0,
     }]);
+    // Its cellar's casks (`sites/cellar.rs`) lie elsewhere: start clear.
+    let visit = test.client.visit.as_ref().expect("in the castle");
+    let (id, index) = (visit.id(), visit.index());
+    test.world
+        .site_mut(id)
+        .levels
+        .entry(index)
+        .or_default()
+        .ground
+        .clear();
     test
 }
 

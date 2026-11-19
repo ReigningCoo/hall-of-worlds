@@ -15,6 +15,7 @@ pub mod bonus;
 pub mod brewing;
 pub mod cask;
 pub mod celestial;
+pub mod cellar;
 pub mod clearance;
 pub mod climate;
 pub mod clothing;

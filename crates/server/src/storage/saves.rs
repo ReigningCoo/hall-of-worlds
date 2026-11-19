@@ -130,6 +130,10 @@ pub struct LevelSave {
     /// which happens once (`sites/doors/locks.rs`).
     #[serde(default)]
     pub locks_placed: bool,
+    /// Whether its cellar casks have been put on the ground, which happens
+    /// once, on the wilderness's ground for a first level (`sites/cellar.rs`).
+    #[serde(default)]
+    pub cellar_stocked: bool,
     /// The wilderness's only: blocks whose mobs have something saved (`dead`,
     /// `records`), by `(x, y)`, with when someone was last near (seconds
     /// since 1970): they reset after nobody has been for a while.

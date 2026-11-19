@@ -27,7 +27,7 @@ Casks (drinks plan PR 1, `docs/context/drinks.md`): one item kind, `ItemKind::Ca
 
 ## Used by
 
-- `item` (`ItemKind::Cask`, Other; its form's cells and grams), `item_form` (`give_form_to`, `fields`, `choices`), `ground` (`Load::of`: the biggest cask in a pile), `ability` (`has_tool`: Collect Water), `shop` (carpenters), server `connections/collect_water.rs`, `pour` (`Held`, opening), client `item_art` (`Look::Cask`, the mesh), `ground` (casks standing), `item_popup` (how much it holds, sealed or opened), `debug_menu` (Give Item's size dropdown).
+- `cellar` (castles' and towers' casks and what they hold), `item` (`ItemKind::Cask`, Other; its form's cells and grams), `item_form` (`give_form_to`, `fields`, `choices`), `ground` (`Load::of`: the biggest cask in a pile), `ability` (`has_tool`: Collect Water), `shop` (carpenters), server `connections/collect_water.rs`, `pour` (`Held`, opening), client `item_art` (`Look::Cask`, the mesh), `ground` (casks standing), `item_popup` (how much it holds, sealed or opened), `debug_menu` (Give Item's size dropdown).
 
 ## Notes
 

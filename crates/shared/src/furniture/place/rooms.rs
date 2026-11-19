@@ -6,10 +6,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::dungeon::{Cell, Level, RoomId};
 
 /// A room's floor.
-pub(super) struct Room {
-    pub(super) id: RoomId,
+pub(crate) struct Room {
+    pub(crate) id: RoomId,
     /// Its `Cell::Floor` cells, row by row.
-    pub(super) cells: Vec<(i64, i64)>,
+    pub(crate) cells: Vec<(i64, i64)>,
 }
 
 impl Room {
@@ -22,7 +22,7 @@ impl Room {
 }
 
 /// Every room with floor on the level, smallest id first.
-pub(super) fn rooms_of(level: &Level) -> Vec<Room> {
+pub(crate) fn rooms_of(level: &Level) -> Vec<Room> {
     let mut rooms: BTreeMap<RoomId, Vec<(i64, i64)>> = BTreeMap::new();
     let (min_x, min_y, width, height) = level.bounds();
     for y in min_y..min_y + height {
@@ -41,7 +41,7 @@ pub(super) fn rooms_of(level: &Level) -> Vec<Room> {
 
 /// The cells furniture may stand on: room floor, but never beside a door
 /// (the cell inside it), within a cell of stairs, or where anyone arrives.
-pub(super) fn usable_cells(
+pub(crate) fn usable_cells(
     level: &Level,
     rooms: &[Room],
     stairs: &[(i64, i64)],

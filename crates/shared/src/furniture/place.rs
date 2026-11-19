@@ -10,7 +10,7 @@ mod loose;
 mod palette;
 mod placer;
 mod reach;
-mod rooms;
+pub(crate) mod rooms;
 mod seats;
 mod setting;
 mod tables;

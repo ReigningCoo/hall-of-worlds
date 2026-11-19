@@ -62,6 +62,9 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
             vegetables = (plants.vegetables.into_iter())
                 .map(|(at, plant)| (moved(at), plant))
                 .collect();
+            if let Some(poi) = &poi {
+                crate::sites::stock_set_in_cellar(world, poi, site, &first, offset);
+            }
         }
     }
     world.wilderness.keep_chunk(WildChunk {

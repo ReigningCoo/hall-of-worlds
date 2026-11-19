@@ -189,4 +189,16 @@ impl Site {
         let hash = self.seed.derive("stairs style").at(&[upper]);
         choices[(hash % choices.len() as u64) as usize]
     }
+
+    /// The casks standing in level `index`'s cellar room (`level` is that
+    /// level as generated): none unless it is the site's cellar level
+    /// (`shared::cellar`). Their contents are the server's.
+    pub fn cellar_casks(&self, index: u32, level: &SiteLevel) -> Vec<crate::cellar::CellarCask> {
+        let cellar =
+            crate::cellar::cellar_level(self.kind, self.seed, self.levels(), self.has_basement());
+        if cellar != Some(index) {
+            return Vec::new();
+        }
+        crate::cellar::cellar_casks(level, self.kind, self.seed, index)
+    }
 }
