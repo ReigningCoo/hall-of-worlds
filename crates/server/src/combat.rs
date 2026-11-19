@@ -39,6 +39,9 @@ pub(crate) enum Act {
     FellTree { at: (i64, i64), ticks: u64 },
     /// A log being split into kindling (players only).
     CutKindling(shared::woodcutting::LogAt),
+    /// A cask being set fermenting (players only): the order is the client's
+    /// `fermenting`.
+    Ferment,
 }
 
 /// An ability begun and not landed yet.

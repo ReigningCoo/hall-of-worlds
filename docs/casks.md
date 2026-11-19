@@ -7,7 +7,7 @@ grand_parent: Gameplay
 
 # Casks
 
-A cask is a wooden barrel bound with iron hoops. It holds one liquid at a time, by the litre: water or an oil for now. Carpenters sell them.
+A cask is a wooden barrel bound with iron hoops. It holds one liquid at a time, by the litre: water, an oil, juice, a drink or vinegar. Carpenters sell them.
 
 ## Sizes
 
@@ -36,7 +36,7 @@ A litre of anything in a cask weighs about a kilogram.
 | Cherry | Deep red-brown | A little lighter |
 | Pine | Pale | Lightest |
 
-Oak is the commonest. The wood will matter for what is kept in the cask once drinks can be made.
+Oak is the commonest. The wood matters for drinks ageing in the cask: see [Drinks](drinks).
 
 ## Filling a cask
 

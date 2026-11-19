@@ -41,3 +41,28 @@ fn dwarven_bread_is_described_and_an_apple_is_not() {
     assert!(about_bread.starts_with("Looks and feels like a lump of stone."));
     assert!(about(&Item::new(Id::for_test(2), ItemKind::Bread), &lang).is_none());
 }
+
+#[test]
+fn a_fermenting_cask_says_what_it_will_be_and_when() {
+    use shared::cask::{CaskForm, CaskSize};
+    use shared::ferment::plan;
+    use shared::item::Quality;
+    use shared::item_form::ItemForm;
+    use shared::material::Material;
+    use shared::potion::Liquid;
+    let lang = Lang::new(Language::English);
+    let juice = CaskForm::new(CaskSize::Pin, Material::Oak).full_of(Liquid::Juice("apple".into()));
+    let mut cask = Item {
+        form: Some(ItemForm::Cask(juice.clone())),
+        ..Item::new(Id::for_test(1), ItemKind::Cask)
+    };
+    let started = plan(&cask, None, &[Quality::Common])
+        .unwrap()
+        .started(&juice);
+    cask.form = Some(ItemForm::Cask(started));
+    let words = about(&cask, &lang).unwrap();
+    assert!(
+        words.ends_with("sealed\n5.8%, dry, Common\nFermenting: ready in 36 days"),
+        "{words}"
+    );
+}

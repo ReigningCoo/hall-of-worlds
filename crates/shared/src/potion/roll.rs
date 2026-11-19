@@ -49,6 +49,8 @@ pub fn bottle_to(rng: &mut Rng, request: &RollRequest, look: u64) -> Result<Bott
         (Some(LiquidKind::Oil(oil)), _) => Some(Liquid::Oil(oil)),
         (Some(LiquidKind::Juice), _) => Some(Liquid::Juice(juice_fruit(rng))),
         (Some(LiquidKind::Cordial), _) => Some(Liquid::Cordial(juice_fruit(rng))),
+        (Some(LiquidKind::Drink), _) => Some(crate::fermentation::rolled_drink(rng)),
+        (Some(LiquidKind::Vinegar), _) => Some(crate::fermentation::rolled_vinegar(rng)),
     };
     // An empty potion is an empty bottle.
     Ok(BottleForm::new(liquid, look))

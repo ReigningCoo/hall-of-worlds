@@ -25,6 +25,8 @@ impl Ability {
                 return carried.empty_bottle().is_some() || carried.cask_for_water();
             }
             Self::FellTree | Self::CutKindling => return carried.held_axe().is_some(),
+            // A usable yeast carried; the cask may lie in reach.
+            Self::Ferment => return !carried.ferment_choices().yeasts.is_empty(),
             _ => {}
         }
         self.tool().is_none_or(|kind| carried.count_of(kind) > 0)

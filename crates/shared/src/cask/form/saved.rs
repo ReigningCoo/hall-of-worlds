@@ -5,7 +5,7 @@
 use serde::{Deserialize, Deserializer};
 
 use super::CaskForm;
-use crate::cask::CaskSize;
+use crate::cask::{CaskSize, CaskTime};
 use crate::material::Material;
 use crate::potion::Liquid;
 
@@ -16,6 +16,7 @@ impl<'de> Deserialize<'de> for CaskForm {
             let cask = CaskForm::new(wire.size, wire.wood).holding(wire.liquid, wire.ml);
             return Ok(CaskForm {
                 opened: wire.opened,
+                time: wire.time,
                 ..cask
             });
         }
@@ -27,6 +28,7 @@ impl<'de> Deserialize<'de> for CaskForm {
         let cask = CaskForm::new(saved.size, saved.wood).holding(saved.liquid, ml);
         Ok(CaskForm {
             opened: saved.opened,
+            time: saved.time,
             ..cask
         })
     }
@@ -41,6 +43,7 @@ struct Wire {
     liquid: Option<Liquid>,
     ml: u32,
     opened: bool,
+    time: Box<CaskTime>,
 }
 
 /// What `ml` reads as when a save has only `litres`.
@@ -64,4 +67,6 @@ struct Saved {
     litres: u32,
     #[serde(default)]
     opened: bool,
+    #[serde(default)]
+    time: Box<CaskTime>,
 }

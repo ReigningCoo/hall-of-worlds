@@ -101,6 +101,11 @@ fn brews_panel_is_good_markup() {
 }
 
 #[test]
+fn ferments_panel_is_good_markup() {
+    super::ferment::FERMENT.assert_good();
+}
+
+#[test]
 fn potions_are_described_and_greyed_while_cooling_down() {
     use shared::brewing::{Combination, DRINK_COOLDOWN_TICKS};
     use shared::herb::Stat;

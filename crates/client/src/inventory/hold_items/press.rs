@@ -108,7 +108,7 @@ pub(super) fn take_presses(
                 *last_press = Some((id, now));
                 let bag = cell.item.kind.def().container.is_some();
                 if again && !bag && cell.with == GROUND {
-                    holding.quick = Some(QuickFrom::Ground(cell.item.clone()));
+                    holding.quick = Some(QuickFrom::Ground(Box::new(cell.item.clone())));
                     *last_press = None;
                 }
                 continue;

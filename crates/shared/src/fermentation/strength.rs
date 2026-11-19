@@ -2,6 +2,8 @@
 //! yeast's tolerance by its quality; leftover sugar is sweetness; under 1%
 //! nothing ferments).
 
+use serde::{Deserialize, Serialize};
+
 use crate::item::Quality;
 
 use super::{DrinkKind, Mash};
@@ -41,7 +43,7 @@ pub fn best_tolerance(yeasts: &[Quality]) -> u32 {
 }
 
 /// How sweet a drink is by the sugar left in it.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Sweetness {
     /// Under 40 kcal a litre left (about 10 g of sugar).
     Dry,
@@ -53,6 +55,16 @@ pub enum Sweetness {
 }
 
 impl Sweetness {
+    /// "dry", "off-dry", "medium" or "sweet".
+    pub fn words(self) -> &'static str {
+        match self {
+            Self::Dry => "dry",
+            Self::OffDry => "off-dry",
+            Self::Medium => "medium",
+            Self::Sweet => "sweet",
+        }
+    }
+
     pub fn of(left_kcal_per_litre: u64) -> Self {
         match left_kcal_per_litre {
             0..40 => Self::Dry,

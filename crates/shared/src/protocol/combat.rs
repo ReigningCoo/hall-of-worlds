@@ -42,4 +42,7 @@ pub enum Landed {
     /// A log was split (Cut Kindling: `target` is `None`) into this many
     /// pieces of kindling.
     Split(u32),
+    /// A cask was set fermenting (Ferment: `target` is `None`): ready in this
+    /// many game days.
+    Fermented { days: u32 },
 }

@@ -67,6 +67,12 @@ pub enum Liquid {
     Juice(String),
     /// A fruit's juice and as much water or less (`shared::juice`'s `mix`).
     Cordial(String),
+    /// A fermented drink: ale, cider, perry, wine (`shared::fermentation`,
+    /// drinks plan PR 6). Boxed, so every item doesn't grow by it.
+    Drink(Box<crate::fermentation::Drink>),
+    /// What an opened drink turns into once past its best (drinks decision
+    /// 13), by what the drink was made from. Boxed as `Drink` is.
+    Vinegar(Box<crate::fermentation::Base>),
     // New liquids go at the end: messages carry one by its place in this list.
 }
 
@@ -79,6 +85,8 @@ impl Liquid {
             Self::Potion(_) => LiquidKind::Potion,
             Self::Juice(_) => LiquidKind::Juice,
             Self::Cordial(_) => LiquidKind::Cordial,
+            Self::Drink(_) => LiquidKind::Drink,
+            Self::Vinegar(_) => LiquidKind::Vinegar,
         }
     }
 
@@ -101,6 +109,11 @@ impl Liquid {
     /// What a bottle of it is called: "Water", "Nut Oil", "Potion", "Apple
     /// Juice", "Apple Cordial" (just "Juice" for a fruit the table lacks).
     pub fn name(&self) -> String {
+        match self {
+            Self::Drink(drink) => return drink.name(),
+            Self::Vinegar(base) => return base.vinegar_name().to_owned(),
+            _ => {}
+        }
         let kind = self.kind().name();
         let fruit = self
             .fruit()
@@ -122,6 +135,10 @@ pub enum LiquidKind {
     Juice,
     /// Some fruit's cordial.
     Cordial,
+    /// A fermented drink: Give Item rolls a fruit's.
+    Drink,
+    /// Some vinegar.
+    Vinegar,
 }
 
 impl LiquidKind {
@@ -132,7 +149,13 @@ impl LiquidKind {
         waters
             .into_iter()
             .chain(oils)
-            .chain([Self::Potion, Self::Juice, Self::Cordial])
+            .chain([
+                Self::Potion,
+                Self::Juice,
+                Self::Cordial,
+                Self::Drink,
+                Self::Vinegar,
+            ])
             .collect()
     }
 
@@ -144,6 +167,8 @@ impl LiquidKind {
             Self::Potion => "Potion",
             Self::Juice => "Juice",
             Self::Cordial => "Cordial",
+            Self::Drink => "Drink",
+            Self::Vinegar => "Vinegar",
         }
     }
 }

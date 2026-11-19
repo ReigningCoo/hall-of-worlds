@@ -60,6 +60,9 @@ pub enum Ability {
     /// Fruit pressed into juice, into a carried cask or vessel
     /// (`shared::juice`): from Alchemy, with an oil press.
     PressJuice,
+    /// A cask of juice, cordial, or water with fruit or grain set fermenting
+    /// with yeast (`shared::ferment`): from Fermenting.
+    Ferment,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -75,7 +78,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 14] = [
+    pub const ALL: [Ability; 15] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -87,6 +90,7 @@ impl Ability {
         Self::PressJuice,
         Self::Grind,
         Self::Brew,
+        Self::Ferment,
         Self::CollectWater,
         Self::FellTree,
         Self::CutKindling,
@@ -109,6 +113,7 @@ impl Ability {
             Self::CollectWater => "Collect Water",
             Self::FellTree => "Fell Tree",
             Self::CutKindling => "Cut Kindling",
+            Self::Ferment => "Ferment",
         }
     }
 
@@ -128,7 +133,8 @@ impl Ability {
             | Self::Brew
             | Self::CollectWater
             | Self::FellTree
-            | Self::CutKindling => Use::Active,
+            | Self::CutKindling
+            | Self::Ferment => Use::Active,
         }
     }
 
@@ -144,7 +150,8 @@ impl Ability {
             Self::Trample | Self::FellTree | Self::CutKindling => &[Strength, Toughness],
             Self::Flutter => &[Agility],
             // As its skill, Water.
-            Self::NightVision | Self::CollectWater => &[Perception],
+            // Collect Water and Ferment as their skills, Water and Fermenting.
+            Self::NightVision | Self::CollectWater | Self::Ferment => &[Perception],
             Self::Sneak => &[Agility],
             // As its skill, Healing, under Divine.
             Self::Heal => &[Empathy],
@@ -172,6 +179,9 @@ impl Ability {
             }
             Self::FellTree => "Fells the tree you face with the one-handed axe you hold.",
             Self::CutKindling => "Splits a log into kindling with the one-handed axe you hold.",
+            Self::Ferment => {
+                "Sets a cask of juice, or of water with fruit or grain, fermenting with yeast."
+            }
         }
     }
 

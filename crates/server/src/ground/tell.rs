@@ -55,14 +55,15 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld) {
     }
 }
 
-/// Yeast lying in players' reach lets the real time pass (`shared::yeast`), so
-/// what they see of it is up to date: everyone on a level where some lost a
-/// quality step or passed an hour on its clock is told the ground again, and
-/// its site saved.
+/// Yeast and casks lying in players' reach let the real time pass
+/// (`shared::yeast`, `shared::ferment`), so what they see of them is up to
+/// date: everyone on a level where something changed that they would see is
+/// told the ground again, and its site saved; a player by a cask soon to be
+/// vinegar is told so.
 fn settle_yeast(clients: &mut [Client], world: &mut ServerWorld) {
     let now = crate::quests::unix_now().max(0) as u64;
     let mut seen = Vec::new();
-    for client in clients.iter() {
+    for client in clients.iter_mut() {
         let Some((id, index, at)) = standing_at(client) else {
             continue;
         };
@@ -74,9 +75,16 @@ fn settle_yeast(clients: &mut [Client], world: &mut ServerWorld) {
         for bag in bags_in_reach(&level.ground, client.size(), at) {
             // Every item settles: no stopping at the first that changed.
             let items = level.ground.get_mut(&bag).into_iter().flatten();
-            let settled: Vec<bool> =
-                (items.map(|item| item.settle_lying_yeast(now).seen())).collect();
-            if settled.contains(&true) {
+            let mut changed = false;
+            for item in items {
+                changed |= item.settle_lying_yeast(now).seen();
+                let casks = item.settle_lying_casks(now);
+                changed |= casks.seen;
+                for name in casks.warned {
+                    client.link.send(&ServerMessage::VinegarSoon(name));
+                }
+            }
+            if changed {
                 seen.push((id, index));
             }
         }

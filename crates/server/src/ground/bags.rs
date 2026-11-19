@@ -44,10 +44,12 @@ pub(crate) fn drop_at(
     items: impl IntoIterator<Item = Item>,
 ) {
     let into = bags_in_reach(bags, size, at).first().copied().unwrap_or(at);
-    // Yeast on the ground goes by real time (`shared::yeast`).
+    // Yeast and casks on the ground go by real time (`shared::yeast`,
+    // `shared::ferment`).
     let now = crate::quests::unix_now().max(0) as u64;
     let items = items.into_iter().map(|mut item| {
         item.lay_yeast_down(now);
+        item.lay_casks_down(now);
         item
     });
     bags.entry(into).or_default().extend(items);

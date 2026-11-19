@@ -9,11 +9,13 @@ mod fill;
 mod form;
 mod roll;
 mod size;
+mod time;
 
 pub use fill::{CASK_FILL_SECONDS, CASK_PRACTICE, cask_fill_ticks, cask_litres, fill_cask_with};
 pub use form::{CaskForm, CaskLook, WOODS};
 pub use roll::{cask_to, cask_wood_weights};
 pub use size::CaskSize;
+pub use time::CaskTime;
 
 #[cfg(test)]
 mod tests;

@@ -12,16 +12,20 @@
 
 mod ageing;
 mod base;
+mod drink;
 mod mash;
 mod quality;
+mod roll;
 mod spoil;
 mod strength;
 mod time;
 
 pub use ageing::{aged, ageing_cap, ageing_step_secs};
 pub use base::{Base, DrinkKind};
+pub use drink::Drink;
 pub use mash::{FRUIT_SUGAR, GRAIN_SUGAR, Mash, MashSource};
 pub use quality::{drink_quality, mean_quality};
+pub use roll::{rolled_drink, rolled_vinegar};
 pub use spoil::{
     JUICE_TURNS_SECS, KEEPS_FROM, best_before_secs, notice_due, vinegar_share, wild_cider,
 };

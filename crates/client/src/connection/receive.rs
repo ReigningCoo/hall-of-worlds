@@ -242,6 +242,7 @@ pub(super) fn receive(
                 | ServerMessage::Sneaking(_)
                 | ServerMessage::DoorRefused { .. }
                 | ServerMessage::Pick(_)
+                | ServerMessage::VinegarSoon(_)
                 | ServerMessage::AbilityStarted { .. }
                 | ServerMessage::AbilityLanded { .. }
                 | ServerMessage::Killed { .. }

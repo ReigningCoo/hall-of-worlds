@@ -196,8 +196,7 @@ pub enum ClientMessage {
     DevSetCreature { kind: CreatureKind, how: KindChange },
     /// Developer tools: the character is deleted for good, answered with `Characters`.
     DevDeleteCharacter,
-    /// Developer tools: jump to a point on this map, in its measure
-    /// (`protocol::moves`), answered with `Teleported`.
+    /// Developer tools: jump to this point on the map (`protocol::moves`), answered with `Teleported`.
     DevTeleport { x: i64, y: i64 },
     /// Developer tools: back to where new characters start on the world map,
     /// from anywhere (out of a site too), answered with `OnWorldMap`. Only
@@ -210,9 +209,8 @@ pub enum ClientMessage {
     /// Developer tools: lightning near the player now, whatever the weather:
     /// a flash for them and a bolt close by, which others in sight see too.
     DevLightning,
-    /// Developer tools: go straight into a site of any kind and seed, at
-    /// any level, a building ruined this much (0 to 5). Only an embedded
-    /// (single-player) server accepts it.
+    /// Developer tools: into a site of any kind and seed, at any level, ruined this much (0 to 5);
+    /// only an embedded (single-player) server accepts it.
     DevEnterSite {
         kind: PoiKind,
         seed: u64,
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Grind(crate::brewing::GrindOrder),
     /// Brew an ointment and a water into a potion: answered as `UseAbility(Brew)` (`Landed::Brewed`).
     Brew(crate::brewing::BrewOrder),
+    /// Set a cask fermenting: answered as `UseAbility(Ferment)` (`Landed::Fermented`).
+    Ferment(crate::ferment::FermentOrder),
 }

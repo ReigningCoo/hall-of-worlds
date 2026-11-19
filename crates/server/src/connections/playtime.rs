@@ -83,16 +83,24 @@ pub(super) fn shows_activity(message: &ClientMessage) -> bool {
 }
 
 impl Client {
-    /// Carried yeast lets the whole seconds of playtime from `before` to
-    /// `played` pass. `false` if the client is to be disconnected.
+    /// Carried yeast and casks let the whole seconds of playtime from
+    /// `before` to `played` pass; the player is told of casks soon to be
+    /// vinegar. `false` if the client is to be disconnected.
     fn age_yeast(&mut self, before: u64, played: u64) -> bool {
         let second = TICKS_PER_MINUTE / 60;
         let secs = (played / second - before / second) as u32;
         let now = crate::quests::unix_now().max(0) as u64;
-        if secs == 0 || !self.inventory.age_yeast(secs, now).seen() {
+        if secs == 0 {
             return true;
         }
-        self.send_inventory()
+        let yeast = self.inventory.age_yeast(secs, now).seen();
+        let casks = self.inventory.age_casks(secs, now);
+        for name in casks.warned {
+            if !self.link.send(&ServerMessage::VinegarSoon(name)) {
+                return false;
+            }
+        }
+        !(yeast || casks.seen) || self.send_inventory()
     }
 
     /// Counts its playtime to `now`, rusting skills set aside, and sends it
@@ -103,8 +111,8 @@ impl Client {
         let before = self.activity.played;
         if self.activity.count(now) {
             self.unsaved = true;
-            // Carried yeast goes by playtime (`shared::yeast`): its player
-            // hears of it each hour on its clock.
+            // Carried yeast and casks go by playtime (`shared::yeast`,
+            // `shared::ferment`): their player hears of them each hour.
             let played = self.activity.played;
             if !self.age_yeast(before, played) {
                 return false;

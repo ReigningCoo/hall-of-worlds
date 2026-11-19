@@ -6,6 +6,8 @@ The fermentation rules (drinks plan PR 5, `docs/context/drinks.md`, owner's deci
 
 - `crates/shared/src/fermentation.rs`: the module list and re-exports. Tests in `fermentation/tests.rs`.
 - `fermentation/base.rs`: `Base`, `DrinkKind`, drink names.
+- `fermentation/drink.rs`: `Drink` (the liquid), `Base::vinegar_name`.
+- `fermentation/roll.rs`: `rolled_drink`, `rolled_vinegar`.
 - `fermentation/mash.rs`: `Mash`, `MashSource`, `FRUIT_SUGAR`, `GRAIN_SUGAR`.
 - `fermentation/strength.rs`: `tolerance`, `best_tolerance`, `ferment`, `Fermented`, `Sweetness`, `KCAL_PER_PERCENT`, `LEAST_STRENGTH`, `WILD_TOLERANCE`.
 - `fermentation/time.rs`: `ferment_secs`, `base_secs`, `GAME_DAY_SECS`, `PITCH_ML`.
@@ -16,6 +18,7 @@ The fermentation rules (drinks plan PR 5, `docs/context/drinks.md`, owner's deci
 ## Public API
 
 - `Base::{Fruit(key), Grain(key)}`: what a drink is made from. `DrinkKind` (Ale, Cider, Perry, Wine, FruitWine; `of`, `Base::kind`): grain is ale, apple cider, pear perry, grape wine, any other fruit a fruit wine. `Base::name`: "Ale" (barley), "Wheat Ale", "Cider", "Perry", "Wine", "Plum Wine".
+- `Drink { base, strength, sweetness, quality, vinegar }` (`potion::Liquid::Drink`, drinks PR 6): `new(base, fermented, quality)`, `name`, `strength_words` ("5.8%"), `with_vinegar(ml, vinegar_ml)` (the share of vinegar in thousandths). `Base::vinegar_name`: "Cider Vinegar", "Malt Vinegar" (grain), "Wine Vinegar" (other fruit), for `Liquid::Vinegar(base)`. `Sweetness::words` ("dry", "off-dry", "medium", "sweet"). `rolled_drink(rng)` (a rolled juice fruit's drink with a Common yeast), `rolled_vinegar(rng)`: Give Item's.
 - `Mash { base, source, kcal, ml }` and `kcal_per_litre()`: what ferments. `Mash::juice(def, ml)` (the juice's `juice::kcal_per_litre`), `cordial(def, ml)` (taken as half water), `fruit(def, grams, water_ml)` (`FRUIT_SUGAR` of the fruit's kcal, in the water plus the juice it gives; any fruit safe raw), `grain(def, sheaves, water_ml)` (`GRAIN_SUGAR` of the grain's kcal; grain only). None without volume. `MashSource` (Juice, Cordial, FruitInWater, Grain) bears on quality.
 - `ferment(mash, tolerance) -> Option<Fermented { kind, strength, left_kcal, sweetness }>`: strength kcal a litre × 10 ÷ `KCAL_PER_PERCENT` (68), capped by the tolerance; the sugar left is `Sweetness` (Dry under 40 kcal a litre, OffDry under 100, Medium under 180, Sweet); none under `LEAST_STRENGTH` (1%). `tolerance(quality)`: Poor 7%, Common 9%, +2% a step to Legendary 17%, Artifact 20%. `best_tolerance(yeasts)`: the best yeast's, `WILD_TOLERANCE` (6%) with none.
 - `ferment_secs(kind, size, ml, yeasts)`: `base_secs(kind)` (ale 24 game days, cider and perry 36, wines 90, in a Pin with one Common yeast) × size (+10% a cask size past the Pin) × the yeasts' mean quality (Poor 125%, Common 100%, −10% a step to Artifact 50%) × amount (one yeast to `PITCH_ML`, 20 L, is 100%; next to none 200%; four times or more 40%). No yeast is timed as one Poor.
@@ -30,9 +33,9 @@ The fermentation rules (drinks plan PR 5, `docs/context/drinks.md`, owner's deci
 
 ## Used by
 
-- Nothing yet: drinks PR 6 (Ferment and vinegar) and later.
+- `ferment` (Ferment's plan, casks' clocks), `potion` (`Liquid::Drink`, `Liquid::Vinegar`, Give Item's `rolled_drink`, `rolled_vinegar`), `pour` (vinegar into a drink), client `item_popup`, `item_art` (a drink's colour).
 
 ## Notes
 
 - First guesses for the owner to tune (Claude's): everything numeric above, and these choices: the best yeast's tolerance counts, but the mean quality sets quality and pace; cordial counted as half juice (how much water went in isn't kept); fruit mashed whole ferments 60% of its kcal (as juice gets), grain 50% (about 190 g of grain a litre for a 5% ale, 7 sheaves); fruit whole or cordial costs a quality step, a pine cask a step while fermenting and up to 2 more ageing; brewing never makes Artifacts; grain ales other than barley's are "<Grain> Ale"; opened juice waits 2 game days before turning.
-- Pure rules: where the clocks run (sealed casks age, opened ones spoil, the yeast used) is PR 6's.
+- Pure rules: where the clocks run (sealed casks age, opened ones spoil, the yeast used) is `shared::ferment`'s.

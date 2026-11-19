@@ -39,7 +39,7 @@ Pick up a cask, vessel or bottle and let go of it on another one to pour into it
 
 ## Sealed and opened
 
-A new cask is **sealed**. It is opened once anything is poured out of it or into it, or water is collected into it. A wine bottle or a bottle filled straight from a cask starts sealed too, and opens when poured from. The popup says which. This will matter for drinks that keep: a sealed one won't spoil.
+A new cask is **sealed**. It is opened once anything is poured out of it or into it, or water is collected into it. A wine bottle or a bottle filled straight from a cask starts sealed too, and opens when poured from. The popup says which. A sealed cask never spoils; an opened drink turns to vinegar in time (see [Drinks](drinks)).
 
 ## Juice and cordial
 
