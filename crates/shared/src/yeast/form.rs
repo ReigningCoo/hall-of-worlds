@@ -9,7 +9,7 @@ use crate::item::{Item, ItemKind, MadeAt, Quality};
 use crate::item_form::ItemForm;
 
 /// Fed before this long unfed (12 hours, in seconds), a feed is early: it
-/// splits the yeast (PR 9). From it on, a feed is on time.
+/// splits the yeast (`feed.rs`). From it on, a feed is on time.
 pub const FEED_AFTER: u32 = 12 * 3600;
 
 /// Each time this long passes unfed (24 hours, in seconds), it loses a quality
@@ -24,7 +24,7 @@ pub struct YeastForm {
     /// real time while on the ground.
     #[serde(default)]
     pub unfed: u32,
-    /// Points from on-time feeds by the feeder's Fermenting skill (PR 9),
+    /// Points from on-time feeds by the feeder's Fermenting skill (`feed.rs`),
     /// towards a chance of a quality step up.
     #[serde(default)]
     pub progress: u32,
@@ -36,6 +36,11 @@ pub struct YeastForm {
     /// the server counts real time from it once it is picked up.
     #[serde(default)]
     pub lying_since: Option<u64>,
+    /// Seconds of its clock left before a starter begun from flour and water
+    /// (`starter.rs`) is ready; 0 for a yeast that is. Until then it can't be
+    /// fed or used, and its clock counts this down before `unfed`.
+    #[serde(default)]
+    pub developing: u32,
 }
 
 impl YeastForm {
@@ -49,9 +54,10 @@ impl YeastForm {
         WEAKENS_EVERY - self.unfed % WEAKENS_EVERY
     }
 
-    /// Whether it can go into something now: not used since it was fed.
+    /// Whether it can go into something now: ready, and not used since it was
+    /// fed.
     pub fn usable(&self) -> bool {
-        !self.used
+        !self.used && self.developing == 0
     }
 }
 

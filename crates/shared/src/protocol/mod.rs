@@ -53,6 +53,7 @@ mod role_ask;
 mod server_message;
 mod strike;
 mod world_chunk;
+mod yeast_ask;
 
 pub use client_message::ClientMessage;
 pub use combat::Landed;
@@ -77,10 +78,11 @@ pub use role_ask::{FoundAccount, RoleAnswer, RoleAsk};
 pub use server_message::ServerMessage;
 pub use strike::Strike;
 pub use world_chunk::{GateInfo, SeenPoi, WorldChunk, WorldInfo};
+pub use yeast_ask::YeastAsk;
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 137;
+pub const PROTOCOL_VERSION: u32 = 138;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

@@ -1,6 +1,6 @@
 //! A yeast's popup lines (drinks PR 4): when each in the stack next needs
 //! feeding, the one needing it soonest first, and whether it has been used
-//! since it was fed.
+//! since it was fed; a starter still developing, when it is ready.
 
 use shared::item::{Item, Quality};
 use shared::lang::{Args, Lang};
@@ -34,6 +34,10 @@ pub(super) fn yeast_lines(item: &Item, lang: &Lang) -> Option<String> {
 /// One yeast's line.
 fn line(yeast: &YeastForm, quality: Option<Quality>, lang: &Lang) -> String {
     let hours = |secs: u32| secs.div_ceil(SECONDS_PER_HOUR).to_string();
+    if yeast.developing > 0 {
+        let args = Args::new().text("hours", hours(yeast.developing));
+        return written(lang.render("yeast-starting", &args));
+    }
     let feed = match yeast.feed_in() {
         0 => {
             let poor = if quality == Some(Quality::Poor) {

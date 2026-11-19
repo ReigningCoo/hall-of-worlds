@@ -5,6 +5,7 @@
 
 mod aim;
 mod eat;
+mod feed;
 mod let_go;
 mod pour;
 mod press;

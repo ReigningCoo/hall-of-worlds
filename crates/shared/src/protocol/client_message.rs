@@ -206,8 +206,7 @@ pub enum ClientMessage {
     /// Gate `gate` (from 0; none: the nearest, or another world's first) of the
     /// world with this `seed` (none: the player's own). Answered with `EnterHall`.
     DevToHall { seed: Option<u64>, gate: Option<u8> },
-    /// Developer tools: lightning near the player now, whatever the weather:
-    /// a flash for them and a bolt close by, which others in sight see too.
+    /// Developer tools: lightning near the player now, whatever the weather (a flash, a bolt near).
     DevLightning,
     /// Developer tools: into a site of any kind and seed, at any level, ruined this much (0 to 5);
     /// only an embedded (single-player) server accepts it.
@@ -217,8 +216,7 @@ pub enum ClientMessage {
         level: u32,
         ruin: u8,
     },
-    /// Developer tools: change a cell of the level the player is on (not the
-    /// one they stand on). Only an embedded server accepts it.
+    /// Developer tools: change a cell of the player's level (not theirs); embedded servers only.
     DevSetCell { x: i64, y: i64, cell: Cell },
     /// Developer tools: move the world's time to this many game minutes since
     /// the world began, and/or have it run at another rate from now on, answered
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Ferment(crate::ferment::FermentOrder),
     /// About the character's personal map marks (`MarkAsk`).
     Mark(super::MarkAsk),
+    /// Feed yeast or begin a starter (`YeastAsk`): answered with `Inventory`.
+    Yeast(super::YeastAsk),
 }

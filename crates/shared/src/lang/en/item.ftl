@@ -10,7 +10,7 @@ about-flour = Grain stone-ground into wholemeal flour, in an open hessian sack.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
 about-tap = A brass tap, knocked into a cask to draw from it. Carry it, and let go of a cask on a vessel or bottle to pour.
-about-yeast = A crock of live yeast. Fed with flour every half day or so, it keeps; left unfed, it weakens a step each day, down to Poor. Between feeds it can start one thing without being used up.
+about-yeast = A crock of live yeast. Let go of flour on it to feed it, with fresh water carried. Fed every half day or so it keeps, and fed on time it can get better; fed sooner, it splits in two, with an empty bottle for the second. Left unfed, it weakens a step each day, down to Poor. Between feeds it can start one thing without being used up.
 about-vessel = For drinking from or carrying a drink. Let go of it on another vessel, a bottle or a cask to pour; on yourself to drink.
 
 ## Herbs: one whose name isn't known, and each of its four effects, known
@@ -57,6 +57,8 @@ yeast-feed-now = { $poor ->
    *[no] Feed now: weakens in { $hours } h
 }
 yeast-used = used since fed
+## A starter begun from flour and water, hours until it is ready.
+yeast-starting = Starter: ready in { $hours } h
 yeast-more = and { $count } more
 
 item-holds = Holds { $amount } of { $most }

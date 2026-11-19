@@ -37,6 +37,11 @@ impl Settled {
 impl YeastForm {
     /// Lets `secs` pass unfed, losing a quality step each `WEAKENS_EVERY`.
     fn pass(&mut self, quality: &mut Option<Quality>, secs: u64) -> Settled {
+        // A starter still developing counts that down first.
+        let developing = u64::from(self.developing).min(secs);
+        self.developing -= developing as u32;
+        let secs = secs - developing;
+        let ready = developing > 0 && self.developing == 0;
         let before = self.unfed;
         self.unfed = (u64::from(before) + secs).min(u64::from(u32::MAX)) as u32;
         let steps = self.unfed / WEAKENS_EVERY - before / WEAKENS_EVERY;
@@ -46,9 +51,16 @@ impl YeastForm {
         }
         Settled {
             weakened: *quality != was,
-            hour_passed: self.unfed / SECONDS_PER_HOUR != before / SECONDS_PER_HOUR,
+            hour_passed: ready
+                || self.unfed / SECONDS_PER_HOUR != before / SECONDS_PER_HOUR
+                || (developing > 0 && passed_hour(self.developing, developing as u32)),
         }
     }
+}
+
+/// Whether counting `by` down to `left` passed a whole hour of what was left.
+fn passed_hour(left: u32, by: u32) -> bool {
+    (left + by) / SECONDS_PER_HOUR != left / SECONDS_PER_HOUR
 }
 
 impl Item {

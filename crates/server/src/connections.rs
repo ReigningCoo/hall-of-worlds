@@ -47,6 +47,7 @@ mod eat_fruit;
 mod eat_herb;
 mod eat_vegetable;
 mod facing;
+mod feed_yeast;
 mod fell_tree;
 mod ferment;
 mod for_others;
