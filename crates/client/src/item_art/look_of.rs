@@ -22,11 +22,13 @@ pub fn look_of(item: &Item) -> Option<Look> {
         kind @ (ItemKind::Cauldron
         | ItemKind::MortarAndPestle
         | ItemKind::Retort
+        | ItemKind::Alembic
         | ItemKind::OilPress
         | ItemKind::Tap) => {
             return Some(Look::Tool(kind));
         }
         ItemKind::Yeast => return Some(Look::Yeast),
+        ItemKind::Salt => return Some(Look::Salt),
         kind @ (ItemKind::Bread | ItemKind::DwarvenBread | ItemKind::RawMeat) => {
             return Some(Look::Food(kind));
         }

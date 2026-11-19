@@ -25,6 +25,19 @@ impl Mix {
         mix
     }
 
+    /// Whether every dose is 0.
+    pub fn is_empty(&self) -> bool {
+        self.0.iter().all(|&dose| dose == 0)
+    }
+
+    /// Every dose made `percent`% of what it is, towards 0 (a tincture's 105:
+    /// exact on whole steps).
+    pub fn scale(&mut self, percent: i32) {
+        for dose in &mut self.0 {
+            *dose = *dose * percent / 100;
+        }
+    }
+
     /// A quarter more on every dose in `row` (an oil's), at least a whole
     /// step, either way (`brewing::boosted`'s rule in hundredths).
     pub fn boost_row(&mut self, row: Row) {

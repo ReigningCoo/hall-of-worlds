@@ -20,15 +20,17 @@ impl Apparatus {
         match self {
             Self::Mortar => Some(ItemKind::MortarAndPestle),
             Self::Retort => Some(ItemKind::Retort),
+            Self::Alembic => Some(ItemKind::Alembic),
             _ => None,
         }
     }
 
     /// Seconds a step on it takes untrained (first guesses: the Mortar as
-    /// Grind, the Retort as Brew).
+    /// Grind, the Retort as Brew, the Alembic longest).
     fn first_seconds(self) -> u32 {
         match self {
             Self::Retort => 15,
+            Self::Alembic => 20,
             _ => 10,
         }
     }

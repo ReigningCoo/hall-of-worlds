@@ -25,12 +25,17 @@ pub enum Step<'a> {
         herbs: Vec<GroundHerb<'a>>,
         solvent: Solvent,
     },
-    /// Liquids, one 100 ml unit each, applied in order to what came before.
+    /// Liquids, one 100 ml unit each, applied in order to what came before:
+    /// waters, oils, drinks and pure alcohol (the last two adding alcohol).
     /// The solid's place comes with Retort solids (PR 8).
     Retort {
         liquids: Vec<Liquid>,
     },
-    Alembic,
+    /// Distils what came before (`alembic`), reduced by the alcohol fed in
+    /// (a drink or pure alcohol, one 100 ml unit), if any.
+    Alembic {
+        fed: Option<Liquid>,
+    },
     Crucible,
     Filter,
     Pelican,
@@ -42,7 +47,7 @@ impl Step<'_> {
         match self {
             Self::Mortar { .. } => Apparatus::Mortar,
             Self::Retort { .. } => Apparatus::Retort,
-            Self::Alembic => Apparatus::Alembic,
+            Self::Alembic { .. } => Apparatus::Alembic,
             Self::Crucible => Apparatus::Crucible,
             Self::Filter => Apparatus::Filter,
             Self::Pelican => Apparatus::Pelican,
@@ -57,8 +62,8 @@ pub enum Solvent {
     Dry,
     /// An oil: an Ointment, the oil's row boosted.
     Oil(Oil),
-    /// Pure alcohol: a Tincture (no row boost, every dose +5%). Refused as not
-    /// built until the Alembic makes pure alcohol (PR 5).
+    /// Pure alcohol: a Tincture (no row boost, every dose +5%), a 100 ml
+    /// liquid already.
     Alcohol,
 }
 
@@ -76,6 +81,9 @@ pub enum Form {
     Ointment,
     /// From the Crucible (PR 6); never counts as old.
     Powder,
+    /// Herbs ground in pure alcohol: a liquid, so a potion when last, never
+    /// a stored source.
+    Tincture,
 }
 
 impl Form {
@@ -101,8 +109,12 @@ pub enum Refused {
     NoLiquid,
     /// A Retort holding more than `RETORT_UNITS`.
     TooMuchLiquid,
-    /// A liquid a Retort doesn't take yet (only waters and oils so far).
+    /// A liquid a Retort doesn't take (juice, cordial, vinegar, potions).
     Liquid,
+    /// An Alembic with no liquid before it to distil.
+    NothingToDistil,
+    /// What an Alembic is fed holds no alcohol.
+    NotAlcohol,
     /// An apparatus or input whose rules come with a later PR.
     NotBuilt(Apparatus),
 }

@@ -1,6 +1,7 @@
 //! The drop spaces: where on the panel a carried stack can be put (the
-//! source, a Mortar's herbs and oil, a Retort's liquids), what each takes, how
-//! many are shown, and putting a stack in or taking it out.
+//! source, a Mortar's herbs and oil or pure alcohol, a Retort's liquids, an
+//! Alembic's alcohol), what each takes, how many are shown, and putting a
+//! stack in or taking it out.
 
 use bevy::prelude::*;
 use shared::alchemy::{Apparatus, RETORT_UNITS};
@@ -21,14 +22,16 @@ pub(super) enum Place {
     Source,
     /// The step's `n`th herb.
     Herb(usize, usize),
-    /// The step's oil.
+    /// The step's oil or pure alcohol (a Mortar's solvent).
     Oil(usize),
+    /// The step's drink or pure alcohol fed in (an Alembic's).
+    Alcohol(usize),
     /// The step's `n`th 100 ml of liquid.
     Liquid(usize, usize),
 }
 
 /// The drop spaces a step shows: those filled, one more while there is room,
-/// and a Mortar's oil.
+/// a Mortar's oil and an Alembic's alcohol.
 pub(super) fn places(step: usize, station: &Station) -> Vec<Place> {
     match station.apparatus {
         Apparatus::Mortar => {
@@ -41,6 +44,7 @@ pub(super) fn places(step: usize, station: &Station) -> Vec<Place> {
             let liquids = (station.liquids.len() + 1).min(RETORT_UNITS);
             (0..liquids).map(|n| Place::Liquid(step, n)).collect()
         }
+        Apparatus::Alembic => vec![Place::Alcohol(step)],
         // Their spaces come with their own PRs.
         _ => Vec::new(),
     }
@@ -52,13 +56,15 @@ pub(super) fn in_place(bench: &Bench, place: Place) -> Option<Id> {
         Place::Source => bench.source,
         Place::Herb(step, n) => bench.steps.get(step)?.herbs.get(n).copied(),
         Place::Oil(step) => bench.steps.get(step)?.oil,
+        Place::Alcohol(step) => bench.steps.get(step)?.alcohol,
         Place::Liquid(step, n) => bench.steps.get(step)?.liquids.get(n).copied(),
     }
 }
 
 /// Whether the carried stack `id` may go in this space: a Paste or Ointment
 /// as the source, a herb (not one already in that Mortar elsewhere), a bottle
-/// of oil, a bottle of water or oil.
+/// of oil or pure alcohol, a bottle of water, oil, a drink or pure alcohol, a
+/// bottle of a drink or pure alcohol.
 pub(super) fn takes(bench: &Bench, carried: &Inventory, place: Place, id: Id) -> bool {
     if carried.is_worn(id) {
         return false;
@@ -66,6 +72,7 @@ pub(super) fn takes(bench: &Bench, carried: &Inventory, place: Place, id: Id) ->
     let Some(stack) = carried.find(id) else {
         return false;
     };
+    let liquid = stack.top().bottle().and_then(|b| b.liquid.as_ref());
     match place {
         Place::Source => stack.top().mixture().is_some(),
         Place::Herb(step, n) => {
@@ -77,11 +84,12 @@ pub(super) fn takes(bench: &Bench, carried: &Inventory, place: Place, id: Id) ->
             });
             !elsewhere && carried.herb_stacks().iter().any(|herb| herb.stack == id)
         }
-        Place::Oil(_) => carried.oil_stacks().iter().any(|oil| oil.stack == id),
-        Place::Liquid(..) => {
-            let liquid = stack.top().bottle().and_then(|b| b.liquid.as_ref());
-            matches!(liquid, Some(Liquid::Water(_) | Liquid::Oil(_)))
-        }
+        Place::Oil(_) => matches!(liquid, Some(Liquid::Oil(_) | Liquid::Alcohol)),
+        Place::Liquid(..) => matches!(
+            liquid,
+            Some(Liquid::Water(_) | Liquid::Oil(_) | Liquid::Drink(_) | Liquid::Alcohol)
+        ),
+        Place::Alcohol(_) => liquid.is_some_and(|it| it.alcohol_strength() > 0),
     }
 }
 
@@ -109,6 +117,11 @@ pub(super) fn put(bench: &mut Bench, place: Place, id: Option<Id>) {
                 station.oil = id;
             }
         }
+        Place::Alcohol(step) => {
+            if let Some(station) = bench.steps.get_mut(step) {
+                station.alcohol = id;
+            }
+        }
         Place::Liquid(step, n) => {
             if let Some(station) = bench.steps.get_mut(step) {
                 fill(&mut station.liquids, n);
@@ -124,6 +137,7 @@ pub(super) struct SpaceIcons {
     herb: Handle<Image>,
     oil: Handle<Image>,
     liquid: Handle<Image>,
+    alcohol: Handle<Image>,
 }
 
 impl FromWorld for SpaceIcons {
@@ -134,6 +148,7 @@ impl FromWorld for SpaceIcons {
             herb: assets.load("icons/delapouite/herbs-bundle.png"),
             oil: assets.load("icons/delapouite/olive.png"),
             liquid: assets.load("icons/delapouite/water-flask.png"),
+            alcohol: assets.load("icons/delapouite/beer-bottle.png"),
         }
     }
 }
@@ -145,6 +160,7 @@ impl SpaceIcons {
             Place::Herb(..) => self.herb.clone(),
             Place::Oil(_) => self.oil.clone(),
             Place::Liquid(..) => self.liquid.clone(),
+            Place::Alcohol(_) => self.alcohol.clone(),
         }
     }
 }
@@ -154,7 +170,10 @@ pub(super) fn tip(place: Place) -> &'static str {
     match place {
         Place::Source => "A Paste or Ointment to start from, instead of a Mortar",
         Place::Herb(..) => "A herb, one of each kind",
-        Place::Oil(_) => "A bottle of oil, or none for a Paste",
-        Place::Liquid(..) => "100 ml of water or oil",
+        Place::Oil(_) => "A bottle of oil, pure alcohol for a tincture, or none for a Paste",
+        Place::Liquid(..) => "100 ml of water, oil, a drink or pure alcohol",
+        Place::Alcohol(_) => {
+            "A drink or pure alcohol, reducing what is distilled: the stronger, the more"
+        }
     }
 }

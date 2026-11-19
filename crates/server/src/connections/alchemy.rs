@@ -4,9 +4,10 @@
 //! run lands the order is checked again against what is carried
 //! (`Inventory::check_alchemy`), the ingredients are used up, the chance and
 //! luck are rolled from a fresh seed (`alchemy::outcome`), and the product is
-//! given: a Paste or Ointment, or the liquids' bottles holding the potion (one
-//! per 100 ml), or empty bottles. The sub-skills used and Herbalism are
-//! practised either way; a success teaches one herb effect (`alchemy::lesson`).
+//! given: a Paste or Ointment, or the liquids' bottles (a tincture's pure
+//! alcohol's first) holding the potion or pure alcohol (one per 100 ml left),
+//! the rest empty, and any Salt an Alembic left. The sub-skills used and
+//! Herbalism are practised either way; a success teaches one herb effect (`alchemy::lesson`).
 //! Then the next run begins, until `count` runs are done or the ingredients run
 //! out. Moving or being harmed calls it off, repeats and all
 //! (`stop_collecting`). `can_use` has already checked an apparatus is carried.
@@ -15,11 +16,13 @@ use bevy::prelude::*;
 use shared::ability::Ability;
 use shared::alchemy::{
     AlchemyOrder, AlchemySkills, CERTAIN, HERB_PRACTICE, OrderStep, Outcome, Product,
-    STEP_PRACTICE, lesson, new_mixture, outcome, run_ticks,
+    STEP_PRACTICE, lesson, new_mixture, new_salt, outcome, run_ticks,
 };
 use shared::brewing::brewed_into;
 use shared::herb::HERBALISM;
-use shared::item::Item;
+use shared::item::{Item, ItemKind, Quality};
+use shared::item_form::ItemForm;
+use shared::potion::{BottleForm, Liquid};
 use shared::protocol::{Alchemised, Landed, ServerMessage};
 use shared::rng::Seed;
 
@@ -91,6 +94,7 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
             landed: Landed::Fizzled,
         });
     };
+    let mut salt = 0;
     let bottles = use_up(client, world, &order);
     let mut rng = Seed::new(new_id().seed().value()).rng();
     let chance_roll = rng.range_u64(0, u64::from(CERTAIN)) as u32;
@@ -106,6 +110,10 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
         Outcome::Made { product, quality } => {
             if let Some(lesson) = lesson(planned, &client.sheet.herbs) {
                 client.sheet.herbs.learn_effect(&lesson.herb, lesson.effect);
+            }
+            salt = planned.salt;
+            if salt > 0 {
+                give(client, world, new_salt(salt, new_id()));
             }
             give_product(client, world, product, quality, bottles)
         }
@@ -127,12 +135,14 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
         && client.link.send(&ServerMessage::AbilityLanded {
             who: None,
             target: None,
-            landed: Landed::Alchemy { made, left },
+            landed: Landed::Alchemy { made, salt, left },
         })
 }
 
-/// Takes what one run uses: the source, one of each herb, the oil (its bottle
-/// given back empty) and the liquids' bottles, returned for the product.
+/// Takes what one run uses: the source, one of each herb, the solvent (an
+/// oil's bottle given back empty, pure alcohol's kept as a tincture's), the
+/// liquids' bottles, returned for the product, and the Alembic's alcohol (its
+/// bottle given back empty).
 fn use_up(client: &mut Client, world: &mut ServerWorld, order: &AlchemyOrder) -> Vec<Item> {
     let mut bottles = Vec::new();
     if let Some(source) = order.source {
@@ -140,18 +150,26 @@ fn use_up(client: &mut Client, world: &mut ServerWorld, order: &AlchemyOrder) ->
     }
     for step in &order.steps {
         match step {
-            OrderStep::Mortar { herbs, oil } => {
+            OrderStep::Mortar { herbs, solvent } => {
                 for &herb in herbs {
                     client.inventory.take_one(herb, &mut new_id);
                 }
-                let oil = oil.and_then(|oil| client.inventory.take_one(oil, &mut new_id));
-                if let Some(bottle) = oil {
-                    give(client, world, brewed_into(bottle, None));
+                let solvent = solvent.and_then(|id| client.inventory.take_one(id, &mut new_id));
+                match solvent {
+                    Some(bottle) if holds(&bottle, &Liquid::Alcohol) => bottles.push(bottle),
+                    Some(bottle) => give(client, world, brewed_into(bottle, None)),
+                    None => {}
                 }
             }
             OrderStep::Retort { liquids } => {
                 for &liquid in liquids {
                     bottles.extend(client.inventory.take_one(liquid, &mut new_id));
+                }
+            }
+            OrderStep::Alembic { alcohol } => {
+                let fed = alcohol.and_then(|id| client.inventory.take_one(id, &mut new_id));
+                if let Some(bottle) = fed {
+                    give(client, world, brewed_into(bottle, None));
                 }
             }
             _ => {}
@@ -160,48 +178,68 @@ fn use_up(client: &mut Client, world: &mut ServerWorld, order: &AlchemyOrder) ->
     bottles
 }
 
-/// Gives what a run made, at its quality: a mixture, or the bottles holding
-/// the potion (empty for nothing, as they are when it fails).
+/// Whether `bottle` holds `liquid`.
+fn holds(bottle: &Item, liquid: &Liquid) -> bool {
+    bottle.bottle().and_then(|b| b.liquid.as_ref()) == Some(liquid)
+}
+
+/// `bottle` filled with pure alcohol, which has no quality.
+fn alcohol_in(mut bottle: Item) -> Item {
+    let look = bottle.bottle().map_or(0, |bottle| bottle.look);
+    bottle.quality = None;
+    bottle.form = Some(ItemForm::Bottle(BottleForm::new(
+        Some(Liquid::Alcohol),
+        look,
+    )));
+    bottle
+}
+
+/// Gives what a run made, at its quality: a mixture, or the first bottles
+/// holding the potion or pure alcohol (one per 100 ml the process ended
+/// with), the rest empty, as they all are for nothing or when it fails.
 fn give_product(
     client: &mut Client,
     world: &mut ServerWorld,
     product: Product,
-    quality: Option<shared::item::Quality>,
+    quality: Option<Quality>,
     bottles: Vec<Item>,
 ) -> Alchemised {
     let quality = quality.unwrap_or_default();
+    let filled = match &product {
+        Product::Potion { bottles, .. } | Product::Alcohol { bottles } => *bottles as usize,
+        _ => 0,
+    };
+    let mut count = 0;
+    for (at, bottle) in bottles.into_iter().enumerate() {
+        let item = match &product {
+            Product::Potion { contents, .. } if at < filled => {
+                let mut potion = brewed_into(bottle, Some(contents.clone()));
+                potion.quality = Some(quality);
+                potion
+            }
+            Product::Alcohol { .. } if at < filled => alcohol_in(bottle),
+            _ => brewed_into(bottle, None),
+        };
+        count += u32::from(at < filled);
+        give(client, world, item);
+    }
     match product {
         Product::Mixture { form, contents } => {
             let item = new_mixture(form, contents, quality, 1, new_id());
             let kind = item.kind;
             give(client, world, item);
-            bottles
-                .into_iter()
-                .for_each(|b| give(client, world, brewed_into(b, None)));
             Alchemised::Made {
                 kind,
                 count: 1,
                 quality,
             }
         }
-        Product::Potion { contents, .. } => {
-            let count = bottles.len() as u32;
-            for bottle in bottles {
-                let mut potion = brewed_into(bottle, Some(contents.clone()));
-                potion.quality = Some(quality);
-                give(client, world, potion);
-            }
-            Alchemised::Made {
-                kind: shared::item::ItemKind::Bottle,
-                count,
-                quality,
-            }
-        }
-        Product::Nothing => {
-            bottles
-                .into_iter()
-                .for_each(|b| give(client, world, brewed_into(b, None)));
-            Alchemised::Nothing
-        }
+        Product::Potion { .. } => Alchemised::Made {
+            kind: ItemKind::Bottle,
+            count,
+            quality,
+        },
+        Product::Alcohol { .. } => Alchemised::Alcohol { count },
+        Product::Nothing => Alchemised::Nothing,
     }
 }

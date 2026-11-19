@@ -69,6 +69,7 @@ pub(super) fn parts_of(
         Look::Tool(kind) => super::tool::tool_parts(kind, meshes, materials),
         Look::Flour(flour) => super::flour::flour_parts(flour, meshes, materials),
         Look::Yeast => super::yeast::yeast_parts(meshes, materials),
+        Look::Salt => super::salt::salt_parts(meshes, materials),
         Look::Cask(cask) => super::cask::cask_parts(cask, meshes, materials),
         Look::Log(wood) => super::log::log_parts(wood, meshes, materials),
         Look::Kindling(wood) => super::log::kindling_parts(wood, meshes, materials),

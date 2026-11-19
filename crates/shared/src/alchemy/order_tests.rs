@@ -66,7 +66,7 @@ fn an_order_is_checked_against_what_is_carried() {
     let water = carried.water_stacks()[0].stack;
     let mortar = OrderStep::Mortar {
         herbs: vec![stack_of(&carried, &a), stack_of(&carried, &b)],
-        oil: Some(oil),
+        solvent: Some(oil),
     };
     let order = AlchemyOrder {
         source: None,
@@ -102,19 +102,19 @@ fn an_order_is_checked_against_what_is_carried() {
     let twice = AlchemyOrder {
         steps: vec![OrderStep::Mortar {
             herbs: vec![stack_of(&carried, &a), stack_of(&carried, &a)],
-            oil: None,
+            solvent: None,
         }],
         ..order.clone()
     };
     let refused = carried.check_alchemy(&twice, &herbs, skills);
     assert_eq!(refused.unwrap_err(), OrderRefused::Rules(Refused::SameHerb));
     let alembic = AlchemyOrder {
-        steps: vec![mortar, OrderStep::Alembic],
+        steps: vec![mortar, OrderStep::Alembic { alcohol: None }],
         ..order
     };
     let refused = carried.check_alchemy(&alembic, &herbs, skills);
-    let not_built = OrderRefused::Rules(Refused::NotBuilt(Apparatus::Alembic));
-    assert_eq!(refused.unwrap_err(), not_built);
+    let missing = OrderRefused::Apparatus(Apparatus::Alembic);
+    assert_eq!(refused.unwrap_err(), missing);
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn an_apparatus_must_be_carried() {
         source: None,
         steps: vec![OrderStep::Mortar {
             herbs: vec![Id::for_test(1)],
-            oil: None,
+            solvent: None,
         }],
         count: 1,
     };

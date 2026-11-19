@@ -69,4 +69,8 @@ Being slowed by drink adds to being slowed by what you carry. A stumble sends a 
 
 Drinking while tipsy or worse practises the **Tolerance** skill, which raises every stage's threshold, up to twice as high.
 
+## Distilling
+
+Drinks distilled in an Alembic become pure alcohol, the solvent for tinctures: see [Alchemy](alchemy#pure-alcohol). Pure alcohol can't be drunk.
+
 Back to [Casks](casks), [Yeast](yeast).

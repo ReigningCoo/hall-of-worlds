@@ -168,13 +168,14 @@ fn draw_process(
 /// A widget id's name and index.
 type UiIdAt = (&'static str, usize);
 
-/// A space's id: `alchemy/herb.<step × 100 + n>`, `oil.<step>`,
+/// A space's id: `alchemy/herb.<step × 100 + n>`, `oil.<step>`, `alcohol.<step>`,
 /// `liquid.<step × 100 + n>`, `source.0`.
 fn place_id(place: Place) -> UiIdAt {
     match place {
         Place::Source => ("source", 0),
         Place::Herb(step, n) => ("herb", step * 100 + n),
         Place::Oil(step) => ("oil", step),
+        Place::Alcohol(step) => ("alcohol", step),
         Place::Liquid(step, n) => ("liquid", step * 100 + n),
     }
 }

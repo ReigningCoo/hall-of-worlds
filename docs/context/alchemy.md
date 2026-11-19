@@ -87,6 +87,16 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
 
 Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving panel (not a dialog), opening the Character panel beside it to drag from; a click or tap on an apparatus adds it at the end, and on a filled space empties it; a step dragged off the row is taken out; a source space before the first step; herb spaces grow to 8; apparatus known but not carried still shown; Start becomes Stop while running; the fill shares each run's time between the steps by their own times; the product's colour is its strongest dose's row's; what a run made shows in the box after the last step.
 
+## The Alembic (PR 5, built)
+
+`shared::alchemy`'s `alembic.rs` and `batch.rs`; `Liquid::Alcohol`, `ItemKind::Alembic` and `Salt`. Claude's choices (first guesses for the owner to tune):
+
+- **Reduction:** the fed bottle (a drink or pure alcohol, used up, its bottle back empty) divides the volume by 1 + its strength in whole tenths, rounded down: ale and cider (under 10%) not at all, wine by 2, pure alcohol by 11. Without one nothing is reduced. Doses and alcohol stay at full amount, so a potion comes out stronger in fewer bottles, never fewer than one.
+- **Pure alcohol:** drinks with nothing else in them, distilled and reduced, give a bottle per 100 ml left, while there are 10 ml of alcohol for each: five 6% ciders fed a wine make 2 bottles, three make 1, one nothing. Not reduced, they come to nothing. It has no quality, can't be drunk, and looks as clear as water.
+- **Tincture:** herbs and a bottle of pure alcohol in the Mortar make 100 ml of liquid at once, every dose ×105% in hundredths, so a potion in one step when strong enough (the bottle becomes the potion's). It is never a stored item.
+- **Salt:** one for each 100 ml of Salt Water an Alembic distils (4 g, counted, no quality), given with the product on success. Salt Water still takes away the strongest helpful dose in the Retort.
+- The Alembic step takes 20 s untrained and always practises Distilling. It is sold where the Retort is (herbalists, potion shops); 1.8 kg, 2 × 2.
+
 ## Retort solids and Darkvision (PR 8)
 
 | Solid | Source | Effect |
@@ -106,7 +116,7 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 | 2 | The process rules in `shared`: steps, chance, dilution at the end, Paste, quality with sub-skills, luck, old sources, learning, the preview; the six sub-skills in the skill tree (built: `shared::alchemy`) | 1 |
 | 3 | Server: the Alchemy ability, Mortar and Retort steps, the Retort item, the count, Infusing's rule; Grind, Brew and the Cauldron removed from alchemy (built) | 2 |
 | 4 | Client: the Alchemy panel (dragging, drop spaces, preview, count, colour fill) (built: client `alchemy`) | 3 |
-| 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) | 3 and drinks PR 6 (Ferment, merged) |
+| 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) (built) | 3 and drinks PR 6 (Ferment, merged) |
 | 6 | Crucible and Filter, Powder | 3 |
 | 7 | Pelican | 3 |
 | 8 | Retort solids: Salt, Sulphur, Mercury, Carrot to Darkvision with Darkvision in the sight rules | 5 for Salt |

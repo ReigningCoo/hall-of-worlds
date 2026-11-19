@@ -35,6 +35,12 @@ pub(super) fn product_item(planned: &Planned) -> Option<Item> {
             bottle.quality = Some(quality);
             Some(bottle)
         }
+        Product::Alcohol { .. } => {
+            let mut bottle = Item::new(Id::stand_in(0), ItemKind::Bottle);
+            let liquid = Some(Liquid::Alcohol);
+            bottle.form = Some(ItemForm::Bottle(BottleForm::new(liquid, 0)));
+            Some(bottle)
+        }
     }
 }
 
@@ -57,11 +63,14 @@ pub(super) fn product_name(planned: &Planned) -> String {
                 Form::Paste => "Paste",
                 Form::Ointment => "Ointment",
                 Form::Powder => "Powder",
+                Form::Tincture => "Tincture",
             };
             format!("{quality:?} {form}, at least")
         }
         Product::Potion { bottles: 1, .. } => format!("A {quality:?} potion, at least"),
         Product::Potion { bottles, .. } => format!("{bottles} {quality:?} potions, at least"),
+        Product::Alcohol { bottles: 1 } => "A bottle of pure alcohol".to_owned(),
+        Product::Alcohol { bottles } => format!("{bottles} bottles of pure alcohol"),
     }
 }
 
@@ -119,7 +128,7 @@ pub(super) fn refused_words(why: OrderRefused) -> &'static str {
         OrderRefused::Apparatus(_) => "An apparatus in the process isn't carried.",
         OrderRefused::Source => "The source isn't a carried Paste or Ointment.",
         OrderRefused::Herb | OrderRefused::UnknownHerb => "A herb isn't carried.",
-        OrderRefused::Oil => "The oil isn't carried.",
+        OrderRefused::Solvent => "The oil or pure alcohol isn't carried.",
         OrderRefused::Liquid => "A liquid isn't carried.",
         OrderRefused::TooFew => "Not enough is carried for one run.",
         OrderRefused::Rules(why) => match why {
@@ -129,7 +138,9 @@ pub(super) fn refused_words(why: OrderRefused) -> &'static str {
             Refused::SameHerb => "Only one of each herb counts.",
             Refused::NoLiquid => "Put a liquid in the Retort.",
             Refused::TooMuchLiquid => "A Retort holds 500 ml at most.",
-            Refused::Liquid => "A Retort takes only waters and oils so far.",
+            Refused::Liquid => "A Retort takes only waters, oils, drinks and pure alcohol.",
+            Refused::NothingToDistil => "An Alembic needs a liquid before it to distil.",
+            Refused::NotAlcohol => "An Alembic is fed only a drink or pure alcohol.",
             Refused::NotBuilt(_) => "That apparatus can't be used yet.",
         },
     }

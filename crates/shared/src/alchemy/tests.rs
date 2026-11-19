@@ -143,11 +143,6 @@ fn herbs_alone_make_a_paste_and_extra_kinds_halve() {
     let same = [&herbs[0], &herbs[0]];
     let refused = plan(&process(vec![mortar(&same, Solvent::Dry)]), skills(0, 0, 0));
     assert_eq!(refused, Err(Refused::SameHerb));
-    let tincture = plan(
-        &process(vec![mortar(&refs, Solvent::Alcohol)]),
-        skills(0, 0, 0),
-    );
-    assert_eq!(tincture, Err(Refused::NotBuilt(Apparatus::Mortar)));
 }
 
 /// The same as brewing, but for the quarter Moon and Cave Water add: exact in

@@ -32,6 +32,7 @@ mod parcel;
 mod paste;
 mod pouch;
 mod ring;
+mod salt;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod save_picture;
 mod tool;

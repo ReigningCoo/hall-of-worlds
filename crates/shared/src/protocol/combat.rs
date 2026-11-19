@@ -27,8 +27,13 @@ pub enum Landed {
     /// A bottle was filled with this oil (Press Oil: `target` is `None`).
     Pressed(crate::potion::Oil),
     /// One run of an Alchemy process ended (`target` is `None`): what came
-    /// of it, and how many runs of the order are left.
-    Alchemy { made: Alchemised, left: u32 },
+    /// of it, the Salt an Alembic left (on success), and how many runs of
+    /// the order are left.
+    Alchemy {
+        made: Alchemised,
+        salt: u32,
+        left: u32,
+    },
     /// Fruit was pressed (Press Juice: `target` is `None`): this many
     /// millilitres of juice went into a cask or vessel.
     Juiced(u32),
@@ -58,4 +63,6 @@ pub enum Alchemised {
         count: u32,
         quality: Quality,
     },
+    /// It made this many bottles of pure alcohol (which has no quality).
+    Alcohol { count: u32 },
 }

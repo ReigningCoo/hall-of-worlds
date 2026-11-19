@@ -27,21 +27,25 @@ pub struct AlchemyOrder {
 }
 
 /// One step as asked for: an apparatus and the carried stacks in its drop
-/// spaces. One of each herb stack, the oil's bottle and each liquid's bottle
-/// (a stack listed twice gives two) are used up by each run.
+/// spaces. One of each herb stack, the solvent's bottle, each liquid's bottle
+/// (a stack listed twice gives two) and the Alembic's alcohol are used up by
+/// each run.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum OrderStep {
-    /// Herb stacks, one of each kind, and a bottle of oil or nothing (dry: a
-    /// Paste).
+    /// Herb stacks, one of each kind, and a bottle of oil (an Ointment) or
+    /// pure alcohol (a Tincture), or nothing (dry: a Paste).
     Mortar {
         herbs: Vec<Id>,
-        oil: Option<Id>,
+        solvent: Option<Id>,
     },
     /// Bottles of liquid, one 100 ml unit each, in order.
     Retort {
         liquids: Vec<Id>,
     },
-    Alembic,
+    /// A bottle of a drink or pure alcohol fed in, or nothing.
+    Alembic {
+        alcohol: Option<Id>,
+    },
     Crucible,
     Filter,
     Pelican,
@@ -53,7 +57,7 @@ impl OrderStep {
         match self {
             Self::Mortar { .. } => Apparatus::Mortar,
             Self::Retort { .. } => Apparatus::Retort,
-            Self::Alembic => Apparatus::Alembic,
+            Self::Alembic { .. } => Apparatus::Alembic,
             Self::Crucible => Apparatus::Crucible,
             Self::Filter => Apparatus::Filter,
             Self::Pelican => Apparatus::Pelican,
@@ -74,8 +78,8 @@ pub enum OrderRefused {
     Herb,
     /// A herb the server's table doesn't have.
     UnknownHerb,
-    /// The oil isn't a carried bottle of oil.
-    Oil,
+    /// The solvent isn't a carried bottle of oil or pure alcohol.
+    Solvent,
     /// A liquid isn't a carried, filled bottle.
     Liquid,
     /// A stack holds fewer than one run uses.
@@ -110,7 +114,6 @@ impl Inventory {
             None => None,
         };
         let herb_stacks = self.herb_stacks();
-        let oil_stacks = self.oil_stacks();
         let mut steps = Vec::new();
         let mut handled = Vec::new();
         for step in &order.steps {
@@ -120,7 +123,10 @@ impl Inventory {
                 return Err(OrderRefused::Apparatus(apparatus));
             }
             steps.push(match step {
-                OrderStep::Mortar { herbs: ids, oil } => {
+                OrderStep::Mortar {
+                    herbs: ids,
+                    solvent,
+                } => {
                     let mut ground = Vec::new();
                     for id in ids {
                         let stack = herb_stacks.iter().find(|stack| stack.stack == *id);
@@ -133,11 +139,14 @@ impl Inventory {
                         handled.push(stack.herb.clone());
                         *uses.entry(*id).or_insert(0) += 1;
                     }
-                    let solvent = match oil {
+                    let solvent = match solvent {
                         Some(id) => {
-                            let stack = oil_stacks.iter().find(|stack| stack.stack == *id);
                             *uses.entry(*id).or_insert(0) += 1;
-                            Solvent::Oil(stack.ok_or(OrderRefused::Oil)?.oil)
+                            match self.alchemy_liquid(*id) {
+                                Some(Liquid::Oil(oil)) => Solvent::Oil(oil),
+                                Some(Liquid::Alcohol) => Solvent::Alcohol,
+                                _ => return Err(OrderRefused::Solvent),
+                            }
                         }
                         None => Solvent::Dry,
                     };
@@ -154,7 +163,16 @@ impl Inventory {
                     }
                     Step::Retort { liquids }
                 }
-                OrderStep::Alembic => Step::Alembic,
+                OrderStep::Alembic { alcohol } => {
+                    let fed = match alcohol {
+                        Some(id) => {
+                            *uses.entry(*id).or_insert(0) += 1;
+                            Some(self.alchemy_liquid(*id).ok_or(OrderRefused::Liquid)?)
+                        }
+                        None => None,
+                    };
+                    Step::Alembic { fed }
+                }
                 OrderStep::Crucible => Step::Crucible,
                 OrderStep::Filter => Step::Filter,
                 OrderStep::Pelican => Step::Pelican,
