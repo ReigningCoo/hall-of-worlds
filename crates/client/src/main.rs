@@ -5,6 +5,7 @@
 
 mod abilities;
 mod accounts_panel;
+mod alchemy;
 mod app_icon;
 mod character;
 mod character_create;
@@ -144,6 +145,7 @@ fn main() {
         abilities::AbilitiesPlugin,
     ));
     app.add_plugins(skills_page::SkillsPagePlugin);
+    app.add_plugins(alchemy::AlchemyPlugin);
     app.add_plugins(lightning::LightningPlugin);
     app.add_plugins(step_pad::StepPadPlugin);
     app.add_plugins(notices::NoticesPlugin);

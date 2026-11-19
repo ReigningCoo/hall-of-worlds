@@ -21,7 +21,7 @@ Potion durations by quality: Poor 30 s, Common 1 min, Uncommon 2, Rare 4, Epic 8
 
 Claude's choices in PR 1: rain counts from `RAIN_AT` (0.25 of `WeatherSample::rain`, steady rain, not a drizzle) and only above the sleet line (`weather::LIGHTNING_WARMEST`), sampled at the site's world map point as the drawn rain is; water faced wins over rain; Rain Water's tie takes the first stat, as Salt Water's; Grain Oil takes as much pressed as other vegetables did (1 kg a bottle); shops sell Neutral and Grain Oil, never Rain Water.
 
-## The Alchemy panel (PR 4)
+## The Alchemy panel (PR 4, built)
 
 A process built left to right, with a locked preview of what it makes.
 
@@ -81,7 +81,11 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
 - The liquids' bottles become the potion's bottles (one per 100 ml unit), or come back empty; the Mortar's oil bottle comes back empty, as Grind's did.
 - Practice: 8 to each practised step's sub-skill (flowing up to Alchemy), 2 Herbalism a herb kind. Sub-skills are learned by practising them by 1 when an apparatus is first carried.
 - `Ability::Alchemy` took Grind's place in the enum; saves' Grind and Brew load as it, and a bar holding both keeps only the first. The Cauldron item stays, sold by blacksmiths, unused. Old recipes stay on the sheet; nothing new is remembered.
-- Until the panel (PR 4), using Alchemy from the bar does nothing.
+- Until the panel (PR 4), using Alchemy from the bar did nothing.
+
+## The panel (PR 4, built)
+
+Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving panel (not a dialog), opening the Character panel beside it to drag from; a click or tap on an apparatus adds it at the end, and on a filled space empties it; a step dragged off the row is taken out; a source space before the first step; herb spaces grow to 8; apparatus known but not carried still shown; Start becomes Stop while running; the fill shares each run's time between the steps by their own times; the product's colour is its strongest dose's row's; what a run made shows in the box after the last step.
 
 ## Retort solids and Darkvision (PR 8)
 
@@ -101,7 +105,7 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
 | 1 | Neutral and Grain Oil, Rain Water, durations by quality, the Alchemy wiki page; this plan (built) | None |
 | 2 | The process rules in `shared`: steps, chance, dilution at the end, Paste, quality with sub-skills, luck, old sources, learning, the preview; the six sub-skills in the skill tree (built: `shared::alchemy`) | 1 |
 | 3 | Server: the Alchemy ability, Mortar and Retort steps, the Retort item, the count, Infusing's rule; Grind, Brew and the Cauldron removed from alchemy (built) | 2 |
-| 4 | Client: the Alchemy panel (dragging, drop spaces, preview, count, colour fill) | 3 |
+| 4 | Client: the Alchemy panel (dragging, drop spaces, preview, count, colour fill) (built: client `alchemy`) | 3 |
 | 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) | 3 and drinks PR 6 (Ferment, merged) |
 | 6 | Crucible and Filter, Powder | 3 |
 | 7 | Pelican | 3 |

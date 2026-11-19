@@ -20,6 +20,7 @@ use super::rain_here::WaterHere;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
 use super::woodcutting::{log_aim, tree_to_fell};
+use crate::alchemy::OpenAlchemy;
 use crate::character::CharacterSheet;
 use crate::common::{
     CurrentDungeon, FaceTowards, Facing, Other, OwnAbility, OwnVitals, ServerTick, SpotPosition,
@@ -83,8 +84,8 @@ impl Manual {
 /// A slot used: its ability queued, or taken out of the queue; a toggle
 /// (Sneak) asked for at once, as it needs no target and takes no time; one of
 /// a kind of item eaten (`inventory::EatKind`), a potion drunk
-/// (`DrinkPotion`); Press Oil's, Press Juice's or Ferment's panel opened.
-/// Alchemy opens nothing yet: its panel comes with the Alchemy plan's PR 4.
+/// (`DrinkPotion`); Press Oil's, Press Juice's or Ferment's panel opened, or
+/// the Alchemy panel (`alchemy::OpenAlchemy`).
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
@@ -97,7 +98,7 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
-    (mut press, mut juice, mut fermenting): Panels,
+    (mut press, mut juice, mut fermenting, mut alchemy): Panels,
 ) {
     for &UseSlot(slot) in used.read() {
         let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
@@ -133,8 +134,8 @@ pub(super) fn use_slots(
             // And the fruit for Press Juice (`press_juice.rs`).
             juice.open = true;
         } else if ability == Ability::Alchemy {
-            // Asked for by its panel (Alchemy plan PR 4), never queued.
-            continue;
+            // Asked for by its panel (`alchemy`), never queued.
+            alchemy.write(OpenAlchemy);
         } else if ability == Ability::Ferment {
             // And Ferment's in its own (`ferment/`).
             fermenting.open = true;
@@ -154,6 +155,7 @@ type Panels<'w> = (
     ResMut<'w, PressChooser>,
     ResMut<'w, JuiceChooser>,
     ResMut<'w, Fermenting>,
+    MessageWriter<'w, OpenAlchemy>,
 );
 
 /// Where the player stands and which way they face.

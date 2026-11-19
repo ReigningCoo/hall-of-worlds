@@ -1761,3 +1761,7 @@ Drinking alcohol (drinks plan PR 7) keeps its units on `Sheet::alcohol` as a val
 ## 2026-11-19: Cellar casks are casks lying on the ground
 
 Castles' and towers' cellar casks (drinks plan PR 9, `shared::cellar`) are ordinary cask items in piles on the ground, not furniture: they already never block, are drawn standing by size and wood, keep world-time clocks on the ground, and anyone may tap, fill, ferment in or carry them off with the rules casks already have. Where they stand is shared, from hashes after furniture (no generator moved); their contents are the server's, rolled once per site level (`LevelSave::cellar_stocked`). Castles and towers have no basements, and a site's first level is played set into the wilderness, so their casks go onto the wilderness's ground at the cutout's cells when the server first works out that chunk.
+
+## 2026-11-19: The Alchemy panel is its own client module
+
+The Alchemy panel (Alchemy plan PR 4) is client `alchemy`, not another panel inside `abilities` as Press Oil's and Ferment's are: it has its own drag and drop, canvases, running display and debug method, more than one context file of `abilities` could summarise. `abilities` only opens it, with the `OpenAlchemy` message. Apparatus and steps are dragged with `dom::HeldObject` as a kind of item is on the action bar, so mouse and fingers work as everywhere else; items go into drop spaces the way they go onto the bar, staying where they are until a run uses them. The panel is a moving panel, not a dialog, so the Character panel stays open beside it to drag from.

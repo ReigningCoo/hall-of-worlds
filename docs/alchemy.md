@@ -49,7 +49,15 @@ Herbalists and potion shops sell oils as well.
 
 ## Alchemy
 
-**Alchemy** runs a process: a row of steps, each on an apparatus, with what goes into it. The panel to build one is still being made.
+**Alchemy** runs a process: a row of steps, each on an apparatus, with what goes into it. Using the ability opens the Alchemy panel, with your Inventory beside it.
+
+### The Alchemy panel
+
+- **Along the top:** every apparatus whose skill you know. Drag one down into the row below to add a step, or click it to add it at the end. Drop it between two steps to put it there.
+- **The process row:** the steps, left to right. Drag a step along the row to move it, or off the row to take it out. A step past what your Alchemy allows has a red frame. Under each step are spaces for what goes into it: drag herbs, oils and bottles from your Inventory into them, and click one to take it out again. The space before the first step takes a stored Paste or Ointment to start from.
+- **On the right:** **Start**, how many times to run it (`|<` once, `<` one fewer, `>` one more, `>|` as many as you have the ingredients for), and what one run makes, at the least quality it can be. Its effects show as **Unknown** until you know that effect on every herb that gives to it. The chance of success is under it.
+
+While it runs, the panel is locked and its steps fade, then colour fills along them, from black through white and gold to the potion's own colour. What it made shows at the end of the row. **Stop**, moving or being hurt calls it off.
 
 - **Mortar and Pestle** (first step only): one of each herb, ground dry into a **Paste**, or with a bottle of oil into an **Ointment**. A herb's effects add up and opposite effects cancel out; how strong each is depends on its quality and your Herbalism, and Herbalism trims away effects you don't want.
 - **Retort**: up to five bottles of water or oil, each acting on what came before (see the tables above). Each bottle is 100 ml, and the result fills one bottle per 100 ml.
