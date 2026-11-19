@@ -119,6 +119,11 @@ pub fn catch_up(
             Slot::New(minute, quality) => {
                 let mut rng = rolls(2 + place as i64, minute);
                 if let Some(kind) = shop.roll_kind(&mut rng) {
+                    let quality = match kind {
+                        // Nearly always Common (`shared::yeast`).
+                        ItemKind::Yeast => crate::yeast::shop_quality(quality, &mut rng),
+                        _ => quality,
+                    };
                     let quality = kind.def().has_quality.then_some(quality);
                     new.push(NewStock {
                         kind,

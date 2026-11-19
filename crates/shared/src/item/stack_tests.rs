@@ -541,6 +541,7 @@ fn counted_kinds_are_plain() {
                 | ItemKind::Fruit
                 | ItemKind::Vegetable
                 | ItemKind::Flour
+                | ItemKind::Yeast
                 | ItemKind::Kindling
                 | ItemKind::Ointment
         );

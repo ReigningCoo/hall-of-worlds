@@ -35,6 +35,7 @@ impl ItemForm {
             | Self::Key(_)
             | Self::Herb(_)
             | Self::Bottle(_)
+            | Self::Yeast(_)
             | Self::Ointment(_) => None,
         }
     }
@@ -68,7 +69,7 @@ impl ItemForm {
             Self::Flour(flour) => Some(flour.grams),
             Self::Log(log) => Some(log.grams()),
             Self::Kindling(_) => Some(crate::woodcutting::KINDLING_GRAMS),
-            Self::Gem(_) | Self::Ring(_) | Self::Key(_) => None,
+            Self::Gem(_) | Self::Ring(_) | Self::Key(_) | Self::Yeast(_) => None,
         }
     }
 }

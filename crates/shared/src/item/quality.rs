@@ -32,6 +32,12 @@ impl Quality {
         Self::Artifact,
     ];
 
+    /// One step worse; Poor stays Poor.
+    pub fn worse(self) -> Self {
+        let rank = Self::ALL.iter().position(|&q| q == self).unwrap_or(1);
+        Self::ALL[rank.saturating_sub(1)]
+    }
+
     /// What `grams` in a holder that lightens by quality weigh
     /// (`ContainerDef::lighter_by_quality`): all of it at Poor, nothing at
     /// Artifact, in even steps between, rounding down.

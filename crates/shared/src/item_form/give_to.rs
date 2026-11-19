@@ -77,6 +77,11 @@ pub fn give_form_to(
             };
             (form, Size::Medium)
         }
+        // Fed just now (`shared::yeast`).
+        ItemKind::Yeast => (
+            ItemForm::Yeast(crate::yeast::YeastForm::default()),
+            Size::Medium,
+        ),
         // Empty unless asked for a liquid or effects: potions are brewed
         // (later), not rolled.
         ItemKind::Bottle => {

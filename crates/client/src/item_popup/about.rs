@@ -1,6 +1,7 @@
 //! An item's description in its popup: for kinds with one in `item.ftl`
 //! (`about-<kind>`, such as `about-dwarven-bread`), a line under its name; a
-//! cask's or vessel's says how much it holds too, and whether it is sealed.
+//! cask's or vessel's says how much it holds too, and whether it is sealed; a
+//! yeast's when each in the stack next needs feeding (`yeast.rs`).
 
 use shared::item::{Item, ItemKind};
 use shared::lang::{Args, Lang};
@@ -15,7 +16,8 @@ pub(super) fn about(item: &Item, lang: &Lang) -> Option<String> {
     let about = lang
         .has(&id)
         .then(|| written(lang.render(&id, &Args::new())));
-    let Some(holds) = holds(item.top(), lang) else {
+    let more = holds(item.top(), lang).or_else(|| super::yeast::yeast_lines(item, lang));
+    let Some(holds) = more else {
         return about;
     };
     Some(match about {

@@ -141,6 +141,7 @@ const ICONS: &[(&str, &str)] = &[
     ("crafting/woodwork", "delapouite/wood-beam"),
     ("crafting/cooking", "delapouite/cooking-pot"),
     ("crafting/alchemy", "lorc/fizzing-flask"),
+    ("crafting/fermenting", "lorc/bubbling-bowl"),
     ("social", "lorc/conversation"),
     ("social/persuading", "skoll/talk"),
     ("social/intimidating", "lorc/shouting"),

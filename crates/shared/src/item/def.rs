@@ -33,6 +33,7 @@ impl ItemKind {
                 Self::Fruit
                 | Self::Vegetable
                 | Self::Flour
+                | Self::Yeast
                 | Self::Bread
                 | Self::DwarvenBread
                 | Self::RawMeat => self.food_def(),
@@ -236,6 +237,7 @@ impl ItemKind {
             Self::Fruit
             | Self::Vegetable
             | Self::Flour
+            | Self::Yeast
             | Self::Bread
             | Self::DwarvenBread
             | Self::RawMeat

@@ -23,6 +23,8 @@ pub enum ItemKind {
     /// Kindling split from a log (`shared::woodcutting`), counted: which wood
     /// is in its form.
     Kindling,
+    /// A yeast (`shared::yeast`): each its own item, with its own clock.
+    Yeast,
     Bread,
     DwarvenBread,
     RawMeat,
@@ -156,7 +158,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 109] = [
+    pub const ALL: [Self; 110] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -266,6 +268,7 @@ impl ItemKind {
         Self::Vest,
         Self::WaistArmour,
         Self::Wimple,
+        Self::Yeast,
     ];
 
     /// Whether it can be made at other sizes: what is worn, gems and blades. Everything

@@ -25,5 +25,7 @@ pub(in super::super) const CRAFTING: Draft = branch(
         leaf("woodwork", "Woodwork", &[]),
         leaf("cooking", "Cooking", &[Perception]),
         leaf("alchemy", "Alchemy", &[Intellect]),
+        // Keeping yeast and fermenting drinks (drinks plan).
+        leaf("fermenting", "Fermenting", &[Perception]),
     ],
 );
