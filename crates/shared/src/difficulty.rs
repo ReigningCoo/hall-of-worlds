@@ -95,6 +95,13 @@ impl Difficulty {
         }
     }
 
+    /// Whether a player on it sees all round on levels and in the Hall, as on
+    /// the world map: Easy and Normal. Hard and Ironman see in a cone ahead
+    /// (`shared::facing::Field::for_player`; owner, 2026-11-19).
+    pub fn sees_all_round(self) -> bool {
+        matches!(self, Self::Easy | Self::Normal)
+    }
+
     /// Whether dying deletes the character.
     pub fn permanent_death(self) -> bool {
         self == Self::Ironman

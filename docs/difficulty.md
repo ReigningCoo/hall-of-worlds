@@ -8,12 +8,14 @@ parent: Gameplay
 
 Each character plays on one of four difficulties. A server may allow only some of them. If yours stops allowing the one you play on, you are moved to the nearest it does allow (the easier one if two are as near).
 
-| Difficulty | Harm you take | Health and Mana refill | When you die |
-| ---------- | ------------- | ---------------------- | ------------ |
-| Easy | A fifth less | Twice as fast | Nothing is lost. |
-| Normal | As usual | As usual | Your skills slip a little. |
-| Hard | A fifth more | As usual | Your skills slip more, and you drop everything but what is worn against the skin. |
-| Ironman | A fifth more | As usual | You drop everything, and the character is gone for good. |
+| Difficulty | Harm you take | Health and Mana refill | Sight | When you die |
+| ---------- | ------------- | ---------------------- | ----- | ------------ |
+| Easy | A fifth less | Twice as fast | All round | Nothing is lost. |
+| Normal | As usual | As usual | All round | Your skills slip a little. |
+| Hard | A fifth more | As usual | A cone ahead | Your skills slip more, and you drop everything but what is worn against the skin. |
+| Ironman | A fifth more | As usual | A cone ahead | You drop everything, and the character is gone for good. |
+
+On Hard and Ironman you see only in a cone ahead of you and a step around you, so creatures can come up behind you unseen. See [Controls](controls).
 
 ## Choosing
 

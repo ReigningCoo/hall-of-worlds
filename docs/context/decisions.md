@@ -1769,3 +1769,7 @@ The Alchemy panel (Alchemy plan PR 4) is client `alchemy`, not another panel ins
 ## 2026-11-19: Magical effects are potion stats; transformations are a table
 
 Alchemy plan PR 8. Darkvision, the first effect beyond the herbs' stats, is a new `herb::Stat` (last, so saves and messages still load) rather than a separate field on `potion::Contents`: it then dilutes, filters, calcines, counts for purity and drinks like any dose, with no change to how contents are kept. Herbs never have it; it comes only from a transformation, a row in `alchemy::TRANSFORMATIONS` (a vegetable, the stat it needs helpful, the stat it makes), so more magical potions are new rows and stats (`todo-magical-potions`). What a magical effect does is a `bonus::Stat` of its own (Darkvision in cells). The reach rule lives in `shared::dungeon` (`darkvision_reach`, with the carried light's `CARRIED_LIGHT`), so both sides agree; sight itself still has no darkness rule.
+
+## 2026-11-19: The field-of-view cone only on Hard and Ironman
+
+Owner's decision: players on Easy and Normal see all round on levels and in the Hall, as on the world map; Hard and Ironman keep the cone of "Facing and field of view" (2026-11-12). One rule both sides use, `facing::Field::for_player` by `Difficulty::sees_all_round`. Everything else about facing stays on every difficulty: headings and turning, `faced_cell`, the model's turn, mobs' cones and noticing, Observation's reach and practice. Darkness and Darkvision are unaffected. The server works sight out again when a character's difficulty changes.

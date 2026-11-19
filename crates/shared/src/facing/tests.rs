@@ -98,3 +98,25 @@ fn sight_in_a_cone_leaves_out_what_is_behind() {
     assert!(!ahead.is_seen(0, 0) && round.is_seen(0, 0));
     assert!(ahead.is_seen(2, 0), "within the near circle");
 }
+
+#[test]
+fn players_see_all_round_on_easy_and_normal_only() {
+    use crate::difficulty::Difficulty;
+    let full = 100 * crate::skill::VALUE_SCALE;
+    for observation in [0, full] {
+        let cone = Field::of(CreatureKind::Human, observation);
+        for difficulty in Difficulty::ALL {
+            let field = Field::for_player(CreatureKind::Human, observation, difficulty);
+            assert_eq!(field.near, cone.near);
+            assert_eq!(field.further, cone.further, "Observation's reach stays");
+            if difficulty.sees_all_round() {
+                assert!(field.is_all_round(), "{difficulty:?}");
+            } else {
+                assert_eq!(field, cone, "{difficulty:?}");
+                assert!(!field.is_all_round());
+            }
+        }
+    }
+    assert!(Difficulty::Easy.sees_all_round() && Difficulty::Normal.sees_all_round());
+    assert!(!Difficulty::Hard.sees_all_round() && !Difficulty::Ironman.sees_all_round());
+}

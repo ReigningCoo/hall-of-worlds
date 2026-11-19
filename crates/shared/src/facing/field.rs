@@ -1,6 +1,7 @@
 //! How wide a creature sees, from its kind and its Observation.
 
 use crate::creature::CreatureKind;
+use crate::difficulty::Difficulty;
 use crate::skill::{SkillId, VALUE_SCALE};
 use crate::spot::CELL_SPAN;
 
@@ -54,6 +55,21 @@ impl Field {
             half: half as u16,
             near: NEAR,
             further: (FURTHER_AT_FULL * skill / FULL_SKILL) as u32,
+        }
+    }
+
+    /// A player of `kind` with Observation's value `observation` playing on
+    /// `difficulty`: all round on Easy and Normal, keeping the near circle and
+    /// Observation's extra reach; the cone (`of`) on Hard and Ironman.
+    pub fn for_player(kind: CreatureKind, observation: u32, difficulty: Difficulty) -> Self {
+        let field = Self::of(kind, observation);
+        if difficulty.sees_all_round() {
+            Self {
+                half: Self::ALL_ROUND.half,
+                ..field
+            }
+        } else {
+            field
         }
     }
 

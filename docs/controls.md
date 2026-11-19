@@ -36,7 +36,7 @@ In places, the wilderness and the Hall of Worlds you walk freely, any way at all
 
 ## Facing and sight
 
-You face the way you walk, the way you turn, or towards whoever you use an ability on. In places, the wilderness and the Hall of Worlds you see in a cone ahead of you (about a third of a turn for people; animals that are hunted see almost all round), and only a step around you behind: what is outside it is shown as you remember it. Creatures see the same way, so you can creep up behind one without it noticing, but they turn towards a fight they hear and towards whoever strikes them. Observation (under Survival) widens your cone and lets you see a little further, and grows as you spot creatures. On the world map you see all round.
+You face the way you walk, the way you turn, or towards whoever you use an ability on. On Easy and Normal you see all round. On Hard and Ironman, in places, the wilderness and the Hall of Worlds you see in a cone ahead of you (about a third of a turn for people; animals that are hunted see almost all round), and only a step around you behind: what is outside it is shown as you remember it. Creatures see the same way, so you can creep up behind one without it noticing, but they turn towards a fight they hear and towards whoever strikes them. Observation (under Survival) widens your cone and lets you see a little further on every difficulty, and grows as you spot creatures. On the world map you see all round.
 
 You can't walk onto an enemy. Walking onto anyone else swaps places with them.
 

@@ -12,10 +12,11 @@ use super::Client;
 const SEEING_PRACTICE: u32 = 60;
 
 impl Client {
-    /// What the player sees round them, by kind and Observation.
+    /// What the player sees round them, by kind, Observation and difficulty
+    /// (all round on Easy and Normal).
     pub(crate) fn field(&self) -> Field {
         let observation = self.sheet.skills.value(observation_skill());
-        Field::of(self.inventory.creature, observation)
+        Field::for_player(self.inventory.creature, observation, self.playing_on())
     }
 
     /// The player's field of view on a level or in the Hall, where they stand;

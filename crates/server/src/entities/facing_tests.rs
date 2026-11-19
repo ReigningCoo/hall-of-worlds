@@ -55,6 +55,8 @@ fn a_mob_struck_turns_to_whoever_struck_it() {
 #[test]
 fn the_player_is_told_only_what_is_in_their_cone() {
     let mut test = beside_a_mob(CreatureKind::Dwarf, 3);
+    // Easy and Normal see all round: the cone is Hard's and Ironman's.
+    test.client.difficulty = Some(shared::difficulty::Difficulty::Hard);
     let mob = the_mob(&test).id;
     test.client.heading = Heading::WEST;
     test.send(&[]);

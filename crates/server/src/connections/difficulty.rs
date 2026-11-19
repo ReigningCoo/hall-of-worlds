@@ -39,16 +39,18 @@ impl Client {
     }
 
     /// Puts the character on `to`, Health and Mana settled first at the old
-    /// refilling. Tells the client its vitals again if it changed.
-    fn set_difficulty(&mut self, to: Difficulty, now: u64) {
+    /// refilling. Tells the client its vitals again if it changed, and works
+    /// out what they see again (the cone comes and goes with difficulty).
+    /// `false` if the client has gone.
+    pub(super) fn set_difficulty(&mut self, to: Difficulty, now: u64) -> bool {
         if self.difficulty == Some(to) {
-            return;
+            return true;
         }
         let before = self.limits(now);
         self.sheet.vitals.settle(before, now);
         self.difficulty = Some(to);
         self.unsaved = true;
-        self.send_vitals(now);
+        self.send_vitals(now) && crate::sites::update_sight(self)
     }
 
     /// The player asks for another difficulty (`SetDifficulty`): only one the
@@ -62,7 +64,9 @@ impl Client {
     ) -> bool {
         if allowed.contains(to) && self.playing_on().may_change_to(to) {
             info!("{} now plays on {}", self.in_log(), to.name());
-            self.set_difficulty(to, now);
+            if !self.set_difficulty(to, now) {
+                return false;
+            }
         }
         self.send_difficulty(allowed)
     }
