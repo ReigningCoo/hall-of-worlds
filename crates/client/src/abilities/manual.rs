@@ -10,6 +10,7 @@ use shared::id::Id;
 use shared::potion::water_faced;
 use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
+use shared::spot::Spot;
 
 use super::brew::Brewing;
 use super::grind::Mixing;
@@ -19,12 +20,14 @@ use super::press_juice::JuiceChooser;
 use super::press_oil::PressChooser;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
+use super::woodcutting::{log_aim, tree_to_fell};
 use crate::character::CharacterSheet;
 use crate::common::{
-    CurrentDungeon, Facing, Other, OwnAbility, OwnVitals, ServerTick, SpotPosition, Target,
+    CurrentDungeon, FaceTowards, Facing, Other, OwnAbility, OwnVitals, ServerTick, SpotPosition,
+    Target,
 };
 use crate::connection::ToServer;
-use crate::inventory::{Carried, DrinkPotion, EatKind};
+use crate::inventory::{Carried, DrinkPotion, EatKind, GroundShown};
 use crate::player::Player;
 
 /// The abilities the player chose by hand, from pressing them until the last
@@ -158,17 +161,18 @@ type PlayerFacing<'w, 's> = Query<'w, 's, (&'static SpotPosition, &'static Facin
 /// Asks for the first queued ability that can be done, at the target, as soon
 /// as the player can act; those that can't be done when their turn comes are
 /// passed over. An automatic one asked for and still waiting on the server is
-/// taken back first, so this goes in its place.
+/// taken back first, so this goes in its place. Fell Tree turns the player to
+/// a tree in reach first if none is faced.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn ask_wanted(
-    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
+    (carried, sheet, ground): (Res<Carried>, Res<CharacterSheet>, Res<GroundShown>),
     target: Res<Target>,
     others: Query<&Other>,
     vitals: Res<OwnVitals>,
     time: Res<Time>,
     mut manual: ResMut<Manual>,
     mut own: ResMut<OwnAbility>,
-    mut to_server: MessageWriter<ToServer>,
+    (mut to_server, mut face): (MessageWriter<ToServer>, MessageWriter<FaceTowards>),
     (dungeon, player): (Res<CurrentDungeon>, PlayerFacing),
 ) {
     let now = time.elapsed_secs_f64();
@@ -179,19 +183,35 @@ pub(super) fn ask_wanted(
     if !automatic_waiting && own.is_busy(now) {
         return;
     }
+    let standing = player.single().ok().map(|(at, facing)| (at.0, facing.0));
     while let Some(ability) = manual.queued.pop_front() {
         let fits = ability.can_use(&carried.0, &sheet.0) && affords(ability, &vitals, now);
-        // Collect Water is only done facing water, as the server checks.
-        let faces_water = player
-            .single()
-            .is_ok_and(|(at, facing)| water_faced(&dungeon.level, at.0, facing.0).is_some());
-        let fits = fits && (ability != Ability::CollectWater || faces_water);
-        let Some(at) = fits.then(|| aim(ability, target.0, &others)).flatten() else {
+        let mut turn = None;
+        let aimed = match ability {
+            // Collect Water is only done facing water, as the server checks.
+            Ability::CollectWater => standing
+                .filter(|&(at, heading)| water_faced(&dungeon.level, at, heading).is_some())
+                .map(|_| None),
+            // A tree faced, or one in reach turned to.
+            Ability::FellTree => standing
+                .and_then(|(at, heading)| tree_to_fell(&dungeon.level, at, heading))
+                .map(|turning| {
+                    turn = turning;
+                    None
+                }),
+            Ability::CutKindling => log_aim(&carried.0, &ground.0),
+            _ => aim(ability, target.0, &others),
+        };
+        let Some(at) = aimed.filter(|_| fits) else {
             debug!("{} can't be done now", ability.name());
             continue;
         };
         if automatic_waiting {
             to_server.write(ToServer(ClientMessage::WithdrawAbility));
+        }
+        if let Some((cell, heading)) = turn {
+            to_server.write(ToServer(ClientMessage::Face(heading)));
+            face.write(FaceTowards(Spot::middle_of(cell)));
         }
         ask(ability, at, now, &mut own, &mut to_server);
         manual.sent = Some(ability);
@@ -218,8 +238,9 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // Asked for by their panels (`press_oil.rs`, `press_juice.rs`,
         // `grind/`, `brew.rs`), never queued.
         Ability::PressOil | Ability::PressJuice | Ability::Grind | Ability::Brew => None,
-        // On no one: the water faced.
-        Ability::CollectWater => Some(None),
+        // On no one: the water or tree faced, or the log chosen
+        // (`ask_wanted`).
+        Ability::CollectWater | Ability::FellTree | Ability::CutKindling => Some(None),
         _ => target.map(Some),
     }
 }

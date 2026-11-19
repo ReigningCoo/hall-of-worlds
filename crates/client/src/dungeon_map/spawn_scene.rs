@@ -215,6 +215,15 @@ pub(super) fn spawn_scene(
             },
             MaskSide::OutOfSight,
         )),
+        // A blow landing (`tree_flash`): the colours pushed red.
+        flash: surface_materials.add(masked(
+            StandardMaterial {
+                base_color: Color::linear_rgb(4.0, 0.15, 0.15),
+                unlit: true,
+                ..default()
+            },
+            MaskSide::InSight,
+        )),
     });
     super::rain::spawn(&mut commands, scene, &mut meshes, &mut rain_materials);
     commands.insert_resource(SurfaceMaterials {

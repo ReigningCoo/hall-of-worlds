@@ -24,12 +24,18 @@ use super::{CELL_SIZE, DungeonScene, Shown};
 use crate::common::{CurrentDungeon, DrawnGround};
 use crate::plants::{TreeModel, TreeModels};
 
-/// Trees' grey copies' materials, for where they are remembered.
+/// Trees' grey copies' materials, for where they are remembered, and the red
+/// a tree flashes when chopped (`tree_flash`).
 #[derive(Resource)]
 pub(super) struct TreeMaterials {
     pub(super) memory: Handle<SurfaceMaterial>,
     pub(super) outline: Handle<SurfaceMaterial>,
+    pub(super) flash: Handle<SurfaceMaterial>,
 }
+
+/// On a tree's coloured copy, which flashes red when it is chopped.
+#[derive(Component)]
+pub(super) struct TreeFill;
 
 /// What a drawn tree shows, to tell when it must be drawn again.
 #[derive(Clone, Debug, PartialEq)]
@@ -47,6 +53,13 @@ pub(super) struct DrawnTrees {
     trees: HashMap<(i64, i64), (Entity, Drawn)>,
     /// What was seen last time.
     built: Option<u64>,
+}
+
+impl DrawnTrees {
+    /// The tree drawn at `cell`, if any.
+    pub(super) fn at(&self, cell: (i64, i64)) -> Option<Entity> {
+        self.trees.get(&cell).map(|(entity, _)| *entity)
+    }
 }
 
 /// Draws the trees again when what is seen, the cells or the ground change.
@@ -97,18 +110,21 @@ pub(super) fn update_trees(
             Visibility::default(),
         ));
         tree.with_children(|tree| {
-            let mut copy = |mesh: &Handle<Mesh>, material: &Handle<SurfaceMaterial>| {
-                tree.spawn((
+            let mut copy = |mesh: &Handle<Mesh>, material: &Handle<SurfaceMaterial>, fill: bool| {
+                let mut part = tree.spawn((
                     Mesh3d(mesh.clone()),
                     MeshMaterial3d(material.clone()),
                     NotShadowCaster,
                 ));
+                if fill {
+                    part.insert(TreeFill);
+                }
             };
-            copy(&model.memory, &grey.memory);
-            copy(&model.outline, &grey.outline);
+            copy(&model.memory, &grey.memory, false);
+            copy(&model.outline, &grey.outline, false);
             if now_drawn.lit {
-                copy(&model.fill, &lit.fill);
-                copy(&model.outline, &lit.outline);
+                copy(&model.fill, &lit.fill, true);
+                copy(&model.outline, &lit.outline, false);
             }
         });
         let tree = tree.id();
