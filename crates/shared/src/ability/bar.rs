@@ -86,8 +86,21 @@ impl Default for ActionBar {
 
 impl ActionBar {
     /// Gives a bar saved before some of `GIVEN` were added each of those, in
-    /// the first empty slot (none if it is full, or already there).
+    /// the first empty slot (none if it is full, or already there). Also
+    /// clears a thing found twice, keeping the first: a bar saved with both
+    /// Grind and Brew loads both as Alchemy.
     pub fn catch_up(&mut self) {
+        for slot in 1..BAR_SLOTS {
+            let thing = self.slots[slot].map(|it| it.thing);
+            if thing.is_some_and(|thing| {
+                self.slots[..slot]
+                    .iter()
+                    .flatten()
+                    .any(|it| it.thing == thing)
+            }) {
+                self.slots[slot] = None;
+            }
+        }
         for &ability in GIVEN.iter().skip(usize::from(self.given)) {
             let empty = self.slots.iter().position(Option::is_none);
             if let (None, Some(slot)) = (self.slot_of(ability), empty) {

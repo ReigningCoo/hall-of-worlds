@@ -42,12 +42,11 @@ pub enum Ability {
     /// Vegetables, nuts or seeds pressed into a bottle of oil: from Alchemy,
     /// with an oil press (`tool`).
     PressOil,
-    /// Herbs and an oil ground into an ointment: from Alchemy, with a mortar
-    /// and pestle.
-    Grind,
-    /// An ointment and a bottle of water brewed into a potion: from Alchemy,
-    /// with a cauldron.
-    Brew,
+    /// A process of apparatus steps worked through the Alchemy panel
+    /// (`shared::alchemy`): from Alchemy, with an apparatus carried. Saved
+    /// bars' Grind and Brew (retired with the Alchemy plan) load as it.
+    #[serde(alias = "Grind", alias = "Brew")]
+    Alchemy,
     /// Empty bottles filled at water faced, one after another (`potion`'s
     /// `collect`): learned on a first empty bottle.
     CollectWater,
@@ -78,7 +77,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 15] = [
+    pub const ALL: [Ability; 14] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -88,8 +87,7 @@ impl Ability {
         Self::Trample,
         Self::PressOil,
         Self::PressJuice,
-        Self::Grind,
-        Self::Brew,
+        Self::Alchemy,
         Self::Ferment,
         Self::CollectWater,
         Self::FellTree,
@@ -108,8 +106,7 @@ impl Ability {
             Self::Sneak => "Sneak",
             Self::PressOil => "Press Oil",
             Self::PressJuice => "Press Juice",
-            Self::Grind => "Grind",
-            Self::Brew => "Brew",
+            Self::Alchemy => "Alchemy",
             Self::CollectWater => "Collect Water",
             Self::FellTree => "Fell Tree",
             Self::CutKindling => "Cut Kindling",
@@ -129,8 +126,7 @@ impl Ability {
             | Self::Trample
             | Self::PressOil
             | Self::PressJuice
-            | Self::Grind
-            | Self::Brew
+            | Self::Alchemy
             | Self::CollectWater
             | Self::FellTree
             | Self::CutKindling
@@ -156,7 +152,7 @@ impl Ability {
             // As its skill, Healing, under Divine.
             Self::Heal => &[Empathy],
             // As their skill, Alchemy.
-            Self::PressOil | Self::PressJuice | Self::Grind | Self::Brew => &[Intellect],
+            Self::PressOil | Self::PressJuice | Self::Alchemy => &[Intellect],
         }
     }
 
@@ -172,8 +168,7 @@ impl Ability {
             Self::Sneak => "Moves slowly and quietly while it is on.",
             Self::PressOil => "Presses vegetables, nuts or seeds into a bottle of oil.",
             Self::PressJuice => "Presses fruit into juice, in a cask or vessel you carry.",
-            Self::Grind => "Grinds herbs and an oil into an ointment.",
-            Self::Brew => "Brews an ointment and a bottle of water into a potion.",
+            Self::Alchemy => "Works herbs and liquids through your apparatus, step by step.",
             Self::CollectWater => {
                 "Fills your empty bottles, one after another, at the water you face."
             }

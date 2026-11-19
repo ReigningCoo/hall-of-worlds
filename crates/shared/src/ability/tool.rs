@@ -9,8 +9,6 @@ impl Ability {
     pub const fn tool(self) -> Option<ItemKind> {
         match self {
             Self::PressOil | Self::PressJuice => Some(ItemKind::OilPress),
-            Self::Grind => Some(ItemKind::MortarAndPestle),
-            Self::Brew => Some(ItemKind::Cauldron),
             _ => None,
         }
     }
@@ -25,6 +23,12 @@ impl Ability {
                 return carried.empty_bottle().is_some() || carried.cask_for_water();
             }
             Self::FellTree | Self::CutKindling => return carried.held_axe().is_some(),
+            // Any apparatus carried (`alchemy::Apparatus::item`).
+            Self::Alchemy => {
+                let apparatus = crate::alchemy::Apparatus::ALL.into_iter();
+                let mut kinds = apparatus.filter_map(|apparatus| apparatus.item());
+                return kinds.any(|kind| carried.count_of(kind) > 0);
+            }
             // A usable yeast carried; the cask may lie in reach.
             Self::Ferment => return !carried.ferment_choices().yeasts.is_empty(),
             _ => {}

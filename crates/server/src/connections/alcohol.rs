@@ -7,7 +7,7 @@ use shared::alcohol::{Stage, TOLERANCE, tolerance_practice, units_in};
 use shared::potion::Liquid;
 
 use super::Client;
-use super::grind::practise;
+use super::give::practise;
 
 impl Client {
     /// Takes in the units in `ml` of `liquid` drunk at `now`, if it holds any.

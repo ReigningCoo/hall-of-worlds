@@ -21,6 +21,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
         ItemKind::GoldCoin => return Some(Look::Coin(Material::Gold)),
         kind @ (ItemKind::Cauldron
         | ItemKind::MortarAndPestle
+        | ItemKind::Retort
         | ItemKind::OilPress
         | ItemKind::Tap) => {
             return Some(Look::Tool(kind));
@@ -55,6 +56,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
     if let Some(ointment) = item.ointment() {
         let salve = super::LiquidLook::of(&ointment.contents);
         return Some(Look::Ointment(salve));
+    }
+    if let Some(paste) = item.paste() {
+        return Some(Look::Paste(super::LiquidLook::of(&paste.contents)));
     }
     if let Some(fruit) = item.fruit() {
         return Some(Look::Fruit(super::FruitItemLook::of(fruit)));

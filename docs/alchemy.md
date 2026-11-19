@@ -6,17 +6,17 @@ parent: Gameplay
 
 # Alchemy
 
-Alchemy turns [herbs](herbs) into potions, in four steps: fill a bottle with water, press an oil, grind herbs and the oil into an ointment, then brew the ointment with the water. Each step is an ability on the Abilities page (B), and the last three need a tool carried. The **Alchemy** skill makes every step better, and **Herbalism** helps with the herbs.
+Alchemy turns [herbs](herbs) into potions. Fill bottles with water and press oils, then use the **Alchemy** ability to work herbs and liquids through your apparatus, one step after another. The **Alchemy** skill makes every step better, each apparatus has its own skill under it, and **Herbalism** helps with the herbs.
 
 ## Tools
 
 | Tool | Used for | Sold by |
 | ---- | -------- | ------- |
 | Oil Press | Press Oil, and Press Juice ([vessels](vessels)) | Carpenters |
-| Mortar and Pestle | Grind | Herbalists and potion shops |
-| Cauldron | Brew | Blacksmiths |
+| Mortar and Pestle | Alchemy: grinding herbs | Herbalists and potion shops |
+| Retort | Alchemy: infusing liquids | Herbalists and potion shops |
 
-An ability whose tool you don't carry is greyed out. A tool in a bag counts.
+An ability whose tool you don't carry is greyed out. A tool in a bag counts. Alchemy needs at least one apparatus. The first time you carry an apparatus, you learn its skill: **Grinding** for the Mortar and Pestle, **Infusing** for the Retort.
 
 ## Waters
 
@@ -47,26 +47,26 @@ Water you face is always taken before the rain. Snow and sleet can't be caught.
 
 Herbalists and potion shops sell oils as well.
 
-## Grinding an ointment
+## Alchemy
 
-**Grind** opens a panel listing the herbs you carry. Tick the herbs to use (one of each kind counts), choose a bottle of oil and how many doses to make. Each dose uses one of every herb ticked; one bottle of oil makes the whole batch, and the bottle comes back empty.
+**Alchemy** runs a process: a row of steps, each on an apparatus, with what goes into it. The panel to build one is still being made.
 
-- A herb's effects add up, and opposite effects cancel out.
-- How strong each herb's effects are depends on its quality and your Herbalism.
-- Alchemy lets you mix more kinds of herb, make more doses at once and reach stronger effects.
-- Herbalism trims away effects you don't want.
+- **Mortar and Pestle** (first step only): one of each herb, ground dry into a **Paste**, or with a bottle of oil into an **Ointment**. A herb's effects add up and opposite effects cancel out; how strong each is depends on its quality and your Herbalism, and Herbalism trims away effects you don't want.
+- **Retort**: up to five bottles of water or oil, each acting on what came before (see the tables above). Each bottle is 100 ml, and the result fills one bottle per 100 ml.
 
-The panel tells you what the ointment will hold once you know every effect of the herbs ticked. The mixes you have made before are listed below, to make again with one press. A mix that cancels out to nothing still uses up its herbs and oil.
+A stored Paste or Ointment can start a process instead of the Mortar, but loses a step of quality. You can rub an ointment on yourself, as you eat food, for a quarter of its strength; a paste does nothing by itself.
 
-You can rub an ointment on yourself, as you eat food, for a quarter of its strength.
+A process can be run several times in a row with one order, each run on its own. Moving or being hurt stops it.
 
-## Brewing a potion
+### Chance and quality
 
-**Brew** opens a panel to choose an ointment and a bottle of water, and says what they would make. Brewing uses one ointment and turns the water in that bottle into the potion. A potion forms only when one of its effects is strong enough; weak effects are left out. If no potion forms, the ointment and the water are both lost, and the bottle comes back empty.
+With no Alchemy at all a one-step process always works; more Alchemy lets you take more steps safely, and each step beyond that halves the chance. So does each kind of herb beyond what your Alchemy allows. A process that fails still uses up everything put into it.
 
-The purer a potion, the better its quality: one strong effect makes a better potion than several of the same strength. A better potion lasts longer.
+Everything stays at full strength until the end, where it is shared out over the bottles filled: more water makes more bottles, each weaker. A potion forms only when one of its effects is strong enough; weak effects are left out. If none forms, the ingredients are lost and the bottles come back empty.
 
-Brewing a potion teaches you the effects of the herbs in its ointment on what the potion does, so you learn more about herbs as you brew.
+The purer a potion, the better its quality: one strong effect makes a better potion than several of the same strength. Skill in the apparatus used adds to it when the process can't fail, and now and then a process turns out a step or two better than expected. A better potion lasts longer.
+
+Each process that works teaches you one effect of one herb in it, so you learn more about herbs as you go.
 
 ## Drinking a potion
 
@@ -91,4 +91,4 @@ A slot on the action bar holds one particular potion, and shows how many of it y
 
 ## Practice
 
-Every step practises its skill, whatever comes of it: Collect Water the Water skill, Press Oil, Grind and Brew Alchemy, and Grind and Brew Herbalism too.
+Every step practises its skill, whatever comes of it: Collect Water the Water skill, Press Oil Alchemy, and each apparatus its own skill, which also trains Alchemy. Herbs handled train Herbalism. A Retort practises Infusing only when it mixes liquids into something.

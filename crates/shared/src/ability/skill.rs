@@ -3,8 +3,8 @@
 use super::Ability;
 use crate::skill::{SkillId, Skills};
 
-/// Alchemy's path in the skill tree: Press Oil, Press Juice, Grind and Brew
-/// come from it.
+/// Alchemy's path in the skill tree: Press Oil, Press Juice and Alchemy come
+/// from it.
 pub const ALCHEMY: &str = "crafting/alchemy";
 
 /// Skills whose abilities everyone knows for now, skill or not: Alchemy, until
@@ -16,7 +16,7 @@ impl Ability {
     /// The skill it comes from, by path, if any.
     pub const fn skill(self) -> Option<&'static str> {
         match self {
-            Self::PressOil | Self::PressJuice | Self::Grind | Self::Brew => Some(ALCHEMY),
+            Self::PressOil | Self::PressJuice | Self::Alchemy => Some(ALCHEMY),
             Self::Ferment => Some(crate::ferment::FERMENTING),
             _ => None,
         }

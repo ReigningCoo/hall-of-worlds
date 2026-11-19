@@ -14,7 +14,7 @@ use shared::skill::SkillId;
 use shared::yeast::{FEED_PRACTICE, STARTER_PRACTICE, can_start, drawn, new_starter, plan_feeding};
 
 use super::Client;
-use super::grind::{give, practise};
+use super::give::{give, practise};
 use super::pour::{put_back, side};
 use crate::ServerWorld;
 use crate::ids::new_id;

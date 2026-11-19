@@ -61,8 +61,7 @@ impl Client {
             Act::CollectWater
                 | Act::PressOil
                 | Act::PressJuice
-                | Act::Grind
-                | Act::Brew
+                | Act::Alchemy
                 | Act::Ferment
                 | Act::FellTree { .. }
                 | Act::CutKindling(_)
@@ -71,6 +70,10 @@ impl Client {
             return true;
         }
         self.fight.pending = None;
+        // Alchemy's runs left go with it.
+        if matches!(pending.act, Act::Alchemy) {
+            self.alchemy = None;
+        }
         self.energy.cancel(now, self.speed, 0);
         self.link.send(&ServerMessage::AbilityLanded {
             who: None,

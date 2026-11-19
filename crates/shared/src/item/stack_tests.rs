@@ -516,8 +516,9 @@ fn old_saves_fold_stacked_coins_into_a_count() {
 #[test]
 fn counted_kinds_are_plain() {
     // A stack of them is a number, so nothing may tell one from another but
-    // a herb's herb and quality (`herb/tests.rs`), or a bottle's or an
-    // ointment's contents and quality (`potion/tests.rs`, `brewing`).
+    // a herb's herb and quality (`herb/tests.rs`), or a bottle's, an
+    // ointment's or a paste's contents and quality (`potion/tests.rs`,
+    // `brewing`, `alchemy`).
     for kind in ItemKind::ALL {
         let def = kind.def();
         if !def.counted {
@@ -525,7 +526,10 @@ fn counted_kinds_are_plain() {
         }
         assert!(
             !def.has_quality
-                || matches!(kind, ItemKind::Herb | ItemKind::Bottle | ItemKind::Ointment),
+                || matches!(
+                    kind,
+                    ItemKind::Herb | ItemKind::Bottle | ItemKind::Ointment | ItemKind::Paste
+                ),
             "{kind:?} has quality"
         );
         assert!(def.container.is_none(), "{kind:?} has a grid");
@@ -544,6 +548,7 @@ fn counted_kinds_are_plain() {
                 | ItemKind::Yeast
                 | ItemKind::Kindling
                 | ItemKind::Ointment
+                | ItemKind::Paste
         );
         assert_eq!(item.form.is_some(), form, "{kind:?} has a form");
         assert!(item.name.is_none(), "{kind:?} has its own name");

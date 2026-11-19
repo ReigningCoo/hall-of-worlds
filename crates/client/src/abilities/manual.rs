@@ -11,9 +11,7 @@ use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
 use shared::spot::Spot;
 
-use super::brew::Brewing;
 use super::ferment::Fermenting;
-use super::grind::Mixing;
 use super::item_look::{can_drink, can_eat};
 use super::own_bar::OwnBar;
 use super::press_juice::JuiceChooser;
@@ -85,8 +83,8 @@ impl Manual {
 /// A slot used: its ability queued, or taken out of the queue; a toggle
 /// (Sneak) asked for at once, as it needs no target and takes no time; one of
 /// a kind of item eaten (`inventory::EatKind`), a potion drunk
-/// (`DrinkPotion`); Press Oil's requester, Grind's mixing panel or Brew's
-/// panel opened.
+/// (`DrinkPotion`); Press Oil's, Press Juice's or Ferment's panel opened.
+/// Alchemy opens nothing yet: its panel comes with the Alchemy plan's PR 4.
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
@@ -99,7 +97,7 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
-    (mut press, mut juice, mut mixing, mut brewing, mut fermenting): Panels,
+    (mut press, mut juice, mut fermenting): Panels,
 ) {
     for &UseSlot(slot) in used.read() {
         let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
@@ -134,12 +132,9 @@ pub(super) fn use_slots(
         } else if ability == Ability::PressJuice {
             // And the fruit for Press Juice (`press_juice.rs`).
             juice.open = true;
-        } else if ability == Ability::Grind {
-            // What to grind is chosen in the mixing panel (`grind/`).
-            mixing.open = true;
-        } else if ability == Ability::Brew {
-            // What to brew is chosen in its panel (`brew.rs`).
-            brewing.open = true;
+        } else if ability == Ability::Alchemy {
+            // Asked for by its panel (Alchemy plan PR 4), never queued.
+            continue;
         } else if ability == Ability::Ferment {
             // And Ferment's in its own (`ferment/`).
             fermenting.open = true;
@@ -158,8 +153,6 @@ pub(super) fn use_slots(
 type Panels<'w> = (
     ResMut<'w, PressChooser>,
     ResMut<'w, JuiceChooser>,
-    ResMut<'w, Mixing>,
-    ResMut<'w, Brewing>,
     ResMut<'w, Fermenting>,
 );
 
@@ -245,12 +238,8 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // the closed door beside the player.
         Ability::Kick => Some(target),
         // Asked for by their panels (`press_oil.rs`, `press_juice.rs`,
-        // `grind/`, `brew.rs`, `ferment/`), never queued.
-        Ability::PressOil
-        | Ability::PressJuice
-        | Ability::Grind
-        | Ability::Brew
-        | Ability::Ferment => None,
+        // `ferment/`; Alchemy's with PR 4), never queued.
+        Ability::PressOil | Ability::PressJuice | Ability::Alchemy | Ability::Ferment => None,
         // On no one: the water or tree faced, or the log chosen
         // (`ask_wanted`).
         Ability::CollectWater | Ability::FellTree | Ability::CutKindling => Some(None),
