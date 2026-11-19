@@ -27,14 +27,17 @@ use Material::*;
 
 /// Every tree's wood, alphabetically by name. Acacia is black locust, as the
 /// casks have it; the savanna's acacias are Thorn (woodcutting plan's default).
-/// Pine stays 5, under Scots pine's 5.5 (default too).
-pub const WOODS: [Wood; 60] = [
+/// Pine stays 5, under Scots pine's 5.5 (default too); fig is 5, its 500 to
+/// 600 kg/m³ rounded as pine's (owner, 2026-11-19). Banana, papaya and
+/// saguaro are fibre, pith and ribs rather than true wood, for their kindling.
+pub const WOODS: [Wood; 63] = [
     wood(Acacia, "Acacia", 8, [190, 160, 70]),
     wood(Alder, "Alder", 5, [200, 140, 100]),
     wood(Apple, "Apple", 8, [175, 115, 85]),
     wood(Ash, "Ash", 7, [205, 175, 130]),
     wood(Aspen, "Aspen", 5, [220, 200, 165]),
     wood(Avocado, "Avocado", 5, [210, 170, 130]),
+    wood(Banana, "Banana", 3, [215, 200, 160]),
     wood(Baobab, "Baobab", 2, [220, 205, 170]),
     wood(Beech, "Beech", 7, [215, 180, 140]),
     wood(Birch, "Birch", 6, [225, 200, 165]),
@@ -49,7 +52,7 @@ pub const WOODS: [Wood; 60] = [
     wood(Durian, "Durian", 6, [150, 80, 60]),
     wood(Ebony, "Ebony", 10, [30, 25, 22]),
     wood(Elm, "Elm", 6, [170, 120, 85]),
-    wood(Fig, "Fig", 7, [225, 210, 170]),
+    wood(Fig, "Fig", 5, [225, 210, 170]),
     wood(Fir, "Fir", 4, [225, 205, 175]),
     wood(Guava, "Guava", 7, [205, 170, 140]),
     wood(Hickory, "Hickory", 8, [175, 125, 85]),
@@ -72,6 +75,7 @@ pub const WOODS: [Wood; 60] = [
     wood(Oak, "Oak", 7, [180, 140, 95]),
     wood(Olive, "Olive", 10, [200, 160, 100]),
     wood(Palm, "Palm", 6, [170, 130, 95]),
+    wood(Papaya, "Papaya", 3, [225, 210, 175]),
     wood(Pear, "Pear", 7, [200, 145, 115]),
     wood(Persimmon, "Persimmon", 8, [215, 195, 160]),
     wood(Pili, "Pili", 6, [200, 160, 120]),
@@ -79,6 +83,7 @@ pub const WOODS: [Wood; 60] = [
     wood(Pistachio, "Pistachio", 9, [170, 140, 90]),
     wood(Plum, "Plum", 8, [180, 110, 80]),
     wood(RedCedar, "Red Cedar", 4, [165, 95, 65]),
+    wood(Saguaro, "Saguaro", 4, [175, 145, 100]),
     wood(Sandalwood, "Sandalwood", 9, [210, 160, 130]),
     wood(Shea, "Shea", 7, [170, 100, 70]),
     wood(Spruce, "Spruce", 4, [232, 215, 185]),

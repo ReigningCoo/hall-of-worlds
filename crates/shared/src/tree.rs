@@ -10,7 +10,7 @@ mod stage;
 mod standing;
 mod table;
 
-pub use fruit_wood::fruit_wood;
+pub use fruit_wood::{fruit_kindling, fruit_wood};
 pub use kind::{Commonness, Group, TreeKind};
 pub use roll::Setting;
 pub use stage::{

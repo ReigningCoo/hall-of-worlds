@@ -7,15 +7,21 @@
 //! Moving, being harmed or Esc stop it (`stop_collecting`), losing only the
 //! blow under way; the damage stays a day. The blow that finishes it fells it:
 //! a stump is left, a pile of logs (`Tree::logs`, by its kind and stage) is
-//! dropped where the feller stands, and Woodcutting is practised.
+//! dropped where the feller stands (kindling for a banana, papaya or saguaro,
+//! and a ripe fruit tree's fruit too), and Woodcutting is practised.
 
 use bevy::prelude::*;
 use shared::ability::Ability;
 use shared::energy::ACTION_TICKS_PER_SECOND;
+use shared::fruit::{Fruits, harvest, new_item};
+use shared::item::Item;
 use shared::protocol::{Landed, ServerMessage};
+use shared::rng::Seed;
 use shared::skill::SkillId;
 use shared::tree::TreeStage;
-use shared::woodcutting::{FELL_PRACTICE, WOODCUTTING_SKILL, fell_ticks, new_log, tree_faced};
+use shared::woodcutting::{
+    FELL_PRACTICE, WOODCUTTING_SKILL, fell_ticks, new_kindling, new_log, tree_faced,
+};
 
 use super::Client;
 use crate::ServerWorld;
@@ -146,14 +152,26 @@ fn fell(client: &mut Client, world: &mut ServerWorld, at: (i64, i64)) -> bool {
     }
     let wood = tree.as_ref().and_then(|tree| tree.wood());
     let logs = tree.as_ref().map_or(0, |tree| tree.logs(stage));
-    info!("A tree was felled at {key:?}: {tree:?}, {stage:?}, {logs} logs of {wood:?}",);
+    let kindling = tree.as_ref().map_or(0, |tree| tree.kindling(stage));
+    info!(
+        "A tree was felled at {key:?}: {tree:?}, {stage:?}, {logs} logs or {kindling} kindling of {wood:?}"
+    );
+    let fruit = ripe_fruit(client, world, at, now);
     if let Some(wood) = wood {
         for _ in 0..logs {
             let log = new_log(wood, new_id(), Some(world.made_now()));
             crate::ground::put_down(client, world, log);
         }
-        client.ground_told.again = true;
+        if kindling > 0 {
+            let made = Some(world.made_now());
+            let pieces = new_kindling(wood, u32::from(kindling), new_id(), made);
+            crate::ground::put_down(client, world, pieces);
+        }
     }
+    if let Some(fruit) = fruit {
+        crate::ground::put_down(client, world, fruit);
+    }
+    client.ground_told.again = true;
     if let Some(skill) = SkillId::find(WOODCUTTING_SKILL) {
         let amount = client.learning.skills.take(skill, FELL_PRACTICE, tick);
         client.sheet.skills.practise(skill, amount);
@@ -166,4 +184,18 @@ fn fell(client: &mut Client, world: &mut ServerWorld, at: (i64, i64)) -> bool {
             target: None,
             landed: Landed::Chopped { done: 1000 },
         })
+}
+
+/// A ripe fruit tree's fruit at `at`, falling with it: harvested as if
+/// Foraging and Orchards were 0 (owner, 2026-11-19). `None` for a wild tree
+/// or one not ripe.
+fn ripe_fruit(client: &Client, world: &ServerWorld, at: (i64, i64), now: u64) -> Option<Item> {
+    let plant = client.visit.as_ref()?.fruit_at(at.0, at.1)?;
+    let def = Fruits::built_in().get(&plant.fruit)?;
+    if !plant.can_pick(def, now) {
+        return None;
+    }
+    let mut rng = Seed::new(new_id().seed().value()).rng();
+    let count = harvest(def, (0, 0), &mut rng);
+    Some(new_item(def, count, new_id(), Some(world.made_now())))
 }

@@ -175,9 +175,10 @@ There are five wood `Material`s now. To cover everything without a material per 
 2. **Pine's weight:** the game has Pine at 5 (500 kg/m³). Scots pine at 12% is 550, so about 6. The casks' weights would change slightly if it moved. Leaving it at 5 is within the usual ±10%.
 3. **No figure found** for lychee, kola, quince, medlar, stone pine and quandong, and only a genus figure for jujube, kakadu plum, rambutan, mangosteen and pili. The tables use those genus figures or estimates (E, G). Good enough for log weights.
 4. **Umbrella thorn's density** was not found. 900 is an estimate between related *Vachellia*.
-5. **Fig wood:** the only figure (730) is from a study that calls its trees unusually dense. Fig is usually called light and soft, so 500 to 600 may suit a game better.
+5. **Fig wood:** the only figure (730) is from a study that calls its trees unusually dense. Fig is usually called light and soft, so 500 to 600 may suit a game better. **Owner's decision (2026-11-19):** 500 to 600; the game has 5, about 550 rounded as Scots pine's.
 6. **Palms** have no rings. A palm log's end is fibre dots on a pale ground, dense at the rim. Coconut wood is dense outside (820) and soft inside, and date palm is light (about 390). One "Palm" material at about 6 would do.
-7. **Banana, papaya and saguaro** have no true wood (above): decide whether felling gives nothing, fibre or ribs.
+7. **Banana, papaya and saguaro** have no true wood (above). **Owner's decision (2026-11-19):** they can be felled, but give Kindling directly instead of logs, 5 to 15 pieces (plant material burns).
+9. **Owner's decision (2026-11-19): felling a ripe fruit tree** also drops its fruit, harvested as if at 0 gathering skill (the harvest tier's lowest, no Orchards or Foraging bonus). Picking the fruit first is better than taking an axe to the tree.
 8. **Heartwood colours are estimates** from descriptions. If they look wrong in the log pictures, sampling the colour of the open-licensed end-grain photos on Commons would be the next step.
 
 ## Bark pictures
