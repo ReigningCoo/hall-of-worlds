@@ -74,9 +74,20 @@ pub fn fruit_plant_size(def: &FruitDef) -> (f32, f32) {
 /// Builds variant `variant` of `def`'s plant at `stage`, standing on the
 /// origin.
 fn build(def: &FruitDef, stage: FruitStage, variant: u8) -> Pieces {
+    build_sized(def, stage, variant, None)
+}
+
+/// `build`, `size` as big as grown if given (a felled tree growing back,
+/// `plants::tree`), else as big as `stage` is.
+pub(super) fn build_sized(
+    def: &FruitDef,
+    stage: FruitStage,
+    variant: u8,
+    size: Option<f32>,
+) -> Pieces {
     let seed = LOOKS.derive(&def.key);
-    let mut rng = Seed::new(seed.at(&[i64::from(variant)])).rng();
-    let look = Look::new(def, stage, &mut rng);
+    let mut rng = Seed::new(seed.at(&[i64::from(variant % VARIANTS)])).rng();
+    let look = Look::new(def, stage, size, &mut rng);
     let mut dress = Dress {
         look: &look,
         rng: Seed::new(seed.derive("dress").at(&[i64::from(variant)])).rng(),

@@ -37,6 +37,8 @@ mod sight_lines;
 mod stairs;
 mod theme;
 mod town;
+mod tree_picking;
+mod trees;
 mod vegetable_plants;
 mod vegetable_showcase;
 mod vegetables;
@@ -124,6 +126,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<DrawnPatches>()
             .init_resource::<HerbHeading>()
             .init_resource::<fruit::DrawnFruit>()
+            .init_resource::<trees::DrawnTrees>()
             .init_resource::<vegetable_plants::DrawnVegetables>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
@@ -167,6 +170,7 @@ impl Plugin for DungeonMapPlugin {
                     (
                         update_herbs,
                         fruit::update_fruit,
+                        trees::update_trees,
                         vegetable_plants::update_vegetables,
                         aim_at_herbs,
                         pick_on_arrival,

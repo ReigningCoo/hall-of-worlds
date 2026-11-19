@@ -197,6 +197,25 @@ pub(super) fn spawn_scene(
             MaskSide::InSight,
         )),
     });
+    // Trees remembered: grey (their own colours), outlined, out of sight.
+    commands.insert_resource(super::trees::TreeMaterials {
+        memory: surface_materials.add(masked(
+            StandardMaterial {
+                unlit: true,
+                ..default()
+            },
+            MaskSide::OutOfSight,
+        )),
+        outline: surface_materials.add(masked(
+            StandardMaterial {
+                base_color: Color::BLACK,
+                unlit: true,
+                cull_mode: Some(Face::Front),
+                ..default()
+            },
+            MaskSide::OutOfSight,
+        )),
+    });
     super::rain::spawn(&mut commands, scene, &mut meshes, &mut rain_materials);
     commands.insert_resource(SurfaceMaterials {
         solid,

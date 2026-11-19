@@ -56,15 +56,16 @@ pub(super) struct Look {
 }
 
 impl Look {
-    /// `def`'s plant at `stage`, varied by `rng`.
-    pub(super) fn new(def: &FruitDef, stage: FruitStage, rng: &mut Rng) -> Self {
+    /// `def`'s plant at `stage`, `size` as big as grown if given (else as big
+    /// as `stage` is), varied by `rng`.
+    pub(super) fn new(def: &FruitDef, stage: FruitStage, size: Option<f32>, rng: &mut Rng) -> Self {
         let plant = &def.plant_look;
         let (height, width) = drawn_metres(def);
-        let grown = if stage == FruitStage::Young {
+        let grown = size.unwrap_or(if stage == FruitStage::Young {
             YOUNG
         } else {
             1.0
-        };
+        });
         let height = height * METRE * grown * between(rng, 0.88, 1.12);
         let radius = width / 2.0 * METRE * grown * between(rng, 0.9, 1.1);
         let show = match stage {

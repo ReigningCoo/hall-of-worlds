@@ -7,7 +7,7 @@ use crate::door::Swing;
 use crate::fruit::FruitPlant;
 use crate::furniture::Piece;
 use crate::herb::HerbPatch;
-use crate::tree::TreeStage;
+use crate::tree::{TreeKind, TreeStage};
 use crate::vegetable::VegetablePlant;
 
 /// Which room of a level a cell belongs to, as planned by its generator
@@ -49,6 +49,9 @@ pub struct Level {
     pub(super) vegetables: BTreeMap<(i64, i64), VegetablePlant>,
     /// Trees felled and growing back, by cell (see `felled.rs`).
     pub(super) felled: BTreeMap<(i64, i64), TreeStage>,
+    /// Wild trees' kinds by cell, where the server has said (see
+    /// `tree_kinds.rs`).
+    pub(super) tree_kinds: BTreeMap<(i64, i64), TreeKind>,
     /// Whether its walls are natural, wider at the foot (`PoiKind::natural_walls`).
     natural_walls: bool,
 }
@@ -72,6 +75,7 @@ impl Level {
             fruit: BTreeMap::new(),
             vegetables: BTreeMap::new(),
             felled: BTreeMap::new(),
+            tree_kinds: BTreeMap::new(),
             natural_walls: false,
         }
     }

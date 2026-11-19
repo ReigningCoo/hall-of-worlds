@@ -25,6 +25,10 @@ pub(crate) fn tree_here(world: &mut ServerWorld, visit: &Visit, x: i64, y: i64) 
     if level.cell(x, y) != Cell::Tree {
         return None;
     }
+    // Kept on the level where it was made, as the client is told.
+    if let Some(kind) = level.tree_kind_at(x, y) {
+        return Some(Tree::Wild(kind));
+    }
     let (site, _, (kx, ky)) = visit.plant_key(x, y);
     let kind = match site {
         SiteId::Wilderness => {

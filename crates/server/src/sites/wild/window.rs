@@ -105,6 +105,7 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
             if let Some(plant) = made.vegetable_at(wrapped, cy) {
                 level.set_vegetable(cx, cy, plant.clone());
             }
+            level.set_tree_kind(cx, cy, made.tree_kind_at(wrapped, cy));
         }
     }
     let mut window = Window {
@@ -278,7 +279,7 @@ fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &
         let x = stairs.x + turn;
         window.level.stairs.push(Stairs { x, ..*stairs });
     }
-    super::window_looks::add_looks(window, wild_chunk, turn);
+    super::window_looks::add_looks(window, &world.wilderness.wild, wild_chunk, turn);
     let Some((ox, oy)) = cutout.offset() else {
         return;
     };

@@ -126,6 +126,9 @@ impl CurrentDungeon {
                     if let Some(swing) = self.level.swing(x, y) {
                         level.set_swing(x, y, swing);
                     }
+                    // Trees' kinds and how felled ones have grown, alike.
+                    level.set_tree_kind(x, y, self.level.tree_kind_at(x, y));
+                    level.set_felled(x, y, self.level.felled_at(x, y));
                     known.insert(x, y);
                 }
                 if self.remembered.is_seen(x, y) {
