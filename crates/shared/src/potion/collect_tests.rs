@@ -38,6 +38,14 @@ fn the_place_decides_the_water() {
 }
 
 #[test]
+fn rain_is_caught_outside_in_steady_warm_rain() {
+    assert!(catches_rain(true, RAIN_AT, 0.5));
+    assert!(!catches_rain(false, 1.0, 0.5), "under a roof");
+    assert!(!catches_rain(true, RAIN_AT - 0.01, 0.5), "a drizzle");
+    assert!(!catches_rain(true, 1.0, 0.1), "snow");
+}
+
+#[test]
 fn water_is_filled_from_only_when_faced_and_near() {
     let level = shore(5);
     let bank = Spot::middle_of((4, 5));

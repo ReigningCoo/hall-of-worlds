@@ -40,7 +40,7 @@ Oak is the commonest. The wood matters for drinks ageing in the cask: see [Drink
 
 ## Filling a cask
 
-**Collect Water** (see [Brewing](brewing)) fills your empty bottles first. Once none are left, it pours into a cask you carry, about 1 to 2 litres a second as your **Water** skill grows, until the cask is full or you move or are hurt. A cask takes only one liquid: water from the sea won't go into a cask of moon water.
+**Collect Water** (see [Alchemy](alchemy)) fills your empty bottles first. Once none are left, it pours into a cask you carry, about 1 to 2 litres a second as your **Water** skill grows, until the cask is full or you move or are hurt. A cask takes only one liquid: water from the sea won't go into a cask of moon water.
 
 A cask's popup says how much it holds, and whether it is still sealed. A cask on the ground shows from afar, standing where it was left.
 

@@ -39,8 +39,7 @@ pub use order::{
     grind_ticks,
 };
 pub use quality::{
-    COMMON_SECONDS, ON_SKIN_SHARE, SECONDS_PER_QUALITY, duration_seconds, duration_ticks, on_skin,
-    quality,
+    ON_SKIN_SHARE, POOR_SECONDS, duration_seconds, duration_ticks, on_skin, quality,
 };
 pub use recipe::{BrewedWith, MOST_RECIPES, Recipe, Recipes};
 pub use skill::{

@@ -17,8 +17,8 @@ mod press;
 mod roll;
 
 pub use collect::{
-    COLLECT_PRACTICE, COLLECT_REACH, FACING_HALF, Source, WATER_SKILL, fill_seconds, fill_ticks,
-    filled, holds_water, water_faced, water_from,
+    COLLECT_PRACTICE, COLLECT_REACH, FACING_HALF, RAIN_AT, Source, WATER_SKILL, catches_rain,
+    fill_seconds, fill_ticks, filled, holds_water, water_faced, water_from,
 };
 pub use contents::{Contents, Dose};
 pub use form::{BottleForm, EMPTY_GRAMS, POTION_GRAMS};

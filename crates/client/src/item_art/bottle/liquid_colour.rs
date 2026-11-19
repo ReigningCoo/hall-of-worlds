@@ -35,13 +35,18 @@ fn water_colour(water: Water) -> Color {
         Water::Moon => Color::srgb(0.82, 0.84, 0.98),
         // Sea green, a little cloudy.
         Water::Salt => Color::srgb(0.6, 0.82, 0.78),
+        // Clear, a touch cooler than plain water.
+        Water::Rain => Color::srgb(0.78, 0.88, 0.98),
     }
 }
 
 /// An oil's colour: golden to amber.
 fn oil_colour(oil: Oil) -> Color {
     match oil {
-        Oil::Vegetable => Color::srgb(0.95, 0.78, 0.2),
+        // Pale straw, as a refined neutral oil.
+        Oil::Neutral => Color::srgb(0.96, 0.9, 0.6),
+        // Golden, as wheat germ oil.
+        Oil::Grain => Color::srgb(0.95, 0.78, 0.2),
         Oil::Nut => Color::srgb(0.78, 0.5, 0.16),
         // Greenish gold, like hemp or pumpkin seed oil.
         Oil::Seed => Color::srgb(0.66, 0.7, 0.18),

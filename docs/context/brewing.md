@@ -1,5 +1,7 @@
 # Potion brewing: plan
 
+**Superseded in part by the Alchemy plan (`alchemy.md`, 2026-11-19):** Grind, Brew and the Cauldron leave alchemy for one Alchemy ability and panel of apparatus; Vegetable Oil became Neutral Oil (no effect) and Grain Oil (Body); Rain Water was added; durations are by quality alone (Poor 30 s doubling to Legendary 16 min). The decisions below on herbs' values, waters, oils and purity still hold except where that plan changes them. The players' page is now `docs/alchemy.md`.
+
 Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles holding potions (`shared::potion`), the Alchemy and Herbalism skills and the Herbalist and Potion Shop buildings already exist. This adds base liquids, tools, the steps from herbs to a potion, the rules that decide what comes out, and drinking. Herb research: `research-herbs.md`.
 
 ## The steps
@@ -19,8 +21,9 @@ Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles hold
    - **Salt Water** from the sea. Removes the strongest helpful dose.
    - **Moon Water** outside with no sun in the sky and at least one moon. Strengthens helpful doses (+25%, at least +1), leaves harmful ones alone.
    - **Water** anywhere else. Changes nothing.
-   - Later: **Meltwater** (when there is snow or ice to fill from) removes the strongest harmful dose. Rain water only if something like puddles after rain is added.
-3. **Oils:** Vegetable Oil, Nut Oil, Seed Oil (seeds from herbs whose part is Seeds, and from vegetables), kept generic. Each suits one row of the attributes: Vegetable Body, Nut Mind, Seed Spirit (Health counts as Body, Mana as Mind). Doses in its row are boosted (+25%, at least +1: first guess). More oils later, as fruit and vegetables bring more.
+   - **Rain Water** (Alchemy plan): caught outside in rain, facing no water. Removes the strongest harmful dose.
+   - Later: **Meltwater** (when there is snow or ice to fill from).
+3. **Oils** (Vegetable Oil since split by the Alchemy plan into Neutral Oil, no effect, and Grain Oil, Body): Vegetable Oil, Nut Oil, Seed Oil (seeds from herbs whose part is Seeds, and from vegetables), kept generic. Each suits one row of the attributes: Vegetable Body, Nut Mind, Seed Spirit (Health counts as Body, Mana as Mind). Doses in its row are boosted (+25%, at least +1: first guess). More oils later, as fruit and vegetables bring more.
 
 ### Skills and abilities
 4. **Press Oil, Grind and Brew** come from Alchemy, and are unusable (greyed, like any ability that can't be used now) without the tool carried. Everyone has them for now; Alchemy is to be learned later (TODO `todo-learn-alchemy`).
@@ -43,7 +46,7 @@ Owner's request and decisions (2026-11-17). Herbs (`shared::herb`), bottles hold
 
 ### Drinking
 17. **Health and Mana** are restored at once, 5 per step.
-18. **Attributes** last 2 minutes, plus 30 s per quality above Common, less 30 s for Poor: Poor 90 s, Common 2 min, up to Legendary 4 min.
+18. (Replaced by the Alchemy plan: Poor 30 s, doubling each quality to Legendary 16 min.) **Attributes** last 2 minutes, plus 30 s per quality above Common, less 30 s for Poor: Poor 90 s, Common 2 min, up to Legendary 4 min.
 19. **One effect per stat:** a new potion's dose on a stat replaces the old one on that stat; the old potion's other stats carry on.
 20. **Cooldown:** 30 s on drinking the same combination of stats and signs (whatever the strength). Different combinations can be chained, at a cost in ingredients.
 21. The empty bottle goes back into the inventory, or onto the ground if there is no room.

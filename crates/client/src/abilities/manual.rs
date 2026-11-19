@@ -7,7 +7,6 @@ use std::collections::VecDeque;
 use bevy::prelude::*;
 use shared::ability::{Ability, BarThing};
 use shared::id::Id;
-use shared::potion::water_faced;
 use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
 use shared::spot::Spot;
@@ -19,6 +18,7 @@ use super::item_look::{can_drink, can_eat};
 use super::own_bar::OwnBar;
 use super::press_juice::JuiceChooser;
 use super::press_oil::PressChooser;
+use super::rain_here::WaterHere;
 use super::use_ability::{ASK_WAIT, UseSlot, ask};
 use super::vitals_now::affords;
 use super::woodcutting::{log_aim, tree_to_fell};
@@ -181,7 +181,7 @@ pub(super) fn ask_wanted(
     mut manual: ResMut<Manual>,
     mut own: ResMut<OwnAbility>,
     (mut to_server, mut face): (MessageWriter<ToServer>, MessageWriter<FaceTowards>),
-    (dungeon, player): (Res<CurrentDungeon>, PlayerFacing),
+    (dungeon, player, water): (Res<CurrentDungeon>, PlayerFacing, WaterHere),
 ) {
     let now = time.elapsed_secs_f64();
     if manual.queued.is_empty() {
@@ -196,9 +196,10 @@ pub(super) fn ask_wanted(
         let fits = ability.can_use(&carried.0, &sheet.0) && affords(ability, &vitals, now);
         let mut turn = None;
         let aimed = match ability {
-            // Collect Water is only done facing water, as the server checks.
+            // Collect Water is only done facing water or in the rain, as the
+            // server checks.
             Ability::CollectWater => standing
-                .filter(|&(at, heading)| water_faced(&dungeon.level, at, heading).is_some())
+                .filter(|&(at, heading)| water.can_collect(at, heading))
                 .map(|_| None),
             // A tree faced, or one in reach turned to.
             Ability::FellTree => standing

@@ -10,8 +10,8 @@ pub const KEPT_FROM: i16 = 2;
 
 /// What a water does to an ointment's doses (decision 2): Cave Water a quarter
 /// more on harmful doses, Moon Water on helpful ones (`boosted`), Salt Water
-/// takes away the strongest helpful dose (the first in `Stat`'s order on a
-/// tie), plain Water nothing.
+/// takes away the strongest helpful dose and Rain Water the strongest harmful
+/// one (the first in `Stat`'s order on a tie), plain Water nothing.
 pub fn watered(ointment: &Contents, water: Water) -> Contents {
     let doses = ointment.doses().iter().copied();
     let strengthen = |helpful: bool| {
@@ -27,14 +27,23 @@ pub fn watered(ointment: &Contents, water: Water) -> Contents {
         Water::Plain => ointment.clone(),
         Water::Cave => strengthen(false),
         Water::Moon => strengthen(true),
-        Water::Salt => {
-            let strongest = doses
-                .clone()
-                .filter(|dose| dose.step > 0)
-                .reduce(|best, dose| if dose.step > best.step { dose } else { best });
-            Contents::new(doses.filter(|dose| Some(*dose) != strongest))
-        }
+        Water::Salt => without_strongest(ointment, true),
+        Water::Rain => without_strongest(ointment, false),
     }
+}
+
+/// The doses without the strongest helpful (or harmful) one, the first in
+/// `Stat`'s order on a tie.
+fn without_strongest(ointment: &Contents, helpful: bool) -> Contents {
+    let doses = ointment.doses().iter().copied();
+    let strongest = doses
+        .clone()
+        .filter(|dose| dose.step != 0 && (dose.step > 0) == helpful)
+        .reduce(|best, dose| match dose.step.abs() > best.step.abs() {
+            true => dose,
+            false => best,
+        });
+    Contents::new(doses.filter(|dose| Some(*dose) != strongest))
 }
 
 /// The potion an ointment and a water make (decision 14), or `None` when no

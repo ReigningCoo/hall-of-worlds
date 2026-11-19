@@ -83,7 +83,7 @@ pub fn grind(
     }
     let cap = stat_cap(skills);
     for (stat, step) in &mut totals {
-        if stat_row(*stat) == oil_suits(oil) {
+        if Some(stat_row(*stat)) == oil_suits(oil) {
             *step = boosted(*step);
         }
         *step = (*step).clamp(-cap, cap);

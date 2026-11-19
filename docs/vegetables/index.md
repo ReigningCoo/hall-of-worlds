@@ -23,7 +23,7 @@ How many you get depends on the plant, and your **Foraging** and **Crops** skill
 
 Drag one onto your clothes, as you would other food, to eat it. Eaten raw, a vegetable gives back only a little Health, and only if people eat it raw: one that is seldom eaten raw, such as a potato, gives back none. A sheaf of grain gives back nothing as it is. Health comes back a little at a time, until you move or are hurt. A few also raise or lower an attribute for a while, or are harmful raw. The item's popup says what it does, and the effect shows in the bar at the top.
 
-Vegetables and grain can also be pressed into Vegetable Oil, and dry beans, peas and other seeds into Seed Oil, for [brewing](brewing).
+Vegetables can also be pressed into Neutral Oil, grain into Grain Oil, and dry beans, peas and other seeds into Seed Oil, for [alchemy](alchemy).
 
 ## Big vegetables
 
