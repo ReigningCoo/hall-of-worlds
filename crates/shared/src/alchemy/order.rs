@@ -11,12 +11,12 @@ use crate::brewing::GroundHerb;
 use crate::herb::Herbs;
 use crate::id::Id;
 use crate::item::{Inventory, Item};
-use crate::potion::Liquid;
+use crate::potion::{Contents, Liquid};
 
 /// The most times one order may be run without the player stepping in.
 pub const MOST_REPEATS: u32 = 99;
 
-/// A process asked for: perhaps a carried Paste or Ointment to start from,
+/// A process asked for: perhaps a carried Paste, Ointment or Powder to start from,
 /// the steps with the stacks put into each, and how many times to run it.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct AlchemyOrder {
@@ -28,8 +28,8 @@ pub struct AlchemyOrder {
 
 /// One step as asked for: an apparatus and the carried stacks in its drop
 /// spaces. One of each herb stack, the solvent's bottle, each liquid's bottle
-/// (a stack listed twice gives two) and the Alembic's alcohol are used up by
-/// each run.
+/// (a stack listed twice gives two), the Alembic's alcohol and the Filter's
+/// Powder are used up by each run.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum OrderStep {
     /// Herb stacks, one of each kind, and a bottle of oil (an Ointment) or
@@ -47,7 +47,10 @@ pub enum OrderStep {
         alcohol: Option<Id>,
     },
     Crucible,
-    Filter,
+    /// A carried Powder filtered through, or nothing (refused by the rules).
+    Filter {
+        powder: Option<Id>,
+    },
     Pelican,
 }
 
@@ -59,7 +62,7 @@ impl OrderStep {
             Self::Retort { .. } => Apparatus::Retort,
             Self::Alembic { .. } => Apparatus::Alembic,
             Self::Crucible => Apparatus::Crucible,
-            Self::Filter => Apparatus::Filter,
+            Self::Filter { .. } => Apparatus::Filter,
             Self::Pelican => Apparatus::Pelican,
         }
     }
@@ -72,8 +75,10 @@ pub enum OrderRefused {
     Count,
     /// This apparatus isn't carried.
     Apparatus(Apparatus),
-    /// The source isn't a carried Paste or Ointment.
+    /// The source isn't a carried Paste, Ointment or Powder.
     Source,
+    /// The Filter's Powder isn't a carried Powder.
+    Powder,
     /// A herb stack isn't a carried herb.
     Herb,
     /// A herb the server's table doesn't have.
@@ -174,7 +179,16 @@ impl Inventory {
                     Step::Alembic { fed }
                 }
                 OrderStep::Crucible => Step::Crucible,
-                OrderStep::Filter => Step::Filter,
+                OrderStep::Filter { powder } => {
+                    let powder = match powder {
+                        Some(id) => {
+                            *uses.entry(*id).or_insert(0) += 1;
+                            Some(self.alchemy_powder(*id).ok_or(OrderRefused::Powder)?)
+                        }
+                        None => None,
+                    };
+                    Step::Filter { powder }
+                }
                 OrderStep::Pelican => Step::Pelican,
             });
         }
@@ -191,7 +205,7 @@ impl Inventory {
         })
     }
 
-    /// The carried Paste or Ointment stack `id`, as a source.
+    /// The carried Paste, Ointment or Powder stack `id`, as a source.
     fn alchemy_source(&self, id: Id, uses: &mut BTreeMap<Id, u32>) -> Result<Stored, OrderRefused> {
         let stack = self.alchemy_stack(id).ok_or(OrderRefused::Source)?;
         let (form, contents) = stack.top().mixture().ok_or(OrderRefused::Source)?;
@@ -200,6 +214,11 @@ impl Inventory {
             form,
             contents: contents.clone(),
         })
+    }
+
+    /// The doses in the carried Powder stack `id`, if it is one.
+    fn alchemy_powder(&self, id: Id) -> Option<Contents> {
+        Some(self.alchemy_stack(id)?.top().powder()?.contents.clone())
     }
 
     /// The liquid in the carried bottle stack `id`, if it holds one.

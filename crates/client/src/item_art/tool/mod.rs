@@ -1,6 +1,6 @@
 //! Brewing's and Alchemy's tools (`shared::ability::Ability::tool`,
 //! `shared::alchemy::Apparatus::item`): the cauldron, the mortar and pestle,
-//! the retort, the alembic and the oil press; and the tap casks are drawn from (`tap.rs`). Each is built standing upright (y up) and then
+//! the retort, the alembic, the crucible, the filter and the oil press; and the tap casks are drawn from (`tap.rs`). Each is built standing upright (y up) and then
 //! tipped towards the camera, so its picture shows it from the front and a
 //! little above rather than from the top.
 
@@ -11,6 +11,8 @@ use super::Part;
 
 mod alembic;
 mod cauldron;
+mod crucible;
+mod filter;
 mod mortar;
 mod oil_press;
 mod retort;
@@ -31,6 +33,8 @@ pub(super) fn tool_parts(
         ItemKind::MortarAndPestle => mortar::mortar_parts(meshes, materials),
         ItemKind::Retort => retort::retort_parts(meshes, materials),
         ItemKind::Alembic => alembic::alembic_parts(meshes, materials),
+        ItemKind::Crucible => crucible::crucible_parts(meshes, materials),
+        ItemKind::Filter => filter::filter_parts(meshes, materials),
         ItemKind::Tap => tap::tap_parts(meshes, materials),
         _ => oil_press::oil_press_parts(meshes, materials),
     };

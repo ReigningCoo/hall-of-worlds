@@ -119,6 +119,13 @@ pub enum ItemKind {
     Retort,
     /// The Alembic apparatus (`shared::alchemy`): liquids distilled.
     Alembic,
+    /// The Crucible apparatus (`shared::alchemy`): anything calcined into a
+    /// Powder.
+    Crucible,
+    /// The Filter apparatus (`shared::alchemy`): filtered through a Powder.
+    Filter,
+    /// A Crucible's Powder (`shared::alchemy`), counted like a Paste.
+    Powder,
     /// What distilling Salt Water leaves (`shared::alchemy`), counted.
     Salt,
     Pouch,

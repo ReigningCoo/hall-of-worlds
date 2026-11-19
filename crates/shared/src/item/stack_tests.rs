@@ -528,7 +528,11 @@ fn counted_kinds_are_plain() {
             !def.has_quality
                 || matches!(
                     kind,
-                    ItemKind::Herb | ItemKind::Bottle | ItemKind::Ointment | ItemKind::Paste
+                    ItemKind::Herb
+                        | ItemKind::Bottle
+                        | ItemKind::Ointment
+                        | ItemKind::Paste
+                        | ItemKind::Powder
                 ),
             "{kind:?} has quality"
         );
@@ -549,6 +553,7 @@ fn counted_kinds_are_plain() {
                 | ItemKind::Kindling
                 | ItemKind::Ointment
                 | ItemKind::Paste
+                | ItemKind::Powder
         );
         assert_eq!(item.form.is_some(), form, "{kind:?} has a form");
         assert!(item.name.is_none(), "{kind:?} has its own name");

@@ -10,11 +10,11 @@ use crate::site::BuildingKind;
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         Alembic, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies,
-        BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Flour, Fruit, Gauntlets, Gloves, Hat,
-        Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth,
-        MortarAndPestle, Necklace, Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat,
-        Pouch, Retort, Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat,
-        Sword, Tabard, Tap, Trousers, Vegetable, Vessel, Wimple, Yeast,
+        BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Crucible, Filter, Flour, Fruit, Gauntlets,
+        Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif,
+        Loincloth, MortarAndPestle, Necklace, Neckwear, OilPress, PaddedChausses, PaddedGloves,
+        Petticoat, Pouch, Retort, Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks,
+        Surcoat, Sword, Tabard, Tap, Trousers, Vegetable, Vessel, Wimple, Yeast,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -23,6 +23,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Lantern, 1),
             (Keyring, 1),
             (Cauldron, 1),
+            (Crucible, 1),
         ],
         // Their bottles hold waters and oils (`bottled`); fruit and
         // vegetables are what is grown near the town (`shared::produce`).
@@ -36,6 +37,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (MortarAndPestle, 1),
             (Retort, 1),
             (Alembic, 1),
+            (Filter, 1),
             (Vessel, 1),
             (Yeast, 1),
         ],
@@ -98,6 +100,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (MortarAndPestle, 1),
             (Retort, 1),
             (Alembic, 1),
+            (Filter, 1),
         ],
         BuildingKind::ScrollShop => &[(Lantern, 1), (SmallBox, 1)],
         BuildingKind::Jeweller => &[(Ring, 2), (Necklace, 1), (Vessel, 1)],

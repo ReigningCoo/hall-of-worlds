@@ -11,8 +11,8 @@ pub const RETORT_UNITS: usize = 5;
 /// What the process makes from, in order.
 #[derive(Clone, Debug, Default)]
 pub struct Process<'a> {
-    /// A stored Paste or Ointment (or, later, Powder) the first step works
-    /// on, instead of starting with a Mortar.
+    /// A stored Paste, Ointment or Powder the first step works on, instead of
+    /// starting with a Mortar.
     pub source: Option<Stored>,
     pub steps: Vec<Step<'a>>,
 }
@@ -36,8 +36,14 @@ pub enum Step<'a> {
     Alembic {
         fed: Option<Liquid>,
     },
+    /// Calcines what came before into a Powder (`crucible`), at
+    /// `POWDER_PERCENT` of its strength, its liquid driven off.
     Crucible,
-    Filter,
+    /// Filters what came before through a Powder's doses (`filter`): a stat
+    /// in both adds together, one in only one is taken out.
+    Filter {
+        powder: Option<Contents>,
+    },
     Pelican,
 }
 
@@ -49,7 +55,7 @@ impl Step<'_> {
             Self::Retort { .. } => Apparatus::Retort,
             Self::Alembic { .. } => Apparatus::Alembic,
             Self::Crucible => Apparatus::Crucible,
-            Self::Filter => Apparatus::Filter,
+            Self::Filter { .. } => Apparatus::Filter,
             Self::Pelican => Apparatus::Pelican,
         }
     }
@@ -79,7 +85,7 @@ pub struct Stored {
 pub enum Form {
     Paste,
     Ointment,
-    /// From the Crucible (PR 6); never counts as old.
+    /// From the Crucible; never counts as old.
     Powder,
     /// Herbs ground in pure alcohol: a liquid, so a potion when last, never
     /// a stored source.
@@ -115,6 +121,12 @@ pub enum Refused {
     NothingToDistil,
     /// What an Alembic is fed holds no alcohol.
     NotAlcohol,
+    /// A Crucible with nothing before it to calcine.
+    NothingToCalcine,
+    /// A Filter with nothing before it to filter.
+    NothingToFilter,
+    /// A Filter with no Powder in it.
+    NoPowder,
     /// An apparatus or input whose rules come with a later PR.
     NotBuilt(Apparatus),
 }

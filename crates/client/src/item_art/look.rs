@@ -110,7 +110,7 @@ pub enum Look {
     /// The Herb Pouch: green linen with a leaf on it (`herb_pouch.rs`).
     HerbPouch,
     /// One of brewing's and Alchemy's tools (a cauldron, a mortar and pestle,
-    /// a retort, an alembic or an oil press) or a tap, by its kind (`tool/`).
+    /// a retort, an alembic, a crucible, a filter or an oil press) or a tap, by its kind (`tool/`).
     Tool(shared::item::ItemKind),
     /// A sack of flour, by its flour's colour (`flour.rs`).
     Flour(super::FlourLook),
@@ -147,6 +147,8 @@ pub enum Look {
     Ointment(Option<super::LiquidLook>),
     /// A paste: a heap in a clay dish coloured by its doses alone (`paste.rs`).
     Paste(Option<super::LiquidLook>),
+    /// A powder, coloured by its doses (`powder.rs`).
+    Powder(Option<super::LiquidLook>),
     /// A copper, silver or gold coin, by its metal: one picture whatever the
     /// count (`coin/`).
     Coin(Material),
@@ -195,6 +197,7 @@ impl Look {
             | Self::Bottle { .. }
             | Self::Ointment(_)
             | Self::Paste(_)
+            | Self::Powder(_)
             | Self::Flour(_)
             | Self::Yeast
             | Self::Salt

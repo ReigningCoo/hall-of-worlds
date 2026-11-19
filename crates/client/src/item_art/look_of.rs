@@ -23,6 +23,8 @@ pub fn look_of(item: &Item) -> Option<Look> {
         | ItemKind::MortarAndPestle
         | ItemKind::Retort
         | ItemKind::Alembic
+        | ItemKind::Crucible
+        | ItemKind::Filter
         | ItemKind::OilPress
         | ItemKind::Tap) => {
             return Some(Look::Tool(kind));
@@ -61,6 +63,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
     }
     if let Some(paste) = item.paste() {
         return Some(Look::Paste(super::LiquidLook::of(&paste.contents)));
+    }
+    if let Some(powder) = item.powder() {
+        return Some(Look::Powder(super::LiquidLook::of(&powder.contents)));
     }
     if let Some(fruit) = item.fruit() {
         return Some(Look::Fruit(super::FruitItemLook::of(fruit)));

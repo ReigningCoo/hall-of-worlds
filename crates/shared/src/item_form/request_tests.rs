@@ -66,7 +66,8 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         | ItemForm::Kindling(_)
         | ItemForm::Vessel(_)
         | ItemForm::Ointment(_)
-        | ItemForm::Paste(_) => {
+        | ItemForm::Paste(_)
+        | ItemForm::Powder(_) => {
             return None;
         }
     })

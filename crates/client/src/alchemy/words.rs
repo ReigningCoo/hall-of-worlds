@@ -126,7 +126,8 @@ pub(super) fn refused_words(why: OrderRefused) -> &'static str {
     match why {
         OrderRefused::Count => "Choose how many times.",
         OrderRefused::Apparatus(_) => "An apparatus in the process isn't carried.",
-        OrderRefused::Source => "The source isn't a carried Paste or Ointment.",
+        OrderRefused::Source => "The source isn't a carried Paste, Ointment or Powder.",
+        OrderRefused::Powder => "The Filter's Powder isn't carried.",
         OrderRefused::Herb | OrderRefused::UnknownHerb => "A herb isn't carried.",
         OrderRefused::Solvent => "The oil or pure alcohol isn't carried.",
         OrderRefused::Liquid => "A liquid isn't carried.",
@@ -141,6 +142,9 @@ pub(super) fn refused_words(why: OrderRefused) -> &'static str {
             Refused::Liquid => "A Retort takes only waters, oils, drinks and pure alcohol.",
             Refused::NothingToDistil => "An Alembic needs a liquid before it to distil.",
             Refused::NotAlcohol => "An Alembic is fed only a drink or pure alcohol.",
+            Refused::NothingToCalcine => "A Crucible needs something before it to calcine.",
+            Refused::NothingToFilter => "A Filter needs something before it to filter.",
+            Refused::NoPowder => "Put a Powder in the Filter.",
             Refused::NotBuilt(_) => "That apparatus can't be used yet.",
         },
     }

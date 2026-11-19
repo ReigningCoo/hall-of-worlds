@@ -235,3 +235,40 @@ fn an_alembic_distils_drinks_into_pure_alcohol_and_salt_water_into_salt() {
     );
     assert_eq!(count_of(&test, ItemKind::Bottle), 8, "every bottle back");
 }
+
+#[test]
+fn a_filter_uses_a_powder_and_gives_a_powder() {
+    let mut test = TestClient::new();
+    test.enter_a_castle();
+    give(&mut test, Item::new(Id::for_test(94), ItemKind::Filter));
+    let aura = Contents::new([Dose {
+        stat: Stat::Aura,
+        step: 5,
+    }]);
+    let quality = shared::item::Quality::Common;
+    let powders = shared::alchemy::new_mixture(
+        shared::alchemy::Form::Powder,
+        aura,
+        quality,
+        2,
+        Id::for_test(81),
+    );
+    give(&mut test, powders);
+    let order = AlchemyOrder {
+        source: Some(Id::for_test(81)),
+        steps: vec![OrderStep::Filter {
+            powder: Some(Id::for_test(81)),
+        }],
+        count: 1,
+    };
+    test.send(&[ClientMessage::Alchemy(order)]);
+    run(&mut test, GRINDING_TICKS, false);
+    assert!(practised(&test, shared::alchemy::FILTERING));
+    match landed(&mut test).as_slice() {
+        [(Alchemised::Made { kind, count, .. }, 0)] => {
+            assert_eq!((*kind, *count), (ItemKind::Powder, 1));
+        }
+        other => panic!("{other:?}"),
+    }
+    assert_eq!(count_of(&test, ItemKind::Powder), 1, "both used, one made");
+}

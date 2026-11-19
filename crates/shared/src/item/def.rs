@@ -122,6 +122,7 @@ impl ItemKind {
                 }
                 // The same for a paste (`shared::alchemy`).
                 Self::Paste => plain("Paste", crate::alchemy::PASTE_GRAMS, square).counted(),
+                Self::Powder => plain("Powder", crate::alchemy::POWDER_GRAMS, square).counted(),
                 // Laminated to the knee, wrapping the thighs: Waist and Legs (the owner's
                 // decision). Its form says its cells and weight.
                 Self::CuirassierTassets => plain(
@@ -173,6 +174,8 @@ impl ItemKind {
                 Self::MortarAndPestle => plain("Mortar and Pestle", 1500, square),
                 Self::Retort => plain("Retort", 900, Shape::rectangle(1, 2)),
                 Self::Alembic => plain("Alembic", 1800, Shape::rectangle(2, 2)),
+                Self::Crucible => plain("Crucible", 1200, square),
+                Self::Filter => plain("Filter", 300, square),
                 Self::Salt => plain("Salt", crate::alchemy::SALT_GRAMS, square)
                     .without_quality()
                     .counted(),

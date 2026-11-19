@@ -100,8 +100,8 @@ pub fn give_form_to(
             (ItemForm::Vessel(vessel), Size::Medium)
         }
         // Rolled doses (1 to 4 effects, or as asked), its quality from them,
-        // as Alchemy would make it (`alchemy`); a paste the same.
-        ItemKind::Ointment | ItemKind::Paste => {
+        // as Alchemy would make it (`alchemy`); a paste or powder the same.
+        ItemKind::Ointment | ItemKind::Paste | ItemKind::Powder => {
             use crate::potion::{MOST_EFFECTS, roll_contents};
             let effects = request.effects.unwrap_or_else(|| rng.range_u64(1, 4) as u8);
             if !(1..=MOST_EFFECTS).contains(&effects) {
@@ -112,6 +112,7 @@ pub fn give_form_to(
             let form = crate::brewing::OintmentForm { contents };
             match item.kind {
                 ItemKind::Paste => (ItemForm::Paste(form), Size::Medium),
+                ItemKind::Powder => (ItemForm::Powder(form), Size::Medium),
                 _ => (ItemForm::Ointment(form), Size::Medium),
             }
         }
