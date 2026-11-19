@@ -149,6 +149,14 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
     for ((x, y), when) in picked {
         crate::sites::set_picked(&mut window.level.level, x, y, when);
     }
+    let own = (SiteId::Wilderness, 0);
+    let mirrors = window.mirrors.clone();
+    let places: Vec<_> = std::iter::once(own)
+        .chain(mirrors.iter().map(|mirror| (mirror.id, mirror.index)))
+        .collect();
+    let bounds = window.level.level.bounds();
+    let cell_of = |key| crate::sites::trees::cell_of(key, own, Some(width), &mirrors, bounds);
+    crate::sites::trees::put_felled(world, &mut window.level.level, &places, cell_of);
     window
 }
 

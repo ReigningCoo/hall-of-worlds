@@ -7,6 +7,7 @@ use crate::door::Swing;
 use crate::fruit::FruitPlant;
 use crate::furniture::Piece;
 use crate::herb::HerbPatch;
+use crate::tree::TreeStage;
 use crate::vegetable::VegetablePlant;
 
 /// Which room of a level a cell belongs to, as planned by its generator
@@ -46,6 +47,8 @@ pub struct Level {
     pub(super) fruit: BTreeMap<(i64, i64), FruitPlant>,
     /// Vegetable plants by cell (see `vegetables.rs`).
     pub(super) vegetables: BTreeMap<(i64, i64), VegetablePlant>,
+    /// Trees felled and growing back, by cell (see `felled.rs`).
+    pub(super) felled: BTreeMap<(i64, i64), TreeStage>,
     /// Whether its walls are natural, wider at the foot (`PoiKind::natural_walls`).
     natural_walls: bool,
 }
@@ -68,6 +71,7 @@ impl Level {
             herbs: BTreeMap::new(),
             fruit: BTreeMap::new(),
             vegetables: BTreeMap::new(),
+            felled: BTreeMap::new(),
             natural_walls: false,
         }
     }
@@ -137,10 +141,12 @@ impl Level {
     }
 
     /// Whether `(x, y)` can be walked on: a door only when it isn't closed,
-    /// and never under a fruit plant's trunk (as a wild tree).
+    /// and never under a fruit plant's trunk (as a wild tree); a tree's cell
+    /// once it is felled, until it is grown again (`felled.rs`).
     pub fn is_walkable(&self, x: i64, y: i64) -> bool {
         match self.cell(x, y) {
             Cell::Door | Cell::SecretDoor => !self.is_shut(x, y),
+            Cell::Tree => self.felled_at(x, y).is_some(),
             cell => cell.is_walkable() && (self.fruit.is_empty() || !self.has_trunk(x, y)),
         }
     }

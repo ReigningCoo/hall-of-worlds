@@ -69,6 +69,8 @@ pub(super) fn update_fruit(
         None => shown.sight.as_ref().map_or_else(Vec::new, |sight| {
             (dungeon.level.fruit_plants())
                 .filter(|&((x, y), _)| sight.is_seen(x, y))
+                // Felled and growing back: drawn by woodcutting PR 3.
+                .filter(|&((x, y), _)| dungeon.level.felled_at(x, y).is_none())
                 .filter_map(|(at, plant)| {
                     let def = fruits.get(&plant.fruit)?;
                     Some((at, def.key.as_str(), plant.stage(def, now)))

@@ -5,7 +5,7 @@ Any tree can be felled with a one-handed axe, for logs that can be split into ki
 ## PRs
 
 1. **Shared rules** (built): tree kinds (`shared::tree`), the woods as materials, the Log and Kindling items, Fell Tree and Cut Kindling with the Woodcutting skill, felling times, logs per tree, growth stages with their walking costs, damage fading (`shared::woodcutting`).
-2. **The server:** felling (cancelled by moving or Esc, damage kept), the log pile dropped where the feller stands, felled trees saved per cell on world time, regrowing, Cut Kindling, walking costs on levels, changes sent to clients.
+2. **The server** (built): felling (cancelled by moving or Esc, damage kept), the log pile dropped where the feller stands, felled trees saved per cell on world time, regrowing, Cut Kindling, walking costs on levels, changes sent to clients.
 3. **Tree models** per kind and stage, and stumps, in the fruit trees' style.
 4. **The client:** damage flashes for everyone near, log and kindling pictures (bark sides, plain ends), the log pile model (1, 2, 3 or more), the abilities in use, Give Item, a debug tool to age felled trees, the wiki.
 
@@ -40,3 +40,14 @@ The owner hasn't answered the research's questions yet; these defaults were used
 - **Practice:** 48 Woodcutting a tree felled (as Collect Water's 8 for 10 seconds), 8 a log cut into kindling.
 - **Cut Kindling** also needs a one-handed axe held, takes 20 − ∛Woodcutting% seconds a log (20 to 16), and gives a piece per whole kilogram of the log.
 - **Kindling** takes 2 × 1 cells.
+
+## Claude's choices in PR 2 (overturnable)
+
+- **Blows:** felling lands in blows of 2 seconds (`connections/fell_tree.rs`), each adding its share to the tree's damage and told to everyone who sees the tree (`ServerMessage::TreeChopped`, for PR 4's flash). Several players chopping the same tree add up; stopping (moving, Esc, harm) loses only the blow under way.
+- **Cleared:** the days between the stump going and the sapling are a stage of their own (`TreeStage::Cleared`): open ground, nothing drawn.
+- **Felled again:** a tree growing back can be felled once young (a quarter of its logs) or half grown (half); it starts again from a stump.
+- **A fruit tree** counts as young in its first round (`Tree::fruit_stage`), and can't be picked while felled.
+- **Wild kinds:** the wilderness's from the nearest world map point's climate and cover, with water near (a river or the sea within 4 cells); a site's (an oasis's) from its poi's point, by water for an oasis.
+- **Cut Kindling** splits one log a use; a log on the ground is the one the client names in `UseAbility`'s `target` (PR 4 sends it only while the inventory is open with the ground shown).
+- **Until PR 3**, the client draws nothing on a felled tree's cell (wild or fruit).
+- **Ageing felled trees** for testing: the debug menu's World Time moves them on (PR 4 may add a tool of its own).

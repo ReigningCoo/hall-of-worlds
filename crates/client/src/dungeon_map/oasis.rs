@@ -36,8 +36,12 @@ pub fn build_grass_or_tree(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64
     true
 }
 
-/// The tree standing on a cell (not the ground under it).
+/// The tree standing on a cell (not the ground under it): none while it is
+/// felled and growing back (stumps and young trees are woodcutting PR 3's).
 pub fn build_tree(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) {
+    if scene.level.felled_at(x, y).is_some() {
+        return;
+    }
     let layer = town::flat_layer(scene, x, y);
     let centre = town::cell_centre(x, y);
     {

@@ -12,6 +12,7 @@
 mod bars;
 mod cell;
 mod doors;
+mod felled;
 mod fruit;
 mod furniture;
 mod herbs;

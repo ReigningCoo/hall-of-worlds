@@ -36,4 +36,10 @@ pub enum Landed {
     /// Fruit was pressed (Press Juice: `target` is `None`): this many
     /// millilitres of juice went into a cask or vessel.
     Juiced(u32),
+    /// A blow of Fell Tree landed (`target` is `None`): the tree is `done`
+    /// per mille felled, 1000 when it fell.
+    Chopped { done: u16 },
+    /// A log was split (Cut Kindling: `target` is `None`) into this many
+    /// pieces of kindling.
+    Split(u32),
 }

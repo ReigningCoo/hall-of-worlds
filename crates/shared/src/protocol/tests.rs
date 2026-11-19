@@ -534,6 +534,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 herbs: Vec::new(),
                 fruit: Vec::new(),
                 vegetables: Vec::new(),
+                felled: Vec::new(),
                 remembered: true,
             }],
         }),
@@ -640,8 +641,18 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                     picked: Some(12),
                 },
             }],
+            felled: vec![super::SeenFelled {
+                x: -3,
+                y: 16,
+                stage: crate::tree::TreeStage::Young,
+            }],
             remembered: true,
         }),
+        ServerMessage::TreeChopped {
+            x: -3,
+            y: 16,
+            done: 450,
+        },
         ServerMessage::Pick(super::PickNews::Picked {
             x: -6,
             y: 16,

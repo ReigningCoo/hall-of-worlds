@@ -30,6 +30,7 @@ mod saves;
 mod sites;
 mod spot_compat;
 mod spot_map;
+mod tree_save;
 mod unsaved;
 mod visit_save;
 
@@ -44,6 +45,7 @@ pub use saves::{
     RememberedDoors, SavedMob, ServerSave, SiteId, SiteSave, VisitSave, WorldSave,
 };
 pub use spot_map::SpotMap;
+pub use tree_save::TreeSave;
 pub use unsaved::{Unsaved, now};
 
 /// Overrides where the server keeps its data (a folder path).

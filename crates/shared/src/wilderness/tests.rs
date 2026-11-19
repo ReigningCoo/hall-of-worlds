@@ -370,3 +370,24 @@ fn world_gates_stand_in_a_clearing() {
         }
     }
 }
+
+#[test]
+fn a_woods_trees_are_rolled_the_same_every_time_and_vary() {
+    let wild = Wilderness::new(&world());
+    let (px, py) = find_point(&wild, |wild, x, y| wild.sample_point(x, y).trees > 0.9);
+    let (x, y) = wild.centre_of(px, py);
+    let plan = bare_plan(&wild, x, y);
+    let level = wild.block(wild.block_of(x, y), &plan);
+    let (min_x, min_y, width, height) = level.bounds();
+    let mut kinds = std::collections::BTreeSet::new();
+    for cy in min_y..min_y + height {
+        for cx in min_x..min_x + width {
+            if level.cell(cx, cy) == Cell::Tree {
+                let kind = wild.tree_kind_at(cx, cy, &plan);
+                assert_eq!(kind, wild.tree_kind_at(cx + wild.width(), cy, &plan));
+                kinds.insert(kind);
+            }
+        }
+    }
+    assert!(kinds.len() > 1, "{kinds:?}");
+}

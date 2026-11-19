@@ -10,6 +10,8 @@ use crate::herb::MINUTES_PER_DAY;
 pub enum TreeStage {
     /// What is left the first day after felling.
     Stump,
+    /// Nothing: the stump has gone, and nothing has come up yet (until day 5).
+    Cleared,
     Sapling,
     Young,
     HalfGrown,
@@ -34,27 +36,29 @@ pub const HALF_GROWN_COST_PER_MILLE: u32 = 3000;
 
 impl TreeStage {
     /// What is there `minutes` after felling: a stump the first day, nothing
-    /// until day 5, then a sapling, a young tree and a half-grown one a week
-    /// each, then the full-grown tree (whose saved entry can go).
-    pub fn after_felling(minutes: u64) -> Option<Self> {
+    /// (`Cleared`) until day 5, then a sapling, a young tree and a half-grown
+    /// one a week each, then the full-grown tree (whose saved entry can go).
+    pub fn after_felling(minutes: u64) -> Self {
         if minutes < STUMP_MINUTES {
-            return Some(Self::Stump);
+            return Self::Stump;
         }
-        let growing = minutes.checked_sub(REGROW_MINUTES)?;
-        Some(match growing / STAGE_MINUTES {
+        let Some(growing) = minutes.checked_sub(REGROW_MINUTES) else {
+            return Self::Cleared;
+        };
+        match growing / STAGE_MINUTES {
             0 => Self::Sapling,
             1 => Self::Young,
             2 => Self::HalfGrown,
             _ => Self::Grown,
-        })
+        }
     }
 
     /// How much a move over it costs against open ground, per mille (as
-    /// furniture's, `dungeon::Level::furniture_cost_per_mille`): `None` where
+    /// furniture's, through `dungeon::Level::move_cost_per_mille`): `None` where
     /// it blocks, a grown tree.
     pub const fn cost_per_mille(self) -> Option<u32> {
         match self {
-            Self::Sapling => Some(1000),
+            Self::Cleared | Self::Sapling => Some(1000),
             Self::Stump | Self::Young => Some(STUMP_COST_PER_MILLE),
             Self::HalfGrown => Some(HALF_GROWN_COST_PER_MILLE),
             Self::Grown => None,
@@ -71,7 +75,7 @@ impl TreeStage {
     /// stump or a sapling.
     pub const fn logs(self, grown: u8) -> u8 {
         let logs = match self {
-            Self::Stump | Self::Sapling => return 0,
+            Self::Stump | Self::Cleared | Self::Sapling => return 0,
             Self::Young => (grown + 2) / 4,
             Self::HalfGrown => grown.div_ceil(2),
             Self::Grown => grown,

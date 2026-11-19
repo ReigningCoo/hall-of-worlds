@@ -60,9 +60,10 @@ impl DistanceMap {
                     if to != cell {
                         continue;
                     }
-                    // Half the step over each cell, dearer over furniture.
-                    let furniture = level.furniture_cost_per_mille(from.0, from.1)
-                        + level.furniture_cost_per_mille(cell.0, cell.1);
+                    // Half the step over each cell, dearer over furniture
+                    // and felled trees growing back.
+                    let furniture = level.move_cost_per_mille(from.0, from.1)
+                        + level.move_cost_per_mille(cell.0, cell.1);
                     let price = step_cost(from, cell) * squeeze / 1000 * furniture / 2000;
                     let total = cost + price;
                     if let Some(index) = map.index(from)

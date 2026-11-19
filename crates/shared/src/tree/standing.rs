@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{TreeKind, TreeStage, fruit_wood};
+use crate::fruit::FruitStage;
 use crate::material::Material;
 
 /// A tree standing on a cell: a wild `Cell::Tree` by its kind, or a fruit
@@ -31,5 +32,14 @@ impl Tree {
             Self::Fruit(key) => fruit_wood(key).map_or(0, |(_, logs)| logs),
         };
         stage.logs(grown)
+    }
+
+    /// How grown a standing fruit tree counts as for felling, from its own
+    /// stage: young in its first round (a quarter of the logs), else grown.
+    pub fn fruit_stage(stage: FruitStage) -> TreeStage {
+        match stage {
+            FruitStage::Young => TreeStage::Young,
+            _ => TreeStage::Grown,
+        }
     }
 }

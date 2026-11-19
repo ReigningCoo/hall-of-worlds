@@ -79,12 +79,15 @@ pub(crate) fn run_mobs(
 }
 
 /// Every tick: tells everyone on a level whose doors (or furniture put down by
-/// hand, or herb patches) have changed, and its mobs.
+/// hand, herb patches, or trees chopped, felled or grown) have changed, and its
+/// mobs.
 pub(crate) fn share_doors(mut connections: ResMut<Connections>, mut worlds: ResMut<ServerWorlds>) {
     for_each_world(&mut connections.clients, &mut worlds, |clients, world| {
         crate::sites::share_furniture(clients, world);
         crate::sites::share_doors(clients, world);
         crate::sites::share_plants(clients, world);
+        crate::sites::grow_trees(clients, world);
+        crate::sites::share_trees(clients, world);
     });
 }
 

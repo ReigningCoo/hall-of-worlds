@@ -63,7 +63,7 @@ pub(crate) fn site_plants(world: &ServerWorld, poi: &Poi, level: &SiteLevel) -> 
 }
 
 /// Puts what level `index` of site `id` (at `poi`) grows on it, each as last
-/// harvested.
+/// harvested, and how far its felled trees have grown back.
 pub(crate) fn put_plants(
     world: &mut ServerWorld,
     (id, poi): (SiteId, &Poi),
@@ -84,6 +84,10 @@ pub(crate) fn put_plants(
     for ((x, y), when) in picked_of(world, &level.level, key) {
         set_picked(&mut level.level, x, y, when);
     }
+    // Felled trees too, kept by cell alike.
+    let bounds = level.level.bounds();
+    let cell_of = |key| super::trees::cell_of(key, (id, index), None, &[], bounds);
+    super::trees::put_felled(world, &mut level.level, &[(id, index)], cell_of);
 }
 
 /// Where the plant on cell `(x, y)` of level `index` of site `id` is kept

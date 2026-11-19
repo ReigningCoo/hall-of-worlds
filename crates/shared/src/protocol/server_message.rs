@@ -232,19 +232,17 @@ pub enum ServerMessage {
         ready_in: u32,
     },
     /// What became of it (`who` and `target` as in `AbilityStarted`).
-    AbilityLanded {
-        who: Option<Id>,
-        target: Option<Id>,
-        landed: Landed,
-    },
+    #[rustfmt::skip]
+    AbilityLanded { who: Option<Id>, target: Option<Id>, landed: Landed },
     /// The player was killed: they are on the world map, at full Health, and
     /// are to be told so. `permanent` on Ironman: the character has been
     /// deleted, and `Characters` follows for a new one.
     Killed { permanent: bool },
-    /// Someone in sight was harmed, by a blow the player neither struck nor
-    /// took (those are told by `AbilityLanded`), and has `left` per mille of
-    /// their Health.
+    /// Someone in sight was harmed by a blow the player neither struck nor took
+    /// (`AbilityLanded` tells those): `left` per mille of their Health.
     Harmed { id: Id, left: u16 },
+    /// A tree in sight at `(x, y)` was chopped at: `done` per mille felled.
+    TreeChopped { x: i64, y: i64, done: u16 },
     /// Developer tools: what the server knows of a mob, as lines to show
     /// (`DevMobTool::Inspect`).
     DevMobInfo { mob: Id, lines: Vec<String> },

@@ -238,3 +238,21 @@ fn nothing_is_seen_from_inside_a_wall() {
     sight.add_view(&level, -2, 0, None);
     assert!(!sight.is_seen(-1, 0));
 }
+
+#[test]
+fn a_felled_tree_is_walked_over_at_its_stages_cost_until_grown() {
+    use crate::tree::TreeStage;
+    let mut level = Level::test_room();
+    level.set(1, 0, Cell::Tree);
+    assert!(level.stands_tree(1, 0) && !level.is_walkable(1, 0));
+    level.set_felled(1, 0, Some(TreeStage::HalfGrown));
+    assert!(!level.stands_tree(1, 0) && level.is_walkable(1, 0));
+    assert_eq!(level.move_cost_per_mille(1, 0), 3000);
+    level.set_felled(1, 0, Some(TreeStage::Grown));
+    assert_eq!(
+        level.felled_at(1, 0),
+        None,
+        "grown: the cell's own tree again"
+    );
+    assert!(level.stands_tree(1, 0));
+}

@@ -246,6 +246,7 @@ pub(super) fn receive(
                 | ServerMessage::AbilityLanded { .. }
                 | ServerMessage::Killed { .. }
                 | ServerMessage::Harmed { .. }
+                | ServerMessage::TreeChopped { .. }
                 | ServerMessage::Lightning { .. }
                 | ServerMessage::DevMobInfo { .. }
                 | ServerMessage::DevAlignment(_)
