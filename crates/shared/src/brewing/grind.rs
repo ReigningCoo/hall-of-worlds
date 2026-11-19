@@ -71,6 +71,16 @@ pub fn grind(
     if !(1..=most_doses(skills)).contains(&doses) {
         return Err(Refused::Doses);
     }
+    let contents = ground_doses(herbs, Some(oil), skills);
+    Ok(Ointment { contents, doses })
+}
+
+/// The mortar's sums (decisions 9 to 13), with no checks: every herb's
+/// effects added per stat with opposites cancelling, the oil's row boosted
+/// (`boosted`; none without an oil), each stat at most `stat_cap`, then
+/// Herbalism's cuts (`cut_unwanted`). `grind` and the Alchemy plan's Mortar
+/// (`shared::alchemy`) share it.
+pub fn ground_doses(herbs: &[GroundHerb], oil: Option<Oil>, skills: BrewSkills) -> Contents {
     let mut totals: Vec<(Stat, i32)> = Stat::ALL.iter().map(|&stat| (stat, 0)).collect();
     for herb in herbs {
         for &effect in &herb.def.effects {
@@ -83,15 +93,14 @@ pub fn grind(
     }
     let cap = stat_cap(skills);
     for (stat, step) in &mut totals {
-        if Some(stat_row(*stat)) == oil_suits(oil) {
+        if Some(stat_row(*stat)) == oil.and_then(oil_suits) {
             *step = boosted(*step);
         }
         *step = (*step).clamp(-cap, cap);
     }
     cut_unwanted(&mut totals, cut_steps(skills));
-    let contents = Contents::new(totals.into_iter().map(|(stat, step)| Dose {
+    Contents::new(totals.into_iter().map(|(stat, step)| Dose {
         stat,
         step: step as i16,
-    }));
-    Ok(Ointment { contents, doses })
+    }))
 }

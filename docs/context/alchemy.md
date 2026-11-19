@@ -61,6 +61,17 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
   4. On success the server may roll higher: 1% for +1 step, 0.1% for +2. The preview shows the minimum.
 - **Learning:** each successful process teaches one effect of one ingredient: the strongest unknown effect on the product, on the ingredient that gave most to it (the first added on a tie). Knowledge is already kept per herb and effect; only what is taught changes.
 
+## The rules (PR 2, built)
+
+`shared::alchemy` (`docs/context/shared/alchemy.md`). Claude's choices:
+
+- **Dilution:** whole doses stand for one 100 ml bottle. Each stat's total in hundredths is divided by (100 × the process's 100 ml units) and rounded once to the nearest step, halves away from 0; the potion threshold (4) applies after. An ointment and one water make one bottle as Brew did; paste + oil + water make two bottles, each half as strong.
+- Each 100 ml unit applies its liquid once, in order. Waters' and oils' quarter boosts are exact in hundredths (at least a step), so Moon and Cave Water can come out up to half a step above Brew's.
+- The Mortar comes first only (a stored Paste or Ointment can start a process instead); a Retort needs at least one liquid and takes only waters and oils so far. The Retort's solid place comes with PR 8.
+- Quality's sub-skill steps: steps × the sum of each distinct apparatus's ∛sub-skill% ÷ (their count × 10), rounded down once.
+- Learning chooses, among herbs whose effect on that stat is still unknown, the one giving most towards the dose's way.
+- The Paste item itself (its kind, picture, popup) comes with PR 3, which gives it; PR 2 only makes it as a product.
+
 ## Retort solids and Darkvision (PR 8)
 
 | Solid | Source | Effect |
@@ -77,7 +88,7 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
 | PR | What | Needs |
 | -- | ---- | ----- |
 | 1 | Neutral and Grain Oil, Rain Water, durations by quality, the Alchemy wiki page; this plan (built) | None |
-| 2 | The process rules in `shared`: steps, chance, dilution at the end, Paste, quality with sub-skills, luck, old sources, learning, the preview; the six sub-skills in the skill tree | 1 |
+| 2 | The process rules in `shared`: steps, chance, dilution at the end, Paste, quality with sub-skills, luck, old sources, learning, the preview; the six sub-skills in the skill tree (built: `shared::alchemy`) | 1 |
 | 3 | Server: the Alchemy ability, Mortar and Retort steps, the Retort item, the count, Infusing's rule; Grind, Brew and the Cauldron removed from alchemy | 2 |
 | 4 | Client: the Alchemy panel (dragging, drop spaces, preview, count, colour fill) | 3 |
 | 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) | 3 and drinks PR 6 (Ferment, merged) |

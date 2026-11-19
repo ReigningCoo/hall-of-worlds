@@ -47,6 +47,7 @@ The skill tree as data: every node (Combat › Melee › Longsword › Longsword
 - `gathering/water` (Water, leaning on Perception, owner 2026-11-17): practised by Collect Water (brewing PR 3). `gathering/woodcutting` (Woodcutting): practised by Fell Tree and Cut Kindling (`woodcutting::FELL_PRACTICE`, `KINDLING_PRACTICE`; the server's side in woodcutting PR 2).
 - `crafting/fermenting` (Fermenting, leaning on Perception; drinks plan): keeping yeast and fermenting. Ferment practises it.
 - `survival/tolerance` (Tolerance, leaning on Toughness; drinks plan PR 7): raises drinking's thresholds, up to twice at 100% (`shared::alcohol`); practised by drinking while tipsy or worse.
+- `crafting/alchemy` has six sub-skills, one per apparatus (Alchemy plan): Grinding, Infusing, Distilling, Calcining, Filtering, Circulating, leaning on Alchemy's Intellect (`alchemy::Apparatus::sub_skill`); their practice flows up to Alchemy.
 - Abilities come from skills by path (`ability::Ability::skill`): Alchemy's Press Oil, Grind and Brew.
 - A kind's starting skills (`CreatureDef::skills`) are paths and practice; a test checks every path exists.
 - Integers only (the cube root is a binary search). Tests check the tree is strict (parents first, paths unique and matching, depth at most 4, everything leans on something), the worked example's numbers, 100% at 1,000,000, windows, and both save formats.

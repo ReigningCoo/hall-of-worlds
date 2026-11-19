@@ -31,7 +31,7 @@ pub use brew_order::{
 pub use cooldown::{Combination, Cooldowns, DRINK_COOLDOWN_SECONDS, DRINK_COOLDOWN_TICKS};
 pub use cut::cut_unwanted;
 pub use drink::{Drunk, drunk};
-pub use grind::{GroundHerb, Ointment, Refused, grind, herb_steps};
+pub use grind::{GroundHerb, Ointment, Refused, grind, ground_doses, herb_steps};
 pub use lesson::learn_from_potion;
 pub use ointment::{OINTMENT_GRAMS, OintmentForm, new_ointment};
 pub use order::{

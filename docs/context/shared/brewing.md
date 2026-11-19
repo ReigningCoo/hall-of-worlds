@@ -8,7 +8,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `brewing/skill.rs`: `BrewSkills`, `square_root`, and the limits from skills: `per_herb_cap`, `stat_cap`, `most_kinds`, `most_doses`, `cut_steps`.
 - `brewing/boost.rs`: `boosted` (+25%, at least 1), `stat_row`, `oil_suits`.
 - `brewing/cut.rs`: `cut_unwanted` (Herbalism's cuts).
-- `brewing/grind.rs`: `GroundHerb`, `Ointment`, `Refused`, `herb_steps`, `grind`.
+- `brewing/grind.rs`: `GroundHerb`, `Ointment`, `Refused`, `herb_steps`, `grind`, `ground_doses`.
 - `brewing/brew.rs`: `watered`, `brew`, `POTION_AT`, `KEPT_FROM`.
 - `brewing/ointment.rs`: `OintmentForm`, `new_ointment`, `OINTMENT_GRAMS`, `Item::ointment`.
 - `brewing/order.rs`: `GrindOrder`, `GrindRefused`, `HerbStack`, `OilStack`, `Inventory::herb_stacks`, `oil_stacks`, `check_grind`; `grind_seconds`, `grind_ticks`, `GRIND_PRACTICE`, `HERB_PRACTICE`. Tests in `brewing/grind_item_tests.rs` (with the other PR 6 pieces).
@@ -25,7 +25,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `BrewSkills { alchemy, herbalism }` (hundredths of a percent, as `herb::skill_value`): `of(skills)`, `alchemy_percent`, `herbalism_percent`.
 - Limits: `per_herb_cap` (√Alchemy% + 1, 1 to 11 steps an effect a herb), `stat_cap` (4 × that, 4 to 44), `most_kinds` (4 + ∛Alchemy%, 4 to 8), `most_doses` (∛Alchemy% + 1, 1 to 5), `cut_steps` (∛Herbalism%, 0 to 4). `square_root` (whole, rounded down).
 - `herb_steps(effect, quality, skills)`: one herb's steps on one effect: `change × herb::potency`, rounded to the nearest, capped.
-- `grind(herbs: &[GroundHerb { def, quality }], oil, doses, skills) -> Result<Ointment { contents, doses }, Refused>`: refuses no herbs, the same herb twice (by key, whatever the quality), more kinds than `most_kinds`, doses outside 1 to `most_doses`. Steps added per stat (opposites cancel), the oil's row `boosted`, each stat clamped to `stat_cap`, then `cut_unwanted`. Contents can be empty. The caller checks `doses` of each herb and the oil are carried and takes them.
+- `grind(herbs: &[GroundHerb { def, quality }], oil, doses, skills) -> Result<Ointment { contents, doses }, Refused>`: refuses no herbs, the same herb twice (by key, whatever the quality), more kinds than `most_kinds`, doses outside 1 to `most_doses`. Steps added per stat (opposites cancel), the oil's row `boosted`, each stat clamped to `stat_cap`, then `cut_unwanted`. Contents can be empty. The caller checks `doses` of each herb and the oil are carried and takes them. `ground_doses(herbs, Option<Oil>, skills)`: the same sums without the checks, also for the Alchemy plan's Mortar (`shared::alchemy`; no oil, no boost).
 - `cut_unwanted(&mut [(Stat, i32)], steps)`: the wanted way is the largest dose's sign; steps off the others one at a time, round robin from the largest.
 - `boosted(step)`, `stat_row(stat)` (Health Body, Mana Mind), `oil_suits(oil) -> Option<Row>` (Grain Body, Nut Mind, Seed Spirit, Neutral none).
 - `watered(ointment, water)`: Cave Water boosts harmful doses, Moon Water helpful ones, Salt Water takes the strongest helpful dose, Rain Water the strongest harmful one, Water nothing. `brew(ointment, water) -> Option<Contents>`: after the water, a potion if any dose reaches `POTION_AT` (4), keeping doses of `KEPT_FROM` (2) or more; `None` otherwise (ingredients still used, practice still given: the caller's).
@@ -48,7 +48,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 
 ## Used by
 
-- `item` (`ItemKind::Ointment`), `item_form` (`ItemForm::Ointment`, Give Item's), `sheet` (`Sheet::recipes`), `protocol` (`ClientMessage::Grind`), server `connections/grind.rs`, `brew.rs`, `rub_ointment.rs`, `drink.rs` and `strength_room.rs`, client `abilities/grind/`, `abilities/brew.rs` and `abilities/item_look.rs` (`can_drink`), `item_art` (`ointment.rs`), `item_popup` (`ointment.rs`).
+- `alchemy` (the Mortar: `ground_doses`, `herb_steps`, `most_kinds`, `quality`, `POTION_AT`, `KEPT_FROM`), `item` (`ItemKind::Ointment`), `item_form` (`ItemForm::Ointment`, Give Item's), `sheet` (`Sheet::recipes`), `protocol` (`ClientMessage::Grind`), server `connections/grind.rs`, `brew.rs`, `rub_ointment.rs`, `drink.rs` and `strength_room.rs`, client `abilities/grind/`, `abilities/brew.rs` and `abilities/item_look.rs` (`can_drink`), `item_art` (`ointment.rs`), `item_popup` (`ointment.rs`).
 
 ## Notes
 
