@@ -1,6 +1,6 @@
 # shared: alchemy
 
-The Alchemy rules (Alchemy plan PR 2, `docs/context/alchemy.md`): a process of apparatus steps, its chance, what it makes (doses in hundredths at full amount between steps, diluted only at the end), its least quality, the server's rolls, what the preview shows and what a success teaches. Pure functions on whole numbers, so the client's preview matches the server. And what the server runs (PR 3): the order as asked for and checked against what is carried, the Paste item, each run's time and practice, the sub-skills learned on carrying an apparatus. Not the panel (PR 4).
+The Alchemy rules (Alchemy plan PR 2, `docs/context/alchemy.md`): a process of apparatus steps, its chance, what it makes (doses in hundredths at full amount between steps, diluted only at the end), its least quality, the server's rolls, what the preview shows and what a success teaches. Pure functions on whole numbers, so the client's preview matches the server. And what the server runs (PR 3): the order as asked for and checked against what is carried, the Paste item, each run's time and practice, the sub-skills learned on carrying an apparatus. Not the panel (client `alchemy`).
 
 ## Files
 
@@ -39,7 +39,7 @@ The Alchemy rules (Alchemy plan PR 2, `docs/context/alchemy.md`): a process of a
 
 ## Used by
 
-- `ability` (`Ability::Alchemy`'s `has_tool`: any `Apparatus::item` carried), `item` (`ItemKind::Paste`'s weight), `item_form` (`ItemForm::Paste`), `protocol` (`ClientMessage::Alchemy`), server `connections/alchemy.rs` and `client.rs` (`learn_sub_skills`), client `item_art` (`paste.rs`, `Item::paste`). The Alchemy panel (PR 4) next.
+- `ability` (`Ability::Alchemy`'s `has_tool`: any `Apparatus::item` carried), `item` (`ItemKind::Paste`'s weight), `item_form` (`ItemForm::Paste`), `protocol` (`ClientMessage::Alchemy`), server `connections/alchemy.rs` and `client.rs` (`learn_sub_skills`), client `item_art` (`paste.rs`, `Item::paste`). The client's Alchemy panel (`alchemy`: `check_alchemy`, `preview`, `run_seconds`, `steps_allowed`, `new_mixture`).
 
 ## Notes
 
