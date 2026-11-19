@@ -42,7 +42,7 @@ struct Figures {
     online: usize,
     total: usize,
     memory_bytes: u64,
-    cpu_percent: f32,
+    cpu_percent: f64,
     cores: usize,
 }
 
@@ -80,7 +80,7 @@ impl Stats {
         figures.total = total;
     }
 
-    fn sampled(&self, memory_bytes: u64, cpu_percent: f32, cores: usize) {
+    pub(super) fn sampled(&self, memory_bytes: u64, cpu_percent: f64, cores: usize) {
         let mut figures = self.figures();
         figures.memory_bytes = memory_bytes;
         figures.cpu_percent = cpu_percent;

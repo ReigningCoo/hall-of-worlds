@@ -175,3 +175,13 @@ fn cpu_is_a_share_of_the_whole_machine() {
     assert_eq!(stats::machine_share(900.0, 8), 100.0);
     assert_eq!(stats::machine_share(12.34, 1), 12.3);
 }
+
+#[test]
+fn cpu_is_written_to_a_tenth() {
+    let folder = TestFolder::new();
+    let stats = Stats::new(StatsKey::choose(Some(KEY.into()), &folder.0).unwrap());
+    // 0.8 as an `f32` is 0.800000011920929..., a tenth of a core on 8.
+    stats.sampled(1, stats::machine_share(0.8, 8), 8);
+    let text = stats.json();
+    assert!(text.contains(r#""percent":0.1}"#), "{text}");
+}

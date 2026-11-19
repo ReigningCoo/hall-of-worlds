@@ -38,8 +38,11 @@ fn measure(system: &mut System, pid: Pid) -> (u64, f32) {
         .map_or((0, 0.0), |process| (process.memory(), process.cpu_usage()))
 }
 
-/// CPU use as a share of the whole machine, 0 to 100, to a tenth.
-pub(in crate::network) fn machine_share(used: f32, cores: usize) -> f32 {
-    let share = used / cores.max(1) as f32;
+/// CPU use as a share of the whole machine, 0 to 100, to a tenth. An `f64`
+/// (a "double": twice the digits of an `f32`), as JSON numbers are: an `f32`
+/// tenth such as 0.1 isn't exact, and widened for JSON it would show its error
+/// as 0.10000000149011612.
+pub(in crate::network) fn machine_share(used: f32, cores: usize) -> f64 {
+    let share = f64::from(used) / cores.max(1) as f64;
     (share.clamp(0.0, 100.0) * 10.0).round() / 10.0
 }
