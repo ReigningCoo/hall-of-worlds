@@ -29,14 +29,19 @@ jobs:
       - uses: actions/checkout@v7
       # Needed by the build scripts of Bevy's audio/input/window crates.
       # If Ubuntu's own hosts can't be reached (the runners could not resolve
-      # them for hours on 2026-11-11), try a mirror on another domain.
+      # them for hours on 2026-11-11, and answered 503 on 2026-11-19), try a
+      # mirror on another domain, which carries the -security suites too.
       - name: Install Linux dependencies
         run: |
           install() {
             sudo apt-get update && sudo apt-get install -y --no-install-recommends libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
           }
           install || {
-            sudo sed -i 's|mirror+file:/etc/apt/apt-mirrors.txt|https://mirrors.edge.kernel.org/ubuntu/|' /etc/apt/sources.list.d/*.sources
+            sudo sed -i \
+              -e 's|mirror+file:/etc/apt/apt-mirrors.txt|https://mirrors.edge.kernel.org/ubuntu/|' \
+              -e 's|http://security.ubuntu.com/ubuntu/\?|https://mirrors.edge.kernel.org/ubuntu/|' \
+              -e 's|https://security.ubuntu.com/ubuntu/\?|https://mirrors.edge.kernel.org/ubuntu/|' \
+              /etc/apt/sources.list.d/*.sources
             install
           }
       # Rust itself comes from rust-toolchain.toml on the first cargo command.
