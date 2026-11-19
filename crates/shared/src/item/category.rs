@@ -150,6 +150,8 @@ impl ItemKind {
             | Self::MortarAndPestle
             | Self::Retort
             | Self::Alembic
+            | Self::Crucible
+            | Self::Filter
             | Self::Cauldron
             | Self::Cask
             | Self::Tap
@@ -157,6 +159,7 @@ impl ItemKind {
             | Self::Bottle
             | Self::Ointment
             | Self::Paste
+            | Self::Powder
             | Self::Key
             | Self::Keepsake
             | Self::Parcel

@@ -72,6 +72,19 @@ impl Mix {
         }
     }
 
+    /// Filtered through `powder` (the Filter): each stat in both adds
+    /// together, either way; a stat in only one is taken out.
+    pub fn filtered(&self, powder: &Mix) -> Mix {
+        let mut out = Mix::default();
+        for (at, dose) in out.0.iter_mut().enumerate() {
+            let (a, b) = (self.0[at], powder.0[at]);
+            if a != 0 && b != 0 {
+                *dose = a + b;
+            }
+        }
+        out
+    }
+
     /// The doses spread over `units` bottles (at least 1), each rounded to
     /// the nearest whole step, halves away from 0: dose ÷ units.
     pub fn diluted(&self, units: u32) -> Contents {

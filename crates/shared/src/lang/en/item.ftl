@@ -5,11 +5,14 @@
 
 about-bag = A plain cloth bag with a drawstring. Tied to a belt while empty, its inside adds to the end of your inventory.
 about-cask = A wooden cask, bound with iron hoops. It holds one liquid, by the litre. Drawing from it needs a tap.
+about-crucible = A clay crucible that takes the fire: Alchemy's apparatus for calcining whatever came before into a Powder, three quarters as strong. Carrying one teaches Calcining.
 about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes of home, and it is delicious.
+about-filter = A glass funnel lined with paper: Alchemy's apparatus for filtering what came before through a Powder. What both hold adds together; the rest is taken out. Carrying one teaches Filtering.
 about-flour = Grain stone-ground into wholemeal flour, in an open hessian sack.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-paste = Herbs ground dry in a mortar. It does nothing by itself: it is a start for Alchemy, mixed with an oil or a water in a retort.
 about-pouch = A small pouch. Tied to a belt while empty, its inside adds to the end of your inventory.
+about-powder = Calcined in a crucible. It does nothing by itself: it is a start for Alchemy, or put in a filter. Unlike a paste, it never goes stale.
 about-retort = A glass retort on a ring stand: Alchemy's apparatus for infusing liquids into what came before. Carrying one teaches Infusing.
 about-tap = A brass tap, knocked into a cask to draw from it. Carry it, and let go of a cask on a vessel or bottle to pour.
 about-yeast = A crock of live yeast. Let go of flour on it to feed it, with fresh water carried. Fed every half day or so it keeps, and fed on time it can get better; fed sooner, it splits in two, with an empty bottle for the second. Left unfed, it weakens a step each day, down to Poor. Between feeds it can start one thing without being used up.

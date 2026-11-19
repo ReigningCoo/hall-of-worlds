@@ -4,7 +4,7 @@
 //! run lands the order is checked again against what is carried
 //! (`Inventory::check_alchemy`), the ingredients are used up, the chance and
 //! luck are rolled from a fresh seed (`alchemy::outcome`), and the product is
-//! given: a Paste or Ointment, or the liquids' bottles (a tincture's pure
+//! given: a Paste, Ointment or Powder, or the liquids' bottles (a tincture's pure
 //! alcohol's first) holding the potion or pure alcohol (one per 100 ml left),
 //! the rest empty, and any Salt an Alembic left. The sub-skills used and
 //! Herbalism are practised either way; a success teaches one herb effect (`alchemy::lesson`).
@@ -141,8 +141,8 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
 
 /// Takes what one run uses: the source, one of each herb, the solvent (an
 /// oil's bottle given back empty, pure alcohol's kept as a tincture's), the
-/// liquids' bottles, returned for the product, and the Alembic's alcohol (its
-/// bottle given back empty).
+/// liquids' bottles, returned for the product, the Alembic's alcohol (its
+/// bottle given back empty) and the Filter's Powder.
 fn use_up(client: &mut Client, world: &mut ServerWorld, order: &AlchemyOrder) -> Vec<Item> {
     let mut bottles = Vec::new();
     if let Some(source) = order.source {
@@ -172,7 +172,12 @@ fn use_up(client: &mut Client, world: &mut ServerWorld, order: &AlchemyOrder) ->
                     give(client, world, brewed_into(bottle, None));
                 }
             }
-            _ => {}
+            OrderStep::Filter {
+                powder: Some(powder),
+            } => {
+                client.inventory.take_one(*powder, &mut new_id);
+            }
+            OrderStep::Filter { powder: None } | OrderStep::Crucible | OrderStep::Pelican => {}
         }
     }
     bottles

@@ -156,7 +156,7 @@ pub fn fields(kind: ItemKind) -> &'static [Field] {
     match kind {
         ItemKind::Gem => &[GemMaterial, GemCut],
         ItemKind::Bottle => &[Liquid, Effects],
-        ItemKind::Ointment | ItemKind::Paste => &[Effects],
+        ItemKind::Ointment | ItemKind::Paste | ItemKind::Powder => &[Effects],
         ItemKind::Cask => &[CaskSize, Material, Liquid],
         ItemKind::Log | ItemKind::Kindling => &[Material],
         ItemKind::Vessel => &[Vessel, Liquid],

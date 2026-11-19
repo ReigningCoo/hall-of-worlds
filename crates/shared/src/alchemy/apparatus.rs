@@ -16,8 +16,8 @@ pub const FILTERING: &str = "crafting/alchemy/filtering";
 /// Circulating: the Pelican's.
 pub const CIRCULATING: &str = "crafting/alchemy/circulating";
 
-/// One apparatus. The Mortar, the Retort and the Alembic have rules so far;
-/// the others are refused as not built until their PRs (6 and 7).
+/// One apparatus. All but the Pelican have rules so far; it is refused as not
+/// built until its PR (7).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Apparatus {
     Mortar,

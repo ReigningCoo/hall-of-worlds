@@ -17,6 +17,8 @@ pub(super) struct Station {
     pub(super) oil: Option<Id>,
     /// An Alembic's bottle of a drink or pure alcohol fed in, or none.
     pub(super) alcohol: Option<Id>,
+    /// A Filter's Powder, or none.
+    pub(super) powder: Option<Id>,
     /// A Retort's liquids, a 100 ml bottle each, in order (one stack may be
     /// listed again).
     pub(super) liquids: Vec<Id>,
@@ -29,6 +31,7 @@ impl Station {
             herbs: Vec::new(),
             oil: None,
             alcohol: None,
+            powder: None,
             liquids: Vec::new(),
         }
     }
@@ -49,7 +52,7 @@ pub(super) struct Running {
 pub(super) struct Bench {
     /// The panel's document while it is open.
     pub(super) document: Option<Entity>,
-    /// A carried Paste or Ointment to start from instead of a Mortar.
+    /// A carried Paste, Ointment or Powder to start from instead of a Mortar.
     pub(super) source: Option<Id>,
     pub(super) steps: Vec<Station>,
     /// How many times to run it, 1 or more.
@@ -116,6 +119,7 @@ impl Bench {
             herbs
                 .chain(station.oil)
                 .chain(station.alcohol)
+                .chain(station.powder)
                 .chain(station.liquids.iter().copied())
         });
         self.source.into_iter().chain(steps)
@@ -134,6 +138,9 @@ impl Bench {
             }
             if station.alcohol.is_some_and(|id| !carried(id)) {
                 station.alcohol = None;
+            }
+            if station.powder.is_some_and(|id| !carried(id)) {
+                station.powder = None;
             }
         }
     }

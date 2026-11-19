@@ -4,6 +4,7 @@
 
 use super::alembic::alembic;
 use super::batch::Batch;
+use super::crucible::{crucible, filter};
 use super::mortar::mortar;
 use super::retort::retort;
 use super::{
@@ -23,7 +24,8 @@ pub enum Product {
     /// Nothing worth keeping: no dose left, or a liquid with none reaching
     /// `POTION_AT` once diluted. The ingredients are still used up.
     Nothing,
-    /// A Paste or an Ointment, from a Mortar last.
+    /// A Paste or an Ointment from a Mortar last, or a Powder from a
+    /// Crucible (a Filter after either keeping it).
     Mixture { form: Form, contents: Contents },
     /// A potion in `bottles` bottles, one per 100 ml, each holding `contents`.
     Potion { contents: Contents, bottles: u32 },
@@ -105,6 +107,14 @@ pub fn plan(process: &Process, skills: AlchemySkills) -> Result<Planned, Refused
             Step::Alembic { fed } => {
                 alembic(&mut batch, fed.as_ref())?;
                 practised.push(Apparatus::Alembic);
+            }
+            Step::Crucible => {
+                crucible(&mut batch)?;
+                practised.push(Apparatus::Crucible);
+            }
+            Step::Filter { powder } => {
+                filter(&mut batch, powder.as_ref())?;
+                practised.push(Apparatus::Filter);
             }
             other => return Err(Refused::NotBuilt(other.apparatus())),
         }

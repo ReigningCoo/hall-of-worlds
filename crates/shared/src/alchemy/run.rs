@@ -21,16 +21,18 @@ impl Apparatus {
             Self::Mortar => Some(ItemKind::MortarAndPestle),
             Self::Retort => Some(ItemKind::Retort),
             Self::Alembic => Some(ItemKind::Alembic),
-            _ => None,
+            Self::Crucible => Some(ItemKind::Crucible),
+            Self::Filter => Some(ItemKind::Filter),
+            Self::Pelican => None,
         }
     }
 
     /// Seconds a step on it takes untrained (first guesses: the Mortar as
-    /// Grind, the Retort as Brew, the Alembic longest).
+    /// Grind, the Retort as Brew, the Alembic and the Crucible's heat longest).
     fn first_seconds(self) -> u32 {
         match self {
             Self::Retort => 15,
-            Self::Alembic => 20,
+            Self::Alembic | Self::Crucible => 20,
             _ => 10,
         }
     }

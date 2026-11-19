@@ -28,7 +28,9 @@ impl Station {
                 alcohol: self.alcohol,
             },
             Apparatus::Crucible => OrderStep::Crucible,
-            Apparatus::Filter => OrderStep::Filter,
+            Apparatus::Filter => OrderStep::Filter {
+                powder: self.powder,
+            },
             Apparatus::Pelican => OrderStep::Pelican,
         }
     }

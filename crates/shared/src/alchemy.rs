@@ -4,13 +4,14 @@
 //! quality, what the preview shows and what a success teaches. Pure functions
 //! on whole numbers, so the client's preview matches the server. The Mortar
 //! reuses brewing's rules (`brewing::ground_doses`). Also what the server runs
-//! (PR 3): the order as asked for, the Paste item, timing, practice and the
+//! (PR 3): the order as asked for, the Paste and Powder items, timing, practice and the
 //! sub-skills learned on carrying an apparatus. Not the panel.
 
 mod alembic;
 mod apparatus;
 mod batch;
 mod chance;
+mod crucible;
 mod learn;
 mod mix;
 mod mortar;
@@ -29,12 +30,13 @@ pub use alembic::{STRENGTH_A_DIVISION, reduced_by};
 pub use apparatus::{Apparatus, CALCINING, CIRCULATING, DISTILLING, FILTERING, GRINDING, INFUSING};
 pub use batch::ALCOHOL_A_BOTTLE;
 pub use chance::{CERTAIN, chance, square_root_up, steps_allowed, succeeds};
+pub use crucible::POWDER_PERCENT;
 pub use learn::{Lesson, Seen, lesson, preview};
 pub use mix::{HUNDREDTHS, Mix, boosted};
 pub use mortar::{Contribution, TINCTURE_PERCENT};
 pub use order::{AlchemyOrder, Checked, MOST_REPEATS, OrderRefused, OrderStep};
 pub use outcome::{Outcome, outcome};
-pub use paste::{PASTE_GRAMS, new_mixture};
+pub use paste::{PASTE_GRAMS, POWDER_GRAMS, new_mixture};
 pub use plan::{Planned, Product, plan};
 pub use process::{Form, Process, RETORT_UNITS, Refused, Solvent, Step, Stored};
 pub use quality::{LUCKY_ONCE, LUCKY_TWICE, least_quality, luck_steps, moved, skill_steps};
@@ -44,6 +46,8 @@ pub use skills::AlchemySkills;
 
 #[cfg(test)]
 mod alembic_tests;
+#[cfg(test)]
+mod crucible_tests;
 #[cfg(test)]
 mod order_tests;
 #[cfg(test)]

@@ -97,6 +97,14 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 - **Salt:** one for each 100 ml of Salt Water an Alembic distils (4 g, counted, no quality), given with the product on success. Salt Water still takes away the strongest helpful dose in the Retort.
 - The Alembic step takes 20 s untrained and always practises Distilling. It is sold where the Retort is (herbalists, potion shops); 1.8 kg, 2 × 2.
 
+## The Crucible and the Filter (PR 6, built)
+
+`shared::alchemy`'s `crucible.rs`; `ItemKind::Crucible`, `Filter` and `Powder`. Claude's choices (first guesses for the owner to tune):
+
+- **Crucible:** needs something before it (a mixture or a liquid); every dose ×75% in hundredths, rounded once at the end; any liquid, alcohol and unsalted Salt Water driven off, so a potion becomes a Powder again (no bottles). 20 s untrained, as the Alembic.
+- **Filter:** the Powder is used up each run; a stat in both adds (opposite signs cancel), one in only one is taken out; the form and volume stay as they were. 10 s untrained.
+- **Powder:** 20 g, counted, stacking by contents and quality like a Paste; never old as a source. Crucible 1.2 kg and Filter 300 g, both 1 × 1.
+
 ## Retort solids and Darkvision (PR 8)
 
 | Solid | Source | Effect |
@@ -117,7 +125,7 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 | 3 | Server: the Alchemy ability, Mortar and Retort steps, the Retort item, the count, Infusing's rule; Grind, Brew and the Cauldron removed from alchemy (built) | 2 |
 | 4 | Client: the Alchemy panel (dragging, drop spaces, preview, count, colour fill) (built: client `alchemy`) | 3 |
 | 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) (built) | 3 and drinks PR 6 (Ferment, merged) |
-| 6 | Crucible and Filter, Powder | 3 |
+| 6 | Crucible and Filter, Powder (built) | 3 |
 | 7 | Pelican | 3 |
 | 8 | Retort solids: Salt, Sulphur, Mercury, Carrot to Darkvision with Darkvision in the sight rules | 5 for Salt |
 

@@ -111,6 +111,8 @@ pub enum ItemForm {
     Ointment(crate::brewing::OintmentForm),
     /// A paste (`shared::alchemy`): the doses it holds, as an ointment's.
     Paste(crate::brewing::OintmentForm),
+    /// A powder (`shared::alchemy`): the doses it holds, as a paste's.
+    Powder(crate::brewing::OintmentForm),
     /// A cask (`shared::cask`): its size, wood and what is in it.
     Cask(crate::cask::CaskForm),
     /// A sack of flour (`shared::flour`): which grain it was milled from.
@@ -155,6 +157,7 @@ impl ItemForm {
             Self::Vegetable(vegetable) => vegetable.name(),
             Self::Ointment(_) => "Ointment".to_owned(),
             Self::Paste(_) => "Paste".to_owned(),
+            Self::Powder(_) => "Powder".to_owned(),
             Self::Cask(cask) => cask.name(),
             Self::Flour(flour) => flour.name(),
             Self::Log(log) => log.name(),
@@ -204,6 +207,7 @@ impl ItemForm {
             | Self::Vegetable(_)
             | Self::Ointment(_)
             | Self::Paste(_)
+            | Self::Powder(_)
             | Self::Cask(_)
             | Self::Flour(_)
             | Self::Log(_)

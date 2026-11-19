@@ -32,6 +32,11 @@ pub(super) struct Batch {
 }
 
 impl Batch {
+    /// Whether nothing has come before: no mixture and no liquid.
+    pub fn is_empty(&self) -> bool {
+        self.form.is_none() && self.units == 0
+    }
+
     /// The product: with liquid in it, diluted over its units into a potion
     /// if a dose reaches `POTION_AT` (keeping those of `KEPT_FROM` or more);
     /// distilled alcohol with no doses, pure alcohol; with no liquid, the
