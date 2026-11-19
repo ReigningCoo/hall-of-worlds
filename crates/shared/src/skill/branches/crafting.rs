@@ -24,7 +24,21 @@ pub(in super::super) const CRAFTING: Draft = branch(
         leaf("tailoring", "Tailoring", &[Agility]),
         leaf("woodwork", "Woodwork", &[]),
         leaf("cooking", "Cooking", &[Perception]),
-        leaf("alchemy", "Alchemy", &[Intellect]),
+        // One sub-skill per apparatus (Alchemy plan, owner, 2026-11-19), each
+        // learned on first picking its apparatus up: `alchemy::Apparatus`.
+        branch(
+            "alchemy",
+            "Alchemy",
+            &[Intellect],
+            &[
+                leaf("grinding", "Grinding", &[]),
+                leaf("infusing", "Infusing", &[]),
+                leaf("distilling", "Distilling", &[]),
+                leaf("calcining", "Calcining", &[]),
+                leaf("filtering", "Filtering", &[]),
+                leaf("circulating", "Circulating", &[]),
+            ],
+        ),
         // Keeping yeast and fermenting drinks (drinks plan).
         leaf("fermenting", "Fermenting", &[Perception]),
     ],
