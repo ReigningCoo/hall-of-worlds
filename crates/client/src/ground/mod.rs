@@ -7,7 +7,7 @@ mod bag;
 use bevy::prelude::*;
 use shared::spot::{CELL_SPAN, Spot};
 
-use crate::common::HoveredBag;
+use crate::common::{HoveredBag, HoveredLoad};
 use crate::player::PlayerSystems;
 use crate::view3d::View3dSystems;
 
@@ -74,6 +74,7 @@ impl Plugin for GroundPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Bags>()
             .init_resource::<HoveredBag>()
+            .init_resource::<HoveredLoad>()
             .init_resource::<Heading>()
             .add_systems(Startup, make_assets)
             // After the steps there have gone, as a shop's door does.

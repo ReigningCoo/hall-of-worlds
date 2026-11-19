@@ -8,7 +8,7 @@ use shared::spot::Spot;
 use super::bag::size_of;
 use super::{Bags, Heading, STAR_LONG, in_cells, sparkle_scale, sparkle_up};
 use crate::common::{
-    ClickMode, DrawnGround, HoveredBag, PlayerSize, PointerPosition, SpotPosition,
+    ClickMode, DrawnGround, HoveredBag, HoveredLoad, PlayerSize, PointerPosition, SpotPosition,
 };
 use crate::dungeon_map::{CELL_SIZE, Shown};
 use crate::inventory::OpenCharacter;
@@ -23,7 +23,7 @@ pub(super) fn find_hovered(
     bags: Res<Bags>,
     shown: Res<Shown>,
     heights: Res<DrawnGround>,
-    mut hovered: ResMut<HoveredBag>,
+    (mut hovered, mut load): (ResMut<HoveredBag>, ResMut<HoveredLoad>),
 ) {
     let (camera, transform) = *camera;
     let found = pointer.0.and_then(|cursor| {
@@ -65,6 +65,8 @@ pub(super) fn find_hovered(
         best.map(|(_, at)| at)
     });
     hovered.set_if_neq(HoveredBag(found));
+    let looks = found.and_then(|at| bags.0.get(&at)).map(|bag| bag.load);
+    load.set_if_neq(HoveredLoad(looks));
 }
 
 /// Walking anywhere else, or a step of their own: they aren't going to the bag.

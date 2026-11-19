@@ -19,6 +19,11 @@ pub struct TakesGifts(pub shared::id::Id);
 #[derive(Resource, Default, Clone, Copy, PartialEq, Eq)]
 pub struct HoveredBag(pub Option<shared::spot::Spot>);
 
+/// How the bag the pointer is on looks (`HoveredBag`), for the hover box to
+/// name it: a bag, a cask or logs.
+#[derive(Resource, Default, Clone, Copy, PartialEq, Eq)]
+pub struct HoveredLoad(pub Option<shared::ground::Load>);
+
 /// Who `StockCell` and `TakesGifts` say for the ground under the player, which is
 /// nobody's.
 pub const GROUND: shared::id::Id = shared::id::Id::NOBODY;
