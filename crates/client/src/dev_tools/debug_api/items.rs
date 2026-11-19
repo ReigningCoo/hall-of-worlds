@@ -40,6 +40,12 @@ pub(super) struct GiveItemParams {
     effects: Option<u8>,
     /// For `"Vessel"`: which (`"Tankard"`, `"WineBottle"`, ...); any if missing.
     vessel: Option<shared::vessel::VesselKind>,
+    /// For `"Log"`, `"Kindling"`, casks and anything made of one: its
+    /// material (`"Oak"`); rolled if missing.
+    material: Option<shared::material::Material>,
+    /// What it must be like (`{ "most_grams": 1200 }` for a light,
+    /// one-handed axe); anything if missing.
+    limits: Option<shared::item_form::Limits>,
     /// How many, alike (1 if missing).
     count: Option<u32>,
 }
@@ -48,7 +54,8 @@ pub(super) struct GiveItemParams {
 /// (or `{ "kind": "Herb", "herb": "roseroot", "count": 3 }`,
 /// `{ "kind": "Fruit", "fruit": "watermelon" }`,
 /// `{ "kind": "Vegetable", "vegetable": "carrot" }`,
-/// `{ "kind": "Flour", "flour": "rye" }`, or
+/// `{ "kind": "Flour", "flour": "rye" }`, `{ "kind": "Log", "material": "Oak" }`,
+/// `{ "kind": "Axe", "limits": { "most_grams": 1200 } }`, or
 /// `{ "kind": "Bottle", "effects": 2 }` for a potion,
 /// `{ "kind": "Vessel", "vessel": "Tankard", "liquid": { "Water": "Plain" } }`, or
 /// `{ "kind": "Bottle", "liquid": { "Water": "Moon" } }`): into the
@@ -70,6 +77,8 @@ pub(super) fn give_item(
         liquid,
         effects,
         vessel,
+        material,
+        limits,
         count,
     } = params(request)?;
     to_server.write(ToServer(ClientMessage::DevGiveItem(
@@ -87,6 +96,8 @@ pub(super) fn give_item(
                 liquid,
                 effects,
                 vessel,
+                material,
+                limits,
                 ..shared::item_form::RollRequest::NONE
             },
             herb: herb.or(fruit).or(vegetable).or(flour),

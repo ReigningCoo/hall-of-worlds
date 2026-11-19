@@ -32,6 +32,7 @@ pub(super) fn spawn_bag(
         false => (hash % super::bag::VARIETIES as u32) as u8,
     };
     let (lit, remembered) = match cask {
+        true if matches!(load, Load::Logs { .. }) => (&assets.log_lit, &assets.cask_remembered),
         true => (&assets.cask_lit, &assets.cask_remembered),
         false => (&assets.lit, &assets.remembered),
     };

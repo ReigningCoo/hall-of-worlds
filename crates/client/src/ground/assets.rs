@@ -151,6 +151,11 @@ pub(super) fn make_assets(
             perceptual_roughness: 0.75,
             ..default()
         }),
+        log_lit: materials.add(StandardMaterial {
+            perceptual_roughness: 0.95,
+            reflectance: 0.1,
+            ..default()
+        }),
         cask_remembered: materials.add(StandardMaterial {
             unlit: true,
             ..default()

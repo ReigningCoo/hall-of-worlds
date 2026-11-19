@@ -13,17 +13,21 @@ use crate::view3d::MODEL_SCALE;
 /// World units a metre of log is drawn: as casks are.
 const UNITS_PER_METRE: f32 = MODEL_SCALE * 1000.0 * 1.3;
 
+/// How far apart the logs' middles are, in radii: a little more than
+/// touching, so one's outline never hides another.
+const GAP: f32 = 1.12;
+
 /// Where each log of a pile of `count` lies (x and z across the ground, y up
 /// to its middle, in metres) and how far it is turned (radians round y).
 fn placed(count: u8) -> Vec<([f32; 3], f32)> {
     let r = LOG_RADIUS;
     match count {
         0 | 1 => vec![([0.0, r, 0.0], 0.0)],
-        2 => vec![([0.04, r, -r * 1.02], 0.05), ([-0.05, r, r * 1.02], -0.04)],
+        2 => vec![([0.04, r, -r * GAP], 0.05), ([-0.05, r, r * GAP], -0.04)],
         _ => vec![
-            ([0.04, r, -r * 1.02], 0.05),
-            ([-0.05, r, r * 1.02], -0.04),
-            ([0.0, r + r * 3.0_f32.sqrt(), 0.0], 0.03),
+            ([0.04, r, -r * GAP], 0.05),
+            ([-0.05, r, r * GAP], -0.04),
+            ([0.0, r + r * GAP * 3.0_f32.sqrt(), 0.0], 0.03),
         ],
     }
 }
@@ -34,7 +38,7 @@ pub(super) fn pile_units(count: u8) -> (f32, f32) {
     let high = match count {
         0 | 1 => 2.0 * LOG_RADIUS,
         2 => 2.0 * LOG_RADIUS,
-        _ => LOG_RADIUS * (2.0 + 3.0_f32.sqrt()),
+        _ => LOG_RADIUS * (2.0 + GAP * 3.0_f32.sqrt()),
     };
     (high * UNITS_PER_METRE, LOG_LENGTH / 2.0 * UNITS_PER_METRE)
 }
