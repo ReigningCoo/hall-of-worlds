@@ -160,6 +160,12 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             building: 4,
         }),
         ClientMessage::Quest(super::QuestAsk::Log),
+        ClientMessage::Mark(super::MarkAsk::Add {
+            at: (-3, 70),
+            icon: crate::map_mark::MarkIcon::Camp,
+            colour: crate::map_mark::MarkColour::Cyan,
+        }),
+        ClientMessage::Mark(super::MarkAsk::Remove(Id::for_test(5))),
         ClientMessage::Door(super::DoorAsk::Open { x: -2, y: 5 }),
         ClientMessage::Door(super::DoorAsk::CloseNear),
         ClientMessage::Door(super::DoorAsk::DevAll { open: false }),
@@ -441,6 +447,14 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             ready: true,
         }])),
         ServerMessage::Quest(super::QuestNews::Tracked(None)),
+        ServerMessage::Marks(super::MarkNews::All(vec![crate::map_mark::MapMark {
+            id: Id::for_test(6),
+            at: (40, -8),
+            icon: crate::map_mark::MarkIcon::Logs,
+            colour: crate::map_mark::MarkColour::White,
+            auto: true,
+        }])),
+        ServerMessage::Marks(super::MarkNews::Removed(Id::for_test(6))),
         ServerMessage::Quest(super::QuestNews::Dots(vec![super::QuestDots {
             id: crate::quest::QuestId {
                 town: crate::poi::ChunkPos { x: 1, y: -2 },

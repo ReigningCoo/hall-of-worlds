@@ -51,6 +51,7 @@ pub(super) fn draw_maps(
         asset_server,
         full,
         quest_pois,
+        marks,
     } = sources;
     let view = *view.get();
     let window = Room::of(&window, &ui_scale);
@@ -111,8 +112,9 @@ pub(super) fn draw_maps(
     // telling: the full map of the world map changes only with the world
     // (chunks and roads arriving), so it isn't redrawn on the clock.
     let on_the_clock = view != GameView::WorldMap || !full.open;
-    let world_changed =
-        world.as_ref().is_some_and(|world| world.is_changed()) || quest_pois.is_changed();
+    let world_changed = world.as_ref().is_some_and(|world| world.is_changed())
+        || quest_pois.is_changed()
+        || marks.is_changed();
     let due = on_the_clock && *since >= REDRAW_SECONDS;
     let why = Redraw::of(last.as_ref(), &now, (*pending, world_changed, due));
     if why == Redraw::No {
@@ -229,6 +231,9 @@ pub(super) fn draw_maps(
             let area = super::stamps::area_of(grid_box);
             let icon = ICON_PIXELS * zoom * dots;
             super::quest_marks::draw(&mut canvas, &projection, world, &quest_pois, area, icon);
+            let size = super::mark_paint::MARK_PIXELS * zoom * dots;
+            let width = world.surface.width();
+            super::map_marks_draw::draw(&mut canvas, &projection, &marks, width, size);
         }
         if let Some(looks) = &looks {
             super::site_icons::draw(&mut canvas, looks, dungeon, &projection, zoom * dots, dots);

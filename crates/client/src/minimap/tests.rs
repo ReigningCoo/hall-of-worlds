@@ -645,3 +645,34 @@ fn the_maps_keep_their_share_of_the_window_at_any_interface_size() {
     assert_eq!(on_screen(0.5), on_screen(1.0));
     assert_eq!(on_screen(2.0), on_screen(1.0));
 }
+
+/// Presses where the cursor is, moves it by `moved`, and lets go: what
+/// `take_input` noticed as a click.
+fn press_and_let_go(app: &mut App, at: Vec2, moved: Vec2) -> Option<Vec2> {
+    set_cursor(app, at);
+    let mut mouse = app.world_mut().resource_mut::<ButtonInput<MouseButton>>();
+    mouse.release(MouseButton::Left);
+    mouse.clear();
+    mouse.press(MouseButton::Left);
+    step(app);
+    set_cursor(app, at + moved);
+    app.world_mut()
+        .resource_mut::<ButtonInput<MouseButton>>()
+        .clear();
+    step(app);
+    let mut mouse = app.world_mut().resource_mut::<ButtonInput<MouseButton>>();
+    mouse.release(MouseButton::Left);
+    step(app);
+    app.world_mut().resource_mut::<FullMap>().clicked.take()
+}
+
+#[test]
+fn a_press_let_go_where_it_began_is_a_click_and_a_drag_is_not() {
+    let mut app = app();
+    open_map(&mut app);
+    let middle = Vec2::new(640.0, 360.0);
+    let still = press_and_let_go(&mut app, middle, Vec2::new(2.0, 1.0));
+    assert_eq!(still, Some(middle));
+    let dragged = press_and_let_go(&mut app, middle, Vec2::new(30.0, 0.0));
+    assert_eq!(dragged, None);
+}

@@ -18,6 +18,11 @@ pub struct FullMap {
     /// The floor just changed to, keeping the map's offset from the player
     /// even if nothing known shows there.
     pub(super) kept_on: Option<u32>,
+    /// Where a left press on the picture began, and whether it has moved far
+    /// enough to be a drag rather than a click.
+    pub(super) press: Option<(Vec2, bool)>,
+    /// A click on the picture `take_input` noticed, for `report_click`.
+    pub(super) clicked: Option<Vec2>,
 }
 
 impl Default for FullMap {
@@ -28,6 +33,8 @@ impl Default for FullMap {
             zoom: OPENING_ZOOM,
             drag_from: None,
             kept_on: None,
+            press: None,
+            clicked: None,
         }
     }
 }

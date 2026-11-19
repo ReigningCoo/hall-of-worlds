@@ -46,6 +46,7 @@ mod item_text;
 mod items;
 mod lightning;
 mod map;
+mod map_marks;
 mod model_material;
 mod own_ability;
 mod pointer;
@@ -114,6 +115,7 @@ pub use map::{
     Clickable, LightSource, MapPosition, Portal, SharesSight, SmoothPosition, SpotPosition,
     WorldReturn,
 };
+pub use map_marks::{MapMarks, in_points, mark_name, near_way_round, point_at};
 pub use model_material::{ModelMaterial, model_material};
 pub use own_ability::OwnAbility;
 pub use pointer::{

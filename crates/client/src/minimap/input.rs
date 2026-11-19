@@ -17,6 +17,9 @@ use crate::dom::{Finder, Hit};
 use crate::player::Player;
 use crate::view3d::OrbitCamera;
 
+/// How far a press may move, in interface pixels, and still be a click when let go.
+const CLICK_SLOP: f32 = 6.0;
+
 /// The maps get the input first, in `PreUpdate`: what they use is taken away
 /// before the game's systems look. Full Map's key (M) opens and closes the
 /// full map (clicking the minimap is `hold_minimap`'s, its close and floor
@@ -82,9 +85,27 @@ pub(super) fn take_input(
             return;
         }
         full.drag_from = cursor;
+        let on_picture = MapPart::Picture.holds(&hit.chain, &parts);
+        full.press = cursor.filter(|_| on_picture).map(|at| (at, false));
+        // A finger's tap is a press for one frame, already a click.
+        if gesture.tap {
+            full.clicked = full.press.take().map(|(at, _)| at);
+        }
+    }
+    // A press let go where it began is a click (for marks), not a drag.
+    if let (Some((from, far)), Some(now)) = (&mut full.press, cursor)
+        && now.distance(*from) > CLICK_SLOP
+    {
+        *far = true;
+    }
+    if mouse.clear_just_released(MouseButton::Left)
+        && let Some((at, false)) = full.press
+    {
+        full.clicked = Some(at);
     }
     if !mouse.pressed(MouseButton::Left) {
         full.drag_from = None;
+        full.press = None;
     }
     mouse.reset(MouseButton::Right);
     let notches = match scroll.unit {

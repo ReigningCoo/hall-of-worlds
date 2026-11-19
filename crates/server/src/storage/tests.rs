@@ -141,6 +141,13 @@ fn saves_are_read_back() {
             standing: BTreeMap::from([(ChunkPos { x: -2, y: 3 }, 20)]),
             ..Default::default()
         },
+        marks: vec![shared::map_mark::MapMark {
+            id: shared::id::Id::for_test(7),
+            at: (-30, 41),
+            icon: shared::map_mark::MarkIcon::Mine,
+            colour: shared::map_mark::MarkColour::Orange,
+            auto: false,
+        }],
         visit: Some(VisitSave {
             site,
             level: 1,

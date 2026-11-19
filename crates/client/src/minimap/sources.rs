@@ -43,4 +43,5 @@ pub(super) struct Sources<'w, 's> {
     pub(super) asset_server: Res<'w, AssetServer>,
     pub(super) full: Res<'w, FullMap>,
     pub(super) quest_pois: Res<'w, crate::quests::QuestPois>,
+    pub(super) marks: Res<'w, crate::common::MapMarks>,
 }

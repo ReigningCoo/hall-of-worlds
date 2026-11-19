@@ -260,11 +260,9 @@ pub enum ClientMessage {
     DevMobs(DevMobTool),
     /// Developer tools: harm, spend, fill or raise Health and Mana, answered with `Vitals`.
     DevVitals(DevVitals),
-    /// Developer tools: ask after or change the character's hidden alignment
-    /// (`DevAlignment`), answered with `ServerMessage::DevAlignment`.
+    /// Developer tools: the hidden alignment (`DevAlignment`), answered with `DevAlignment`.
     DevAlignment(DevAlignment),
-    /// Developer tools: change the character's skills, or `who`'s (another player
-    /// in sight), answered with `DevSkillsOf` and their `Sheet`.
+    /// Developer tools: change the skills, or `who`'s in sight: `DevSkillsOf` and their `Sheet`.
     DevSkills { who: Option<Id>, change: DevSkills },
     /// Developer tools: furniture on the player's level for everyone there; not kept.
     DevFurniture(DevFurniture),
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Brew(crate::brewing::BrewOrder),
     /// Set a cask fermenting: answered as `UseAbility(Ferment)` (`Landed::Fermented`).
     Ferment(crate::ferment::FermentOrder),
+    /// About the character's personal map marks (`MarkAsk`).
+    Mark(super::MarkAsk),
 }

@@ -22,6 +22,7 @@ fn preferences_read_back_as_saved() {
         touch: true,
         always_show_scroll_bars: true,
         quiet_slow_drawing: true,
+        mark_colour: shared::map_mark::MarkColour::Purple,
         servers: vec![SavedServer {
             address: "play.example.com:9000".into(),
             key: Some("ab12".into()),

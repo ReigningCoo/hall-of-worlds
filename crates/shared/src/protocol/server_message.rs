@@ -262,9 +262,8 @@ pub enum ServerMessage {
     /// rectangle each, its open cells not levelled), with a cutout's first cell sent in
     /// each window: heights for drawing and steps (`movement::WildHeights::with_flats`).
     FlatGround(Vec<crate::movement::FlatGround>),
-    /// The player has just found a poi in the wilderness, by seeing its way
-    /// in or stepping inside it: it is known from now on (not sent for
-    /// towns, which everyone knows of).
+    /// The player has just found a poi in the wilderness, by seeing its way in or
+    /// stepping inside it: known from now on (not sent for towns, known to all).
     PoiFound { kind: crate::poi::PoiKind },
     /// The answer to `Credentials::Provider`: the provider's page to log in on, in the browser.
     OpenLogin { url: String },
@@ -288,8 +287,7 @@ pub enum ServerMessage {
     Turned(Vec<(Id, crate::facing::Heading)>),
     /// About quests (`QuestNews`).
     Quest(super::QuestNews),
-    /// The action clock's tick now, right after every `Sheet`, so the client can
-    /// tell when its effects end (it counts on at `energy::ACTION_TICKS_PER_SECOND`).
+    /// The action clock's tick now, after every `Sheet`: when effects end (`ACTION_TICKS_PER_SECOND`).
     Clock { tick: u64 },
     /// Developer tools: how a `DevGoToPlace` went (`PlaceAnswer`).
     DevPlace(super::PlaceAnswer),
@@ -297,4 +295,6 @@ pub enum ServerMessage {
     Pick(super::PickNews),
     /// An opened drink in a cask carried or in reach will soon be vinegar: the cask's name.
     VinegarSoon(String),
+    /// About the character's personal map marks (`MarkNews`).
+    Marks(super::MarkNews),
 }

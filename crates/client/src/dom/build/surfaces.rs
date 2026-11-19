@@ -96,7 +96,9 @@ impl Builder<'_, '_, '_> {
             }
             Tag::Popup => {
                 let hover = attrs.has("hover");
-                let popup = crate::dom::popup::spawn_popup(self.commands, self.assets, hover);
+                let depth = attrs.number("depth").map(|depth| depth as i32);
+                let popup =
+                    crate::dom::popup::spawn_popup(self.commands, self.assets, hover, depth);
                 (popup, popup, None)
             }
             _ => {
