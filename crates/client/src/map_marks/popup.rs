@@ -104,7 +104,7 @@ pub(super) fn show_popup(
         if let MarkPopup::Mark { id, .. } = *popup
             && let Some(mark) = marks.0.iter().find(|mark| mark.id == id)
         {
-            dom.set_text("mark/name", mark_name(&wording.0, mark.icon));
+            dom.set_text("mark/name", mark_name(&wording.0, mark));
         }
     }
     if matches!(*popup, MarkPopup::Place { .. })

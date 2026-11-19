@@ -162,7 +162,7 @@ pub(super) fn welcome(
 /// `false` if the client has gone.
 pub(super) fn send_welcome(
     client: &mut Client,
-    world: &ServerWorld,
+    world: &mut ServerWorld,
     options: &ServerOptions,
 ) -> bool {
     let (x, y) = client.world_position();
@@ -193,5 +193,9 @@ pub(super) fn send_welcome(
         && client.send_inventory()
         && client.send_difficulty(options.difficulties)
         && client.send_lockdown(options)
-        && client.send_marks()
+        && {
+            // Piles emptied while they were away take their marks with them.
+            client.drop_gone_piles(world);
+            client.send_marks()
+        }
 }

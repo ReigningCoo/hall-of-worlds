@@ -147,6 +147,7 @@ fn saves_are_read_back() {
             icon: shared::map_mark::MarkIcon::Mine,
             colour: shared::map_mark::MarkColour::Orange,
             auto: false,
+            pile: None,
         }],
         visit: Some(VisitSave {
             site,

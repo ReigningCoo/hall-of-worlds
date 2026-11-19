@@ -1,15 +1,19 @@
 //! Opening the popups from clicks on the full map, and their buttons.
 
 use bevy::prelude::*;
-use shared::map_mark::{MarkColour, MarkIcon, middle_of_point, point_of};
+use shared::map_mark::{MapMark, MarkColour, MarkIcon, middle_of_point, point_of};
 use shared::protocol::{ClientMessage, MarkAsk};
+use shared::wilderness::SCALE;
 
 use super::popup::MarkPopup;
-use crate::common::{CurrentWorld, MapMarks, Preferences, point_at};
+use crate::common::{
+    CurrentDungeon, CurrentWorld, MapMarks, MapPosition, Preferences, in_cells, near_way_round,
+    point_at,
+};
 use crate::connection::ToServer;
 use crate::dom::{UiEvent, UiValue};
 use crate::minimap::{FullMap, FullMapClick};
-use crate::player::TravelTo;
+use crate::player::{Player, TravelTo};
 
 /// A popup closed itself (a press elsewhere, Esc): the click that pressed
 /// elsewhere opens no other.
@@ -17,7 +21,8 @@ use crate::player::TravelTo;
 pub(super) struct JustClosed(pub(super) bool);
 
 /// Opens a popup from a click on the full map: on a mark, about it; on known
-/// land with no poi, to place one there (the middle of its world map point).
+/// land with no poi, to place one there (on the world map the middle of its
+/// point, in the wilderness the cell clicked).
 pub(super) fn open_on_click(
     mut clicks: MessageReader<FullMapClick>,
     marks: Res<MapMarks>,
@@ -30,14 +35,24 @@ pub(super) fn open_on_click(
             continue;
         }
         let width = world.as_ref().map_or(0, |world| world.surface.width());
-        *popup = if let Some(mark) = marks.near(click.point, click.reach, width) {
+        let near = if click.wild {
+            marks.near_cell(click.point, click.reach, width)
+        } else {
+            marks.near(click.point, click.reach, width)
+        };
+        *popup = if let Some(mark) = near {
             MarkPopup::Mark {
                 id: mark.id,
                 at: click.at,
             }
         } else if click.known && !click.on_poi {
             MarkPopup::Place {
-                cell: middle_of_point(point_at(click.point)),
+                // `point_at` finds the cell under it on the wilderness's grid too.
+                cell: if click.wild {
+                    point_at(click.point)
+                } else {
+                    middle_of_point(point_at(click.point))
+                },
                 at: click.at,
             }
         } else {
@@ -45,6 +60,9 @@ pub(super) fn open_on_click(
         };
     }
 }
+
+/// Where the player is, for Travel Here in the wilderness.
+type PlayerAt<'w, 's> = Option<Single<'w, 's, &'static MapPosition, With<Player>>>;
 
 /// The popups' buttons: a colour is chosen (and remembered), an icon places
 /// the mark, Travel Here goes to a mark and Remove asks the server to remove
@@ -59,7 +77,14 @@ pub(super) fn press_popup(
     mut closed: ResMut<JustClosed>,
     mut to_server: MessageWriter<ToServer>,
     mut travel: MessageWriter<TravelTo>,
+    (dungeon, world, player): (Res<CurrentDungeon>, Option<Res<CurrentWorld>>, PlayerAt),
 ) {
+    // In the wilderness, Travel Here walks to the mark's cell, the near way
+    // round from the player.
+    let wild = (dungeon.is_wilderness()).then(|| {
+        let width = world.as_ref().map_or(0, |world| world.surface.width());
+        (player.as_ref().map_or(0, |player| player.x), width)
+    });
     for event in events.read() {
         let (form, name) = event.id.parts();
         if !matches!(form, "place_mark" | "mark") {
@@ -101,7 +126,7 @@ pub(super) fn press_popup(
             }
             (MarkPopup::Mark { id, .. }, None) if name == "travel" => {
                 if let Some(mark) = marks.0.iter().find(|mark| mark.id == id) {
-                    let (x, y) = point_of(mark.at);
+                    let (x, y) = travel_target(mark, wild);
                     travel.write(TravelTo { x, y });
                 }
                 *popup = MarkPopup::Closed;
@@ -121,4 +146,16 @@ pub(super) fn press_popup(
     if !full_map.open {
         closed.0 = false;
     }
+}
+
+/// Where Travel Here goes for a mark: its world map point, or in the
+/// wilderness (`wild`: the player's cell `x` and the planet's width in points)
+/// its cell, the near way round from the player.
+pub(super) fn travel_target(mark: &MapMark, wild: Option<(i64, i64)>) -> (i64, i64) {
+    let Some((from, width)) = wild else {
+        return point_of(mark.at);
+    };
+    let (x, y) = point_at(in_cells(mark));
+    let across = near_way_round((x - from) as f64, width * SCALE) as i64;
+    (from + across, y)
 }

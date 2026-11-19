@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::id::Id;
 use crate::movement::past_the_ice;
+use crate::spot::Spot;
 use crate::wilderness::SCALE;
 
 /// The most marks placed by hand a character may have on one planet.
@@ -139,6 +140,26 @@ pub struct MapMark {
     /// don't count towards `MOST_HAND_MARKS`.
     #[serde(default)]
     pub auto: bool,
+    /// An automatic mark's pile: where it lies on the wilderness's level, as
+    /// the server keeps it (beyond the seam, too). The mark goes when it does.
+    #[serde(default)]
+    pub pile: Option<Spot>,
+}
+
+impl MapMark {
+    /// The automatic mark for a pile a player has just started at `pile` on
+    /// the wilderness's ground, on a planet `points` world map points round:
+    /// white, Logs for a log pile and Bag for anything else. `None` past the ice.
+    pub fn for_pile(id: Id, pile: Spot, points: i64, logs: bool) -> Option<Self> {
+        Some(Self {
+            id,
+            at: place(pile.cell(), points)?,
+            icon: if logs { MarkIcon::Logs } else { MarkIcon::Bag },
+            colour: MarkColour::White,
+            auto: true,
+            pile: Some(pile),
+        })
+    }
 }
 
 /// The middle cell of a world map point: where a mark placed on the world map goes.
