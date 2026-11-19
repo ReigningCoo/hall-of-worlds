@@ -22,6 +22,8 @@ mod window_looks;
 #[cfg(test)]
 mod arrival_tests;
 #[cfg(test)]
+mod cellar_tests;
+#[cfg(test)]
 mod enter_tests;
 #[cfg(test)]
 mod flats_tests;

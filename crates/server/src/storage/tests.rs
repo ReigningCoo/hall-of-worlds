@@ -209,6 +209,7 @@ fn saves_are_read_back() {
                 .collect(),
                 changes: BTreeMap::from([((1, 2), Cell::Floor)]),
                 locks_placed: true,
+                cellar_stocked: true,
                 doors: BTreeMap::from([(
                     (6, 7),
                     shared::door::Door {

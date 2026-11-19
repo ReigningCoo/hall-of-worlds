@@ -10,7 +10,7 @@
 // Split into files (`cargo xtask lint` keeps files small).
 mod material;
 mod piece;
-mod place;
+pub(crate) mod place;
 mod shape;
 mod style;
 
