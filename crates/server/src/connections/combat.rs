@@ -299,6 +299,8 @@ pub(crate) fn take_mob_blows(
 mod struck;
 
 #[cfg(test)]
+mod alcohol_tests;
+#[cfg(test)]
 mod alignment_tests;
 #[cfg(test)]
 mod brew_tests;

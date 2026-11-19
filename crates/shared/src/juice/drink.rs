@@ -18,6 +18,8 @@ pub const MANA_A_SECOND: u32 = PER_POINT;
 pub const JUICE_SECONDS: u32 = 30;
 /// How long a serving of cordial restores Mana, in seconds.
 pub const CORDIAL_SECONDS: u32 = 20;
+/// How many times juice's Mana a second a fermented drink gives.
+pub const DRINK_TIMES: u32 = 2;
 
 /// The effect of drinking `ml` of `liquid` from `now`: Mana restored for its
 /// serving's seconds times the share of a serving drunk (a bottle, 100 ml of
@@ -25,9 +27,12 @@ pub const CORDIAL_SECONDS: u32 = 20;
 /// does nothing), or too little to last a second. Nothing ends it early, and
 /// the latest drink's replaces any earlier one (`Source::Juice`, `Cordial`).
 pub fn drink_effect(liquid: &Liquid, ml: u32, now: u64) -> Option<Effect> {
-    let (source, seconds) = match liquid {
-        Liquid::Juice(fruit) => (Source::Juice(FruitTag::of(fruit)), JUICE_SECONDS),
-        Liquid::Cordial(fruit) => (Source::Cordial(FruitTag::of(fruit)), CORDIAL_SECONDS),
+    let (source, seconds, per_second) = match liquid {
+        Liquid::Juice(fruit) => (Source::Juice(FruitTag::of(fruit)), JUICE_SECONDS, 1),
+        Liquid::Cordial(fruit) => (Source::Cordial(FruitTag::of(fruit)), CORDIAL_SECONDS, 1),
+        // Twice its juice's effect (drinks decision 21), whatever it was made
+        // from, plus its units (`alcohol::units_in`, the drinker's).
+        Liquid::Drink(_) => (Source::Drink, JUICE_SECONDS, DRINK_TIMES),
         _ => return None,
     };
     let seconds = u64::from(seconds) * u64::from(ml) / u64::from(SERVING_ML);
@@ -38,7 +43,7 @@ pub fn drink_effect(liquid: &Liquid, ml: u32, now: u64) -> Option<Effect> {
         source,
         bonuses: vec![Bonus::flat(
             bonus::Stat::Restore(Vital::Mana),
-            MANA_A_SECOND as i32,
+            (MANA_A_SECOND * per_second) as i32,
         )],
         start: now,
         end: Some(now + seconds * ACTION_TICKS_PER_SECOND as u64),
@@ -47,16 +52,20 @@ pub fn drink_effect(liquid: &Liquid, ml: u32, now: u64) -> Option<Effect> {
 }
 
 impl Liquid {
-    /// Whether it can be drunk: a water, a juice or a cordial (potions are
-    /// drunk their own way, `brewing::drunk`; oil can't be).
+    /// Whether it can be drunk: a water, a juice, a cordial or a fermented
+    /// drink (potions are drunk their own way, `brewing::drunk`; oil and
+    /// vinegar can't be).
     pub fn is_drink(&self) -> bool {
-        matches!(self, Self::Water(_) | Self::Juice(_) | Self::Cordial(_))
+        matches!(
+            self,
+            Self::Water(_) | Self::Juice(_) | Self::Cordial(_) | Self::Drink(_)
+        )
     }
 }
 
 impl Item {
     /// Whether this is a bottle of something drunk whole and given back
-    /// empty, a water, juice or cordial (not a potion).
+    /// empty, a water, juice, cordial or drink (not a potion).
     pub fn is_drinkable_bottle(&self) -> bool {
         self.bottle()
             .and_then(|bottle| bottle.liquid.as_ref())

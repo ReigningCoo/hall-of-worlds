@@ -1,7 +1,8 @@
 //! Drinking from a vessel (through `consume.rs`, drinks plan PRs 2 and 3): a
 //! serving (`vessel::SERVING_ML`) from a tankard, cup or any vessel, carried
 //! or lying in reach; water does nothing, juice and cordial restore Mana
-//! (`juice::drink_effect`). The vessel stays where it is. A bottle of a drink
+//! (`juice::drink_effect`), and a fermented drink twice as much, with its
+//! units of alcohol (`alcohol.rs`). The vessel stays where it is. A bottle of a drink
 //! is drunk whole and given back empty (`drink_bottle`).
 
 use bevy::prelude::*;
@@ -51,6 +52,7 @@ pub(super) fn drink_vessel(
 
 /// What drinking `ml` of `liquid` does to the player now, if anything.
 fn drink_effect_of(client: &mut Client, liquid: &Liquid, ml: u32, now: u64) {
+    client.drink_units(liquid, ml, now);
     let Some(effect) = drink_effect(liquid, ml, now) else {
         return;
     };

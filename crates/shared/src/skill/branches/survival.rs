@@ -25,6 +25,9 @@ pub(in super::super) const SURVIVAL: Draft = branch(
             ],
         ),
         leaf("fishing", "Fishing", &[Perception]),
+        // Holding drink: raises the thresholds of drinking's stages
+        // (`shared::alcohol`, drinks plan).
+        leaf("tolerance", "Tolerance", &[Toughness]),
         branch(
             "pioneering",
             "Pioneering",

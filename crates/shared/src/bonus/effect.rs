@@ -47,6 +47,12 @@ pub enum Source {
     Juice(crate::fruit::FruitTag),
     /// Cordial drunk, as juice.
     Cordial(crate::fruit::FruitTag),
+    /// A fermented drink drunk (`juice::drink_effect`): Mana restored, twice
+    /// its juice's; replaces any earlier juice, cordial or drink.
+    Drink,
+    /// The stage of drinking it is at (`alcohol::Stage`): one at a time,
+    /// swapped as the stage changes (`Sheet::keep_alcohol`).
+    Alcohol(crate::alcohol::Stage),
     // New sources go at the end: messages carry one by its place in this list.
 }
 
@@ -58,7 +64,11 @@ impl Source {
         match (self, new) {
             (Source::FruitEffects(_), Source::FruitEffects(_)) => true,
             (Source::VegetableEffects(_), Source::VegetableEffects(_)) => true,
-            (Source::Juice(_) | Source::Cordial(_), Source::Juice(_) | Source::Cordial(_)) => true,
+            (
+                Source::Juice(_) | Source::Cordial(_) | Source::Drink,
+                Source::Juice(_) | Source::Cordial(_) | Source::Drink,
+            ) => true,
+            (Source::Alcohol(_), Source::Alcohol(_)) => true,
             _ => self.is_eaten() && new.is_eaten() || self == new,
         }
     }

@@ -66,6 +66,7 @@ pub(crate) fn handle_messages(
                         && (client.phase != Phase::Playing || {
                             let now = world.action_clock.ticks();
                             client.keep_time(now, options.idle_minutes)
+                                && client.keep_alcohol(now)
                                 && client.keep_vitals(now)
                                 && super::strength_room::fit_to_strength(client, world)
                         });
@@ -115,6 +116,7 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
         let (stayed, cost) = match action {
             Action::Step { number, step } => {
                 client.last_step = Some(number);
+                let step = client.stumbled_step(number, step);
                 let taken = step_taken(client, world, step);
                 client.moved_from(from, map);
                 client.walked(from, tick);
@@ -122,7 +124,11 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             }
             Action::Move { number, to } => {
                 client.last_step = Some(number);
-                let taken = move_taken(client, world, to);
+                let taken = match client.stumbled_move(number, to) {
+                    Some(to) => move_taken(client, world, to),
+                    // Stumbled on the spot.
+                    None => (true, 0),
+                };
                 client.moved_from(from, map);
                 client.walked(from, tick);
                 taken

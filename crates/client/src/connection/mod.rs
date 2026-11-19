@@ -45,6 +45,7 @@ mod receive;
 mod remember;
 mod saved_login;
 mod send;
+mod stumble;
 
 use characters::{answer_characters, choose_character, show_playable};
 use clock::{apply_pong, run_clock, send_local_pings, stop_game_time};
@@ -58,6 +59,7 @@ pub use probe::{ProbeResult, ServerProbe};
 use receive::receive;
 use remember::remember_server;
 use send::{count_map_changes, hang_up_on_exit, send, send_steps};
+use stumble::{OwnCharacter, keep_character};
 #[cfg(not(target_arch = "wasm32"))]
 pub use trust::server_key;
 
@@ -68,6 +70,7 @@ impl Plugin for ConnectionPlugin {
         app.add_message::<ToServer>()
             .add_message::<FromServer>()
             .init_resource::<Prediction>()
+            .init_resource::<OwnCharacter>()
             .insert_resource(Connecting {
                 target: Target::choose(&ChosenServer::default(), true),
                 environment: true,
@@ -93,6 +96,7 @@ impl Plugin for ConnectionPlugin {
                     .chain(),
             )
             .add_systems(Update, send_steps.after(PlayerSystems::Travel))
+            .add_systems(Update, keep_character)
             .add_systems(
                 Update,
                 (

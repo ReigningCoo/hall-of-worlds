@@ -2,6 +2,7 @@
 //! item popups share (`common::bonus_line`): its name, a line per bonus, what
 //! ends it early, and how long it has left.
 
+use shared::alcohol::Stage;
 use shared::bonus::{Effect, Source};
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::fruit::{FruitTag, Fruits};
@@ -12,7 +13,7 @@ use crate::common::{amount_of, bonus_line, written};
 
 /// "Eating: Bread", "Eating: Apple", "Apple" (a fruit's or vegetable's effects),
 /// "Poisoned", "Dev Bonus", "Raw herb", "Ointment", "Potion: Strength",
-/// "Apple Juice", "Apple Cordial".
+/// "Apple Juice", "Apple Cordial", "Drink", "Tipsy", "Hangover".
 pub(super) fn name(source: Source, lang: &Lang) -> String {
     let words = match source {
         Source::Eaten(kind) => {
@@ -51,8 +52,25 @@ pub(super) fn name(source: Source, lang: &Lang) -> String {
             let args = Args::new().text("fruit", fruit_name(tag));
             lang.render("effect-cordial", &args)
         }
+        Source::Drink => lang.render("effect-drink", &Args::new()),
+        Source::Alcohol(stage) => {
+            let args = Args::new().text("stage", stage_key(stage));
+            lang.render("effect-alcohol", &args)
+        }
     };
     written(words)
+}
+
+/// A drinking stage's selector in `effect.ftl`.
+fn stage_key(stage: Stage) -> &'static str {
+    match stage {
+        Stage::Tipsy => "tipsy",
+        Stage::Drunk => "drunk",
+        Stage::VeryDrunk => "very-drunk",
+        Stage::Collapsed => "collapsed",
+        Stage::Poisoned => "poisoned",
+        Stage::Hangover => "hangover",
+    }
 }
 
 /// A fruit's name by its tag, or "Fruit" for one the table lacks.

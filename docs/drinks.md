@@ -51,4 +51,22 @@ Once a cask is opened, its drink starts to turn to vinegar. Stronger drinks keep
 
 Opened juice or cordial doesn't go off: left 2 game days, it ferments by itself into a Poor cider or fruit wine.
 
+## Drinking
+
+Drink from a tankard, cup or other vessel a serving (250 ml) at a time, or a bottle all at once, as you would juice. A drink restores 2 Mana a second for 30 seconds a serving, twice what juice does, but it also has alcohol in it, counted in units (10 ml of pure alcohol each): a serving of 5% ale is about one and a quarter.
+
+Units wear off at about one every 10 minutes for a person of 70 kg, by real time, while you are logged out too. Bigger, heavier bodies wear them off faster and take more to feel them.
+
+| Stage | Units (70 kg) | What it does |
+| ----- | ------------- | ------------ |
+| Tipsy | 3 | A third slower |
+| Drunk | 7 | Two thirds slower; Intellect, Perception and Will lower; you stumble now and then |
+| Very drunk | 12 | As drunk but worse, Agility lower too, stumbling more; on getting there you collapse for a minute and can't do anything |
+| Alcohol poisoning | 20 | As very drunk, losing Health (never your last point); you collapse on getting there |
+| Hangover | | After being drunk, once you are no longer tipsy, until half an hour after the last unit wears off: Intellect, Perception and Will a little lower |
+
+Being slowed by drink adds to being slowed by what you carry. A stumble sends a step off to one side and stops you there, so you have to set off again. The stage you are at shows at the top of the window, with how long it lasts.
+
+Drinking while tipsy or worse practises the **Tolerance** skill, which raises every stage's threshold, up to twice as high.
+
 Back to [Casks](casks), [Yeast](yeast).
