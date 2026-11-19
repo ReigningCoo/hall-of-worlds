@@ -26,7 +26,7 @@ pub(in crate::dungeon_map) struct HerbHeading {
 
 /// The seen cell beside the trunk at `at` that can be walked on, nearest the
 /// player.
-fn beside_trunk(
+pub(in crate::dungeon_map) fn beside_trunk(
     dungeon: &CurrentDungeon,
     player: &MapPosition,
     at: (i64, i64),

@@ -63,7 +63,7 @@ pub(crate) fn site_plants(world: &ServerWorld, poi: &Poi, level: &SiteLevel) -> 
 }
 
 /// Puts what level `index` of site `id` (at `poi`) grows on it, each as last
-/// harvested, and how far its felled trees have grown back.
+/// harvested, its trees' kinds, and how far its felled trees have grown back.
 pub(crate) fn put_plants(
     world: &mut ServerWorld,
     (id, poi): (SiteId, &Poi),
@@ -83,6 +83,16 @@ pub(crate) fn put_plants(
     let key = |x: i64, y: i64| plant_key(id, index, &[], x, x, y);
     for ((x, y), when) in picked_of(world, &level.level, key) {
         set_picked(&mut level.level, x, y, when);
+    }
+    // Its trees' kinds, rolled by its poi.
+    let (min_x, min_y, width, height) = level.level.bounds();
+    for y in min_y..min_y + height {
+        for x in min_x..min_x + width {
+            if level.level.cell(x, y) == shared::dungeon::Cell::Tree {
+                let kind = world.wilderness.wild.site_tree_kind(poi, x, y);
+                level.level.set_tree_kind(x, y, Some(kind));
+            }
+        }
     }
     // Felled trees too, kept by cell alike.
     let bounds = level.level.bounds();

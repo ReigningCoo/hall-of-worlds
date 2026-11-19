@@ -73,6 +73,19 @@ static BALL_FACES: LazyLock<Vec<[usize; 3]>> = LazyLock::new(|| {
     faces
 });
 
+/// A cone's faces: its corners are the point, then round its base.
+static CONE_FACES: LazyLock<Vec<[usize; 3]>> = LazyLock::new(|| {
+    let ring = |i: usize| 1 + i % BALL_AROUND;
+    let mut faces = Vec::new();
+    for i in 0..BALL_AROUND {
+        faces.push([0, ring(i), ring(i + 1)]);
+        if i >= 2 {
+            faces.push([1, ring(i - 1), ring(i)]);
+        }
+    }
+    faces
+});
+
 impl Pieces {
     /// Adds a solid made by `solid`, given how much to grow it: in `colour`,
     /// and grown and black as its outline.
@@ -177,6 +190,23 @@ impl Pieces {
                     centre - south * s.z,
                 ];
                 (corners, &DOUBLE_PYRAMID_FACES)
+            },
+            colour,
+        );
+    }
+
+    /// A cone (a conifer's tier of needles): its base round `base`, `radius`
+    /// wide, its point `height` above, turned `turn` about the upright.
+    pub fn cone(&mut self, base: Vec3, (radius, height): (f32, f32), turn: f32, colour: Vec3) {
+        self.add(
+            move |grow| {
+                let mut corners = vec![base + Vec3::Y * (height + grow * 1.5)];
+                let low = base - Vec3::Y * grow;
+                for i in 0..BALL_AROUND {
+                    let (z, x) = (turn + i as f32 * TAU / BALL_AROUND as f32).sin_cos();
+                    corners.push(low + Vec3::new(x, 0.0, z) * (radius + grow));
+                }
+                (corners, CONE_FACES.as_slice())
             },
             colour,
         );

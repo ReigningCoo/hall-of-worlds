@@ -1,4 +1,4 @@
-//! Naming the door, stairs, herb, fruit plant, vegetable or border the pointer is over,
+//! Naming the door, stairs, herb, fruit plant, tree, vegetable or border the pointer is over,
 //! for the hover box.
 
 use bevy::prelude::*;
@@ -11,6 +11,7 @@ use super::Shown;
 use super::fruit_picking::fruit_clicked;
 use super::ground_hit::Ground;
 use super::picking::{door_clicked, pick};
+use super::tree_picking::{tree_clicked, tree_name};
 use crate::character::CharacterSheet;
 use crate::common::{
     CurrentDungeon, DrawnGround, GameView, HerbTable, HoveredOnMap, PointerPosition, ServerClock,
@@ -50,6 +51,10 @@ pub(super) fn name_hovered_place(
             if let Some(name) = plant.and_then(|at| super::fruit::fruit_name(level, now, at)) {
                 return Some(name);
             }
+            let tree = tree_clicked(ray, level, seen, &shown.solid_faces, ground);
+            if let Some(name) = tree.and_then(|at| tree_name(level, at)) {
+                return Some(name);
+            }
             let (x, y) = pick(
                 ray,
                 &dungeon.level,
@@ -75,6 +80,9 @@ pub(super) fn name_hovered_place(
                 return Some(name);
             }
             if let Some(name) = super::vegetables::vegetable_name(&dungeon.level, now, (x, y)) {
+                return Some(name);
+            }
+            if let Some(name) = tree_name(&dungeon.level, (x, y)) {
                 return Some(name);
             }
             let stairs = dungeon.stairs.iter().find(|s| (s.x, s.y) == (x, y))?;

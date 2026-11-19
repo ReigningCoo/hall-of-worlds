@@ -136,7 +136,7 @@ impl WildernessMaps {
     }
 
     /// A block's cells, with the herbs (`herbs`, the server's), vegetables and
-    /// fruit plants growing wild on them,
+    /// fruit plants growing wild on them and its trees' kinds,
     /// server's), made if they aren't kept. Its chunk's plan must be kept.
     pub(crate) fn block(&mut self, block: BlockPos, herbs: &shared::herb::Herbs) -> &Level {
         let block = BlockPos {
@@ -159,6 +159,9 @@ impl WildernessMaps {
             }
             for ((x, y), plant) in self.wild.fruit_plants(block, plan, &level) {
                 level.set_fruit(x, y, plant);
+            }
+            for ((x, y), kind) in self.wild.tree_kinds(&level, plan) {
+                level.set_tree_kind(x, y, Some(kind));
             }
             self.blocks.insert(block, level);
         }

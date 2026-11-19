@@ -69,7 +69,7 @@ pub(super) fn update_fruit(
         None => shown.sight.as_ref().map_or_else(Vec::new, |sight| {
             (dungeon.level.fruit_plants())
                 .filter(|&((x, y), _)| sight.is_seen(x, y))
-                // Felled and growing back: drawn by woodcutting PR 3.
+                // Felled and growing back: `trees`' models.
                 .filter(|&((x, y), _)| dungeon.level.felled_at(x, y).is_none())
                 .filter_map(|(at, plant)| {
                     let def = fruits.get(&plant.fruit)?;
@@ -128,17 +128,22 @@ pub(super) fn update_fruit(
 }
 
 /// The variant a cell's plant is drawn in, and how far it is turned.
-fn looks(x: i64, y: i64) -> (u8, f32) {
+pub(super) fn looks(x: i64, y: i64) -> (u8, f32) {
     let hash = Seed::new(0x6672_7569_7463).at(&[x, y]);
     let turn = (hash >> 8) as u16 as f32 / f32::from(u16::MAX) * std::f32::consts::TAU;
     (hash as u8, turn)
 }
 
 /// What a fruit plant is called on hover: its fruit's name and how it is
-/// growing ("Apple, in flower"; "Apple, ripe: ready to pick").
+/// growing ("Apple, in flower"; "Apple, ripe: ready to pick"), or growing
+/// back if felled ("Apple, stump").
 pub(super) fn fruit_name(level: &Level, now: u64, (x, y): (i64, i64)) -> Option<String> {
     let plant = level.fruit_at(x, y)?;
     let def = Fruits::built_in().get(&plant.fruit)?;
+    if let Some(stage) = level.felled_at(x, y) {
+        let how = super::tree_picking::stage_name(stage);
+        return Some(format!("{}, {how}", def.name));
+    }
     let how = match plant.stage(def, now) {
         FruitStage::Young => "young",
         FruitStage::Leafy => "in leaf",

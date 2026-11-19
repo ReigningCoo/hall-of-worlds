@@ -9,10 +9,10 @@ use super::Shown;
 use super::ground_hit::Ground;
 use crate::common::{
     ClickMode, CreateMobOrder, CurrentDungeon, DrawnGround, FurnitureClicked, HoveredBag,
-    PointerPosition,
+    MapPosition, PointerPosition,
 };
 use crate::connection::ToServer;
-use crate::player::TravelTo;
+use crate::player::{Player, TravelTo};
 use crate::view3d::{ClickedToken, ViewCamera};
 
 /// A left click on a seen (or remembered) walkable cell sends the player
@@ -36,6 +36,7 @@ pub(super) fn pick_on_click(
     bag: Res<HoveredBag>,
     order: Res<CreateMobOrder>,
     heights: Res<DrawnGround>,
+    player: Single<&MapPosition, With<Player>>,
     mut travel: MessageWriter<TravelTo>,
     mut door_clicked: MessageWriter<DoorClicked>,
     mut to_server: MessageWriter<ToServer>,
@@ -95,6 +96,14 @@ pub(super) fn pick_on_click(
     let picked = front
         .or_else(|| super::gate_picking::gate_clicked(ray, level, seen, walls, ground))
         .or_else(|| super::fruit_picking::fruit_clicked(ray, level, seen, walls, ground))
+        .or_else(|| {
+            // A standing tree's cell can't be walked onto: beside it instead.
+            let tree = super::tree_picking::tree_clicked(ray, level, seen, walls, ground)?;
+            match level.is_walkable(tree.0, tree.1) || *mode == ClickMode::Teleport {
+                true => Some(tree),
+                false => super::herbs::beside_trunk(&dungeon, &player, tree),
+            }
+        })
         .or_else(|| super::picking::pick(ray, level, seen, walls, ground));
     if let Some((x, y)) = picked {
         // Dev tools: Teleport Mode jumps there instead (through walls), if the

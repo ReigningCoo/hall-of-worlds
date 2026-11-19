@@ -19,6 +19,7 @@ mod herbs;
 mod level;
 mod line;
 mod sight;
+mod tree_kinds;
 mod vegetables;
 mod wall_shape;
 

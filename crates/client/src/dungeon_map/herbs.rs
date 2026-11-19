@@ -17,7 +17,7 @@ mod pick;
 mod showcase;
 
 pub(super) use draw::{DrawnPatches, update_herbs};
-pub(super) use pick::{HerbHeading, aim_at_herbs, pick_on_arrival};
+pub(super) use pick::{HerbHeading, aim_at_herbs, beside_trunk, pick_on_arrival};
 
 /// How many stages the Drawing States panel's shift goes through before
 /// everything looks as it is again.

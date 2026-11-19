@@ -39,6 +39,7 @@ fn cells_come_back_where_they_were() {
         fruit: Vec::new(),
         vegetables: Vec::new(),
         felled: Vec::new(),
+        trees: Vec::new(),
         remembered: false,
     };
     let back: Vec<_> = chunk.cells().map(|(x, y, _)| (x, y)).collect();

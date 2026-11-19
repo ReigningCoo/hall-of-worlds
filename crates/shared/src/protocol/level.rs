@@ -146,6 +146,9 @@ pub struct LevelChunk {
     /// The trees felled on those cells and growing back, by stage (a grown
     /// one has none: the cell's own tree stands).
     pub felled: Vec<SeenFelled>,
+    /// The kinds of the wild trees (`Cell::Tree`) on those cells, standing or
+    /// felled (`dungeon::Level::tree_kind_at`).
+    pub trees: Vec<SeenTree>,
     /// Whether these are cells the player saw on an earlier visit (sent on
     /// arriving), rather than ones they are about to see.
     pub remembered: bool,
@@ -204,6 +207,14 @@ pub struct SeenFelled {
     pub x: i64,
     pub y: i64,
     pub stage: crate::tree::TreeStage,
+}
+
+/// A wild tree's kind on a cell (`dungeon::Level::tree_kind_at`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SeenTree {
+    pub x: i64,
+    pub y: i64,
+    pub kind: crate::tree::TreeKind,
 }
 
 /// A staircase as the player sees it: where it leads stays with the server.

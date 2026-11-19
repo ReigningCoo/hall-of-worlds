@@ -391,3 +391,18 @@ fn a_woods_trees_are_rolled_the_same_every_time_and_vary() {
     }
     assert!(kinds.len() > 1, "{kinds:?}");
 }
+
+#[test]
+fn a_blocks_tree_kinds_are_each_cells_own() {
+    let wild = Wilderness::new(&world());
+    let (px, py) = find_point(&wild, |wild, x, y| wild.sample_point(x, y).trees > 0.9);
+    let (x, y) = wild.centre_of(px, py);
+    let plan = bare_plan(&wild, x, y);
+    let level = wild.block(wild.block_of(x, y), &plan);
+    let kinds = wild.tree_kinds(&level, &plan);
+    assert!(!kinds.is_empty());
+    for ((cx, cy), kind) in kinds {
+        assert_eq!(level.cell(cx, cy), Cell::Tree);
+        assert_eq!(kind, wild.tree_kind_at(cx, cy, &plan), "({cx}, {cy})");
+    }
+}

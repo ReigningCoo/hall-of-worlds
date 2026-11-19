@@ -6,7 +6,7 @@ Any tree can be felled with a one-handed axe, for logs that can be split into ki
 
 1. **Shared rules** (built): tree kinds (`shared::tree`), the woods as materials, the Log and Kindling items, Fell Tree and Cut Kindling with the Woodcutting skill, felling times, logs per tree, growth stages with their walking costs, damage fading (`shared::woodcutting`).
 2. **The server** (built): felling (cancelled by moving or Esc, damage kept), the log pile dropped where the feller stands, felled trees saved per cell on world time, regrowing, Cut Kindling, walking costs on levels, changes sent to clients.
-3. **Tree models** per kind and stage, and stumps, in the fruit trees' style.
+3. **Tree models** (built) per kind and stage, and stumps, in the fruit trees' style.
 4. **The client:** damage flashes for everyone near, log and kindling pictures (bark sides, plain ends), the log pile model (1, 2, 3 or more), the abilities in use, Give Item, a debug tool to age felled trees, the wiki.
 
 ## Owner's decisions
@@ -49,5 +49,13 @@ The owner hasn't answered the research's questions yet; these defaults were used
 - **A fruit tree** counts as young in its first round (`Tree::fruit_stage`), and can't be picked while felled.
 - **Wild kinds:** the wilderness's from the nearest world map point's climate and cover, with water near (a river or the sea within 4 cells); a site's (an oasis's) from its poi's point, by water for an oasis.
 - **Cut Kindling** splits one log a use; a log on the ground is the one the client names in `UseAbility`'s `target` (PR 4 sends it only while the inventory is open with the ground shown).
-- **Until PR 3**, the client draws nothing on a felled tree's cell (wild or fruit).
 - **Ageing felled trees** for testing: the debug menu's World Time moves them on (PR 4 may add a tool of its own).
+
+## Claude's choices in PR 3 (overturnable)
+
+- **Kinds sent:** the client can't roll a wild tree's kind itself (it needs the climate and the rivers near), so the server keeps each `Tree` cell's kind on its levels (`Level::tree_kind_at`: worked out once per wilderness block, `Wilderness::tree_kinds`, and per site level) and sends it with the cells (`LevelChunk::trees`); felling reads the same.
+- **Shapes:** eleven crown shapes from the research's descriptions (spire, open cone, pine top, flat tiers, column, oval, dome, spreading, weeping, umbrella, shrubby) rather than a builder per kind; bark colours picked from the research's bark descriptions, leaves by kind.
+- **Sizes:** grown trees drawn 2.2 to 4.6 m tall (`1.4 + 0.5 √m` of the real height), crowns 0.9 to 3 m across, so a wood's crowns touch; growing back at 0.22 (sapling), 0.42 (young) and 0.7 (half grown) of that.
+- **Felled fruit trees** grow back as their own model in leaf, smaller (the same three sizes), and leave a stump in the fruit trees' bark; once grown they are their fruit plant again.
+- **Remembered:** unlike other plants, trees are drawn where remembered, in grey, so woods stay on the map.
+- **Clicks:** a click on a standing tree's crown sends the player to the free cell beside it nearest them; hover names a tree by its kind and how it has grown back ("Oak, sapling").

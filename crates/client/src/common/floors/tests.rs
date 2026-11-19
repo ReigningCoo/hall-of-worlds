@@ -55,6 +55,7 @@ fn remembered(index: u32, bounds: (i64, i64, i64, i64)) -> RememberedLevel {
             fruit: Vec::new(),
             vegetables: Vec::new(),
             felled: Vec::new(),
+            trees: Vec::new(),
             remembered: true,
         }],
     }

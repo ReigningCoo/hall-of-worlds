@@ -1,6 +1,6 @@
 # shared: tree
 
-Trees that can be felled (woodcutting plan, `docs/context/woodcutting.md`): the 27 wild kinds and which one a `Cell::Tree` is, every tree's wood and logs (fruit trees' by their fruit), and a felled tree's stages as it grows back with their walking costs. Not felling itself, logs as items or the abilities: `shared::woodcutting`. The server saves felled trees and sets their stages on levels (`dungeon::Level::felled_at`); the models are PR 3's. Research: `docs/context/research-trees.md`.
+Trees that can be felled (woodcutting plan, `docs/context/woodcutting.md`): the 27 wild kinds and which one a `Cell::Tree` is, every tree's wood and logs (fruit trees' by their fruit), and a felled tree's stages as it grows back with their walking costs. Not felling itself, logs as items or the abilities: `shared::woodcutting`. The server saves felled trees and sets their stages on levels (`dungeon::Level::felled_at`); the client draws them (`plants`, `dungeon_map`). Research: `docs/context/research-trees.md`.
 
 ## Files
 
@@ -26,7 +26,7 @@ Trees that can be felled (woodcutting plan, `docs/context/woodcutting.md`): the 
 
 ## Used by
 
-- `dungeon` (`Level::felled_at`), `protocol` (`SeenFelled`), `woodcutting` (`holds_tree`), `wilderness` (`tree_kind_at`, `site_tree_kind`); the server's felling and saves; the tree models (PR 3).
+- `dungeon` (`Level::felled_at`, `Level::tree_kind_at`), `protocol` (`SeenFelled`, `SeenTree`), `woodcutting` (`holds_tree`), `wilderness` (`tree_kind_at`, `site_tree_kind`); the server's felling and saves; the client's tree models (`plants::TreeModels`, `dungeon_map::trees`).
 
 ## Notes
 
