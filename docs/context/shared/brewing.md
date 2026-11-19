@@ -18,7 +18,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `brewing/drink.rs`: `Drunk`, `drunk`. Tests in `brewing/drink_tests.rs` (with `cooldown.rs`).
 - `brewing/cooldown.rs`: `Combination`, `Cooldowns`, `DRINK_COOLDOWN_SECONDS`, `DRINK_COOLDOWN_TICKS`.
 - `brewing/skin.rs`: `Applied`, `applied`, `skin_effect`, `VITAL_PER_STEP`, `ATTRIBUTE_PER_STEP`.
-- `brewing/quality.rs`: `quality`, `duration_seconds`, `duration_ticks`, `on_skin` and their constants.
+- `brewing/quality.rs`: `quality`, `purity`, `quality_of_purity`, `duration_seconds`, `duration_ticks`, `on_skin` and their constants.
 
 ## Public API
 
@@ -29,7 +29,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `cut_unwanted(&mut [(Stat, i32)], steps)`: the wanted way is the largest dose's sign; steps off the others one at a time, round robin from the largest.
 - `boosted(step)`, `stat_row(stat)` (Health Body, Mana Mind), `oil_suits(oil) -> Option<Row>` (Grain Body, Nut Mind, Seed Spirit, Neutral none).
 - `watered(ointment, water)`: Cave Water boosts harmful doses, Moon Water helpful ones, Salt Water takes the strongest helpful dose, Rain Water the strongest harmful one, Water nothing. `brew(ointment, water) -> Option<Contents>`: after the water, a potion if any dose reaches `POTION_AT` (4), keeping doses of `KEPT_FROM` (2) or more; `None` otherwise (ingredients still used, practice still given: the caller's).
-- `quality(contents)`: (strongest − next strongest, by size) ÷ 3: ≤2 Poor, 3–4 Common, 5–6 Uncommon, 7–8 Rare, 9–10 Epic, 11+ Legendary; for ointments too.
+- `quality(contents)`: (strongest − next strongest, by size) ÷ 3: ≤2 Poor, 3–4 Common, 5–6 Uncommon, 7–8 Rare, 9–10 Epic, 11+ Legendary; for ointments too. Split as `purity(contents)` (the difference) and `quality_of_purity(score)` (the bands), so Alchemy's Pelican raises the score in between.
 - `duration_seconds(quality)` / `duration_ticks`: `POOR_SECONDS` (30), doubling each quality (Alchemy plan): Common 60 s, Uncommon 120, Rare 240, Epic 480, Legendary 960.
 - `on_skin(ointment)`: each dose ÷ `ON_SKIN_SHARE` (4), towards 0, zeros dropped; it lasts as `duration_*` of the ointment's own `quality`.
 

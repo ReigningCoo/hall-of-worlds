@@ -176,6 +176,7 @@ impl ItemKind {
                 Self::Alembic => plain("Alembic", 1800, Shape::rectangle(2, 2)),
                 Self::Crucible => plain("Crucible", 1200, square),
                 Self::Filter => plain("Filter", 300, square),
+                Self::Pelican => plain("Pelican", 1200, Shape::rectangle(2, 2)),
                 Self::Salt => plain("Salt", crate::alchemy::SALT_GRAMS, square)
                     .without_quality()
                     .counted(),

@@ -105,6 +105,14 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 - **Filter:** the Powder is used up each run; a stat in both adds (opposite signs cancel), one in only one is taken out; the form and volume stay as they were. 10 s untrained.
 - **Powder:** 20 g, counted, stacking by contents and quality like a Paste; never old as a source. Crucible 1.2 kg and Filter 300 g, both 1 × 1.
 
+## The Pelican (PR 7, built)
+
+`shared::alchemy`'s `pelican.rs`; `ItemKind::Pelican`. Claude's choices (first guesses for the owner to tune):
+
+- The purity score is the strongest dose less the next (`brewing::purity`), raised before it is banded into a quality (÷ 3): × 120%, rounded down. A score of 8 (Poor) becomes 9 (Common); 13 (Common) becomes 15 (Uncommon); 9 stays Common.
+- Each Pelican adds another 20% of the score (two make × 140%), each costing a step towards the chance like any other. It needs something before it (`NothingToCirculate`), changes nothing in what it holds, and counts wherever it stands, even before a Crucible.
+- 30 s untrained, the slowest step; it always practises Circulating. Sold where the Mortar is (herbalists, potion shops); 1.2 kg, 2 × 2, a glass flask with two arms looping back into its belly.
+
 ## Retort solids and Darkvision (PR 8)
 
 | Solid | Source | Effect |
@@ -126,7 +134,7 @@ Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving 
 | 4 | Client: the Alchemy panel (dragging, drop spaces, preview, count, colour fill) (built: client `alchemy`) | 3 |
 | 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) (built) | 3 and drinks PR 6 (Ferment, merged) |
 | 6 | Crucible and Filter, Powder (built) | 3 |
-| 7 | Pelican | 3 |
+| 7 | Pelican (built) | 3 |
 | 8 | Retort solids: Salt, Sulphur, Mercury, Carrot to Darkvision with Darkvision in the sight rules | 5 for Salt |
 
 ## Later

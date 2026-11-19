@@ -152,6 +152,7 @@ impl ItemKind {
             | Self::Alembic
             | Self::Crucible
             | Self::Filter
+            | Self::Pelican
             | Self::Cauldron
             | Self::Cask
             | Self::Tap

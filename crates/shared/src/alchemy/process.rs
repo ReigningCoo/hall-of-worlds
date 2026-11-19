@@ -127,6 +127,8 @@ pub enum Refused {
     NothingToFilter,
     /// A Filter with no Powder in it.
     NoPowder,
+    /// A Pelican with nothing before it to circulate.
+    NothingToCirculate,
     /// An apparatus or input whose rules come with a later PR.
     NotBuilt(Apparatus),
 }

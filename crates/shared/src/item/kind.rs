@@ -124,6 +124,9 @@ pub enum ItemKind {
     Crucible,
     /// The Filter apparatus (`shared::alchemy`): filtered through a Powder.
     Filter,
+    /// The Pelican apparatus (`shared::alchemy`): circulation, raising a
+    /// product's purity.
+    Pelican,
     /// A Crucible's Powder (`shared::alchemy`), counted like a Paste.
     Powder,
     /// What distilling Salt Water leaves (`shared::alchemy`), counted.

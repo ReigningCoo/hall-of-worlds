@@ -16,8 +16,7 @@ pub const FILTERING: &str = "crafting/alchemy/filtering";
 /// Circulating: the Pelican's.
 pub const CIRCULATING: &str = "crafting/alchemy/circulating";
 
-/// One apparatus. All but the Pelican have rules so far; it is refused as not
-/// built until its PR (7).
+/// One apparatus.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Apparatus {
     Mortar,

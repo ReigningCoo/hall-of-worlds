@@ -32,7 +32,8 @@ pub use grind::{GroundHerb, Ointment, Refused, grind, ground_doses, herb_steps};
 pub use lesson::learn_from_potion;
 pub use ointment::{OINTMENT_GRAMS, OintmentForm, new_ointment};
 pub use quality::{
-    ON_SKIN_SHARE, POOR_SECONDS, duration_seconds, duration_ticks, on_skin, quality,
+    ON_SKIN_SHARE, POOR_SECONDS, duration_seconds, duration_ticks, on_skin, purity, quality,
+    quality_of_purity,
 };
 pub use recipe::{BrewedWith, MOST_RECIPES, Recipe, Recipes};
 pub use skill::{

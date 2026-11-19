@@ -272,3 +272,51 @@ fn a_filter_uses_a_powder_and_gives_a_powder() {
     }
     assert_eq!(count_of(&test, ItemKind::Powder), 1, "both used, one made");
 }
+
+#[test]
+fn a_pelican_circulates_a_powder_into_a_purer_one() {
+    let mut test = TestClient::new();
+    test.enter_a_castle();
+    give(&mut test, Item::new(Id::for_test(95), ItemKind::Pelican));
+    // Aura 13 is Common (13 ÷ 3); circulated, 15 is Uncommon.
+    let aura = Contents::new([Dose {
+        stat: Stat::Aura,
+        step: 13,
+    }]);
+    let quality = shared::item::Quality::Common;
+    let powders = shared::alchemy::new_mixture(
+        shared::alchemy::Form::Powder,
+        aura,
+        quality,
+        1,
+        Id::for_test(82),
+    );
+    give(&mut test, powders);
+    let order = AlchemyOrder {
+        source: Some(Id::for_test(82)),
+        steps: vec![OrderStep::Pelican],
+        count: 1,
+    };
+    test.send(&[ClientMessage::Alchemy(order)]);
+    // 30 s untrained.
+    run(&mut test, 30 * 20 + 2, false);
+    assert!(practised(&test, shared::alchemy::CIRCULATING));
+    // Uncommon, or better by luck.
+    use shared::item::Quality::{Common, Poor};
+    match landed(&mut test).as_slice() {
+        [
+            (
+                Alchemised::Made {
+                    kind,
+                    count,
+                    quality,
+                },
+                0,
+            ),
+        ] => {
+            assert_eq!((*kind, *count), (ItemKind::Powder, 1));
+            assert!(*quality != Poor && *quality != Common, "{quality:?}");
+        }
+        other => panic!("{other:?}"),
+    }
+}

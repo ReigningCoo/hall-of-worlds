@@ -14,8 +14,8 @@ pub const STEP_PRACTICE: u32 = 8;
 pub const HERB_PRACTICE: u32 = 2;
 
 impl Apparatus {
-    /// The item it is, carried to use it and to learn its sub-skill; none for
-    /// those not built yet.
+    /// The item it is, carried to use it and to learn its sub-skill (an
+    /// `Option` so an apparatus can be added before its item).
     pub fn item(self) -> Option<ItemKind> {
         match self {
             Self::Mortar => Some(ItemKind::MortarAndPestle),
@@ -23,16 +23,18 @@ impl Apparatus {
             Self::Alembic => Some(ItemKind::Alembic),
             Self::Crucible => Some(ItemKind::Crucible),
             Self::Filter => Some(ItemKind::Filter),
-            Self::Pelican => None,
+            Self::Pelican => Some(ItemKind::Pelican),
         }
     }
 
     /// Seconds a step on it takes untrained (first guesses: the Mortar as
-    /// Grind, the Retort as Brew, the Alembic and the Crucible's heat longest).
+    /// Grind, the Retort as Brew, the Alembic and the Crucible's heat longer,
+    /// the Pelican's slow circulation longest).
     fn first_seconds(self) -> u32 {
         match self {
             Self::Retort => 15,
             Self::Alembic | Self::Crucible => 20,
+            Self::Pelican => 30,
             _ => 10,
         }
     }

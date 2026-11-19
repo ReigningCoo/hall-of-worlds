@@ -257,8 +257,8 @@ fn refusals() {
         plan(&process(vec![retort(&[juice])]), s),
         Err(Refused::Liquid)
     );
-    let pelican = vec![mortar(&refs, Solvent::Dry), Step::Pelican];
-    let refused = Err(Refused::NotBuilt(Apparatus::Pelican));
+    let pelican = vec![Step::Pelican];
+    let refused = Err(Refused::NothingToCirculate);
     assert_eq!(plan(&process(pelican), s), refused);
 }
 
