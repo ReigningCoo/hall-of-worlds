@@ -154,10 +154,10 @@ lorc/swap-bag
 delapouite/ladybug
 # The Water skill (skills_page/icons.rs) and Collect Water (abilities/icons.rs)
 delapouite/water-flask
-# Press Oil, Grind and Brew (abilities/icons.rs)
+# Press Oil and Alchemy (abilities/icons.rs)
 delapouite/olive
 skoll/pestle-mortar
-lorc/cauldron
+lorc/round-bottom-flask
 delapouite/carrot
 delapouite/covered-jar
 # The miller's door sign, drawn into the town atlas (tools/make_town_atlas.py)

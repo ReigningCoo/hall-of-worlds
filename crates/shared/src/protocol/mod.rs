@@ -56,7 +56,7 @@ mod world_chunk;
 mod yeast_ask;
 
 pub use client_message::ClientMessage;
-pub use combat::Landed;
+pub use combat::{Alchemised, Landed};
 pub use dev_alignment::DevAlignment;
 pub use dev_furniture::DevFurniture;
 pub use dev_give::DevGive;
@@ -82,7 +82,7 @@ pub use yeast_ask::YeastAsk;
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 138;
+pub const PROTOCOL_VERSION: u32 = 139;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

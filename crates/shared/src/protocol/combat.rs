@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::item::Quality;
 use crate::vitals::Points;
 
 /// How an ability's wind-up ended.
@@ -25,14 +26,9 @@ pub enum Landed {
     Filled(crate::potion::Water),
     /// A bottle was filled with this oil (Press Oil: `target` is `None`).
     Pressed(crate::potion::Oil),
-    /// Herbs and an oil were ground (Grind: `target` is `None`): this many
-    /// doses of ointment, 0 when the mix came to nothing (the ingredients are
-    /// used up all the same).
-    Ground(u32),
-    /// An ointment and a water were brewed (Brew: `target` is `None`): the
-    /// potion's quality, `None` when no potion formed (both are used up all
-    /// the same, the bottle coming back empty).
-    Brewed(Option<crate::item::Quality>),
+    /// One run of an Alchemy process ended (`target` is `None`): what came
+    /// of it, and how many runs of the order are left.
+    Alchemy { made: Alchemised, left: u32 },
     /// Fruit was pressed (Press Juice: `target` is `None`): this many
     /// millilitres of juice went into a cask or vessel.
     Juiced(u32),
@@ -45,4 +41,21 @@ pub enum Landed {
     /// A cask was set fermenting (Ferment: `target` is `None`): ready in this
     /// many game days.
     Fermented { days: u32 },
+}
+
+/// What one run of an Alchemy process made (`Landed::Alchemy`). The
+/// ingredients are used up whatever it was.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Alchemised {
+    /// The chance roll failed.
+    Failed,
+    /// It worked, but came to nothing worth keeping.
+    Nothing,
+    /// It made this many of something at this quality: a Paste or Ointment,
+    /// or bottles of potion (`ItemKind::Bottle`).
+    Made {
+        kind: crate::item::ItemKind,
+        count: u32,
+        quality: Quality,
+    },
 }

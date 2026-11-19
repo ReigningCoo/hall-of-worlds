@@ -136,6 +136,7 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
         | ItemForm::Log(_)
         | ItemForm::Kindling(_)
         | ItemForm::Ointment(_)
+        | ItemForm::Paste(_)
         | ItemForm::Fruit(_)
         | ItemForm::Vegetable(_) => {
             return None;

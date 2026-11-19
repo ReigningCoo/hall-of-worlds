@@ -18,7 +18,7 @@ use shared::protocol::{Landed, ServerMessage};
 
 use super::Client;
 use super::action::Action;
-use super::grind::practise;
+use super::give::practise;
 use super::pour::{Side, put_back, side};
 use crate::ServerWorld;
 use crate::combat::{Act, Pending};

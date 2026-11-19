@@ -36,7 +36,8 @@ impl ItemForm {
             | Self::Herb(_)
             | Self::Bottle(_)
             | Self::Yeast(_)
-            | Self::Ointment(_) => None,
+            | Self::Ointment(_)
+            | Self::Paste(_) => None,
         }
     }
 
@@ -62,6 +63,7 @@ impl ItemForm {
             Self::Herb(herb) => Some(herb.grams),
             Self::Bottle(bottle) => Some(bottle.grams()),
             Self::Ointment(_) => Some(crate::brewing::OINTMENT_GRAMS),
+            Self::Paste(_) => Some(crate::alchemy::PASTE_GRAMS),
             Self::Fruit(fruit) => Some(fruit.grams),
             Self::Vegetable(vegetable) => Some(vegetable.grams),
             Self::Cask(cask) => Some(cask.grams()),

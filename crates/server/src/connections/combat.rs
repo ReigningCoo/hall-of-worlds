@@ -109,8 +109,7 @@ pub(super) fn start_ability(
         Ability::CollectWater => return super::collect_water::start_collect(client, world),
         Ability::PressOil => return super::press_oil::choose_press(client, world, target),
         Ability::PressJuice => return super::press_juice::choose_juice(client, world, target),
-        Ability::Grind => return super::grind::start_grind(client, world),
-        Ability::Brew => return super::brew::start_brew(client, world),
+        Ability::Alchemy => return super::alchemy::start_alchemy(client, world),
         Ability::Ferment => return super::ferment::start_ferment(client, world),
         Ability::FellTree => return super::fell_tree::start_fell(client, world),
         Ability::CutKindling => return super::cut_kindling::start_cut(client, world, target),
@@ -167,8 +166,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::CollectWater => return super::collect_water::land_collect(client, world),
         Act::PressOil => return super::press_oil::land_press(client, world),
         Act::PressJuice => return super::press_juice::land_juice(client, world),
-        Act::Grind => return super::grind::land_grind(client, world),
-        Act::Brew => return super::brew::land_brew(client, world),
+        Act::Alchemy => return super::alchemy::land_alchemy(client, world),
         Act::Ferment => return super::ferment::land_ferment(client, world),
         Act::FellTree { at, ticks } => {
             return super::fell_tree::land_fell(client, world, at, ticks);
@@ -299,11 +297,11 @@ pub(crate) fn take_mob_blows(
 mod struck;
 
 #[cfg(test)]
+mod alchemy_tests;
+#[cfg(test)]
 mod alcohol_tests;
 #[cfg(test)]
 mod alignment_tests;
-#[cfg(test)]
-mod brew_tests;
 #[cfg(test)]
 mod collect_water_tests;
 #[cfg(test)]
@@ -314,8 +312,6 @@ mod drink_tests;
 mod feed_yeast_tests;
 #[cfg(test)]
 mod fell_tree_tests;
-#[cfg(test)]
-mod grind_tests;
 #[cfg(test)]
 mod grudge_tests;
 #[cfg(test)]

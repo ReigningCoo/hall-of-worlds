@@ -1,4 +1,4 @@
-//! Brew's pieces: the order checked against what is carried, the bottle turned
+//! Brew's pieces kept by Alchemy: the carried stacks, the bottle turned
 //! into a potion, recipes noting what they brewed, and what brewing teaches.
 
 use super::*;
@@ -32,7 +32,7 @@ fn carrying(items: Vec<Item>) -> Inventory {
 }
 
 #[test]
-fn brewing_checks_what_is_carried_and_makes_the_potion() {
+fn carried_ointments_and_waters_are_offered() {
     let strong = contents(&[(Stat::Strength, 4), (Stat::Will, -1)]);
     let inventory = carrying(vec![
         new_ointment(strong.clone(), 2, Id::for_test(1)),
@@ -45,23 +45,6 @@ fn brewing_checks_what_is_carried_and_makes_the_potion() {
     let waters = inventory.water_stacks();
     let kinds: Vec<Water> = waters.iter().map(|stack| stack.water).collect();
     assert_eq!(kinds, vec![Water::Plain, Water::Salt]);
-
-    let order = |ointment, water| BrewOrder {
-        ointment: Id::for_test(ointment),
-        water: Id::for_test(water),
-    };
-    let made = inventory.check_brew(&order(1, 2)).unwrap();
-    assert_eq!(made.water, Water::Plain);
-    assert_eq!(made.potion, Some(contents(&[(Stat::Strength, 4)])));
-    // Salt Water takes the strongest helpful dose: nothing forms.
-    let salted = inventory.check_brew(&order(1, 3)).unwrap();
-    assert_eq!(salted.potion, None);
-    // Swapped round, or not carried.
-    assert_eq!(
-        inventory.check_brew(&order(2, 1)),
-        Err(BrewRefused::Ointment)
-    );
-    assert_eq!(inventory.check_brew(&order(1, 9)), Err(BrewRefused::Water));
 }
 
 #[test]
@@ -75,21 +58,6 @@ fn the_water_bottle_holds_the_potion_or_comes_back_empty() {
     let wasted = brewed_into(water(Water::Moon, 1, 1), None);
     assert!(wasted.bottle().unwrap().is_empty());
     assert_eq!(wasted.quality, None);
-}
-
-#[test]
-fn brewing_takes_less_time_with_alchemy() {
-    let untrained = BrewSkills {
-        alchemy: 0,
-        herbalism: 0,
-    };
-    let master = BrewSkills {
-        alchemy: 10_000,
-        herbalism: 0,
-    };
-    assert_eq!(brew_seconds(untrained), 15);
-    assert_eq!(brew_seconds(master), 11);
-    assert!(brew_ticks(master) < brew_ticks(untrained));
 }
 
 #[test]

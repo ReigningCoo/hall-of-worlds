@@ -10,11 +10,9 @@ use crate::dom::{DrawObjects, HoldObjects};
 use crate::player::PlayerSystems;
 
 mod bar;
-mod brew;
 mod cancel;
 mod drag;
 mod ferment;
-mod grind;
 mod held;
 mod icons;
 mod item_look;
@@ -42,8 +40,6 @@ impl Plugin for AbilitiesPlugin {
             .init_resource::<manual::Manual>()
             .init_resource::<press_oil::PressChooser>()
             .init_resource::<press_juice::JuiceChooser>()
-            .init_resource::<grind::Mixing>()
-            .init_resource::<brew::Brewing>()
             .init_resource::<ferment::Fermenting>()
             .add_message::<use_ability::UseSlot>()
             .add_systems(
@@ -52,8 +48,6 @@ impl Plugin for AbilitiesPlugin {
                     bar::spawn_bar,
                     press_oil::spawn_requester,
                     press_juice::spawn_requester,
-                    grind::spawn_mixing,
-                    brew::spawn_panel,
                     ferment::spawn_panel,
                 ),
             )
@@ -91,8 +85,6 @@ impl Plugin for AbilitiesPlugin {
                     wait::show_wait,
                     (press_oil::answer_requester, press_oil::show_requester),
                     (press_juice::answer_requester, press_juice::show_requester),
-                    (grind::answer_mixing, grind::show_mixing),
-                    (brew::answer_panel, brew::show_panel),
                     (ferment::answer_panel, ferment::show_panel),
                 )
                     .chain()

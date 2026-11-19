@@ -144,12 +144,14 @@ impl ItemKind {
             Self::Lantern
             | Self::OilPress
             | Self::MortarAndPestle
+            | Self::Retort
             | Self::Cauldron
             | Self::Cask
             | Self::Tap
             | Self::Vessel
             | Self::Bottle
             | Self::Ointment
+            | Self::Paste
             | Self::Key
             | Self::Keepsake
             | Self::Parcel

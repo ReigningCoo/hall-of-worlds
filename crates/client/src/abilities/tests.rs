@@ -91,16 +91,6 @@ fn press_oils_requester_is_good_markup() {
 }
 
 #[test]
-fn grinds_mixing_panel_is_good_markup() {
-    super::grind::GRIND.assert_good();
-}
-
-#[test]
-fn brews_panel_is_good_markup() {
-    super::brew::BREW.assert_good();
-}
-
-#[test]
 fn ferments_panel_is_good_markup() {
     super::ferment::FERMENT.assert_good();
 }

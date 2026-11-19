@@ -54,7 +54,7 @@ pub enum ItemKind {
     /// A drinking vessel or a jug, holding a liquid by the millilitre
     /// (`shared::vessel`): which one and what is in it are in its form.
     Vessel,
-    /// An iron pot for brewing potions (`ability::Ability::Brew`).
+    /// An iron pot, kept for cooking later (no longer an alchemy tool).
     Cauldron,
     Caparison,
     Chausses,
@@ -97,7 +97,7 @@ pub enum ItemKind {
     LegArmour,
     Longsword,
     Mantle,
-    /// For grinding herbs into ointment (`ability::Ability::Grind`).
+    /// The Mortar apparatus (`shared::alchemy`): herbs ground.
     MortarAndPestle,
     Necklace,
     /// Herbs and an oil ground together (`shared::brewing`), counted: its
@@ -109,10 +109,14 @@ pub enum ItemKind {
     PaddedGloves,
     /// A quest's delivery: wrapped in brown paper and tied with string (owner).
     Parcel,
+    /// Herbs ground dry (`shared::alchemy`), counted: doses in its form.
+    Paste,
     Polearm,
     /// A part of a creature brought back for a quest ("kobold scales"),
     /// dropped only for the quester (owner).
     Remains,
+    /// The Retort apparatus (`shared::alchemy`): liquids infused.
+    Retort,
     Pouch,
     Ring,
     Sandals,
@@ -158,7 +162,7 @@ pub enum ItemKind {
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 110] = [
+    pub const ALL: [Self; 112] = [
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
@@ -235,11 +239,13 @@ impl ItemKind {
         Self::PaddedChausses,
         Self::PaddedGloves,
         Self::Parcel,
+        Self::Paste,
         Self::Petticoat,
         Self::Polearm,
         Self::Pouch,
         Self::RawMeat,
         Self::Remains,
+        Self::Retort,
         Self::Ring,
         Self::Robe,
         Self::Sandals,

@@ -68,9 +68,8 @@ impl Client {
             waiting: VecDeque::new(),
             fight: Default::default(),
             pressing: None,
-            grinding: None,
+            alchemy: None,
             fermenting: None,
-            brewing: None,
             for_others: Vec::new(),
             learning: Default::default(),
             starting_as: None,
@@ -142,8 +141,11 @@ impl Client {
         if self.inventory.settle_parts() {
             self.unsaved = true;
         }
-        // A first empty bottle teaches Collect Water.
-        if self.sheet.abilities.learn_from(&self.inventory) {
+        // A first empty bottle teaches Collect Water, a first apparatus its
+        // Alchemy sub-skill.
+        let learned = self.sheet.abilities.learn_from(&self.inventory);
+        let skilled = shared::alchemy::learn_sub_skills(&self.inventory, &mut self.sheet.skills);
+        if learned || skilled {
             self.unsaved = true;
             if !self.link.send(&ServerMessage::Sheet(self.sheet.as_sent())) {
                 return false;

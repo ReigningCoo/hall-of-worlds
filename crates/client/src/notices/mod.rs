@@ -3,7 +3,8 @@
 //! See `docs/context/client/notices.md`.
 
 use bevy::prelude::*;
-use shared::protocol::{Landed, PickNews, ServerMessage};
+use shared::item::ItemKind;
+use shared::protocol::{Alchemised, Landed, PickNews, ServerMessage};
 
 use crate::common::{HerbTable, words};
 use crate::connection::FromServer;
@@ -91,14 +92,9 @@ fn show_notices(
             }
             ServerMessage::AbilityLanded {
                 who: None,
-                landed: Landed::Ground(doses),
+                landed: Landed::Alchemy { made, left },
                 ..
-            } => ground(*doses),
-            ServerMessage::AbilityLanded {
-                who: None,
-                landed: Landed::Brewed(quality),
-                ..
-            } => brewed(*quality),
+            } => alchemised(*made, *left),
             ServerMessage::AbilityLanded {
                 who: None,
                 landed: Landed::Juiced(ml),
@@ -125,12 +121,26 @@ fn show_notices(
     }
 }
 
-/// What a Grind made: "Ground 3 Ointment", or that it came to nothing (the
-/// ingredients are gone all the same).
-fn ground(doses: u32) -> String {
-    match doses {
-        0 => "The mix came to nothing".to_owned(),
-        doses => format!("Ground {doses} Ointment"),
+/// What a run of Alchemy made: "Made 2 Rare potions", that it failed or came to
+/// nothing (the ingredients are gone all the same), and the runs left.
+fn alchemised(made: Alchemised, left: u32) -> String {
+    let made = match made {
+        Alchemised::Failed => "The process failed".to_owned(),
+        Alchemised::Nothing => "The mix came to nothing".to_owned(),
+        Alchemised::Made {
+            kind: ItemKind::Bottle,
+            count,
+            quality,
+        } => match count {
+            1 => format!("Made a {quality:?} potion"),
+            count => format!("Made {count} {quality:?} potions"),
+        },
+        Alchemised::Made { kind, quality, .. } => format!("Made {quality:?} {}", kind.def().name),
+    };
+    match left {
+        0 => made,
+        1 => format!("{made}: 1 more to go"),
+        left => format!("{made}: {left} more to go"),
     }
 }
 
@@ -139,14 +149,6 @@ fn fermenting(days: u32) -> String {
     match days {
         1 => "Fermenting: ready in a day".to_owned(),
         days => format!("Fermenting: ready in {days} days"),
-    }
-}
-
-/// What a Brew made: "Brewed a Rare potion", or that none formed.
-fn brewed(quality: Option<shared::item::Quality>) -> String {
-    match quality {
-        Some(quality) => format!("Brewed a {quality:?} potion"),
-        None => "No potion formed".to_owned(),
     }
 }
 

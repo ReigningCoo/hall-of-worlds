@@ -287,10 +287,9 @@ pub enum ClientMessage {
     Pick { x: i64, y: i64 },
     /// Developer tools: learn or forget herbs (`DevHerbs`), answered with `Sheet`.
     DevHerbs(super::DevHerbs),
-    /// Grind herbs and an oil into ointment: answered as `UseAbility(Grind)` (`Landed::Ground`).
-    Grind(crate::brewing::GrindOrder),
-    /// Brew an ointment and a water into a potion: answered as `UseAbility(Brew)` (`Landed::Brewed`).
-    Brew(crate::brewing::BrewOrder),
+    /// Run an Alchemy process, `count` times: answered as `UseAbility(Alchemy)`
+    /// once a run (`Landed::Alchemy`).
+    Alchemy(crate::alchemy::AlchemyOrder),
     /// Set a cask fermenting: answered as `UseAbility(Ferment)` (`Landed::Fermented`).
     Ferment(crate::ferment::FermentOrder),
     /// About the character's personal map marks (`MarkAsk`).

@@ -28,12 +28,9 @@ pub(crate) enum Act {
     /// Fruit being pressed into juice (players only): the fruit is the
     /// client's `pressing`.
     PressJuice,
-    /// Herbs being ground into ointment (players only): the order is the
-    /// client's `grinding`.
-    Grind,
-    /// An ointment and a water being brewed (players only): the order is the
-    /// client's `brewing`.
-    Brew,
+    /// A run of an Alchemy process (players only): the order is the client's
+    /// `alchemy`.
+    Alchemy,
     /// A blow at the tree at this cell of the player's level, `ticks` long
     /// (players only, `connections/fell_tree.rs`).
     FellTree { at: (i64, i64), ticks: u64 },

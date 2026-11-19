@@ -9,7 +9,7 @@ use shared::item::{Item, ItemKind};
 use shared::pour::{PourRefused, pour_cost};
 
 use super::Client;
-use super::grind::give;
+use super::give::give;
 use crate::ServerWorld;
 use crate::ids::new_id;
 

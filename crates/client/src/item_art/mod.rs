@@ -29,6 +29,7 @@ mod morph;
 mod necklace;
 mod ointment;
 mod parcel;
+mod paste;
 mod pouch;
 mod ring;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]

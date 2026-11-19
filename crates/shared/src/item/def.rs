@@ -120,6 +120,8 @@ impl ItemKind {
                 Self::Ointment => {
                     plain("Ointment", crate::brewing::OINTMENT_GRAMS, square).counted()
                 }
+                // The same for a paste (`shared::alchemy`).
+                Self::Paste => plain("Paste", crate::alchemy::PASTE_GRAMS, square).counted(),
                 // Laminated to the knee, wrapping the thighs: Waist and Legs (the owner's
                 // decision). Its form says its cells and weight.
                 Self::CuirassierTassets => plain(
@@ -165,9 +167,11 @@ impl ItemKind {
                 )),
                 Self::Knife => plain("Knife", 200, Shape::rectangle(1, 2)).worn(HELD),
                 Self::Lantern => plain("Lantern", 800, Shape::rectangle(1, 2)),
-                // Brewing's tools (`ability::Ability::tool`): weights first guesses.
+                // Alchemy's tools and apparatus (`ability::Ability::tool`,
+                // `alchemy::Apparatus::item`): weights first guesses.
                 Self::OilPress => plain("Oil Press", 6000, Shape::rectangle(2, 2)),
                 Self::MortarAndPestle => plain("Mortar and Pestle", 1500, square),
+                Self::Retort => plain("Retort", 900, Shape::rectangle(1, 2)),
                 Self::Cauldron => plain("Cauldron", 4000, Shape::rectangle(2, 2)),
                 // Its form says its size, wood, cells and weight (`shared::cask`).
                 Self::Cask => plain("Cask", 14_000, Shape::rectangle(3, 3)),

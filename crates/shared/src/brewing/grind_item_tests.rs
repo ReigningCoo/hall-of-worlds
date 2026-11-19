@@ -1,30 +1,16 @@
-//! Grind's pieces: the ointment item, the order checked against what is
-//! carried, recipes kept, and ointment on the skin.
+//! Grind's pieces kept by Alchemy: the ointment item, the carried stacks,
+//! recipes kept, and ointment on the skin.
 
 use super::*;
 use crate::bonus::{Amount, Source, Stat as BonusStat};
-use crate::herb::{Herbs, Stat};
+use crate::herb::Stat;
 use crate::id::Id;
 use crate::item::{Inventory, Item, ItemKind, Quality, StackLimits};
-use crate::item_form::ItemForm;
-use crate::potion::{BottleForm, Contents, Dose, Liquid, Oil};
+use crate::potion::{Contents, Dose, Oil};
 use crate::vitals::{PER_POINT, Vital};
 
 fn contents(doses: &[(Stat, i16)]) -> Contents {
     Contents::new(doses.iter().map(|&(stat, step)| Dose { stat, step }))
-}
-
-fn herb(herbs: &Herbs, key: &str, count: u32, id: u128) -> Item {
-    let def = herbs.get(key).expect("a herb");
-    crate::herb::new_item(def, count, Id::for_test(id), None)
-}
-
-fn oil(oil: Oil, count: u32, id: u128) -> Item {
-    let mut bottle = Item::new(Id::for_test(id), ItemKind::Bottle);
-    let liquid = Some(Liquid::Oil(oil));
-    bottle.form = Some(ItemForm::Bottle(BottleForm::new(liquid, 3)));
-    bottle.count = count;
-    bottle
 }
 
 fn carrying(items: Vec<Item>) -> Inventory {
@@ -36,12 +22,6 @@ fn carrying(items: Vec<Item>) -> Inventory {
             .unwrap();
     }
     inventory
-}
-
-/// Two built-in herbs' keys.
-fn two_herbs(herbs: &Herbs) -> (String, String) {
-    let mut keys = herbs.iter().map(|def| def.key.clone());
-    (keys.next().unwrap(), keys.next().unwrap())
 }
 
 #[test]
@@ -58,56 +38,6 @@ fn ointment_stacks_by_contents_and_has_their_quality() {
     let inventory = carrying(vec![one, same, other]);
     let stacks: Vec<u32> = inventory.items.iter().map(|p| p.item.count()).collect();
     assert_eq!(stacks.len(), 2, "the same contents stack: {stacks:?}");
-}
-
-#[test]
-fn an_order_is_checked_against_what_is_carried() {
-    let herbs = Herbs::built_in();
-    let (a, b) = two_herbs(&herbs);
-    let carried = carrying(vec![
-        herb(&herbs, &a, 3, 1),
-        herb(&herbs, &b, 1, 2),
-        oil(Oil::Nut, 1, 3),
-    ]);
-    let skills = BrewSkills::default();
-    let stack = |key: &str| {
-        let stacks = carried.herb_stacks();
-        stacks.iter().find(|s| s.herb == key).unwrap().stack
-    };
-    let oil_stack = carried.oil_stacks()[0].stack;
-    let order = GrindOrder {
-        herbs: vec![stack(&a), stack(&b)],
-        oil: oil_stack,
-        doses: 1,
-    };
-    let (made, used) = carried.check_grind(&order, &herbs, skills).unwrap();
-    assert_eq!(used, Oil::Nut);
-    assert_eq!(made.doses, 1);
-    let more = GrindOrder {
-        doses: 2,
-        ..order.clone()
-    };
-    let refused = carried.check_grind(&more, &herbs, skills);
-    assert!(
-        refused.is_err(),
-        "only one of the second herb, and Alchemy allows one dose"
-    );
-    let no_oil = GrindOrder {
-        oil: Id::for_test(99),
-        ..order.clone()
-    };
-    assert_eq!(
-        carried.check_grind(&no_oil, &herbs, skills),
-        Err(GrindRefused::Oil)
-    );
-    let twice = GrindOrder {
-        herbs: vec![stack(&a), stack(&a)],
-        ..order
-    };
-    assert_eq!(
-        carried.check_grind(&twice, &herbs, skills),
-        Err(GrindRefused::Rules(Refused::SameHerb))
-    );
 }
 
 #[test]

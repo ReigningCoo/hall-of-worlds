@@ -12,7 +12,7 @@ use shared::potion::BottleForm;
 use shared::vitals::{Points, Vital};
 
 use super::Client;
-use super::grind::give;
+use super::give::give;
 use crate::ServerWorld;
 
 /// Whether `potion` can be drunk at `now`: not while one of the same stats and

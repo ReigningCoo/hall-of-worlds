@@ -21,12 +21,12 @@ use crate::storage::CharacterWorldSave;
 
 mod action;
 mod action_bar;
+mod alchemy;
 mod alcohol;
 mod answer;
 mod answer_dev;
 mod answer_items;
 mod bonuses;
-mod brew;
 mod change_kind;
 mod characters;
 mod client;
@@ -51,9 +51,9 @@ mod feed_yeast;
 mod fell_tree;
 mod ferment;
 mod for_others;
+mod give;
 mod give_items;
 mod go_to_place;
-mod grind;
 mod heal;
 mod keys_found;
 mod kick;
@@ -229,11 +229,10 @@ pub struct Client {
     /// What Press Oil (`press_oil.rs`) or Press Juice (a fruit,
     /// `press_juice.rs`) presses while it goes on.
     pressing: Option<shared::potion::Pressing>,
-    /// What Grind grinds and Brew brews while they wind up (`grind.rs`, `brew.rs`).
-    grinding: Option<shared::brewing::GrindOrder>,
+    /// The Alchemy process being run and the runs left (`alchemy.rs`).
+    alchemy: Option<shared::alchemy::AlchemyOrder>,
     /// What Ferment sets going while it winds up (`ferment.rs`).
     fermenting: Option<shared::ferment::FermentOrder>,
-    brewing: Option<shared::brewing::BrewOrder>,
     /// Its open practice windows, by skill and by kind of foe.
     learning: crate::combat::Learning,
     /// What a character being made here asked to be, for when they first join.

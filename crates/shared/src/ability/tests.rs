@@ -234,7 +234,7 @@ fn only_known_active_abilities_can_be_used() {
 #[test]
 fn alchemy_gives_everyone_its_abilities_for_now() {
     let sheet = Sheet::new(CreatureKind::Human);
-    for ability in [Ability::PressOil, Ability::Grind, Ability::Brew] {
+    for ability in [Ability::PressOil, Ability::Alchemy] {
         assert_eq!(ability.skill(), Some(skill::ALCHEMY));
         assert!(ability.is_known(CreatureKind::Human, &sheet), "{ability:?}");
         assert!(known(CreatureKind::Wolf, &sheet).contains(&ability));
@@ -246,11 +246,7 @@ fn alchemy_gives_everyone_its_abilities_for_now() {
 #[test]
 fn abilities_with_a_tool_need_it_carried() {
     let human = CreatureKind::Human;
-    let tools = [
-        (Ability::PressOil, ItemKind::OilPress),
-        (Ability::Grind, ItemKind::MortarAndPestle),
-        (Ability::Brew, ItemKind::Cauldron),
-    ];
+    let tools = [(Ability::PressOil, ItemKind::OilPress)];
     for (ability, tool) in tools {
         assert_eq!(ability.tool(), Some(tool));
         assert!(!usable(ability, human), "{ability:?} without its tool");
@@ -306,4 +302,28 @@ fn everyone_knows_sneak_a_toggle_for_the_bar() {
     for kind in CreatureKind::ALL {
         assert!(known_by_kind(kind).contains(&Ability::Sneak), "{kind:?}");
     }
+}
+
+#[test]
+fn alchemy_needs_an_apparatus_carried() {
+    let human = CreatureKind::Human;
+    assert!(!usable(Ability::Alchemy, human));
+    for apparatus in [ItemKind::MortarAndPestle, ItemKind::Retort] {
+        assert!(can_use_carrying(Ability::Alchemy, human, &[apparatus]));
+    }
+    assert!(!can_use_carrying(
+        Ability::Alchemy,
+        human,
+        &[ItemKind::Cauldron]
+    ));
+}
+
+#[test]
+fn old_grind_and_brew_slots_load_as_one_alchemy() {
+    let text = "(slots: (Some((ability: Grind, auto: false)), Some((ability: Brew, auto: false)), \
+        None, None, None, None, None, None, None, None), given: 1)";
+    let mut bar: ActionBar = ron::from_str(text).unwrap();
+    bar.catch_up();
+    assert_eq!(bar.slot_of(Ability::Alchemy), Some(0));
+    assert!(bar.slots[1].is_none(), "the second is cleared");
 }

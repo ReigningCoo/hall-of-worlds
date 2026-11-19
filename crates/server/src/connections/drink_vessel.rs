@@ -15,7 +15,7 @@ use shared::potion::{BottleForm, Liquid};
 use shared::pour::BOTTLE_ML;
 
 use super::Client;
-use super::grind::give;
+use super::give::give;
 use super::pour::{put_back, side};
 use crate::ServerWorld;
 

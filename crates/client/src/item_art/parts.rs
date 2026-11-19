@@ -77,6 +77,7 @@ pub(super) fn parts_of(
             super::bottle::bottle_parts(&bottle, liquid.as_ref(), meshes, materials)
         }
         Look::Ointment(salve) => super::ointment::ointment_parts(salve.as_ref(), meshes, materials),
+        Look::Paste(paste) => super::paste::paste_parts(paste.as_ref(), meshes, materials),
         Look::Coin(metal) => super::coin::coin_parts(metal, meshes, materials),
         Look::Fruit(fruit) => super::fruit::fruit_parts(&fruit, meshes, materials),
         Look::Vegetable(vegetable) => {

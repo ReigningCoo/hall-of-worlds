@@ -83,7 +83,7 @@ pub fn choices(kind: ItemKind, quality: Quality, request: &RollRequest) -> Choic
                 .collect(),
             ..Choices::default()
         },
-        ItemKind::Ointment => Choices {
+        ItemKind::Ointment | ItemKind::Paste => Choices {
             effects: (1..=crate::potion::MOST_EFFECTS).collect(),
             ..Choices::default()
         },

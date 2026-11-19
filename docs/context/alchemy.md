@@ -72,6 +72,17 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
 - Learning chooses, among herbs whose effect on that stat is still unknown, the one giving most towards the dose's way.
 - The Paste item itself (its kind, picture, popup) comes with PR 3, which gives it; PR 2 only makes it as a product.
 
+## The server (PR 3, built)
+
+`ClientMessage::Alchemy(AlchemyOrder)` (`shared::alchemy`'s `order.rs`; server `connections/alchemy.rs`). Claude's choices:
+
+- The order names carried stacks per drop space (a stack listed twice is used twice) and a count of 1 to 99; both sides check it with `Inventory::check_alchemy`, the server again before each run, so a run stops once something runs out.
+- Each run is its own wind-up of its steps' times (Mortar 10 s, Retort 15 s, less ∛ of the sub-skill%, as Grind and Brew were), rolled from a fresh id's seed; moving or harm calls off the run and the runs left.
+- The liquids' bottles become the potion's bottles (one per 100 ml unit), or come back empty; the Mortar's oil bottle comes back empty, as Grind's did.
+- Practice: 8 to each practised step's sub-skill (flowing up to Alchemy), 2 Herbalism a herb kind. Sub-skills are learned by practising them by 1 when an apparatus is first carried.
+- `Ability::Alchemy` took Grind's place in the enum; saves' Grind and Brew load as it, and a bar holding both keeps only the first. The Cauldron item stays, sold by blacksmiths, unused. Old recipes stay on the sheet; nothing new is remembered.
+- Until the panel (PR 4), using Alchemy from the bar does nothing.
+
 ## Retort solids and Darkvision (PR 8)
 
 | Solid | Source | Effect |
@@ -89,7 +100,7 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
 | -- | ---- | ----- |
 | 1 | Neutral and Grain Oil, Rain Water, durations by quality, the Alchemy wiki page; this plan (built) | None |
 | 2 | The process rules in `shared`: steps, chance, dilution at the end, Paste, quality with sub-skills, luck, old sources, learning, the preview; the six sub-skills in the skill tree (built: `shared::alchemy`) | 1 |
-| 3 | Server: the Alchemy ability, Mortar and Retort steps, the Retort item, the count, Infusing's rule; Grind, Brew and the Cauldron removed from alchemy | 2 |
+| 3 | Server: the Alchemy ability, Mortar and Retort steps, the Retort item, the count, Infusing's rule; Grind, Brew and the Cauldron removed from alchemy (built) | 2 |
 | 4 | Client: the Alchemy panel (dragging, drop spaces, preview, count, colour fill) | 3 |
 | 5 | Alembic: pure alcohol, tinctures, Salt from Salt Water (replaces the drinks plan's old PR 8) | 3 and drinks PR 6 (Ferment, merged) |
 | 6 | Crucible and Filter, Powder | 3 |
