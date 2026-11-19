@@ -1,5 +1,5 @@
 //! What can be told of something on the ground from afar: how full its bag looks,
-//! or the cask standing there.
+//! the cask standing there, or the logs lying there.
 //! What is in it is only told to someone within reach of it. See
 //! `docs/context/shared/ground.md`.
 
@@ -23,7 +23,16 @@ pub enum Load {
     Bulging,
     /// A cask standing there (`shared::cask`), whatever else is with it.
     Cask(crate::cask::CaskLook),
+    /// Logs lying there (`shared::woodcutting`), whatever else is with them
+    /// but a cask: the first one's wood, and how many show, 1 to `MOST_LOGS`.
+    Logs {
+        wood: crate::material::Material,
+        count: u8,
+    },
 }
+
+/// The most logs a pile shows: three or more look alike (owner).
+pub const MOST_LOGS: u8 = 3;
 
 impl Load {
     /// Every bag's look (casks have their own).
@@ -46,7 +55,8 @@ impl Load {
         }
     }
 
-    /// How full a bag holding these looks, or the biggest cask among them.
+    /// How full a bag holding these looks, or the biggest cask among them,
+    /// or the logs among them.
     pub fn of(items: &[Item]) -> Self {
         let cask = items
             .iter()
@@ -54,6 +64,16 @@ impl Load {
             .max_by_key(|cask| cask.size);
         if let Some(cask) = cask {
             return Self::Cask(cask.look());
+        }
+        let mut logs = items
+            .iter()
+            .filter_map(|item| Some((item.log()?, item.count())));
+        if let Some((first, count)) = logs.next() {
+            let count = logs.fold(count, |all, (_, count)| all.saturating_add(count));
+            return Self::Logs {
+                wood: first.wood,
+                count: count.min(u32::from(MOST_LOGS)) as u8,
+            };
         }
         let grams = items.iter().map(Item::total_weight).sum();
         Self::of_weight(grams)

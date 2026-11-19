@@ -26,7 +26,7 @@ pub(super) fn spawn_bag(
     load: Load,
 ) -> Entity {
     let hash = spot_hash(at);
-    let cask = matches!(load, Load::Cask(_));
+    let cask = matches!(load, Load::Cask(_) | Load::Logs { .. });
     let variety = match cask {
         true => 0,
         false => (hash % super::bag::VARIETIES as u32) as u8,

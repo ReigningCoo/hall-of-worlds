@@ -17,6 +17,7 @@ mod cask;
 mod clicks;
 #[cfg(not(target_arch = "wasm32"))]
 mod debug;
+mod logs;
 mod parts;
 mod raise;
 mod server;
