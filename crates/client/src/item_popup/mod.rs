@@ -18,6 +18,7 @@ mod place;
 mod show;
 mod size;
 mod words;
+mod yeast;
 
 use bevy::prelude::*;
 

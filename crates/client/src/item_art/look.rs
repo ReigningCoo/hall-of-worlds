@@ -114,6 +114,8 @@ pub enum Look {
     Tool(shared::item::ItemKind),
     /// A sack of flour, by its flour's colour (`flour.rs`).
     Flour(super::FlourLook),
+    /// A crock of yeast, the same for every one (`yeast.rs`).
+    Yeast,
     /// A cask, by its size and wood (`cask.rs`).
     Cask(shared::cask::CaskLook),
     /// A vessel, by which it is (`vessel.rs`).
@@ -185,6 +187,7 @@ impl Look {
             | Self::Bottle { .. }
             | Self::Ointment(_)
             | Self::Flour(_)
+            | Self::Yeast
             | Self::Coin(_) => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),

@@ -77,3 +77,4 @@ pub mod wilderness;
 pub mod woodcutting;
 pub mod world;
 pub mod world_gate;
+pub mod yeast;

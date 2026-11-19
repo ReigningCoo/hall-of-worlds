@@ -68,6 +68,7 @@ pub(super) fn parts_of(
         Look::Food(kind) => super::food::food_parts(kind, meshes, materials),
         Look::Tool(kind) => super::tool::tool_parts(kind, meshes, materials),
         Look::Flour(flour) => super::flour::flour_parts(flour, meshes, materials),
+        Look::Yeast => super::yeast::yeast_parts(meshes, materials),
         Look::Cask(cask) => super::cask::cask_parts(cask, meshes, materials),
         Look::Vessel(vessel) => super::vessel::vessel_parts(vessel, meshes, materials),
         Look::Bottle { bottle, liquid } => {

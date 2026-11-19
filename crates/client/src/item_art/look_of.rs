@@ -25,6 +25,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
         | ItemKind::Tap) => {
             return Some(Look::Tool(kind));
         }
+        ItemKind::Yeast => return Some(Look::Yeast),
         kind @ (ItemKind::Bread | ItemKind::DwarvenBread | ItemKind::RawMeat) => {
             return Some(Look::Food(kind));
         }

@@ -83,6 +83,18 @@ pub(super) fn shows_activity(message: &ClientMessage) -> bool {
 }
 
 impl Client {
+    /// Carried yeast lets the whole seconds of playtime from `before` to
+    /// `played` pass. `false` if the client is to be disconnected.
+    fn age_yeast(&mut self, before: u64, played: u64) -> bool {
+        let second = TICKS_PER_MINUTE / 60;
+        let secs = (played / second - before / second) as u32;
+        let now = crate::quests::unix_now().max(0) as u64;
+        if secs == 0 || !self.inventory.age_yeast(secs, now).seen() {
+            return true;
+        }
+        self.send_inventory()
+    }
+
     /// Counts its playtime to `now`, rusting skills set aside, and sends it
     /// away if it has done nothing
     /// for `idle_minutes` (0: never). The host, whose server it is, is never
@@ -91,8 +103,13 @@ impl Client {
         let before = self.activity.played;
         if self.activity.count(now) {
             self.unsaved = true;
-            // Skills rust from disuse, looked at once a minute of playtime.
+            // Carried yeast goes by playtime (`shared::yeast`): its player
+            // hears of it each hour on its clock.
             let played = self.activity.played;
+            if !self.age_yeast(before, played) {
+                return false;
+            }
+            // Skills rust from disuse, looked at once a minute of playtime.
             if played / TICKS_PER_MINUTE != before / TICKS_PER_MINUTE
                 && self.sheet.skills.rust(played)
                 && !self.send_sheet(now)

@@ -36,6 +36,7 @@ mod tool;
 mod under;
 mod vegetable;
 mod vessel;
+mod yeast;
 
 use bevy::prelude::*;
 use bevy::render::{ExtractSchedule, Render, RenderApp, RenderSystems};

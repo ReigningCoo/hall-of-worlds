@@ -14,7 +14,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
         Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif, Loincloth, MortarAndPestle,
         Necklace, Neckwear, OilPress, PaddedChausses, PaddedGloves, Petticoat, Pouch, Ring,
         Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox, Socks, Surcoat, Sword, Tabard, Tap,
-        Trousers, Vegetable, Vessel, Wimple,
+        Trousers, Vegetable, Vessel, Wimple, Yeast,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -26,6 +26,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
         ],
         // Their bottles hold waters and oils (`bottled`); fruit and
         // vegetables are what is grown near the town (`shared::produce`).
+        // Yeast until towns have bakers (drinks PR 4).
         BuildingKind::Herbalist => &[
             (Fruit, 3),
             (Vegetable, 3),
@@ -34,6 +35,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (HerbPouch, 1),
             (MortarAndPestle, 1),
             (Vessel, 1),
+            (Yeast, 1),
         ],
         BuildingKind::Carpenter => &[
             (SmallBox, 2),

@@ -17,6 +17,7 @@ pub(super) type InReach = (Vec<Spot>, Vec<(shared::id::Id, u32)>);
 /// Tells each player what is in their reach, when it isn't what they were last
 /// told. A client that has gone is noticed when its messages are next read.
 pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld) {
+    settle_yeast(clients, world);
     for client in clients {
         if client.phase != Phase::Playing {
             continue;
@@ -51,6 +52,43 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld) {
             client.ground_told.again = false;
         }
         tell_bags(client, world);
+    }
+}
+
+/// Yeast lying in players' reach lets the real time pass (`shared::yeast`), so
+/// what they see of it is up to date: everyone on a level where some lost a
+/// quality step or passed an hour on its clock is told the ground again, and
+/// its site saved.
+fn settle_yeast(clients: &mut [Client], world: &mut ServerWorld) {
+    let now = crate::quests::unix_now().max(0) as u64;
+    let mut seen = Vec::new();
+    for client in clients.iter() {
+        let Some((id, index, at)) = standing_at(client) else {
+            continue;
+        };
+        // Unmarked: a save left with an older clock counts the same time
+        // when next settled. Marked once something is seen to change.
+        let Some(level) = world.site(id).levels.get_mut(&index) else {
+            continue;
+        };
+        for bag in bags_in_reach(&level.ground, client.size(), at) {
+            // Every item settles: no stopping at the first that changed.
+            let items = level.ground.get_mut(&bag).into_iter().flatten();
+            let settled: Vec<bool> =
+                (items.map(|item| item.settle_lying_yeast(now).seen())).collect();
+            if settled.contains(&true) {
+                seen.push((id, index));
+            }
+        }
+    }
+    for &(id, _) in &seen {
+        world.site_mut(id);
+    }
+    for client in clients.iter_mut() {
+        let here = standing_at(client).map(|(id, index, _)| (id, index));
+        if here.is_some_and(|here| seen.contains(&here)) {
+            client.ground_told.again = true;
+        }
     }
 }
 

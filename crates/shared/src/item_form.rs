@@ -119,6 +119,8 @@ pub enum ItemForm {
     Kindling(crate::woodcutting::KindlingForm),
     /// A vessel (`shared::vessel`): which one and what is in it.
     Vessel(crate::vessel::VesselForm),
+    /// A yeast (`shared::yeast`): its clock and progress.
+    Yeast(crate::yeast::YeastForm),
 }
 
 impl ItemForm {
@@ -155,6 +157,7 @@ impl ItemForm {
             Self::Log(log) => log.name(),
             Self::Kindling(kindling) => kindling.name(),
             Self::Vessel(vessel) => vessel.name(),
+            Self::Yeast(_) => "Yeast".to_owned(),
         }
     }
 
@@ -201,7 +204,8 @@ impl ItemForm {
             | Self::Flour(_)
             | Self::Log(_)
             | Self::Kindling(_)
-            | Self::Vessel(_) => &[],
+            | Self::Vessel(_)
+            | Self::Yeast(_) => &[],
         };
         settings.iter().filter_map(|setting| setting.gem.as_ref())
     }

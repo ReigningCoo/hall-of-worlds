@@ -206,6 +206,11 @@ impl Item {
                 copy.quality = None;
             }
         }
+        if let Some(ItemForm::Yeast(yeast)) = &mut copy.form {
+            // Each keeps its own clock and progress (owner, 2026-11-18): a
+            // stack keys on quality.
+            *yeast = crate::yeast::YeastForm::default();
+        }
         if let Some(ItemForm::Ring(ring)) = &mut copy.form {
             for gem in ring
                 .settings

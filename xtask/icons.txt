@@ -78,6 +78,7 @@ lorc/crossed-swords
 lorc/fire-ray
 lorc/fist
 lorc/fizzing-flask
+lorc/bubbling-bowl
 lorc/footprint
 lorc/gems
 lorc/halberd
