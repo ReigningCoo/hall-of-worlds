@@ -30,7 +30,7 @@ The maps: the round minimap always in the window's top-right corner, and the ful
 
 ## Used by
 
-- `dev_tools` (`HOW_DEBUG_MAP`), `tracked_quest` (`MinimapArea`), `map_marks` (`FullMap`, `FullMapClick`, `mark_pixels`, `swatch_pixels`).
+- `dev_tools` (`HOW_DEBUG_MAP`), `tracked_quest` (`MinimapArea`), `map_marks` (`FullMap`, `FullMapClick`, `mark_pixels`, `swatch_pixels`), `world_map` (`mark_pixels`, for its marks' discs).
 
 ## Notes
 

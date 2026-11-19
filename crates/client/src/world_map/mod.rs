@@ -37,6 +37,8 @@ mod click;
 mod forget;
 mod gate_view;
 mod gates;
+mod mark_disc;
+mod marks;
 mod parts;
 mod showing;
 mod spawn;
@@ -81,6 +83,8 @@ impl Plugin for WorldMapPlugin {
             .init_resource::<chunks::TerrainChunks>()
             .init_resource::<SpawnedPois>()
             .init_resource::<gates::SpawnedGates>()
+            .init_resource::<marks::SpawnedMarks>()
+            .init_resource::<mark_disc::MarkDiscs>()
             .init_resource::<PoiMeshes>()
             .init_resource::<KnownRivers>()
             .init_resource::<map_sky::MapSky>()
@@ -96,6 +100,7 @@ impl Plugin for WorldMapPlugin {
                 (
                     pois::despawn_all,
                     gates::despawn_gates,
+                    marks::despawn_marks,
                     forget::forget_world,
                 )
                     .before(update_terrain)
@@ -104,11 +109,16 @@ impl Plugin for WorldMapPlugin {
             .add_systems(OnEnter(GameView::WorldMap), show_scene)
             .add_systems(
                 OnExit(GameView::WorldMap),
-                (hide_scene, pois::despawn_all, gates::despawn_gates),
+                (
+                    hide_scene,
+                    pois::despawn_all,
+                    gates::despawn_gates,
+                    marks::despawn_marks,
+                ),
             )
             .add_systems(
                 Update,
-                pick_on_click
+                (pick_on_click, marks::travel_to_mark)
                     .in_set(PlayerSystems::Input)
                     .after(View3dSystems::Click)
                     .run_if(in_view.clone()),
@@ -122,6 +132,7 @@ impl Plugin for WorldMapPlugin {
                     lights::update,
                     pois::spawn_nearby,
                     gates::spawn_gates,
+                    marks::sync_marks,
                 )
                     .after(PlayerSystems::Travel)
                     .before(View3dSystems::Place)
@@ -133,6 +144,8 @@ impl Plugin for WorldMapPlugin {
                     pois::add_models,
                     gates::add_gate_models,
                     gate_view::face_camera,
+                    mark_disc::add_discs,
+                    mark_disc::turn_with_camera,
                     pois::outline_hovered,
                     rest_tokens_on_terrain,
                     hide_tokens_outside_window,

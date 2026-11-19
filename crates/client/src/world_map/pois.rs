@@ -25,7 +25,8 @@ use bevy::render::render_resource::Face;
 /// Pois exist this far from the player (each way, east–west and
 /// north–south): the corners of the largest window when it is turned 45°, plus a
 /// token's radius.
-const RANGE: i64 = (MAX_HALF * std::f32::consts::SQRT_2 + TOKEN_DIAMETER / 2.0) as i64 + 1;
+pub(super) const RANGE: i64 =
+    (MAX_HALF * std::f32::consts::SQRT_2 + TOKEN_DIAMETER / 2.0) as i64 + 1;
 
 /// How many versions of each town's model there are.
 const VARIETIES: u64 = 8;

@@ -75,7 +75,7 @@ A camera key moves the camera a little each time you press it, and keeps it movi
 | Open or close the full map | M, or click the minimap | Tap the minimap |
 | Move and zoom the full map | Drag, mouse wheel | Drag, pinch |
 | Place a mark of your own on the full map of the world map or the wilderness: choose a colour, then an icon; up to 100 a planet. A pile you start in the wilderness gets a white mark of its own, gone once the pile is emptied | Click open land on the full map | Tap open land on the full map |
-| Travel to one of your marks, or remove it | Click the mark on the full map | Tap the mark on the full map |
+| Travel to one of your marks, or remove it | Click the mark on the full map (or, to travel, the mark itself on the world map) | Tap the mark on the full map (or on the world map) |
 | See what something is | Point at it: a creature, a door, stairs, a bag, a place on the world map, a sun or moon | Hold a finger on it |
 | Open the system menu | Esc, or click the gear in the top-right corner | Tap the gear |
 | Windowed or full screen (native only) | Alt+Enter, or Settings, Graphics | Settings, Graphics |

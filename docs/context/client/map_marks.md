@@ -1,6 +1,6 @@
 # client: map_marks
 
-Personal map marks (`shared::map_mark`): keeps `common::MapMarks` to what the server says, and the full map's popups for placing a mark and for one of the player's own. Drawing the marks on the maps is `minimap`'s.
+Personal map marks (`shared::map_mark`): keeps `common::MapMarks` to what the server says, and the full map's popups for placing a mark and for one of the player's own. Drawing the marks on the maps is `minimap`'s, and in the 3D world map `world_map`'s.
 
 ## Files
 
