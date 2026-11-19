@@ -19,6 +19,8 @@ pub(super) struct Station {
     pub(super) alcohol: Option<Id>,
     /// A Filter's Powder, or none.
     pub(super) powder: Option<Id>,
+    /// A Retort's solid, or none.
+    pub(super) solid: Option<Id>,
     /// A Retort's liquids, a 100 ml bottle each, in order (one stack may be
     /// listed again).
     pub(super) liquids: Vec<Id>,
@@ -32,6 +34,7 @@ impl Station {
             oil: None,
             alcohol: None,
             powder: None,
+            solid: None,
             liquids: Vec::new(),
         }
     }
@@ -120,6 +123,7 @@ impl Bench {
                 .chain(station.oil)
                 .chain(station.alcohol)
                 .chain(station.powder)
+                .chain(station.solid)
                 .chain(station.liquids.iter().copied())
         });
         self.source.into_iter().chain(steps)
@@ -141,6 +145,9 @@ impl Bench {
             }
             if station.powder.is_some_and(|id| !carried(id)) {
                 station.powder = None;
+            }
+            if station.solid.is_some_and(|id| !carried(id)) {
+                station.solid = None;
             }
         }
     }

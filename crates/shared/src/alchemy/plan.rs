@@ -99,8 +99,8 @@ pub fn plan(process: &Process, skills: AlchemySkills) -> Result<Planned, Refused
                 (contributions, extra_kinds) = (ground.contributions, ground.extra_kinds);
                 practised.push(Apparatus::Mortar);
             }
-            Step::Retort { liquids } => {
-                retort(&mut batch, liquids)?;
+            Step::Retort { liquids, solid } => {
+                retort(&mut batch, liquids, *solid)?;
                 if batch.form.is_some() {
                     practised.push(Apparatus::Retort);
                 }

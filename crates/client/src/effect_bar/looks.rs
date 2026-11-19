@@ -46,6 +46,7 @@ pub(super) fn icon_path(source: Source) -> &'static str {
         Source::Dev => "icons/lorc/magic-swirl.png",
         Source::RawHerb => "icons/delapouite/herbs-bundle.png",
         Source::Ointment => "icons/delapouite/covered-jar.png",
+        Source::Potion(shared::herb::Stat::Darkvision) => "icons/delapouite/night-vision.png",
         Source::Potion(_) => "icons/lorc/fizzing-flask.png",
         Source::Juice(_) | Source::Cordial(_) | Source::Drink => "icons/delapouite/drinking.png",
         Source::Alcohol(stage) => match stage {

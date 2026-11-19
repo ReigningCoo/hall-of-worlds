@@ -9,7 +9,7 @@ use super::Part;
 /// How far the heap is tipped towards the camera, so its shape shows.
 const TIP: f32 = 0.6;
 
-/// The heap's parts (`Look::Salt`), against the picture's `VIEW_WIDTH` of 2.5.
+/// The heap's parts (`Look::Solid` of Salt), against the picture's `VIEW_WIDTH` of 2.5.
 pub(super) fn salt_parts(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,

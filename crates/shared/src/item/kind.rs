@@ -129,8 +129,16 @@ pub enum ItemKind {
     Pelican,
     /// A Crucible's Powder (`shared::alchemy`), counted like a Paste.
     Powder,
-    /// What distilling Salt Water leaves (`shared::alchemy`), counted.
+    /// What distilling Salt Water leaves (`shared::alchemy`), counted: a
+    /// Retort solid leaning a mixture to the Body row.
     Salt,
+    /// A Retort solid (`shared::alchemy`) leaning a mixture to the Mind row;
+    /// sold only, counted.
+    Sulphur,
+    /// Quicksilver in a little stoppered phial: a Retort solid
+    /// (`shared::alchemy`) leaning a mixture to the Spirit row; sold only,
+    /// counted.
+    Mercury,
     Pouch,
     Ring,
     Sandals,

@@ -116,8 +116,8 @@ pub enum Look {
     Flour(super::FlourLook),
     /// A crock of yeast, the same for every one (`yeast.rs`).
     Yeast,
-    /// A heap of Salt, the same for every one (`salt.rs`).
-    Salt,
+    /// Salt, Sulphur or Mercury, by kind (`salt.rs`, `solids.rs`).
+    Solid(shared::item::ItemKind),
     /// A cask, by its size and wood (`cask.rs`).
     Cask(shared::cask::CaskLook),
     /// A log, by its wood (`log.rs`).
@@ -200,7 +200,7 @@ impl Look {
             | Self::Powder(_)
             | Self::Flour(_)
             | Self::Yeast
-            | Self::Salt
+            | Self::Solid(_)
             | Self::Coin(_) => (1, 1),
             Self::Bag => (3, 3),
             Self::Pouch => (2, 2),

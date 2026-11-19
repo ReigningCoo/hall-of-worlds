@@ -12,9 +12,10 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
         Alembic, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies,
         BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Crucible, Filter, Flour, Fruit, Gauntlets,
         Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif,
-        Loincloth, MortarAndPestle, Necklace, Neckwear, OilPress, PaddedChausses, PaddedGloves,
-        Pelican, Petticoat, Pouch, Retort, Ring, Sandals, Shawl, Shirt, Shoes, Slippers, SmallBox,
-        Socks, Surcoat, Sword, Tabard, Tap, Trousers, Vegetable, Vessel, Wimple, Yeast,
+        Loincloth, Mercury, MortarAndPestle, Necklace, Neckwear, OilPress, PaddedChausses,
+        PaddedGloves, Pelican, Petticoat, Pouch, Retort, Ring, Sandals, Shawl, Shirt, Shoes,
+        Slippers, SmallBox, Socks, Sulphur, Surcoat, Sword, Tabard, Tap, Trousers, Vegetable,
+        Vessel, Wimple, Yeast,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -39,6 +40,8 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Alembic, 1),
             (Filter, 1),
             (Pelican, 1),
+            (Sulphur, 1),
+            (Mercury, 1),
             (Vessel, 1),
             (Yeast, 1),
         ],
@@ -103,6 +106,8 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Alembic, 1),
             (Filter, 1),
             (Pelican, 1),
+            (Sulphur, 1),
+            (Mercury, 1),
         ],
         BuildingKind::ScrollShop => &[(Lantern, 1), (SmallBox, 1)],
         BuildingKind::Jeweller => &[(Ring, 2), (Necklace, 1), (Vessel, 1)],

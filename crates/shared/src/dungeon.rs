@@ -11,6 +11,7 @@
 // Split into files (`cargo xtask lint` keeps files small).
 mod bars;
 mod cell;
+mod darkness;
 mod doors;
 mod felled;
 mod fruit;
@@ -27,6 +28,7 @@ pub use bars::WallBar;
 use bars::bars_of;
 pub(crate) use bars::line_hits_box;
 pub use cell::Cell;
+pub use darkness::{CARRIED_LIGHT, MOST_DARKVISION, darkvision_reach};
 pub use level::{Level, RoomId};
 use line::clear_line;
 pub use line::{line_is_clear, spots_are_clear};

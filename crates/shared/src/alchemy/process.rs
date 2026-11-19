@@ -1,7 +1,7 @@
 //! A process as the player builds it: perhaps a stored source, then steps,
 //! each an apparatus and what goes into it; and why one can be refused.
 
-use super::Apparatus;
+use super::{Apparatus, Solid};
 use crate::brewing::GroundHerb;
 use crate::potion::{Contents, Liquid, Oil};
 
@@ -26,10 +26,12 @@ pub enum Step<'a> {
         solvent: Solvent,
     },
     /// Liquids, one 100 ml unit each, applied in order to what came before:
-    /// waters, oils, drinks and pure alcohol (the last two adding alcohol).
-    /// The solid's place comes with Retort solids (PR 8).
+    /// waters, oils, drinks and pure alcohol (the last two adding alcohol);
+    /// then the solid, if any (`Solid`). A solid alone needs something
+    /// before it.
     Retort {
         liquids: Vec<Liquid>,
+        solid: Option<Solid>,
     },
     /// Distils what came before (`alembic`), reduced by the alcohol fed in
     /// (a drink or pure alcohol, one 100 ml unit), if any.
@@ -111,7 +113,7 @@ pub enum Refused {
     NoHerbs,
     /// The same herb twice in one Mortar (only one of each counts).
     SameHerb,
-    /// A Retort with no liquid.
+    /// A Retort with no liquid, nor a solid with something before it.
     NoLiquid,
     /// A Retort holding more than `RETORT_UNITS`.
     TooMuchLiquid,
@@ -129,6 +131,8 @@ pub enum Refused {
     NoPowder,
     /// A Pelican with nothing before it to circulate.
     NothingToCirculate,
+    /// A Retort's solid no rule uses (a vegetable with no transformation).
+    Solid,
     /// An apparatus or input whose rules come with a later PR.
     NotBuilt(Apparatus),
 }

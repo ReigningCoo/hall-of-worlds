@@ -23,6 +23,7 @@ impl Station {
             },
             Apparatus::Retort => OrderStep::Retort {
                 liquids: self.liquids.clone(),
+                solid: self.solid,
             },
             Apparatus::Alembic => OrderStep::Alembic {
                 alcohol: self.alcohol,

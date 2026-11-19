@@ -144,7 +144,9 @@ impl ItemKind {
             | Self::Log
             | Self::Kindling
             | Self::Yeast
-            | Self::Salt => Materials,
+            | Self::Salt
+            | Self::Sulphur
+            | Self::Mercury => Materials,
             Self::Lantern
             | Self::OilPress
             | Self::MortarAndPestle

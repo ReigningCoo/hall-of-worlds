@@ -71,6 +71,7 @@ pub fn stat_words(stat: Stat, lang: &Lang) -> String {
         Stat::Attribute(attribute) => format!("stat-{}", attribute.name().to_lowercase()),
         Stat::Most(of) => format!("stat-most-{}", vital(of)),
         Stat::Restore(of) | Stat::Drain(of) => format!("stat-{}", vital(of)),
+        Stat::Darkvision => "stat-darkvision".to_owned(),
         Stat::Skill(skill) => {
             let args = Args::new().text("skill", skill.name());
             return written(lang.render("stat-skill", &args));

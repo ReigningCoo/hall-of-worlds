@@ -6,6 +6,7 @@
 //! tree starting from their inventory: a grid of placed items, some of which have
 //! grids of their own.
 
+mod alchemy_def;
 mod bag_def;
 mod category;
 mod clothing_def;

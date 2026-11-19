@@ -5,7 +5,7 @@ Bonuses: what worn items and effects (food, potions, dev tools) add to a creatur
 ## Files
 
 - `crates/shared/src/bonus.rs`: the module list, re-exports, `MILLI`. Tests.
-- `bonus/stat.rs`: `Stat::{Attribute(a), Most(vital), Skill(id), Restore(vital), Drain(vital)}` (new ones at the end), `Amount::{Flat, Percent}`, `Bonus { stat, amount }` (`flat`, `percent`), `PER_CENT`.
+- `bonus/stat.rs`: `Stat::{Attribute(a), Most(vital), Skill(id), Restore(vital), Drain(vital), Darkvision}` (new ones at the end; Darkvision in cells, only a potion's, read by `Totals::darkvision`), `Amount::{Flat, Percent}`, `Bonus { stat, amount }` (`flat`, `percent`), `PER_CENT`.
 - `bonus/totals.rs`: `Totals` (`of`, `sum`, `added_milli`, `whole`, `attributes`, `restoring`, `draining`), `Sum { flat, percent }`, `round_milli`.
 - `bonus/item.rs`: `item_bonuses(item)` (armour's, a hair shirt's), `quality_factor`, `HAIR_SHIRT_WILL` (−5%), `TOUGHNESS_PER_KG` 10, `AGILITY_PER_KG` 2, `MANA_PER_KG` 1.
 - `bonus/material.rs`: `MaterialFactors { toughness, agility, mana }` (`USUAL`), `material_factors(material)`; an armour piece's material from its form.

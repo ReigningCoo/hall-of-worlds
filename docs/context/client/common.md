@@ -60,7 +60,7 @@ Shared building blocks for the client modules. Keep it small.
 - `Portal` (component): `Poi(SeenPoi)` or `Gate(GateInfo)`: clicking it sends the player there and arriving enters its site, or goes through the World Gate into the Hall (`site`); `poi()`. World map pois and World Gates have one; stairs and the Hall's gates are cells of the level, not entities.
 - `Token::no_base`: draws no base, for a world map poi's model; still clickable.
 - `Clickable` (component, marker): its token can be clicked (`view3d::ClickedToken`).
-- `LightSource` (component): `radius` (cells) and `colour`; lights dungeons. The player has one (6 cells, white).
+- `LightSource` (component): `radius` (cells), `colour` and `darkvision` (cells seen in the dark past `radius`, drawn dim and grey; 0 without); lights dungeons. The player has one (`shared::dungeon::CARRIED_LIGHT`, 6 cells, white), its Darkvision kept by `player`.
 - `SharesSight` (component, marker): its sight is added to the player's in dungeons. Nothing has it yet.
 - `Lightning(f32)` (resource, `lightning.rs`): how bright lightning makes what is under the sky this frame, 0 to 1; kept by `lightning`, changing only during a flash. `LightningStrike` (message): start a flash now (the debug menu's Lightning Now; `lightning` reads it). `BoltStruck(Strike)` (message, from `lightning`): a bolt strikes here, in wilderness cells, for the views to draw.
 - `SkyNow` (resource, every frame): `bodies` (`shared::celestial::BodyNow`s), `flat` (their light on flat ground), `lit()` (what to multiply unlit colours by). `NIGHT_LIGHT`: the dull light everywhere, 0.1.

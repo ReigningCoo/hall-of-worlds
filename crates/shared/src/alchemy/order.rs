@@ -6,7 +6,9 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{AlchemySkills, Apparatus, Planned, Process, Refused, Solvent, Step, Stored, plan};
+use super::{
+    AlchemySkills, Apparatus, Planned, Process, Refused, Solid, Solvent, Step, Stored, plan,
+};
 use crate::brewing::GroundHerb;
 use crate::herb::Herbs;
 use crate::id::Id;
@@ -38,9 +40,11 @@ pub enum OrderStep {
         herbs: Vec<Id>,
         solvent: Option<Id>,
     },
-    /// Bottles of liquid, one 100 ml unit each, in order.
+    /// Bottles of liquid, one 100 ml unit each, in order, and a solid (Salt,
+    /// Sulphur, Mercury or a vegetable with a transformation), one used a run.
     Retort {
         liquids: Vec<Id>,
+        solid: Option<Id>,
     },
     /// A bottle of a drink or pure alcohol fed in, or nothing.
     Alembic {
@@ -87,6 +91,8 @@ pub enum OrderRefused {
     Solvent,
     /// A liquid isn't a carried, filled bottle.
     Liquid,
+    /// A Retort's solid isn't a carried solid it takes (`Solid::of_item`).
+    Solid,
     /// A stack holds fewer than one run uses.
     TooFew,
     /// The rules refused the process.
@@ -160,13 +166,23 @@ impl Inventory {
                         solvent,
                     }
                 }
-                OrderStep::Retort { liquids: ids } => {
+                OrderStep::Retort {
+                    liquids: ids,
+                    solid,
+                } => {
                     let mut liquids = Vec::new();
                     for id in ids {
                         liquids.push(self.alchemy_liquid(*id).ok_or(OrderRefused::Liquid)?);
                         *uses.entry(*id).or_insert(0) += 1;
                     }
-                    Step::Retort { liquids }
+                    let solid = match solid {
+                        Some(id) => {
+                            *uses.entry(*id).or_insert(0) += 1;
+                            Some(self.alchemy_solid(*id).ok_or(OrderRefused::Solid)?)
+                        }
+                        None => None,
+                    };
+                    Step::Retort { liquids, solid }
                 }
                 OrderStep::Alembic { alcohol } => {
                     let fed = match alcohol {
@@ -219,6 +235,11 @@ impl Inventory {
     /// The doses in the carried Powder stack `id`, if it is one.
     fn alchemy_powder(&self, id: Id) -> Option<Contents> {
         Some(self.alchemy_stack(id)?.top().powder()?.contents.clone())
+    }
+
+    /// The solid the carried stack `id` is, if a Retort takes it.
+    fn alchemy_solid(&self, id: Id) -> Option<Solid> {
+        Solid::of_item(self.alchemy_stack(id)?.top())
     }
 
     /// The liquid in the carried bottle stack `id`, if it holds one.

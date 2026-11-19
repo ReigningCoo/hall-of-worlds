@@ -216,13 +216,7 @@ pub(super) fn update_meshes(
         light.add(super::daylight::WINDOW_LIGHT, |x, y| window_glow.at(x, y));
     }
     for (position, source) in &lights {
-        let colour = LinearRgba::from(source.colour);
-        light.add_light(
-            level,
-            (position.x, position.y),
-            source.radius,
-            Vec3::new(colour.red, colour.green, colour.blue),
-        );
+        light.add_source(level, (position.x, position.y), &source);
     }
     light.raise_to(graphics.least_light());
     let ruined = dungeon.info.as_ref().is_some_and(|info| info.ruined);

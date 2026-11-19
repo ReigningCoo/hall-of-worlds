@@ -87,6 +87,8 @@ pub(super) fn stat_colour(stat: Stat) -> Color {
         Stat::Aura => Color::srgb(0.18, 0.78, 0.62),
         Stat::Health => Color::srgb(0.74, 0.04, 0.16),
         Stat::Mana => Color::srgb(0.14, 0.38, 1.0),
+        // A deep night blue with a glint of green, like eyes in the dark.
+        Stat::Darkvision => Color::srgb(0.1, 0.3, 0.26),
     }
 }
 

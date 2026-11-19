@@ -26,6 +26,10 @@ pub enum Stat {
     /// points a second, waiting to refill or not, never below 1 point
     /// (`vitals::course`).
     Drain(Vital),
+    /// Only from effects: seeing in the dark this many cells round oneself
+    /// (`dungeon::darkvision_reach`); only a potion's at a time
+    /// (`Source::Potion` of `herb::Stat::Darkvision`).
+    Darkvision,
     // New stats go at the end: messages carry one by its place in this list.
 }
 

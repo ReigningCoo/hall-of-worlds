@@ -3,6 +3,7 @@
 //! (`diluted`), so the result is rounded once and the client's preview matches
 //! the server's.
 
+use super::Transformation;
 use crate::brewing::stat_row;
 use crate::herb::Stat;
 use crate::potion::{Contents, Dose};
@@ -55,6 +56,33 @@ impl Mix {
                 *dose = boosted(*dose);
             }
         }
+    }
+
+    /// Every dose in `row` made `percent`% stronger and every other dose
+    /// `percent`% weaker, towards 0 (a Retort's Salt, Sulphur or Mercury).
+    pub fn lean(&mut self, row: Row, percent: i32) {
+        for (at, dose) in self.0.iter_mut().enumerate() {
+            let by = if stat_row(Stat::ALL[at]) == row {
+                percent
+            } else {
+                -percent
+            };
+            *dose = *dose * (100 + by) / 100;
+        }
+    }
+
+    /// A transformation (`TRANSFORMATIONS`): with a helpful dose of its
+    /// `from` stat, every helpful dose is taken away and its `into` stat given
+    /// what `from` had; harmful doses stay. Without one, nothing changes.
+    pub fn transform(&mut self, change: &Transformation) {
+        let strength = self.0[change.from as usize];
+        if strength <= 0 {
+            return;
+        }
+        for dose in &mut self.0 {
+            *dose = (*dose).min(0);
+        }
+        self.0[change.into as usize] = strength;
     }
 
     /// The strongest helpful (or harmful) dose taken away, the first in

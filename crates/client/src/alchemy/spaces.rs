@@ -1,10 +1,10 @@
 //! The drop spaces: where on the panel a carried stack can be put (the
-//! source, a Mortar's herbs and oil or pure alcohol, a Retort's liquids, an
-//! Alembic's alcohol, a Filter's Powder), what each takes, how many are shown, and putting a
-//! stack in or taking it out.
+//! source, a Mortar's herbs and oil or pure alcohol, a Retort's liquids and
+//! solid, an Alembic's alcohol, a Filter's Powder), what each takes, how many
+//! are shown, and putting a stack in or taking it out.
 
 use bevy::prelude::*;
-use shared::alchemy::{Apparatus, RETORT_UNITS};
+use shared::alchemy::{Apparatus, RETORT_UNITS, Solid};
 use shared::id::Id;
 use shared::item::Inventory;
 use shared::potion::Liquid;
@@ -30,11 +30,14 @@ pub(super) enum Place {
     Liquid(usize, usize),
     /// The step's Powder (a Filter's).
     Powder(usize),
+    /// The step's solid (a Retort's): Salt, Sulphur, Mercury or a vegetable
+    /// with a transformation.
+    Solid(usize),
 }
 
 /// The drop spaces a step shows: those filled, one more while there is room,
-/// a Mortar's oil, an Alembic's alcohol and a Filter's Powder; a Crucible
-/// takes nothing.
+/// a Mortar's oil, a Retort's solid, an Alembic's alcohol and a Filter's
+/// Powder; a Crucible takes nothing.
 pub(super) fn places(step: usize, station: &Station) -> Vec<Place> {
     match station.apparatus {
         Apparatus::Mortar => {
@@ -45,7 +48,9 @@ pub(super) fn places(step: usize, station: &Station) -> Vec<Place> {
         }
         Apparatus::Retort => {
             let liquids = (station.liquids.len() + 1).min(RETORT_UNITS);
-            (0..liquids).map(|n| Place::Liquid(step, n)).collect()
+            let mut places: Vec<Place> = (0..liquids).map(|n| Place::Liquid(step, n)).collect();
+            places.push(Place::Solid(step));
+            places
         }
         Apparatus::Alembic => vec![Place::Alcohol(step)],
         Apparatus::Filter => vec![Place::Powder(step)],
@@ -62,13 +67,14 @@ pub(super) fn in_place(bench: &Bench, place: Place) -> Option<Id> {
         Place::Alcohol(step) => bench.steps.get(step)?.alcohol,
         Place::Liquid(step, n) => bench.steps.get(step)?.liquids.get(n).copied(),
         Place::Powder(step) => bench.steps.get(step)?.powder,
+        Place::Solid(step) => bench.steps.get(step)?.solid,
     }
 }
 
 /// Whether the carried stack `id` may go in this space: a Paste, Ointment or
 /// Powder as the source, a Powder in a Filter, a herb (not one already in that Mortar elsewhere), a bottle
 /// of oil or pure alcohol, a bottle of water, oil, a drink or pure alcohol, a
-/// bottle of a drink or pure alcohol.
+/// bottle of a drink or pure alcohol, a solid a Retort takes.
 pub(super) fn takes(bench: &Bench, carried: &Inventory, place: Place, id: Id) -> bool {
     if carried.is_worn(id) {
         return false;
@@ -95,6 +101,7 @@ pub(super) fn takes(bench: &Bench, carried: &Inventory, place: Place, id: Id) ->
         ),
         Place::Alcohol(_) => liquid.is_some_and(|it| it.alcohol_strength() > 0),
         Place::Powder(_) => stack.top().powder().is_some(),
+        Place::Solid(_) => Solid::of_item(stack.top()).is_some(),
     }
 }
 
@@ -132,6 +139,11 @@ pub(super) fn put(bench: &mut Bench, place: Place, id: Option<Id>) {
                 station.powder = id;
             }
         }
+        Place::Solid(step) => {
+            if let Some(station) = bench.steps.get_mut(step) {
+                station.solid = id;
+            }
+        }
         Place::Liquid(step, n) => {
             if let Some(station) = bench.steps.get_mut(step) {
                 fill(&mut station.liquids, n);
@@ -149,6 +161,7 @@ pub(super) struct SpaceIcons {
     liquid: Handle<Image>,
     alcohol: Handle<Image>,
     powder: Handle<Image>,
+    solid: Handle<Image>,
 }
 
 impl FromWorld for SpaceIcons {
@@ -161,6 +174,7 @@ impl FromWorld for SpaceIcons {
             liquid: assets.load("icons/delapouite/water-flask.png"),
             alcohol: assets.load("icons/delapouite/beer-bottle.png"),
             powder: assets.load("icons/lorc/powder.png"),
+            solid: assets.load("icons/faithtoken/ore.png"),
         }
     }
 }
@@ -174,6 +188,7 @@ impl SpaceIcons {
             Place::Liquid(..) => self.liquid.clone(),
             Place::Alcohol(_) => self.alcohol.clone(),
             Place::Powder(_) => self.powder.clone(),
+            Place::Solid(_) => self.solid.clone(),
         }
     }
 }
@@ -189,5 +204,8 @@ pub(super) fn tip(place: Place) -> &'static str {
             "A drink or pure alcohol, reducing what is distilled: the stronger, the more"
         }
         Place::Powder(_) => "A Powder: stats in both add together, the rest are taken out",
+        Place::Solid(_) => {
+            "A solid: Salt leans to Body, Sulphur to Mind, Mercury to Spirit; a Carrot turns Perception into Darkvision"
+        }
     }
 }

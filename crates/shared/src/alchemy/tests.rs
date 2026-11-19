@@ -46,6 +46,7 @@ fn mortar<'a>(herbs: &[&'a HerbDef], solvent: Solvent) -> Step<'a> {
 fn retort<'a>(liquids: &[Liquid]) -> Step<'a> {
     Step::Retort {
         liquids: liquids.to_vec(),
+        solid: None,
     }
 }
 

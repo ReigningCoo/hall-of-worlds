@@ -138,6 +138,7 @@ stat-most-health = most Health
 stat-most-mana = most Mana
 stat-health = Health
 stat-mana = Mana
+stat-darkvision = cells of Darkvision
 stat-skill = { $skill }
 
 ## What wearing it asks of the wearer: an attribute at least this much

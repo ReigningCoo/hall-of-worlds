@@ -106,11 +106,14 @@ impl From<MapPosition> for SmoothPosition {
 }
 
 /// Gives out light in dungeons, `radius` cells (straight-line distance), in
-/// `colour`. Put it on any entity with a position.
+/// `colour`. Put it on any entity with a position. `darkvision`, when further
+/// than `radius`, is how far it also sees in the dark (a Darkvision potion):
+/// dimly, without colour, as far as walls let it.
 #[derive(Component, Clone, Copy, Debug, PartialEq)]
 pub struct LightSource {
     pub radius: u32,
     pub colour: Color,
+    pub darkvision: u32,
 }
 
 /// Shares its sight with the player in dungeons: what it can see is shown

@@ -2,7 +2,7 @@
 //! plan): an effect of the product is known only when every herb that gave to
 //! it has that effect known; a success teaches one effect of one herb.
 
-use super::{Contribution, Planned, Product};
+use super::{Contribution, Planned, Product, made_from};
 use crate::herb::HerbKnowledge;
 use crate::potion::Dose;
 
@@ -59,12 +59,14 @@ pub fn lesson(planned: &Planned, known: &HerbKnowledge) -> Option<Lesson> {
     })
 }
 
-/// The herbs' effects on this dose's stat that aren't known, in the order added.
+/// The herbs' effects on this dose's stat that aren't known, in the order
+/// added: for a transformation's effect, those on the stat it was made from.
 fn unknown<'a>(
     planned: &'a Planned,
     known: &'a HerbKnowledge,
     dose: Dose,
 ) -> impl Iterator<Item = &'a Contribution> {
+    let stat = made_from(dose.stat);
     (planned.contributions.iter())
-        .filter(move |c| c.stat == dose.stat && !known.knows_effect(&c.herb, c.effect))
+        .filter(move |c| c.stat == stat && !known.knows_effect(&c.herb, c.effect))
 }

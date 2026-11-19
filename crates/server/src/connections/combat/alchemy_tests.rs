@@ -117,6 +117,27 @@ fn a_count_runs_again_until_done() {
 }
 
 #[test]
+fn a_retort_uses_up_its_solid() {
+    let mut test = TestClient::new();
+    test.enter_a_castle();
+    let mut order = carrying(&mut test, true, 1);
+    give(&mut test, Item::new(Id::for_test(94), ItemKind::Retort));
+    give(&mut test, bottle(Liquid::Water(Water::Plain), 1, 95));
+    give(
+        &mut test,
+        shared::alchemy::new_solid(ItemKind::Sulphur, 2, Id::for_test(96)),
+    );
+    order.steps.push(OrderStep::Retort {
+        liquids: vec![Id::for_test(95)],
+        solid: Some(Id::for_test(96)),
+    });
+    test.send(&[ClientMessage::Alchemy(order)]);
+    run(&mut test, BOTH_TICKS, false);
+    assert_eq!(landed(&mut test).len(), 1);
+    assert_eq!(count_of(&test, ItemKind::Sulphur), 1, "one Sulphur a run");
+}
+
+#[test]
 fn a_retort_turns_its_waters_bottles_into_potions() {
     let mut test = TestClient::new();
     test.enter_a_castle();
@@ -125,6 +146,7 @@ fn a_retort_turns_its_waters_bottles_into_potions() {
     give(&mut test, bottle(Liquid::Water(Water::Plain), 2, 95));
     order.steps.push(OrderStep::Retort {
         liquids: vec![Id::for_test(95), Id::for_test(95)],
+        solid: None,
     });
     test.send(&[ClientMessage::Alchemy(order)]);
     run(&mut test, BOTH_TICKS, false);
@@ -213,6 +235,7 @@ fn an_alembic_distils_drinks_into_pure_alcohol_and_salt_water_into_salt() {
                     .into_iter()
                     .chain([Id::for_test(98)])
                     .collect(),
+                solid: None,
             },
             OrderStep::Alembic {
                 alcohol: Some(Id::for_test(97)),
