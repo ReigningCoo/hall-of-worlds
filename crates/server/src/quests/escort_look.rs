@@ -67,6 +67,7 @@ pub(crate) fn world_look(
         mark: None,
         heading: shared::facing::Heading(0),
         boss: None,
+        stage: shared::livestock::Stage::Adult,
     };
     Some((look, client.speed))
 }

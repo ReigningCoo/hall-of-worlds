@@ -12,6 +12,7 @@ use server::debug_api::{BrpError, BrpResult, Value, json, params, refused};
 use shared::creature::CreatureKind;
 use shared::gender::Gender;
 use shared::item::Item;
+use shared::livestock::Stage;
 use shared::sheet::Appearance;
 
 use shared::fruit::{FruitForm, Fruits};
@@ -41,10 +42,12 @@ struct Asked {
     /// ...or any item, as saved, drawn as its look...
     item: Option<Item>,
     /// ...or a creature of a kind, bare, as its token's model: of a gender
-    /// (Neutral if not given) with these looks (each trait's first if not given).
+    /// (Neutral if not given) with these looks (each trait's first if not given),
+    /// at a stage of its life (Adult if not given).
     creature: Option<CreatureKind>,
     gender: Option<Gender>,
     looks: Option<Appearance>,
+    stage: Option<Stage>,
 }
 
 /// Pictures asked for and not yet read back.
@@ -59,7 +62,7 @@ pub(super) fn add(app: &mut App) {
 }
 
 /// `client.save_picture {path, pixels, herb?, fruit?, vegetable?, serving?, variant?, item?,
-/// creature?, gender?, looks?}`:
+/// creature?, gender?, looks?, stage?}`:
 /// answers the full path, the picture's `width` and `height`, and `wait_for_file`.
 fn save_picture(
     In(request): In<Option<Value>>,
@@ -73,6 +76,7 @@ fn save_picture(
         (None, None) if asked.creature.is_some() => creature_look(
             asked.creature.unwrap_or_default(),
             asked.gender.unwrap_or_default(),
+            asked.stage.unwrap_or_default(),
             asked.looks.unwrap_or_default(),
         )?,
         (None, None) if asked.fruit.is_some() => fruit_look(
@@ -132,9 +136,14 @@ fn save_picture(
 }
 
 /// A creature's bare body, as its token shows it.
-fn creature_look(kind: CreatureKind, gender: Gender, looks: Appearance) -> Result<Look, BrpError> {
+fn creature_look(
+    kind: CreatureKind,
+    gender: Gender,
+    stage: Stage,
+    looks: Appearance,
+) -> Result<Look, BrpError> {
     let looks = looks.fitted(kind, gender);
-    super::character::character_look(kind, gender, &looks, &[])
+    super::character::character_look_at(kind, gender, stage, &looks, &[])
         .ok_or_else(|| refused(format!("{kind:?}'s body isn't drawn")))
 }
 

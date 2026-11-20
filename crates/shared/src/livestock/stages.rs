@@ -8,10 +8,13 @@ use serde::{Deserialize, Serialize};
 pub const GAME_HOURS_A_MONTH: u32 = 24;
 
 /// Where an animal is in its life.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
+)]
 pub enum Stage {
     Young,
     Juvenile,
+    #[default]
     Adult,
 }
 

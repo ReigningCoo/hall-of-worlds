@@ -1,6 +1,7 @@
 //! Telling each client what it can see of mobs and other players.
 
 use shared::hall;
+use shared::livestock::{Stage, stage_of};
 use shared::mob::EntityLook;
 use shared::protocol::{ServerMessage, WORLD_MAP_SIGHT};
 use shared::sheet::Feeling;
@@ -48,6 +49,8 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld, in_hall: &[S
     });
 
     let width = world.width;
+    // Whole game minutes, for mobs' ages (`shared::livestock::stage_of`).
+    let minutes = world.minutes().max(0.0) as u64;
     for client in clients.iter_mut().filter(playing) {
         let here = client.visit.as_ref().map(|visit| visit.population());
         let me = client.character.world_position;
@@ -100,6 +103,7 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld, in_hall: &[S
                     mark: someone.mark.clone(),
                     heading: someone.heading,
                     boss: None,
+                    stage: Stage::Adult,
                 };
                 seen.push((look, someone.speed));
             }
@@ -133,6 +137,7 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld, in_hall: &[S
                         mark: None,
                         heading: mob.heading,
                         boss: boss.clone().filter(|_| mob.is_boss()),
+                        stage: stage_of(mob.kind, mob.id, minutes),
                     };
                     seen.push((look, mob.speed()));
                 }

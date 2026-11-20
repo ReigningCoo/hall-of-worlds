@@ -51,7 +51,7 @@ pub use bottle::{
     BottleLook, Glass as BottleGlass, LiquidLook, Shape as BottleShape, Stopper as BottleStopper,
 };
 pub use cask::{CaskMesh, cask_mesh, cask_radius_share, height_of as cask_height};
-pub use character::{character_look, portrait_look};
+pub use character::{character_look, character_look_at, portrait_look};
 pub use clothing::ClothingLook;
 pub use colours::Colours;
 pub use flour::FlourLook;

@@ -12,6 +12,7 @@ mod beasts;
 mod biped_view;
 mod bipeds;
 mod blend;
+mod growth;
 mod hair;
 mod head_on_frame;
 mod head_shape;
@@ -27,7 +28,7 @@ mod scaled;
 mod taurs;
 mod trig;
 
-pub use beasts::{BEASTS, Beast, Bird, Fourfoot, Plan, Sex, Sexes};
+pub use beasts::{BEASTS, Beast, Bird, Fourfoot, JUVENILE_GROWN, Plan, Sex, Sexes};
 pub use bipeds::{Biped, FIRST_BIPEDS};
 pub use blend::WHOLE as BLEND_WHOLE;
 pub use hair::{Beard, Hair, HairStyle};
