@@ -12,14 +12,16 @@
 mod fences;
 mod lay_out;
 mod options;
+mod pens;
 mod plan;
 mod tracks;
 
-use fences::fence_field;
+pub(super) use fences::fence_field;
 pub(super) use fences::fence_line;
 use lay_out::lay_out;
 pub(super) use lay_out::{Plot, surroundings};
 pub use options::{FarmOptions, FieldLook};
+use pens::add_pens;
 pub use plan::Plan;
 use tracks::lay_tracks;
 

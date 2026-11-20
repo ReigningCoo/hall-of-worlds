@@ -32,7 +32,7 @@ pub(super) fn take_step(
 ) -> Option<u32> {
     let size = mob.size();
     let (to, squeeze) = mob_step_sized(level, size, mob.position, step?)?;
-    if taken.contains(&to) {
+    if taken.contains(&to) || (mob.penned && leaves_pen(level, mob.position, to)) {
         return None;
     }
     let here = Units::middle_of(mob.position);
@@ -48,6 +48,13 @@ pub(super) fn take_step(
     let cost = u64::from(site_move_cost(mob.spot, target)) * u64::from(squeeze) / 1000;
     mob.place(target);
     Some(cost as u32)
+}
+
+/// Whether a step would take a kept animal out of its pen: through its gate
+/// or by jumping its fence (anything jumped).
+fn leaves_pen(level: &Level, from: (i64, i64), to: (i64, i64)) -> bool {
+    let jump = (to.0 - from.0).abs().max((to.1 - from.1).abs()) > 1;
+    jump || level.cell(to.0, to.1) == shared::dungeon::Cell::FieldGate
 }
 
 /// A direction for wandering, different for each mob and moment.

@@ -301,7 +301,8 @@ pub(super) fn path(level: &Level, from: (i64, i64), to: (i64, i64)) -> Vec<(i64,
     let mut at = to;
     while at != from {
         let back = came_from[&at];
-        steps.push((at.0 - back.0, at.1 - back.1));
+        // A jump (over a fence, say) is a step that lands two cells on.
+        steps.push(((at.0 - back.0).signum(), (at.1 - back.1).signum()));
         at = back;
     }
     steps.reverse();

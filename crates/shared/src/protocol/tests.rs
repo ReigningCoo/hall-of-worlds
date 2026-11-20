@@ -579,6 +579,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             livestock: false,
             variety: 77,
             orchard: true,
+            pen: None,
         }]),
         ServerMessage::Walls(vec![crate::site::WallLook {
             rect: crate::site::Rect {

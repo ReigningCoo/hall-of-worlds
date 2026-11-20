@@ -72,5 +72,6 @@ pub fn spawn_at(seed: Seed, kind: CreatureKind, number: u32, position: (i64, i64
         ),
         gear: roll_gear(&roll, kind),
         coins: roll_coins(&roll, kind),
+        penned: false,
     }
 }

@@ -96,12 +96,14 @@ impl Town {
         };
         self.add_millers(&mut buildings, area);
         self.add_windows(&buildings);
+        let looks: Vec<_> = buildings.iter().map(|b| b.look.clone()).collect();
+        let fields = self.add_pens(&looks, area, entrance);
         SiteLevel {
             level: self.level,
             stairs: Vec::new(),
             entrance: Some(entrance),
             buildings,
-            fields: Vec::new(),
+            fields,
             walls,
         }
     }

@@ -58,6 +58,8 @@ const FIRST_ROOF_TILE: usize = 13;
 const WINDOW_TILE: usize = 18;
 const LIT_WINDOW_TILE: usize = 19;
 const FIRST_DOOR_TILE: usize = 20;
+/// A dirt track's, also a pen's trodden earth.
+pub(super) const DIRT_TILE: usize = 0;
 pub(super) const PLOUGHED_TILE: usize = 44;
 pub(super) const GRASS_TILE: usize = 45;
 pub(super) const FENCE_TILE: usize = 46;

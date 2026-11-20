@@ -205,6 +205,8 @@ pub(crate) struct Mob {
     kept_in: Option<SiteId>,
     /// Someone a quester escorts (`escortee`): never kept, friendly to all.
     escort: Option<Escortee>,
+    /// A kept animal (`Spawn::penned`): never through a gate or over a fence.
+    penned: bool,
 }
 
 impl Mob {

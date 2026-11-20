@@ -19,6 +19,7 @@ mod farm;
 mod grid;
 mod herbalist;
 mod oasis;
+mod pen;
 mod pond;
 mod ruin;
 pub use ruin::MAX_RUIN;
@@ -34,6 +35,7 @@ pub use dev_area::{DEV_AREA_KIND, DEV_AREA_SIZES, DevArea, DevLayout, DevMobs, M
 pub use farm::{FarmOptions, FieldLook};
 pub use herbalist::HerbalistOptions;
 pub use oasis::OasisOptions;
+pub use pen::{PenKind, PenLook};
 pub use town::{BuildingKind, BuildingLook, Rect, RoofKind, TownBuilding, TownOptions, WallKind};
 pub use wall::{Gate, PoiWall, WallLook, WallMaterial, WallOptions};
 

@@ -96,6 +96,7 @@ fn orchards_grow_rows_that_suit_the_place() {
         livestock: false,
         variety: 1,
         orchard,
+        pen: None,
     };
     let fruits = Fruits::built_in();
     assert!(plant_orchards(fruits, &[field(false)], 12, Seed::new(5)).is_empty());

@@ -15,6 +15,7 @@ fn field(livestock: bool, variety: u32) -> FieldLook {
         livestock,
         variety,
         orchard: false,
+        pen: None,
     }
 }
 

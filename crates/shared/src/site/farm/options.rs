@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::super::building::BuildingOptions;
+use super::super::pen::PenLook;
 use super::super::town::Rect;
 
 /// Options for the farm generator.
@@ -27,9 +28,33 @@ pub struct FieldLook {
     /// warmth: `fruit::plant_orchards`), on grass rather than crops.
     #[serde(default)]
     pub orchard: bool,
+    /// A pen for kept animals (a sty or a yard: `site::pen`), grazed bare
+    /// rather than grassed; `None` for a field.
+    #[serde(default)]
+    pub pen: Option<PenLook>,
 }
 
 impl FieldLook {
+    /// The same field `by` cells along (set into the wilderness), its pen's
+    /// parts too.
+    pub fn moved(&self, by: (i64, i64)) -> Self {
+        let rect = |r: Rect| Rect {
+            x: r.x + by.0,
+            y: r.y + by.1,
+            ..r
+        };
+        let pen = self.pen.map(|pen| PenLook {
+            shelter: rect(pen.shelter),
+            dovecote: pen.dovecote.map(|(x, y)| (x + by.0, y + by.1)),
+            ..pen
+        });
+        Self {
+            rect: rect(self.rect),
+            pen,
+            ..*self
+        }
+    }
+
     /// Whether a cell is in the field.
     pub fn contains(&self, x: i64, y: i64) -> bool {
         let Rect {

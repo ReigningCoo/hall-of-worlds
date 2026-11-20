@@ -17,6 +17,7 @@ use crate::wear::WornLook;
 
 mod chosen;
 mod herd;
+mod kept;
 mod looks;
 mod memory;
 mod purse;
@@ -26,6 +27,7 @@ mod wild;
 mod wild_looks;
 mod wild_shares;
 pub use chosen::{chosen_spawns, spawn_at};
+pub use kept::site_spawns;
 use looks::looks;
 pub use memory::{
     Event, FIRST_HARM_OPINION, GIFT_OPINION, Memory, Regard, TRESPASS_FORGOTTEN_AFTER,
@@ -71,6 +73,9 @@ pub struct Spawn {
     pub gear: Vec<(ItemKind, Option<Quality>)>,
     /// The money it starts with, in copper, which it carries as the fewest coins.
     pub coins: u64,
+    /// A kept animal in a pen or pasture (`site_spawns`): it never goes
+    /// through a gate or over a fence.
+    pub penned: bool,
 }
 
 /// How near someone must be to give something, in cells.
@@ -241,6 +246,7 @@ pub fn spawns(
             ),
             gear: roll_gear(&roll, kind),
             coins: roll_coins(&roll, kind),
+            penned: false,
         });
     }
     mobs

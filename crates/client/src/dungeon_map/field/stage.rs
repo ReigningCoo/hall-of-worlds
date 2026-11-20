@@ -14,6 +14,8 @@ pub enum Stage {
     Grass,
     /// Grazed grass.
     Short,
+    /// Bare earth trodden by pigs or poultry: a pen's.
+    Trodden,
 }
 
 impl Stage {
@@ -23,7 +25,9 @@ impl Stage {
     /// orchard is grass under its fruit plants, and a field of crops is
     /// ploughed, its plants standing on it as they grow.
     pub fn of(field: &FieldLook) -> Self {
-        if field.orchard {
+        if field.pen.is_some() {
+            Self::Trodden
+        } else if field.orchard {
             Self::Grass
         } else if field.livestock {
             Self::PASTURE[field.variety as usize % Self::PASTURE.len()]

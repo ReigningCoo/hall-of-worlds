@@ -12,6 +12,7 @@ use super::CELL_SIZE;
 // Split into files (`cargo xtask lint` keeps files small).
 mod fence;
 mod ground;
+mod pen;
 mod stage;
 mod wood;
 
@@ -19,6 +20,7 @@ pub use fence::build_fence;
 pub use ground::build_field;
 #[cfg(test)]
 use ground::ruined_tile;
+pub use pen::build_pen;
 pub use stage::{CROP_STAGES, Stage};
 use wood::{post, rails, wood};
 
