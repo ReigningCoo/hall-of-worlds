@@ -10,10 +10,12 @@ use super::parts::Parts;
 use crate::creature::CreatureKind;
 use chicken_head::CHICKEN_HEAD;
 pub use sexes::{Sex, Sexes};
+pub use stage::JUVENILE_GROWN;
 pub use table::BEASTS;
 
 mod bird_sexes;
 mod build;
+mod castrates;
 mod chicken_head;
 mod drawn_heads;
 mod drawn_trunks;
@@ -23,7 +25,9 @@ mod livestock_more;
 mod livestock_sexes;
 mod more_sexes;
 mod sexes;
+mod stage;
 mod table;
+mod young;
 
 /// A beast standing on four legs, level-backed.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

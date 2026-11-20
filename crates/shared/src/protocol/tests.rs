@@ -772,6 +772,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 boss: crate::story::Boss::new(CreatureKind::Giant, crate::rng::Seed::new(3)),
                 tier: crate::item::Quality::Rare,
             }),
+            stage: crate::livestock::Stage::Juvenile,
         }),
         ServerMessage::Moves(vec![crate::protocol::Stretch {
             id: Id(uuid::Uuid::from_u128(4)),

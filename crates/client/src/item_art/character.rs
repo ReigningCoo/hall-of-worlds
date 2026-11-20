@@ -7,10 +7,12 @@ use shared::body::{Hair, Layout};
 use shared::creature::{CreatureKind, Size};
 use shared::gender::Gender;
 use shared::item_form::ItemForm;
+use shared::livestock::Stage;
 use shared::sheet::Appearance;
 use shared::wear::WornLook;
 
 mod cover;
+mod down;
 mod portrait;
 
 pub use portrait::portrait_look;
@@ -29,26 +31,43 @@ pub(super) const CELLS: (u8, u8) = (2, 2);
 /// A piece's own picture never comes into it: only its form.
 const ANY: (u8, u8) = (1, 1);
 
-/// How a creature of this kind and gender looks wearing these, if its body is drawn:
-/// what its token shows in place of its icon, its body in its own colours, bare when
-/// nothing it wears is drawn. An animal is its bare body, as nothing is drawn on it
-/// yet, with its sex's horns and size where they differ (`Layout::of_gender`).
+/// How a grown creature of this kind and gender looks wearing these, if its body is
+/// drawn: what its token shows in place of its icon, its body in its own colours, bare
+/// when nothing it wears is drawn (`character_look_at`).
 pub fn character_look(
     kind: CreatureKind,
     gender: Gender,
     appearance: &Appearance,
     worn: &[WornLook],
 ) -> Option<Look> {
-    let layout = Layout::of_gender(kind, gender)?;
+    character_look_at(kind, gender, Stage::Adult, appearance, worn)
+}
+
+/// As `character_look`, at a stage of its life. An animal is its bare body, as
+/// nothing is drawn on it yet, with its sex's horns and size where they differ, young
+/// or juvenile, or with a castrate's look when Neutral (`Layout::of_stage`); a young
+/// bird in its down.
+pub fn character_look_at(
+    kind: CreatureKind,
+    gender: Gender,
+    stage: Stage,
+    appearance: &Appearance,
+    worn: &[WornLook],
+) -> Option<Look> {
+    let layout = Layout::of_stage(kind, gender, stage)?;
     let hair = appearance.hair(kind);
     let height = appearance.height_share(kind);
     if layout.worn_frame().is_none() {
         // An animal's layout is at its own size: taller or shorter by its looks.
         let layout = layout.scaled(height);
+        let colours = Colours::of(kind, appearance);
         return Some(Look::Body {
             layout: Box::new(layout),
             height: layout.spine.base[1],
-            colours: Colours::of(kind, appearance),
+            colours: match stage {
+                Stage::Young => down::in_down(kind, colours),
+                _ => colours,
+            },
             hair,
         });
     }

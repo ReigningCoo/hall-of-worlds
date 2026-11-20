@@ -208,6 +208,8 @@ pub struct Client {
     pub(crate) seen_worn: BTreeMap<Id, Vec<WornLook>>,
     /// The marks each was told with, to tell again on a change.
     pub(crate) seen_marks: BTreeMap<Id, Option<shared::role::RoleBadge>>,
+    /// The stage of life each was told at, to tell again as it grows.
+    pub(crate) seen_stages: BTreeMap<Id, shared::livestock::Stage>,
     /// What the character is like.
     pub(crate) sheet: Sheet,
     /// Its action bar (`CharacterSave::action_bar`).

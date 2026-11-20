@@ -5,13 +5,14 @@ use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
 use shared::gender::Gender;
+use shared::livestock::Stage;
 use shared::sheet::Appearance;
 use shared::wear::WornLook;
 
 use crate::character::CharacterSheet;
 use crate::common::TokenModel;
 use crate::inventory::Carried;
-use crate::item_art::{CreatureModels, character_look};
+use crate::item_art::{CreatureModels, character_look_at};
 use crate::player::Player;
 
 use super::morph::Morphing;
@@ -25,16 +26,18 @@ pub(super) struct Drawing<'w> {
 }
 
 impl Drawing<'_> {
-    /// The model of a creature of this kind and gender, looking like this, wearing
-    /// these, if its kind has a body to draw. Built once for each look.
+    /// The model of a creature of this kind and gender at this stage of its life,
+    /// looking like this, wearing these, if its kind has a body to draw. Built once
+    /// for each look.
     pub(super) fn dressed(
         &mut self,
         kind: CreatureKind,
         gender: Gender,
+        stage: Stage,
         appearance: &Appearance,
         worn: &[WornLook],
     ) -> Option<TokenModel> {
-        let look = character_look(kind, gender, appearance, worn)?;
+        let look = character_look_at(kind, gender, stage, appearance, worn)?;
         self.model(&look)
     }
 
@@ -67,7 +70,7 @@ pub(super) fn show_own_dress(
     if drawn.as_ref() == Some(&now) {
         return;
     }
-    let picture = drawing.dressed(now.0, sheet.0.gender, &now.1, &now.2);
+    let picture = drawing.dressed(now.0, sheet.0.gender, Stage::Adult, &now.1, &now.2);
     let (entity, morphing) = player.into_inner();
     let changed = drawn.as_ref().filter(|(kind, ..)| *kind != now.0);
     let started = changed.and_then(|(kind, appearance, _)| {

@@ -269,6 +269,9 @@ pub struct EntityLook {
     /// A quest boss: who it is (its name, worded as "Grukk the Foul") and its
     /// tier, a quality, which it glows in (owner). `None` for anyone else.
     pub boss: Option<BossLook>,
+    /// Its stage of life (`livestock::stage_of`), for its body: grown for
+    /// players and anyone not in the livestock table.
+    pub stage: crate::livestock::Stage,
 }
 
 /// What everyone sees of a quest boss (`quest::boss_of`, `quest::boss_tier`).

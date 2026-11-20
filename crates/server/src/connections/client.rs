@@ -56,6 +56,7 @@ impl Client {
             seen_feelings: BTreeMap::new(),
             seen_worn: BTreeMap::new(),
             seen_marks: BTreeMap::new(),
+            seen_stages: BTreeMap::new(),
             sheet: Sheet::default(),
             action_bar: Default::default(),
             gates: BTreeSet::new(),
@@ -124,6 +125,7 @@ impl Client {
         self.seen_headings.clear();
         self.seen_feelings.clear();
         self.seen_worn.clear();
+        self.seen_stages.clear();
         self.ground_told = GroundTold::default();
     }
 

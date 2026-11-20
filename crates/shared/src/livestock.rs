@@ -8,6 +8,7 @@
 //! animals they come from. The plan: livestock PRs 1 to 8 (this is PR 1);
 //! research and the owner's decisions: `docs/context/research-livestock.md`.
 
+mod age;
 mod def;
 mod drop;
 mod hide;
@@ -19,6 +20,7 @@ mod stages;
 mod table;
 mod traits;
 
+pub use age::{LIFE_CYCLES, age_hours, stage_of};
 pub use def::{LivestockDef, Pet, Wild};
 pub use drop::{OUT_OF, organ_chance};
 pub use hide::{Cure, HIDE_ROTS_AFTER_SECONDS, Hide, YoungHide};

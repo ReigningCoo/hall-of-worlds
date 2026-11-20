@@ -37,15 +37,18 @@ pub(super) fn tell(
             let feeling = client.seen_feelings.get(&look.id);
             let worn = client.seen_worn.get(&look.id);
             let mark = client.seen_marks.get(&look.id);
+            let stage = client.seen_stages.get(&look.id);
             feeling.is_some_and(|known| *known != look.feeling)
                 || worn.is_some_and(|known| *known != look.worn)
                 || mark.is_some_and(|known| *known != look.mark)
+                || stage.is_some_and(|known| *known != look.stage)
         })
         .map(|(look, _)| look.id)
         .collect();
     client.seen_feelings = seen.iter().map(|(l, _)| (l.id, l.feeling)).collect();
     client.seen_worn = seen.iter().map(|(l, _)| (l.id, l.worn.clone())).collect();
     client.seen_marks = seen.iter().map(|(l, _)| (l.id, l.mark.clone())).collect();
+    client.seen_stages = seen.iter().map(|(l, _)| (l.id, l.stage)).collect();
     client.seen_entities.retain(|id, _| {
         let stays = now_seen.contains(id);
         if !stays {
