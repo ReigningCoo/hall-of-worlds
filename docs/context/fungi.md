@@ -58,7 +58,10 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
 3. **Where they grow and picking** (built): `FungusPatch` on `dungeon::Level` (as `HerbPatch`), placement underground
    (caves, basements, cellars) by niche, temperature, depth; dug kinds; `dim` by skylights and mouths; wilderness
    surface patches; felled cells; server picking, harvest, protocol.
-4. **Models on the maps**: `plants`/`dungeon_map` 3D patches by form and stage, picking by click, hover.
+4. **Models on the maps** (built): `plants::FungusModels` (a cell's patch by form and stage from `item_art::fungus_one`:
+   caps clustering, brackets on a stub of wood, jelly and crusts on a fallen stick, lichen mats, beards hanging from a
+   dead snag, truffles as a disturbed mound; simplified for the maps, black outlines, a grey copy) drawn by
+   `dungeon_map/fungi.rs` (remembered in grey like trees), hover names, `client.fungus_showcase`.
 5. **Glow**: client light from glowing patches as decision 12.
 6. **Poisons**: effects that start later, hidden from the client until recognised (as `Sheet::as_sent` strips
    alignment), deadly drain (Easy halves), stumbles from other effects, ink cap and alcohol with its bonus.

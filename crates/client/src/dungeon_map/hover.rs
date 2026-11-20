@@ -1,9 +1,10 @@
-//! Naming the door, stairs, herb, fruit plant, tree, vegetable or border the pointer is over,
-//! for the hover box.
+//! Naming the door, stairs, herb, fungus, fruit plant, tree, vegetable or
+//! border the pointer is over, for the hover box.
 
 use bevy::prelude::*;
 use shared::door::Swing;
 use shared::dungeon::{Cell, Level};
+use shared::fungus::Fungi;
 use shared::sheet::Sheet;
 use shared::site::StairsDirection;
 
@@ -76,6 +77,9 @@ pub(super) fn name_hovered_place(
             if let Some(name) = herb_name(&dungeon.level, &table, &sheet.0, now, (x, y)) {
                 return Some(name);
             }
+            if let Some(name) = fungus_name(&dungeon.level, now, (x, y)) {
+                return Some(name);
+            }
             if let Some(name) = super::fruit::fruit_name(&dungeon.level, now, (x, y)) {
                 return Some(name);
             }
@@ -142,5 +146,21 @@ fn herb_name(
         format!("{name}, ready to pick")
     } else {
         name.to_owned()
+    })
+}
+
+/// What a fungus patch is called: its fungus's name, saying when it is ready
+/// to pick; nothing while picked. (Knowing fungi, fungi plan PR 7, will hide
+/// names the character doesn't know.)
+fn fungus_name(level: &Level, now: u64, (x, y): (i64, i64)) -> Option<String> {
+    let patch = level.fungus_at(x, y)?;
+    let def = Fungi::built_in().get(&patch.fungus)?;
+    if patch.stage(def, now) == 0 {
+        return None;
+    }
+    Some(if patch.can_pick(def, now) {
+        format!("{}, ready to pick", def.name)
+    } else {
+        def.name.clone()
     })
 }

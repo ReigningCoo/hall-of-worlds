@@ -7,16 +7,16 @@ use bevy::prelude::*;
 
 /// Where the light seems to come from on plants: above, a little to the
 /// south-east, so every side shows a different shade.
-const LIGHT: Vec3 = Vec3::new(0.35, 1.0, 0.55);
+pub(super) const LIGHT: Vec3 = Vec3::new(0.35, 1.0, 0.55);
 
 /// How dark the side away from the light is, and how much the light adds.
-const SHADOW: f32 = 0.55;
-const LIT: f32 = 0.45;
+pub(super) const SHADOW: f32 = 0.55;
+pub(super) const LIT: f32 = 0.45;
 
 /// The sight mask's ground height for every vertex (`sight_mask.wesl`): far
 /// above anything, so no face counts as a raised top, which the mask never
 /// cuts.
-const NEVER_RAISED: f32 = 1.0e9;
+pub(super) const NEVER_RAISED: f32 = 1.0e9;
 
 /// Loose triangles with their colours.
 #[derive(Clone, Debug, Default)]

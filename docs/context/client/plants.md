@@ -1,6 +1,6 @@
 # client: plants
 
-Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (shape, height, spread, leaf and flower colours and sizes) at each of the four stages, in a few variants each, with black outlines; and where a patch's plants stand in its cell. Fruit plants' models too, by family from each fruit's `FruitPlantLook`, at their four stages; and vegetable plants', a cell of them at a time, by plant shape. Trees' models too (woodcutting plan PR 3): every wild kind at each stage a felled one grows back through, stumps, and felled fruit trees growing back. Placing them on the maps, and when, is `dungeon_map`'s (`herbs.rs`, `fruit.rs`, `vegetable_plants.rs`, `trees.rs`).
+Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (shape, height, spread, leaf and flower colours and sizes) at each of the four stages, in a few variants each, with black outlines; and where a patch's plants stand in its cell. Fruit plants' models too, by family from each fruit's `FruitPlantLook`, at their four stages; and vegetable plants', a cell of them at a time, by plant shape. Trees' models too (woodcutting plan PR 3): every wild kind at each stage a felled one grows back through, stumps, and felled fruit trees growing back. Fungus patches' too (fungi plan PR 4), by form, from `item_art`'s fungus meshes. Placing them on the maps, and when, is `dungeon_map`'s (`herbs.rs`, `fruit.rs`, `vegetable_plants.rs`, `trees.rs`).
 
 ## Files
 
@@ -23,19 +23,23 @@ Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (sh
   - `kinds.rs`: `Crown` (spire, open cone, pine top, tiers, column, oval, dome, spreading, weeping, umbrella, shrubby), `KindLook` (height and trunk in life, crown, bark and leaf sRGB), `kind_look(kind)`: one row per kind from `research-trees.md` (bark colours Claude's, from its descriptions).
   - `look.rs`: `Look` (drawn height, radius, trunk, colours, at a stage), `stage_size` (sapling 0.22, young 0.42, half grown 0.7), `drawn_metres` (`1.4 + 0.5 √m` tall, 2.2 to 4.6 m; crowns 0.9 to 3 m across by shape), `trunk_metres`.
   - `broadleaf.rs` (oval, dome, spreading, weeping with hanging strands, umbrella, shrubby; `mass`), `conifer.rs` (spire and open cone of stacked cones, pine top, flat tiers, column), `stump.rs` (`stump`: a short trunk in its bark, three roots, the cut in its wood's heartwood colour; `stump_size`).
+- `crates/client/src/plants/fungus.rs`: fungus patches' models (fungi plan PR 4): `FungusModels` (`get(key, stage, variant, meshes)`: a cell's patch at stage 1 to 4, cached by fungus key, stage and variant (`VARIANTS`); `None` for a key the table lacks), `FungusMeshes { fill, outline, memory }`. Tests in `fungus/tests.rs` (every fungus at every stage and variant within its cell and under 7000 triangles, young ones smaller, the three meshes alike). In `fungus/`:
+  - `patch.rs`: `build(def, stage, variant)` by form, from `item_art::fungus_one` stood up as it is: caps and other upright forms clustering (5 small, 3, 2, a large piece alone, fewer while young, leaning out), brackets in a tier up a stub of wood, jelly and wood crusts along a fallen stick, lichen tufts and plates and other crusts in a mat, beards hanging from a dead snag's twigs, truffles only as a mound of turned earth with crumbs; `drawn_metres` (`0.2 + 0.9 m^0.6` across, at most 1.1 m), `growth` (0.35, 0.6, 0.85, 1 by stage), `outline_share` (lichens 0.4 of the width), `REACH` (0.48 of a cell); the whole fitted within it, then simplified.
+  - `shell.rs`: `Shell` (smooth pieces put together, indexed): `add(mesh, place, fallback)`, `fit(reach)`, `simplify(grid)` (vertex clustering by a grid of at least 0.3 units, coarser for large patches, points facing apart kept apart: item pictures' meshes are far too fine for the maps), `fill` (shaded by `triangles`' fixed light), `outline(thin)` (points pushed out along their normals, an inverted hull), `memory` (greys, as trees').
+  - `ground.rs`: what fungi grow on, drawn with them: `stub`, `stick`, `rod`, `mound`.
 - `crates/client/src/plants/layout.rs`: `patch_layout(look, seed)`: a patch's plants (`PlantSpot`: offset from the cell's middle, turn, scale, variant), in a ring round the middle.
 
 ## Public API
 
-- `PlantsPlugin`, `PlantModels`, `FruitModels`, `VegetableModels`, `TreeModels` (resources), `TreeModel`, `patch_layout`, `fruit_plant_size`, `tree_size`.
+- `PlantsPlugin`, `PlantModels`, `FruitModels`, `VegetableModels`, `TreeModels`, `FungusModels` (resources), `TreeModel`, `patch_layout`, `fruit_plant_size`, `tree_size`.
 
 ## Depends on
 
-- `common` (`HerbTable`), `dungeon_map` (`CELL_SIZE`), `shared::herb` (`PlantLook`, `PlantShape`, `PartSize`, `Rgb`, `HerbDef`), `shared::fruit` (`FruitDef`, `FruitStage`, `PlantFamily`, `FruitPlantLook`, `FruitPosition`, `FruitShape`), `shared::vegetable` (`VegetableDef`, `PlantShape`, `Part`, `VegetableSet`, `VegetablePlantLook`, `VegetableLook`), `shared::tree` (`TreeKind`, `TreeStage`, `Tree`), `shared::material` (woods' heartwood), `shared::rng`.
+- `common` (`HerbTable`), `dungeon_map` (`CELL_SIZE`), `item_art` (`fungus_one`), `shared::fungus` (`Fungi`, `FungusDef`, `Form`, `Unit`), `shared::herb` (`PlantLook`, `PlantShape`, `PartSize`, `Rgb`, `HerbDef`), `shared::fruit` (`FruitDef`, `FruitStage`, `PlantFamily`, `FruitPlantLook`, `FruitPosition`, `FruitShape`), `shared::vegetable` (`VegetableDef`, `PlantShape`, `Part`, `VegetableSet`, `VegetablePlantLook`, `VegetableLook`), `shared::tree` (`TreeKind`, `TreeStage`, `Tree`), `shared::material` (woods' heartwood), `shared::rng`.
 
 ## Used by
 
-- `dungeon_map` (`herbs/draw.rs`, `fruit.rs`, `fruit_picking.rs`, `vegetable_plants.rs`, `trees.rs`, `tree_picking.rs`).
+- `dungeon_map` (`fungi.rs`, `herbs/draw.rs`, `fruit.rs`, `fruit_picking.rs`, `vegetable_plants.rs`, `trees.rs`, `tree_picking.rs`).
 
 ## Notes
 

@@ -1,12 +1,14 @@
 //! Herbs' plants as 3D models, built from each herb's `PlantLook` (its shape,
 //! sizes and colours) at each of its four stages, in a few variants, with
 //! black outlines; and where a patch's plants stand. Fruit plants' models too,
-//! by family (`FruitModels`), vegetables' (`VegetableModels`), and trees'
-//! (`TreeModels`). The maps place them (`dungeon_map`).
+//! by family (`FruitModels`), vegetables' (`VegetableModels`), trees'
+//! (`TreeModels`) and fungus patches' (`FungusModels`). The maps place them
+//! (`dungeon_map`).
 
 use bevy::prelude::*;
 
 mod fruit;
+mod fungus;
 mod layout;
 mod models;
 mod pieces;
@@ -17,6 +19,7 @@ mod triangles;
 mod vegetable;
 
 pub use fruit::{FruitModels, fruit_plant_size};
+pub use fungus::FungusModels;
 pub use layout::patch_layout;
 pub use models::PlantModels;
 pub use tree::{TreeModel, TreeModels, tree_size};
@@ -31,6 +34,7 @@ impl Plugin for PlantsPlugin {
             .init_resource::<FruitModels>()
             .init_resource::<VegetableModels>()
             .init_resource::<TreeModels>()
+            .init_resource::<FungusModels>()
             .add_systems(Update, models::forget_on_new_table);
     }
 }
