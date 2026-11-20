@@ -39,6 +39,7 @@ pub(super) fn blend(a: &Parts, b: &Parts, t: i32) -> Parts {
         tines: mix(a.tines, b.tines, t),
         humps: either(late, a.humps, b.humps),
         hump: mix(a.hump, b.hump, t),
+        hump_along: mix(a.hump_along, b.hump_along, t),
         beard: mix(a.beard, b.beard, t),
         wattles: mix(a.wattles, b.wattles, t),
         snood: mix(a.snood, b.snood, t),

@@ -24,6 +24,11 @@ fn kinds_find_their_animal() {
         (CreatureKind::Coo, "highland_cattle"),
         (CreatureKind::Horse, "horse"),
         (CreatureKind::Chicken, "chicken"),
+        (CreatureKind::Sheep, "sheep"),
+        (CreatureKind::Goat, "goat"),
+        (CreatureKind::Pig, "pig"),
+        (CreatureKind::WaterBuffalo, "water_buffalo"),
+        (CreatureKind::Yak, "yak"),
     ] {
         assert_eq!(animals.by_kind(kind).map(|def| def.key.as_str()), Some(key));
     }

@@ -21,6 +21,7 @@ pub enum CreatureKind {
     Dwarf,
     Elf,
     Giant,
+    Goat,
     Goblin,
     Halfling,
     Horse,
@@ -30,8 +31,12 @@ pub enum CreatureKind {
     Lizardfolk,
     Minotaur,
     Orc,
+    Pig,
     ScorpionMan,
+    Sheep,
+    WaterBuffalo,
     Wolf,
+    Yak,
 }
 
 impl CreatureKind {

@@ -33,6 +33,9 @@ pub enum Horns {
     Forward,
     /// Coiled back, down and round beside the face, ridged: a ram's.
     Spiral,
+    /// Long, out to the sides and sweeping back in a crescent, the tips rising a
+    /// little: a water buffalo's.
+    Sweep,
 }
 
 /// The shape of the ears, however long they are (`Parts::ears`).
@@ -144,6 +147,10 @@ pub struct Parts {
     /// This many humps (one or two) along the back, each this tall: a camel's.
     pub humps: i32,
     pub hump: i32,
+    /// Where a single hump stands, in thousandths of the back from the hips to the
+    /// shoulders: 0 for the middle (a dromedary's), more for one over the shoulders
+    /// (a yak's).
+    pub hump_along: i32,
     /// A tuft of hair hanging this far from the chin, as a goat's.
     pub beard: i32,
     /// Wattles this long hanging under the beak, as a cock's or a turkey's.
@@ -184,6 +191,7 @@ pub const NONE: Parts = Parts {
     tines: 0,
     humps: 0,
     hump: 0,
+    hump_along: 0,
     beard: 0,
     wattles: 0,
     snood: 0,

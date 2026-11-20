@@ -298,12 +298,21 @@ fn a_choice_for_one_gender_suits_only_it() {
     .only(Gender::Male);
     assert!(drake.suits(Gender::Male));
     assert!(!drake.suits(Gender::Female) && !drake.suits(Gender::Neutral));
-    // Every choice there is so far suits every gender.
+    // Every choice there is so far suits every gender, but the aurochs's: a
+    // bull's coat and eel stripe, a cow's coat.
     for kind in CreatureKind::ALL {
         for which in kind.def().looks {
             for gender in [Gender::Male, Gender::Female, Gender::Neutral] {
                 let all = which.choices_for(kind).len();
-                assert_eq!(which.suiting(kind, gender).len(), all, "{kind:?}");
+                let only = match (kind, which, gender) {
+                    (CreatureKind::Cattle, Trait::CoatColour, Gender::Neutral) => 2,
+                    (CreatureKind::Cattle, Trait::CoatColour, _) => 1,
+                    (CreatureKind::Cattle, Trait::Markings, Gender::Male) => 0,
+                    (CreatureKind::Cattle, Trait::Markings, _) => 1,
+                    _ => 0,
+                };
+                let suiting = which.suiting(kind, gender).len();
+                assert_eq!(suiting + only, all, "{kind:?} {which:?} {gender:?}");
             }
         }
     }

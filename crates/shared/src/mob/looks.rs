@@ -10,9 +10,21 @@ use crate::sheet::{Appearance, Trait};
 /// How likely each choice is, in order, for a kind's trait: highland cattle are
 /// mostly red-brown (owner, from the breed's records): 60 red-brown, 22
 /// yellow-brown, 6 silvery brown, 6 black, and 6 brindled, split between the two
-/// brindles.
-const WEIGHTS: &[(CreatureKind, Trait, &[u64])] =
-    &[(CreatureKind::Coo, Trait::CoatColour, &[60, 22, 6, 6, 3, 3])];
+/// brindles. Kept cattle never have an aurochs's coat or eel stripe (the last
+/// choices), which are for wild cattle.
+const WEIGHTS: &[(CreatureKind, Trait, &[u64])] = &[
+    (CreatureKind::Coo, Trait::CoatColour, &[60, 22, 6, 6, 3, 3]),
+    (
+        CreatureKind::Cattle,
+        Trait::CoatColour,
+        &[1, 1, 1, 1, 1, 0, 0],
+    ),
+    (
+        CreatureKind::Cattle,
+        Trait::Markings,
+        &[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    ),
+];
 
 /// The weights for a kind's trait, if it has any; otherwise all choices are even.
 pub(super) fn weights(kind: CreatureKind, which: Trait) -> Option<&'static [u64]> {

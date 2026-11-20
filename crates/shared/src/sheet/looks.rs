@@ -7,6 +7,9 @@ use crate::creature::CreatureKind;
 use crate::gender::Gender;
 
 use super::Trait;
+use super::livestock_coats::{
+    BUFFALO_COAT, CATTLE_COAT, COO_COAT, GOAT_COAT, PIG_COAT, SHEEP_COAT, YAK_COAT,
+};
 use super::markings::{Marks, markings_choices};
 
 /// One choice for a trait: what it is called and, for a colour, its colour and
@@ -50,7 +53,7 @@ pub enum Pattern {
     Brindle([u8; 3]),
 }
 
-const fn colour(name: &'static str, rgb: [u8; 3]) -> Choice {
+pub(super) const fn colour(name: &'static str, rgb: [u8; 3]) -> Choice {
     Choice {
         name,
         colour: Some(rgb),
@@ -68,7 +71,7 @@ const fn speckled(name: &'static str, rgb: [u8; 3], specks: [u8; 3]) -> Choice {
     }
 }
 
-const fn brindled(name: &'static str, rgb: [u8; 3], stripes: [u8; 3]) -> Choice {
+pub(super) const fn brindled(name: &'static str, rgb: [u8; 3], stripes: [u8; 3]) -> Choice {
     Choice {
         name,
         colour: Some(rgb),
@@ -190,25 +193,6 @@ const HORSE_COAT: &[Choice] = &[
     colour("White", [234, 232, 226]),
 ];
 
-const CATTLE_COAT: &[Choice] = &[
-    colour("Black", [38, 34, 32]),
-    colour("Brown", [110, 72, 46]),
-    colour("Red", [146, 70, 42]),
-    colour("White", [232, 228, 218]),
-    colour("Dun", [176, 146, 104]),
-];
-
-/// Highland cattle: one long coat, mostly reddish brown; mobs roll these with the
-/// weights in `mob::looks`.
-const COO_COAT: &[Choice] = &[
-    colour("Red-brown", [140, 70, 40]),
-    colour("Yellow-brown", [186, 140, 82]),
-    colour("Silvery brown", [166, 150, 134]),
-    colour("Black", [38, 33, 30]),
-    brindled("Red-brown brindle", [140, 70, 40], [44, 34, 30]),
-    brindled("Yellow-brown brindle", [186, 140, 82], [126, 62, 36]),
-];
-
 const WOLF_COAT: &[Choice] = &[
     colour("Grey", [136, 132, 126]),
     colour("White", [226, 224, 218]),
@@ -255,8 +239,8 @@ impl Trait {
     /// perhaps only for one gender: `Choice::gender`).
     pub fn choices_for(self, kind: CreatureKind) -> &'static [Choice] {
         use CreatureKind::{
-            Birdfolk, Cattle, Coo, Drider, Dwarf, Elf, Goblin, Horse, Kobold, Lizardfolk, Minotaur,
-            Orc, ScorpionMan, Wolf,
+            Birdfolk, Cattle, Coo, Drider, Dwarf, Elf, Goat, Goblin, Horse, Kobold, Lizardfolk,
+            Minotaur, Orc, Pig, ScorpionMan, Sheep, WaterBuffalo, Wolf, Yak,
         };
         match self {
             Self::Height => HEIGHT,
@@ -278,6 +262,11 @@ impl Trait {
                 Horse => HORSE_COAT,
                 Cattle => CATTLE_COAT,
                 Coo => COO_COAT,
+                Sheep => SHEEP_COAT,
+                Goat => GOAT_COAT,
+                Pig => PIG_COAT,
+                WaterBuffalo => BUFFALO_COAT,
+                Yak => YAK_COAT,
                 Drider => SPIDER_CHITIN,
                 ScorpionMan => SCORPION_CHITIN,
                 Wolf => WOLF_COAT,

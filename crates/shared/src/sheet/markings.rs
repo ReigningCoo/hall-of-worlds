@@ -5,6 +5,7 @@
 //! end; the first is what a creature has if nothing was chosen.
 
 use crate::creature::CreatureKind;
+use crate::gender::Gender;
 
 use super::looks::word;
 use super::{Choice, Pattern};
@@ -30,6 +31,8 @@ pub struct Marks {
     /// The neck's top and sides from the head to the shoulders, as a cock's
     /// hackles.
     pub hackles: bool,
+    /// A narrow stripe along the top of the back, as an aurochs bull's.
+    pub eel: bool,
 }
 
 impl Marks {
@@ -43,6 +46,7 @@ impl Marks {
             stripes: true,
             hood: false,
             hackles: false,
+            eel: false,
         }
     }
 }
@@ -82,6 +86,7 @@ const fn marks(colour: [u8; 3], belly: bool, face: Face) -> Marks {
         stripes: false,
         hood: false,
         hackles: false,
+        eel: false,
     }
 }
 
@@ -96,6 +101,7 @@ const fn patched(name: &'static str, colour: [u8; 3], layout: u8) -> Choice {
             stripes: false,
             hood: false,
             hackles: false,
+            eel: false,
         },
     )
 }
@@ -117,6 +123,7 @@ const CATTLE: &[Choice] = &[
     patched("White patches", WHITE, 5),
     patched("Dark patches", DARK, 6),
     patched("Dark patches", DARK, 7),
+    marked("Eel stripe", EEL_STRIPE).only(Gender::Male),
 ];
 
 const HORSE: &[Choice] = &[
@@ -125,6 +132,49 @@ const HORSE: &[Choice] = &[
     marked("Blaze", marks(WHITE, false, Face::Blaze)),
     patched("Pinto", WHITE, 8),
     patched("Pinto", WHITE, 9),
+];
+
+/// An aurochs bull's pale stripe along the back (wild cattle only: mobs don't
+/// roll it for kept cattle).
+const EEL_STRIPE: Marks = Marks {
+    eel: true,
+    ..marks([214, 196, 160], false, Face::Bare)
+};
+
+/// Sheep: plain, a black face, a pale belly (a mouflon's), or a Jacob's patches.
+const SHEEP: &[Choice] = &[
+    word("Plain"),
+    marked("Black face", marks(DARK, false, Face::Whole)),
+    marked("Pale belly", marks(CREAM, true, Face::Bare)),
+    patched("Dark patches", DARK, 11),
+];
+
+/// Goats: plain, pale face stripes and belly (a Toggenburg's), or patches.
+const GOAT: &[Choice] = &[
+    word("Plain"),
+    marked("Pale face and belly", marks(CREAM, true, Face::Blaze)),
+    patched("White patches", WHITE, 12),
+    patched("Dark patches", DARK, 13),
+];
+
+/// Pigs: plain, or spotted or patched.
+const PIG: &[Choice] = &[
+    word("Plain"),
+    patched("Dark spots", DARK, 14),
+    patched("White patches", WHITE, 15),
+];
+
+/// Water buffalo: plain, or a pale throat and chest (a swamp buffalo's chevrons).
+const WATER_BUFFALO: &[Choice] = &[
+    word("Plain"),
+    marked("Pale throat", marks(CREAM, true, Face::Bare)),
+];
+
+/// Yaks: plain, a white face, or white patches.
+const YAK: &[Choice] = &[
+    word("Plain"),
+    marked("White face", marks(WHITE, false, Face::Whole)),
+    patched("White patches", WHITE, 17),
 ];
 
 /// A minotaur's, to pick when making one.
@@ -141,6 +191,11 @@ pub(super) fn markings_choices(kind: CreatureKind) -> &'static [Choice] {
         CreatureKind::Cattle => CATTLE,
         CreatureKind::Horse => HORSE,
         CreatureKind::Minotaur => MINOTAUR,
+        CreatureKind::Sheep => SHEEP,
+        CreatureKind::Goat => GOAT,
+        CreatureKind::Pig => PIG,
+        CreatureKind::WaterBuffalo => WATER_BUFFALO,
+        CreatureKind::Yak => YAK,
         _ => &[],
     }
 }
