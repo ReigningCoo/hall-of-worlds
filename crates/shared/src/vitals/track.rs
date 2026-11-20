@@ -101,6 +101,8 @@ pub struct Rate {
     pub restore: u32,
     pub drain: u32,
     pub until: Option<u64>,
+    /// Draining can take it to 0 (a deadly poison), not only to 1 point.
+    pub deadly: bool,
 }
 
 /// What a client is told of one at a moment: it refills it itself from there
@@ -123,6 +125,9 @@ pub struct VitalNow {
     /// Thousandths of a point a second taken away (poison), waiting or not,
     /// never below 1 point (`Rate::drain`).
     pub drain: u32,
+    /// Draining can take it to 0 (`Rate::deadly`).
+    #[serde(default)]
+    pub deadly: bool,
 }
 
 impl VitalNow {
@@ -134,6 +139,7 @@ impl VitalNow {
             restore: self.restore,
             drain: self.drain,
             until: None,
+            deadly: self.deadly,
         };
         let stop = match self.restore_ends_in {
             u32::MAX => u64::MAX,
@@ -177,6 +183,7 @@ impl Track {
             restore: rate.restore,
             restore_ends_in: rate.until.map_or(u32::MAX, ticks),
             drain: rate.drain,
+            deadly: rate.deadly,
         }
     }
 

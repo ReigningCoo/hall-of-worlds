@@ -12,6 +12,7 @@ fn told(value: u32, refills_in: u32, restore: u32, drain: u32, ends_in: u32) -> 
         restore,
         restore_ends_in: ends_in,
         drain,
+        deadly: false,
     }
 }
 

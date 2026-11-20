@@ -120,6 +120,11 @@ pub(super) fn eating_allowed(
     allowed.is_ok()
 }
 
+const NO_EATER: shared::fungus::Eater = shared::fungus::Eater {
+    most_health: 0,
+    easy: false,
+};
+
 /// What eating a fruit, vegetable or fungus does (`fruit::eating`,
 /// `vegetable::eating`, `fungus::eating`), or `None` for anything else.
 fn eaten_effects(food: &Item, now: u64) -> Option<Vec<Effect>> {
@@ -131,7 +136,8 @@ fn eaten_effects(food: &Item, now: u64) -> Option<Vec<Effect>> {
     if let Some(form) = food.fungus() {
         return Fungi::built_in()
             .get(&form.fungus)
-            .map(|def| shared::fungus::eating(def, now));
+            // Only attributes matter here, not how hard a deadly poison drains.
+            .map(|def| shared::fungus::eating(def, now, NO_EATER));
     }
     let form = food.vegetable()?;
     let def = Vegetables::built_in().get(&form.vegetable)?;

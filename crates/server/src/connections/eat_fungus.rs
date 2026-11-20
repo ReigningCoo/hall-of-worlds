@@ -1,11 +1,15 @@
 //! Eating a fungus raw (through `consume.rs`): its healing, raw effects and
-//! poison (`fungus::eating`). A big piece is cut first (`fungus::cut`): one
+//! poison (`fungus::eating`), a poison starting later hidden from the player
+//! unless recognised (`fungus::recognised`: known, or a Healing check). A big piece is cut first (`fungus::cut`): one
 //! serving is eaten and the rest go back, as a cut fruit's do
 //! (`eat_fruit::put_back`).
 
 use bevy::prelude::*;
-use shared::fungus::{Fungi, cut, eating};
+use shared::difficulty::Difficulty;
+use shared::fungus::{Eater, Fungi, cut, eating, recognised};
 use shared::item::Item;
+use shared::magic::heal_skill;
+use shared::rng::Seed;
 
 use super::Client;
 use crate::ServerWorld;
@@ -29,12 +33,15 @@ pub(super) fn eat_fungus(
     if let Some((_, Some(rest))) = cut(eaten, &mut new_id) {
         super::eat_fruit::put_back(client, world, rest, carried);
     }
+    let eater = Eater {
+        most_health: client.limits(now).health,
+        easy: client.playing_on() == Difficulty::Easy,
+    };
+    let healing = client.sheet.skills.percent(heal_skill());
+    let roll = Seed::new(new_id().seed().value()).rng().range_u64(0, 100) as u32;
+    let known = recognised(&client.sheet.fungi, def, healing, roll);
     let (sheet, situation) = client.sheet_and_situation();
-    sheet.change_effects(situation, now, |on| {
-        for effect in eating(def, now) {
-            on.add(effect);
-        }
-    });
+    sheet.lay_on(eating(def, now, eater), known, situation, now);
     client.unsaved = true;
     client.refresh_attributes(now);
 }

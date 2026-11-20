@@ -54,6 +54,12 @@ pub fn bonus_line(bonus: &Bonus, lang: &Lang) -> String {
                 .text("stat", stat);
             return written(lang.render("item-drains", &args));
         }
+        (Stat::DeadlyDrain(_), Amount::Flat(milli)) => {
+            let args = Args::new()
+                .text("amount", signed(-milli))
+                .text("stat", stat);
+            return written(lang.render("item-drains-deadly", &args));
+        }
         (_, Amount::Flat(milli)) => ("item-bonus", milli),
         (_, Amount::Percent(milli)) => ("item-bonus-percent", milli),
     };
@@ -70,7 +76,9 @@ pub fn stat_words(stat: Stat, lang: &Lang) -> String {
     let id = match stat {
         Stat::Attribute(attribute) => format!("stat-{}", attribute.name().to_lowercase()),
         Stat::Most(of) => format!("stat-most-{}", vital(of)),
-        Stat::Restore(of) | Stat::Drain(of) => format!("stat-{}", vital(of)),
+        Stat::Restore(of) | Stat::Drain(of) | Stat::DeadlyDrain(of) => {
+            format!("stat-{}", vital(of))
+        }
         Stat::Darkvision => "stat-darkvision".to_owned(),
         Stat::Skill(skill) => {
             let args = Args::new().text("skill", skill.name());

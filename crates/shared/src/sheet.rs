@@ -24,6 +24,7 @@ mod from_build;
 mod hair;
 mod height;
 mod kind_bonus;
+mod later;
 mod load;
 mod looks;
 mod markings;
@@ -200,6 +201,15 @@ pub struct Sheet {
     /// The alcohol in it (`shared::alcohol`): none in older saves.
     #[serde(default)]
     pub alcohol: crate::alcohol::Alcohol,
+    /// Effects laid on to start later (`bonus::Later`: a fungus's delayed
+    /// poison), those not known kept from its player (`as_sent`): none in
+    /// older saves.
+    #[serde(default)]
+    pub later: crate::bonus::Later,
+    /// What it has found out about fungi (`fungus::FungusKnowledge`): nothing
+    /// in older saves.
+    #[serde(default)]
+    pub fungi: crate::fungus::FungusKnowledge,
 }
 
 impl Default for Sheet {
@@ -233,6 +243,8 @@ impl Sheet {
             recipes: Default::default(),
             drinks: Default::default(),
             alcohol: Default::default(),
+            later: Default::default(),
+            fungi: Default::default(),
         }
     }
 
@@ -259,10 +271,12 @@ impl Sheet {
     }
 
     /// A copy to send its player, without what they may not know: their
-    /// alignment. Every `Sheet` the server sends goes through this.
+    /// alignment, and effects coming later that they haven't recognised
+    /// (`bonus::Later`). Every `Sheet` the server sends goes through this.
     pub fn as_sent(&self) -> Self {
         Self {
             alignment: None,
+            later: self.later.known(),
             ..self.clone()
         }
     }

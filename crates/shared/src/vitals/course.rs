@@ -8,7 +8,8 @@ use super::points::{PER_POINT, Points};
 use super::track::Rate;
 
 /// Draining never takes it below this, in thousandths: 1 point (owner,
-/// 2026-11-14: poison never kills). Harm can.
+/// 2026-11-14: poison never kills). Harm can, and so can a deadly poison
+/// (`Rate::deadly`, fungi plan decision 8), draining to 0.
 pub const DRAIN_FLOOR: u32 = PER_POINT;
 
 /// What `value` comes to after `ticks`, coming back at `rate`: refilling
@@ -22,7 +23,11 @@ pub const DRAIN_FLOOR: u32 = PER_POINT;
 /// adds up exactly as one sum would.
 pub fn course(value: Points, rate: Rate, wait: u64, stop: u64, ticks: u64) -> Points {
     let most = i64::from(Points::whole(rate.most).milli());
-    let floor = i64::from(DRAIN_FLOOR);
+    let floor = if rate.deadly {
+        0
+    } else {
+        i64::from(DRAIN_FLOOR)
+    };
     let mut value = i64::from(value.milli()).min(most);
     let mut from = 0;
     let mut cuts = [wait.min(ticks), stop.min(ticks), ticks];

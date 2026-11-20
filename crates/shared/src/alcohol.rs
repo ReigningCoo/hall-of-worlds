@@ -21,7 +21,7 @@ pub use stage::{
     VERY_DRUNK_MILLI,
 };
 pub use state::Alcohol;
-pub use stumble::{Veer, stumble, veered_move, veered_step};
+pub use stumble::{CONFUSED_ONE_IN, Veer, stumble, veered_move, veered_step};
 
 #[cfg(test)]
 mod tests;

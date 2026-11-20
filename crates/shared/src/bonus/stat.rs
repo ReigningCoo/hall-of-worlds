@@ -30,6 +30,10 @@ pub enum Stat {
     /// (`dungeon::darkvision_reach`); only a potion's at a time
     /// (`Source::Potion` of `herb::Stat::Darkvision`).
     Darkvision,
+    /// Only from effects: as `Drain`, but it can take Health to 0 and kill
+    /// (a deadly fungus's poison, `fungus::poisoning`): while any lasts, all
+    /// draining of that one has no floor.
+    DeadlyDrain(Vital),
     // New stats go at the end: messages carry one by its place in this list.
 }
 

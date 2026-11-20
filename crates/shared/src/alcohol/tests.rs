@@ -175,9 +175,10 @@ fn drinking_lays_on_the_stage_and_slows() {
 #[test]
 fn stumbles_are_seeded_and_odd() {
     let id = Id::for_test(7);
-    let count = |stage| {
+    let count = |stage: Option<Stage>| {
+        let one_in = stage.and_then(Stage::stumble_one_in);
         (0..10_000)
-            .filter(|&number| stumble(id, 1, number, stage).is_some())
+            .filter(|&number| stumble(id, 1, number, one_in).is_some())
             .count()
     };
     assert_eq!(count(Some(Stage::Tipsy)), 0);
@@ -187,8 +188,11 @@ fn stumbles_are_seeded_and_odd() {
     let very = count(Some(Stage::VeryDrunk));
     assert!((1700..2300).contains(&very), "{very}");
     for number in 0..100 {
-        let stage = Some(Stage::Drunk);
-        assert_eq!(stumble(id, 1, number, stage), stumble(id, 1, number, stage));
+        let one_in = Stage::Drunk.stumble_one_in();
+        assert_eq!(
+            stumble(id, 1, number, one_in),
+            stumble(id, 1, number, one_in)
+        );
     }
 }
 

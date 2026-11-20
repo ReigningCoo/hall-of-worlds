@@ -29,6 +29,9 @@ pub struct Restore {
     pub drain_health: u32,
     pub drain_mana: u32,
     pub until: Option<u64>,
+    /// Draining Health can take it to 0 (a deadly poison, `bonus::Stat::DeadlyDrain`).
+    #[serde(default)]
+    pub deadly: bool,
 }
 
 impl Limits {
@@ -53,6 +56,7 @@ impl Limits {
                 Vital::Mana => self.restore.drain_mana,
             },
             until: self.restore.until,
+            deadly: vital == Vital::Health && self.restore.deadly,
         }
     }
 }

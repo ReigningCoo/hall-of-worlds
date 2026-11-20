@@ -7,6 +7,7 @@
 use super::{Drinker, Stage};
 use crate::bonus::{Effect, EndsOn, Source};
 use crate::creature::CreatureKind;
+use crate::fungus::{Eater, with_alcohol};
 use crate::sheet::{Sheet, Situation};
 
 /// The effect of being at `stage` from `start` until `end`.
@@ -34,7 +35,9 @@ impl Sheet {
     }
 
     /// Drinks `milli` thousandths of a unit at `now`, as a creature of `kind`,
-    /// and keeps its stage's effect up to date.
+    /// and keeps its stage's effect up to date. Within a fungus's window
+    /// (the common ink cap's, `fungus::with_alcohol`) it brings on that
+    /// fungus's poison (no deadly one comes this way, so Easy isn't asked).
     pub fn drink_alcohol(
         &mut self,
         milli: u32,
@@ -51,6 +54,14 @@ impl Sheet {
                 .retain(|effect| !matches!(effect.source, Source::Alcohol(_)));
         });
         self.keep_alcohol(kind, situation, now);
+        let eater = Eater {
+            most_health: self.limits(situation, now).health,
+            easy: false,
+        };
+        let poisons = with_alcohol(&self.effects, now, eater);
+        if !poisons.is_empty() {
+            self.lay_on(poisons, true, situation, now);
+        }
     }
 
     /// Swaps its stage's effect for the stage it is at `now`, if that has

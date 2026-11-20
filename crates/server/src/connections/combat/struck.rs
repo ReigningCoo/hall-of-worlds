@@ -1,7 +1,7 @@
 //! A player struck by a mob: harmed, practising Defence, and perhaps killed.
 
 use bevy::prelude::*;
-use shared::bonus::Cancel;
+use shared::bonus::{Cancel, Source};
 use shared::creature::CreatureKind;
 use shared::protocol::ServerMessage;
 use shared::vitals::{Points, Vital};
@@ -46,6 +46,19 @@ pub(super) fn struck(
     left
 }
 
+/// Every tick: a deadly poison (fungi plan PR 6) has drained the last of
+/// their Health, so they are killed as by a blow. Whether they were.
+pub(crate) fn die_of_poison(client: &mut Client, world: &mut ServerWorld, tick: u64) -> bool {
+    let limits = client.limits(tick);
+    if !limits.restore.deadly || client.sheet.vitals.at(Vital::Health, limits, tick) != Points::ZERO
+    {
+        return false;
+    }
+    info!("{} died of poison", client.in_log());
+    killed(client, world, tick);
+    true
+}
+
 /// Killed: their skills take their difficulty's rust, what it drops falls
 /// where they died (Hard and Ironman), then they are put out of the site onto the world map, whole
 /// again, and told (owner, 2026-11-07, for now). On Ironman they are deleted
@@ -53,6 +66,14 @@ pub(super) fn struck(
 fn killed(client: &mut Client, world: &mut ServerWorld, tick: u64) {
     client.fight.pending = None;
     client.waiting.clear();
+    // Dying cures poisons, those still to start too, so one can't kill again.
+    let poison = |source| matches!(source, Source::Poison | Source::FungusPoison(_));
+    client
+        .sheet
+        .effects
+        .0
+        .retain(|effect| !poison(effect.source));
+    client.sheet.later.forget(poison);
     client.sheet.vitals.fill();
     client.unsaved = true;
     let difficulty = client.playing_on();

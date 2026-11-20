@@ -745,6 +745,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 refill: 3_000,
                 restore: 1_000,
                 restore_ends_in: 600,
+                deadly: true,
                 drain: 1_000,
             },
             mana: crate::vitals::VitalNow::default(),

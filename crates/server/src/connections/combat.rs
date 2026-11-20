@@ -295,6 +295,7 @@ pub(crate) fn take_mob_blows(
 }
 
 mod struck;
+pub(crate) use struck::die_of_poison;
 
 #[cfg(test)]
 mod alchemy_tests;
