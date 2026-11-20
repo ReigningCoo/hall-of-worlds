@@ -16,12 +16,15 @@ use crate::sheet::{Appearance, Attributes, Build, Feeling};
 use crate::wear::WornLook;
 
 mod chosen;
+mod herd;
 mod looks;
 mod memory;
 mod purse;
 mod scent;
 mod trail;
 mod wild;
+mod wild_looks;
+mod wild_shares;
 pub use chosen::{chosen_spawns, spawn_at};
 use looks::looks;
 pub use memory::{

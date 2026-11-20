@@ -19,6 +19,7 @@ mod produce;
 mod stages;
 mod table;
 mod traits;
+mod wild_place;
 
 pub use age::{LIFE_CYCLES, age_hours, stage_of};
 pub use def::{LivestockDef, Pet, Wild};
@@ -31,6 +32,7 @@ pub use produce::{Per, Produce, Product};
 pub use stages::{Adult, GAME_HOURS_A_MONTH, Sexed, Stage, Stages};
 pub use table::Livestock;
 pub use traits::{Class, Diet, Often, Rarity, Water};
+pub use wild_place::{COLD_UP_TO, HOT_FROM, Place, Warmth};
 
 #[cfg(test)]
 mod tests;
