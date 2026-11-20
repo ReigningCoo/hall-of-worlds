@@ -24,6 +24,8 @@
             colours: [(245, 242, 235), (215, 160, 150), (245, 242, 235)],
             smallest: 30,
             largest: 100,
+            stem: Stout,
+            ring: true,
         ),
     ),
     (
@@ -144,6 +146,7 @@
             colours: [(245, 242, 235)],
             smallest: 100,
             largest: 250,
+            under: Spines,
         ),
     ),
     (
@@ -192,6 +195,7 @@
             colours: [(130, 90, 55), (235, 225, 195), (235, 225, 195)],
             smallest: 30,
             largest: 100,
+            ring: true,
         ),
     ),
     (
@@ -238,6 +242,7 @@
             colours: [(140, 125, 105), (215, 160, 150), (245, 242, 235)],
             smallest: 40,
             largest: 120,
+            cap: Flat,
         ),
     ),
     (
@@ -261,6 +266,8 @@
             colours: [(130, 35, 45), (60, 40, 60), (245, 242, 235)],
             smallest: 50,
             largest: 200,
+            stem: Stout,
+            ring: true,
         ),
     ),
     (
@@ -291,6 +298,7 @@
             colours: [(170, 140, 190), (170, 140, 190), (170, 140, 190)],
             smallest: 60,
             largest: 150,
+            stem: Stout,
         ),
     ),
     (
@@ -314,6 +322,9 @@
             colours: [(245, 242, 235), (30, 28, 28), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            cap: Bell,
+            stem: Tall,
+            ring: true,
         ),
     ),
     (
@@ -349,6 +360,7 @@
             colours: [(150, 148, 140), (30, 28, 28), (245, 242, 235)],
             smallest: 30,
             largest: 70,
+            cap: Bell,
         ),
     ),
     (
@@ -373,6 +385,7 @@
             colours: [(140, 125, 105), (215, 160, 150), (245, 242, 235)],
             smallest: 20,
             largest: 50,
+            volva: true,
         ),
     ),
     (
@@ -405,6 +418,7 @@
             colours: [(210, 160, 70), (235, 225, 195), (210, 160, 70)],
             smallest: 30,
             largest: 150,
+            ring: true,
         ),
     ),
     (
@@ -517,6 +531,7 @@
             colours: [(235, 225, 195), (245, 242, 235), (130, 90, 55)],
             smallest: 100,
             largest: 600,
+            under: Pores,
         ),
     ),
     (
@@ -540,6 +555,8 @@
             colours: [(245, 242, 235), (235, 225, 195), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            cap: Flat,
+            stem: Stout,
         ),
     ),
     (
@@ -651,6 +668,7 @@
             colours: [(245, 242, 235), (245, 242, 235), (245, 242, 235)],
             smallest: 5,
             largest: 30,
+            cap: Bell,
         ),
     ),
     (
@@ -681,6 +699,8 @@
             colours: [(130, 90, 55), (190, 160, 115), (130, 90, 55)],
             smallest: 10,
             largest: 40,
+            cap: Bell,
+            ring: true,
         ),
     ),
     (
@@ -740,6 +760,7 @@
             colours: [(230, 130, 40), (230, 130, 40), (230, 130, 40)],
             smallest: 50,
             largest: 150,
+            cap: Depressed,
         ),
     ),
     (
@@ -879,6 +900,7 @@
             colours: [(130, 90, 55), (235, 225, 195)],
             smallest: 20,
             largest: 80,
+            under: Pores,
         ),
     ),
     (
@@ -908,6 +930,7 @@
             colours: [(150, 50, 30), (235, 225, 195), (150, 50, 30)],
             smallest: 50,
             largest: 200,
+            under: Pores,
         ),
     ),
     (
@@ -938,6 +961,7 @@
             colours: [(140, 125, 105), (245, 242, 235)],
             smallest: 100,
             largest: 600,
+            under: Pores,
         ),
     ),
     (
@@ -1121,6 +1145,8 @@
             colours: [(150, 148, 140), (245, 242, 235), (245, 242, 235)],
             smallest: 20,
             largest: 60,
+            cap: Depressed,
+            under: Pores,
         ),
     ),
     (
@@ -1150,6 +1176,7 @@
             colours: [(130, 90, 55), (235, 225, 195), (130, 90, 55)],
             smallest: 50,
             largest: 100,
+            cap: Depressed,
         ),
     ),
     (
@@ -1240,6 +1267,8 @@
             colours: [(140, 125, 105), (245, 242, 235), (245, 242, 235)],
             smallest: 100,
             largest: 1000,
+            cap: Conical,
+            stem: Tall,
         ),
     ),
     (
@@ -1264,6 +1293,7 @@
             colours: [(240, 175, 40), (240, 175, 40), (240, 175, 40)],
             smallest: 30,
             largest: 100,
+            under: Ridges,
         ),
     ),
     (
@@ -1289,6 +1319,8 @@
             colours: [(130, 90, 55), (235, 225, 195), (235, 225, 195)],
             smallest: 70,
             largest: 300,
+            under: Pores,
+            stem: Stout,
         ),
     ),
     (
@@ -1320,6 +1352,7 @@
             colours: [(190, 160, 115), (235, 225, 195), (235, 225, 195)],
             smallest: 40,
             largest: 100,
+            cap: Conical,
         ),
     ),
     (
@@ -1344,6 +1377,8 @@
             colours: [(70, 68, 66), (30, 28, 28)],
             smallest: 50,
             largest: 120,
+            cap: Depressed,
+            under: Smooth,
         ),
     ),
     (
@@ -1367,6 +1402,8 @@
             colours: [(215, 190, 145), (235, 225, 195), (235, 225, 195)],
             smallest: 50,
             largest: 150,
+            under: Spines,
+            stem: Stout,
         ),
     ),
     (
@@ -1390,6 +1427,8 @@
             colours: [(120, 60, 35), (235, 225, 195), (190, 160, 115)],
             smallest: 40,
             largest: 150,
+            under: Pores,
+            stem: Stout,
         ),
     ),
     (
@@ -1419,6 +1458,8 @@
             colours: [(140, 125, 105), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            under: Pores,
+            stem: Tall,
         ),
     ),
     (
@@ -1442,6 +1483,8 @@
             colours: [(130, 90, 55), (235, 200, 60), (235, 225, 195)],
             smallest: 50,
             largest: 120,
+            under: Pores,
+            ring: true,
         ),
     ),
     (
@@ -1465,6 +1508,8 @@
             colours: [(230, 130, 40), (230, 130, 40), (230, 130, 40)],
             smallest: 40,
             largest: 120,
+            cap: Depressed,
+            stem: Stout,
         ),
     ),
     (
@@ -1488,6 +1533,8 @@
             colours: [(130, 90, 55), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 200,
+            stem: Stout,
+            ring: true,
         ),
     ),
     (
@@ -1513,6 +1560,8 @@
             colours: [(225, 80, 30), (235, 200, 60), (235, 200, 60)],
             smallest: 80,
             largest: 200,
+            ring: true,
+            volva: true,
         ),
     ),
     (
@@ -1536,6 +1585,8 @@
             colours: [(120, 100, 120), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            cap: Flat,
+            stem: Stout,
         ),
     ),
     (
@@ -1559,6 +1610,8 @@
             colours: [(225, 90, 50), (225, 90, 50)],
             smallest: 100,
             largest: 200,
+            cap: Depressed,
+            under: Smooth,
         ),
     ),
     (
@@ -1583,6 +1636,7 @@
             colours: [(140, 125, 105), (245, 242, 235)],
             smallest: 200,
             largest: 500,
+            under: Pores,
         ),
     ),
     (
@@ -1614,6 +1668,7 @@
             colours: [(240, 150, 40), (230, 210, 70)],
             smallest: 100,
             largest: 400,
+            under: Pores,
         ),
     ),
     (
@@ -1639,6 +1694,7 @@
             colours: [(170, 40, 40), (235, 225, 195)],
             smallest: 100,
             largest: 250,
+            under: Pores,
         ),
     ),
     (
@@ -1694,6 +1750,8 @@
             colours: [(175, 120, 100), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            ring: true,
+            warts: true,
         ),
     ),
     (
@@ -1759,6 +1817,7 @@
             colours: [(150, 148, 140), (130, 90, 55)],
             smallest: 100,
             largest: 450,
+            under: Pores,
         ),
     ),
     (
@@ -1788,6 +1847,7 @@
             colours: [(225, 222, 215), (245, 242, 235)],
             smallest: 100,
             largest: 250,
+            under: Pores,
         ),
     ),
     (
@@ -1817,6 +1877,7 @@
             colours: [(225, 222, 215), (235, 225, 195)],
             smallest: 100,
             largest: 600,
+            under: Pores,
         ),
     ),
     (
@@ -1864,6 +1925,8 @@
             colours: [(245, 242, 235), (215, 160, 150), (245, 242, 235)],
             smallest: 30,
             largest: 100,
+            stem: Stout,
+            ring: true,
         ),
     ),
     (
@@ -1888,6 +1951,8 @@
             colours: [(245, 242, 235), (190, 165, 160), (245, 242, 235)],
             smallest: 80,
             largest: 200,
+            stem: Stout,
+            ring: true,
         ),
     ),
     (
@@ -1912,6 +1977,7 @@
             colours: [(190, 160, 115), (235, 225, 195), (190, 160, 115)],
             smallest: 20,
             largest: 50,
+            cap: Bell,
         ),
     ),
     (
@@ -1936,6 +2002,7 @@
             colours: [(245, 242, 235), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            stem: Stout,
         ),
     ),
     (
@@ -1959,6 +2026,10 @@
             colours: [(215, 190, 145), (245, 242, 235), (130, 90, 55)],
             smallest: 100,
             largest: 300,
+            cap: Flat,
+            stem: Tall,
+            ring: true,
+            warts: true,
         ),
     ),
     (
@@ -2056,6 +2127,8 @@
             colours: [(130, 90, 55), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            cap: Flat,
+            stem: Stout,
         ),
     ),
     (
@@ -2086,6 +2159,8 @@
             colours: [(160, 160, 100), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            ring: true,
+            volva: true,
         ),
     ),
     (
@@ -2116,6 +2191,9 @@
             colours: [(245, 242, 235), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 120,
+            stem: Tall,
+            ring: true,
+            volva: true,
         ),
     ),
     (
@@ -2151,6 +2229,10 @@
             colours: [(200, 40, 35), (245, 242, 235), (245, 242, 235)],
             smallest: 80,
             largest: 200,
+            stem: Tall,
+            ring: true,
+            volva: true,
+            warts: true,
         ),
     ),
     (
@@ -2186,6 +2268,9 @@
             colours: [(130, 90, 55), (245, 242, 235), (245, 242, 235)],
             smallest: 50,
             largest: 110,
+            ring: true,
+            volva: true,
+            warts: true,
         ),
     ),
     (
@@ -2214,6 +2299,7 @@
             colours: [(170, 85, 40), (170, 85, 40), (200, 160, 90)],
             smallest: 25,
             largest: 80,
+            cap: Conical,
         ),
     ),
     (
@@ -2300,6 +2386,7 @@
             colours: [(245, 242, 235), (245, 242, 235), (245, 242, 235)],
             smallest: 20,
             largest: 40,
+            cap: Depressed,
         ),
     ),
     (
@@ -2329,6 +2416,8 @@
             colours: [(245, 242, 235), (190, 165, 160), (245, 242, 235)],
             smallest: 50,
             largest: 150,
+            stem: Stout,
+            ring: true,
         ),
     ),
     (
@@ -2358,6 +2447,8 @@
             colours: [(225, 222, 215), (200, 40, 35), (200, 40, 35)],
             smallest: 80,
             largest: 300,
+            under: Pores,
+            stem: Stout,
         ),
     ),
     (
@@ -2387,6 +2478,8 @@
             colours: [(130, 90, 55), (190, 160, 115), (130, 90, 55)],
             smallest: 40,
             largest: 120,
+            cap: Depressed,
+            stem: Stout,
         ),
     ),
     (
@@ -2416,6 +2509,7 @@
             colours: [(245, 242, 235), (235, 225, 195), (245, 242, 235)],
             smallest: 30,
             largest: 80,
+            cap: Conical,
         ),
     ),
     (
@@ -2777,6 +2871,7 @@
             colours: [(215, 230, 200), (245, 242, 235), (245, 242, 235)],
             smallest: 10,
             largest: 30,
+            cap: Bell,
         ),
     ),
     (
@@ -2807,6 +2902,7 @@
             colours: [(230, 130, 40), (235, 225, 195)],
             smallest: 100,
             largest: 300,
+            under: Pores,
         ),
     ),
     (
@@ -2831,6 +2927,7 @@
             colours: [(140, 125, 105), (30, 28, 28), (245, 242, 235)],
             smallest: 20,
             largest: 60,
+            cap: Conical,
         ),
     ),
     (
@@ -2860,6 +2957,7 @@
             colours: [(140, 125, 105), (245, 242, 235), (245, 242, 235)],
             smallest: 20,
             largest: 60,
+            cap: Conical,
         ),
     ),
     (
@@ -2979,6 +3077,8 @@
             colours: [(130, 80, 170), (170, 140, 190), (225, 222, 215)],
             smallest: 20,
             largest: 40,
+            cap: Bell,
+            stem: Tall,
         ),
     ),
     (
@@ -3091,6 +3191,7 @@
             colours: [(110, 25, 25), (235, 225, 195)],
             smallest: 80,
             largest: 200,
+            under: Pores,
         ),
     ),
 ]

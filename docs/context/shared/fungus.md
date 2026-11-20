@@ -1,6 +1,6 @@
 # shared: fungus
 
-Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of them (built in), fungi as counted items (one, a handful, or a large piece cut into servings when eaten), and what eating one raw does. Modelled on `shared::vegetable`, with its own kind and table (`decisions.md`, 2026-11-19). The plan, in 9 PRs, and what each builds: `docs/context/fungi.md` (PR 1 built: the table, items, eating raw). Research and the owner's decisions: `docs/context/research-fungi.md`.
+Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of them (built in), fungi as counted items (one, a handful, or a large piece cut into servings when eaten), and what eating one raw does. Modelled on `shared::vegetable`, with its own kind and table (`decisions.md`, 2026-11-19). The plan, in 9 PRs, and what each builds: `docs/context/fungi.md` (PR 1 built: the table, items, eating raw; PR 2: pictures and wiki). Research and the owner's decisions: `docs/context/research-fungi.md`.
 
 ## Files
 
@@ -9,7 +9,7 @@ Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of the
 - `fungus/def.rs`: `FungusDef`, `Unit`, `check`.
 - `fungus/traits.rs`: `Group`, `Where`, `Niche`.
 - `fungus/poison.rs`: `Poison` (`when_eaten`, `check`), `Severity`, `Onset`, `Trigger`.
-- `fungus/look.rs`: `FungusLook`, `Form`, `MOST_COLOURS`.
+- `fungus/look.rs`: `FungusLook`, `Form`, `Cap`, `Under`, `Stem`, `MOST_COLOURS`.
 - `fungus/table.rs`: `Fungi`.
 - `fungus/tag.rs`: `FungusTag`.
 - `fungus/form.rs`: `FungusForm`, `new_item`, `Item::fungus`.
@@ -21,7 +21,7 @@ Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of the
 
 - `FungusDef { key, name, latin, invented, group, grows (where in RON), niches, biomes, temperature, abundance, unit, servings, grams, kcal, raw, food, herb, poison, growth, regrow, glow, lookalikes, look }`: `key` its id for good; `group` a `Group` (`Mushroom`, `Bracket`, `Jelly`, `Truffle`, `Sclerotium`, `Cup`, `Crust`, `Lichen`); `grows` a `Where` (`Deep` anywhere underground, `Dim` underground near daylight, `Dug` buried, `Surface` above ground only); `niches` what it grows on or by (`Niche`: wood, dung, soil, remains, water, lava, trees, roots, rock, insects, termites); `biomes` needed above ground, none for invented cave kinds; `temperature` herbs' `herb::Temperature` (a cave is at its land's); `abundance` vegetables' `Abundance` (`Common` to `VeryRare`); `unit` `One`, `Handful` (100 g) or `Piece` (cut into `servings`, about 200 g each); `kcal` and `grams` for one item (`kcal` 0 for what isn't food); `raw` vegetables' `Raw`; `food` 0 to 2 vegetables' `Effect`s (raw, cooked or both); `herb` four `herb::Effect`s or none (Alchemy, PR 8); `poison` an optional `Poison`; `growth` and `regrow` herbs'; `glow` its light's colour (PR 5); `lookalikes` keys of fungi it is mistaken for (PR 7), checked to be in the table by `Fungi::read`; `look` a `FungusLook`.
 - `Poison { severity, onset, false_recovery, effects, raw_only, trigger }`: `Severity` `Mild` to `Deadly`; `Onset` `Soon`, `Delayed`, `Late` (game time, used by PR 6); 1 to 4 `herb::Effect`s; `Trigger` `Eaten` (the default), `Old`, `Repeated`, `WithAlcohol`, `Touched`, `Breathed`; `when_eaten` (only `Eaten` poisons on eating).
-- `FungusLook { form, colours, smallest, largest }`: `Form` (cap and stem, funnel, bracket, ball, coral, cup, jelly, honeycomb, club, truffle, crust, lichen tufts, beard, plates), 1 to `MOST_COLOURS` (3) colours (its body, underneath, its stem), sizes across in mm; for pictures and models (PRs 2 and 4).
+- `FungusLook { form, colours, smallest, largest, cap, under, stem, ring, volva, warts }`: `Form` (cap and stem, funnel, bracket, ball, coral, cup, jelly, honeycomb, club, truffle, crust, lichen tufts, beard, plates), 1 to `MOST_COLOURS` (3) colours (its body, underneath, its stem), sizes across in mm; the rest optional in RON, defaults first: `Cap` (`Convex`, `Flat`, `Bell`, `Conical`, `Depressed`; a morel's `Conical` makes it pointed), `Under` (`Gills`, `Pores`, `Spines`, `Ridges`, `Smooth`: under a cap or bracket, a ball's spines, a coral's `Pores` making it a rosette of fans, a funnel's `Smooth` a deep trumpet), `Stem` (`Slender`, `Tall`, `Stout`), `ring`, `volva`, `warts`; for pictures and models (PRs 2 and 4).
 - `Fungi`: `built_in()` (`&'static`), `read(ron_text)` (each checked, lookalikes in the same text), `new(defs)`, `get(key)`, `by_tag(tag)`, `iter`, `len`.
 - `FungusTag(u64)`, `FungusTag::of(key)`: a key hashed, so `bonus::Source` can name a fungus and stay `Copy`.
 - `FungusForm { fungus, serving, look, grams }` (`ItemForm::Fungus`): `new(def, seed)`, `serving(def, seed)`, `is_whole(def)` (a piece of several servings), `name()` ("Giant puffball", "Giant puffball Slice", "Fungus" for a key the table lacks), `shape()` (as fruit's). `new_item(def, count, id, made_at)`; `Item::fungus()`.
@@ -35,7 +35,7 @@ Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of the
 
 ## Used by
 
-- `item` (`ItemKind::Fungus`, Food, counted, no quality; stacks compare a fungus's form without its look), `item_form` (`give_form` rolls one; name, shape, grams), `bonus` (`Source::EatenFungus`, `FungusEffects`, `FungusPoison`; `is_food` and `may_eat` take fungi), server `connections/eat_fungus.rs` (`eating`, `cut`), `eat_fruit.rs` (`servings_fit`), `strength_room.rs`, `give_items.rs` (`dev_fungus`), client `effect_bar` (names by `by_tag`, "Poisoned: Death cap", `lorc/mushroom` and `lorc/spotted-mushroom`), `item_popup` (`fungus.rs`: raw healing, food effects, servings, never the poison), `debug_menu` (Give Item's dropdown, "Any fungus", and preview), `dev_tools` (`client.give_item`'s `fungus`).
+- `item` (`ItemKind::Fungus`, Food, counted, no quality; stacks compare a fungus's form without its look), `item_form` (`give_form` rolls one; name, shape, grams), `bonus` (`Source::EatenFungus`, `FungusEffects`, `FungusPoison`; `is_food` and `may_eat` take fungi), server `connections/eat_fungus.rs` (`eating`, `cut`), `eat_fruit.rs` (`servings_fit`), `strength_room.rs`, `give_items.rs` (`dev_fungus`), client `item_art` (`fungus.rs`: pictures by `look`), `xtask wiki` (`fungus_page.rs`, `fungus_facts.rs`, `fungus_table.rs`, `fungus_pictures.rs`: a page per fungus, raw food effects only), client `effect_bar` (names by `by_tag`, "Poisoned: Death cap", `lorc/mushroom` and `lorc/spotted-mushroom`), `item_popup` (`fungus.rs`: raw healing, food effects, servings, never the poison), `debug_menu` (Give Item's dropdown, "Any fungus", and preview), `dev_tools` (`client.give_item`'s `fungus`).
 
 ## Notes
 

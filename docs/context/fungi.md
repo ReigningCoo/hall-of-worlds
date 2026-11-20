@@ -51,8 +51,10 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
    (then edited by hand), `ItemKind::Fungus`, eating raw (healing, food effects, raw poisons as plain immediate effects
    for now, 30 to 120 s by severity), `bonus::Source` additions (at the end), Give Item, item popup (healing and food
    effects, never the poison yet), effect bar names; `research-fungi.md`, context file `shared/fungus.md`.
-2. **Pictures and wiki**: `item_art` pictures by `form` (cap and stem, bracket, ball, coral, cup, jelly, honeycomb,
-   club, truffle, lichen tufts/beards/plates) and colours from `look`; `cargo xtask wiki` page per fungus.
+2. **Pictures and wiki** (built): `item_art` pictures by `form` (cap and stem, bracket, ball, coral, cup, jelly,
+   honeycomb, club, truffle, lichen tufts/beards/plates) and colours from `look`, with look details added to the table
+   (cap shape, gills/pores/spines/ridges, stem, ring, volva, warts); `fungus_one` for PR 4's models; `cargo xtask wiki`
+   page per fungus in `docs/fungi/` (raw food effects only, never poisons) with pictures, and that page's table.
 3. **Where they grow and picking**: `FungusPatch` on `dungeon::Level` (as `HerbPatch`), placement underground
    (caves, basements, cellars) by niche, temperature, depth; dug kinds; `dim` by skylights and mouths; wilderness
    surface patches; felled cells; server picking, harvest, protocol.

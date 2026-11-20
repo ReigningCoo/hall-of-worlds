@@ -128,12 +128,12 @@ pub enum Look {
     Vessel(shared::vessel::VesselKind),
     /// Bread, Dwarven Bread or Raw Meat: placeholders (`food.rs`).
     Food(shared::item::ItemKind),
-    /// A fruit or nuts, or a slice of a big fruit, by fruit and variant
-    /// (`fruit.rs`).
+    /// A fruit or nuts, or a big fruit's slice, by fruit and variant (`fruit.rs`).
     Fruit(super::FruitItemLook),
-    /// A vegetable, pulse or grain, or a slice of a big one, by vegetable and
-    /// variant (`vegetable.rs`).
+    /// A vegetable, pulse or grain, or a slice, by vegetable and variant (`vegetable.rs`).
     Vegetable(super::VegetableItemLook),
+    /// A mushroom, fungus or lichen, or a slice, by fungus and variant (`fungus.rs`).
+    Fungus(super::FungusItemLook),
     /// A herb: the part used, by herb and variant (`herb.rs`).
     Herb(super::HerbLook),
     /// A bottle, empty or a potion: its shape, glass and stopper from its look
@@ -213,6 +213,7 @@ impl Look {
             Self::Vessel(vessel) => super::vessel::cells(*vessel),
             Self::Fruit(fruit) => fruit.cells,
             Self::Vegetable(vegetable) => vegetable.cells,
+            Self::Fungus(fungus) => fungus.cells,
             Self::Blade { blade, .. } => blade.cells,
             Self::Hands { hands, .. } => hands.cells,
             Self::Shoulders { shoulders, .. } => shoulders.cells,

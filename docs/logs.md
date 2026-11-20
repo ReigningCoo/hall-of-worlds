@@ -1,6 +1,6 @@
 ---
 title: Logs and kindling
-nav_order: 13
+nav_order: 14
 parent: Items
 grand_parent: Gameplay
 ---

@@ -4,14 +4,17 @@
 //! `shared::herb`; a page per fruit and nut (`docs/fruit/`) and the Fruit and
 //! nuts page's tables, from `shared::fruit`; a page per vegetable, pulse and
 //! grain (`docs/vegetables/`), grains' with a Flour section (`shared::flour`),
-//! and that page's table, from `shared::vegetable`; the Logs and kindling
+//! and that page's table, from `shared::vegetable`; a page per mushroom,
+//! fungus and lichen (`docs/fungi/`) and that page's table, from
+//! `shared::fungus`; the Logs and kindling
 //! page's table of woods (`shared::tree`, `shared::woodcutting`);
 //! and the Weapons page, a page per
 //! family and a page per named weapon (`docs/weapons/`), from `shared::blade`. A test fails if the pages
 //! checked in differ from what this writes. With `--pictures` it also starts a
 //! development copy of the game and saves each herb's, fruit's, vegetable's,
-//! flour's, log's and named weapon's picture into `docs/assets/herbs/`,
+//! flour's, fungus's, log's and named weapon's picture into `docs/assets/herbs/`,
 //! `docs/assets/fruit/`, `docs/assets/vegetables/`, `docs/assets/flour/`,
+//! `docs/assets/fungi/`,
 //! `docs/assets/logs/` and
 //! `docs/assets/weapons/`.
 
@@ -19,6 +22,10 @@ mod flour_pictures;
 mod fruit_facts;
 mod fruit_page;
 mod fruit_table;
+mod fungus_facts;
+mod fungus_page;
+mod fungus_pictures;
+mod fungus_table;
 mod herb_page;
 mod herb_table;
 mod log_pictures;
@@ -39,6 +46,7 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use shared::fruit::Fruits;
+use shared::fungus::Fungi;
 use shared::herb::Herbs;
 use shared::vegetable::Vegetables;
 
@@ -47,13 +55,15 @@ pub const USAGE: &str = "\
             Write the wiki pages made from the game's data: a page per herb
             in docs/herbs/ and the Herbs page's table, a page per fruit and nut
             in docs/fruit/ and that page's tables, a page per vegetable,
-            pulse and grain in docs/vegetables/ and that page's table, the
-            Logs and kindling page's table of woods, and the
+            pulse and grain in docs/vegetables/ and that page's table, a
+            page per mushroom, fungus and lichen in docs/fungi/ and that
+            page's table, the Logs and kindling page's table of woods, and the
             weapons' pages in docs/weapons/. --pictures also builds and starts
             the game (debug API on, scratch data, title \"Dev:\") and saves
-            each herb's, fruit's, vegetable's, flour's, log's and named
-            weapon's picture into docs/assets/herbs/, docs/assets/fruit/,
-            docs/assets/vegetables/, docs/assets/flour/, docs/assets/logs/
+            each herb's, fruit's, vegetable's, flour's, fungus's, log's and
+            named weapon's picture into docs/assets/herbs/,
+            docs/assets/fruit/, docs/assets/vegetables/, docs/assets/flour/,
+            docs/assets/fungi/, docs/assets/logs/
             and docs/assets/weapons/.";
 
 /// Where the herbs' pages are, from the workspace root.
@@ -70,6 +80,11 @@ const VEGETABLE_FOLDER: &str = "docs/vegetables";
 /// The Vegetables, pulses and grains page, whose table is written between
 /// `vegetable_table`'s comments.
 const VEGETABLE_INDEX: &str = "docs/vegetables/index.md";
+/// Where the mushrooms', fungi's and lichens' pages are, from the workspace root.
+const FUNGUS_FOLDER: &str = "docs/fungi";
+/// The Mushrooms, fungi and lichens page, whose table is written between
+/// `fungus_table`'s comments.
+const FUNGUS_INDEX: &str = "docs/fungi/index.md";
 /// Where the weapons' pages are, from the workspace root: the Weapons page and
 /// a folder per family.
 const WEAPON_FOLDER: &str = "docs/weapons";
@@ -128,6 +143,12 @@ pub(crate) fn pages(root: &Path) -> Result<Vec<(PathBuf, String)>, String> {
         VEGETABLE_INDEX.into(),
         vegetable_table::put_in(&index, vegetables)?,
     ));
+    let fungi = Fungi::built_in();
+    let fungus_pages = fungus_page::pages(fungi).into_iter();
+    pages.extend(fungus_pages.map(|(file, text)| (Path::new(FUNGUS_FOLDER).join(file), text)));
+    let index = fs::read_to_string(root.join(FUNGUS_INDEX))
+        .map_err(|error| format!("Can't read {FUNGUS_INDEX}: {error}"))?;
+    pages.push((FUNGUS_INDEX.into(), fungus_table::put_in(&index, fungi)?));
     let logs = fs::read_to_string(root.join(LOGS_PAGE))
         .map_err(|error| format!("Can't read {LOGS_PAGE}: {error}"))?;
     pages.push((LOGS_PAGE.into(), wood_table::put_in(&logs)?));
@@ -141,11 +162,17 @@ pub(crate) fn pages(root: &Path) -> Result<Vec<(PathBuf, String)>, String> {
 pub(crate) fn folders() -> Vec<PathBuf> {
     let families = weapon_family::FAMILIES.iter();
     let families = families.map(|family| Path::new(WEAPON_FOLDER).join(family.folder));
-    [HERB_FOLDER, FRUIT_FOLDER, VEGETABLE_FOLDER, WEAPON_FOLDER]
-        .into_iter()
-        .map(PathBuf::from)
-        .chain(families)
-        .collect()
+    [
+        HERB_FOLDER,
+        FRUIT_FOLDER,
+        VEGETABLE_FOLDER,
+        FUNGUS_FOLDER,
+        WEAPON_FOLDER,
+    ]
+    .into_iter()
+    .map(PathBuf::from)
+    .chain(families)
+    .collect()
 }
 
 /// Writes every page, and removes pages in its folders it no longer writes.

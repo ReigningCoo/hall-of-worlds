@@ -23,7 +23,7 @@ pub use def::{FungusDef, Unit};
 pub use dev::dev_fungus;
 pub use eating::{eating, effect_ticks, healing, poison_ticks, raw_ticks};
 pub use form::{FungusForm, new_item};
-pub use look::{Form, FungusLook, MOST_COLOURS};
+pub use look::{Cap, Form, FungusLook, MOST_COLOURS, Stem, Under};
 pub use poison::{Onset, Poison, Severity, Trigger};
 pub use table::Fungi;
 pub use tag::FungusTag;

@@ -76,6 +76,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
     if let Some(vegetable) = item.vegetable() {
         return Some(Look::Vegetable(super::VegetableItemLook::of(vegetable)));
     }
+    if let Some(fungus) = item.fungus() {
+        return Some(Look::Fungus(super::FungusItemLook::of(fungus)));
+    }
     if let Some(herb) = item.herb() {
         return Some(Look::Herb(super::HerbLook::of(herb)));
     }
