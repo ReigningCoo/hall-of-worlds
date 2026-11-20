@@ -1,6 +1,6 @@
 ---
 title: Casks
-nav_order: 10
+nav_order: 11
 parent: Items
 grand_parent: Gameplay
 ---

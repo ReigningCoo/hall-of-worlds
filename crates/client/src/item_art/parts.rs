@@ -91,6 +91,7 @@ pub(super) fn parts_of(
         Look::Vegetable(vegetable) => {
             super::vegetable::vegetable_parts(&vegetable, meshes, materials)
         }
+        Look::Fungus(fungus) => super::fungus::fungus_parts(&fungus, meshes, materials),
         Look::Herb(herb) => super::herb::herb_parts(&herb, herbs, meshes, materials),
         Look::Under { under, quality } => {
             super::under::under_parts(&under, quality, meshes, materials)

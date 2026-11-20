@@ -50,6 +50,65 @@ pub struct FungusLook {
     /// Across one, from small to large, in millimetres.
     pub smallest: u16,
     pub largest: u16,
+    /// A cap's shape (a cap and stem's, a funnel's rim).
+    #[serde(default)]
+    pub cap: Cap,
+    /// What is under a cap or bracket.
+    #[serde(default)]
+    pub under: Under,
+    /// A cap's stem.
+    #[serde(default)]
+    pub stem: Stem,
+    /// A skirt round the stem.
+    #[serde(default)]
+    pub ring: bool,
+    /// A cup round the stem's foot.
+    #[serde(default)]
+    pub volva: bool,
+    /// Pale patches on the cap (fly agaric's).
+    #[serde(default)]
+    pub warts: bool,
+}
+
+/// A cap's shape.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Cap {
+    /// Domed.
+    #[default]
+    Convex,
+    /// Opened out flat, perhaps with a bump in the middle.
+    Flat,
+    /// Bell-shaped, taller than wide.
+    Bell,
+    /// A pointed cone.
+    Conical,
+    /// Dipped in the middle, its rim rolled or raised.
+    Depressed,
+}
+
+/// What is under a cap or bracket.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Under {
+    #[default]
+    Gills,
+    /// A sponge of tubes (boletes, polypores).
+    Pores,
+    /// Hanging teeth (hedgehog mushroom, lion's mane).
+    Spines,
+    /// Blunt, forking folds running down the stem (chanterelles).
+    Ridges,
+    Smooth,
+}
+
+/// A cap's stem.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Stem {
+    #[default]
+    Slender,
+    /// Tall and thin (parasol, shaggy ink cap).
+    Tall,
+    /// Thick, often swollen at the foot (boletes).
+    Stout,
 }
 
 impl FungusLook {

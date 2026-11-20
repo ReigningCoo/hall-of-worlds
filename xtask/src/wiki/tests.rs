@@ -112,6 +112,45 @@ fn every_vegetable_has_a_picture() {
     }
 }
 
+/// Every mushroom's, fungus's and lichen's page shows pictures that are
+/// there: a slice too, for a big one cut into servings.
+#[test]
+fn every_fungus_has_a_picture() {
+    use super::fungus_facts::has_slice;
+    for def in shared::fungus::Fungi::built_in().iter() {
+        let mut files = vec![def.key.clone()];
+        if has_slice(def) {
+            files.push(format!("{}-slice", def.key));
+        }
+        for file in files {
+            let picture = root().join(format!("docs/assets/fungi/{file}.png"));
+            assert!(
+                picture.exists(),
+                "{} is missing: run `cargo xtask wiki --pictures`",
+                picture.display()
+            );
+        }
+    }
+}
+
+/// A fungus's page never tells its poison or its uses like a herb: a player
+/// learns those by playing.
+#[test]
+fn fungus_pages_keep_poisons_out() {
+    let fungi = shared::fungus::Fungi::built_in();
+    for (def, (file, text)) in super::fungus_page::sorted(fungi)
+        .into_iter()
+        .zip(super::fungus_page::pages(fungi))
+    {
+        for word in ["| Poison", "Alchemy", "Herbalism"] {
+            assert!(!text.contains(word), "{file} says {word:?}");
+        }
+        if def.food.is_empty() {
+            assert!(text.contains("| Effects | None |"), "{file}");
+        }
+    }
+}
+
 /// Every grain's page shows its flour's picture, which is there.
 #[test]
 fn every_flour_has_a_picture() {
