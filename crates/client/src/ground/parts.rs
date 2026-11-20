@@ -23,7 +23,7 @@ pub(super) struct Heading(pub(super) Option<Spot>);
 /// What a bag is drawn with.
 #[derive(Resource)]
 pub(super) struct BagAssets {
-    /// By look and variety: the bag in colour, in grey and its outlines.
+    /// By look and variety: the bag in colour, in sepia and its outlines.
     /// Casks have one variety, 0.
     pub(super) bags: BTreeMap<(Load, u8), BagMeshes>,
     pub(super) star: Handle<Mesh>,

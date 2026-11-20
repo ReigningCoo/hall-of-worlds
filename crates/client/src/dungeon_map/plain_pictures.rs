@@ -1,7 +1,7 @@
 //! Floor Textures off: sites' surfaces drawn in plain colours. Each picture is
 //! swapped for a copy in which every cell's tile (`TILE` pixels square) is its
 //! own average colour, so an atlas (towns) keeps a colour per tile. Whatever
-//! else gives a surface a picture (the theme, the ground's colour, memory's grey
+//! else gives a surface a picture (the theme, the ground's colour, memory's sepia
 //! copies) carries on as before: the copy follows it the next frame.
 
 use bevy::platform::collections::HashMap;

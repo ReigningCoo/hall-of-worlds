@@ -54,6 +54,7 @@ mod pointer;
 mod rivers;
 mod roads;
 mod runes;
+mod sepia;
 mod sky;
 mod sneaking;
 mod states;
@@ -128,6 +129,7 @@ pub use quest_colours::{QUEST_BLUE, QUEST_GREY, QUEST_ORANGE, QUEST_RED, QUEST_Y
 pub use rivers::NearRivers;
 pub use roads::KnownRoads;
 pub use runes::rune_picture;
+pub use sepia::{lightness, sepia, sepia_linear};
 pub use sky::SkyNow;
 use sky::update_sky;
 pub use sneaking::Sneaking;

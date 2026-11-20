@@ -5,8 +5,8 @@
 //! Only what the player (or anything sharing its sight) can see is drawn:
 //! floors, stairs, and thin walls with only the faces someone sees (`walls`).
 //! A seen side facing away from the camera is drawn half see-through. What
-//! was seen before but is out of sight now is drawn dim, grey and half
-//! see-through. Walls and floors use tile pictures chosen by the kind of place
+//! was seen before but is out of sight now is drawn dim, in sepia and
+//! half see-through. Walls and floors use tile pictures chosen by the kind of place
 //! (`theme`). Light is dull everywhere, and brighter near light sources, which
 //! walls block. Left-click a seen walkable cell to travel there.
 
@@ -84,7 +84,7 @@ use parts::{
     DungeonScene, MemoryPart, SeeThroughPart, SolidPart, StairsThroughPart, SurfaceMaterials,
     TokenLight,
 };
-use pictures::{apply_theme, colour_ground, grey_pictures};
+use pictures::{apply_theme, colour_ground, sepia_pictures};
 use showing::{hide_scene, hide_unseen_tokens, show_scene};
 use spawn_scene::{load_tile, spawn_scene};
 use update_meshes::update_meshes;
@@ -202,7 +202,7 @@ impl Plugin for DungeonMapPlugin {
             )
             .add_systems(
                 Update,
-                (grey_pictures, plain_pictures::plain_pictures).chain(),
+                (sepia_pictures, plain_pictures::plain_pictures).chain(),
             )
             .add_systems(
                 Update,

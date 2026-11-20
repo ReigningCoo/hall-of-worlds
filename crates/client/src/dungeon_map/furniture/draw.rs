@@ -211,7 +211,8 @@ impl Drawing<'_> {
         add_face(&mut layers.outlined.black, hull, normal);
     }
 
-    /// The colour at a point: lit where it stands, or grey when remembered.
+    /// The colour at a point: lit where it stands, or memory's shade (over its
+    /// sepia picture) when remembered.
     fn colour(&self, at: Vec3, shade: f32) -> Vec3 {
         if self.layer == Layer::Memory {
             return Vec3::splat(MEMORY_SHADE * shade);

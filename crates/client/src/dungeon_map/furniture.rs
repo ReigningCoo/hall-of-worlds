@@ -32,7 +32,7 @@ const TOP_THICKNESS: f32 = CELL_SIZE * 0.05;
 /// How far a table's top stands in from the edges of its cells.
 const INSET: f32 = CELL_SIZE * 0.07;
 
-/// The part of any piece of furniture at `(x, y)`: lit if in sight, else grey.
+/// The part of any piece of furniture at `(x, y)`: lit if in sight, else sepia.
 pub(super) fn build_furniture(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) {
     let Some(piece) = scene.level.furniture_at(x, y) else {
         return;

@@ -50,7 +50,7 @@ impl<'a> Tile<'a> {
             ),
         ];
         // The mask decides what shows of a floor in sight: lit inside its edge
-        // and grey outside (`copy_as_memory`). Memory alone would leave a hole
+        // and sepia outside (`copy_as_memory`). Memory alone would leave a hole
         // inside the edge. A top isn't cut, so one whose only faces are
         // remembered is remembered too, to match them.
         let live = faces.contains(&Some(Layer::Solid)) || faces.contains(&Some(Layer::SeeThrough));

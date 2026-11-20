@@ -4,7 +4,7 @@
 //! through (sapling, young, half grown) and grown; stumps for wild and fruit
 //! trees alike, and felled fruit trees growing back (their own models, smaller).
 //! A few variants each, kept from stage to stage, so a tree grows rather than
-//! changes. Black outlines as every model has, and a grey copy for memory.
+//! changes. Black outlines as every model has, and a sepia copy for memory.
 //! Built once.
 
 use std::collections::HashMap;
@@ -20,6 +20,7 @@ use super::models::VARIANTS;
 use super::pieces::Pieces;
 use super::plan::{WOOD, between, colour};
 use super::triangles::Triangles;
+use crate::common::{lightness, sepia_linear};
 
 mod broadleaf;
 mod conifer;
@@ -46,7 +47,7 @@ pub enum TreeModel {
 }
 
 /// A tree model's meshes: the tree, its black outline (drawn inside out), and
-/// the tree in grey for where it is remembered.
+/// the tree in sepia for where it is remembered.
 #[derive(Clone, Debug)]
 pub struct TreeMeshes {
     pub fill: Handle<Mesh>,
@@ -68,7 +69,7 @@ impl TreeModels {
             .or_insert_with(|| {
                 let pieces = build(model)?;
                 Some(TreeMeshes {
-                    memory: meshes.add(greyed(&pieces.fill).into_mesh()),
+                    memory: meshes.add(sepia_copy(&pieces.fill).into_mesh()),
                     fill: meshes.add(pieces.fill.into_mesh()),
                     outline: meshes.add(pieces.outline.into_mesh()),
                 })
@@ -168,16 +169,16 @@ fn heartwood(tree: &Tree) -> Vec3 {
     colour(shared::herb::Rgb(r, g, b))
 }
 
-/// `fill` in greys for memory: each triangle's lightness kept, so the shape
-/// still shows, around the maps' shade of memory.
-fn greyed(fill: &Triangles) -> Triangles {
-    let mut grey = fill.clone();
-    for c in &mut grey.colours {
-        let light = 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2];
-        let shade = (0.2 + light * 0.6).min(0.45);
-        *c = [shade, shade, shade, 1.0];
+/// `fill` in sepia for memory (`common::sepia_linear`): each triangle's
+/// lightness kept, so the shape still shows, around the maps' shade of memory.
+fn sepia_copy(fill: &Triangles) -> Triangles {
+    let mut toned = fill.clone();
+    for c in &mut toned.colours {
+        let shade = (0.2 + lightness([c[0], c[1], c[2]]) * 0.6).min(0.45);
+        let [r, g, b] = sepia_linear(shade);
+        *c = [r, g, b, 1.0];
     }
-    grey
+    toned
 }
 
 /// The `i`th of `n` ways round, a little off even.

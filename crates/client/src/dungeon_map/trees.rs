@@ -4,7 +4,7 @@
 //! tree is `fruit`'s), each standing on the ground in a variant and turned by
 //! its cell.
 //!
-//! Unlike other plants, trees are remembered: a remembered one is drawn grey
+//! Unlike other plants, trees are remembered: a remembered one is drawn in sepia
 //! where the sight mask says out of sight, and one in or beside sight also in
 //! colour where it says in sight, so the edge of sight falls across a tree as
 //! across a wall. Each tree is an entity under the scene, its copies children.
@@ -24,7 +24,7 @@ use super::{CELL_SIZE, DungeonScene, Shown};
 use crate::common::{CurrentDungeon, DrawnGround};
 use crate::plants::{TreeModel, TreeModels};
 
-/// Trees' grey copies' materials, for where they are remembered, and the red
+/// Trees' sepia copies' materials, for where they are remembered, and the red
 /// a tree flashes when chopped (`tree_flash`).
 #[derive(Resource)]
 pub(super) struct TreeMaterials {
@@ -68,7 +68,7 @@ pub(super) fn update_trees(
     mut commands: Commands,
     scene: Single<Entity, With<DungeonScene>>,
     (dungeon, shown, heights): (Res<CurrentDungeon>, Res<Shown>, Res<DrawnGround>),
-    (lit, grey): (Res<HerbMaterials>, Res<TreeMaterials>),
+    (lit, sepia): (Res<HerbMaterials>, Res<TreeMaterials>),
     mut models: ResMut<TreeModels>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut drawn: ResMut<DrawnTrees>,
@@ -120,8 +120,8 @@ pub(super) fn update_trees(
                     part.insert(TreeFill);
                 }
             };
-            copy(&model.memory, &grey.memory, false);
-            copy(&model.outline, &grey.outline, false);
+            copy(&model.memory, &sepia.memory, false);
+            copy(&model.outline, &sepia.outline, false);
             if now_drawn.lit {
                 copy(&model.fill, &lit.fill, true);
                 copy(&model.outline, &lit.outline, false);

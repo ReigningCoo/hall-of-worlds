@@ -587,7 +587,7 @@ fn only_what_is_seen_is_built() {
     assert!(meshes.has_solid.iter().all(|&has| !has));
     assert!(!meshes.has_see_through);
 
-    // Remembered, but out of sight: drawn in the grey meshes only.
+    // Remembered, but out of sight: drawn in the memory meshes only.
     let meshes = build(
         &level,
         &[],

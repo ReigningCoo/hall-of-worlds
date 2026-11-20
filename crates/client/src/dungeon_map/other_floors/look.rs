@@ -1,4 +1,4 @@
-//! The other floors' materials follow the scene's own (its theme, grey
+//! The other floors' materials follow the scene's own (its theme, sepia
 //! copies, plain pictures), darker per storey down by the light outside (those
 //! above as they are), never cut by the sight mask, and solid even as memory:
 //! blended layers don't sort here, and see-through floors would show rooms

@@ -27,10 +27,10 @@ pub(super) const RAISED_NORMAL: f32 = 0.5;
 
 /// Builds the meshes for everything in `sight` (all the views combined), lit
 /// by `light`, and for the rest of `remembered` (which includes what is in
-/// sight) in grey, with `stairs` drawn in 3D. Only remembered cells are
+/// sight) in sepia, with `stairs` drawn in 3D. Only remembered cells are
 /// drawn: cells the client doesn't know may be in sight as wall. `camera` is
 /// the camera's position, `shape` how the place's walls are built. Cells in
-/// `cut` are in sight only in part, so what is lit there is copied in grey too.
+/// `cut` are in sight only in part, so what is lit there is copied in sepia too.
 #[cfg(test)]
 #[allow(clippy::too_many_arguments)]
 pub fn build(

@@ -37,11 +37,11 @@ pub(super) struct SurfaceMaterials {
     pub(super) stairs_through: Vec<Handle<SurfaceMaterial>>,
     /// The outside ground's picture as drawn, for `colour_ground` to copy.
     pub(super) ground_picture: Handle<Image>,
-    /// Pictures waiting to load so a grey copy can be made for the
+    /// Pictures waiting to load so a sepia copy can be made for the
     /// remembered surface, by surface index.
-    pub(super) to_grey: Vec<(usize, Handle<Image>)>,
-    /// Grey copies already made, by the picture they copy.
-    pub(super) greys: BTreeMap<AssetId<Image>, Handle<Image>>,
+    pub(super) to_sepia: Vec<(usize, Handle<Image>)>,
+    /// Sepia copies already made, by the picture they copy.
+    pub(super) sepias: BTreeMap<AssetId<Image>, Handle<Image>>,
 }
 
 /// The mesh of one kind of surface (floors, solid walls...).

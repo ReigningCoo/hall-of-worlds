@@ -62,7 +62,7 @@ pub(super) enum Hole {
 
 /// Draws a staircase on its cell, floor included. `lit` is the colour at the
 /// stairs' cell and `floor_colour` the colour at a point on the floor (light
-/// with the ambient, or memory's grey). If `through` is given, what stands
+/// with the ambient, or memory's shade). If `through` is given, what stands
 /// above the floor goes there instead of `meshes`, to be drawn see-through.
 /// `floor` is the surface of the cell they stand on.
 #[allow(clippy::too_many_arguments)]

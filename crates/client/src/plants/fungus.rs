@@ -1,7 +1,7 @@
 //! Fungus patches' models (fungi plan PR 4): a cell's worth of one fungus by
 //! its look's form (`patch.rs`), at each of its four stages, in a few variants,
 //! from `item_art`'s fungus meshes stood up as they are; with black outlines
-//! and a grey copy for memory. Built once per fungus, stage and variant.
+//! and a sepia copy for memory. Built once per fungus, stage and variant.
 
 use std::collections::HashMap;
 
@@ -13,7 +13,7 @@ mod patch;
 mod shell;
 
 /// A patch model's meshes: its colours, its black outline (drawn inside out),
-/// and grey for where it is remembered.
+/// and sepia for where it is remembered.
 #[derive(Clone, Debug)]
 pub struct FungusMeshes {
     pub fill: Handle<Mesh>,

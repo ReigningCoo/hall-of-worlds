@@ -1,4 +1,4 @@
-//! The wall, floor and ground pictures for the place, and grey copies for memory.
+//! The wall, floor and ground pictures for the place, and sepia copies for memory.
 
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureFormat;
@@ -11,7 +11,7 @@ use super::other_floors::has_floors_below;
 use super::sight_lines::{MaskSide, SurfaceMaterial};
 use super::theme::Theme;
 use super::{MEMORY_ALPHA, SurfaceMaterials, load_tile};
-use crate::common::{CurrentDungeon, CurrentWorld, GameClock, MapPosition, WorldReturn};
+use crate::common::{CurrentDungeon, CurrentWorld, GameClock, MapPosition, WorldReturn, sepia};
 use crate::surface_style::SurfaceStyle;
 
 /// The wall and floor pictures for the kind of place the player is in.
@@ -37,7 +37,7 @@ pub(super) fn apply_theme(
         if let Some(mut material) = materials.get_mut(&surfaces.stairs_through[surface as usize]) {
             material.base.base_color_texture = Some(picture.clone());
         }
-        surfaces.to_grey.push((surface as usize, picture));
+        surfaces.to_sepia.push((surface as usize, picture));
     }
     // Nothing in the Hall of Worlds is drawn see-through (owner): memory there
     // is solid, like a town's. Nor on a floor with floors drawn below it
@@ -165,53 +165,57 @@ pub(super) fn recoloured(image: &Image, colour: [u8; 4]) -> Image {
     copy
 }
 
-/// Gives remembered surfaces grey copies of their pictures, once the
+/// Gives remembered surfaces sepia copies of their pictures, once the
 /// pictures have loaded (each is copied once).
-pub(super) fn grey_pictures(
+pub(super) fn sepia_pictures(
     mut surfaces: ResMut<SurfaceMaterials>,
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<SurfaceMaterial>>,
 ) {
-    if surfaces.to_grey.is_empty() {
+    if surfaces.to_sepia.is_empty() {
         return;
     }
     let surfaces = &mut *surfaces;
-    surfaces.to_grey.retain(|(index, picture)| {
-        let grey = match surfaces.greys.get(&picture.id()) {
-            Some(grey) => grey.clone(),
+    surfaces.to_sepia.retain(|(index, picture)| {
+        let toned = match surfaces.sepias.get(&picture.id()) {
+            Some(toned) => toned.clone(),
             None => {
                 let Some(image) = images.get(picture) else {
                     // Not loaded yet: try again next frame.
                     return true;
                 };
                 // Made first: `images` can't be added to while borrowed.
-                let copy = greyed(image);
-                let grey = images.add(copy);
-                surfaces.greys.insert(picture.id(), grey.clone());
-                grey
+                let copy = sepia_copy(image);
+                let toned = images.add(copy);
+                surfaces.sepias.insert(picture.id(), toned.clone());
+                toned
             }
         };
         if let Some(mut material) = materials.get_mut(&surfaces.memory[*index]) {
-            material.base.base_color_texture = Some(grey);
+            material.base.base_color_texture = Some(toned);
         }
         false
     });
 }
 
-/// A grey copy of an 8-bit RGBA picture (anything else is copied as it is).
-pub(super) fn greyed(image: &Image) -> Image {
-    let mut grey = image.clone();
+/// A sepia copy of an 8-bit RGBA picture, each pixel's lightness kept
+/// (`common::sepia`); anything else is copied as it is. The tint is here once:
+/// memory's vertex colours stay an even grey shade over it.
+pub(super) fn sepia_copy(image: &Image) -> Image {
+    let mut toned = image.clone();
     let rgba = matches!(
         image.texture_descriptor.format,
         TextureFormat::Rgba8UnormSrgb | TextureFormat::Rgba8Unorm
     );
-    if let (true, Some(data)) = (rgba, grey.data.as_mut()) {
+    if let (true, Some(data)) = (rgba, toned.data.as_mut()) {
         for pixel in data.as_chunks_mut::<4>().0 {
-            let [r, g, b] = [pixel[0], pixel[1], pixel[2]].map(f32::from);
-            // Rec. 601 weights on the stored values: good enough for looks.
-            let luma = (0.299 * r + 0.587 * g + 0.114 * b) as u8;
-            pixel[..3].fill(luma);
+            // On the stored (sRGB) values: good enough for looks.
+            let stored = [pixel[0], pixel[1], pixel[2]].map(|c| f32::from(c) / 255.0);
+            let colour = sepia(crate::common::lightness(stored));
+            for (channel, value) in pixel[..3].iter_mut().zip(colour) {
+                *channel = (value * 255.0).round() as u8;
+            }
         }
     }
-    grey
+    toned
 }

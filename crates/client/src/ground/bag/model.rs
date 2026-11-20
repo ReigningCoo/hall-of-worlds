@@ -1,6 +1,7 @@
-//! What a shape is made of, with smooth normals, grown and greyed copies.
+//! What a shape is made of, with smooth normals, grown and sepia copies.
 
 use super::MEMORY_SHADE;
+use crate::common::{lightness, sepia_linear};
 
 /// What a shape is made of, ready for a Bevy mesh.
 #[derive(Default, Clone)]
@@ -78,11 +79,13 @@ impl Model {
         grown
     }
 
-    /// The same shape, grey, for memory.
-    pub fn greyed(&self) -> Self {
+    /// The same shape in sepia, for memory (the weave picture over it is
+    /// near white, so the tint is only here).
+    pub fn sepia_copy(&self) -> Self {
         let colours = self.colours.iter().map(|colour| {
-            let grey = (0.3 * colour[0] + 0.59 * colour[1] + 0.11 * colour[2]) * MEMORY_SHADE;
-            [grey, grey, grey, 1.0]
+            let shade = lightness([colour[0], colour[1], colour[2]]) * MEMORY_SHADE;
+            let [r, g, b] = sepia_linear(shade);
+            [r, g, b, 1.0]
         });
         Self {
             positions: self.positions.clone(),

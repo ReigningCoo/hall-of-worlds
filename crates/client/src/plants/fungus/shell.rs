@@ -2,7 +2,7 @@
 //! (`item_art`'s fungus meshes, wood and earth), each moved into place, then
 //! made into the maps' three meshes: shaded once in its own colours (the
 //! maps' surfaces are unlit), its black outline (every point pushed out along
-//! its normal, an inverted hull), and grey for where it is remembered.
+//! its normal, an inverted hull), and sepia for where it is remembered.
 
 use std::collections::HashMap;
 
@@ -12,6 +12,7 @@ use bevy::prelude::*;
 
 use super::super::pieces::OUTLINE_WIDTH;
 use super::super::triangles::{LIGHT, LIT, NEVER_RAISED, SHADOW};
+use crate::common::{lightness, sepia_linear};
 
 /// Smooth pieces put together: points with normals and colours (linear), and
 /// triangles as point numbers.
@@ -139,14 +140,14 @@ impl Shell {
         self.mesh(grown, vec![[0.0, 0.0, 0.0, 1.0]; self.positions.len()])
     }
 
-    /// Shaded in greys by each point's lightness, for memory (as trees').
+    /// Shaded in sepia by each point's lightness, for memory (as trees').
     pub fn memory(&self) -> Mesh {
         let colours = (self.normals.iter().zip(&self.colours))
             .map(|(normal, colour)| {
                 let [r, g, b, _] = shaded(*colour, *normal);
-                let light = 0.3 * r + 0.59 * g + 0.11 * b;
-                let shade = (0.2 + light * 0.6).min(0.45);
-                [shade, shade, shade, 1.0]
+                let shade = (0.2 + lightness([r, g, b]) * 0.6).min(0.45);
+                let [r, g, b] = sepia_linear(shade);
+                [r, g, b, 1.0]
             })
             .collect();
         self.mesh(self.positions.clone(), colours)

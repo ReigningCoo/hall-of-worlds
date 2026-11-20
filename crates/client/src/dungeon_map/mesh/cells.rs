@@ -70,8 +70,8 @@ fn build_ground(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) {
     let half = CELL_SIZE / 2.0;
     let ground = Surface::Ground as usize;
     if !scene.sight.is_seen(x, y) {
-        let grey = Vec3::splat(MEMORY_SHADE);
-        layers.memory[ground].quad(centre, Vec3::Y, Vec3::NEG_Z, (half, half), |_| grey);
+        let shade = Vec3::splat(MEMORY_SHADE);
+        layers.memory[ground].quad(centre, Vec3::Y, Vec3::NEG_Z, (half, half), |_| shade);
         return;
     }
     let Scene { level, light, .. } = *scene;
@@ -99,7 +99,7 @@ pub(super) fn build_open_cell(
         cell => Surface::of_flat(cell),
     };
     if !scene.sight.is_seen(x, y) {
-        let grey = Vec3::splat(MEMORY_SHADE);
+        let shade = Vec3::splat(MEMORY_SHADE);
         match stairs {
             Some(found) => build_stairs(
                 &mut layers.memory,
@@ -107,8 +107,8 @@ pub(super) fn build_open_cell(
                 &mut layers.outlined,
                 found,
                 surface,
-                grey,
-                &|_| grey,
+                shade,
+                &|_| shade,
             ),
             None => {
                 let half = CELL_SIZE / 2.0;
@@ -117,7 +117,7 @@ pub(super) fn build_open_cell(
                     Vec3::Y,
                     Vec3::NEG_Z,
                     (half, half),
-                    |_| grey,
+                    |_| shade,
                 );
             }
         }
