@@ -4,7 +4,7 @@ Short notices that go by themselves (a snackbar), at the top middle of the windo
 
 ## Files
 
-- `crates/client/src/notices/mod.rs`: `NoticesPlugin`; `NOTICES` (the notice as markup: `notices/row`, a row across the window 72 down, below `effect_bar`, `inert` and hidden, holding a parchment `panel` with `notices/words`), `spawn_notice` (Startup: the document, on `dom::top_strip()`), `show_notices` (Update, through `Dom`: `ServerMessage::PoiFound` or a locked `DoorRefused` sets the words and shows the row for `SHOWN_FOR` (4 s), the newest in place of any showing), `found` (what the notice says, the kind in words), `picked` (a harvest's words).
+- `crates/client/src/notices/mod.rs`: `NoticesPlugin`; `NOTICES` (the notice as markup: `notices/row`, a row across the window 72 down, below `effect_bar`, `inert` and hidden, holding a parchment `panel` with `notices/words`), `spawn_notice` (Startup: the document, on `dom::top_strip()`), `show_notices` (Update, through `Dom`: `ServerMessage::PoiFound` or a locked `DoorRefused` sets the words and shows the row for `SHOWN_FOR` (4 s), the newest in place of any showing), `found` (what the notice says, the kind in words), `picked` (a harvest's words), `picked_fungus` (a fungus named as known, `common::fungus_key_name`: "Picked 2 Unknown mushroom"; "Picked 2 Morel, and learned its name" when `PickNews::PickedFungus::named`, as the sheet that knows it may come after).
 
 ## Public API
 

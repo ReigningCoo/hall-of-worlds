@@ -6,16 +6,21 @@ use shared::alcohol::Stage;
 use shared::bonus::{Effect, Source};
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::fruit::{FruitTag, Fruits};
-use shared::fungus::{Fungi, FungusTag};
+use shared::fungus::{Fungi, FungusKnowledge, FungusTag};
 use shared::lang::{Args, Lang};
 use shared::vegetable::{VegetableTag, Vegetables};
 
-use crate::common::{amount_of, bonus_line, written};
+use crate::common::{self, amount_of, bonus_line, written};
 
 /// "Eating: Bread", "Eating: Apple", "Apple" (a fruit's, vegetable's or
 /// fungus's effects), "Poisoned", "Poisoned: Death cap", "Dev Bonus", "Raw herb", "Ointment", "Potion: Strength",
-/// "Apple Juice", "Apple Cordial", "Drink", "Tipsy", "Hangover".
-pub(super) fn name(source: Source, lang: &Lang) -> String {
+/// "Apple Juice", "Apple Cordial", "Drink", "Tipsy", "Hangover". A fungus is
+/// named as the character knows it (`known`: "Poisoned: Unknown mushroom").
+pub(super) fn name(source: Source, known: &FungusKnowledge, lang: &Lang) -> String {
+    let fungus_name = |tag: FungusTag| match Fungi::built_in().by_tag(tag) {
+        Some(def) => common::fungus_name(def, known, lang),
+        None => "Fungus".to_owned(),
+    };
     let words = match source {
         Source::Eaten(kind) => {
             let args = Args::new().text("item", kind.def().name);
@@ -101,13 +106,6 @@ fn vegetable_name(tag: VegetableTag) -> &'static str {
     Vegetables::built_in()
         .by_tag(tag)
         .map_or("Vegetable", |def| def.name.as_str())
-}
-
-/// A fungus's name by its tag, or "Fungus" for one the table lacks.
-fn fungus_name(tag: FungusTag) -> &'static str {
-    Fungi::built_in()
-        .by_tag(tag)
-        .map_or("Fungus", |def| def.name.as_str())
 }
 
 /// A line for each bonus it gives: "Restores 1 Health a second".

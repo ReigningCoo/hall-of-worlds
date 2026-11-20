@@ -1,6 +1,8 @@
 //! Dev tools' Herbs panel (`ClientMessage::DevHerbs`): learning one herb or every
-//! herb in full, or forgetting them all; answered with the character's `Sheet`.
+//! herb (and every fungus) in full, or forgetting them all; answered with the
+//! character's `Sheet`.
 
+use shared::fungus::Fungi;
 use shared::protocol::DevHerbs;
 
 use super::Client;
@@ -19,8 +21,14 @@ pub(super) fn dev_herbs(client: &mut Client, world: &ServerWorld, change: DevHer
             for def in world.herbs.iter() {
                 known.learn_all(&def.key);
             }
+            for def in Fungi::built_in().iter() {
+                client.sheet.fungi.learn_all(&def.key);
+            }
         }
-        DevHerbs::ForgetAll => known.forget_all(),
+        DevHerbs::ForgetAll => {
+            known.forget_all();
+            client.sheet.fungi.forget_all();
+        }
     }
     client.unsaved = true;
     client.send_sheet(world.action_clock.ticks())

@@ -15,6 +15,17 @@ fn a_harvest_names_the_herb() {
 }
 
 #[test]
+fn a_fungus_is_named_only_once_known() {
+    let lang = Lang::new(shared::lang::Language::English);
+    let mut sheet = Sheet::new(shared::creature::CreatureKind::Human);
+    let said = |sheet: &Sheet, named| picked_fungus("morel", 2, named, (sheet, &lang));
+    assert_eq!(said(&sheet, false), "Picked 2 Unknown mushroom");
+    assert_eq!(said(&sheet, true), "Picked 2 Morel, and learned its name");
+    sheet.fungi.learn_name("morel");
+    assert_eq!(said(&sheet, false), "Picked 2 Morel");
+}
+
+#[test]
 fn the_notice_is_good_markup() {
     NOTICES.assert_good();
 }
@@ -30,6 +41,8 @@ fn a_locked_door_shows_a_notice_that_goes_by_itself() {
     let mut app = test_app();
     app.add_message::<FromServer>()
         .init_resource::<HerbTable>()
+        .init_resource::<CharacterSheet>()
+        .init_resource::<Wording>()
         .add_plugins(NoticesPlugin);
     // Each frame is a second long.
     app.insert_resource(TimeUpdateStrategy::ManualDuration(Duration::from_secs(1)));

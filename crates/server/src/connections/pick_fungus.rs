@@ -2,12 +2,14 @@
 //! with the player's steps: one beside or under them, full grown
 //! (`FungusPatch::can_pick`), gives its harvest (as many as a herb patch by
 //! Foraging, a large piece whole: `fungus::harvest`) into their inventory, or
-//! onto the ground under them if it doesn't fit; practises Foraging, and keeps
+//! onto the ground under them if it doesn't fit; may teach its name (a
+//! Mycology check with Foraging, `fungus::names_on_picking`); practises
+//! Foraging and Mycology, and keeps
 //! when it was picked so it grows back as its `regrow` says
 //! (`sites::keep_harvest`).
 
 use bevy::prelude::*;
-use shared::fungus::{Fungi, harvest, new_item};
+use shared::fungus::{Fungi, MYCOLOGY, harvest, names_on_picking, new_item};
 use shared::herb::{FORAGING, skill_value};
 use shared::protocol::{PickNews, ServerMessage};
 use shared::rng::Seed;
@@ -59,10 +61,16 @@ pub(super) fn pick_fungus(
         crate::ground::put_down(client, world, item);
         client.ground_told.again = true;
     }
-    if let Some(skill) = SkillId::find(FORAGING) {
-        let amount = client.learning.skills.take(skill, PICK_PRACTICE, tick);
-        client.sheet.skills.practise(skill, amount);
-        client.sheet.skills.used(skill, client.activity.played);
+    let mycology = skill_value(&client.sheet.skills, MYCOLOGY);
+    let named = !client.sheet.fungi.knows_name(&def.key)
+        && names_on_picking(mycology, foraging, rng.range_u64(0, 100) as u32)
+        && client.sheet.fungi.learn_name(&def.key);
+    for path in [FORAGING, MYCOLOGY] {
+        if let Some(skill) = SkillId::find(path) {
+            let amount = client.learning.skills.take(skill, PICK_PRACTICE, tick);
+            client.sheet.skills.practise(skill, amount);
+            client.sheet.skills.used(skill, client.activity.played);
+        }
     }
     client.unsaved = true;
     client.update_speed(tick);
@@ -75,6 +83,7 @@ pub(super) fn pick_fungus(
         y,
         fungus: def.key.clone(),
         count,
+        named,
     });
     let told = client.link.send(&picked)
         && client.send_inventory()

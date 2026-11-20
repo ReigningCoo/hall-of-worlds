@@ -708,6 +708,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             y: 16,
             fungus: "glowcap".into(),
             count: 3,
+            named: true,
         }),
         ServerMessage::Pick(super::PickNews::Refused { x: 1, y: -2 }),
         ServerMessage::DoorRefused {

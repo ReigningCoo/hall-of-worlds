@@ -75,6 +75,7 @@ fn picking_cave_fungi_gives_them_and_is_kept() {
             y,
             fungus,
             count,
+            ..
         }) => {
             assert_eq!((*x, *y), at);
             Some((fungus.clone(), *count))

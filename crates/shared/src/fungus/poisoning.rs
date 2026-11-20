@@ -96,8 +96,10 @@ pub fn poisoning(def: &FungusDef, poison: &Poison, now: u64, eater: Eater) -> Ve
 }
 
 /// Whether a poison eaten is recognised before it starts (decision 8): its
-/// poison known, or a Healing check passed (`roll` 0 to 99 below the Healing
-/// skill's percent, never more than 95). No Medicine skill yet; magic later.
-pub fn recognised(knowledge: &FungusKnowledge, def: &FungusDef, healing: u32, roll: u32) -> bool {
-    knowledge.knows_poison(&def.key) || roll < healing.min(95)
+/// poison known (`FungusKnowledge::knows_poison`: suffered, or the fungus
+/// known by name), or a check passed (`roll` 0 to 99 below `skill`, the
+/// better of the Healing and Mycology skills' percents, never more than 95).
+/// No Medicine skill yet; magic later.
+pub fn recognised(knowledge: &FungusKnowledge, def: &FungusDef, skill: u32, roll: u32) -> bool {
+    knowledge.knows_poison(&def.key) || roll < skill.min(95)
 }

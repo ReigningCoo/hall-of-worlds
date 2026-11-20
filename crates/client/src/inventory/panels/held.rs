@@ -1,12 +1,14 @@
 //! Tooltips over items and over what is held, and the inventory button.
 
 use bevy::prelude::*;
+use shared::item::Item;
 
 use super::super::body::worn_notes;
 use super::super::hold::Target;
 use super::super::{Carried, Holding, item_cell_in_front};
 use super::{HELD_NAME_ABOVE, InventoryButton, ItemCell, OpenGrids, TOOLTIP_OFFSET};
-use crate::common::{GROUND, GameView, UiPointer};
+use crate::character::CharacterSheet;
+use crate::common::{GROUND, GameView, UiPointer, Wording, item_name};
 use crate::dom::Hit;
 use crate::widgets::{CELL, ItemTip, ItemTooltip, Pointed, PointedItem};
 
@@ -21,7 +23,10 @@ pub(in crate::inventory) fn show_tooltip(
     (hit, cells): (Res<Hit>, Query<&ItemCell>),
     (mut tooltip, mut pointed): (ResMut<ItemTooltip>, ResMut<PointedItem>),
     split: Res<super::super::split::Split>,
+    (sheet, wording): (Res<CharacterSheet>, Res<Wording>),
 ) {
+    // A fungus by what the character knows of it.
+    let named = |item: &Item| item_name(item, &sheet.0.fungi, &wording.0);
     let shown = if let Some(held) = holding.held {
         Some(held.item.id)
     } else if open.open.is_empty() || split.0.is_some() {
@@ -43,7 +48,7 @@ pub(in crate::inventory) fn show_tooltip(
     let name = shown.and_then(|id| {
         // A stack is named by its top, which is what shows.
         let item = holding.item(&carried.0)?.top();
-        let words = format!("{}{}", item.name(), worn_notes(&carried.0, id));
+        let words = format!("{}{}", named(item), worn_notes(&carried.0, id));
         Some((words, item.quality, item.set))
     });
     let (Some((name, quality, set)), Some(at)) = (name, pointer.0.or(holding.at)) else {
@@ -56,7 +61,7 @@ pub(in crate::inventory) fn show_tooltip(
         Some(Target::Drop { allowed: false }) => format!("Can't drop {name}"),
         Some(Target::Someone(_)) => format!("Give {name}"),
         Some(Target::Bin) => match carried.0.bin.as_ref() {
-            Some(old) => format!("Throw away {name}, destroying {}", old.name()),
+            Some(old) => format!("Throw away {name}, destroying {}", named(old)),
             None => format!("Throw away {name}"),
         },
         _ => name,
