@@ -30,6 +30,7 @@ use shared::rng::Seed;
 
 use super::Client;
 use super::action::Action;
+use super::alchemy_bench::order_bench;
 use super::fungus_harm::{fungi_in_order, handle_fungus};
 use super::give::{give, practise};
 use crate::ServerWorld;
@@ -56,7 +57,13 @@ pub(super) fn start_alchemy(client: &mut Client, world: &mut ServerWorld) -> (bo
     let Some(order) = client.alchemy.as_ref() else {
         return (true, 0);
     };
-    if let Err(why) = client.inventory.check_alchemy(order, &world.herbs, skills) {
+    let Ok(bench) = order_bench(client, world, order) else {
+        debug!("Not running alchemy: not at the bench asked for");
+        client.alchemy = None;
+        return (true, 0);
+    };
+    let checked = (client.inventory).check_alchemy_at(order, &world.herbs, skills, bench.as_ref());
+    if let Err(why) = checked {
         debug!("Not running alchemy: {why:?}");
         client.alchemy = None;
         return (true, 0);
@@ -90,7 +97,15 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
         return true;
     };
     let skills = AlchemySkills::of(&client.sheet.skills);
-    let Ok(checked) = client.inventory.check_alchemy(&order, &world.herbs, skills) else {
+    let bench = order_bench(client, world, &order);
+    let checked = bench.and_then(|bench| {
+        let herbs = &world.herbs;
+        (client
+            .inventory
+            .check_alchemy_at(&order, herbs, skills, bench.as_ref()))
+        .map_err(|_| ())
+    });
+    let Ok(checked) = checked else {
         return client.link.send(&ServerMessage::AbilityLanded {
             who: None,
             target: None,

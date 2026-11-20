@@ -16,6 +16,7 @@ use shared::spot::Spot;
 use crate::storage::{CellMasks, SiteId, VisitSave};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod benches;
 mod cellar;
 mod cells;
 mod dev_area;
@@ -43,6 +44,10 @@ mod trees;
 mod up_down;
 mod wild;
 
+pub(crate) use benches::{
+    BenchHere, BenchKey, bench_tools, create_bench, keep_bench, share_benches,
+};
+use benches::{put_made_benches, stock_benches};
 use cellar::{stock_cellar, stock_set_in_cellar};
 use cells::{
     add_masks, all_cells, beside, cells_in, keep_within, level_chunks, nearby_cells, send_cells,
@@ -119,6 +124,8 @@ pub(crate) struct Visit {
     further: u32,
     /// A building's other floors, seen from this one (`other_floors`).
     floors: Vec<OtherFloor>,
+    /// Benches whose tools the client has been sent, by cell (`benches`).
+    benches_sent: std::collections::BTreeSet<(i64, i64)>,
 }
 
 impl Visit {

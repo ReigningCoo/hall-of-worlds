@@ -1,6 +1,6 @@
 # shared: crafting_bench
 
-Crafting benches (owner's design, 2026-11-20; crafting benches plan PR 1 of 4): furniture holding the tools of one craft, only Alchemy so far. Its crafts, the tools a bench takes and how they are put on, the bench someone is at, where generated ones stand and what they start with. Not the server's keeping of benches' tools (PR 2) nor the client's model and panel (PR 3).
+Crafting benches (owner's design, 2026-11-20; crafting benches plan PR 1 of 4): furniture holding the tools of one craft, only Alchemy so far. Its crafts, the tools a bench takes and how they are put on, the bench someone is at, where generated ones stand and what they start with. The server keeps benches' tools (PR 2, `server.md`); not the client's model and panel (PR 3).
 
 ## Files
 
@@ -27,7 +27,7 @@ Crafting benches (owner's design, 2026-11-20; crafting benches plan PR 1 of 4): 
 
 ## Used by
 
-- `furniture` (`Furniture::CraftingBench { craft }`), `site` (`Site::level`), `alchemy` (`Inventory::check_alchemy_at`, `BENCH_PERCENT`). The server (PR 2) and client (PR 3) to come.
+- `furniture` (`Furniture::CraftingBench { craft }`), `site` (`Site::level`), `alchemy` (`Inventory::check_alchemy_at`, `BENCH_PERCENT`). The server (`sites/benches`, `connections/bench.rs`, Alchemy at a bench; `protocol::BenchAsk`, `SeenBench`, `DevBench`); the client (PR 3) to come.
 
 ## Notes
 

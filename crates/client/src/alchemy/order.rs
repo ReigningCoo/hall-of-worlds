@@ -41,6 +41,7 @@ impl Bench {
     /// The process as asked for, run `count` times.
     pub(super) fn order(&self, count: u32) -> AlchemyOrder {
         AlchemyOrder {
+            bench: None,
             source: self.source,
             steps: self.steps.iter().map(Station::order_step).collect(),
             count,

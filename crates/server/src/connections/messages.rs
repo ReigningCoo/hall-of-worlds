@@ -153,6 +153,7 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             Action::Consume { item } => super::consume::consume(client, world, item),
             Action::Pour { from, into } => super::pour::pour(client, world, from, into),
             Action::Pick { x, y } => super::pick_fruit::pick(client, world, x, y),
+            Action::Bench(ask) => super::bench::bench_act(client, world, ask),
             Action::UseAbility { ability, target } => {
                 super::combat::start_ability(client, world, ability, target)
             }

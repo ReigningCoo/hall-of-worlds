@@ -134,6 +134,18 @@ pub struct LevelSave {
     /// once, on the wilderness's ground for a first level (`sites/cellar.rs`).
     #[serde(default)]
     pub cellar_stocked: bool,
+    /// Crafting benches' tools, by the bench's cell (`Piece::at`; a first
+    /// level's in its own site's save, wherever it is played). A reset never
+    /// clears them (`sites/benches`).
+    #[serde(default)]
+    pub benches: BTreeMap<(i64, i64), shared::crafting_bench::BenchTools>,
+    /// Whether its generated benches have been given their starting tools,
+    /// which happens once.
+    #[serde(default)]
+    pub benches_stocked: bool,
+    /// Benches made with the developer tool, put on the level each time.
+    #[serde(default)]
+    pub made_benches: Vec<shared::furniture::Piece>,
     /// The wilderness's only: blocks whose mobs have something saved (`dead`,
     /// `records`), by `(x, y)`, with when someone was last near (seconds
     /// since 1970): they reset after nobody has been for a while.

@@ -204,6 +204,7 @@ fn a_filter_order_uses_a_carried_powder() {
     let mut powders = carried.stacks_where(|item| item.kind == ItemKind::Powder);
     let stack = powders.next().unwrap().0.id;
     let order = |powder| AlchemyOrder {
+        bench: None,
         source: Some(stack),
         steps: vec![OrderStep::Filter { powder }],
         count: 1,

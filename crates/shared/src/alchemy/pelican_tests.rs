@@ -128,6 +128,7 @@ fn a_pelican_order_needs_a_carried_pelican() {
         .0
         .id;
     let order = AlchemyOrder {
+        bench: None,
         source: Some(stack),
         steps: vec![OrderStep::Pelican],
         count: 1,

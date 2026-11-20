@@ -80,6 +80,7 @@ fn a_fungus_is_ground_and_teaches_its_own_effects() {
         Item::new(Id::for_test(2), ItemKind::MortarAndPestle),
     ]);
     let order = AlchemyOrder {
+        bench: None,
         source: None,
         steps: vec![OrderStep::Mortar {
             herbs: vec![carried.herb_stacks()[0].stack],

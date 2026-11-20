@@ -21,7 +21,7 @@ pub(crate) struct FurnitureChange {
 
 /// Whether furniture may be put on a cell: floor or open ground, not a
 /// doorway, a gate, water or a bridge.
-fn takes_furniture(cell: Cell) -> bool {
+pub(super) fn takes_furniture(cell: Cell) -> bool {
     cell.is_walkable()
         && !matches!(
             cell,

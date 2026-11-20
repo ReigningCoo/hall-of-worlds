@@ -137,6 +137,7 @@ fn a_bench_s_tools_count_as_apparatus() {
     let carried = carrying(vec![herb]);
     let stack = carried.herb_stacks()[0].stack;
     let order = AlchemyOrder {
+        bench: None,
         source: None,
         steps: vec![OrderStep::Mortar {
             herbs: vec![stack],

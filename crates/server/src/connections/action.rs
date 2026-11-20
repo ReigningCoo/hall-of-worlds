@@ -55,9 +55,17 @@ pub(super) enum Action {
         x: i64,
         y: i64,
     },
+    /// Putting a tool on a crafting bench or taking one off (`bench.rs`).
+    Bench(shared::protocol::BenchAsk),
 }
 
 impl super::Client {
+    /// Queues an action behind the steps before it. Always stays.
+    pub(super) fn queue(&mut self, action: Action) -> bool {
+        self.waiting.push_back(action);
+        true
+    }
+
     /// Queues a step or move, unless too many wait already (its `Position`
     /// then puts the client right). Always stays.
     pub(super) fn queue_move(&mut self, action: Action) -> bool {

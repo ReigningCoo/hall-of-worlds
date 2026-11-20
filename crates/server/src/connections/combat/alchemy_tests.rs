@@ -48,6 +48,7 @@ fn carrying(test: &mut TestClient, mortar: bool, count: u32) -> AlchemyOrder {
         give(test, Item::new(Id::for_test(93), ItemKind::MortarAndPestle));
     }
     AlchemyOrder {
+        bench: None,
         source: None,
         steps: vec![OrderStep::Mortar {
             herbs: vec![Id::for_test(91)],
@@ -228,6 +229,7 @@ fn an_alembic_distils_drinks_into_pure_alcohol_and_salt_water_into_salt() {
     give(&mut test, bottle(drink(120), 1, 97));
     give(&mut test, bottle(Liquid::Water(Water::Salt), 2, 98));
     let order = AlchemyOrder {
+        bench: None,
         source: None,
         steps: vec![
             OrderStep::Retort {
@@ -278,6 +280,7 @@ fn a_filter_uses_a_powder_and_gives_a_powder() {
     );
     give(&mut test, powders);
     let order = AlchemyOrder {
+        bench: None,
         source: Some(Id::for_test(81)),
         steps: vec![OrderStep::Filter {
             powder: Some(Id::for_test(81)),
@@ -316,6 +319,7 @@ fn a_pelican_circulates_a_powder_into_a_purer_one() {
     );
     give(&mut test, powders);
     let order = AlchemyOrder {
+        bench: None,
         source: Some(Id::for_test(82)),
         steps: vec![OrderStep::Pelican],
         count: 1,

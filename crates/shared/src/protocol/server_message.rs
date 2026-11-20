@@ -58,10 +58,8 @@ pub enum ServerMessage {
         bags: Vec<crate::spot::Spot>,
         items: Vec<Item>,
     },
-    /// There is a bag on the ground here (in units), looking this full: seen
-    /// just now, or what is remembered of it, after arriving on a level. Bags
-    /// out of sight aren't kept up to date, so they can be wrong until they are
-    /// next seen.
+    /// A bag on the ground here (in units), looking this full: seen just now, or remembered
+    /// on arriving on a level. Out of sight they aren't kept up to date until seen again.
     GroundSeen { at: crate::spot::Spot, load: Load },
     /// There is no bag here after all, as just seen.
     GroundGone { at: crate::spot::Spot },
@@ -297,4 +295,6 @@ pub enum ServerMessage {
     VinegarSoon(String),
     /// About the character's personal map marks (`MarkNews`).
     Marks(super::MarkNews),
+    /// About crafting benches on the player's level (`BenchNews`).
+    Bench(super::BenchNews),
 }
