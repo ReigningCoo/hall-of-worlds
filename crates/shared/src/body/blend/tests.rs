@@ -1,5 +1,5 @@
 use super::super::layout::MAX_LIMBS;
-use super::super::{Horns, Side, Snout};
+use super::super::{Coat, Horns, Side, Snout};
 use super::*;
 use crate::creature::CreatureKind;
 
@@ -147,4 +147,30 @@ fn whole_roots() {
         let root = limbs::whole_root(n);
         assert!(root * root <= n && (root + 1) * (root + 1) > n, "{n}");
     }
+}
+
+#[test]
+fn a_coat_changes_kind_at_nothing_and_new_parts_grow() {
+    let cow = Layout::at_size(CreatureKind::Cattle).expect("cattle");
+    let mut sheep = cow;
+    sheep.parts.coat_shape = Coat::Fleece;
+    sheep.parts.coat_length = 80;
+    sheep.parts.antlers = 600;
+    sheep.parts.humps = 2;
+    let mut yak = cow;
+    yak.parts.coat_shape = Coat::Skirt;
+    yak.parts.coat_length = 900;
+    let half = Layout::blend(&sheep, &yak, HALF).parts;
+    assert_eq!((half.coat_shape, half.coat_length), (Coat::Skirt, 0));
+    let quarter = Layout::blend(&sheep, &yak, HALF / 2).parts;
+    assert_eq!(quarter.coat_shape, Coat::Fleece);
+    assert_eq!(quarter.antlers, 450);
+    assert_eq!(quarter.humps, 2);
+    assert_eq!(Layout::blend(&sheep, &yak, HALF + 1).parts.humps, 0);
+    // Scaled, sizes shrink and counts stay.
+    let small = sheep.scaled(500).parts;
+    assert_eq!(
+        (small.antlers, small.coat_length, small.humps),
+        (300, 40, 2)
+    );
 }

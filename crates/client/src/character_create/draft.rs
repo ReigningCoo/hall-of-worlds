@@ -75,7 +75,7 @@ impl Draft {
     /// Another gender: a look it can't have (a female's beard) goes.
     pub fn choose_gender(&mut self, gender: Gender) {
         self.gender = gender;
-        self.appearance.fit(gender);
+        self.appearance.fit(self.kind, gender);
     }
 
     /// Whether it can be sent: it needs a name that can be one.

@@ -1,6 +1,7 @@
 //! An animal's long hair, drawn apart from its coat in a darker shade of it: a mane
-//! along the top of the neck and falling down both sides, and the long hair of a
-//! tail (a horse's whole tail, a cow's switch at the end).
+//! along the top of the neck and falling down both sides, the long hair of a tail (a
+//! horse's whole tail, a cow's switch at the end), a goat's beard, and a yak's skirt
+//! (`coat_shape.rs`).
 
 use bevy::prelude::*;
 use shared::body::Layout;
@@ -20,7 +21,30 @@ pub(in crate::item_art) fn coat_hair(layout: &Layout) -> Vec<Triangle> {
     if layout.parts.tail_hair > 0 && layout.parts.tail > 0 {
         tail_hair(&mut triangles, layout, layout.parts.tail_hair as f32);
     }
+    if layout.parts.beard > 0 {
+        beard(&mut triangles, layout, layout.parts.beard as f32);
+    }
+    super::coat_shape::skirt(&mut triangles, layout);
     triangles
+}
+
+/// A tuft hanging from under the chin of a measured head, a little forwards.
+fn beard(triangles: &mut Vec<Triangle>, layout: &Layout, long: f32) {
+    let Some(shape) = layout.head.shape else {
+        return;
+    };
+    let axes = HeadAxes::of(layout, &shape);
+    let chin = shape.rings[shared::body::HEAD_RINGS - 3];
+    let top = axes.at(chin.along as f32, -(chin.belly as f32) * 0.8, 0.0);
+    let thick = (long * 0.16).max(6.0);
+    limb(
+        triangles,
+        &[
+            (top, thick),
+            (top + Vec3::new(0.0, -long * 0.55, long * 0.08), thick * 0.8),
+            (top + Vec3::new(0.0, -long, long * 0.12), 3.0),
+        ],
+    );
 }
 
 /// Along the top of the neck from the withers to behind the ears, a ridge falling a

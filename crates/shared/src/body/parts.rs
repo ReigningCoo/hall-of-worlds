@@ -14,6 +14,8 @@ pub enum Snout {
     Long,
     /// A bird's, hard and pointed.
     Beak,
+    /// A duck's or a goose's: broad, flat and rounded at the tip.
+    Bill,
 }
 
 /// Horns on the head.
@@ -29,6 +31,8 @@ pub enum Horns {
     Upturned,
     /// Out to the sides, then curving forwards, thick: a highland bull's.
     Forward,
+    /// Coiled back, down and round beside the face, ridged: a ram's.
+    Spiral,
 }
 
 /// The shape of the ears, however long they are (`Parts::ears`).
@@ -42,6 +46,8 @@ pub enum Ears {
     Sideways,
     /// Hanging down beside the head, as a hound's.
     Dropped,
+    /// Long, narrow and upright, a little apart: a donkey's or a rabbit's.
+    Long,
 }
 
 /// The shape of a tail, however long it is (`Parts::tail`).
@@ -55,6 +61,8 @@ pub enum Tail {
     Thin,
     /// Thin, with a tuft at its end, as a lion's.
     Tufted,
+    /// A bird's tail feathers spread upright in a fan, as a displaying turkey's.
+    Fan,
 }
 
 /// What a body stands on.
@@ -67,6 +75,8 @@ pub enum Feet {
     Hooves,
     /// A bird's toes, three forward and one back.
     Talons,
+    /// A water bird's: three toes forward joined by webs.
+    Webbed,
 }
 
 /// Wings, if any.
@@ -77,6 +87,18 @@ pub enum Wings {
     Arms,
     /// A bird's wings, folded along its sides.
     Folded,
+}
+
+/// What covers a trunk beyond its plain coat (`Parts::coat_length`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum Coat {
+    /// Nothing beyond the coat's colour.
+    Smooth,
+    /// Thick wool in lumps over the trunk and the tops of the legs, as a sheep's.
+    Fleece,
+    /// Long hair hanging from the flanks and belly nearly to the ground, as a
+    /// yak's skirt.
+    Skirt,
 }
 
 /// Everything a body has beyond a person's. Lengths are how far each reaches out from
@@ -110,11 +132,31 @@ pub struct Parts {
     pub dewlap: i32,
     /// An udder this big under the belly, between the hind legs.
     pub udder: i32,
-    /// A comb this tall on top of the head and wattles under the beak, as a hen's.
+    /// A comb this tall on top of the head, as a hen's.
     pub comb: i32,
     /// Long shaggy hair over the brow and eyes, hanging this far, as a highland
     /// cow's.
     pub fringe: i32,
+    /// Antlers this long, up and back from the skull, with this many tines on each
+    /// (none, 0, for a spike): a reindeer's.
+    pub antlers: i32,
+    pub tines: i32,
+    /// This many humps (one or two) along the back, each this tall: a camel's.
+    pub humps: i32,
+    pub hump: i32,
+    /// A tuft of hair hanging this far from the chin, as a goat's.
+    pub beard: i32,
+    /// Wattles this long hanging under the beak, as a cock's or a turkey's.
+    pub wattles: i32,
+    /// A fleshy snood this long hanging from the forehead over the beak, as a
+    /// turkey's.
+    pub snood: i32,
+    /// Knobbly red skin this thick over the face and round the bill's base, as a
+    /// Muscovy drake's or a turkey's head.
+    pub caruncles: i32,
+    /// The coat's shape, and how thick a fleece is or how far a skirt hangs.
+    pub coat_shape: Coat,
+    pub coat_length: i32,
 }
 
 /// A person: nothing more.
@@ -138,4 +180,14 @@ pub const NONE: Parts = Parts {
     udder: 0,
     comb: 0,
     fringe: 0,
+    antlers: 0,
+    tines: 0,
+    humps: 0,
+    hump: 0,
+    beard: 0,
+    wattles: 0,
+    snood: 0,
+    caruncles: 0,
+    coat_shape: Coat::Smooth,
+    coat_length: 0,
 };

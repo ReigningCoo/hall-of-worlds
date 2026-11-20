@@ -41,8 +41,10 @@ impl Storage {
         };
         Ok(match queue.load(&SaveKey::Character(*id))? {
             Some(Save::Character(mut save)) => {
-                // Saved before females' beards went (2026-11-13): dropped here.
-                save.sheet.appearance.fit(save.sheet.gender);
+                // Saved before females' beards went (2026-11-13), or a choice for one gender: fitted here.
+                save.sheet
+                    .appearance
+                    .fit(save.inventory.creature, save.sheet.gender);
                 Some(save)
             }
             _ => None,

@@ -1,16 +1,17 @@
 //! An animal's measured head (`shared::body::HeadShape`) and the neck it sits on: the
 //! neck lofted from the trunk's last ring up to the head, so it carries on from the
 //! trunk with no step; the head lofted through its rings from the back of the skull
-//! to the nose; ears by their shape, horns (`horns.rs`), a fringe (`fringe.rs`), and a
-//! hen's comb and wattles, placed on the outline.
+//! to the nose; ears by their shape, horns (`horns.rs`), antlers (`antlers.rs`), a
+//! fringe (`fringe.rs`), and a bill and tusks (`mouth.rs`), placed on the outline. A
+//! comb, wattles, snood and caruncles are bare red skin, drawn apart (`flesh.rs`).
 
-use std::f32::consts::{PI, TAU};
+use std::f32::consts::TAU;
 
 use bevy::prelude::*;
 use shared::body::{Ears, HEAD_RINGS, HeadShape, Layout, RINGS, Ring, Side};
 
 use super::trunk::{self, Axes};
-use super::{ROUND, Triangle, blob, limb, loft, point};
+use super::{ROUND, Triangle, limb, loft, point};
 
 /// The head's own directions, from where it sits on the neck.
 pub(in crate::item_art) struct HeadAxes {
@@ -74,10 +75,9 @@ pub(super) fn build(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &Head
     loft(triangles, &rings);
     ears(triangles, layout, shape, &axes);
     super::horns::build(triangles, layout, shape, &axes);
+    super::antlers::build(triangles, layout, shape, &axes);
     super::fringe::build(triangles, layout, shape, &axes);
-    if layout.parts.comb > 0 {
-        comb(triangles, layout.parts.comb as f32, shape, &axes);
-    }
+    super::mouth::build(triangles, layout, shape, &axes);
 }
 
 /// Points round an oval with these half axes.
@@ -182,6 +182,21 @@ fn ears(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &HeadShape, axes:
                     ),
                 ]
             }
+            Ears::Long => {
+                // Narrow, upright and a little apart, leaning back, widest halfway.
+                let base = axes.at(along, top * 0.85, out * half * 0.45);
+                vec![
+                    (base, reach * 0.06),
+                    (
+                        base + Vec3::new(out * reach * 0.12, reach * 0.5, -reach * 0.12),
+                        reach * 0.1,
+                    ),
+                    (
+                        base + Vec3::new(out * reach * 0.2, reach, -reach * 0.25),
+                        reach * 0.03,
+                    ),
+                ]
+            }
             Ears::Swept => {
                 let base = axes.at(along, top * 0.5, out * half * 0.9);
                 vec![
@@ -194,39 +209,6 @@ fn ears(triangles: &mut Vec<Triangle>, layout: &Layout, shape: &HeadShape, axes:
             }
         };
         limb(triangles, &path);
-    }
-}
-
-/// A hen's comb, a row of lobes along the top of the skull, and two wattles hanging
-/// under the beak.
-fn comb(triangles: &mut Vec<Triangle>, tall: f32, shape: &HeadShape, axes: &HeadAxes) {
-    let rings = &shape.rings;
-    for (at, lobe) in [(2, 0.8), (3, 1.0), (4, 0.75)] {
-        let ring = rings[at];
-        let top = axes.at(
-            ring.along as f32,
-            ring.back as f32 + tall * 0.35 * lobe,
-            0.0,
-        );
-        blob(
-            triangles,
-            top,
-            Vec3::new(3.0, tall * 0.5 * lobe, tall * 0.3),
-        );
-    }
-    let under = rings[HEAD_RINGS - 3];
-    for side in Side::BOTH {
-        let across = side.sign() as f32 * under.half as f32 * 0.4;
-        let hang = axes.at(
-            under.along as f32,
-            -(under.belly as f32) - tall * 0.3,
-            across,
-        );
-        blob(
-            triangles,
-            hang,
-            Vec3::new(3.0, tall * 0.35 * (PI / 4.0), tall * 0.2),
-        );
     }
 }
 

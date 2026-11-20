@@ -86,7 +86,7 @@ pub(super) fn spawn(who: &Who, cell: (i64, i64)) -> Spawn {
             spawn.attributes.set(which, now + own.get(which));
         }
         spawn.gender = who.gender;
-        spawn.appearance = spawn.appearance.fitted(who.gender);
+        spawn.appearance = spawn.appearance.fitted(spawn.kind, who.gender);
     }
     spawn.coins = 0;
     spawn

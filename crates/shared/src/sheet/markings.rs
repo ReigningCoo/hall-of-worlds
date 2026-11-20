@@ -24,6 +24,12 @@ pub struct Marks {
     /// Brindle: wavy stripes across the trunk, neck and legs, from a brindled coat
     /// (`Pattern::Brindle`) rather than a choice of markings.
     pub stripes: bool,
+    /// The whole head and the top half of the neck, as a mallard drake's green
+    /// head.
+    pub hood: bool,
+    /// The neck's top and sides from the head to the shoulders, as a cock's
+    /// hackles.
+    pub hackles: bool,
 }
 
 impl Marks {
@@ -35,6 +41,8 @@ impl Marks {
             face: Face::Bare,
             patches: None,
             stripes: true,
+            hood: false,
+            hackles: false,
         }
     }
 }
@@ -61,6 +69,7 @@ const fn marked(name: &'static str, marks: Marks) -> Choice {
         name,
         colour: None,
         pattern: Pattern::Marked(marks),
+        gender: None,
     }
 }
 
@@ -71,6 +80,8 @@ const fn marks(colour: [u8; 3], belly: bool, face: Face) -> Marks {
         face,
         patches: None,
         stripes: false,
+        hood: false,
+        hackles: false,
     }
 }
 
@@ -83,6 +94,8 @@ const fn patched(name: &'static str, colour: [u8; 3], layout: u8) -> Choice {
             face: Face::Bare,
             patches: Some(layout),
             stripes: false,
+            hood: false,
+            hackles: false,
         },
     )
 }

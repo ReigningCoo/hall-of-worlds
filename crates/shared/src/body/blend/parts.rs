@@ -1,7 +1,7 @@
 //! Blending what two bodies have beyond a person's: sizes move from one to the other;
-//! a snout or horns of another kind shrink to nothing by halfway and the new kind
-//! grows from there; feet, wings, a sting and the shapes of ears and tail change at
-//! halfway.
+//! a snout, horns or a coat of another kind shrink to nothing by halfway and the new
+//! kind grows from there; feet, wings, a sting, the count of humps and the shapes of
+//! ears and tail change at halfway.
 
 use super::super::Parts;
 use super::{HALF, WHOLE, mix};
@@ -9,6 +9,11 @@ use super::{HALF, WHOLE, mix};
 pub(super) fn blend(a: &Parts, b: &Parts, t: i32) -> Parts {
     let (snout, snout_length) = swapped((a.snout, a.snout_length), (b.snout, b.snout_length), t);
     let (horns, horn_length) = swapped((a.horns, a.horn_length), (b.horns, b.horn_length), t);
+    let (coat_shape, coat_length) = swapped(
+        (a.coat_shape, a.coat_length),
+        (b.coat_shape, b.coat_length),
+        t,
+    );
     let late = t >= HALF;
     Parts {
         snout,
@@ -30,6 +35,16 @@ pub(super) fn blend(a: &Parts, b: &Parts, t: i32) -> Parts {
         udder: mix(a.udder, b.udder, t),
         comb: mix(a.comb, b.comb, t),
         fringe: mix(a.fringe, b.fringe, t),
+        antlers: mix(a.antlers, b.antlers, t),
+        tines: mix(a.tines, b.tines, t),
+        humps: either(late, a.humps, b.humps),
+        hump: mix(a.hump, b.hump, t),
+        beard: mix(a.beard, b.beard, t),
+        wattles: mix(a.wattles, b.wattles, t),
+        snood: mix(a.snood, b.snood, t),
+        caruncles: mix(a.caruncles, b.caruncles, t),
+        coat_shape,
+        coat_length,
     }
 }
 
@@ -63,6 +78,13 @@ pub(in crate::body) fn scaled(parts: &Parts, share: i32) -> Parts {
         udder: size(parts.udder),
         comb: size(parts.comb),
         fringe: size(parts.fringe),
+        antlers: size(parts.antlers),
+        hump: size(parts.hump),
+        beard: size(parts.beard),
+        wattles: size(parts.wattles),
+        snood: size(parts.snood),
+        caruncles: size(parts.caruncles),
+        coat_length: size(parts.coat_length),
         ..*parts
     }
 }

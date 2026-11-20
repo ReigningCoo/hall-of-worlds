@@ -32,7 +32,7 @@ impl WornHead {
         let paths = horns_of(&head);
         let horns = (paths.len() == 2).then(|| {
             std::array::from_fn(|at| {
-                let [(root, thick), (next, _), _] = paths[at];
+                let ((root, thick), (next, _)) = (paths[at][0], paths[at][1]);
                 (root - offset, (next - root).normalize_or(Vec3::Y), thick)
             })
         });

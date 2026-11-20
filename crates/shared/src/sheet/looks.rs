@@ -4,6 +4,7 @@
 //! new ones go at the end.
 
 use crate::creature::CreatureKind;
+use crate::gender::Gender;
 
 use super::Trait;
 use super::markings::{Marks, markings_choices};
@@ -16,6 +17,24 @@ pub struct Choice {
     /// Red, green and blue, 0 to 255: the main colour, what a body is drawn in.
     pub colour: Option<[u8; 3]>,
     pub pattern: Pattern,
+    /// The one gender this choice is for, if only one has it (a drake's green
+    /// head, a cock's hackles); `None` for any.
+    pub gender: Option<Gender>,
+}
+
+impl Choice {
+    /// The same choice, only for this gender.
+    pub const fn only(self, gender: Gender) -> Choice {
+        Choice {
+            gender: Some(gender),
+            ..self
+        }
+    }
+
+    /// Whether a creature of this gender can have it.
+    pub fn suits(&self, gender: Gender) -> bool {
+        self.gender.is_none_or(|only| only == gender)
+    }
 }
 
 /// What is over a colour: specks for pictures of it (the colour picker's swatches),
@@ -36,6 +55,7 @@ const fn colour(name: &'static str, rgb: [u8; 3]) -> Choice {
         name,
         colour: Some(rgb),
         pattern: Pattern::Plain,
+        gender: None,
     }
 }
 
@@ -44,6 +64,7 @@ const fn speckled(name: &'static str, rgb: [u8; 3], specks: [u8; 3]) -> Choice {
         name,
         colour: Some(rgb),
         pattern: Pattern::Speckled(specks),
+        gender: None,
     }
 }
 
@@ -52,6 +73,7 @@ const fn brindled(name: &'static str, rgb: [u8; 3], stripes: [u8; 3]) -> Choice 
         name,
         colour: Some(rgb),
         pattern: Pattern::Brindle(stripes),
+        gender: None,
     }
 }
 
@@ -60,6 +82,7 @@ pub(super) const fn word(name: &'static str) -> Choice {
         name,
         colour: None,
         pattern: Pattern::Plain,
+        gender: None,
     }
 }
 
@@ -218,7 +241,18 @@ const BIRD_FEATHERS: &[Choice] = &[
 ];
 
 impl Trait {
-    /// The choices a creature of this kind has for this trait, in order.
+    /// The places of the choices a creature of this kind and gender may have
+    /// for this trait, in order.
+    pub fn suiting(self, kind: CreatureKind, gender: Gender) -> Vec<u8> {
+        let choices = self.choices_for(kind).iter().enumerate();
+        choices
+            .filter(|(_, choice)| choice.suits(gender))
+            .map(|(place, _)| place as u8)
+            .collect()
+    }
+
+    /// The choices a creature of this kind has for this trait, in order (some
+    /// perhaps only for one gender: `Choice::gender`).
     pub fn choices_for(self, kind: CreatureKind) -> &'static [Choice] {
         use CreatureKind::{
             Birdfolk, Cattle, Coo, Drider, Dwarf, Elf, Goblin, Horse, Kobold, Lizardfolk, Minotaur,

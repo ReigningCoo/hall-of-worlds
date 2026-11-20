@@ -5,6 +5,7 @@ fn plain(rgb: [u8; 3]) -> Choice {
         name: "Plain",
         colour: Some(rgb),
         pattern: Pattern::Plain,
+        gender: None,
     }
 }
 
@@ -17,6 +18,7 @@ fn colours_are_swatches_and_words_are_not() {
         name: "Tall",
         colour: None,
         pattern: Pattern::Plain,
+        gender: None,
     };
     assert_eq!(swatch(&tall, &mut pictures, &mut images), None);
 }

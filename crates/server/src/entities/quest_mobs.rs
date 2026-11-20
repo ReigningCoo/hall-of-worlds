@@ -58,7 +58,7 @@ pub(super) fn boss_spawn(
         let tiered = now + own.get(which) + TIER_ATTRIBUTES * steps;
         spawn.attributes.set(which, tiered);
     }
-    spawn.appearance = spawn.appearance.fitted(boss.gender);
+    spawn.appearance = spawn.appearance.fitted(spawn.kind, boss.gender);
     Some(spawn)
 }
 

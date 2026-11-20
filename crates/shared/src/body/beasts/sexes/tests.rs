@@ -37,3 +37,30 @@ fn only_kinds_with_sexes_change_by_gender() {
         }
     }
 }
+
+#[test]
+fn a_sex_puts_all_its_parts_on_and_keeps_the_rest() {
+    let neutral = Beast::of(CreatureKind::Coo).unwrap().parts;
+    // A sex made from the body itself changes nothing.
+    assert_eq!(Sex::of(neutral).on(neutral), neutral);
+    let stag = Sex {
+        antlers: 900,
+        tines: 5,
+        tusks: 60,
+        beard: 120,
+        comb: 30,
+        wattles: 25,
+        hump: 300,
+        udder: 0,
+        horns: crate::body::Horns::None,
+        horn_length: 0,
+        size: WHOLE,
+    };
+    let parts = stag.on(neutral);
+    assert_eq!((parts.antlers, parts.tines, parts.tusks), (900, 5, 60));
+    assert_eq!((parts.beard, parts.comb, parts.wattles), (120, 30, 25));
+    assert_eq!((parts.hump, parts.udder), (300, 0));
+    assert_eq!(parts.horns, crate::body::Horns::None);
+    assert_eq!(parts.fringe, neutral.fringe);
+    assert_eq!(parts.tail_hair, neutral.tail_hair);
+}

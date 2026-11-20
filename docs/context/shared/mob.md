@@ -4,7 +4,7 @@ Who is on a site level to begin with, from the site's secret seed, and what a pl
 
 ## Files
 
-- `crates/shared/src/mob.rs`: `Spawn`, `spawns`, `EntityLook`. Tests. In `mob/`: `memory.rs` (`Memory`), `scent.rs` (how strong a trail is, how long a nose follows it), `wild.rs` (the wilderness's mobs; tests in `wild_tests.rs`), `looks.rs` (a mob's rolled looks: even choices, or a kind's weights for a trait: coos' coats 60 red-brown, 22 yellow-brown, 6 silvery brown, 6 black, 3 and 3 brindled), `trail.rs` (where they have wandered lately; tests in `trail_tests.rs`).
+- `crates/shared/src/mob.rs`: `Spawn`, `spawns`, `EntityLook`. Tests. In `mob/`: `memory.rs` (`Memory`), `scent.rs` (how strong a trail is, how long a nose follows it), `wild.rs` (the wilderness's mobs; tests in `wild_tests.rs`), `looks.rs` (a mob's rolled looks: even choices, or a kind's weights for a trait: coos' coats 60 red-brown, 22 yellow-brown, 6 silvery brown, 6 black, 3 and 3 brindled; only among the choices its gender may have, `looks(roll, kind, gender)`), `trail.rs` (where they have wandered lately; tests in `trail_tests.rs`).
 
 ## Public API
 

@@ -1,8 +1,10 @@
 //! Mobs' looks, rolled from their own hashes: each trait's choices equally likely,
-//! unless the kind has weights for it (`WEIGHTS`), as highland cattle's coats.
+//! unless the kind has weights for it (`WEIGHTS`), as highland cattle's coats; only
+//! among those its gender may have.
 
 use super::TRIES;
 use crate::creature::CreatureKind;
+use crate::gender::Gender;
 use crate::sheet::{Appearance, Trait};
 
 /// How likely each choice is, in order, for a kind's trait: highland cattle are
@@ -31,15 +33,23 @@ pub(super) fn weighted(rolled: u64, weights: &[u64]) -> u8 {
     place.unwrap_or(0) as u8
 }
 
-/// A look for a creature of this kind, by the rolls given.
-pub(super) fn looks(roll: &impl Fn(i64) -> u64, kind: CreatureKind) -> Appearance {
+/// A look for a creature of this kind and gender, by the rolls given (then
+/// `Appearance::fitted`, for its beard).
+pub(super) fn looks(roll: &impl Fn(i64) -> u64, kind: CreatureKind, gender: Gender) -> Appearance {
     let chosen = |(place, &which): (usize, &Trait)| {
         let rolled = roll(TRIES * 2 + 1 + place as i64);
-        let choice = match weights(kind, which) {
-            Some(weights) => weighted(rolled, weights),
-            None => (rolled % which.choices_for(kind).len() as u64) as u8,
+        let choices = which.choices_for(kind);
+        // Each choice's weight, none for one only another gender has.
+        let weights: Vec<u64> = match weights(kind, which) {
+            Some(weights) => weights.to_vec(),
+            None => vec![1; choices.len()],
         };
-        (which, choice)
+        let suited: Vec<u64> = weights
+            .iter()
+            .zip(choices)
+            .map(|(&weight, choice)| if choice.suits(gender) { weight } else { 0 })
+            .collect();
+        (which, weighted(rolled, &suited))
     };
     Appearance(kind.def().looks.iter().enumerate().map(chosen).collect())
 }

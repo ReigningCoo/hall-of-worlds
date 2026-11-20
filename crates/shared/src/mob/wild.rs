@@ -139,7 +139,7 @@ pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) ->
             number: own(50) as u32,
             kind,
             position,
-            appearance: looks(&own, kind).fitted(gender),
+            appearance: looks(&own, kind, gender).fitted(kind, gender),
             gender,
             alignment: Alignment::rolled(kind, own(62)),
             attributes: Attributes::for_kind(

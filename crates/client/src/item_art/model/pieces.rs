@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use shared::body::{Hair, Layout};
 
 use super::super::body::{Triangle, bare_pieces};
-use super::super::colours::{Colours, material};
+use super::super::colours::{Colours, FLESH, material};
 use super::super::morph::blend_colours;
 use super::super::{Look, character};
 
@@ -76,9 +76,11 @@ pub(super) fn pieces(look: &Look) -> Option<Pieces> {
 /// Thousandths, as `Layout::scaled` takes.
 const WHOLE: i32 = 1000;
 
-/// A bare body: skin, its markings, a taur's coat, feathers, hair and an animal's long hair.
+/// A bare body: skin, its markings, a taur's coat, feathers, hair, an animal's long hair
+/// and bare red skin.
 fn bare(layout: &Layout, colours: Colours, hair: Hair) -> Pieces {
-    let [skin, marked, coat, feathers, hair, mane] = bare_pieces(layout, hair, colours.marks);
+    let [skin, marked, coat, feathers, hair, mane, flesh] =
+        bare_pieces(layout, hair, colours.marks);
     let surface = skin.iter().chain(&marked).chain(&coat).copied().collect();
     let pieces = [
         (skin, colours.skin),
@@ -90,6 +92,7 @@ fn bare(layout: &Layout, colours: Colours, hair: Hair) -> Pieces {
         (feathers, colours.feathers),
         (hair, colours.hair),
         (mane, colours.mane),
+        (flesh, FLESH),
     ]
     .into_iter()
     .filter(|(triangles, _)| !triangles.is_empty())

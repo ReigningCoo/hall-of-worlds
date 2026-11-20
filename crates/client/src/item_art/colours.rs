@@ -50,6 +50,9 @@ impl Colours {
 }
 
 /// A darker shade of a coat, for its long hair.
+/// Bare red skin: a comb, wattles, a snood, caruncles.
+pub(super) const FLESH: [u8; 3] = [190, 44, 38];
+
 const fn darker(rgb: [u8; 3]) -> [u8; 3] {
     const fn shade(value: u8) -> u8 {
         (value as u16 * 2 / 5) as u8
