@@ -3,7 +3,7 @@
 
 use bevy::prelude::*;
 use shared::crafting_bench::BenchTools;
-use shared::furniture::Furniture;
+use shared::furniture::{Furniture, free_for_bench};
 use shared::item::Item;
 use shared::protocol::DevBench;
 
@@ -12,7 +12,6 @@ use crate::ServerWorld;
 use crate::connections::Client;
 use crate::ids::new_id;
 use crate::sites::FurnitureChange;
-use crate::sites::dev_furniture::takes_furniture;
 
 /// Checks the bench (a crafting bench furnishing could make, every cell free
 /// floor: no wall, stairs or other furniture, not the wilderness), makes its
@@ -25,10 +24,7 @@ pub(crate) fn create_bench(client: &mut Client, world: &mut ServerWorld, order: 
     let piece = order.piece;
     let site = &visit.level;
     let free = |(x, y): (i64, i64)| {
-        site.level.contains(x, y)
-            && takes_furniture(site.level.cell(x, y))
-            && site.level.furniture_at(x, y).is_none()
-            && !site.stairs.iter().any(|s| (s.x, s.y) == (x, y))
+        free_for_bench(&site.level, (x, y)) && !site.stairs.iter().any(|s| (s.x, s.y) == (x, y))
     };
     let Furniture::CraftingBench { craft } = piece.furniture else {
         info!("Refused creating a crafting bench: not one");

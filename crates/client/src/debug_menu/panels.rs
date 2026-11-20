@@ -26,6 +26,8 @@ mod waist;
 mod alignment;
 mod bind;
 mod change_creature;
+mod create_bench;
+mod create_bench_systems;
 mod create_mob;
 mod create_mob_systems;
 mod dev_area;
@@ -66,6 +68,7 @@ mod world_time;
 pub(super) use alignment::add_alignment_panel;
 pub(super) use bind::bind_panels;
 pub(super) use change_creature::{ChosenChange, press_creature_buttons, update_creature_buttons};
+pub(super) use create_bench_systems::add_create_bench_panel;
 pub(super) use create_mob::{MobChoice, MobClickToPlace, MobCreate, MobNewSeed, MobSeed, MobStill};
 pub(super) use create_mob_systems::add_create_mob_panel;
 pub(super) use dev_area::{

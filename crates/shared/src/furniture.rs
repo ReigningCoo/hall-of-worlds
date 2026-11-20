@@ -8,12 +8,14 @@
 //! so generators and their versions are untouched.
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod free;
 mod material;
 mod piece;
 pub(crate) mod place;
 mod shape;
 mod style;
 
+pub use free::{free_for_bench, takes_furniture};
 pub use material::{Material, Stone, Wood};
 pub use piece::{Furniture, Piece, SEAT_COST_PER_MILLE, TABLE_COST_PER_MILLE};
 pub use place::{Setting, furnish};

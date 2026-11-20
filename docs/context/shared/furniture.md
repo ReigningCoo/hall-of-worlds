@@ -8,6 +8,7 @@ Tables, chairs and benches in sites' rooms, of wood or stone, and where they go.
 - `furniture/piece.rs`: `Piece`, `Furniture`, `TABLE_COST_PER_MILLE`, `SEAT_COST_PER_MILLE`.
 - `furniture/material.rs`: `Material`, `Wood`, `Stone` with their weights.
 - `furniture/style.rs`: `TableStyle`, `ChairStyle`, `BenchStyle` (each with `ALL`), and which seat styles go with each table style.
+- `furniture/free.rs`: `takes_furniture(cell)` (floor or open ground, not a doorway, gate, water or bridge), `free_for_bench(level, cell)` (on the level, takes furniture, no other piece): what the server checks Place Furniture's and Create Crafting Bench's pieces by (stairs left to each side), and the client's bench ghost.
 - `furniture/shape.rs`: `footprint`, `Furniture::is_stone`, `Piece::is_well_made` (tests in `shape/tests.rs`).
 - `furniture/place.rs`: `furnish`, the entry point. In `place/`: `setting.rs` (`Setting::for_kind`), `palette.rs` (a site's woods and stone, a room's material), `rooms.rs` (rooms' floor cells, the cells that may be furnished; `pub(crate)` for `shared::cellar`), `reach.rs` (the never-cut-off check), `placer.rs` (`Placer`: what a level's placing keeps track of, a room's matching set, ruin's losses), `tables.rs`, `seats.rs`, `loose.rs` (seats against walls).
 

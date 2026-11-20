@@ -14,6 +14,7 @@ pub enum DebugAction {
     ChangeCellMode,
     ChangeCreature,
     CloseAllDoors,
+    CreateCraftingBench,
     CreateMob,
     DetectMobs,
     DevArea,
@@ -72,7 +73,7 @@ pub(super) struct Facts {
 impl DebugAction {
     /// Every action, in the order the menu lists them: by group (`Group`),
     /// then as the owner ordered each group.
-    pub(super) const ALL: [Self; 36] = [
+    pub(super) const ALL: [Self; 37] = [
         // Display
         Self::ShowDebugInfo,
         Self::LightningNow,
@@ -106,6 +107,7 @@ impl DebugAction {
         Self::RemakeSite,
         Self::ChangeCellMode,
         Self::PlaceFurniture,
+        Self::CreateCraftingBench,
         Self::OpenAllDoors,
         Self::CloseAllDoors,
         Self::KeyForThisDoor,
@@ -156,6 +158,7 @@ impl DebugAction {
                 | Self::CreateMob
                 | Self::ExamineMob
                 | Self::PlaceFurniture
+                | Self::CreateCraftingBench
                 | Self::WorldTime
                 | Self::GeneratePoi
                 | Self::DevArea

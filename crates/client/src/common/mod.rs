@@ -32,6 +32,7 @@ use bevy::prelude::*;
 // Split into files (`cargo xtask lint` keeps files small).
 mod account_role;
 mod action_tick;
+mod bench_ghost;
 mod benches;
 mod bonus_words;
 mod clock;
@@ -78,6 +79,7 @@ mod world;
 
 pub use account_role::{AccountRole, OpenAccounts};
 pub use action_tick::{ServerTick, take_clock};
+pub use bench_ghost::BenchGhost;
 pub use benches::{BenchHere, Benches};
 pub use bonus_words::{amount_of, bonus_line, effect_lines, stat_words, written};
 pub use browser::open_in_browser;
@@ -205,6 +207,7 @@ impl Plugin for CommonPlugin {
             .add_message::<LightningStrike>()
             .add_message::<TeleportToWorldAsked>()
             .add_message::<FurnitureClicked>()
+            .init_resource::<BenchGhost>()
             .add_message::<BoltStruck>()
             .add_message::<DroppedOnText>()
             .init_resource::<KnownItems>()

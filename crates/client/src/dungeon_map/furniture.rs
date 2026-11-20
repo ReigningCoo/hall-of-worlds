@@ -28,7 +28,7 @@ use part::{Grain, Part};
 use super::CELL_SIZE;
 use super::walls::{Layers, Scene};
 
-pub(super) use crafting_bench::tool_spot;
+pub(super) use crafting_bench::{ghost_boxes, tool_spot};
 
 /// How high a table's top is, and how thick.
 const TABLE_TOP: f32 = CELL_SIZE * 0.39;
