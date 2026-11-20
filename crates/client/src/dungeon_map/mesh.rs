@@ -1,7 +1,7 @@
 //! Builds the dungeon's meshes from what is seen and lit: floors, walls and
 //! stairs as textured quads, one mesh per kind of surface (each has its own
 //! tile picture), with the light in their vertex colours. What is only
-//! remembered goes into a second set of meshes, drawn with grey pictures.
+//! remembered goes into a second set of meshes, drawn with sepia pictures.
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod build;
@@ -30,8 +30,8 @@ use memory::{copy_as_memory, sizes};
 pub use meshes::{DungeonMeshes, View, WallFace};
 pub use surface::Surface;
 
-/// How bright remembered (out of sight) surfaces are drawn, on their grey
-/// pictures.
+/// How bright remembered (out of sight) surfaces are drawn, on their sepia
+/// pictures: an even grey vertex colour, so the brown isn't added twice.
 pub const MEMORY_SHADE: f32 = 0.3;
 
 #[cfg(test)]

@@ -85,7 +85,7 @@ fn meshes_of(
     let star_outline = super::bag::star(STAR_LONG, STAR_SHORT, STAR_OUTLINE / scale);
     let star_hover_outline = super::bag::star(STAR_LONG, STAR_SHORT, STAR_HOVER_OUTLINE / scale);
     BagMeshes {
-        remembered: meshes.add(to_mesh(model.greyed())),
+        remembered: meshes.add(to_mesh(model.sepia_copy())),
         outline: meshes.add(to_mesh(super::bag::outline(for_outline))),
         hover_outline: meshes.add(to_mesh(super::bag::hover_outline(for_outline))),
         lit: meshes.add(to_mesh(model)),

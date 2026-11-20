@@ -66,11 +66,12 @@ fn felled_fruit_trees_have_stumps_and_grow_back() {
     }
 }
 
-/// A grey copy keeps every corner and has only greys.
+/// A sepia copy keeps every corner and has only browns (red over green over
+/// blue).
 #[test]
-fn memory_is_a_grey_copy() {
+fn memory_is_a_sepia_copy() {
     let pieces = wild(TreeKind::Oak, TreeStage::Grown, 0).expect("an oak");
-    let grey = greyed(&pieces.fill);
-    assert_eq!(grey.positions, pieces.fill.positions);
-    assert!(grey.colours.iter().all(|c| c[0] == c[1] && c[1] == c[2]));
+    let toned = sepia_copy(&pieces.fill);
+    assert_eq!(toned.positions, pieces.fill.positions);
+    assert!(toned.colours.iter().all(|c| c[0] > c[1] && c[1] > c[2]));
 }

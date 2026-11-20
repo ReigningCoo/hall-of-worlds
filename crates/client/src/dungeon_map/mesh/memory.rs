@@ -13,12 +13,12 @@ pub(super) fn sizes(builders: &[Builder]) -> Vec<(usize, usize)> {
         .collect()
 }
 
-/// Copies what was lit since `before` into the memory meshes, in grey, for the
+/// Copies what was lit since `before` into the memory meshes, at memory's shade, for the
 /// part of it the mask says is out of sight. Tops stay out: the mask doesn't cut
-/// them (`Builder::copy_grey`).
+/// them (`Builder::copy_shaded`).
 pub(super) fn copy_as_memory(layers: &mut Layers, before: &[(usize, usize)]) {
     for (i, &from) in before.iter().enumerate() {
         let Layers { solid, memory, .. } = &mut *layers;
-        solid[i].copy_grey(from, &mut memory[i]);
+        solid[i].copy_shaded(from, &mut memory[i]);
     }
 }

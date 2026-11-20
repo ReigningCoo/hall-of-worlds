@@ -86,7 +86,7 @@ impl<'a> Tile<'a> {
         here + (beyond_x - here) * (1.0 - fx) / 2.0 + (beyond_z - here) * (1.0 - fz) / 2.0
     }
 
-    /// A vertex colour at a point: its light (or memory's grey), shaded.
+    /// A vertex colour at a point: its light (or memory's shade), shaded.
     pub(super) fn colour(&self, layer: Layer, point: Vec3, shade: f32) -> Vec3 {
         match layer {
             Layer::Memory => Vec3::splat(MEMORY_SHADE * shade),

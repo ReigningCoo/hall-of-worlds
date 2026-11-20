@@ -8,7 +8,7 @@ use crate::common::HoveredBag;
 use crate::dungeon_map::Shown;
 use crate::view3d::ViewCamera;
 
-/// Shows each bag as it is now: in colour with its sparkle while in sight, or in grey
+/// Shows each bag as it is now: in colour with its sparkle while in sight, or in sepia
 /// without one, as last seen; a wider outline if the pointer is on it.
 #[allow(clippy::type_complexity)]
 pub(super) fn show_bags(

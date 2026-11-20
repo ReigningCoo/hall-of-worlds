@@ -12,7 +12,7 @@ pub enum Layer {
     Solid,
     /// Half see-through and lit: faces turned away from the camera.
     SeeThrough,
-    /// Grey: out of sight, remembered.
+    /// Sepia: out of sight, remembered.
     Memory,
 }
 

@@ -42,7 +42,7 @@ pub(super) fn spawn_scene(
         .map(|&surface| load_tile(&asset_server, theme.picture(surface)))
         .collect();
     // Unlit: the light is in the vertex colours, worked out on the grid.
-    // Memory shows the coloured pictures until their grey copies are made.
+    // Memory shows the coloured pictures until their sepia copies are made.
     let unlit = |picture: &Handle<Image>| StandardMaterial {
         base_color_texture: Some(picture.clone()),
         unlit: true,
@@ -205,7 +205,7 @@ pub(super) fn spawn_scene(
             MaskSide::InSight,
         )),
     });
-    // Trees remembered: grey (their own colours), outlined, out of sight.
+    // Trees remembered: sepia (their own colours), outlined, out of sight.
     commands.insert_resource(super::trees::TreeMaterials {
         memory: surface_materials.add(masked(
             StandardMaterial {
@@ -240,8 +240,8 @@ pub(super) fn spawn_scene(
         see_through,
         stairs_through,
         ground_picture: pictures[Surface::Ground as usize].clone(),
-        to_grey: pictures.into_iter().enumerate().collect(),
-        greys: BTreeMap::new(),
+        to_sepia: pictures.into_iter().enumerate().collect(),
+        sepias: BTreeMap::new(),
     });
 }
 

@@ -56,7 +56,7 @@ Any tree can be felled with a one-handed axe, for logs that can be split into ki
 - **Shapes:** eleven crown shapes from the research's descriptions (spire, open cone, pine top, flat tiers, column, oval, dome, spreading, weeping, umbrella, shrubby) rather than a builder per kind; bark colours picked from the research's bark descriptions, leaves by kind.
 - **Sizes:** grown trees drawn 2.2 to 4.6 m tall (`1.4 + 0.5 √m` of the real height), crowns 0.9 to 3 m across, so a wood's crowns touch; growing back at 0.22 (sapling), 0.42 (young) and 0.7 (half grown) of that.
 - **Felled fruit trees** grow back as their own model in leaf, smaller (the same three sizes), and leave a stump in the fruit trees' bark; once grown they are their fruit plant again.
-- **Remembered:** unlike other plants, trees are drawn where remembered, in grey, so woods stay on the map.
+- **Remembered:** unlike other plants, trees are drawn where remembered, in sepia (once grey), so woods stay on the map.
 - **Clicks:** a click on a standing tree's crown sends the player to the free cell beside it nearest them; hover names a tree by its kind and how it has grown back ("Oak, sapling").
 
 ## Claude's choices in PR 4 (overturnable)

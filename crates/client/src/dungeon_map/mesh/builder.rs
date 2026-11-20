@@ -108,7 +108,7 @@ impl Builder {
     /// even shade of memory, keeping its opacity, without any raised top: the
     /// shader never cuts those (`RAISED` in `sight_mask.wesl`), so they would
     /// show twice.
-    pub(super) fn copy_grey(&self, (vertices, indices): (usize, usize), into: &mut Builder) {
+    pub(super) fn copy_shaded(&self, (vertices, indices): (usize, usize), into: &mut Builder) {
         let first = into.positions.len() as u32;
         for i in vertices..self.positions.len() {
             let [_, _, _, alpha] = self.colours[i];

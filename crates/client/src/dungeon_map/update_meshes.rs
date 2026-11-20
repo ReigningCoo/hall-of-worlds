@@ -168,7 +168,7 @@ pub(super) fn update_meshes(
         .is_some_and(|i| matches!(i.kind, LevelKind::Hall { .. }));
     // What needs a remembered copy for the mask to show: drawn as in sight, but
     // not all of it is. None in the Hall: the mask is off there (`pictures`), so
-    // a grey copy would fight the lit cell; its cone's edge goes by whole cells.
+    // a sepia copy would fight the lit cell; its cone's edge goes by whole cells.
     let mut cut = Sight::new(level);
     // What is in sight is remembered from now on (only cells the server has
     // sent: the rest are wall here until it does). Not a change that needs

@@ -1,7 +1,7 @@
 //! Fungus patches (fungi plan PR 4): each as its fungus's model
 //! (`plants::FungusModels`) at the stage it has grown to by the world's clock
 //! (`FungusPatch::stage`), in a variant and turned by its cell, standing on
-//! the ground. Like trees, they are remembered: drawn grey where the sight
+//! the ground. Like trees, they are remembered: drawn in sepia where the sight
 //! mask says out of sight, and in colour too where it says in sight. Picking
 //! them goes as herbs' do (`herbs::pick`). Glowing fungi full grown are drawn
 //! in their own colours whatever the light (`HerbMaterials::glow`), never
@@ -55,7 +55,7 @@ pub(super) fn update_fungi(
     (dungeon, shown, clock): (Res<CurrentDungeon>, Res<Shown>, Res<ServerClock>),
     (heights, showcase): (Res<DrawnGround>, Res<FungusShowcase>),
     player: Single<&MapPosition, With<Player>>,
-    (lit, grey): (Res<HerbMaterials>, Res<TreeMaterials>),
+    (lit, sepia): (Res<HerbMaterials>, Res<TreeMaterials>),
     mut models: ResMut<FungusModels>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut drawn: ResMut<DrawnFungi>,
@@ -107,8 +107,8 @@ pub(super) fn update_fungi(
                     NotShadowCaster,
                 ));
             };
-            copy(&model.memory, &grey.memory);
-            copy(&model.outline, &grey.outline);
+            copy(&model.memory, &sepia.memory);
+            copy(&model.outline, &sepia.outline);
             if now_drawn.lit {
                 copy(&model.fill, if glows { &lit.glow } else { &lit.fill });
                 copy(&model.outline, &lit.outline);
