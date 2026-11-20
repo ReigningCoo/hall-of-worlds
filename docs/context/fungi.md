@@ -62,7 +62,7 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
    caps clustering, brackets on a stub of wood, jelly and crusts on a fallen stick, lichen mats, beards hanging from a
    dead snag, truffles as a disturbed mound; simplified for the maps, black outlines, a grey copy) drawn by
    `dungeon_map/fungi.rs` (remembered in grey like trees), hover names, `client.fungus_showcase`.
-5. **Glow**: client light from glowing patches as decision 12.
+5. **Glow** (built): client light from glowing patches as decision 12, in `dungeon_map`'s fixed lights (`fixed_lights.rs`, shared with lava's light later): only full-grown patches glow, so picked ones (back to stage 3) stop until grown again; light reaches from every cell of a group whatever is seen, but remembered cells are drawn grey as ever; the models of glowing ones are drawn in full colour in the dark (`HerbMaterials::glow`).
 6. **Poisons**: effects that start later, hidden from the client until recognised (as `Sheet::as_sent` strips
    alignment), deadly drain (Easy halves), stumbles from other effects, ink cap and alcohol with its bonus.
 7. **Knowing fungi**: "Unknown mushroom" / "Looks like X", a Mycology skill (`gathering/mycology`), names learned by a

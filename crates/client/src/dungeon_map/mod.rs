@@ -15,6 +15,7 @@ mod border;
 mod daylight;
 mod door_swing;
 mod field;
+mod fixed_lights;
 mod fruit;
 mod fruit_picking;
 mod fruit_showcase;
@@ -132,6 +133,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<tree_flash::TreeFlashes>()
             .init_resource::<vegetable_plants::DrawnVegetables>()
             .init_resource::<fungi::DrawnFungi>()
+            .init_resource::<fixed_lights::FixedLights>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -164,6 +166,7 @@ impl Plugin for DungeonMapPlugin {
                     wild_ground::work_out_tint,
                     door_swing::swing_doors,
                     (
+                        fixed_lights::update_fixed_lights,
                         update_meshes,
                         other_floors::draw_others,
                         other_floors::follow_materials,

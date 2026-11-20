@@ -24,7 +24,7 @@ pub use builder::Builder;
 use cells::build_cell_at;
 pub(super) use light::corner_light;
 pub use light::{faces_camera, with_ambient};
-pub use light_grid::LightGrid;
+pub use light_grid::{LightGrid, reach};
 pub(in crate::dungeon_map) use marks::Marks;
 use memory::{copy_as_memory, sizes};
 pub use meshes::{DungeonMeshes, View, WallFace};

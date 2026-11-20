@@ -3,13 +3,16 @@
 //! (`FungusPatch::stage`), in a variant and turned by its cell, standing on
 //! the ground. Like trees, they are remembered: drawn grey where the sight
 //! mask says out of sight, and in colour too where it says in sight. Picking
-//! them goes as herbs' do (`herbs::pick`).
+//! them goes as herbs' do (`herbs::pick`). Glowing fungi full grown are drawn
+//! in their own colours whatever the light (`HerbMaterials::glow`), never
+//! when remembered; their light is `fixed_lights`'.
 
 use std::collections::HashMap;
 
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use shared::fungus::Fungi;
+use shared::herb::STAGES;
 
 use super::herbs::HerbMaterials;
 use super::sight_lines::SurfaceMaterial;
@@ -29,6 +32,8 @@ struct Drawn {
     stage: u8,
     /// Whether its coloured copy is drawn too.
     lit: bool,
+    /// Whether that copy glows (a glowing fungus, full grown).
+    glows: bool,
     /// The ground under its middle, in tenths of a unit.
     ground: i32,
 }
@@ -66,13 +71,16 @@ pub(super) fn update_fungi(
         None => in_memory(&dungeon, &shown, now),
     };
     let mut keep = HashMap::with_capacity(wanted.len());
+    let fungi = Fungi::built_in();
     for ((x, y), fungus, stage, in_sight) in wanted {
+        let glows = stage == STAGES && fungi.get(&fungus).is_some_and(|def| def.glow.is_some());
         let middle = cell_centre(x, y);
         let ground = heights.drawn_between(middle.x / CELL_SIZE, middle.z / CELL_SIZE) * CELL_SIZE;
         let now_drawn = Drawn {
             fungus,
             stage,
             lit: in_sight,
+            glows,
             ground: (ground * 10.0).round() as i32,
         };
         if let Some((entity, was)) = drawn.cells.remove(&(x, y)) {
@@ -102,7 +110,7 @@ pub(super) fn update_fungi(
             copy(&model.memory, &grey.memory);
             copy(&model.outline, &grey.outline);
             if now_drawn.lit {
-                copy(&model.fill, &lit.fill);
+                copy(&model.fill, if glows { &lit.glow } else { &lit.fill });
                 copy(&model.outline, &lit.outline);
             }
         });
