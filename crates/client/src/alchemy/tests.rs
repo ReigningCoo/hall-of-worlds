@@ -59,7 +59,7 @@ fn spaces_grow_as_they_fill() {
     // A liquid may be listed twice: two 100 ml from one stack.
     put(&mut bench, Place::Liquid(1, 0), Some(Id::stand_in(50)));
     put(&mut bench, Place::Liquid(1, 1), Some(Id::stand_in(50)));
-    let order = bench.order(1);
+    let order = bench.order(1, None);
     let shared::alchemy::OrderStep::Retort { liquids, .. } = &order.steps[1] else {
         panic!("a Retort");
     };

@@ -1,19 +1,21 @@
-//! Letting go of what is held: taking it from someone, wearing, dropping, giving,
-//! binning or moving it, as aimed. The server is told and decides; what it is
+//! Letting go of what is held: taking it from someone, wearing, dropping, giving
+//! (or putting it on a crafting bench), binning or moving it, as aimed. The server is told and decides; what it is
 //! sure to agree with is shown at once.
 
 use bevy::prelude::*;
 use shared::bonus::{may_use_on_self, usable_on_self};
 use shared::energy::handling_cost;
 use shared::item::Item;
-use shared::protocol::ClientMessage;
+use shared::protocol::{BenchAsk, ClientMessage};
 
 use super::super::hold::{Target, stack_onto};
 use super::super::quest_drop::holds_quest_item;
 use super::super::wear_note::{refusal, try_wearing};
 use super::super::{Carried, HeldBy, Holding};
 use super::Outbox;
-use crate::common::{Dressing, GROUND, GaveItem, HeldOverGifts, HeldStock, SpentEnergy, TookItem};
+use crate::common::{
+    Benches, Dressing, GROUND, GaveItem, HeldOverGifts, HeldStock, SpentEnergy, TookItem,
+};
 use crate::connection::ToServer;
 
 /// Lets go of it, as aimed.
@@ -59,6 +61,18 @@ pub(super) fn let_go_of(
         if let Some(gift) = over_gifts.0 {
             // Moved about in their grid: nothing to ask anyone.
             gave.write(GaveItem(gift));
+        } else if let Some(bench) = Benches::at_of(with) {
+            // Off a crafting bench: only into what is carried, where the
+            // server puts it (`crafting_bench`).
+            let id = held.item.id;
+            if let Some((to, x, y, rotation)) =
+                super::super::hold::drop_move(&carried.0, held.item, aim)
+                && carried.0.add(item, to, x, y, rotation).is_ok()
+            {
+                let take = BenchAsk::Take { bench, item: id };
+                to_server.write(ToServer(ClientMessage::Bench(take)));
+                took.write(TookItem { with, item: id });
+            }
         } else if aim == Target::Bin {
             // Only from the ground: see `aim`.
             let id = held.item.id;
@@ -198,10 +212,12 @@ pub(super) fn let_go_of(
         let taking_off = carried.0.taking_off_cost(item);
         if carried.0.hand_over(item).is_some() {
             dressing.write(Dressing(taking_off));
-            send(ToServer(if to == GROUND {
-                ClientMessage::DropItem { item }
-            } else {
-                ClientMessage::GiveItem { item, to }
+            send(ToServer(match Benches::at_of(to) {
+                _ if to == GROUND => ClientMessage::DropItem { item },
+                // Onto a crafting bench's panel: the server places, swaps or
+                // refuses it.
+                Some(bench) => ClientMessage::Bench(BenchAsk::Put { bench, item }),
+                None => ClientMessage::GiveItem { item, to },
             }));
             spent.write(SpentEnergy(cost));
             if let Some(gift) = over_gifts.0 {

@@ -23,7 +23,8 @@ use crate::view3d::{ClickedToken, ViewCamera};
 /// the player there, and in Change Cell Mode it changes the cell (floor, wall,
 /// door, window, and round again) to try walls out (dev tools); in Mob Mode it
 /// puts a mob made to order there, and in Furniture Mode it says which cell
-/// was clicked (`FurnitureClicked`), for Place Furniture's panel.
+/// was clicked (`FurnitureClicked`), for Place Furniture's panel. A click on
+/// a crafting bench is `BenchClicked`.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn pick_on_click(
     mouse: Res<ButtonInput<MouseButton>>,
@@ -38,7 +39,10 @@ pub(super) fn pick_on_click(
     heights: Res<DrawnGround>,
     player: Single<&MapPosition, With<Player>>,
     mut travel: MessageWriter<TravelTo>,
-    mut door_clicked: MessageWriter<DoorClicked>,
+    (mut door_clicked, mut bench_clicked): (
+        MessageWriter<DoorClicked>,
+        MessageWriter<BenchClicked>,
+    ),
     mut to_server: MessageWriter<ToServer>,
     mut furniture: MessageWriter<FurnitureClicked>,
 ) {
@@ -90,9 +94,17 @@ pub(super) fn pick_on_click(
         door_clicked.write(DoorClicked { building });
         return;
     }
+    // A crafting bench: left to `crafting_bench`, which walks up to it.
+    let (level, seen, walls) = (&dungeon.level, &dungeon.remembered, &shown.solid_faces);
+    let bench = super::bench_picking::bench_clicked(ray, level, seen, walls, ground);
+    if let Some(piece) = bench
+        && *mode != ClickMode::Teleport
+    {
+        bench_clicked.write(BenchClicked { piece });
+        return;
+    }
     let front = door.and_then(|id| dungeon.buildings.iter().find(|b| b.id == id));
     let front = front.map(|b| (b.door.0 + b.faces.0, b.door.1 + b.faces.1));
-    let (level, seen, walls) = (&dungeon.level, &dungeon.remembered, &shown.solid_faces);
     let picked = front
         .or_else(|| super::gate_picking::gate_clicked(ray, level, seen, walls, ground))
         .or_else(|| super::fruit_picking::fruit_clicked(ray, level, seen, walls, ground))
@@ -116,6 +128,13 @@ pub(super) fn pick_on_click(
             travel.write(TravelTo { x, y });
         }
     }
+}
+
+/// A crafting bench (or a tool on it) was clicked or tapped: for
+/// `crafting_bench`, which walks up to it and opens its panel.
+#[derive(Message, Clone, Copy, Debug)]
+pub struct BenchClicked {
+    pub piece: shared::furniture::Piece,
 }
 
 /// A town building's door was clicked: for `shop`, which decides what that means.

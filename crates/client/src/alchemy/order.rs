@@ -1,6 +1,7 @@
 //! The process on the panel as an order for the server, how many runs what is
 //! carried allows, and what one run makes, by the server's own check
-//! (`Inventory::check_alchemy`).
+//! (`Inventory::check_alchemy_at`), at the crafting bench the player is at if
+//! any (`common::BenchHere`): its tools used first, the work 10% purer.
 
 use std::collections::BTreeMap;
 
@@ -12,6 +13,7 @@ use shared::id::Id;
 use shared::item::Inventory;
 
 use super::bench::{Bench, Station};
+use crate::common::BenchHere;
 
 impl Station {
     /// The step as asked for.
@@ -38,24 +40,28 @@ impl Station {
 }
 
 impl Bench {
-    /// The process as asked for, run `count` times.
-    pub(super) fn order(&self, count: u32) -> AlchemyOrder {
+    /// The process as asked for, run `count` times, at the bench at `bench`
+    /// (any cell of it) if the player is at one.
+    pub(super) fn order(&self, count: u32, bench: Option<(i64, i64)>) -> AlchemyOrder {
         AlchemyOrder {
-            bench: None,
+            bench,
             source: self.source,
             steps: self.steps.iter().map(Station::order_step).collect(),
             count,
         }
     }
 
-    /// What one run makes from what is carried, or why not.
+    /// What one run makes from what is carried and on the bench `here`, or
+    /// why not.
     pub(super) fn check(
         &self,
         carried: &Inventory,
         herbs: &Herbs,
         skills: AlchemySkills,
+        here: &BenchHere,
     ) -> Result<Checked, OrderRefused> {
-        carried.check_alchemy(&self.order(1), herbs, skills)
+        let order = self.order(1, here.at());
+        carried.check_alchemy_at(&order, herbs, skills, here.tools())
     }
 
     /// How many runs what is carried is enough for: each stack's count over

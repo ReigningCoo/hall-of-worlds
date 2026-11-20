@@ -25,13 +25,13 @@ Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (sh
   - `broadleaf.rs` (oval, dome, spreading, weeping with hanging strands, umbrella, shrubby; `mass`), `conifer.rs` (spire and open cone of stacked cones, pine top, flat tiers, column), `stump.rs` (`stump`: a short trunk in its bark, three roots, the cut in its wood's heartwood colour; `stump_size`).
 - `crates/client/src/plants/fungus.rs`: fungus patches' models (fungi plan PR 4): `FungusModels` (`get(key, stage, variant, meshes)`: a cell's patch at stage 1 to 4, cached by fungus key, stage and variant (`VARIANTS`); `None` for a key the table lacks), `FungusMeshes { fill, outline, memory }`. Tests in `fungus/tests.rs` (every fungus at every stage and variant within its cell and under 7000 triangles, young ones smaller, the three meshes alike). In `fungus/`:
   - `patch.rs`: `build(def, stage, variant)` by form, from `item_art::fungus_one` stood up as it is: caps and other upright forms clustering (5 small, 3, 2, a large piece alone, fewer while young, leaning out), brackets in a tier up a stub of wood, jelly and wood crusts along a fallen stick, lichen tufts and plates and other crusts in a mat, beards hanging from a dead snag's twigs, truffles only as a mound of turned earth with crumbs; `drawn_metres` (`0.2 + 0.9 m^0.6` across, at most 1.1 m), `growth` (0.35, 0.6, 0.85, 1 by stage), `outline_share` (lichens 0.4 of the width), `REACH` (0.48 of a cell); the whole fitted within it, then simplified.
-  - `shell.rs`: `Shell` (smooth pieces put together, indexed): `add(mesh, place, fallback)`, `fit(reach)`, `simplify(grid)` (vertex clustering by a grid of at least 0.3 units, coarser for large patches, points facing apart kept apart: item pictures' meshes are far too fine for the maps), `fill` (shaded by `triangles`' fixed light), `outline(thin)` (points pushed out along their normals, an inverted hull), `memory` (sepia, as trees').
+  - `shell.rs`: `Shell` (pub, also `dungeon_map`'s tools on crafting benches; smooth pieces put together, indexed): `add(mesh, place, fallback)`, `fit(reach)`, `simplify(grid)` (vertex clustering by a grid of at least 0.3 units, coarser for large patches, points facing apart kept apart: item pictures' meshes are far too fine for the maps), `fill` (shaded by `triangles`' fixed light), `outline(thin)` (points pushed out along their normals, an inverted hull), `memory` (sepia, as trees').
   - `ground.rs`: what fungi grow on, drawn with them: `stub`, `stick`, `rod`, `mound`.
 - `crates/client/src/plants/layout.rs`: `patch_layout(look, seed)`: a patch's plants (`PlantSpot`: offset from the cell's middle, turn, scale, variant), in a ring round the middle.
 
 ## Public API
 
-- `PlantsPlugin`, `PlantModels`, `FruitModels`, `VegetableModels`, `TreeModels`, `FungusModels` (resources), `TreeModel`, `patch_layout`, `fruit_plant_size`, `tree_size`.
+- `PlantsPlugin`, `PlantModels`, `FruitModels`, `VegetableModels`, `TreeModels`, `FungusModels` (resources), `Shell` (a model put together from smooth pieces, with its fill, outline and memory meshes; `dungeon_map`'s bench tools), `TreeModel`, `patch_layout`, `fruit_plant_size`, `tree_size`.
 
 ## Depends on
 
@@ -39,7 +39,7 @@ Herbs' plants as 3D models: built from each herb's `shared::herb::PlantLook` (sh
 
 ## Used by
 
-- `dungeon_map` (`fungi.rs`, `herbs/draw.rs`, `fruit.rs`, `fruit_picking.rs`, `vegetable_plants.rs`, `trees.rs`, `tree_picking.rs`).
+- `dungeon_map` (`fungi.rs`, `herbs/draw.rs`, `fruit.rs`, `fruit_picking.rs`, `vegetable_plants.rs`, `trees.rs`, `tree_picking.rs`; `Shell` for `bench_tools`).
 
 ## Notes
 

@@ -12,6 +12,7 @@ mod character_create;
 mod character_select;
 mod common;
 mod connection;
+mod crafting_bench;
 mod debug_info;
 mod debug_menu;
 #[cfg(not(target_arch = "wasm32"))]
@@ -146,6 +147,7 @@ fn main() {
     ));
     app.add_plugins(skills_page::SkillsPagePlugin);
     app.add_plugins(alchemy::AlchemyPlugin);
+    app.add_plugins(crafting_bench::CraftingBenchPlugin);
     app.add_plugins(lightning::LightningPlugin);
     app.add_plugins(step_pad::StepPadPlugin);
     app.add_plugins(notices::NoticesPlugin);

@@ -10,6 +10,8 @@
 //! (`theme`). Light is dull everywhere, and brighter near light sources, which
 //! walls block. Left-click a seen walkable cell to travel there.
 
+mod bench_picking;
+mod bench_tools;
 mod bolts;
 mod border;
 mod daylight;
@@ -75,8 +77,8 @@ mod update_meshes;
 mod viewers;
 mod wild_ground;
 
-pub use click::DoorClicked;
 use click::pick_on_click;
+pub use click::{BenchClicked, DoorClicked};
 use herbs::{DrawnPatches, HerbHeading, aim_at_herbs, pick_on_arrival, update_herbs};
 use lights::sync_lights;
 pub use parts::Shown;
@@ -120,6 +122,9 @@ impl Plugin for DungeonMapPlugin {
     fn build(&self, app: &mut App) {
         let in_view = in_state(GameView::Dungeon);
         app.add_message::<DoorClicked>()
+            .add_message::<BenchClicked>()
+            .init_resource::<bench_tools::DrawnTools>()
+            .init_resource::<bench_tools::ToolModels>()
             .init_resource::<Shown>()
             .init_resource::<door_swing::DoorSwings>()
             .init_resource::<OutsideLight>()
@@ -185,6 +190,7 @@ impl Plugin for DungeonMapPlugin {
                             .chain(),
                         vegetable_plants::update_vegetables,
                         fungi::update_fungi,
+                        bench_tools::update_bench_tools,
                         aim_at_herbs,
                         pick_on_arrival,
                     ),

@@ -8,7 +8,9 @@ use shared::protocol::ServerMessage;
 
 use super::spawn::{close_all, open_panel};
 use super::{COLUMNS, Heading, Keepers, OpenTalks, Tab};
-use crate::common::{CurrentDungeon, GROUND, GaveItem, HeldOverGifts, HeldStock, TookItem};
+use crate::common::{
+    Benches, CurrentDungeon, GROUND, GaveItem, HeldOverGifts, HeldStock, TookItem,
+};
 use crate::connection::FromServer;
 use crate::dom::{Dom, GridShown};
 use crate::widgets::{StockGrid, StockGridNode, StockOf, UiId, show_stock_aim};
@@ -131,7 +133,8 @@ pub(super) fn show_gift_aim(
         let (_, node, transform) = grids.iter().find(|(grid, ..)| grid.0 == gift.to)?;
         grid.aim(&gift, &carried.0, node, transform)
     });
-    // The ground's are `inventory`'s.
-    let ours = shown.iter_mut().filter(|(of, _)| of.0 != GROUND);
+    // The ground's are `inventory`'s, and benches' `crafting_bench`'s.
+    let ours =
+        (shown.iter_mut()).filter(|(of, _)| of.0 != GROUND && Benches::at_of(of.0).is_none());
     show_stock_aim(ours, aim);
 }

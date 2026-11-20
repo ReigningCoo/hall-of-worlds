@@ -68,6 +68,7 @@ pub use looks::{
 pub use model::CreatureModels;
 pub use morph::{MORPH_STEPS, MorphLook, morph_look};
 pub use necklace::NecklaceLook;
+pub use tool::tool_pieces;
 pub use under::UnderLook;
 pub use vegetable::{VEGETABLE_VARIANTS, VegetableItemLook};
 

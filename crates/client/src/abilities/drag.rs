@@ -22,6 +22,7 @@ use super::page::usable;
 use super::spots::{Spot, Spots};
 use super::use_ability::UseSlot;
 use crate::character::CharacterSheet;
+use crate::common::BenchHere;
 use crate::common::{TouchGesture, UiPointer, in_interface};
 use crate::connection::ToServer;
 use crate::dom::{AbilityThing, Dropped, Hand, HeldObject, HeldThing, HeldWhat};
@@ -86,7 +87,7 @@ pub(super) fn drag_abilities(
     ui_scale: Res<UiScale>,
     spots: Spots,
     mut bar: ResMut<OwnBar>,
-    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
+    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
     assets: Res<AssetServer>,
     (mut drag, mut object): (ResMut<Drag>, ResMut<HeldObject>),
     mut to_server: MessageWriter<ToServer>,
@@ -114,7 +115,7 @@ pub(super) fn drag_abilities(
     let mut pick_up = |thing: BarThing, from: From, by: Hand, drag: &mut Drag| {
         let count = count_of(thing, &carried.0);
         let usable = match thing {
-            BarThing::Ability(ability) => usable(ability, &carried, &sheet),
+            BarThing::Ability(ability) => usable(ability, &carried, &sheet, &here),
             BarThing::Potion(_) => count > 0,
             BarThing::Item(_) => true,
         };

@@ -17,6 +17,7 @@ pub(super) static ALCHEMY: Template = html!(
     <span nowrap valign="top">
       <div width="480">
         <p id="steps"/>
+        <p id="at_bench" class="faint" hidden/>
         <canvas id="process"/>
       </div>
       <div width="220" class="tight">
@@ -46,6 +47,10 @@ pub(super) const WORDS: &str = "Drag an apparatus down to add a step, or click i
     steps to reorder them, or off the row to take them out. Drag herbs, oils and \
     liquids from the Inventory into the spaces under each step; click one to take \
     it out.";
+
+/// Under the steps while at an Alchemy Bench (`common::BenchHere`).
+pub(super) const AT_BENCH: &str = "At the Alchemy Bench: its apparatus are used \
+    first, and work using any of them is 10% purer.";
 
 /// Under the top row when no apparatus is known.
 pub(super) const NONE_KNOWN: &str = "No apparatus is known yet: pick up a Mortar and \

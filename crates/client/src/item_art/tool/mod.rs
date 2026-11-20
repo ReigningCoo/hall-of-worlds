@@ -29,7 +29,24 @@ pub(super) fn tool_parts(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) -> Vec<Part> {
-    let parts = match kind {
+    let parts = upright_parts(kind, meshes, materials);
+    let tipped = Transform::from_rotation(Quat::from_rotation_x(TIP));
+    parts
+        .into_iter()
+        .map(|part| Part {
+            transform: tipped * part.transform,
+            ..part
+        })
+        .collect()
+}
+
+/// A tool's parts standing upright, as it stands on a crafting bench.
+fn upright_parts(
+    kind: ItemKind,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) -> Vec<Part> {
+    match kind {
         ItemKind::Cauldron => cauldron::cauldron_parts(meshes, materials),
         ItemKind::MortarAndPestle => mortar::mortar_parts(meshes, materials),
         ItemKind::Retort => retort::retort_parts(meshes, materials),
@@ -39,15 +56,36 @@ pub(super) fn tool_parts(
         ItemKind::Pelican => pelican::pelican_parts(meshes, materials),
         ItemKind::Tap => tap::tap_parts(meshes, materials),
         _ => oil_press::oil_press_parts(meshes, materials),
-    };
-    let tipped = Transform::from_rotation(Quat::from_rotation_x(TIP));
-    parts
-        .into_iter()
-        .map(|part| Part {
-            transform: tipped * part.transform,
-            ..part
+    }
+}
+
+/// One piece of a tool standing upright (`tool_pieces`): its mesh, where it
+/// goes, and its colour (linear), for the maps' own models.
+pub struct ToolPiece {
+    pub mesh: Mesh,
+    pub place: Transform,
+    pub colour: Vec3,
+}
+
+/// A tool's pieces standing upright, in the pictures' units (about 2 across),
+/// for a model of it on the maps: a crafting bench's tools (`dungeon_map`).
+pub fn tool_pieces(
+    kind: ItemKind,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) -> Vec<ToolPiece> {
+    let parts = upright_parts(kind, meshes, materials);
+    let pieces = parts.iter().filter_map(|part| {
+        let mesh = meshes.get(&part.mesh)?.clone();
+        let colour = materials.get(&part.material)?.base_color.to_linear();
+        Some(ToolPiece {
+            mesh,
+            place: part.transform,
+            colour: Vec3::new(colour.red, colour.green, colour.blue),
         })
-        .collect()
+    });
+    // The handles go with `parts`, and the assets with them.
+    pieces.collect()
 }
 
 /// The cells a tool's picture fills, wide and long: its item's.

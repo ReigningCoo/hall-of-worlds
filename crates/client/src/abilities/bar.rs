@@ -17,6 +17,7 @@ use super::own_bar::OwnBar;
 use super::page::usable;
 use super::vitals_now::affords;
 use crate::character::CharacterSheet;
+use crate::common::BenchHere;
 use crate::common::{
     Action, OwnVitals, Preferences, ServerTick, Sneaking, VitalsCircle, interface_area,
 };
@@ -114,7 +115,7 @@ pub(super) struct Shown {
 #[allow(clippy::too_many_arguments)]
 pub(super) fn show_bar(
     bar: Res<OwnBar>,
-    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
+    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
     preferences: Res<Preferences>,
     (aim, manual, sneaking): (Res<Aim>, Res<Manual>, Res<Sneaking>),
     (vitals, time, clock): (Res<OwnVitals>, Res<Time>, Res<ServerTick>),
@@ -144,7 +145,7 @@ pub(super) fn show_bar(
             .collect(),
         usable: (bar.0.slots.iter())
             .map(|held| match held.map(|held| held.thing) {
-                Some(BarThing::Ability(ability)) => usable(ability, &carried, &sheet),
+                Some(BarThing::Ability(ability)) => usable(ability, &carried, &sheet, &here),
                 Some(BarThing::Potion(potion)) => {
                     let count = carried.0.count_of_potion(potion);
                     let now = clock.now(time.elapsed_secs_f64());

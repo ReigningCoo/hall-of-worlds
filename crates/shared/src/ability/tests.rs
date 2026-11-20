@@ -322,6 +322,24 @@ fn alchemy_needs_an_apparatus_carried() {
 }
 
 #[test]
+fn alchemy_at_a_bench_needs_one_of_its_tools() {
+    use crate::crafting_bench::{BenchTools, Craft};
+    let human = CreatureKind::Human;
+    let carried = Inventory {
+        creature: human,
+        ..Inventory::default()
+    };
+    let sheet = Sheet::new(human);
+    let mut bench = BenchTools::new(Craft::Alchemy);
+    assert!(!Ability::Alchemy.can_use_at(&carried, &sheet, None));
+    assert!(!Ability::Alchemy.can_use_at(&carried, &sheet, Some(&bench)));
+    let retort = Item::new(Id::for_test(9), ItemKind::Retort);
+    bench.put(retort).expect("taken");
+    assert!(Ability::Alchemy.can_use_at(&carried, &sheet, Some(&bench)));
+    assert!(!Ability::PressOil.can_use_at(&carried, &sheet, Some(&bench)));
+}
+
+#[test]
 fn old_grind_and_brew_slots_load_as_one_alchemy() {
     let text = "(slots: (Some((ability: Grind, auto: false)), Some((ability: Brew, auto: false)), \
         None, None, None, None, None, None, None, None), given: 1)";

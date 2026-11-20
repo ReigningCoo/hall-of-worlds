@@ -32,6 +32,7 @@ use bevy::prelude::*;
 // Split into files (`cargo xtask lint` keeps files small).
 mod account_role;
 mod action_tick;
+mod benches;
 mod bonus_words;
 mod clock;
 mod creatures;
@@ -77,6 +78,7 @@ mod world;
 
 pub use account_role::{AccountRole, OpenAccounts};
 pub use action_tick::{ServerTick, take_clock};
+pub use benches::{BenchHere, Benches};
 pub use bonus_words::{amount_of, bonus_line, effect_lines, stat_words, written};
 pub use browser::open_in_browser;
 pub use characters::{CharacterChoice, CharacterSelect, PlayFor, PlayableHere};
@@ -178,6 +180,8 @@ impl Plugin for CommonPlugin {
             .init_resource::<OwnAbility>()
             .init_resource::<LoadingStep>()
             .init_resource::<CurrentDungeon>()
+            .init_resource::<Benches>()
+            .init_resource::<BenchHere>()
             .init_resource::<OtherLevels>()
             .init_resource::<OtherFloorLooks>()
             .init_resource::<FirstFloor>()

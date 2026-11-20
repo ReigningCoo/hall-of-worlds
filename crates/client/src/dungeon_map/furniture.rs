@@ -5,13 +5,15 @@
 //! (`assets/furniture_atlas.png`, made by `tools/make_furniture_atlas.py`),
 //! tinted per vertex by the wood or stone and lit where they stand. Tops stay
 //! level on sloping ground, their legs reaching down to it. Black outlines.
-//! Seats facing a table reach a little under its edge.
+//! Seats facing a table reach a little under its edge. Crafting benches are
+//! a table with a shelf over its back (`crafting_bench.rs`).
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod atlas;
 mod benches;
 mod chairs;
 mod colour;
+mod crafting_bench;
 mod draw;
 mod frame;
 mod part;
@@ -26,6 +28,8 @@ use part::{Grain, Part};
 use super::CELL_SIZE;
 use super::walls::{Layers, Scene};
 
+pub(super) use crafting_bench::tool_spot;
+
 /// How high a table's top is, and how thick.
 const TABLE_TOP: f32 = CELL_SIZE * 0.39;
 const TOP_THICKNESS: f32 = CELL_SIZE * 0.05;
@@ -38,7 +42,7 @@ pub(super) fn build_furniture(layers: &mut Layers, scene: &Scene, (x, y): (i64, 
         return;
     };
     let mut beyond = (Vec3::ZERO, Vec3::ZERO);
-    let parts = match tables::parts(piece) {
+    let parts = match tables::parts(piece).or_else(|| crafting_bench::parts(piece)) {
         Some(parts) => parts,
         None => {
             let under_table = seats::faces_table(scene.level, piece);
