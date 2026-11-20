@@ -9,6 +9,7 @@ use shared::protocol::LevelKind;
 
 use super::daylight::{OutsideLight, Spill, TownLights};
 use super::door_swing::DoorSwings;
+use super::fixed_lights::FixedLights;
 use super::mesh::{LightGrid, View, build_posed};
 use super::other_floors::own_stack;
 use super::put_meshes::put_meshes;
@@ -64,14 +65,15 @@ pub(super) fn update_meshes(
     mut seen: Local<Option<(Vec<View>, Sight)>>,
     // Together, as Bevy limits how many things a system can ask for.
     // With the settings: Brightness and whether remembered places show, as
-    // last built.
-    (outside, mut spill, preferences, mut settings_seen, swings, others): (
+    // last built; the fixed lights' glow (fungi, lava).
+    (outside, mut spill, preferences, mut settings_seen, swings, others, fixed): (
         Res<OutsideLight>,
         Local<Spill>,
         Res<Preferences>,
         Local<Option<(u8, bool)>>,
         Res<DoorSwings>,
         Res<OtherLevels>,
+        Res<FixedLights>,
     ),
     // With the player's field of view, and the way it faced when last worked out.
     (
@@ -115,6 +117,7 @@ pub(super) fn update_meshes(
         || heights.is_changed()
         || swings.is_changed()
         || others.is_changed()
+        || fixed.is_changed()
         || *lines_seen != lines.changes
         || *settings_seen != Some(settings)
         || lights
@@ -214,6 +217,9 @@ pub(super) fn update_meshes(
             *window_glow = Spill::from_windows(level, &dungeon.buildings, &town_lights.0);
         }
         light.add(super::daylight::WINDOW_LIGHT, |x, y| window_glow.at(x, y));
+    }
+    if let Some(glow) = &fixed.glow {
+        light.add_grid(glow);
     }
     for (position, source) in &lights {
         light.add_source(level, (position.x, position.y), &source);

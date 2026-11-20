@@ -76,20 +76,20 @@ impl LightGrid {
     /// same rule as sight, from `shared`); it fades slowly at first, then
     /// faster, to nothing just beyond the radius.
     pub fn add_light(&mut self, level: &Level, (x, y): (i64, i64), radius: u32, colour: Vec3) {
-        let mut reached = Sight::new(level);
-        reached.add_view(level, x, y, Some(radius));
-        let reach = radius as f32 + 1.0;
-        let r = radius as i64;
-        for cy in y - r..=y + r {
-            for cx in x - r..=x + r {
-                if !reached.is_seen(cx, cy) {
-                    continue;
-                }
-                let distance = Vec2::new((cx - x) as f32, (cy - y) as f32).length();
-                let strength = 1.0 - (distance / reach).powi(2);
-                if let Some(i) = self.index(cx, cy) {
-                    self.light[i] = brighter(self.light[i], colour * strength);
-                }
+        for ((cx, cy), strength) in reach(level, (x, y), radius) {
+            if let Some(i) = self.index(cx, cy) {
+                self.light[i] = brighter(self.light[i], colour * strength);
+            }
+        }
+    }
+
+    /// Adds `other`'s light, cell by cell (none where it has no cell).
+    pub fn add_grid(&mut self, other: &LightGrid) {
+        for row in 0..self.height {
+            for col in 0..self.width {
+                let i = (row * self.width + col) as usize;
+                let more = other.at(col + self.min_x, row + self.min_y);
+                self.light[i] = brighter(self.light[i], more);
             }
         }
     }
@@ -124,6 +124,26 @@ impl LightGrid {
         }
         (count > 0.0).then(|| total / count)
     }
+}
+
+/// The cells a light at `(x, y)` reaching `radius` cells lights, and how
+/// strongly (0 to 1): walls block it (the same rule as sight, from `shared`);
+/// it fades slowly at first, then faster, to nothing just beyond the radius.
+pub fn reach(level: &Level, (x, y): (i64, i64), radius: u32) -> Vec<((i64, i64), f32)> {
+    let mut reached = Sight::new(level);
+    reached.add_view(level, x, y, Some(radius));
+    let reach = radius as f32 + 1.0;
+    let r = i64::from(radius);
+    let mut lit = Vec::new();
+    for cy in y - r..=y + r {
+        for cx in x - r..=x + r {
+            if reached.is_seen(cx, cy) {
+                let distance = Vec2::new((cx - x) as f32, (cy - y) as f32).length();
+                lit.push(((cx, cy), 1.0 - (distance / reach).powi(2)));
+            }
+        }
+    }
+    lit
 }
 
 /// `light` with `more` added, up to full light: lights never take a cell past

@@ -186,6 +186,14 @@ pub(super) fn spawn_scene(
             },
             MaskSide::InSight,
         )),
+        // Glowing fungi (fungi plan PR 5): as drawn whatever the light.
+        glow: surface_materials.add(masked(
+            StandardMaterial {
+                unlit: true,
+                ..default()
+            },
+            MaskSide::InSight,
+        )),
         // Inside out: only the faces turned away show, round the plant.
         outline: surface_materials.add(masked(
             StandardMaterial {

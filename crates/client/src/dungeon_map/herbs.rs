@@ -24,10 +24,12 @@ pub(super) use pick::{HerbHeading, aim_at_herbs, beside_trunk, pick_on_arrival};
 pub const HERB_STAGES: u32 = STAGES as u32;
 
 /// The plants' materials: their colours (tinted by the outside light), and
-/// their black outlines, drawn inside out.
+/// their black outlines, drawn inside out; and glowing fungi's colours, never
+/// tinted, so they shine in the dark.
 #[derive(Resource)]
 pub(super) struct HerbMaterials {
     pub(super) fill: Handle<SurfaceMaterial>,
+    pub(super) glow: Handle<SurfaceMaterial>,
     pub(super) outline: Handle<SurfaceMaterial>,
 }
 
