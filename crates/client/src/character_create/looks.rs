@@ -41,12 +41,16 @@ pub(super) fn spawn_looks(
 ) {
     let looks_here = draft.kind.def().looks.iter().enumerate();
     for (index, &which) in looks_here.filter(|(_, which)| which.applies(draft.kind, draft.gender)) {
-        let choices = which.choices_for(draft.kind);
-        let selected = draft.appearance.0.get(&which).copied().unwrap_or(0) as usize;
+        // Only the choices its gender may have, by their places in the list.
+        let shown = which.suiting(draft.kind, draft.gender);
+        let all = which.choices_for(draft.kind);
+        let choices: Vec<&Choice> = shown.iter().map(|&at| &all[at as usize]).collect();
+        let chosen = draft.appearance.0.get(&which).copied().unwrap_or(0);
+        let selected = shown.iter().position(|&at| at == chosen).unwrap_or(0);
         let id = UiId::new(FORM, "look").at(index);
         let swatches: Option<Vec<Swatch>> = choices
             .iter()
-            .map(|choice| swatch(choice, pictures, images))
+            .map(|&choice| swatch(choice, pictures, images))
             .collect();
         let names = choices
             .iter()
@@ -62,7 +66,7 @@ pub(super) fn spawn_looks(
                     selected,
                 };
                 spawn_colour_picker(looks, picker, TextSize::Medium, Node::default())
-                    .insert((LookList(which), id));
+                    .insert((LookList(which, shown.clone()), id));
             }
             None => {
                 looks.spawn(field_label(which.name()));
@@ -72,7 +76,7 @@ pub(super) fn spawn_looks(
                     ..default()
                 };
                 spawn_dropdown(looks, list, TextSize::Medium, Node::default())
-                    .insert((LookList(which), id));
+                    .insert((LookList(which, shown.clone()), id));
             }
         }
     }

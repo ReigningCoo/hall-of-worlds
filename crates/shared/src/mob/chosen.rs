@@ -62,7 +62,7 @@ pub fn spawn_at(seed: Seed, kind: CreatureKind, number: u32, position: (i64, i64
         number,
         kind,
         position,
-        appearance: looks(&roll, kind).fitted(gender),
+        appearance: looks(&roll, kind, gender).fitted(kind, gender),
         gender,
         alignment: Alignment::rolled(kind, roll(ALIGNMENT_ROLL)),
         attributes: Attributes::for_kind(

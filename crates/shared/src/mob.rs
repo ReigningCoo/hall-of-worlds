@@ -228,7 +228,7 @@ pub fn spawns(
             number,
             kind,
             position,
-            appearance: looks(&roll, kind).fitted(gender),
+            appearance: looks(&roll, kind, gender).fitted(kind, gender),
             gender,
             alignment: Alignment::rolled(kind, roll(ALIGNMENT_ROLL)),
             attributes: Attributes::for_kind(

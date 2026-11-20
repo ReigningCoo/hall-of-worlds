@@ -6,12 +6,12 @@ use bevy::prelude::*;
 use shared::body::{BLEND_WHOLE, Hair, Layout};
 use shared::sheet::Marks;
 
-use super::super::colours::material;
+use super::super::colours::{FLESH, material};
 use super::super::morph::{MorphLook, blend_colours};
 use super::super::{CAMERA_AT, CAMERA_UP, Part, VIEW_WIDTH};
 use super::{
-    Cover, MARGIN_PIXELS, PIXELS_PER_CELL, TILT, Triangle, build_coated, coat_hair, hair, marks,
-    mesh_of, turn_of, wings,
+    Cover, MARGIN_PIXELS, PIXELS_PER_CELL, TILT, Triangle, build_coated, coat_hair, flesh, hair,
+    marks, mesh_of, turn_of, wings,
 };
 
 /// A token's picture is two cells square.
@@ -50,7 +50,7 @@ pub(in crate::item_art) fn placed(look: &MorphLook) -> Vec<(Vec<Triangle>, [u8; 
     let (fits, middle) = filling(&pieces, turn);
     let scale = (from + (to - from) * share).min(fits);
     let view = view(turn);
-    let [skin, marked, coat, feathers, hair, mane] = pieces;
+    let [skin, marked, coat, feathers, hair, mane, flesh] = pieces;
     [
         (skin, colours.skin),
         (
@@ -61,6 +61,7 @@ pub(in crate::item_art) fn placed(look: &MorphLook) -> Vec<(Vec<Triangle>, [u8; 
         (feathers, colours.feathers),
         (hair, colours.hair),
         (mane, colours.mane),
+        (flesh, FLESH),
     ]
     .into_iter()
     .filter(|(triangles, _)| !triangles.is_empty())
@@ -78,14 +79,15 @@ fn view(turn: f32) -> Quat {
     Quat::from_rotation_x(TILT) * Quat::from_rotation_y(turn)
 }
 
-/// The skin, its markings, a taur's coat, feathers, hair and an animal's long hair.
+/// The skin, its markings, a taur's coat, feathers, hair, an animal's long hair and
+/// bare red skin.
 /// Hair goes on the larger head: a taur's upper body's, unless it is still growing out
 /// of a body whose own head is shrinking away.
 pub(in crate::item_art) fn pieces(
     layout: &Layout,
     styled: Hair,
     marked: Option<Marks>,
-) -> [Vec<Triangle>; 6] {
+) -> [Vec<Triangle>; 7] {
     let ((skin, coat), feathers) = (build_coated(layout), wings(layout));
     let (skin, marked) = marks::split(layout, skin, marked);
     let upper = layout.upper_body();
@@ -94,12 +96,20 @@ pub(in crate::item_art) fn pieces(
         _ => *layout,
     };
     let hair = hair(&head, styled, Cover::default());
-    [skin, marked, coat, feathers, hair, coat_hair(layout)]
+    [
+        skin,
+        marked,
+        coat,
+        feathers,
+        hair,
+        coat_hair(layout),
+        flesh(layout),
+    ]
 }
 
 /// How much to scale these, seen at this turn, to fill a token's picture with room for
 /// its black edge, and their middle as seen.
-fn filling(pieces: &[Vec<Triangle>; 6], turn: f32) -> (f32, Vec3) {
+fn filling(pieces: &[Vec<Triangle>; 7], turn: f32) -> (f32, Vec3) {
     let view = view(turn);
     let (mut low, mut high) = (Vec3::splat(f32::MAX), Vec3::splat(f32::MIN));
     for corner in pieces.iter().flatten().flatten() {

@@ -16,7 +16,7 @@ fn coos_are_mostly_red_brown_and_others_even() {
     let mut rolled = 0u64;
     for n in 0..2000u64 {
         let roll = |what: i64| n.wrapping_mul(0x9e37_79b9_7f4a_7c15) ^ what as u64;
-        let looks = looks(&roll, CreatureKind::Coo);
+        let looks = looks(&roll, CreatureKind::Coo, Gender::Female);
         let coat = looks.choice(CreatureKind::Coo, Trait::CoatColour).unwrap();
         red += u32::from(coat.name == "Red-brown");
         rolled += 1;

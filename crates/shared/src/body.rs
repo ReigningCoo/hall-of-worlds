@@ -42,7 +42,7 @@ pub use measured_heads::{
     WOLF_HEAD,
 };
 pub use measured_person::{MeasuredUpright, PERSON_TRUNK};
-pub use parts::{Ears, Feet, Horns, NONE, Parts, Snout, Tail, Wings};
+pub use parts::{Coat, Ears, Feet, Horns, NONE, Parts, Snout, Tail, Wings};
 pub use proportions::{PERSON, Proportions};
 pub use rings::{HEAD_RINGS, RINGS, Ring};
 pub use taurs::{TAURS, Taur};

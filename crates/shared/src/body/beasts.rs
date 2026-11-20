@@ -4,14 +4,18 @@
 //! usual size, in millimetres: it fills its picture whatever its size.
 
 use super::Layout;
-use super::measured::{COW, DOG, HORSE, Measured, MeasuredRing};
-use super::measured_heads::{COW_HEAD, HORSE_HEAD, MeasuredHead, WOLF_HEAD};
-use super::parts::{Ears, Feet, Horns, NONE, Parts, Snout, Tail, Wings};
+use super::measured::Measured;
+use super::measured_heads::MeasuredHead;
+use super::parts::Parts;
 use crate::creature::CreatureKind;
+use chicken_head::CHICKEN_HEAD;
 pub use sexes::{Sex, Sexes};
+pub use table::BEASTS;
 
 mod build;
+mod chicken_head;
 mod sexes;
+mod table;
 
 /// A beast standing on four legs, level-backed.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -72,177 +76,6 @@ pub struct Beast {
     /// How its males and females differ, if they do: `parts` is a neutral one's.
     pub sexes: Option<Sexes>,
 }
-
-/// The first animals drawn, measured from the research's heights and lengths (the
-/// middle of each range).
-pub const BEASTS: [Beast; 5] = [
-    Beast {
-        name: "Horse",
-        plan: Plan::Fourfoot(Fourfoot {
-            withers: 1580,
-            body: 1100,
-            barrel: (270, 340),
-            fore: [100, 79, 50, 45],
-            hind: [145, 125, 70, 50],
-            foot: 100,
-            neck: (650, 45, 130),
-            head: (860, 45, &HORSE_HEAD),
-            coat: 0,
-            measured: &HORSE,
-        }),
-        parts: Parts {
-            snout: Snout::Muzzle,
-            snout_length: 420,
-            ears: 120,
-            ear_shape: Ears::Upright,
-            tail: 900,
-            feet: Feet::Hooves,
-            mane: 140,
-            tail_hair: 700,
-            ..NONE
-        },
-        sexes: None,
-    },
-    Beast {
-        name: "Wolf",
-        plan: Plan::Fourfoot(Fourfoot {
-            withers: 740,
-            body: 720,
-            barrel: (110, 160),
-            fore: [55, 42, 28, 30],
-            hind: [70, 51, 38, 36],
-            foot: 110,
-            neck: (230, 65, 90),
-            head: (290, 8, &WOLF_HEAD),
-            coat: 25,
-            measured: &DOG,
-        }),
-        parts: Parts {
-            snout: Snout::Long,
-            snout_length: 170,
-            ears: 90,
-            ear_shape: Ears::Upright,
-            tail: 450,
-            tail_shape: Tail::Bushy,
-            feet: Feet::Digitigrade,
-            ..NONE
-        },
-        sexes: None,
-    },
-    Beast {
-        name: "Cattle",
-        plan: Plan::Fourfoot(Fourfoot {
-            withers: 1350,
-            body: 1250,
-            barrel: (320, 380),
-            fore: [105, 78, 46, 42],
-            hind: [130, 103, 58, 51],
-            foot: 104,
-            neck: (420, 75, 170),
-            head: (520, 40, &COW_HEAD),
-            coat: 0,
-            measured: &COW,
-        }),
-        parts: Parts {
-            snout: Snout::Muzzle,
-            snout_length: 330,
-            ears: 130,
-            ear_shape: Ears::Sideways,
-            horns: Horns::Bull,
-            horn_length: 350,
-            tail: 800,
-            tail_shape: Tail::Thin,
-            feet: Feet::Hooves,
-            tail_hair: 220,
-            dewlap: 130,
-            udder: 160,
-            ..NONE
-        },
-        sexes: None,
-    },
-    Beast {
-        name: "Coo",
-        // Highland cattle: lower than other cattle, with a thick double coat, long
-        // horns, a fringe over the eyes and a full switch.
-        plan: Plan::Fourfoot(Fourfoot {
-            withers: 1150,
-            body: 1150,
-            barrel: (300, 350),
-            fore: [100, 76, 46, 42],
-            hind: [124, 98, 56, 50],
-            foot: 100,
-            neck: (360, 75, 170),
-            head: (480, 40, &COW_HEAD),
-            coat: 70,
-            measured: &COW,
-        }),
-        parts: Parts {
-            snout: Snout::Muzzle,
-            snout_length: 290,
-            ears: 130,
-            ear_shape: Ears::Sideways,
-            horns: Horns::Upturned,
-            horn_length: 500,
-            tail: 750,
-            tail_shape: Tail::Thin,
-            feet: Feet::Hooves,
-            tail_hair: 330,
-            dewlap: 110,
-            udder: 140,
-            fringe: 150,
-            ..NONE
-        },
-        sexes: Some(sexes::COO),
-    },
-    Beast {
-        name: "Chicken",
-        plan: Plan::Bird(Bird {
-            hips: 170,
-            body: (240, 65),
-            barrel: (75, 90),
-            leg: 14,
-            neck: (70, 20, 28),
-            head: (80, 0, &CHICKEN_HEAD),
-        }),
-        parts: Parts {
-            snout: Snout::Beak,
-            snout_length: 30,
-            comb: 28,
-            feet: Feet::Talons,
-            wings: Wings::Folded,
-            ..NONE
-        },
-        sexes: None,
-    },
-];
-
-const fn ring(along: i32, half: i32, belly: i32, back: i32) -> MeasuredRing {
-    MeasuredRing {
-        along,
-        half,
-        belly,
-        back,
-    }
-}
-
-/// A hen's head, which no mesh has: drawn by hand in the measured heads' terms (in
-/// thousandths of its length, belly and back up from its line): a round skull high on
-/// the neck, and a short beak pointing a little down.
-pub const CHICKEN_HEAD: MeasuredHead = MeasuredHead {
-    source: "drawn by hand",
-    length: 0,
-    pitch: 0,
-    rings: [
-        ring(-250, 80, 200, 450),
-        ring(-100, 330, 60, 650),
-        ring(50, 380, 20, 700),
-        ring(200, 360, 40, 650),
-        ring(350, 260, 120, 520),
-        ring(500, 120, 200, 380),
-        ring(650, 80, 220, 320),
-        ring(780, 20, 230, 265),
-    ],
-};
 
 impl Beast {
     /// The animal of this kind, by its name.

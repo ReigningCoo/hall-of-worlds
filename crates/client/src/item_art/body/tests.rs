@@ -64,7 +64,7 @@ fn coo_bulls_horns_point_forwards_and_are_thicker_than_cows() {
     let horns = |gender| horns_of(&Layout::of_gender(CreatureKind::Coo, gender).unwrap());
     let (bull, cow) = (horns(Gender::Male), horns(Gender::Female));
     assert_eq!((bull.len(), cow.len()), (2, 2));
-    let reach = |path: &[(Vec3, f32); 3]| path[2].0 - path[0].0;
+    let reach = |path: &Vec<(Vec3, f32)>| path[path.len() - 1].0 - path[0].0;
     // A bull's tip is well forward of its root; a cow's turns up more than forwards.
     assert!(reach(&bull[0]).z > reach(&bull[0]).y);
     assert!(reach(&cow[0]).y > reach(&cow[0]).z);

@@ -16,9 +16,10 @@ use crate::widgets::{
     ButtonPressed, ButtonState, ColourChosen, DropdownChosen, TextBox, TextEdited, TextFocus,
 };
 
-/// The list choosing one of the kind's looks.
+/// The list choosing one of the kind's looks, and the places of the choices it
+/// shows (those the gender may have).
 #[derive(Component)]
-pub(super) struct LookList(pub Trait);
+pub(super) struct LookList(pub Trait, pub Vec<u8>);
 
 /// Shows the screen while the server waits for a character, with the keyboard
 /// in the name box: afresh each time, or, when the server turned the last one
@@ -116,8 +117,10 @@ pub(super) fn read_choices(
             if let Some(&kind) = Draft::playable().get(index) {
                 draft.choose_kind(kind);
             }
-        } else if let Ok(look) = looks.get(list) {
-            draft.appearance.0.insert(look.0, index as u8);
+        } else if let Ok(look) = looks.get(list)
+            && let Some(&choice) = look.1.get(index)
+        {
+            draft.appearance.0.insert(look.0, choice);
         }
     }
 }

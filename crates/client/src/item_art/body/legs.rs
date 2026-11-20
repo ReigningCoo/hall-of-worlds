@@ -1,5 +1,5 @@
 //! A body's legs and feet, by what it stands on: a person's heels down, a lizard's or a
-//! dog's raised heels, hooves, or a bird's toes.
+//! dog's raised heels, hooves, or a bird's toes, webbed or not.
 
 use bevy::prelude::*;
 use shared::body::{Feet, Layout, Limb, Role};
@@ -79,6 +79,7 @@ pub(super) fn build(triangles: &mut Vec<Triangle>, layout: &Layout, leg: &Limb, 
                 ],
             );
         }
+        Feet::Webbed => webbed(triangles, ankle, ankle_radius, foot),
         Feet::Talons => {
             // Three toes forwards and one back, thinning to their claws.
             let spread = ankle_radius * 1.2;
@@ -102,6 +103,28 @@ pub(super) fn build(triangles: &mut Vec<Triangle>, layout: &Layout, leg: &Limb, 
                 Vec3::new(ankle_radius * 1.3, ankle.y / 2.0, (toes.z - heel.z) / 2.0),
             );
         }
+    }
+}
+
+/// A water bird's foot: three toes spread forwards from the ankle, joined by webs to
+/// near their tips, both faces drawn as a web is thin.
+fn webbed(triangles: &mut Vec<Triangle>, ankle: Vec3, radius: f32, foot: f32) {
+    let spread = foot * 0.45;
+    let toes = [
+        (-spread, foot * 0.6),
+        (0.0, foot * 0.75),
+        (spread, foot * 0.6),
+    ]
+    .map(|(across, forwards)| Vec3::new(ankle.x + across, 4.0, ankle.z + forwards));
+    for tip in toes {
+        limb(triangles, &[(ankle, radius * 0.5), (tip, radius * 0.15)]);
+    }
+    let heel = Vec3::new(ankle.x, 6.0, ankle.z + foot * 0.05);
+    for pair in toes.windows(2) {
+        let (a, b) = (pair[0], pair[1]);
+        let (a, b) = (heel.lerp(a, 0.92), heel.lerp(b, 0.92));
+        triangles.push([heel, a, b]);
+        triangles.push([heel, b, a]);
     }
 }
 

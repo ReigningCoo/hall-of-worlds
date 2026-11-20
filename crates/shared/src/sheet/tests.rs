@@ -49,11 +49,11 @@ fn a_female_has_no_beard() {
     assert!(!Trait::Beard.applies(human, Gender::Female));
     assert!(Trait::Beard.applies(CreatureKind::Dwarf, Gender::Male));
     // Fitting drops only the beard, and only for a female.
-    let fitted = bearded.clone().fitted(Gender::Female);
+    let fitted = bearded.clone().fitted(human, Gender::Female);
     assert!(fitted.suits(human, Gender::Female));
     assert_eq!(fitted.0.get(&Trait::HairColour), Some(&1));
     assert_eq!(fitted.hair(human).beard, crate::body::Beard::None);
-    assert_eq!(bearded.clone().fitted(Gender::Male), bearded);
+    assert_eq!(bearded.clone().fitted(human, Gender::Male), bearded);
 }
 
 #[test]
@@ -285,4 +285,26 @@ fn brindled_coats_have_stripes_and_plain_ones_none() {
     // A coo's coat is its body's colour; it has no markings to choose.
     assert_eq!(coat(1).skin(CreatureKind::Coo), Some([186, 140, 82]));
     assert!(!CreatureKind::Coo.def().looks.contains(&Trait::Markings));
+}
+
+#[test]
+fn a_choice_for_one_gender_suits_only_it() {
+    let drake = Choice {
+        name: "Green head",
+        colour: Some([40, 90, 50]),
+        pattern: Pattern::Plain,
+        gender: None,
+    }
+    .only(Gender::Male);
+    assert!(drake.suits(Gender::Male));
+    assert!(!drake.suits(Gender::Female) && !drake.suits(Gender::Neutral));
+    // Every choice there is so far suits every gender.
+    for kind in CreatureKind::ALL {
+        for which in kind.def().looks {
+            for gender in [Gender::Male, Gender::Female, Gender::Neutral] {
+                let all = which.choices_for(kind).len();
+                assert_eq!(which.suiting(kind, gender).len(), all, "{kind:?}");
+            }
+        }
+    }
 }

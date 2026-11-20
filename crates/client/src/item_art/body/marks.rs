@@ -2,7 +2,8 @@
 //! coat's colour and those in the markings', by where each is on the body: under the
 //! trunk's middle for a pale belly, parts of a measured head for a face, and patches
 //! from the markings' own number laid over the trunk, neck, head and tops of the legs;
-//! a brindle's wavy stripes across the trunk, neck and legs.
+//! a brindle's wavy stripes across the trunk, neck and legs; a drake's hood (the head
+//! and the neck's top half) and a cock's hackles (the neck but its underside).
 //! Triangles are halved along each side first, so the edges are less jagged.
 
 use bevy::prelude::*;
@@ -95,7 +96,23 @@ impl<'a> Body<'a> {
             .patches
             .is_some_and(|layout| self.patched(part) && self.patch_at(layout, at));
         let striped = marks.stripes && self.striped(part, at);
-        belly || face || patched || striped
+        // A drake's hood: the head and the neck's top half; a cock's hackles: the
+        // neck but its underside.
+        let hood = marks.hood
+            && match part {
+                BodyPart::HEAD => on_head.is_some(),
+                BodyPart::NECK => self.up_neck(at) > 0.5,
+                _ => false,
+            };
+        let hackles = marks.hackles && part == BodyPart::NECK && !self.under_neck(at);
+        belly || face || patched || striped || hood || hackles
+    }
+
+    /// How far up the neck a point is, from its root (0) to the head (1).
+    fn up_neck(&self, at: Vec3) -> f32 {
+        let root = trunk::neck_root(self.layout);
+        let neck = point(self.layout.chin()) - root;
+        (at - root).dot(neck) / neck.length_squared().max(1.0)
     }
 
     /// Whether a point is in a brindle's stripes: wavy bands across the trunk and

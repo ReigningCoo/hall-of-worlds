@@ -12,7 +12,8 @@ pub(super) fn rear(triangles: &mut Vec<Triangle>, layout: &Layout) {
     if layout.parts.abdomen > 0 {
         abdomen(triangles, layout);
     }
-    if layout.parts.tail > 0 {
+    // A fan of feathers is drawn with the wings (`wings`).
+    if layout.parts.tail > 0 && layout.parts.tail_shape != Tail::Fan {
         tail(triangles, layout, layout.parts.tail as f32);
     }
 }
@@ -36,9 +37,13 @@ pub(super) fn skull(layout: &Layout) -> Vec3 {
     point(layout.chin()) + Vec3::Y * (layout.head.length / 2) as f32
 }
 
-/// The feathers of wings, if it has any: drawn apart from the skin, in their own colour.
+/// The feathers of wings and a fanned tail, if it has any: drawn apart from the skin,
+/// in their own colour.
 pub(in crate::item_art) fn wings(layout: &Layout) -> Vec<Triangle> {
     let mut triangles = Vec::new();
+    if layout.parts.tail > 0 && layout.parts.tail_shape == Tail::Fan {
+        super::fan::build(&mut triangles, layout, layout.parts.tail as f32);
+    }
     if layout.parts.wings == Wings::Folded {
         folded(&mut triangles, layout);
     }
@@ -80,6 +85,12 @@ pub(super) fn head(triangles: &mut Vec<Triangle>, layout: &Layout, parts: &Parts
             across * 0.5,
             across * 0.15,
         )),
+        Snout::Bill => Some((
+            at(0.0, -up * 0.15, deep * 0.7),
+            -up * 0.1,
+            across * 0.55,
+            across * 0.4,
+        )),
         Snout::Beak => Some((
             at(0.0, -up * 0.1, deep * 0.7),
             -up * 0.25,
@@ -113,7 +124,7 @@ pub(super) fn head(triangles: &mut Vec<Triangle>, layout: &Layout, parts: &Parts
         let thick = (horn * 0.12).max(8.0);
         match parts.horns {
             Horns::None => {}
-            Horns::Back => {
+            Horns::Back | Horns::Spiral => {
                 let base = at(out * across * 0.5, up * 0.75, deep * 0.1);
                 limb(
                     triangles,
@@ -219,7 +230,7 @@ pub(in crate::item_art) fn tail_path(layout: &Layout, length: f32) -> [(Vec3, f3
     let [root, first, second, tip] = match tail_shape {
         Tail::Plain => [thick, thick * 0.7, thick * 0.4, 8.0],
         Tail::Bushy => [thick * 0.9, thick * 1.35, thick * 1.2, thick * 0.45],
-        Tail::Thin | Tail::Tufted => [thick * 0.5, thick * 0.35, thick * 0.28, 6.0],
+        Tail::Thin | Tail::Tufted | Tail::Fan => [thick * 0.5, thick * 0.35, thick * 0.28, 6.0],
     };
     [
         (base, root),

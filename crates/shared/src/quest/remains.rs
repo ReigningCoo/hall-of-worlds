@@ -19,7 +19,8 @@ pub(super) fn natural_parts(kind: CreatureKind) -> Vec<(BodyPart, u64)> {
             found.push((part, weight));
         }
     };
-    has(BodyPart::Tooth, 2, !muzzle && parts.snout != Snout::Beak);
+    let beaked = matches!(parts.snout, Snout::Beak | Snout::Bill);
+    has(BodyPart::Tooth, 2, !muzzle && !beaked);
     has(BodyPart::Fang, 3, muzzle);
     has(
         BodyPart::Claw,
