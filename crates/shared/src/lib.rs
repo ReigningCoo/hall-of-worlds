@@ -45,6 +45,7 @@ pub mod item_form;
 pub mod item_text;
 pub mod juice;
 pub mod lang;
+pub mod livestock;
 pub mod magic;
 pub mod map_mark;
 pub mod material;
