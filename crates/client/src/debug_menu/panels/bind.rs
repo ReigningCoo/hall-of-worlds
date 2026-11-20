@@ -6,8 +6,9 @@ use bevy::prelude::*;
 use super::super::bodies::BodiesToShow;
 use super::html_sample::HTML_SAMPLE;
 use super::{
-    alignment, change_creature, create_mob, dev_area, examine_mob, generate, give, herbs,
-    learn_skills, pictures_spawn, place_furniture, steps, teleport_to_world, vitals, world_time,
+    alignment, change_creature, create_bench, create_mob, dev_area, examine_mob, generate, give,
+    herbs, learn_skills, pictures_spawn, place_furniture, steps, teleport_to_world, vitals,
+    world_time,
 };
 use crate::dom::{Dom, document};
 use crate::widgets::UiId;
@@ -45,6 +46,7 @@ pub(in crate::debug_menu) fn bind_panels(
             herbs::FORM => herbs::bind(&mut bound, id),
             "debug.generate_poi" => generate::bind(&mut bound, id, &mut dom),
             place_furniture::FORM => place_furniture::bind(&mut bound, id),
+            create_bench::FORM => create_bench::bind(&mut bound, id),
             teleport_to_world::FORM => teleport_to_world::bind(&mut bound, id, &mut dom),
             _ => {}
         }

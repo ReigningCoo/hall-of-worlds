@@ -31,6 +31,9 @@ pub enum ClickMode {
     /// Puts the piece Place Furniture has set up on the cell (in a site), or
     /// the next variation of it when clicked again (`FurnitureClicked`).
     PlaceFurniture,
+    /// Puts the crafting bench Create Crafting Bench has set up on the cell
+    /// (in a site), shown first as a ghost (`BenchGhost`); right click turns it.
+    PlaceBench,
 }
 
 /// Whether the client is connected to the server (set by `connection`).

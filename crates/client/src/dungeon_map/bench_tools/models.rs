@@ -21,8 +21,8 @@ const GRID: f32 = 0.25;
 
 /// A tool's meshes: its colours, its outline and its sepia copy.
 #[derive(Clone, Debug)]
-pub(super) struct ToolMeshes {
-    pub(super) fill: Handle<Mesh>,
+pub(in crate::dungeon_map) struct ToolMeshes {
+    pub(in crate::dungeon_map) fill: Handle<Mesh>,
     pub(super) outline: Handle<Mesh>,
     pub(super) memory: Handle<Mesh>,
 }
@@ -33,7 +33,7 @@ pub(in crate::dungeon_map) struct ToolModels(HashMap<ItemKind, Option<ToolMeshes
 
 impl ToolModels {
     /// The model of a tool of `kind`, built if it hasn't been.
-    pub(super) fn get(
+    pub(in crate::dungeon_map) fn get(
         &mut self,
         kind: ItemKind,
         meshes: &mut Assets<Mesh>,

@@ -37,6 +37,7 @@ impl DebugAction {
             Self::RemakeSite => DebugTool::RemakeSite,
             Self::ChangeCellMode => DebugTool::ChangeCellMode,
             Self::PlaceFurniture => DebugTool::PlaceFurniture,
+            Self::CreateCraftingBench => DebugTool::CreateCraftingBench,
             Self::OpenAllDoors => DebugTool::OpenAllDoors,
             Self::CloseAllDoors => DebugTool::CloseAllDoors,
             Self::KeyForThisDoor => DebugTool::KeyForThisDoor,

@@ -10,6 +10,7 @@
 //! (`theme`). Light is dull everywhere, and brighter near light sources, which
 //! walls block. Left-click a seen walkable cell to travel there.
 
+mod bench_ghost;
 mod bench_picking;
 mod bench_tools;
 mod bolts;
@@ -205,6 +206,14 @@ impl Plugin for DungeonMapPlugin {
                     .after(PlayerSystems::Travel)
                     .after(View3dSystems::Place)
                     .run_if(in_view),
+            )
+            .add_systems(
+                Update,
+                (bench_ghost::follow_pointer, bench_ghost::draw_ghost)
+                    .chain()
+                    .after(PlayerSystems::Travel)
+                    .after(View3dSystems::Place)
+                    .run_if(in_state(GameView::Dungeon)),
             )
             .add_systems(
                 Update,

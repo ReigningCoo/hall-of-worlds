@@ -135,6 +135,7 @@ pub(super) fn run_actions(
             | DebugAction::LearnSkills
             | DebugAction::Herbs
             | DebugAction::PlaceFurniture
+            | DebugAction::CreateCraftingBench
             | DebugAction::ItemPictures
             | DebugAction::ShowWidgets
             | DebugAction::TeleportToWorld

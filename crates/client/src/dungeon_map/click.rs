@@ -22,8 +22,9 @@ use crate::view3d::{ClickedToken, ViewCamera};
 /// stairs, by arriving on their cell. In Teleport Mode it asks the server to teleport
 /// the player there, and in Change Cell Mode it changes the cell (floor, wall,
 /// door, window, and round again) to try walls out (dev tools); in Mob Mode it
-/// puts a mob made to order there, and in Furniture Mode it says which cell
-/// was clicked (`FurnitureClicked`), for Place Furniture's panel. A click on
+/// puts a mob made to order there, and in Furniture Mode or Bench Mode it says
+/// which cell was clicked (`FurnitureClicked`), for Place Furniture's or
+/// Create Crafting Bench's panel. A click on
 /// a crafting bench is `BenchClicked`.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn pick_on_click(
@@ -69,7 +70,7 @@ pub(super) fn pick_on_click(
         }
         return;
     }
-    if *mode == ClickMode::PlaceFurniture {
+    if matches!(*mode, ClickMode::PlaceFurniture | ClickMode::PlaceBench) {
         if let Some((x, y)) = super::picking::floor_cell(ray, ground) {
             furniture.write(FurnitureClicked { x, y });
         }

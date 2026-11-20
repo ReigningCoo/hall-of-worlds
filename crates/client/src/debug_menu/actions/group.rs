@@ -63,6 +63,7 @@ impl DebugAction {
             | Self::RemakeSite
             | Self::ChangeCellMode
             | Self::PlaceFurniture
+            | Self::CreateCraftingBench
             | Self::OpenAllDoors
             | Self::CloseAllDoors
             | Self::KeyForThisDoor => Group::Level,

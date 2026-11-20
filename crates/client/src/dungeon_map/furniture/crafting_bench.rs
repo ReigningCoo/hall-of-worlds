@@ -59,6 +59,18 @@ pub(super) fn parts(piece: &Piece) -> Option<Vec<Part>> {
     Some(parts)
 }
 
+/// Its parts as plain boxes in the world (on flat ground: the caller raises
+/// them with the ground), lowest corner first, for Create Crafting Bench's
+/// ghost; nothing for anything else.
+pub(in crate::dungeon_map) fn ghost_boxes(piece: &Piece) -> Vec<(Vec3, Vec3)> {
+    let frame = Frame::of(piece);
+    let boxes = parts(piece).unwrap_or_default().into_iter().map(|part| {
+        let (a, b) = (frame.place(part.low), frame.place(part.high));
+        (a.min(b), a.max(b))
+    });
+    boxes.collect()
+}
+
 /// Where across its depth the shelf lies: its rear third, by the wall behind
 /// (a bench faces away from it, `Piece::facing`), within the top's inset.
 fn shelf_band(piece: &Piece, depth: f32) -> (f32, f32) {

@@ -92,8 +92,9 @@ impl Default for CreateMobOrder {
     }
 }
 
-/// Debug: a cell clicked in Furniture Mode (`ClickMode::PlaceFurniture`), for
-/// Place Furniture's panel to say what goes there.
+/// Debug: a cell clicked in Furniture Mode (`ClickMode::PlaceFurniture`) or
+/// Bench Mode (`ClickMode::PlaceBench`), for Place Furniture's or Create
+/// Crafting Bench's panel to say what goes there.
 #[derive(Message, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct FurnitureClicked {
     pub x: i64,

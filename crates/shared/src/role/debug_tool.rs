@@ -41,6 +41,9 @@ pub enum DebugTool {
     RemakeSite,
     ChangeCellMode,
     PlaceFurniture,
+    /// Create Crafting Bench: a bench with chosen tools, kept in the level's
+    /// save.
+    CreateCraftingBench,
     OpenAllDoors,
     CloseAllDoors,
     KeyForThisDoor,
@@ -60,7 +63,7 @@ pub enum DebugTool {
 }
 
 impl DebugTool {
-    pub const ALL: [Self; 36] = [
+    pub const ALL: [Self; 37] = [
         Self::ShowDebugInfo,
         Self::LightningNow,
         Self::SunsAndMoons,
@@ -88,6 +91,7 @@ impl DebugTool {
         Self::RemakeSite,
         Self::ChangeCellMode,
         Self::PlaceFurniture,
+        Self::CreateCraftingBench,
         Self::OpenAllDoors,
         Self::CloseAllDoors,
         Self::KeyForThisDoor,

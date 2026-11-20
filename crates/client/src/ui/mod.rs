@@ -93,6 +93,7 @@ fn update_status_text(
         ClickMode::ChangeCell => "Change Cell Mode",
         ClickMode::PlaceMob => "Mob Mode",
         ClickMode::PlaceFurniture => "Furniture Mode",
+        ClickMode::PlaceBench => "Bench Mode",
     };
     let says = [
         (god.0, GOD_MODE_ICON),

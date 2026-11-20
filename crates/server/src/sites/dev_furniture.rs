@@ -3,8 +3,7 @@
 //! Not kept: the level is made afresh, as furnished, when next loaded.
 
 use bevy::prelude::*;
-use shared::dungeon::Cell;
-use shared::furniture::Piece;
+use shared::furniture::{Piece, takes_furniture};
 
 use super::doors::changed_at;
 use super::update_sight;
@@ -17,16 +16,6 @@ use crate::storage::SiteId;
 pub(crate) struct FurnitureChange {
     pub(crate) place: (SiteId, u32),
     pub(crate) piece: Piece,
-}
-
-/// Whether furniture may be put on a cell: floor or open ground, not a
-/// doorway, a gate, water or a bridge.
-pub(super) fn takes_furniture(cell: Cell) -> bool {
-    cell.is_walkable()
-        && !matches!(
-            cell,
-            Cell::Door | Cell::FieldGate | Cell::WorldGate | Cell::Shallows | Cell::Bridge
-        )
 }
 
 /// Checks the piece (a shape furnishing could make, on the level's floor, off
