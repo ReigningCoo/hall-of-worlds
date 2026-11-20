@@ -15,7 +15,7 @@
 use bevy::prelude::*;
 use shared::ability::Ability;
 use shared::alchemy::{
-    AlchemyOrder, AlchemySkills, CERTAIN, HERB_PRACTICE, OrderStep, Outcome, Product,
+    AlchemyOrder, AlchemySkills, CERTAIN, HERB_PRACTICE, Known, OrderStep, Outcome, Product,
     STEP_PRACTICE, lesson, new_mixture, new_salt, outcome, run_ticks,
 };
 use shared::brewing::brewed_into;
@@ -108,8 +108,13 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
             Alchemised::Failed
         }
         Outcome::Made { product, quality } => {
-            if let Some(lesson) = lesson(planned, &client.sheet.herbs) {
-                client.sheet.herbs.learn_effect(&lesson.herb, lesson.effect);
+            let sheet = &mut client.sheet;
+            let known = Known {
+                herbs: &sheet.herbs,
+                fungi: &sheet.fungi,
+            };
+            if let Some(lesson) = lesson(planned, known) {
+                lesson.learn(&mut sheet.herbs, &mut sheet.fungi);
             }
             salt = planned.salt;
             if salt > 0 {

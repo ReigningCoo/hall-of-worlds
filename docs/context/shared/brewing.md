@@ -8,7 +8,8 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `brewing/skill.rs`: `BrewSkills`, `square_root`, and the limits from skills: `per_herb_cap`, `stat_cap`, `most_kinds`, `most_doses`, `cut_steps`.
 - `brewing/boost.rs`: `boosted` (+25%, at least 1), `stat_row`, `oil_suits`.
 - `brewing/cut.rs`: `cut_unwanted` (Herbalism's cuts).
-- `brewing/grind.rs`: `GroundHerb`, `Ointment`, `Refused`, `herb_steps`, `grind`, `ground_doses`.
+- `brewing/grind.rs`: `Ointment`, `Refused`, `herb_steps`, `grind`, `ground_doses`.
+- `brewing/ingredient.rs`: `Ingredient` (Herb or Fungus), `GroundHerb` (`herb`, `fungus`, `same_kind`).
 - `brewing/brew.rs`: `watered`, `brew`, `POTION_AT`, `KEPT_FROM`.
 - `brewing/ointment.rs`: `OintmentForm`, `new_ointment`, `OINTMENT_GRAMS`, `Item::ointment`.
 - `brewing/stacks.rs`: `HerbStack`, `OilStack`, `Inventory::herb_stacks`, `oil_stacks`. Tests in `brewing/grind_item_tests.rs` (with the other PR 6 pieces).
@@ -25,7 +26,8 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `BrewSkills { alchemy, herbalism }` (hundredths of a percent, as `herb::skill_value`): `of(skills)`, `alchemy_percent`, `herbalism_percent`.
 - Limits: `per_herb_cap` (√Alchemy% + 1, 1 to 11 steps an effect a herb), `stat_cap` (4 × that, 4 to 44), `most_kinds` (4 + ∛Alchemy%, 4 to 8), `most_doses` (∛Alchemy% + 1, 1 to 5), `cut_steps` (∛Herbalism%, 0 to 4). `square_root` (whole, rounded down).
 - `herb_steps(effect, quality, skills)`: one herb's steps on one effect: `change × herb::potency`, rounded to the nearest, capped.
-- `grind(herbs: &[GroundHerb { def, quality }], oil, doses, skills) -> Result<Ointment { contents, doses }, Refused>`: refuses no herbs, the same herb twice (by key, whatever the quality), more kinds than `most_kinds`, doses outside 1 to `most_doses`. Steps added per stat (opposites cancel), the oil's row `boosted`, each stat clamped to `stat_cap`, then `cut_unwanted`. Contents can be empty. The caller checks `doses` of each herb and the oil are carried and takes them. `ground_doses(herbs, Option<Oil>, skills)`: the same sums without the checks, also for the Alchemy plan's Mortar (`shared::alchemy`; no oil, no boost).
+- `GroundHerb { ingredient, key, effects, quality }`: one kind in a mix, `GroundHerb::herb(def, quality)` or `GroundHerb::fungus(def)` (a fungus's four herb effects, Common: fungi have no quality, fungi plan PR 8); `same_kind` by ingredient and key, so a herb and a fungus sharing a key are two kinds.
+- `grind(herbs: &[GroundHerb], oil, doses, skills) -> Result<Ointment { contents, doses }, Refused>`: refuses no herbs, the same herb twice (`same_kind`, whatever the quality), more kinds than `most_kinds`, doses outside 1 to `most_doses`. Steps added per stat (opposites cancel), the oil's row `boosted`, each stat clamped to `stat_cap`, then `cut_unwanted`. Contents can be empty. The caller checks `doses` of each herb and the oil are carried and takes them. `ground_doses(herbs, Option<Oil>, skills)`: the same sums without the checks, also for the Alchemy plan's Mortar (`shared::alchemy`; no oil, no boost).
 - `cut_unwanted(&mut [(Stat, i32)], steps)`: the wanted way is the largest dose's sign; steps off the others one at a time, round robin from the largest.
 - `boosted(step)`, `stat_row(stat)` (Health Body, Mana Mind), `oil_suits(oil) -> Option<Row>` (Grain Body, Nut Mind, Seed Spirit, Neutral none).
 - `watered(ointment, water)`: Cave Water boosts harmful doses, Moon Water helpful ones, Salt Water takes the strongest helpful dose, Rain Water the strongest harmful one, Water nothing. `brew(ointment, water) -> Option<Contents>`: after the water, a potion if any dose reaches `POTION_AT` (4), keeping doses of `KEPT_FROM` (2) or more; `None` otherwise (ingredients still used, practice still given: the caller's).
@@ -34,7 +36,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 - `on_skin(ointment)`: each dose ÷ `ON_SKIN_SHARE` (4), towards 0, zeros dropped; it lasts as `duration_*` of the ointment's own `quality`.
 
 - Ointment (PR 6): `ItemKind::Ointment` with `ItemForm::Ointment(OintmentForm { contents })`, counted, its quality `quality(contents)` (`new_ointment(contents, count, id)`), 60 g each.
-- `herb_stacks()` (by herb, best quality first; never worn or quest items) and `oil_stacks()`: what Alchemy's Mortar can take (`alchemy::check_alchemy`).
+- `herb_stacks()` (`HerbStack { stack, ingredient, herb, quality, count }`: herbs, then whole fungi with herb effects (not servings), by key, best quality first; never worn or quest items) and `oil_stacks()`: what Alchemy's Mortar can take (`alchemy::check_alchemy`).
 - `Recipe { herbs (keys, sorted), oil, made, brewed }` (`new`, `same_mix`; `brewed: Option<BrewedWith { water, potion }>`, what its ointment last brewed into, none in older saves), `Recipes` (`remember`: to the front, the same mix replaced, at most `MOST_RECIPES` 20; `brewed(made, with)`: noted on the latest mix whose `made` is those doses; `iter`): saved on `Sheet::recipes`, sent with the sheet.
 - `ointment_stacks()` (best quality first) and `water_stacks()` (by water) for Alchemy's panel. `brewed_into(bottle, potion)`: the bottle holding the potion, its look kept and its quality `quality(potion)` (Alchemy then sets its own), or empty.
 - `learn_from_potion(known, recipes, herbs, ointment, potion)`: each herb of the mix remembered as making `ointment` learns its effects on the potion's stats; whether anything was new. An ointment no remembered mix made teaches nothing.
@@ -44,7 +46,7 @@ The brewing rules (brewing plan PR 4, owner's decisions 6 to 16 and 18 in `docs/
 
 ## Depends on
 
-- `herb` (`HerbDef`, `Effect`, `Stat`, `potency`, `cube_root`, `skill_value`, `skill_percent`, `HERBALISM`, `Herbs`), `potion` (`Contents`, `Dose`, `Oil`, `Water`, `Liquid`, `BottleForm`), `bonus` (`Effect`, `Source`, `Bonus`), `vitals` (`Vital`, `PER_POINT`), `id`, `item_form` (`ItemForm`), `ability` (`ALCHEMY`), `sheet` (`Row`), `item` (`Quality`), `energy` (`ACTION_TICKS_PER_SECOND`), `skill` (`Skills`).
+- `fungus` (`Fungi`, `FungusDef`, `Item::fungus`), `herb` (`HerbDef`, `Effect`, `Stat`, `potency`, `cube_root`, `skill_value`, `skill_percent`, `HERBALISM`, `Herbs`), `potion` (`Contents`, `Dose`, `Oil`, `Water`, `Liquid`, `BottleForm`), `bonus` (`Effect`, `Source`, `Bonus`), `vitals` (`Vital`, `PER_POINT`), `id`, `item_form` (`ItemForm`), `ability` (`ALCHEMY`), `sheet` (`Row`), `item` (`Quality`), `energy` (`ACTION_TICKS_PER_SECOND`), `skill` (`Skills`).
 
 ## Used by
 

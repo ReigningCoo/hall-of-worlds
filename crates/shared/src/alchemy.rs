@@ -34,7 +34,7 @@ pub use apparatus::{Apparatus, CALCINING, CIRCULATING, DISTILLING, FILTERING, GR
 pub use batch::ALCOHOL_A_BOTTLE;
 pub use chance::{CERTAIN, chance, square_root_up, steps_allowed, succeeds};
 pub use crucible::POWDER_PERCENT;
-pub use learn::{Lesson, Seen, lesson, preview};
+pub use learn::{Known, Lesson, Seen, lesson, preview};
 pub use mix::{HUNDREDTHS, Mix, boosted};
 pub use mortar::{Contribution, TINCTURE_PERCENT};
 pub use order::{AlchemyOrder, Checked, MOST_REPEATS, OrderRefused, OrderStep};
@@ -54,6 +54,8 @@ pub use transform::{TRANSFORMATIONS, Transformation, made_from, transformation};
 mod alembic_tests;
 #[cfg(test)]
 mod crucible_tests;
+#[cfg(test)]
+mod fungus_tests;
 #[cfg(test)]
 mod order_tests;
 #[cfg(test)]

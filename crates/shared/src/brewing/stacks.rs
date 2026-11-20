@@ -1,14 +1,21 @@
 //! The carried herb and oil stacks Alchemy's panel can offer for a Mortar
-//! (they were Grind's, brewing plan PR 6, before the Alchemy plan replaced it).
+//! (they were Grind's, brewing plan PR 6, before the Alchemy plan replaced it),
+//! herbs including the fungi used like herbs (fungi plan PR 8).
 
+use super::Ingredient;
+use crate::fungus::Fungi;
 use crate::id::Id;
 use crate::item::{Inventory, Item, ItemKind, Quality};
 use crate::potion::{Liquid, Oil};
 
-/// A carried stack the Alchemy panel can offer as a herb.
+/// A carried stack the Alchemy panel can offer as a herb: a herb, or a
+/// fungus with herb effects (Common, as fungi have no quality).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HerbStack {
     pub stack: Id,
+    /// Which table `herb` is from.
+    pub ingredient: Ingredient,
+    /// The herb's (or fungus's) key.
     pub herb: String,
     pub quality: Quality,
     pub count: u32,
@@ -22,6 +29,17 @@ pub struct OilStack {
     pub count: u32,
 }
 
+/// What a Mortar can grind an item as: a herb, or a fungus with herb effects
+/// (not a serving cut from one), by key.
+fn ingredient_of(item: &Item) -> Option<(Ingredient, String)> {
+    if let Some(herb) = item.herb() {
+        return Some((Ingredient::Herb, herb.herb.clone()));
+    }
+    let fungus = item.fungus().filter(|fungus| !fungus.serving)?;
+    let def = Fungi::built_in().get(&fungus.fungus)?;
+    (!def.herb.is_empty()).then(|| (Ingredient::Fungus, fungus.fungus.clone()))
+}
+
 /// Whether a carried stack may be used up: not worn (a herb pouch's
 /// contents are carried, not worn).
 fn usable(carried: &Inventory, item: &Item) -> bool {
@@ -29,21 +47,27 @@ fn usable(carried: &Inventory, item: &Item) -> bool {
 }
 
 impl Inventory {
-    /// Every carried herb stack, by herb key then best quality first.
+    /// Every carried herb stack, then every stack of a fungus with herb
+    /// effects (whole ones, not servings), each by key then best quality
+    /// first.
     pub fn herb_stacks(&self) -> Vec<HerbStack> {
-        let herbs = self.stacks_where(|top| top.kind == ItemKind::Herb);
-        let mut found: Vec<HerbStack> = herbs
+        let stacks = self.stacks_where(|top| matches!(top.kind, ItemKind::Herb | ItemKind::Fungus));
+        let mut found: Vec<HerbStack> = stacks
             .filter(|(stack, _)| usable(self, stack))
             .filter_map(|(stack, _)| {
+                let (ingredient, herb) = ingredient_of(stack.top())?;
                 Some(HerbStack {
                     stack: stack.id,
-                    herb: stack.top().herb()?.herb.clone(),
+                    ingredient,
+                    herb,
                     quality: stack.top().quality.unwrap_or(Quality::Common),
                     count: stack.count(),
                 })
             })
             .collect();
-        found.sort_by(|a, b| (&a.herb, b.quality).cmp(&(&b.herb, a.quality)));
+        found.sort_by(|a, b| {
+            (a.ingredient, &a.herb, b.quality).cmp(&(b.ingredient, &b.herb, a.quality))
+        });
         found
     }
 

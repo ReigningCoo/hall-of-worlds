@@ -138,10 +138,7 @@ fn herbs_to_potion() {
         alchemy: 10_000,
         herbalism: 10_000,
     };
-    let herb = GroundHerb {
-        def: &def,
-        quality: Quality::Artifact,
-    };
+    let herb = GroundHerb::herb(&def, Quality::Artifact);
     let ointment = grind(&[herb], Oil::Grain, 5, skills).unwrap();
     // 6 boosted to 7; Will -2 cut away by Herbalism.
     assert_eq!(doses(&ointment.contents), [(S, 7)]);

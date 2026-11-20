@@ -1,7 +1,9 @@
 //! The Retort's solids and transformations (Alchemy plan PR 8).
 
+use super::tests::knowing;
 use super::*;
 use crate::bonus::{Bonus, Stat as BonusStat};
+use crate::brewing::Ingredient;
 use crate::brewing::drunk;
 use crate::dungeon::{CARRIED_LIGHT, MOST_DARKVISION, darkvision_reach};
 use crate::herb::{HerbKnowledge, Stat};
@@ -168,17 +170,18 @@ fn darkvision_is_learned_through_perception() {
     assert_eq!(made_from(Stat::Will), Stat::Will);
     let mut planned = retorted(&[(Stat::Perception, 6)], Some(carrot())).unwrap();
     planned.contributions = vec![Contribution {
+        ingredient: Ingredient::Herb,
         herb: "eyebright".into(),
         effect: 0,
         stat: Stat::Perception,
         steps: 6,
     }];
     let mut known = HerbKnowledge::default();
-    assert_eq!(preview(&planned, &known), vec![Seen::Unknown]);
-    let lesson = lesson(&planned, &known).unwrap();
+    assert_eq!(preview(&planned, knowing(&known)), vec![Seen::Unknown]);
+    let lesson = lesson(&planned, knowing(&known)).unwrap();
     assert_eq!((lesson.herb.as_str(), lesson.effect), ("eyebright", 0));
     known.learn_effect("eyebright", 0);
-    let seen = preview(&planned, &known);
+    let seen = preview(&planned, knowing(&known));
     assert_eq!(seen, vec![Seen::Known(dose(Stat::Darkvision, 6))]);
 }
 

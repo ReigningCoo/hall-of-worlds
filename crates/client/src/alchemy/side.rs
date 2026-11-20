@@ -5,7 +5,7 @@
 //! it is known on every herb that gives to it (`shared::alchemy::preview`).
 
 use bevy::prelude::*;
-use shared::alchemy::{AlchemySkills, OrderRefused, preview, steps_allowed};
+use shared::alchemy::{AlchemySkills, Known, OrderRefused, preview, steps_allowed};
 use shared::protocol::ClientMessage;
 
 use super::bench::{Bench, Running};
@@ -114,7 +114,11 @@ pub(super) fn show_side(
     }
     match &checked {
         Ok(checked) => {
-            let seen = preview(&checked.planned, &sheet.0.herbs);
+            let known = Known {
+                herbs: &sheet.0.herbs,
+                fungi: &sheet.0.fungi,
+            };
+            let seen = preview(&checked.planned, known);
             dom.set_text("alchemy/product_name", product_name(&checked.planned));
             dom.set_text("alchemy/chance", chance_words(checked.planned.chance));
             dom.set_text("alchemy/effects", effect_words(&seen));

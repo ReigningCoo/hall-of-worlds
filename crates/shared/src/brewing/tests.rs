@@ -26,10 +26,7 @@ fn herb(key: &str, effects: &[(Stat, i8)]) -> HerbDef {
 }
 
 fn common(def: &HerbDef) -> GroundHerb<'_> {
-    GroundHerb {
-        def,
-        quality: Quality::Common,
-    }
+    GroundHerb::herb(def, Quality::Common)
 }
 
 fn doses(contents: &Contents) -> Vec<(Stat, i16)> {
@@ -106,13 +103,7 @@ fn refusals() {
 #[test]
 fn the_same_herb_at_two_qualities_is_still_the_same_herb() {
     let a = herb("a", &[(Stat::Strength, 1)]);
-    let mix = [
-        common(&a),
-        GroundHerb {
-            def: &a,
-            quality: Quality::Rare,
-        },
-    ];
+    let mix = [common(&a), GroundHerb::herb(&a, Quality::Rare)];
     assert_eq!(
         grind(&mix, Oil::Nut, 1, skills(0, 0)),
         Err(Refused::SameHerb)
@@ -277,7 +268,7 @@ fn every_built_in_herb_grinds_within_the_caps() {
     for def in herbs.iter() {
         for quality in Quality::ALL {
             for oil in Oil::ALL {
-                let made = grind(&[GroundHerb { def, quality }], oil, 5, full).unwrap();
+                let made = grind(&[GroundHerb::herb(def, quality)], oil, 5, full).unwrap();
                 for dose in made.contents.doses() {
                     assert!(dose.step.abs() <= 44, "{} {dose:?}", def.key);
                 }
