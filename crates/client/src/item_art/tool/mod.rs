@@ -113,3 +113,6 @@ fn iron(materials: &mut Assets<StandardMaterial>) -> Handle<StandardMaterial> {
         ..default()
     })
 }
+
+#[cfg(test)]
+mod tests;

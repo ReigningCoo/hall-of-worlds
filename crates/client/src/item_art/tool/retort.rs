@@ -1,14 +1,15 @@
 //! The Retort (Alchemy plan PR 3): a round glass bulb on a small ring stand,
 //! its long neck rising and bending down to the right, as alchemists drew it.
-//! One cell wide, two long.
+//! One cell wide, two long: kept narrow enough for its picture, edge and all
+//! (`tests.rs`).
 
 use bevy::prelude::*;
 
 use super::{Part, iron};
 
 /// The bulb's radius, and where its middle is.
-const BULB: f32 = 0.42;
-const MIDDLE: Vec3 = Vec3::new(-0.2, -0.35, 0.0);
+const BULB: f32 = 0.36;
+const MIDDLE: Vec3 = Vec3::new(-0.12, -0.3, 0.0);
 
 pub(super) fn retort_parts(
     meshes: &mut Assets<Mesh>,
@@ -29,9 +30,9 @@ pub(super) fn retort_parts(
     };
     // The neck: up out of the bulb, then a long arm leaning down to the right.
     let top = MIDDLE + Vec3::new(0.0, BULB + 0.12, 0.0);
-    let lean = 2.1_f32;
+    let lean = 2.45_f32;
     let along = Vec3::new(lean.sin(), lean.cos(), 0.0);
-    let arm = 1.1;
+    let arm = 0.85;
     vec![
         part(
             meshes.add(Sphere::new(BULB)),
@@ -60,12 +61,12 @@ pub(super) fn retort_parts(
         ),
         // The ring stand under the bulb.
         part(
-            meshes.add(Torus::new(0.26, 0.32)),
+            meshes.add(Torus::new(0.22, 0.28)),
             &stand,
             Transform::from_translation(MIDDLE - Vec3::new(0.0, BULB * 0.75, 0.0)),
         ),
         part(
-            meshes.add(Cylinder::new(0.36, 0.05)),
+            meshes.add(Cylinder::new(0.3, 0.05)),
             &stand,
             Transform::from_translation(MIDDLE - Vec3::new(0.0, BULB + 0.2, 0.0)),
         ),
