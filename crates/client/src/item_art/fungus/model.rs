@@ -52,13 +52,6 @@ pub(super) struct Build<'a> {
 
 /// One of `def` as it grows, in variant `variant`: a mushroom, a bracket, a
 /// clump of lichen.
-#[cfg_attr(
-    not(test),
-    expect(
-        dead_code,
-        reason = "the maps' fungus patches (fungi plan PR 4) will stand it up"
-    )
-)]
 pub fn fungus_one(def: &FungusDef, variant: u8) -> Vec<FungusPiece> {
     let variety = Variety::of(variant);
     let build = Build {

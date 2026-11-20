@@ -4,6 +4,7 @@
 
 use bevy::prelude::*;
 use shared::fruit::{FruitStage, PlantFamily};
+use shared::fungus::Form;
 use shared::herb::Herbs;
 use shared::vegetable::PlantShape;
 
@@ -35,3 +36,9 @@ pub struct FruitShowcase(pub Option<(FruitStage, Option<PlantFamily>)>);
 /// 4) in rows round the player, in place of the plants there; `None` off.
 #[derive(Resource, Default, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct VegetableShowcase(pub Option<(u8, Option<PlantShape>)>);
+
+/// The fungus showcase (debug API `client.fungus_showcase`): a patch of every
+/// fungus (of one form, if given) drawn at this stage (1 to 4) in rows round
+/// the player, in place of the patches there; `None` off.
+#[derive(Resource, Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct FungusShowcase(pub Option<(u8, Option<Form>)>);

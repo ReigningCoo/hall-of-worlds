@@ -57,7 +57,7 @@ pub use colours::Colours;
 pub use flour::FlourLook;
 pub use footwear::FootwearLook;
 pub use fruit::{FRUIT_VARIANTS, FruitItemLook};
-pub use fungus::FungusItemLook;
+pub use fungus::{FungusItemLook, fungus_one};
 pub use herb::HerbLook;
 pub use key::KeyLook;
 pub use log::{GROUND_DETAIL, LOG_LENGTH, LOG_RADIUS, LogMesh, log_mesh};

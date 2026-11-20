@@ -11,6 +11,7 @@ use server::debug_api::AddDebugMethod;
 mod drawing;
 mod eat;
 mod fruit;
+mod fungi;
 mod herbs;
 mod items;
 mod login;
@@ -68,6 +69,8 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.fruit_showcase", fruit::fruit_showcase)
         .add_debug_method("client.vegetable_plants", vegetables::vegetable_plants)
         .add_debug_method("client.vegetable_showcase", vegetables::vegetable_showcase)
+        .add_debug_method("client.fungus_patches", fungi::fungus_patches)
+        .add_debug_method("client.fungus_showcase", fungi::fungus_showcase)
         .add_debug_method("client.celestial", celestial)
         .add_debug_method("client.token", token)
         // What is open.

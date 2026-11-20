@@ -31,6 +31,7 @@ use std::f32::consts::FRAC_PI_2;
 
 use super::Part;
 use super::herb::kit::Kit;
+pub use model::fungus_one;
 use model::{Build, FungusPiece, one};
 use paint::Colours;
 use variety::Variety;
