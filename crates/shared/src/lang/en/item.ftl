@@ -60,6 +60,23 @@ fungus-false-recovery = Seems to wear off, then comes back worse
 fungus-window = For 3 days after eating: { $line }
 fungus-with-alcohol = Alcohol within 3 days brings: { $line }
 
+## A known fungus whose poison comes from handling it: by touch ($guard hands)
+## or by breathing its spores ($guard mouth), and when it starts ($onset soon,
+## delayed or late); then what keeps it off.
+
+fungus-handled = { $guard ->
+    [mouth] Its spores harm when breathed
+   *[hands] Harms bare hands that touch it
+}{ $onset ->
+    [soon] {""}
+    [late] , an hour or more later
+   *[delayed] , about 10 minutes later
+}
+fungus-guard = { $guard ->
+    [mouth] Cover the mouth
+   *[hands] Gloves protect
+}
+
 ## A bonus: the amount with its sign ("+40", "−8"), then what it changes.
 
 item-bonus = { $amount } { $stat }

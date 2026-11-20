@@ -4,11 +4,13 @@
 //! is. One known says what eating it raw does: its healing and food effects
 //! for one serving (`fungus::eating`) or "Heals nothing raw", its poison (when
 //! it starts, deadly or not, a false recovery) and the common ink cap's window
-//! with what alcohol brings then; and for those used like herbs, each of the
-//! four herb effects if known, else "?".
+//! with what alcohol brings then, or for one that harms when handled by touch
+//! or breath, that and what protects ("Gloves protect", "Cover the mouth");
+//! and for those used like herbs, each of the four herb effects if known,
+//! else "?".
 
 use shared::bonus::{Effect, Source};
-use shared::fungus::{self, Fungi, FungusDef, FungusKnowledge, Onset, Severity, Trigger};
+use shared::fungus::{self, Fungi, FungusDef, FungusKnowledge, Guard, Onset, Severity, Trigger};
 use shared::item::Item;
 use shared::lang::{Args, Lang};
 
@@ -68,13 +70,18 @@ fn food_lines(def: &FungusDef, lang: &Lang) -> Vec<String> {
 
 /// Its poison when eaten ("Poison: −2 Strength for 60 s"), when it starts,
 /// deadly or not, a false recovery; or the ink cap's window and what alcohol
-/// brings in it. Poisons not brought on yet (touch, breath, old, repeated)
-/// say nothing.
+/// brings in it; or for one handling brings on, how and what protects.
+/// Poisons not brought on yet (old, repeated) say nothing.
 fn poison_lines(def: &FungusDef, lang: &Lang) -> Vec<String> {
     let Some(poison) = &def.poison else {
         return Vec::new();
     };
     let mut lines = Vec::new();
+    let onset = match poison.onset {
+        Onset::Soon => "soon",
+        Onset::Delayed => "delayed",
+        Onset::Late => "late",
+    };
     let wrapped = |effects: Vec<Effect>, key: &str, lines: &mut Vec<String>| {
         for line in effects.iter().flat_map(|e| effect_lines(e, lang)) {
             let args = Args::new().text("line", line);
@@ -83,11 +90,6 @@ fn poison_lines(def: &FungusDef, lang: &Lang) -> Vec<String> {
     };
     match poison.trigger {
         Trigger::Eaten => {
-            let onset = match poison.onset {
-                Onset::Soon => "soon",
-                Onset::Delayed => "delayed",
-                Onset::Late => "late",
-            };
             let args = Args::new().text("onset", onset);
             lines.push(written(lang.render("fungus-onset", &args)));
             let effects = fungus::poisoning(def, poison, 0, NO_EATER);
@@ -100,6 +102,17 @@ fn poison_lines(def: &FungusDef, lang: &Lang) -> Vec<String> {
             let effects = fungus::poisoning(def, poison, 0, NO_EATER);
             wrapped(effects, "fungus-with-alcohol", &mut lines);
             return lines;
+        }
+        Trigger::Touched | Trigger::Breathed => {
+            let guard = match poison.guard() {
+                Some(Guard::Mouth) => "mouth",
+                _ => "hands",
+            };
+            let args = Args::new().text("guard", guard).text("onset", onset);
+            lines.push(written(lang.render("fungus-handled", &args)));
+            let effects = fungus::poisoning(def, poison, 0, NO_EATER);
+            wrapped(effects, "fungus-poison", &mut lines);
+            lines.push(written(lang.render("fungus-guard", &args)));
         }
         _ => return lines,
     }

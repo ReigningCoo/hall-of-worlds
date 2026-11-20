@@ -127,3 +127,38 @@ fn ale() -> Liquid {
         vinegar: 0,
     }))
 }
+
+/// Whether a poison from `source` is on them or waiting to start.
+fn coming(test: &TestClient, source: Source) -> bool {
+    has(test, source) || (test.client.sheet.later.0.iter()).any(|p| p.effect.source == source)
+}
+
+/// Rolled clothes of this piece, as if worn.
+fn put_on(test: &mut TestClient, piece: shared::clothing::ClothingPiece) {
+    let form = shared::clothing::roll(&mut shared::rng::Seed::new(1).rng(), piece, Quality::Common);
+    let mut item = Item::new(Id::for_test(900), piece.kind());
+    item.form = Some(shared::item_form::ItemForm::Clothing(form));
+    test.client.inventory.worn.push(item);
+}
+
+#[test]
+fn handling_oakmoss_bare_handed_poisons_and_gloves_keep_it_off() {
+    use super::fungus_harm::handle_fungus;
+    use shared::clothing::ClothingPiece;
+    let oakmoss = shared::fungus::Fungi::built_in().get("oakmoss").unwrap();
+    let poisoned = Source::FungusPoison(FungusTag::of("oakmoss"));
+    let mut test = TestClient::new();
+    assert!(handle_fungus(&mut test.client, oakmoss, 0));
+    assert!(coming(&test, poisoned), "oakmoss's comes later");
+    let mut test = TestClient::new();
+    put_on(&mut test, ClothingPiece::Gloves);
+    assert!(!handle_fungus(&mut test.client, oakmoss, 0));
+    assert!(!coming(&test, poisoned));
+    // Bare and uncovered, spores harm too.
+    let sleepdust = shared::fungus::Fungi::built_in()
+        .get("sleepdust_puffball")
+        .unwrap();
+    let mut test = TestClient::new();
+    assert!(handle_fungus(&mut test.client, sleepdust, 0));
+    assert!(handle_fungus(&mut test.client, oakmoss, 0));
+}

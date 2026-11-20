@@ -85,3 +85,27 @@ fn known_fungi_say_their_raw_healing_and_servings() {
         vec!["Cut into 10 servings when eaten"]
     );
 }
+
+#[test]
+fn handled_poisons_say_what_protects_once_known() {
+    let mut known = FungusKnowledge::default();
+    assert!(words("oakmoss", &known).effects.is_empty());
+    known.learn_name("oakmoss");
+    known.learn_name("sleepdust_puffball");
+    let oakmoss = words("oakmoss", &known).effects;
+    let touch = "Harms bare hands that touch it, about 10 minutes later";
+    assert!(oakmoss.iter().any(|l| l == touch), "{oakmoss:?}");
+    assert!(oakmoss.iter().any(|l| l == "Gloves protect"), "{oakmoss:?}");
+    assert!(
+        oakmoss.iter().any(|l| l.starts_with("Poison: ")),
+        "{oakmoss:?}"
+    );
+    let sleepdust = words("sleepdust_puffball", &known).effects;
+    let breath = "Its spores harm when breathed";
+    assert!(sleepdust.iter().any(|l| l == breath), "{sleepdust:?}");
+    assert!(
+        sleepdust.iter().any(|l| l == "Cover the mouth"),
+        "{sleepdust:?}"
+    );
+    assert!(!sleepdust.iter().any(|l| l.starts_with("Poisonous:")));
+}

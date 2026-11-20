@@ -4,8 +4,9 @@
 //! Foraging, a large piece whole: `fungus::harvest`) into their inventory, or
 //! onto the ground under them if it doesn't fit; may teach its name (a
 //! Mycology check with Foraging, `fungus::names_on_picking`); practises
-//! Foraging and Mycology, and keeps
-//! when it was picked so it grows back as its `regrow` says
+//! Foraging and Mycology; harms whoever picks one that harms by touch or
+//! breath with bare hands or an uncovered mouth (`fungus_harm::handle_fungus`);
+//! and keeps when it was picked so it grows back as its `regrow` says
 //! (`sites::keep_harvest`).
 
 use bevy::prelude::*;
@@ -16,6 +17,7 @@ use shared::rng::Seed;
 use shared::skill::SkillId;
 
 use super::Client;
+use super::fungus_harm::handle_fungus;
 use super::pick_herb::{PICK_PRACTICE, pick_cost};
 use crate::ServerWorld;
 use crate::ids::new_id;
@@ -72,6 +74,7 @@ pub(super) fn pick_fungus(
             client.sheet.skills.used(skill, client.activity.played);
         }
     }
+    handle_fungus(client, def, tick);
     client.unsaved = true;
     client.update_speed(tick);
     keep_harvest(world, key, now);

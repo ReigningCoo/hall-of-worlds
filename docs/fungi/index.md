@@ -11,13 +11,17 @@ permalink: /fungi
 
 Mushrooms, fungi and lichens are food and more: caps on stems, shelves on wood, puffballs, truffles dug from the earth, jelly, and lichens on trees and rocks. Most grow underground, in caves, basements and cellars, on old wood, dung, damp earth or bones; some grow only near daylight, and those that live with trees, and all lichens, only above ground. Each kind has its own page, with its picture, where it grows and what eating it raw does. Back to [Items](items).
 
-They don't grow in the world yet: their pages say where they will.
+Click a full-grown one beside you to pick it.
 
 ## Eating
 
 Drag one onto your clothes, as you would other food, to eat it. Eaten raw, a fungus gives back a little Health if people eat it raw, a little at a time until you move or are hurt, and a few also raise or lower an attribute for a while. The item's popup says what it does, and the effect shows in the bar at the top.
 
 **Many fungi are poisonous, some deadly, and many look like ones that are good to eat.** Their pages and popups don't say which: that is learnt by playing.
+
+## Handling
+
+A few harm whoever picks them or grinds them for [alchemy](alchemy), even without eating them: some by touch, and some by their spores or dust, breathed in. Gloves, or anything else on your hands, keep off the first; a bandana, a litham, a closed helm or an aventail drawn over the face keeps out the second (see [Clothing](clothing)). Once you know one by name, its popup says which, and what protects.
 
 ## Big ones
 

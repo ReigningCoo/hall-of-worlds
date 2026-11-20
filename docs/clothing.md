@@ -15,6 +15,8 @@ Trousers and skirts both cover your legs, so you wear one or the other; a belt g
 
 A hood covers your head and neck, and its cape hangs over your shoulders, so a shawl still goes with it, unless the shawl has a collar. A cap, headcloth or headdress takes your head, and a headcloth that hangs to your shoulders takes your neck too. A hat goes over a hood, cap or headcloth, but not over a helmet. Skullcaps are [underclothes](underclothing), so a turban, hood or hat goes over one. Scarves and ruffs go over a necklace.
 
+Some [mushrooms and lichens](fungi) harm whoever picks or handles them. Gloves keep off those that harm by touch. A bandana or a litham keeps out spores, as a closed helm or an aventail drawn over the face does.
+
 On Hard, clothes are dropped when you die, as everything else you wear is, apart from underclothes.
 
 Every piece is made in its own way. One that matches a garment from history takes its name, such as Kirtle or Kaftan. A name puts its pattern and an unusual material or weave first, as in "Striped Silk Robe" or "Velvet Doublet".
@@ -56,7 +58,7 @@ Every piece is made in its own way. One that matches a garment from history take
 | Cap | Round, flat, a cone, a cone bent forward, a short cylinder or tall; sewn, felt, knitted or fur; some with ear flaps; no brim, a turned-up band or a small peak; a button, tassel or feather on top |
 | Headcloth | A veil, a kerchief, a turban (small, full or great), a head tie, a nemes or a square cloth held by a cord; on the head only, to the shoulders or, for veils, to the waist; some covering the mouth and nose; some veils of lace |
 | Headdress | A steeple, a truncated cone, horned rolls, a French hood, a gable hood or a kokoshnik; a veil from the top, behind or none; pearls, a jewelled band or a gold net |
-| Neckwear | A scarf, a neckerchief, a cravat, a ruff (narrow, wide or a cartwheel on fine ones), a falling band or a jabot |
+| Neckwear | A scarf, a neckerchief, a cravat, a ruff (narrow, wide or a cartwheel on fine ones), a falling band, a jabot or a bandana |
 | Shawl | A shawl, a partlet, a fichu, a dupatta, a capelet or a tippet; to the chest, waist or knee; no collar, a standing or a ruffled one |
 | Hat | A low, round, tall, flat or conical crown; a narrow, wide or very wide brim, one turned up behind or cocked on three sides; felt, straw or leather; some with a chin strap; a band, feather or cockade |
 | Gloves | Five fingers, mittens or fingerless; sewn, knitted, nålbound, felted or fur; at the wrist, with a flared cuff or to the elbow; plain, or with an embroidered or fringed cuff, and some perfumed; some lined with fur |
@@ -153,6 +155,7 @@ Every piece is made in its own way. One that matches a garment from history take
 | Cravat | A long strip tied at the neck |
 | Ruff | A collar of figure-eight pleats |
 | Falling Band, Jabot | A flat collar, or a lace fall |
+| Bandana | A neckerchief tied up over the mouth and nose, knotted behind |
 | Shawl, Rebozo | Draped over the shoulders; a rebozo is a long cotton shawl |
 | Partlet, Fichu | Fitted to the neck and shoulders, or a folded triangle tucked in |
 | Dupatta | A long shawl over one shoulder or both |

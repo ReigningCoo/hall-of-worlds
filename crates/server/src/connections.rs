@@ -52,6 +52,7 @@ mod feed_yeast;
 mod fell_tree;
 mod ferment;
 mod for_others;
+mod fungus_harm;
 mod give;
 mod give_items;
 mod go_to_place;

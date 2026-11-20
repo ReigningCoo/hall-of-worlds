@@ -6,14 +6,11 @@
 //! (`eat_fruit::put_back`).
 
 use bevy::prelude::*;
-use shared::difficulty::Difficulty;
-use shared::fungus::{Eater, Fungi, MYCOLOGY, cut, eating, recognised};
-use shared::herb::{skill_percent, skill_value};
+use shared::fungus::{Fungi, cut, eating};
 use shared::item::Item;
-use shared::magic::heal_skill;
-use shared::rng::Seed;
 
 use super::Client;
+use super::fungus_harm::{eater, recognises};
 use crate::ServerWorld;
 use crate::ids::new_id;
 
@@ -35,14 +32,8 @@ pub(super) fn eat_fungus(
     if let Some((_, Some(rest))) = cut(eaten, &mut new_id) {
         super::eat_fruit::put_back(client, world, rest, carried);
     }
-    let eater = Eater {
-        most_health: client.limits(now).health,
-        easy: client.playing_on() == Difficulty::Easy,
-    };
-    let healing = client.sheet.skills.percent(heal_skill());
-    let mycology = skill_percent(skill_value(&client.sheet.skills, MYCOLOGY));
-    let roll = Seed::new(new_id().seed().value()).rng().range_u64(0, 100) as u32;
-    let known = recognised(&client.sheet.fungi, def, healing.max(mycology), roll);
+    let eater = eater(client, now);
+    let known = recognises(client, def);
     let (sheet, situation) = client.sheet_and_situation();
     sheet.lay_on(eating(def, now, eater), known, situation, now);
     client.unsaved = true;

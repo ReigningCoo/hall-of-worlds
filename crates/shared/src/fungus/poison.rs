@@ -1,7 +1,7 @@
 //! What a poisonous fungus does (owner, 2026-11-19, decision 8): how bad, how
 //! soon, its effects and how it harms. Eating brings it on (`poisoning`), or
-//! for the common ink cap alcohol after eating; harm from handling and
-//! breathing comes with fungi plan PR 9.
+//! for the common ink cap alcohol after eating; touching or breathing it
+//! when handled (`handling`).
 
 use serde::{Deserialize, Serialize};
 

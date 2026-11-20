@@ -1,7 +1,8 @@
 //! Neckwear round the throat, over the clothes' collars and any necklace: scarves wound
 //! twice with their ends down the chest, neckerchiefs knotted in front with their point
 //! behind, cravats, ruffs of figure-eight pleats (the cartwheel on a wire frame),
-//! falling bands lying flat on the shoulders, and the jabot's falls of lace.
+//! falling bands lying flat on the shoulders, the jabot's falls of lace, and the
+//! bandana tied up over the mouth and nose, knotted behind.
 
 use std::f32::consts::TAU;
 
@@ -109,6 +110,18 @@ impl Wear<'_> {
                     hem,
                     drape,
                 );
+            }
+            NeckwearForm::Bandana => {
+                // Tied round the neck, its cloth up over the mouth, knotted at the nape.
+                roll(
+                    model,
+                    Stuff::Main,
+                    &oval(Vec3::Y * (base + 28.0), (radius, radius), 0.0),
+                    6.0,
+                );
+                self.litham(model);
+                let knot = dir(TAU / 2.0) * (radius + 4.0) + Vec3::Y * (base + 30.0);
+                blob(model.of(Stuff::Main), knot, Vec3::new(12.0, 10.0, 9.0));
             }
             NeckwearForm::Jabot => {
                 roll(
