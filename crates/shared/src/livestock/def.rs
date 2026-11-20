@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{Class, Diet, Hide, Meat, Often, Produce, Rarity, Stages, Water};
+use super::{Class, Diet, Hide, Meat, Often, Place, Produce, Rarity, Stages, Warmth, Water};
 use crate::climate::Biome;
 use crate::creature::CreatureKind;
 
@@ -20,6 +20,12 @@ pub struct Wild {
     /// Where within them (mountains, by water, islands).
     #[serde(default)]
     pub note: String,
+    /// Where within them it is found, for wild spawns: anywhere unless given.
+    #[serde(default)]
+    pub place: Place,
+    /// How warm it must be there: any unless given.
+    #[serde(default)]
+    pub warmth: Warmth,
 }
 
 /// How often it is kept as a pet, and how.

@@ -1,14 +1,18 @@
-//! Who lives in the wilderness: a few creatures to each block, by its biome,
-//! from the secret seed and the block's position alone, so a block let go and
-//! made again has them back as they were.
+//! Who lives in the wilderness: a few creatures to each block, by its land
+//! (the livestock table's wild forms and feral herds, wolves, highland cattle:
+//! `wild_shares`), from the secret seed and the block's position alone, so a
+//! block let go and made again has them back as they were.
 
+use super::herd::{Age, Herd};
+use super::wild_looks::wild_looks;
+use super::wild_shares::{Around, Form, Resident, shares};
 use super::{Spawn, looks, roll_coins, roll_gear};
 use crate::alignment::Alignment;
 use crate::climate::Biome;
-use crate::creature::CreatureKind;
 use crate::dungeon::{Cell, Level};
 use crate::gender::Gender;
 use crate::id::Id;
+use crate::livestock::{Livestock, Place};
 use crate::rng::Seed;
 use crate::sheet::{Attributes, Build};
 use crate::wilderness::BlockPos;
@@ -18,13 +22,22 @@ use crate::wilderness::BlockPos;
 mod tests;
 
 /// Marks these hashes as being for wild mobs.
-const PURPOSE: i64 = 0x0077_696c;
+pub(super) const PURPOSE: i64 = 0x0077_696c;
 
 /// In this many blocks out of 100, nothing lives.
 const EMPTY_PERCENT: u64 = 45;
 
-/// The most of a pack or herd in one block.
+/// In desert blocks, this many out of 100 are empty: little lives there.
+const DESERT_EMPTY_PERCENT: u64 = 75;
+
+/// The most grown ones of a pack or herd in one block.
 const MOST_TOGETHER: u64 = 3;
+
+/// How many herds of kept animals' kinds out of 100 have young with them.
+const YOUNG_PERCENT: u64 = 40;
+
+/// The most young with a herd.
+const MOST_YOUNG: u64 = 2;
 
 /// How far a pack's members start from its den, in cells each way.
 const SPREAD: i64 = 3;
@@ -61,85 +74,75 @@ impl Habitat {
     }
 }
 
-/// Who lives in a biome, and how likely each is, in percent, apart from
-/// highland cattle (`coo_percent`), who take their share from these.
-fn who_lives_in(biome: Biome) -> &'static [(CreatureKind, u64)] {
-    match biome {
-        Biome::Desert => &[],
-        Biome::Tundra | Biome::BorealForest => &[(CreatureKind::Wolf, 100)],
-        Biome::Grassland => &[
-            (CreatureKind::Horse, 45),
-            (CreatureKind::Cattle, 45),
-            (CreatureKind::Wolf, 10),
-        ],
-        Biome::Savanna => &[
-            (CreatureKind::Horse, 45),
-            (CreatureKind::Cattle, 45),
-            (CreatureKind::Wolf, 10),
-        ],
-        Biome::Woodland => &[
-            (CreatureKind::Wolf, 50),
-            (CreatureKind::Cattle, 30),
-            (CreatureKind::Horse, 20),
-        ],
-        Biome::SeasonalForest | Biome::TemperateRainforest | Biome::TropicalRainforest => {
-            &[(CreatureKind::Wolf, 100)]
-        }
-    }
-}
-
 /// A block's creatures (`level`: its cells; `land`: what it is like at its
-/// middle): none, or a pack or herd of one kind round a den on open ground.
+/// middle): none, or a pack or herd of one kind round a den on open ground,
+/// chosen by `wild_shares::shares`. A herd of a kept animal's kind sometimes
+/// has young (`YOUNG_PERCENT`), born in one season, their mother first.
 /// Each one's number is its own across the wilderness (from a hash), and its
 /// id `wild_mob_id`.
 pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) -> Vec<Spawn> {
     let roll = |what: i64| seed.at(&[PURPOSE, block.x, block.y, what]);
-    let lives_here = shares(land);
-    if lives_here.is_empty() || roll(0) % 100 < EMPTY_PERCENT {
+    let lives_here = shares(land, around(level));
+    let empty = if land.biome == Biome::Desert {
+        DESERT_EMPTY_PERCENT
+    } else {
+        EMPTY_PERCENT
+    };
+    if lives_here.is_empty() || roll(0) % 100 < empty {
         return Vec::new();
     }
-    let total: u64 = lives_here.iter().map(|&(_, share)| share).sum();
-    let mut left = roll(1) % total;
-    let kind = lives_here
-        .iter()
-        .find(|&&(_, share)| {
-            let here = left < share;
-            left = left.saturating_sub(share);
-            here
-        })
-        .map_or(lives_here[0].0, |&(kind, _)| kind);
-    let (min_x, min_y, width, height) = level.bounds();
-    let open = |x: i64, y: i64| {
-        level.is_walkable(x, y) && matches!(level.cell(x, y), Cell::Ground | Cell::Grass)
-    };
-    let den = (0..TRIES).find_map(|attempt| {
-        let x = min_x + (roll(2 + attempt * 2) % width as u64) as i64;
-        let y = min_y + (roll(3 + attempt * 2) % height as u64) as i64;
-        open(x, y).then_some((x, y))
-    });
-    let Some(den) = den else {
+    let resident = pick(roll(1), &lives_here);
+    let kind = resident.kind;
+    let Some(den) = den(level, resident.place, &roll) else {
         return Vec::new();
     };
-    let together = 1 + roll(100) % MOST_TOGETHER;
+    let stages = Livestock::built_in().by_kind(kind).map(|def| &def.stages);
+    let grown = 1 + roll(100) % MOST_TOGETHER;
+    let young = if stages.is_some() && roll(101) % 100 < YOUNG_PERCENT {
+        1 + roll(102) % MOST_YOUNG
+    } else {
+        0
+    };
+    let herd = Herd { seed, block };
     let mut mobs: Vec<Spawn> = Vec::new();
-    for member in 0..together as i64 {
+    for member in 0..(grown + young) as i64 {
         let own = |what: i64| roll(1000 + member * 100 + what);
+        let age = match young {
+            0 => Age::Any,
+            _ if member < grown as i64 => Age::Grown,
+            _ => Age::Young,
+        };
+        let Some(number) = herd.number(member, age, stages) else {
+            continue;
+        };
         let spot = (0..TRIES).find_map(|attempt| {
             let span = (2 * SPREAD + 1) as u64;
             let x = den.0 + (own(attempt * 2) % span) as i64 - SPREAD;
             let y = den.1 + (own(attempt * 2 + 1) % span) as i64 - SPREAD;
             let free = mobs.iter().all(|mob| mob.position != (x, y));
-            (level.contains(x, y) && open(x, y) && free).then_some((x, y))
+            (level.contains(x, y) && open(level, x, y) && free).then_some((x, y))
         });
         let Some(position) = spot else {
             continue;
         };
-        let gender = Gender::rolled(own(61));
+        let gender = match Gender::rolled(own(61)) {
+            // A herd with young is led by their mother.
+            _ if young > 0 && member == 0 => Gender::Female,
+            // Nothing gelds wild animals.
+            Gender::Neutral if resident.form == Form::Wild => {
+                [Gender::Male, Gender::Female][(own(63) % 2) as usize]
+            }
+            gender => gender,
+        };
+        let mut appearance = looks(&own, kind, gender).fitted(kind, gender);
+        if resident.form == Form::Wild {
+            appearance = wild_looks(kind, gender, appearance);
+        }
         mobs.push(Spawn {
-            number: own(50) as u32,
+            number,
             kind,
             position,
-            appearance: looks(&own, kind, gender).fitted(kind, gender),
+            appearance,
             gender,
             alignment: Alignment::rolled(kind, own(62)),
             attributes: Attributes::for_kind(
@@ -154,36 +157,55 @@ pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) ->
     mobs
 }
 
-/// Who lives on this land and how likely each is, in hundredths of a percent:
-/// highland cattle's share (`coo_percent`) first, the biome's others shrunk
-/// to make room.
-pub(super) fn shares(land: Habitat) -> Vec<(CreatureKind, u64)> {
-    let others = who_lives_in(land.biome);
-    let coo = coo_percent(land);
-    let mut shares: Vec<(CreatureKind, u64)> = Vec::new();
-    if coo > 0 && !others.is_empty() {
-        shares.push((CreatureKind::Coo, coo * 100));
-    }
-    let rest = others
-        .iter()
-        .map(|&(kind, share)| (kind, share * (100 - coo)));
-    shares.extend(rest);
-    shares
+/// Whether a cell is open ground a creature may start on.
+fn open(level: &Level, x: i64, y: i64) -> bool {
+    level.is_walkable(x, y) && matches!(level.cell(x, y), Cell::Ground | Cell::Grass)
 }
 
-/// Highland cattle's share of a block's animals, in percent: none where it is
-/// hot (savanna, deserts, forests too warm or wet), about 15 in low, mild
-/// grassland, rising with cold and height to 40 on cold high ground.
-pub(super) fn coo_percent(land: Habitat) -> u64 {
-    use Biome::{BorealForest, Grassland, Tundra, Woodland};
-    if !matches!(land.biome, Tundra | BorealForest | Woodland | Grassland) {
-        return 0;
+/// Whether a cell is water (the sea, shallows, a river).
+fn wet(level: &Level, x: i64, y: i64) -> bool {
+    level.contains(x, y) && matches!(level.cell(x, y), Cell::Water | Cell::Shallows)
+}
+
+/// What a block's cells have in them that some animals need.
+fn around(level: &Level) -> Around {
+    let (min_x, min_y, width, height) = level.bounds();
+    let mut around = Around::default();
+    for y in min_y..min_y + height {
+        for x in min_x..min_x + width {
+            around.water |= wet(level, x, y);
+            around.people |= level.cell(x, y).is_road();
+        }
     }
-    // Each from 0 to 1000: full cold at 0 °C and below, none from 15 °C;
-    // full height from 1500 m.
-    let cold = ((15 - land.celsius).clamp(0, 15) * 1000 / 15) as u64;
-    let high = (land.metres.clamp(0, 1500) * 1000 / 1500) as u64;
-    15 + 25 * (2 * cold + high) / 3000
+    around
+}
+
+/// The resident a roll lands on among the weights.
+fn pick(rolled: u64, lives_here: &[(Resident, u64)]) -> Resident {
+    let total: u64 = lives_here.iter().map(|&(_, share)| share).sum();
+    let mut left = rolled % total.max(1);
+    lives_here
+        .iter()
+        .find(|&&(_, share)| {
+            let here = left < share;
+            left = left.saturating_sub(share);
+            here
+        })
+        .map_or(lives_here[0].0, |&(resident, _)| resident)
+}
+
+/// Where a herd gathers: open ground, beside water for water birds.
+fn den(level: &Level, place: Place, roll: &impl Fn(i64) -> u64) -> Option<(i64, i64)> {
+    let (min_x, min_y, width, height) = level.bounds();
+    let by_water = |x: i64, y: i64| {
+        (-SPREAD..=SPREAD).any(|dy| (-SPREAD..=SPREAD).any(|dx| wet(level, x + dx, y + dy)))
+    };
+    (0..TRIES).find_map(|attempt| {
+        let x = min_x + (roll(2 + attempt * 2) % width as u64) as i64;
+        let y = min_y + (roll(3 + attempt * 2) % height as u64) as i64;
+        let suits = place != Place::ByWater || by_water(x, y);
+        (open(level, x, y) && suits).then_some((x, y))
+    })
 }
 
 /// The id of the wild mob with this number: always the same, so nothing needs

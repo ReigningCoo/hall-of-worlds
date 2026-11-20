@@ -9,6 +9,7 @@ The animals people keep (owner's research, 2026-11-19): a table of data with loo
 - `livestock/parts.ron`: the organs (26), fats (9) and other parts (10), each naming the animals it comes from.
 - `livestock/def.rs`: `LivestockDef`, `Wild`, `Pet`, `check`.
 - `livestock/traits.rs`: `Class`, `Rarity`, `Diet`, `Water`, `Often`.
+- `livestock/wild_place.rs`: `Place`, `Warmth`, `COLD_UP_TO`, `HOT_FROM` (PR 7).
 - `livestock/stages.rs`: `Stages`, `Stage`, `Sexed`, `Adult`, `GAME_HOURS_A_MONTH`.
 - `livestock/age.rs`: `age_hours`, `stage_of`, `LIFE_CYCLES` (PR 6).
 - `livestock/produce.rs`: `Produce`, `Product`, `Per`.
@@ -21,7 +22,7 @@ The animals people keep (owner's research, 2026-11-19): a table of data with loo
 
 ## Public API
 
-- `LivestockDef { key, name, latin, class, ruminant, kind, variant_of, kept, kept_note, wild, feral, diet, favourites, water, water_note, produce, work, stages, meat, hide, pet }`: `key` its id for good; `class` `Mammal`, `Bird` or `Insect` (bees and silkworms: objects, decision 14); `ruminant` chews the cud (tripe); `kind` the `CreatureKind` that is it (Cattle, Coo, Horse, Chicken, Sheep, Goat, Pig, WaterBuffalo, Yak, Donkey, Mule, Dromedary, BactrianCamel, Llama, Alpaca, Reindeer, Rabbit, Duck, MuscovyDuck, Goose, Turkey, Guineafowl, Pigeon, Quail so far), each kind at most once; `variant_of` the animal it is a variant of (Coo of cattle, Muscovy of duck, Bactrian of dromedary, alpaca of llama; decision 13: its own row and kind); `kept` biomes; `wild` an optional `Wild { name, rarity, biomes, note }` (aurochs and wild dromedaries kept, decision 1; none for the mule, silkworm and Coo); `feral` a `Wild` without a name; `Rarity` `Never` to `VeryCommon`; `Diet`; `favourites` as words; `Water` `Avoids`, `Drinks`, `Wades`, `Swims`, `Likes`, `Prefers`; `work` as words; `pet` a `Pet { often: Often, note }`.
+- `LivestockDef { key, name, latin, class, ruminant, kind, variant_of, kept, kept_note, wild, feral, diet, favourites, water, water_note, produce, work, stages, meat, hide, pet }`: `key` its id for good; `class` `Mammal`, `Bird` or `Insect` (bees and silkworms: objects, decision 14); `ruminant` chews the cud (tripe); `kind` the `CreatureKind` that is it (Cattle, Coo, Horse, Chicken, Sheep, Goat, Pig, WaterBuffalo, Yak, Donkey, Mule, Dromedary, BactrianCamel, Llama, Alpaca, Reindeer, Rabbit, Duck, MuscovyDuck, Goose, Turkey, Guineafowl, Pigeon, Quail so far), each kind at most once; `variant_of` the animal it is a variant of (Coo of cattle, Muscovy of duck, Bactrian of dromedary, alpaca of llama; decision 13: its own row and kind); `kept` biomes; `wild` an optional `Wild { name, rarity, biomes, note, place, warmth }` (aurochs and wild dromedaries kept, decision 1; none for the mule, silkworm and Coo); `feral` a `Wild` without a name or biomes (it lives where the animal is kept); `Place` where in its biomes wild spawns put it (`Anywhere` by default, `Mountains`, `High`, `ByWater`, `NearPeople`, `Cliffs`), `Warmth` how warm (`Any`, `Cold` to 14 °C: Bactrian camels, wild yaks; `Hot` from 15 °C: dromedaries, wild asses, wild water buffalo); `Rarity` `Never` to `VeryCommon`; `Diet`; `favourites` as words; `Water` `Avoids`, `Drinks`, `Wades`, `Swims`, `Likes`, `Prefers`; `work` as words; `pet` a `Pet { often: Often, note }`.
 - `Produce { product, amount, per, chance, grams, note }`: game rates per game day (decision 3). `Product` (`Milk` ml, `Wool`, `Fleece`, `AngoraWool`, `Honey` g, `Egg` count, `Cocoons` trays; `unit()`), `Per` (`Day`, `Shearing`, `FloweringDay`, `Grown`), `chance` percent (eggs), `grams` an egg's weight.
 - `Stages { young, juvenile: Sexed, adult: Adult, young_until, juvenile_until }`: names by sex (`Adult` with `castrate` and `others`), ends in game hours from birth (a real month's growth a game day: `GAME_HOURS_A_MONTH` 24, decision 2); `at(age_hours) -> Stage` (`Young`, `Juvenile`, `Adult`, the default).
 - `age_hours(id, world_minutes, stages) -> u32`, `stage_of(kind, id, world_minutes) -> Stage` (PR 6): a creature's age, never saved: its id picks a start in a cycle of `LIFE_CYCLES` (4) times its growing up (`juvenile_until`), and the world's clock moves it on, so about a quarter of a kind are growing at any time and they grow as time passes; nothing dies of old age (owner), the age starting again at the cycle's end. `stage_of` is `Adult` for kinds not in the table. The server sends it as `mob::EntityLook::stage`; the body for it is `body::Layout::of_stage`.
@@ -37,7 +38,7 @@ The animals people keep (owner's research, 2026-11-19): a table of data with loo
 
 ## Used by
 
-- `body` (`Stage` for `Layout::of_stage`), `mob` (`EntityLook::stage`), server `entities/sync.rs` (`stage_of`), client `item_art` and `entities`. The plan's later PRs (wild spawns, farms) and production will read the rest.
+- `body` (`Stage` for `Layout::of_stage`), `mob` (`EntityLook::stage`; `wild_spawns` from wild forms, feral herds, stages and `age_hours`, PR 7), server `entities/sync.rs` (`stage_of`), client `item_art` and `entities`. The plan's PR 8 (farms) and production will read the rest.
 
 ## Notes
 
