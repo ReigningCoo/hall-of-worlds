@@ -265,7 +265,7 @@ impl Trait {
             }),
             Self::FeatherColour => match kind {
                 Birdfolk => BIRD_FEATHERS,
-                _ => HEN_FEATHERS,
+                _ => super::bird_looks::bird_feathers(kind).unwrap_or(HEN_FEATHERS),
             },
             Self::Markings => markings_choices(kind),
         }

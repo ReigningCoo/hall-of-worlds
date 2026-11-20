@@ -86,3 +86,22 @@ pub const RABBIT_HEAD: MeasuredHead = MeasuredHead {
         ring(880, 120, -150, 100),
     ],
 };
+
+/// A duck's or a goose's: a round skull on a slim neck, the forehead sloping
+/// down to a flat face at the head's line, where the bill (`Snout::Bill`) is
+/// drawn on past it.
+pub const DUCK_HEAD: MeasuredHead = MeasuredHead {
+    source: "drawn by hand",
+    length: 0,
+    pitch: 0,
+    rings: [
+        ring(-250, 60, 150, 400),
+        ring(-100, 300, 20, 600),
+        ring(50, 360, 0, 660),
+        ring(200, 350, 0, 640),
+        ring(350, 300, 10, 560),
+        ring(500, 230, 20, 450),
+        ring(620, 180, 20, 370),
+        ring(720, 140, 30, 300),
+    ],
+};

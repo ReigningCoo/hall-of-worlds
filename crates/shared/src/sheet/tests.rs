@@ -298,8 +298,9 @@ fn a_choice_for_one_gender_suits_only_it() {
     .only(Gender::Male);
     assert!(drake.suits(Gender::Male));
     assert!(!drake.suits(Gender::Female) && !drake.suits(Gender::Neutral));
-    // Every choice there is so far suits every gender, but the aurochs's: a
-    // bull's coat and eel stripe, a cow's coat.
+    // Every choice there is so far suits every gender, but the aurochs's (a
+    // bull's coat and eel stripe, a cow's coat) and the birds' by sex: a cock's
+    // hackles, a mallard's colours and a drake's green head, a quail's breast.
     for kind in CreatureKind::ALL {
         for which in kind.def().looks {
             for gender in [Gender::Male, Gender::Female, Gender::Neutral] {
@@ -309,6 +310,14 @@ fn a_choice_for_one_gender_suits_only_it() {
                     (CreatureKind::Cattle, Trait::CoatColour, _) => 1,
                     (CreatureKind::Cattle, Trait::Markings, Gender::Male) => 0,
                     (CreatureKind::Cattle, Trait::Markings, _) => 1,
+                    (CreatureKind::Chicken, Trait::Markings, Gender::Male) => 0,
+                    (CreatureKind::Chicken, Trait::Markings, _) => 2,
+                    (CreatureKind::Duck, Trait::FeatherColour, Gender::Neutral) => 2,
+                    (CreatureKind::Duck, Trait::FeatherColour, _) => 1,
+                    (CreatureKind::Duck, Trait::Markings, Gender::Male) => 0,
+                    (CreatureKind::Duck, Trait::Markings, _) => 1,
+                    (CreatureKind::Quail, Trait::Markings, Gender::Neutral) => 2,
+                    (CreatureKind::Quail, Trait::Markings, _) => 1,
                     _ => 0,
                 };
                 let suiting = which.suiting(kind, gender).len();

@@ -29,6 +29,7 @@ mod marks;
 mod morph;
 mod mouth;
 mod shapes;
+mod sickle;
 mod trunk;
 
 pub(super) use coat_hair::coat_hair;

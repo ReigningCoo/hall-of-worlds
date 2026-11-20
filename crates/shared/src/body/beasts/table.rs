@@ -4,15 +4,16 @@ use super::super::measured::{COW, DOG, HORSE};
 use super::super::measured_heads::{COW_HEAD, HORSE_HEAD, WOLF_HEAD};
 use super::super::parts::{Ears, Feet, Horns, NONE, Parts, Snout, Tail, Wings};
 use super::livestock::{GOAT, PIG, SHEEP, WATER_BUFFALO, YAK};
+use super::livestock_birds::{DUCK, GOOSE, GUINEAFOWL, MUSCOVY_DUCK, PIGEON, QUAIL, TURKEY};
 use super::livestock_more::{
     ALPACA, BACTRIAN_CAMEL, DONKEY, DROMEDARY, LLAMA, MULE, RABBIT, REINDEER,
 };
-use super::{Beast, Bird, CHICKEN_HEAD, Fourfoot, Plan, livestock_sexes, sexes};
+use super::{Beast, Bird, CHICKEN_HEAD, Fourfoot, Plan, bird_sexes, livestock_sexes, sexes};
 
 /// The animals drawn, measured from the research's heights and lengths (the
 /// middle of each range); the kept animals after the first five are in
-/// `livestock.rs` and `livestock_more.rs`.
-pub const BEASTS: [Beast; 18] = [
+/// `livestock.rs`, `livestock_more.rs` and `livestock_birds.rs`.
+pub const BEASTS: [Beast; 25] = [
     Beast {
         name: "Horse",
         plan: Plan::Fourfoot(Fourfoot {
@@ -146,11 +147,13 @@ pub const BEASTS: [Beast; 18] = [
             snout_length: 30,
             comb: 28,
             wattles: 28,
+            tail: 100,
+            tail_shape: Tail::Fan,
             feet: Feet::Talons,
             wings: Wings::Folded,
             ..NONE
         },
-        sexes: None,
+        sexes: Some(bird_sexes::CHICKEN),
     },
     SHEEP,
     GOAT,
@@ -165,4 +168,11 @@ pub const BEASTS: [Beast; 18] = [
     ALPACA,
     REINDEER,
     RABBIT,
+    DUCK,
+    MUSCOVY_DUCK,
+    GOOSE,
+    TURKEY,
+    GUINEAFOWL,
+    PIGEON,
+    QUAIL,
 ];

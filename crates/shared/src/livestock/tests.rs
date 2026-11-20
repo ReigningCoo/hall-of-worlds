@@ -37,6 +37,13 @@ fn kinds_find_their_animal() {
         (CreatureKind::Alpaca, "alpaca"),
         (CreatureKind::Reindeer, "reindeer"),
         (CreatureKind::Rabbit, "rabbit"),
+        (CreatureKind::Duck, "duck"),
+        (CreatureKind::MuscovyDuck, "muscovy_duck"),
+        (CreatureKind::Goose, "goose"),
+        (CreatureKind::Turkey, "turkey"),
+        (CreatureKind::Guineafowl, "guineafowl"),
+        (CreatureKind::Pigeon, "pigeon"),
+        (CreatureKind::Quail, "quail"),
     ] {
         assert_eq!(animals.by_kind(kind).map(|def| def.key.as_str()), Some(key));
     }

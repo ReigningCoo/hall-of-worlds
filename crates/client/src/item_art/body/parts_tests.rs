@@ -149,9 +149,37 @@ fn a_bill_tusks_and_webbed_feet_are_drawn() {
 }
 
 #[test]
+fn sickles_are_feathers_rising_behind_and_spurs_are_skin() {
+    let mut tailless = hen();
+    tailless.parts.tail = 0;
+    let cock = adds(
+        tailless,
+        |l| (l.parts.tail_shape, l.parts.tail) = (Tail::Sickle, 250),
+        FEATHERS,
+    );
+    let rump = cock.spine.rings[0];
+    let top = wings(&cock)
+        .iter()
+        .flatten()
+        .map(|c| c.y)
+        .fold(f32::MIN, f32::max);
+    assert!(top > cock.spine.base[1] as f32 + rump.back as f32);
+    adds(cock, |l| l.parts.spurs = 20, SKIN);
+}
+
+#[test]
+fn a_knob_sits_on_a_bill() {
+    let mut billed = hen();
+    billed.parts.snout = Snout::Bill;
+    adds(billed, |l| l.parts.knob = 20, SKIN);
+}
+
+#[test]
 fn a_fanned_tail_is_feathers_standing_up_behind() {
+    let mut tailless = hen();
+    tailless.parts.tail = 0;
     let turkey = adds(
-        hen(),
+        tailless,
         |l| (l.parts.tail_shape, l.parts.tail) = (Tail::Fan, 200),
         FEATHERS,
     );

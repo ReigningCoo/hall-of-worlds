@@ -1,13 +1,13 @@
 //! What is round the mouth of a measured head: a duck's flat bill past its nose
-//! (`shared::body::Snout::Bill`; other snouts are in the head's rings), and tusks up
-//! from the lower jaw.
+//! (`shared::body::Snout::Bill`; other snouts are in the head's rings) with any knob
+//! on its base, and tusks up from the lower jaw.
 
 use std::f32::consts::TAU;
 
 use bevy::prelude::*;
 use shared::body::{HEAD_RINGS, HeadShape, Layout, Side, Snout};
 
-use super::{HeadAxes, ROUND, Triangle, limb, loft};
+use super::{HeadAxes, ROUND, Triangle, blob, limb, loft};
 
 /// A bill and tusks, if the head has them.
 pub(super) fn build(
@@ -18,7 +18,13 @@ pub(super) fn build(
 ) {
     let parts = layout.parts;
     if parts.snout == Snout::Bill && parts.snout_length > 0 {
-        bill(triangles, parts.snout_length as f32, shape, axes);
+        bill(
+            triangles,
+            parts.snout_length as f32,
+            parts.knob as f32,
+            shape,
+            axes,
+        );
     }
     if parts.tusks > 0 {
         tusks(triangles, parts.tusks as f32, shape, axes);
@@ -26,14 +32,15 @@ pub(super) fn build(
 }
 
 /// Broad and flat from the face over any beak in the rings, reaching `length` past the
-/// nose, widening a little and rounded at the tip, dipping a little.
-fn bill(triangles: &mut Vec<Triangle>, length: f32, shape: &HeadShape, axes: &HeadAxes) {
+/// nose, widening a little and rounded at the tip, dipping a little; a knob this tall
+/// on top of its base, if any.
+fn bill(triangles: &mut Vec<Triangle>, length: f32, knob: f32, shape: &HeadShape, axes: &HeadAxes) {
     let (face, nose) = (shape.rings[HEAD_RINGS - 3], shape.rings[HEAD_RINGS - 1]);
     let start = face.along as f32;
     let length = nose.along as f32 + length - start;
-    let mid = (nose.back - nose.belly) as f32 / 2.0;
+    let mid = (nose.back + nose.belly) as f32 / 2.0;
     let wide = (face.half as f32 * 0.8).max(length * 0.22);
-    let deep = length * 0.11;
+    let deep = length * 0.15;
     // Along, down, half width and half depth, as shares.
     let steps = [
         (0.0, 0.0, 1.0, 1.0),
@@ -57,6 +64,15 @@ fn bill(triangles: &mut Vec<Triangle>, length: f32, shape: &HeadShape, axes: &He
         })
         .collect();
     loft(triangles, &rings);
+    if knob > 0.0 {
+        // On the bill's top, where it leaves the face.
+        let along = start + length * 0.3;
+        blob(
+            triangles,
+            axes.at(along, mid + deep * 0.75 + knob * 0.35, 0.0),
+            Vec3::new(knob * 0.7, knob * 0.75, knob * 0.9),
+        );
+    }
 }
 
 /// Up and out from the lower jaw near the front, curving back, as a boar's.

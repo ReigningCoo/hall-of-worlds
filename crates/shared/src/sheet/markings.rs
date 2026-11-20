@@ -68,11 +68,11 @@ pub enum Face {
 }
 
 /// Off-white, as a wolf's or a horse's markings.
-const CREAM: [u8; 3] = [226, 218, 200];
-const WHITE: [u8; 3] = [236, 234, 228];
+pub(super) const CREAM: [u8; 3] = [226, 218, 200];
+pub(super) const WHITE: [u8; 3] = [236, 234, 228];
 const DARK: [u8; 3] = [40, 34, 32];
 
-const fn marked(name: &'static str, marks: Marks) -> Choice {
+pub(super) const fn marked(name: &'static str, marks: Marks) -> Choice {
     Choice {
         name,
         colour: None,
@@ -81,7 +81,7 @@ const fn marked(name: &'static str, marks: Marks) -> Choice {
     }
 }
 
-const fn marks(colour: [u8; 3], belly: bool, face: Face) -> Marks {
+pub(super) const fn marks(colour: [u8; 3], belly: bool, face: Face) -> Marks {
     Marks {
         colour,
         belly,
@@ -95,7 +95,7 @@ const fn marks(colour: [u8; 3], belly: bool, face: Face) -> Marks {
     }
 }
 
-const fn patched(name: &'static str, colour: [u8; 3], layout: u8) -> Choice {
+pub(super) const fn patched(name: &'static str, colour: [u8; 3], layout: u8) -> Choice {
     marked(
         name,
         Marks {
@@ -262,6 +262,6 @@ pub(super) fn markings_choices(kind: CreatureKind) -> &'static [Choice] {
         CreatureKind::Llama | CreatureKind::Alpaca => LLAMA,
         CreatureKind::Reindeer => REINDEER,
         CreatureKind::Rabbit => RABBIT,
-        _ => &[],
+        _ => super::bird_looks::bird_markings(kind),
     }
 }

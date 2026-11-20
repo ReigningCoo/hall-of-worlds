@@ -13,6 +13,7 @@ mod guesses;
 mod kind;
 mod layer;
 mod livestock;
+mod livestock_birds;
 mod livestock_more;
 mod names;
 mod peoples;
@@ -29,7 +30,7 @@ pub use size::Size;
 
 impl CreatureKind {
     /// Every kind, alphabetically.
-    pub const ALL: [Self; 33] = [
+    pub const ALL: [Self; 40] = [
         Self::Alpaca,
         Self::BactrianCamel,
         Self::Beggar,
@@ -41,11 +42,14 @@ impl CreatureKind {
         Self::Donkey,
         Self::Drider,
         Self::Dromedary,
+        Self::Duck,
         Self::Dwarf,
         Self::Elf,
         Self::Giant,
         Self::Goat,
         Self::Goblin,
+        Self::Goose,
+        Self::Guineafowl,
         Self::Halfling,
         Self::Horse,
         Self::Human,
@@ -54,12 +58,16 @@ impl CreatureKind {
         Self::Llama,
         Self::Minotaur,
         Self::Mule,
+        Self::MuscovyDuck,
         Self::Orc,
         Self::Pig,
+        Self::Pigeon,
+        Self::Quail,
         Self::Rabbit,
         Self::Reindeer,
         Self::ScorpionMan,
         Self::Sheep,
+        Self::Turkey,
         Self::WaterBuffalo,
         Self::Wolf,
         Self::Yak,

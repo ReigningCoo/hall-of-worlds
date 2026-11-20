@@ -24,11 +24,15 @@ pub enum CreatureKind {
     Drider,
     /// The one-humped camel.
     Dromedary,
+    Duck,
     Dwarf,
     Elf,
     Giant,
     Goat,
     Goblin,
+    Goose,
+    /// The helmeted guineafowl, kept for eggs and as a noisy watch.
+    Guineafowl,
     Halfling,
     Horse,
     #[default]
@@ -39,12 +43,17 @@ pub enum CreatureKind {
     Minotaur,
     /// A donkey sire's and a horse mare's sterile young.
     Mule,
+    /// A Muscovy duck: its own kind, sharing the duck's livestock row.
+    MuscovyDuck,
     Orc,
     Pig,
+    Pigeon,
+    Quail,
     Rabbit,
     Reindeer,
     ScorpionMan,
     Sheep,
+    Turkey,
     WaterBuffalo,
     Wolf,
     Yak,

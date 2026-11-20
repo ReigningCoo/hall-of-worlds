@@ -95,6 +95,13 @@ pub(super) fn build(triangles: &mut Vec<Triangle>, layout: &Layout, leg: &Limb, 
                     &[(ankle, ankle_radius * 0.6), (tip, ankle_radius * 0.15)],
                 );
             }
+            spurs(
+                triangles,
+                knee,
+                ankle,
+                ankle_radius,
+                layout.parts.spurs as f32,
+            );
         }
         _ => {
             blob(
@@ -104,6 +111,17 @@ pub(super) fn build(triangles: &mut Vec<Triangle>, layout: &Layout, leg: &Limb, 
             );
         }
     }
+}
+
+/// A spur this long on the back of the shank, a little above the foot, pointing
+/// back and a little in and up.
+fn spurs(triangles: &mut Vec<Triangle>, knee: Vec3, ankle: Vec3, radius: f32, long: f32) {
+    if long <= 0.0 {
+        return;
+    }
+    let root = knee.lerp(ankle, 0.75) + Vec3::NEG_Z * radius * 0.6;
+    let tip = root + Vec3::new(-root.x.signum() * long * 0.3, long * 0.2, -long);
+    limb(triangles, &[(root, radius * 0.45), (tip, 1.5)]);
 }
 
 /// A water bird's foot: three toes spread forwards from the ankle, joined by webs to

@@ -25,8 +25,16 @@ pub(super) fn picture(kind: CreatureKind) -> &'static str {
         | CreatureKind::Sheep
         | CreatureKind::WaterBuffalo
         | CreatureKind::Yak => "monsters/cowright.png",
-        // (No rabbit among the pictures yet.)
-        CreatureKind::Chicken | CreatureKind::Rabbit => "monsters/chicken1.png",
+        // (No rabbit or other kept bird among the pictures yet.)
+        CreatureKind::Chicken
+        | CreatureKind::Rabbit
+        | CreatureKind::Duck
+        | CreatureKind::MuscovyDuck
+        | CreatureKind::Goose
+        | CreatureKind::Turkey
+        | CreatureKind::Guineafowl
+        | CreatureKind::Pigeon
+        | CreatureKind::Quail => "monsters/chicken1.png",
         CreatureKind::Drider => "monsters/spiderblack.png",
         CreatureKind::Giant => "monsters/gianthill.png",
         // (No donkey, mule, camel, llama, alpaca or reindeer among the pictures
@@ -51,9 +59,17 @@ pub(super) fn picture(kind: CreatureKind) -> &'static str {
 /// How big a kind of creature's picture is drawn.
 pub(super) fn picture_size(kind: CreatureKind) -> TokenSize {
     match kind {
-        CreatureKind::Chicken | CreatureKind::Goat | CreatureKind::Pig | CreatureKind::Sheep => {
-            TokenSize::Small
-        }
+        CreatureKind::Chicken
+        | CreatureKind::Duck
+        | CreatureKind::MuscovyDuck
+        | CreatureKind::Goose
+        | CreatureKind::Turkey
+        | CreatureKind::Guineafowl
+        | CreatureKind::Pigeon
+        | CreatureKind::Quail
+        | CreatureKind::Goat
+        | CreatureKind::Pig
+        | CreatureKind::Sheep => TokenSize::Small,
         CreatureKind::Giant | CreatureKind::Minotaur => TokenSize::Large,
         _ => TokenSize::Default,
     }

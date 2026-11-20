@@ -12,7 +12,10 @@ use crate::sheet::{Appearance, Trait};
 /// yellow-brown, 6 silvery brown, 6 black, and 6 brindled, split between the two
 /// brindles. Kept cattle never have an aurochs's coat or eel stripe (the last
 /// choices), which are for wild cattle. Donkeys are mostly grey-dun with a
-/// dark cross, mules mostly pale-pointed and reindeer mostly pale-necked.
+/// dark cross, mules mostly pale-pointed and reindeer mostly pale-necked. Cocks
+/// mostly have hackles, drakes a green head and quail their sex's breast; ducks
+/// are mostly white or mallard, turkeys white or bronze, guineafowl pearl grey and
+/// pigeons blue-grey with a shining neck.
 const WEIGHTS: &[(CreatureKind, Trait, &[u64])] = &[
     (CreatureKind::Coo, Trait::CoatColour, &[60, 22, 6, 6, 3, 3]),
     (
@@ -30,6 +33,22 @@ const WEIGHTS: &[(CreatureKind, Trait, &[u64])] = &[
     (CreatureKind::Mule, Trait::CoatColour, &[3, 3, 2, 1, 2, 1]),
     (CreatureKind::Mule, Trait::Markings, &[3, 4, 1, 1]),
     (CreatureKind::Reindeer, Trait::Markings, &[1, 4]),
+    (CreatureKind::Chicken, Trait::Markings, &[1, 3, 1]),
+    (CreatureKind::Duck, Trait::FeatherColour, &[3, 4, 4, 1, 1]),
+    (CreatureKind::Duck, Trait::Markings, &[1, 4]),
+    (
+        CreatureKind::MuscovyDuck,
+        Trait::FeatherColour,
+        &[3, 3, 1, 1],
+    ),
+    (CreatureKind::Turkey, Trait::FeatherColour, &[3, 1, 4, 1, 1]),
+    (CreatureKind::Turkey, Trait::Markings, &[2, 1]),
+    (CreatureKind::Guineafowl, Trait::FeatherColour, &[6, 1, 1]),
+    (CreatureKind::Guineafowl, Trait::Markings, &[4, 1]),
+    (CreatureKind::Pigeon, Trait::FeatherColour, &[5, 2, 1, 1, 1]),
+    (CreatureKind::Pigeon, Trait::Markings, &[1, 4, 1]),
+    (CreatureKind::Quail, Trait::FeatherColour, &[6, 1, 1, 1]),
+    (CreatureKind::Quail, Trait::Markings, &[1, 4, 4]),
 ];
 
 /// The weights for a kind's trait, if it has any; otherwise all choices are even.
