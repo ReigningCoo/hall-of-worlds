@@ -244,6 +244,10 @@ creature-dromedary = { $count ->
     [one] dromedary
    *[other] dromedaries
 }
+creature-duck = { $count ->
+    [one] duck
+   *[other] ducks
+}
 creature-dwarf = { $count ->
     [one] dwarf
    *[other] dwarves
@@ -264,6 +268,11 @@ creature-goblin = { $count ->
     [one] goblin
    *[other] goblins
 }
+creature-goose = { $count ->
+    [one] goose
+   *[other] geese
+}
+creature-guineafowl = guineafowl
 creature-halfling = { $count ->
     [one] halfling
    *[other] halflings
@@ -293,6 +302,10 @@ creature-mule = { $count ->
     [one] mule
    *[other] mules
 }
+creature-muscovy-duck = { $count ->
+    [one] Muscovy duck
+   *[other] Muscovy ducks
+}
 creature-orc = { $count ->
     [one] orc
    *[other] orcs
@@ -301,6 +314,11 @@ creature-pig = { $count ->
     [one] pig
    *[other] pigs
 }
+creature-pigeon = { $count ->
+    [one] pigeon
+   *[other] pigeons
+}
+creature-quail = quail
 creature-rabbit = { $count ->
     [one] rabbit
    *[other] rabbits
@@ -311,6 +329,10 @@ creature-scorpion-man = { $count ->
    *[other] scorpion men
 }
 creature-sheep = sheep
+creature-turkey = { $count ->
+    [one] turkey
+   *[other] turkeys
+}
 creature-water-buffalo = water buffalo
 creature-wolf = { $count ->
     [one] wolf

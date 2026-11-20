@@ -1,10 +1,11 @@
 //! An animal's long hair, drawn apart from its coat in a darker shade of it: a mane
 //! along the top of the neck and falling down both sides, the long hair of a tail (a
-//! horse's whole tail, a cow's switch at the end), a goat's beard, and a yak's skirt
+//! horse's whole tail, a cow's switch at the end), a goat's beard (a turkey's on its
+//! breast), and a yak's skirt
 //! (`coat_shape.rs`).
 
 use bevy::prelude::*;
-use shared::body::Layout;
+use shared::body::{Layout, Wings};
 
 use super::trunk;
 use super::{HeadAxes, Triangle, crown, features, limb, point};
@@ -28,8 +29,13 @@ pub(in crate::item_art) fn coat_hair(layout: &Layout) -> Vec<Triangle> {
     triangles
 }
 
-/// A tuft hanging from under the chin of a measured head, a little forwards.
+/// A tuft hanging from under the chin of a measured head, a little forwards; a
+/// bird's from the front of its breast.
 fn beard(triangles: &mut Vec<Triangle>, layout: &Layout, long: f32) {
+    if layout.parts.wings == Wings::Folded {
+        breast_beard(triangles, layout, long);
+        return;
+    }
     let Some(shape) = layout.head.shape else {
         return;
     };
@@ -43,6 +49,24 @@ fn beard(triangles: &mut Vec<Triangle>, layout: &Layout, long: f32) {
             (top, thick),
             (top + Vec3::new(0.0, -long * 0.55, long * 0.08), thick * 0.8),
             (top + Vec3::new(0.0, -long, long * 0.12), 3.0),
+        ],
+    );
+}
+
+/// A turkey's beard: a tuft of hair-like feathers from the front of the breast,
+/// hanging down and a little forwards.
+fn breast_beard(triangles: &mut Vec<Triangle>, layout: &Layout, long: f32) {
+    let axes = trunk::Axes::of(layout);
+    let rings = &layout.spine.rings;
+    let ring = rings[rings.len() * 3 / 4];
+    let top = trunk::middle_of(&axes, &ring) + axes.front * (ring.belly + ring.back) as f32 * 0.45;
+    let thick = (long * 0.12).max(4.0);
+    limb(
+        triangles,
+        &[
+            (top, thick),
+            (top + Vec3::new(0.0, -long * 0.55, long * 0.1), thick * 0.9),
+            (top + Vec3::new(0.0, -long, long * 0.15), 2.0),
         ],
     );
 }

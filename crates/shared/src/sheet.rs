@@ -16,6 +16,7 @@ use crate::skill::Skills;
 use crate::vitals::Vitals;
 
 mod attributes;
+mod bird_looks;
 mod bonuses;
 mod build;
 mod fits;

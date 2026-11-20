@@ -66,6 +66,9 @@ pub enum Tail {
     Tufted,
     /// A bird's tail feathers spread upright in a fan, as a displaying turkey's.
     Fan,
+    /// A bird's long tail feathers arching up and back and falling, as a cock's
+    /// sickles.
+    Sickle,
 }
 
 /// What a body stands on.
@@ -161,6 +164,12 @@ pub struct Parts {
     /// Knobbly red skin this thick over the face and round the bill's base, as a
     /// Muscovy drake's or a turkey's head.
     pub caruncles: i32,
+    /// A knob this tall on top of the bill's base, as a Chinese gander's or a
+    /// Muscovy drake's.
+    pub knob: i32,
+    /// Spurs this long on the backs of a bird's shanks, as a cock's or a tom
+    /// turkey's.
+    pub spurs: i32,
     /// The coat's shape, and how thick a fleece is or how far a skirt hangs.
     pub coat_shape: Coat,
     pub coat_length: i32,
@@ -196,6 +205,8 @@ pub const NONE: Parts = Parts {
     wattles: 0,
     snood: 0,
     caruncles: 0,
+    knob: 0,
+    spurs: 0,
     coat_shape: Coat::Smooth,
     coat_length: 0,
 };

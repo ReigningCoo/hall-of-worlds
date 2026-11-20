@@ -44,6 +44,8 @@ pub(super) fn blend(a: &Parts, b: &Parts, t: i32) -> Parts {
         wattles: mix(a.wattles, b.wattles, t),
         snood: mix(a.snood, b.snood, t),
         caruncles: mix(a.caruncles, b.caruncles, t),
+        knob: mix(a.knob, b.knob, t),
+        spurs: mix(a.spurs, b.spurs, t),
         coat_shape,
         coat_length,
     }
@@ -85,6 +87,8 @@ pub(in crate::body) fn scaled(parts: &Parts, share: i32) -> Parts {
         wattles: size(parts.wattles),
         snood: size(parts.snood),
         caruncles: size(parts.caruncles),
+        knob: size(parts.knob),
+        spurs: size(parts.spurs),
         coat_length: size(parts.coat_length),
         ..*parts
     }

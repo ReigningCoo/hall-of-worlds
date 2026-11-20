@@ -12,11 +12,13 @@ use chicken_head::CHICKEN_HEAD;
 pub use sexes::{Sex, Sexes};
 pub use table::BEASTS;
 
+mod bird_sexes;
 mod build;
 mod chicken_head;
 mod drawn_heads;
 mod drawn_trunks;
 mod livestock;
+mod livestock_birds;
 mod livestock_more;
 mod livestock_sexes;
 mod more_sexes;

@@ -3,6 +3,7 @@
 use super::animals::{CATTLE, COO, WOLF};
 use super::guesses::{PERSON, medians};
 use super::livestock::{GOAT, PIG, SHEEP, WATER_BUFFALO, YAK};
+use super::livestock_birds::{DUCK, GOOSE, GUINEAFOWL, MUSCOVY_DUCK, PIGEON, QUAIL, TURKEY};
 use super::livestock_more::{
     ALPACA, BACTRIAN_CAMEL, DONKEY, DROMEDARY, LLAMA, MULE, RABBIT, REINDEER,
 };
@@ -128,6 +129,13 @@ impl CreatureKind {
             Self::Alpaca => ALPACA,
             Self::Reindeer => REINDEER,
             Self::Rabbit => RABBIT,
+            Self::Duck => DUCK,
+            Self::MuscovyDuck => MUSCOVY_DUCK,
+            Self::Goose => GOOSE,
+            Self::Turkey => TURKEY,
+            Self::Guineafowl => GUINEAFOWL,
+            Self::Pigeon => PIGEON,
+            Self::Quail => QUAIL,
             Self::Drider => DRIDER,
             Self::ScorpionMan => SCORPION_MAN,
             Self::Wolf => WOLF,
@@ -182,7 +190,7 @@ impl CreatureKind {
                 bonus_set: &[],
                 skills: &[("gathering/foraging", 27_000)],
                 abilities: &[Flutter],
-                looks: &[FeatherColour],
+                looks: &[FeatherColour, Markings],
             },
             Self::Giant => CreatureDef {
                 name: "Giant",

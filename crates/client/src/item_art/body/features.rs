@@ -12,8 +12,8 @@ pub(super) fn rear(triangles: &mut Vec<Triangle>, layout: &Layout) {
     if layout.parts.abdomen > 0 {
         abdomen(triangles, layout);
     }
-    // A fan of feathers is drawn with the wings (`wings`).
-    if layout.parts.tail > 0 && layout.parts.tail_shape != Tail::Fan {
+    // A fan of feathers or sickles is drawn with the wings (`wings`).
+    if layout.parts.tail > 0 && !matches!(layout.parts.tail_shape, Tail::Fan | Tail::Sickle) {
         tail(triangles, layout, layout.parts.tail as f32);
     }
 }
@@ -37,12 +37,15 @@ pub(super) fn skull(layout: &Layout) -> Vec3 {
     point(layout.chin()) + Vec3::Y * (layout.head.length / 2) as f32
 }
 
-/// The feathers of wings and a fanned tail, if it has any: drawn apart from the skin,
+/// The feathers of wings and a fanned or sickle tail, if it has any: drawn apart from the skin,
 /// in their own colour.
 pub(in crate::item_art) fn wings(layout: &Layout) -> Vec<Triangle> {
     let mut triangles = Vec::new();
     if layout.parts.tail > 0 && layout.parts.tail_shape == Tail::Fan {
         super::fan::build(&mut triangles, layout, layout.parts.tail as f32);
+    }
+    if layout.parts.tail > 0 && layout.parts.tail_shape == Tail::Sickle {
+        super::sickle::build(&mut triangles, layout, layout.parts.tail as f32);
     }
     if layout.parts.wings == Wings::Folded {
         folded(&mut triangles, layout);
@@ -230,7 +233,9 @@ pub(in crate::item_art) fn tail_path(layout: &Layout, length: f32) -> [(Vec3, f3
     let [root, first, second, tip] = match tail_shape {
         Tail::Plain => [thick, thick * 0.7, thick * 0.4, 8.0],
         Tail::Bushy => [thick * 0.9, thick * 1.35, thick * 1.2, thick * 0.45],
-        Tail::Thin | Tail::Tufted | Tail::Fan => [thick * 0.5, thick * 0.35, thick * 0.28, 6.0],
+        Tail::Thin | Tail::Tufted | Tail::Fan | Tail::Sickle => {
+            [thick * 0.5, thick * 0.35, thick * 0.28, 6.0]
+        }
     };
     [
         (base, root),

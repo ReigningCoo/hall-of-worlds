@@ -1,12 +1,12 @@
 //! How a beast's males and females differ: their horns or antlers, tusks, a
-//! beard, a comb and wattles, a hump, an udder, a mane, a dewlap, and how big
-//! they are. Only for looks: a creature's `Size`, weight and footprint are its
+//! beard, a comb, wattles, a snood, caruncles, a bill knob, spurs, a tail of
+//! their own, a hump, an udder, a mane, a dewlap, and how big they are. Only for looks: a creature's `Size`, weight and footprint are its
 //! kind's whatever its gender. Colours that differ by gender are looks' choices
 //! (`shared::sheet::Choice::gender`).
 
 use super::super::Layout;
 use super::super::blend::WHOLE;
-use super::super::parts::{Horns, NONE, Parts};
+use super::super::parts::{Horns, NONE, Parts, Tail};
 use super::Beast;
 use crate::creature::CreatureKind;
 use crate::gender::Gender;
@@ -26,6 +26,13 @@ pub struct Sex {
     pub beard: i32,
     pub comb: i32,
     pub wattles: i32,
+    pub snood: i32,
+    pub caruncles: i32,
+    pub knob: i32,
+    pub spurs: i32,
+    /// Its own tail's shape and length (a cock's sickles, a tom's fan), or
+    /// `None` to keep the body's.
+    pub tail: Option<(Tail, i32)>,
     /// Each hump's height (as many as the neutral body has).
     pub hump: i32,
     pub udder: i32,
@@ -53,6 +60,11 @@ impl Sex {
             beard: parts.beard,
             comb: parts.comb,
             wattles: parts.wattles,
+            snood: parts.snood,
+            caruncles: parts.caruncles,
+            knob: parts.knob,
+            spurs: parts.spurs,
+            tail: None,
             hump: parts.hump,
             udder: parts.udder,
             mane: 0,
@@ -72,6 +84,12 @@ impl Sex {
             beard: self.beard,
             comb: self.comb,
             wattles: self.wattles,
+            snood: self.snood,
+            caruncles: self.caruncles,
+            knob: self.knob,
+            spurs: self.spurs,
+            tail_shape: self.tail.map_or(parts.tail_shape, |(shape, _)| shape),
+            tail: self.tail.map_or(parts.tail, |(_, long)| long),
             hump: self.hump,
             udder: self.udder,
             mane: (parts.mane + self.mane).max(0),

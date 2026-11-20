@@ -67,11 +67,12 @@ impl CreatureKind {
         use CreatureKind::*;
         match self {
             Halfling => Temper::Friendly,
-            Chicken | Horse | Rabbit | Reindeer | Sheep => Temper::Timid,
-            Lizardfolk | ScorpionMan | Wolf => Temper::Territorial,
+            Chicken | Duck | Guineafowl | Horse | MuscovyDuck | Pigeon | Quail | Rabbit
+            | Reindeer | Sheep => Temper::Timid,
+            Goose | Lizardfolk | ScorpionMan | Wolf => Temper::Territorial,
             Drider | Goblin | Kobold | Minotaur | Orc => Temper::Hostile,
             Alpaca | BactrianCamel | Beggar | Birdfolk | Cattle | Centaur | Coo | Donkey
-            | Dromedary | Dwarf | Elf | Giant | Goat | Human | Llama | Mule | Pig
+            | Dromedary | Dwarf | Elf | Giant | Goat | Human | Llama | Mule | Pig | Turkey
             | WaterBuffalo | Yak => Temper::Neutral,
         }
     }
@@ -87,7 +88,9 @@ impl CreatureKind {
             Cattle | Coo | Sheep | WaterBuffalo | Yak => 330,
             Alpaca | BactrianCamel | Dromedary | Goat | Llama => 320,
             Pig => 310,
-            Chicken => 300,
+            Pigeon | Quail => 340,
+            Duck | MuscovyDuck | Goose => 320,
+            Chicken | Guineafowl | Turkey => 300,
             Minotaur => 240,
             Wolf => 240,
             Birdfolk | Drider | Lizardfolk => 180,
@@ -121,7 +124,10 @@ impl CreatureKind {
             Sheep => senses(Normal, DarkSight::Low, Keen, Normal),
             WaterBuffalo | Yak => senses(Normal, DarkSight::Low, Normal, Keen),
             Centaur => senses(Keen, DarkSight::None, Normal, Normal),
-            Chicken => senses(Normal, DarkSight::None, Normal, Poor),
+            Chicken | Duck | MuscovyDuck | Quail => senses(Normal, DarkSight::None, Normal, Poor),
+            Goose => senses(Keen, DarkSight::None, Keen, Poor),
+            Guineafowl => senses(Keen, DarkSight::None, Keen, Poor),
+            Pigeon | Turkey => senses(Keen, DarkSight::None, Normal, Poor),
             Drider | Dwarf | ScorpionMan => senses(Normal, DarkSight::Dark, Normal, Normal),
             Elf => senses(Keen, DarkSight::Low, Keen, Normal),
             Giant | Lizardfolk => senses(Normal, DarkSight::None, Normal, Normal),

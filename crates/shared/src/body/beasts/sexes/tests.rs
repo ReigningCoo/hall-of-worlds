@@ -50,6 +50,11 @@ fn a_sex_puts_all_its_parts_on_and_keeps_the_rest() {
         beard: 120,
         comb: 30,
         wattles: 25,
+        snood: 40,
+        caruncles: 6,
+        knob: 12,
+        spurs: 20,
+        tail: None,
         hump: 300,
         udder: 0,
         horns: crate::body::Horns::None,
@@ -68,4 +73,20 @@ fn a_sex_puts_all_its_parts_on_and_keeps_the_rest() {
     assert_eq!(parts.horns, crate::body::Horns::None);
     assert_eq!(parts.fringe, neutral.fringe);
     assert_eq!(parts.tail_hair, neutral.tail_hair);
+    assert_eq!((parts.snood, parts.caruncles), (40, 6));
+    assert_eq!((parts.knob, parts.spurs), (12, 20));
+    // No tail of its own keeps the body's; one of its own replaces it.
+    assert_eq!(
+        (parts.tail, parts.tail_shape),
+        (neutral.tail, neutral.tail_shape)
+    );
+    let sickled = Sex {
+        tail: Some((crate::body::Tail::Sickle, 250)),
+        ..stag
+    };
+    let parts = sickled.on(neutral);
+    assert_eq!(
+        (parts.tail_shape, parts.tail),
+        (crate::body::Tail::Sickle, 250)
+    );
 }
