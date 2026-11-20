@@ -240,6 +240,10 @@ creature-giant = { $count ->
     [one] giant
    *[other] giants
 }
+creature-goat = { $count ->
+    [one] goat
+   *[other] goats
+}
 creature-goblin = { $count ->
     [one] goblin
    *[other] goblins
@@ -269,13 +273,23 @@ creature-orc = { $count ->
     [one] orc
    *[other] orcs
 }
+creature-pig = { $count ->
+    [one] pig
+   *[other] pigs
+}
 creature-scorpion-man = { $count ->
     [one] scorpion man
    *[other] scorpion men
 }
+creature-sheep = sheep
+creature-water-buffalo = water buffalo
 creature-wolf = { $count ->
     [one] wolf
    *[other] wolves
+}
+creature-yak = { $count ->
+    [one] yak
+   *[other] yaks
 }
 
 ## Rewards.

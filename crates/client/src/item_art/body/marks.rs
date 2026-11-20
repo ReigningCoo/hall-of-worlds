@@ -3,7 +3,8 @@
 //! trunk's middle for a pale belly, parts of a measured head for a face, and patches
 //! from the markings' own number laid over the trunk, neck, head and tops of the legs;
 //! a brindle's wavy stripes across the trunk, neck and legs; a drake's hood (the head
-//! and the neck's top half) and a cock's hackles (the neck but its underside).
+//! and the neck's top half), a cock's hackles (the neck but its underside) and an
+//! aurochs bull's eel stripe (the top of the back).
 //! Triangles are halved along each side first, so the edges are less jagged.
 
 use bevy::prelude::*;
@@ -105,7 +106,8 @@ impl<'a> Body<'a> {
                 _ => false,
             };
         let hackles = marks.hackles && part == BodyPart::NECK && !self.under_neck(at);
-        belly || face || patched || striped || hood || hackles
+        let eel = marks.eel && part == BodyPart::TRUNK && trunk::underside(self.layout, at) < -0.9;
+        belly || face || patched || striped || hood || hackles || eel
     }
 
     /// How far up the neck a point is, from its root (0) to the head (1).

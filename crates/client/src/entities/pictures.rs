@@ -17,7 +17,14 @@ pub(super) fn picture(kind: CreatureKind) -> &'static str {
         | CreatureKind::Minotaur
         | CreatureKind::Birdfolk => "monsters/humanfighter.png",
         CreatureKind::Beggar => "monsters/humandruid01.png",
-        CreatureKind::Cattle | CreatureKind::Coo => "monsters/cowright.png",
+        // (No sheep, goat, pig, buffalo or yak among the pictures yet.)
+        CreatureKind::Cattle
+        | CreatureKind::Coo
+        | CreatureKind::Goat
+        | CreatureKind::Pig
+        | CreatureKind::Sheep
+        | CreatureKind::WaterBuffalo
+        | CreatureKind::Yak => "monsters/cowright.png",
         CreatureKind::Chicken => "monsters/chicken1.png",
         CreatureKind::Drider => "monsters/spiderblack.png",
         CreatureKind::Giant => "monsters/gianthill.png",
@@ -34,7 +41,9 @@ pub(super) fn picture(kind: CreatureKind) -> &'static str {
 /// How big a kind of creature's picture is drawn.
 pub(super) fn picture_size(kind: CreatureKind) -> TokenSize {
     match kind {
-        CreatureKind::Chicken => TokenSize::Small,
+        CreatureKind::Chicken | CreatureKind::Goat | CreatureKind::Pig | CreatureKind::Sheep => {
+            TokenSize::Small
+        }
         CreatureKind::Giant | CreatureKind::Minotaur => TokenSize::Large,
         _ => TokenSize::Default,
     }

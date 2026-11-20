@@ -9,7 +9,10 @@ use bevy::render::gpu_readback::{ReadbackComplete, ReadbackOnce};
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat, TextureUsages};
 use serde::Deserialize;
 use server::debug_api::{BrpError, BrpResult, Value, json, params, refused};
+use shared::creature::CreatureKind;
+use shared::gender::Gender;
 use shared::item::Item;
+use shared::sheet::Appearance;
 
 use shared::fruit::{FruitForm, Fruits};
 use shared::vegetable::{VegetableForm, Vegetables};
@@ -35,8 +38,13 @@ struct Asked {
     serving: Option<bool>,
     /// ...or a vegetable by its key, the same way...
     vegetable: Option<String>,
-    /// ...or any item, as saved, drawn as its look.
+    /// ...or any item, as saved, drawn as its look...
     item: Option<Item>,
+    /// ...or a creature of a kind, bare, as its token's model: of a gender
+    /// (Neutral if not given) with these looks (each trait's first if not given).
+    creature: Option<CreatureKind>,
+    gender: Option<Gender>,
+    looks: Option<Appearance>,
 }
 
 /// Pictures asked for and not yet read back.
@@ -50,7 +58,8 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.save_picture", save_picture);
 }
 
-/// `client.save_picture {path, pixels, herb?, fruit?, vegetable?, serving?, variant?, item?}`:
+/// `client.save_picture {path, pixels, herb?, fruit?, vegetable?, serving?, variant?, item?,
+/// creature?, gender?, looks?}`:
 /// answers the full path, the picture's `width` and `height`, and `wait_for_file`.
 fn save_picture(
     In(request): In<Option<Value>>,
@@ -61,6 +70,11 @@ fn save_picture(
 ) -> BrpResult {
     let asked: Asked = params(request)?;
     let look = match (asked.herb, asked.item) {
+        (None, None) if asked.creature.is_some() => creature_look(
+            asked.creature.unwrap_or_default(),
+            asked.gender.unwrap_or_default(),
+            asked.looks.unwrap_or_default(),
+        )?,
         (None, None) if asked.fruit.is_some() => fruit_look(
             asked.fruit.unwrap_or_default(),
             asked.serving,
@@ -115,6 +129,13 @@ fn save_picture(
         "height": size.y,
         "wait_for_file": path,
     }))
+}
+
+/// A creature's bare body, as its token shows it.
+fn creature_look(kind: CreatureKind, gender: Gender, looks: Appearance) -> Result<Look, BrpError> {
+    let looks = looks.fitted(kind, gender);
+    super::character::character_look(kind, gender, &looks, &[])
+        .ok_or_else(|| refused(format!("{kind:?}'s body isn't drawn")))
 }
 
 /// A fruit's look by key, whole or a slice, in a variant (0 if not given).

@@ -67,12 +67,11 @@ impl CreatureKind {
         use CreatureKind::*;
         match self {
             Halfling => Temper::Friendly,
-            Chicken | Horse => Temper::Timid,
+            Chicken | Horse | Sheep => Temper::Timid,
             Lizardfolk | ScorpionMan | Wolf => Temper::Territorial,
             Drider | Goblin | Kobold | Minotaur | Orc => Temper::Hostile,
-            Beggar | Birdfolk | Cattle | Centaur | Coo | Dwarf | Elf | Giant | Human => {
-                Temper::Neutral
-            }
+            Beggar | Birdfolk | Cattle | Centaur | Coo | Dwarf | Elf | Giant | Goat | Human
+            | Pig | WaterBuffalo | Yak => Temper::Neutral,
         }
     }
 
@@ -83,7 +82,9 @@ impl CreatureKind {
         use CreatureKind::*;
         match self {
             Horse => 350,
-            Cattle | Coo => 330,
+            Cattle | Coo | Sheep | WaterBuffalo | Yak => 330,
+            Goat => 320,
+            Pig => 310,
             Chicken => 300,
             Minotaur => 240,
             Wolf => 240,
@@ -108,7 +109,10 @@ impl CreatureKind {
         match self {
             Beggar | Human => senses(Normal, DarkSight::None, Normal, Poor),
             Birdfolk => senses(Keen, DarkSight::None, Normal, Poor),
-            Cattle | Coo => senses(Normal, DarkSight::Low, Keen, Keen),
+            Cattle | Coo | Goat => senses(Normal, DarkSight::Low, Keen, Keen),
+            Pig => senses(Poor, DarkSight::Low, Keen, Keen),
+            Sheep => senses(Normal, DarkSight::Low, Keen, Normal),
+            WaterBuffalo | Yak => senses(Normal, DarkSight::Low, Normal, Keen),
             Centaur => senses(Keen, DarkSight::None, Normal, Normal),
             Chicken => senses(Normal, DarkSight::None, Normal, Poor),
             Drider | Dwarf | ScorpionMan => senses(Normal, DarkSight::Dark, Normal, Normal),

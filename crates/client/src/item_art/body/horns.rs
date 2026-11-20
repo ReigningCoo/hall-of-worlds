@@ -34,6 +34,7 @@ fn thickness(horns: Horns, horn: f32) -> f32 {
         Horns::Upturned => 0.09,
         Horns::Forward => 0.17,
         Horns::Spiral => 0.11,
+        Horns::Sweep => 0.1,
         Horns::None | Horns::Back | Horns::Bull => 0.12,
     };
     (horn * share).max(8.0)
@@ -60,6 +61,10 @@ fn bends(horns: Horns) -> Option<[(Vec3, f32); 2]> {
         Horns::Forward => [
             (Vec3::new(0.55, 0.0, 0.12), 0.7),
             (Vec3::new(0.68, 0.15, 0.5), 0.0),
+        ],
+        Horns::Sweep => [
+            (Vec3::new(0.65, -0.1, -0.25), 0.7),
+            (Vec3::new(0.8, 0.1, -0.7), 0.0),
         ],
     })
 }

@@ -22,6 +22,7 @@ impl Selector for CreatureKind {
             Dwarf => "dwarf",
             Elf => "elf",
             Giant => "giant",
+            Goat => "goat",
             Goblin => "goblin",
             Halfling => "halfling",
             Horse => "horse",
@@ -30,8 +31,12 @@ impl Selector for CreatureKind {
             Lizardfolk => "lizardfolk",
             Minotaur => "minotaur",
             Orc => "orc",
+            Pig => "pig",
             ScorpionMan => "scorpion-man",
+            Sheep => "sheep",
+            WaterBuffalo => "water-buffalo",
             Wolf => "wolf",
+            Yak => "yak",
         }
     }
 }

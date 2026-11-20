@@ -23,10 +23,23 @@ fn coos_are_mostly_red_brown_and_others_even() {
     }
     let share = red as u64 * 100 / rolled;
     assert!((50..=70).contains(&share), "{share}% red-brown");
-    assert_eq!(weights(CreatureKind::Cattle, Trait::CoatColour), None);
-    let coat = Trait::CoatColour.choices_for(CreatureKind::Coo).len();
-    assert_eq!(
-        weights(CreatureKind::Coo, Trait::CoatColour).unwrap().len(),
-        coat
-    );
+    assert_eq!(weights(CreatureKind::Horse, Trait::CoatColour), None);
+    // Every kind's weights have one for each choice.
+    for (kind, which, weights) in WEIGHTS {
+        assert_eq!(weights.len(), which.choices_for(*kind).len(), "{kind:?}");
+    }
+}
+
+#[test]
+fn kept_cattle_never_look_like_aurochs() {
+    for n in 0..500u64 {
+        let roll = |what: i64| n.wrapping_mul(0x9e37_79b9_7f4a_7c15) ^ what as u64;
+        for gender in [Gender::Male, Gender::Female, Gender::Neutral] {
+            let looks = looks(&roll, CreatureKind::Cattle, gender);
+            let coat = looks.choice(CreatureKind::Cattle, Trait::CoatColour);
+            assert_ne!(coat.unwrap().name, "Aurochs");
+            let marks = looks.choice(CreatureKind::Cattle, Trait::Markings);
+            assert_ne!(marks.unwrap().name, "Eel stripe");
+        }
+    }
 }

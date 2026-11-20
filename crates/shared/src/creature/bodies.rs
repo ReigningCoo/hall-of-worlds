@@ -2,6 +2,7 @@
 
 use super::animals::{CATTLE, COO, WOLF};
 use super::guesses::{PERSON, medians};
+use super::livestock::{GOAT, PIG, SHEEP, WATER_BUFFALO, YAK};
 use super::peoples::{BIRDFOLK, DWARF, ELF, GOBLIN, HALFLING, LIZARDFOLK, MINOTAUR, ON_TOES, ORC};
 use super::taurs::{DRIDER, SCORPION_MAN};
 use super::{BodyPart, CreatureDef, CreatureKind, Layer, Location, Size};
@@ -111,6 +112,11 @@ impl CreatureKind {
             Self::Birdfolk => BIRDFOLK,
             Self::Cattle => CATTLE,
             Self::Coo => COO,
+            Self::Goat => GOAT,
+            Self::Pig => PIG,
+            Self::Sheep => SHEEP,
+            Self::WaterBuffalo => WATER_BUFFALO,
+            Self::Yak => YAK,
             Self::Drider => DRIDER,
             Self::ScorpionMan => SCORPION_MAN,
             Self::Wolf => WOLF,

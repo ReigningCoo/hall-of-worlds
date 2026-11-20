@@ -25,6 +25,7 @@ mod hair;
 mod height;
 mod kind_bonus;
 mod later;
+mod livestock_coats;
 mod load;
 mod looks;
 mod markings;
