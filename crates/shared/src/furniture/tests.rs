@@ -140,7 +140,8 @@ fn seats_match_their_rooms_tables() {
             };
             for seat in level.furniture() {
                 let room = |p: &Piece| level.room(p.at.0, p.at.1);
-                if seat.furniture.is_table() || room(seat) != room(table) {
+                let bench = matches!(seat.furniture, Furniture::CraftingBench { .. });
+                if seat.furniture.is_table() || bench || room(seat) != room(table) {
                     continue;
                 }
                 assert_eq!(seat.material, table.material, "{kind:?}");
@@ -153,7 +154,7 @@ fn seats_match_their_rooms_tables() {
                         style.benches().contains(&bench) || table.size.0.max(table.size.1) > 2,
                         "{kind:?} {style:?} {bench:?}"
                     ),
-                    Furniture::Table { .. } => {}
+                    Furniture::Table { .. } | Furniture::CraftingBench { .. } => {}
                 }
             }
         }

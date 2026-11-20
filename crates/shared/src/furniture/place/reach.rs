@@ -6,7 +6,7 @@
 use crate::dungeon::Level;
 
 /// Fills from each way into a level, over walkable cells not yet furnished.
-pub(super) struct Reach {
+pub(crate) struct Reach {
     min: (i64, i64),
     width: i64,
     height: i64,
@@ -19,7 +19,7 @@ pub(super) struct Reach {
 
 impl Reach {
     /// From `starts` (where people arrive: the entrance and stairs).
-    pub(super) fn new(level: &Level, starts: Vec<(i64, i64)>) -> Self {
+    pub(crate) fn new(level: &Level, starts: Vec<(i64, i64)>) -> Self {
         let doors_open = level.with_all_doors_open();
         let (min_x, min_y, width, height) = level.bounds();
         let open = (min_y..min_y + height)
@@ -63,7 +63,7 @@ impl Reach {
 
     /// Whether `cells` could all be furnished without cutting anything off:
     /// if so, they now count as wall.
-    pub(super) fn take(&mut self, cells: &[(i64, i64)]) -> bool {
+    pub(crate) fn take(&mut self, cells: &[(i64, i64)]) -> bool {
         let indices: Option<Vec<usize>> = cells.iter().map(|&cell| self.index(cell)).collect();
         let Some(indices) = indices else {
             return false;

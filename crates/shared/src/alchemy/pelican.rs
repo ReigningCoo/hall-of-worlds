@@ -6,6 +6,7 @@
 use super::Refused;
 use super::batch::Batch;
 use crate::brewing::{purity, quality_of_purity};
+use crate::crafting_bench::BENCH_PERCENT;
 use crate::item::Quality;
 use crate::potion::Contents;
 
@@ -25,6 +26,13 @@ pub(super) fn pelican(batch: &mut Batch) -> Result<(), Refused> {
 /// The purity quality of `contents` after `circulated` Pelicans: the purity
 /// score × (100% + `CIRCULATION_PERCENT` each), rounded down, then banded.
 pub fn circulated_quality(contents: &Contents, circulated: u32) -> Quality {
+    worked_quality(contents, circulated, false)
+}
+
+/// The same, also × (100% + `crafting_bench::BENCH_PERCENT`) when worked at
+/// a bench: the two multiplied, rounded down once.
+pub fn worked_quality(contents: &Contents, circulated: u32, at_bench: bool) -> Quality {
     let percent = 100 + CIRCULATION_PERCENT * circulated as i32;
-    quality_of_purity(purity(contents) * percent / 100)
+    let bench = 100 + if at_bench { BENCH_PERCENT } else { 0 };
+    quality_of_purity(purity(contents) * percent * bench / 10_000)
 }

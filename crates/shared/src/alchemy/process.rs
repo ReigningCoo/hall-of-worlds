@@ -15,6 +15,9 @@ pub struct Process<'a> {
     /// starting with a Mortar.
     pub source: Option<Stored>,
     pub steps: Vec<Step<'a>>,
+    /// Worked at a crafting bench, with at least one of its tools: the
+    /// purity score × (100 + `crafting_bench::BENCH_PERCENT`)%.
+    pub at_bench: bool,
 }
 
 /// A step: an apparatus and what is put into it.

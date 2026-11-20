@@ -14,9 +14,9 @@ Tables, chairs and benches in sites' rooms, of wood or stone, and where they go.
 ## Public API
 
 - `Piece { at, size, facing, material, furniture }` (serde): its north-west cell, its cells east–west and north–south, which way it faces (`door::Side`: a seat the way its sitter looks; a table east or south, the way its length runs), what it is made of and what it is. `cells()`, `covers(cell)`, `moved(offset)`.
-- `Furniture::{Table { style }, Chair { style, arms }, Bench { style }}`: `is_table()`, `cost_per_mille()`.
+- `Furniture::{Table { style }, Chair { style, arms }, Bench { style }, CraftingBench { craft }}`: `is_table()` (not a crafting bench), `cost_per_mille()` (a crafting bench as a table). A crafting bench (`shared::crafting_bench`) is 1 deep and its craft's length, of wood, facing away from the wall behind it as a seat does; placed by `crafting_bench::place_benches`, not `furnish`.
 - `TABLE_COST_PER_MILLE` (3000) and `SEAT_COST_PER_MILLE` (1500): how much longer a move over one takes (`dungeon::Level::furniture_cost_per_mille`, used by `movement::LevelWay` and `pathfinding::DistanceMap`).
-- `footprint(furniture, (long, short), facing)`: the cells east–west and north–south of a piece (a table's length the way it faces, a seat's across it). `Piece::is_well_made()`: a shape furnishing could make (sizes per kind, a table facing east or south and east when square, a pedestal where it `fits`, stone styles (`Furniture::is_stone`) of stone, arms only on wooden chairs): what the server checks Place Furniture's pieces by; a test checks furnishing only makes such pieces.
+- `footprint(furniture, (long, short), facing)`: the cells east–west and north–south of a piece (a table's length the way it faces, a seat's across it). `Piece::is_well_made()`: a shape furnishing could make (sizes per kind, a table facing east or south and east when square, a pedestal where it `fits`, a crafting bench its craft's length and 1 deep across the way it faces, stone styles (`Furniture::is_stone`) of stone, arms only on wooden chairs): what the server checks Place Furniture's pieces by; a test checks furnishing only makes such pieces.
 - `Material::{Wood(Wood), Stone(Stone)}` (`Material::ALL`: the woods, then the stones); `Wood` (oak, walnut, ash, pine, elm, beech, cherry, rare ebony) and `Stone` (granite, sandstone, limestone, marble, slate), each with `WEIGHTS`.
 - `TableStyle` (trestle, joined, plank legs, pedestal (1 × 1 and 1 × 2 only, `fits`), stone slab, stone block; `WOOD`, `STONE`, `chairs()`, `benches()`), `ChairStyle` (stool, back-stool, ladder-back, panel-back, X-frame, stone block), `BenchStyle` (splayed-leg plank, board-ended, long stool with rail, stone slab).
 - `furnish(site_level, kind, seed, index, ruin)`: called by `site::Site::level` last (not for a Dev Area, whose building brings its own).
@@ -28,7 +28,7 @@ Tables, chairs and benches in sites' rooms, of wood or stone, and where they go.
 
 ## Used by
 
-- `shared::cellar` (`place::rooms`: rooms and usable cells), `shared::dungeon` (`Level`'s furniture), `shared::site` (`Site::level`, Dev Area), `shared::wilderness` (cutouts), `shared::movement`, `shared::pathfinding`, `shared::mob` and `shared::quest` (spawns), `shared::protocol` (`LevelChunk::furniture`, `DevFurniture`), `server` (`sites`, and Place Furniture's `sites/dev_furniture.rs`), client `common` (`CurrentDungeon`), `dungeon_map`, `debug_menu` (Place Furniture), `dev_tools` (`HOW_DEBUG_FURNITURE`).
+- `shared::cellar` (`place::rooms`: rooms and usable cells), `shared::crafting_bench` (`place::rooms`, `place::reach`: `Reach`, made `pub(crate)` for it), `shared::dungeon` (`Level`'s furniture), `shared::site` (`Site::level`, Dev Area), `shared::wilderness` (cutouts), `shared::movement`, `shared::pathfinding`, `shared::mob` and `shared::quest` (spawns), `shared::protocol` (`LevelChunk::furniture`, `DevFurniture`), `server` (`sites`, and Place Furniture's `sites/dev_furniture.rs`), client `common` (`CurrentDungeon`), `dungeon_map`, `debug_menu` (Place Furniture), `dev_tools` (`HOW_DEBUG_FURNITURE`).
 
 ## Notes
 

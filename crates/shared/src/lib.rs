@@ -20,6 +20,7 @@ pub mod clearance;
 pub mod climate;
 pub mod clothing;
 pub mod combat;
+pub mod crafting_bench;
 pub mod creature;
 pub mod debug_report;
 pub mod difficulty;

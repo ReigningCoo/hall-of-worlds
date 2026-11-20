@@ -129,6 +129,7 @@ fn a_herb_and_a_fungus_sharing_a_key_are_two_kinds() {
             herbs: mix,
             solvent: Solvent::Dry,
         }],
+        at_bench: false,
     };
     let planned = plan(&process, AlchemySkills::default()).unwrap();
     assert_eq!(
