@@ -33,6 +33,7 @@ pub mod floor_sight;
 pub mod flour;
 pub mod footwear;
 pub mod fruit;
+pub mod fungus;
 pub mod furniture;
 pub mod gender;
 pub mod ground;

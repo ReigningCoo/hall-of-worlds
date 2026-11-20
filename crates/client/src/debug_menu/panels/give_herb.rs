@@ -1,14 +1,15 @@
-//! Give Item's herb, fruit, vegetable or flour (for the Herb, Fruit, Vegetable
-//! and Flour kinds): a dropdown of the server's herbs, the fruits, the
-//! vegetables or the grains' flours, by name, "Any herb", "Any fruit", "Any
-//! vegetable" or "Any flour" first for one rolled from the seed
-//! (`herb::dev_herb`, `fruit::dev_fruit`, `vegetable::dev_vegetable`,
-//! `flour::dev_flour`), on the Form line, which only these and kinds with a
-//! form show.
+//! Give Item's herb, fruit, vegetable, fungus or flour (for the Herb, Fruit,
+//! Vegetable, Fungus and Flour kinds): a dropdown of the server's herbs, the
+//! fruits, the vegetables, the fungi or the grains' flours, by name, "Any
+//! herb", "Any fruit", "Any vegetable", "Any fungus" or "Any flour" first for
+//! one rolled from the seed (`herb::dev_herb`, `fruit::dev_fruit`,
+//! `vegetable::dev_vegetable`, `fungus::dev_fungus`, `flour::dev_flour`), on
+//! the Form line, which only these and kinds with a form show.
 
 use bevy::prelude::*;
 use shared::flour::grains;
 use shared::fruit::Fruits;
+use shared::fungus::Fungi;
 use shared::item::ItemKind;
 use shared::vegetable::Vegetables;
 
@@ -62,6 +63,13 @@ pub(in crate::debug_menu) fn fill_give_herb(
                 (
                     vegetables.map(|def| (def.name.clone(), &def.key)).collect(),
                     "Any vegetable",
+                )
+            }
+            ItemKind::Fungus => {
+                let fungi = Fungi::built_in().iter();
+                (
+                    fungi.map(|def| (def.name.clone(), &def.key)).collect(),
+                    "Any fungus",
                 )
             }
             ItemKind::Flour => (

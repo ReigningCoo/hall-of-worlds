@@ -23,6 +23,7 @@ pub(super) fn bonus_lines(item: &Item, lang: &Lang) -> Vec<String> {
     }
     lines.extend(fruit_lines(item, lang));
     lines.extend(vegetable_lines(item, lang));
+    lines.extend(super::fungus::fungus_lines(item, lang));
     lines.extend(super::ointment::ointment_lines(item, lang));
     if food(item.kind).is_some_and(|food| food.others == Others::Poisoned) {
         // "Poisons other kinds: −1 Health a second for 60 s".

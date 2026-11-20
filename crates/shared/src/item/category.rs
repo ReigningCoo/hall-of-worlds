@@ -134,9 +134,12 @@ impl ItemKind {
             | Self::Keyring
             | Self::Pouch
             | Self::SmallBox => Containers,
-            Self::Fruit | Self::Vegetable | Self::Bread | Self::DwarvenBread | Self::RawMeat => {
-                Food
-            }
+            Self::Fruit
+            | Self::Vegetable
+            | Self::Fungus
+            | Self::Bread
+            | Self::DwarvenBread
+            | Self::RawMeat => Food,
             Self::CopperCoin | Self::SilverCoin | Self::GoldCoin | Self::Gem => Valuables,
             Self::Stone
             | Self::Herb

@@ -64,6 +64,29 @@ fn vegetables_say_their_raw_healing_or_none() {
 }
 
 #[test]
+fn fungi_say_their_raw_healing_but_not_their_poison() {
+    let lang = Lang::new(Language::English);
+    let fungi = shared::fungus::Fungi::built_in();
+    let item = |key: &str| {
+        let def = fungi.get(key).unwrap();
+        shared::fungus::new_item(def, 1, Id::for_test(1), None)
+    };
+    assert_eq!(
+        bonus_lines(&item("button_mushroom"), &lang),
+        vec!["Restores 1 Health a second for 1 s; stops on moving or being hurt"]
+    );
+    assert_eq!(
+        bonus_lines(&item("death_cap"), &lang),
+        vec!["Heals nothing raw"]
+    );
+    let puffball = bonus_lines(&item("giant_puffball"), &lang);
+    assert_eq!(
+        puffball,
+        vec!["Heals nothing raw", "Cut into 10 servings when eaten"]
+    );
+}
+
+#[test]
 fn armour_gives_toughness_and_costs_agility_and_mana() {
     let lang = Lang::new(Language::English);
     let order = ItemOrder::plain(ItemKind::TorsoArmour, Quality::Common);

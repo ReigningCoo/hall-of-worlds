@@ -37,11 +37,14 @@ pub(super) fn colour(effect: &Effect) -> Color {
 /// Where its icon is, in the assets: every food shares one.
 pub(super) fn icon_path(source: Source) -> &'static str {
     match source {
-        Source::Eaten(_) | Source::EatenFruit(_) | Source::EatenVegetable(_) => {
-            "icons/delapouite/eating.png"
-        }
+        Source::Eaten(_)
+        | Source::EatenFruit(_)
+        | Source::EatenVegetable(_)
+        | Source::EatenFungus(_) => "icons/delapouite/eating.png",
         Source::FruitEffects(_) => "icons/lorc/shiny-apple.png",
         Source::VegetableEffects(_) => "icons/delapouite/carrot.png",
+        Source::FungusEffects(_) => "icons/lorc/mushroom.png",
+        Source::FungusPoison(_) => "icons/lorc/spotted-mushroom.png",
         Source::Poison => "icons/lorc/poison-bottle.png",
         Source::Dev => "icons/lorc/magic-swirl.png",
         Source::RawHerb => "icons/delapouite/herbs-bundle.png",

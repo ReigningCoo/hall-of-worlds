@@ -14,6 +14,9 @@ pub enum ItemKind {
     /// A vegetable, pulse or grain (`shared::vegetable`), counted: which one
     /// is in its form.
     Vegetable,
+    /// A mushroom, fungus or lichen (`shared::fungus`), counted: which one is
+    /// in its form.
+    Fungus,
     /// A sack of flour milled from a grain (`shared::flour`), counted: which
     /// grain is in its form.
     Flour,

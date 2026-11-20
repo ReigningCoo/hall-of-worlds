@@ -8,6 +8,7 @@ use bevy::prelude::*;
 use shared::creature::CreatureKind;
 use shared::flour::dev_flour;
 use shared::fruit::dev_fruit;
+use shared::fungus::dev_fungus;
 use shared::herb::{dev_herb, new_item};
 use shared::id::Id;
 use shared::item::{Item, ItemKind};
@@ -128,6 +129,12 @@ fn count_made(
             let def = dev_vegetable(batch.herb.as_deref(), seed);
             let def = def.ok_or(Refused(Field::Material))?;
             return Ok(shared::vegetable::new_item(def, 1, new_id(), made_at));
+        }
+        if batch.order.kind == ItemKind::Fungus {
+            // Chosen as vegetables are (`fungus::dev_fungus`).
+            let def = dev_fungus(batch.herb.as_deref(), seed);
+            let def = def.ok_or(Refused(Field::Material))?;
+            return Ok(shared::fungus::new_item(def, 1, new_id(), made_at));
         }
         if batch.order.kind == ItemKind::Flour {
             // A grain's flour, chosen as vegetables are (`flour::dev_flour`).

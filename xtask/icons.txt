@@ -159,6 +159,8 @@ delapouite/olive
 skoll/pestle-mortar
 lorc/round-bottom-flask
 delapouite/carrot
+lorc/mushroom
+lorc/spotted-mushroom
 delapouite/covered-jar
 # The miller's door sign, drawn into the town atlas (tools/make_town_atlas.py)
 delapouite/windmill

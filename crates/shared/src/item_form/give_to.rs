@@ -60,6 +60,13 @@ pub fn give_form_to(
             let form = crate::vegetable::VegetableForm::new(def, seed);
             (ItemForm::Vegetable(form), Size::Medium)
         }
+        // Any fungus, rolled from the seed (`fungus::dev_fungus`).
+        ItemKind::Fungus => {
+            let def = crate::fungus::dev_fungus(None, seed);
+            let def = def.expect("the built-in fungi");
+            let form = crate::fungus::FungusForm::new(def, seed);
+            (ItemForm::Fungus(form), Size::Medium)
+        }
         // Any grain's flour, rolled from the seed (`flour::dev_flour`).
         ItemKind::Flour => {
             let def = crate::flour::dev_flour(None, seed);

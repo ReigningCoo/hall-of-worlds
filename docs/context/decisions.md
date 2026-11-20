@@ -1773,3 +1773,7 @@ Alchemy plan PR 8. Darkvision, the first effect beyond the herbs' stats, is a ne
 ## 2026-11-19: The field-of-view cone only on Hard and Ironman
 
 Owner's decision: players on Easy and Normal see all round on levels and in the Hall, as on the world map; Hard and Ironman keep the cone of "Facing and field of view" (2026-11-12). One rule both sides use, `facing::Field::for_player` by `Difficulty::sees_all_round`. Everything else about facing stays on every difficulty: headings and turning, `faced_cell`, the model's turn, mobs' cones and noticing, Observation's reach and practice. Darkness and Darkvision are unaffected. The server works sight out again when a character's difficulty changes.
+
+## 2026-11-19: Fungi have their own table and item kind
+
+Fungi plan PR 1 (owner's decision 6). Mushrooms, fungi and lichens are `shared::fungus` with `ItemKind::Fungus`, not rows in the vegetable or herb tables: their rows carry what neither has (where underground, niches, poisons with onsets and triggers, glow, lookalikes, four herb effects or none). They reuse what fits rather than copying it: vegetables' `Abundance`, `Raw`, `Effect` and raw healing share, herbs' `Temperature`, `Growth`, `Regrow` and `Effect`. A fungus's poison is its own `bonus::Source::FungusPoison(tag)` beside its healing and food effects, so it runs alongside food and other poisons; for now it starts at once when eaten, and PR 6 adds onsets and hiding.

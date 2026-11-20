@@ -53,17 +53,29 @@ pub enum Source {
     /// The stage of drinking it is at (`alcohol::Stage`): one at a time,
     /// swapped as the stage changes (`Sheet::keep_alcohol`).
     Alcohol(crate::alcohol::Stage),
+    /// Eating a fungus raw (`fungus::eating`): its healing, food like any
+    /// eaten.
+    EatenFungus(crate::fungus::FungusTag),
+    /// A fungus's food effects (`fungus::eating`): their own source, as a
+    /// vegetable's, and only the latest fungus's count.
+    FungusEffects(crate::fungus::FungusTag),
+    /// A fungus's poison (`fungus::eating`): its own source per fungus, so it
+    /// runs alongside food and other poisons, and eating the same again starts
+    /// it again.
+    FungusPoison(crate::fungus::FungusTag),
     // New sources go at the end: messages carry one by its place in this list.
 }
 
 impl Source {
     /// Whether a new effect from `new` takes the place of one from this: the
     /// same source, or both eaten, as only the latest food counts, or both a
-    /// fruit's or both a vegetable's effects, or both a juice or cordial drunk.
+    /// fruit's, a vegetable's or a fungus's effects, or both a juice or cordial
+    /// drunk.
     pub fn replaced_by(self, new: Source) -> bool {
         match (self, new) {
             (Source::FruitEffects(_), Source::FruitEffects(_)) => true,
             (Source::VegetableEffects(_), Source::VegetableEffects(_)) => true,
+            (Source::FungusEffects(_), Source::FungusEffects(_)) => true,
             (
                 Source::Juice(_) | Source::Cordial(_) | Source::Drink,
                 Source::Juice(_) | Source::Cordial(_) | Source::Drink,
@@ -73,11 +85,15 @@ impl Source {
         }
     }
 
-    /// Whether it is eaten food's healing: any food, a fruit or a vegetable.
+    /// Whether it is eaten food's healing: any food, a fruit, a vegetable or a
+    /// fungus.
     pub fn is_eaten(self) -> bool {
         matches!(
             self,
-            Source::Eaten(_) | Source::EatenFruit(_) | Source::EatenVegetable(_)
+            Source::Eaten(_)
+                | Source::EatenFruit(_)
+                | Source::EatenVegetable(_)
+                | Source::EatenFungus(_)
         )
     }
 }
