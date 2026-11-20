@@ -18,6 +18,7 @@ mod field;
 mod fruit;
 mod fruit_picking;
 mod fruit_showcase;
+mod fungi;
 mod furniture;
 mod herbs;
 pub use field::CROP_STAGES;
@@ -130,6 +131,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<trees::DrawnTrees>()
             .init_resource::<tree_flash::TreeFlashes>()
             .init_resource::<vegetable_plants::DrawnVegetables>()
+            .init_resource::<fungi::DrawnFungi>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -179,6 +181,7 @@ impl Plugin for DungeonMapPlugin {
                         )
                             .chain(),
                         vegetable_plants::update_vegetables,
+                        fungi::update_fungi,
                         aim_at_herbs,
                         pick_on_arrival,
                     ),

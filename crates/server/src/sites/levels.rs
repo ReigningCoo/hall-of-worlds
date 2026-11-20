@@ -43,7 +43,7 @@ pub(super) fn level_of(
     for (&(x, y), &cell) in &saved.changes {
         level.level.set(x, y, cell);
     }
-    super::put_plants(world, (new.id, &new.poi), index, &mut level);
+    super::put_plants(world, (new.id, &new.poi, site), index, &mut level);
     super::stock_cellar(world, (new.id, &new.poi), site, index, &level);
     let stairs = level
         .stairs

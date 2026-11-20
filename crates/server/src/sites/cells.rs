@@ -6,7 +6,7 @@ use shared::dungeon::{Cell, Level};
 use shared::furniture::Piece;
 use shared::movement::{Step, step_on_level};
 use shared::protocol::{
-    LevelChunk, SeenFelled, SeenFruit, SeenHerb, SeenStairs, SeenTree, SeenVegetable,
+    LevelChunk, SeenFelled, SeenFruit, SeenFungus, SeenHerb, SeenStairs, SeenTree, SeenVegetable,
     ServerMessage, level_chunk,
 };
 use std::collections::VecDeque;
@@ -147,6 +147,7 @@ pub(super) fn level_chunks(
             herbs: Vec::new(),
             fruit: Vec::new(),
             vegetables: Vec::new(),
+            fungi: Vec::new(),
             felled: Vec::new(),
             trees: Vec::new(),
             remembered,
@@ -195,6 +196,12 @@ pub(super) fn level_chunks(
                 Some(SeenVegetable { x, y, plant })
             })
             .collect();
+        let fungi = (positions.iter())
+            .filter_map(|&(x, y)| {
+                let patch = level.fungus_at(x, y)?.clone();
+                Some(SeenFungus { x, y, patch })
+            })
+            .collect();
         let felled = (positions.iter())
             .filter_map(|&(x, y)| {
                 Some(SeenFelled {
@@ -220,6 +227,7 @@ pub(super) fn level_chunks(
             herbs,
             fruit,
             vegetables,
+            fungi,
             ..message
         });
     }

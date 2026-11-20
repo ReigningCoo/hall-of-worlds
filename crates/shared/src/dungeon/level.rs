@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::{Cell, WallBar, WallShape, bars_of};
 use crate::door::Swing;
 use crate::fruit::FruitPlant;
+use crate::fungus::FungusPatch;
 use crate::furniture::Piece;
 use crate::herb::HerbPatch;
 use crate::tree::{TreeKind, TreeStage};
@@ -47,6 +48,8 @@ pub struct Level {
     pub(super) fruit: BTreeMap<(i64, i64), FruitPlant>,
     /// Vegetable plants by cell (see `vegetables.rs`).
     pub(super) vegetables: BTreeMap<(i64, i64), VegetablePlant>,
+    /// Fungus patches by cell (see `fungi.rs`).
+    pub(super) fungi: BTreeMap<(i64, i64), FungusPatch>,
     /// Trees felled and growing back, by cell (see `felled.rs`).
     pub(super) felled: BTreeMap<(i64, i64), TreeStage>,
     /// Wild trees' kinds by cell, where the server has said (see
@@ -74,6 +77,7 @@ impl Level {
             herbs: BTreeMap::new(),
             fruit: BTreeMap::new(),
             vegetables: BTreeMap::new(),
+            fungi: BTreeMap::new(),
             felled: BTreeMap::new(),
             tree_kinds: BTreeMap::new(),
             natural_walls: false,

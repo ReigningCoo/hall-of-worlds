@@ -15,6 +15,7 @@ mod darkness;
 mod doors;
 mod felled;
 mod fruit;
+mod fungi;
 mod furniture;
 mod herbs;
 mod level;

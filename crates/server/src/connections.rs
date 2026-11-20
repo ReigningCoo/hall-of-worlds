@@ -68,6 +68,7 @@ mod moving;
 mod new_character;
 mod other_protocol;
 mod pick_fruit;
+mod pick_fungus;
 mod pick_herb;
 mod pick_vegetable;
 mod playtime;

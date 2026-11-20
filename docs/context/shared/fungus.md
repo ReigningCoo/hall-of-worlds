@@ -1,6 +1,6 @@
 # shared: fungus
 
-Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of them (built in), fungi as counted items (one, a handful, or a large piece cut into servings when eaten), and what eating one raw does. Modelled on `shared::vegetable`, with its own kind and table (`decisions.md`, 2026-11-19). The plan, in 9 PRs, and what each builds: `docs/context/fungi.md` (PR 1 built: the table, items, eating raw; PR 2: pictures and wiki). Research and the owner's decisions: `docs/context/research-fungi.md`.
+Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of them (built in), fungi as counted items (one, a handful, or a large piece cut into servings when eaten), and what eating one raw does. Modelled on `shared::vegetable`, with its own kind and table (`decisions.md`, 2026-11-19). The plan, in 9 PRs, and what each builds: `docs/context/fungi.md` (PR 1 built: the table, items, eating raw; PR 2: pictures and wiki; PR 3: where they grow and picking). Research and the owner's decisions: `docs/context/research-fungi.md`.
 
 ## Files
 
@@ -16,6 +16,10 @@ Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of the
 - `fungus/eating.rs`: `eating`, `raw_ticks`, `effect_ticks`, `healing`, `poison_ticks`.
 - `fungus/cut.rs`: `cut`.
 - `fungus/dev.rs`: `dev_fungus`.
+- `fungus/patch.rs`: `FungusPatch`, `harvest`.
+- `fungus/place.rs`: `Spot`, `FungusDef::suits_spot` / `feeds_on_wood` / `is_lichen`, `weight`, `suited`, `choose`, `DEEPEST_ONLY`.
+- `fungus/underground.rs`: `Underground`, `grow_underground`, `spot_at` (what a cell offers), `PATCH_ONE_IN`, `WATER_REACH`, `DIM_REACH`. Tests for these in `fungus/place_tests.rs`.
+- `fungus/felled.rs`: `felled_patch`, `FELLED_PERCENT`.
 
 ## Public API
 
@@ -27,19 +31,23 @@ Mushrooms, fungi and lichens (owner, 2026-11-19): what each is, the table of the
 - `FungusForm { fungus, serving, look, grams }` (`ItemForm::Fungus`): `new(def, seed)`, `serving(def, seed)`, `is_whole(def)` (a piece of several servings), `name()` ("Giant puffball", "Giant puffball Slice", "Fungus" for a key the table lacks), `shape()` (as fruit's). `new_item(def, count, id, made_at)`; `Item::fungus()`.
 - `eating(def, now) -> Vec<Effect>`: one serving eaten raw: healing (`Source::EatenFungus(tag)`, as vegetables': `RAW_SHARE` of a serving's kcal ÷ 4 s, only for `Commonly` or `Sometimes`, ended by moving or being hurt), raw and both food effects (`Source::FungusEffects(tag)`, for `effect_ticks`), and a poison whose trigger is `Eaten` (`Source::FungusPoison(tag)`, at once for now, for `poison_ticks(severity)`: 30, 60, 90 or 120 s; nothing ends either early). Herb effects are not eaten.
 - `cut(whole, new_id) -> Option<(eaten, Option<rest>)>`: as `vegetable::cut`.
+- `FungusPatch { fungus, phase, picked }` (a cell's fungus; kept on `dungeon::Level`, sent in `protocol::LevelChunk::fungi`): `stage(def, now)` and `can_pick(def, now)` grow as herbs' (`herb::grown_stage`), picked full grown only, a stage after the last. `harvest(def, foraging, rng)`: as a herb patch without Herbs (`herb::harvest_range`, 1 to 3 untrained), a `Unit::Piece` always 1.
+- `Spot { niches, dim, earth, underground, depth, deepest }`: what a cell offers. `FungusDef::suits_spot(spot, celsius, biome)`: `Deep` anywhere underground, `Dim` only where dim, `Dug` in cave earth underground or in its biomes above ground, `Surface` above ground in its biomes; its temperature range always; a niche the spot offers; `DEEPEST_ONLY` (Dreamcap) only on a cave's deepest level. Biomes don't count underground (decision 3). `weight(abundance, depth)`: 9, 3 + depth, 1 + depth, depth (very rare never on the top level). `suited(fungi, spot, habitat)`, `choose(fungi, depth, rng)` (weighted, `None` if nothing can be).
+- `grow_underground(site_level, fungi, Underground, habitat, seed)`: a patch on about one `Cell::Floor` in `PATCH_ONE_IN` (60), never on stairs, a fungus suiting it. `Underground::Cave { depth, levels, crypt }`: soil and dung anywhere, rock beside a wall, water within `WATER_REACH` (2) of a pool, lava beside lava, remains in crypts or on the deepest level, earth (dug kinds); dim on the top level within `DIM_REACH` (4) of outside ground or stairs out, offering roots and wood too. `Underground::Basement`: wood and soil, `Deep` kinds only.
+- `felled_patch(fungi, habitat, seed, cell)`: for `FELLED_PERCENT` (40) of wild trees' cells, a wood-feeder of the land's biome and warmth, shown only while the tree is felled and cleared (`dungeon::Level::fungus_at`).
 - `dev_fungus(key, seed)`: Give Item's fungus, by key or rolled from the seed, the same on both sides; also `item_form::give_form`'s.
 
 ## Depends on
 
-- `herb` (`Effect`, `Stat`, `Growth`, `Regrow`, `Temperature`, `Rgb`, `EFFECTS`), `vegetable` (`Abundance`, `Raw`, `Effect`, `RAW_SHARE`), `fruit` (`RESTORE`, `bonus_of`), `climate` (`Biome`), `bonus` (`Effect`, `Source`), `item` (`Item`, `ItemKind::Fungus`, `Shape`), `item_form` (`ItemForm::Fungus`), `rng`, `id`, `ron`, `serde`.
+- `herb` (`Effect`, `Stat`, `Growth`, `Regrow`, `Temperature`, `Rgb`, `EFFECTS`, `grown_stage`, `harvest_range`), `dungeon` (`Level`, `Cell`), `site` (`SiteLevel`, `Exit`), `mob` (`Habitat`), `vegetable` (`Abundance`, `Raw`, `Effect`, `RAW_SHARE`), `fruit` (`RESTORE`, `bonus_of`), `climate` (`Biome`), `bonus` (`Effect`, `Source`), `item` (`Item`, `ItemKind::Fungus`, `Shape`), `item_form` (`ItemForm::Fungus`), `rng`, `id`, `ron`, `serde`.
 
 ## Used by
 
-- `item` (`ItemKind::Fungus`, Food, counted, no quality; stacks compare a fungus's form without its look), `item_form` (`give_form` rolls one; name, shape, grams), `bonus` (`Source::EatenFungus`, `FungusEffects`, `FungusPoison`; `is_food` and `may_eat` take fungi), server `connections/eat_fungus.rs` (`eating`, `cut`), `eat_fruit.rs` (`servings_fit`), `strength_room.rs`, `give_items.rs` (`dev_fungus`), client `item_art` (`fungus.rs`: pictures by `look`), `xtask wiki` (`fungus_page.rs`, `fungus_facts.rs`, `fungus_table.rs`, `fungus_pictures.rs`: a page per fungus, raw food effects only), client `effect_bar` (names by `by_tag`, "Poisoned: Death cap", `lorc/mushroom` and `lorc/spotted-mushroom`), `item_popup` (`fungus.rs`: raw healing, food effects, servings, never the poison), `debug_menu` (Give Item's dropdown, "Any fungus", and preview), `dev_tools` (`client.give_item`'s `fungus`).
+- `item` (`ItemKind::Fungus`, Food, counted, no quality; stacks compare a fungus's form without its look), `item_form` (`give_form` rolls one; name, shape, grams), `bonus` (`Source::EatenFungus`, `FungusEffects`, `FungusPoison`; `is_food` and `may_eat` take fungi), server `connections/eat_fungus.rs` (`eating`, `cut`), `eat_fruit.rs` (`servings_fit`), `strength_room.rs`, `give_items.rs` (`dev_fungus`), client `item_art` (`fungus.rs`: pictures by `look`), `xtask wiki` (`fungus_page.rs`, `fungus_facts.rs`, `fungus_table.rs`, `fungus_pictures.rs`: a page per fungus, raw food effects only), client `effect_bar` (names by `by_tag`, "Poisoned: Death cap", `lorc/mushroom` and `lorc/spotted-mushroom`), `item_popup` (`fungus.rs`: raw healing, food effects, servings, never the poison), `debug_menu` (Give Item's dropdown, "Any fungus", and preview), `dev_tools` (`client.give_item`'s `fungus`), `dungeon` (`Level`'s fungi: `fungus_at`, `fungus_patches`, `kept_fungi`), `wilderness` (`fungi.rs`), `protocol` (`LevelChunk::fungi`, `SeenFungus`, `PickNews::PickedFungus`), server `sites/plants/fungi.rs` (`site_fungi`), `sites/plants.rs`, `wilderness.rs` (blocks), `connections/pick_fungus.rs`, client `common` (`dungeon/plants.rs`), `dungeon_map` (`fungi.rs` markers, `herbs/pick.rs`), `notices`.
 
 ## Notes
 
 - Built in only, no mods yet: both sides read the same table, so nothing is sent. Saves and messages name a fungus by key; effects by `FungusTag`.
 - No quality, never magical, blessed or cursed. A stack keys on fungus and serving; each keeps its own look seed.
 - For now every poison eaten raw starts at once and is shown on the effect bar like any other; delayed and hidden onsets, deadly drains, stumbles and the ink cap with alcohol come in PR 6, harm from handling and breathing in PR 9. Item popups leave poisons out until knowing fungi comes (PRs 6 and 7), so they never say a fungus is safe or not.
-- Nothing grows them yet (PR 3): they come only from Give Item.
+- Where they grow (PR 3): placing is the server's (`sites/plants/fungi.rs` on site levels and their cutouts, `wilderness::fungus_patches` on blocks), from hashes, not part of any generator's version. Patches never block. Dug kinds are picked as others for now (no digging tool). Picking is the server's (`connections/pick_fungus.rs`); the client draws placeholder markers until PR 4's models (`dungeon_map/fungi.rs`).
