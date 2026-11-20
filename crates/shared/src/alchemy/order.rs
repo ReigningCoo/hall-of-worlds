@@ -9,7 +9,8 @@ use serde::{Deserialize, Serialize};
 use super::{
     AlchemySkills, Apparatus, Planned, Process, Refused, Solid, Solvent, Step, Stored, plan,
 };
-use crate::brewing::GroundHerb;
+use crate::brewing::{GroundHerb, Ingredient};
+use crate::fungus::Fungi;
 use crate::herb::Herbs;
 use crate::id::Id;
 use crate::item::{Inventory, Item};
@@ -142,10 +143,16 @@ impl Inventory {
                     for id in ids {
                         let stack = herb_stacks.iter().find(|stack| stack.stack == *id);
                         let stack = stack.ok_or(OrderRefused::Herb)?;
-                        let def = herbs.get(&stack.herb).ok_or(OrderRefused::UnknownHerb)?;
-                        ground.push(GroundHerb {
-                            def,
-                            quality: stack.quality,
+                        let unknown = OrderRefused::UnknownHerb;
+                        ground.push(match stack.ingredient {
+                            Ingredient::Herb => {
+                                let def = herbs.get(&stack.herb).ok_or(unknown)?;
+                                GroundHerb::herb(def, stack.quality)
+                            }
+                            Ingredient::Fungus => {
+                                let def = Fungi::built_in().get(&stack.herb).ok_or(unknown)?;
+                                GroundHerb::fungus(def)
+                            }
                         });
                         handled.push(stack.herb.clone());
                         *uses.entry(*id).or_insert(0) += 1;

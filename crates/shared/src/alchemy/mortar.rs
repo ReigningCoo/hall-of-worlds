@@ -5,14 +5,16 @@
 //! refused.
 
 use super::{Form, Mix, Refused, Solvent};
-use crate::brewing::{BrewSkills, GroundHerb, ground_doses, herb_steps, most_kinds};
+use crate::brewing::{BrewSkills, GroundHerb, Ingredient, ground_doses, herb_steps, most_kinds};
 use crate::herb::Stat;
 
 /// What one herb's effect gave a mixture, before the oil, the caps and the
 /// cuts: what learning weighs (`lesson`) and what the preview checks is known.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Contribution {
-    /// The herb, by key.
+    /// Which table the herb is from: a herb or a fungus used like one.
+    pub ingredient: Ingredient,
+    /// The herb (or fungus), by key.
     pub herb: String,
     /// Which of its effects (0 to 3).
     pub effect: usize,
@@ -42,7 +44,7 @@ pub(super) fn mortar(
     if herbs.is_empty() {
         return Err(Refused::NoHerbs);
     }
-    let same = |(i, a): (usize, &GroundHerb)| herbs[..i].iter().any(|b| b.def.key == a.def.key);
+    let same = |(i, a): (usize, &GroundHerb)| herbs[..i].iter().any(|b| b.same_kind(a));
     if herbs.iter().enumerate().any(same) {
         return Err(Refused::SameHerb);
     }
@@ -53,9 +55,10 @@ pub(super) fn mortar(
     };
     let mut contributions = Vec::new();
     for herb in herbs {
-        for (effect, &e) in herb.def.effects.iter().enumerate() {
+        for (effect, &e) in herb.effects.iter().enumerate() {
             contributions.push(Contribution {
-                herb: herb.def.key.clone(),
+                ingredient: herb.ingredient,
+                herb: herb.key.to_owned(),
                 effect,
                 stat: e.stat,
                 steps: herb_steps(e, herb.quality, skills),

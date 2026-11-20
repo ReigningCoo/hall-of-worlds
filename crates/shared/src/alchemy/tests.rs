@@ -1,8 +1,11 @@
 //! The Alchemy rules: chance and steps, the Mortar matching brewing, the
 //! Retort and dilution at the end, quality, luck, learning and the preview.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use super::*;
 use crate::brewing::{self, BrewSkills, GroundHerb};
+use crate::fungus::FungusKnowledge;
 use crate::herb::{Effect, HerbDef, HerbKnowledge, Herbs, Stat};
 use crate::item::Quality;
 use crate::potion::{Contents, Dose, Liquid, Oil, Water};
@@ -30,10 +33,7 @@ fn herb(key: &str, effects: &[(Stat, i8)]) -> HerbDef {
 }
 
 fn common(def: &HerbDef) -> GroundHerb<'_> {
-    GroundHerb {
-        def,
-        quality: Quality::Common,
-    }
+    GroundHerb::herb(def, Quality::Common)
 }
 
 fn mortar<'a>(herbs: &[&'a HerbDef], solvent: Solvent) -> Step<'a> {
@@ -326,6 +326,19 @@ fn an_old_source_loses_a_step_and_failing_makes_nothing() {
     assert_eq!(lucky, made);
 }
 
+/// What a character knowing only these herbs knows (no fungi).
+pub(super) fn knowing(herbs: &HerbKnowledge) -> Known<'_> {
+    static NO_FUNGI: FungusKnowledge = FungusKnowledge {
+        poisons: BTreeSet::new(),
+        names: BTreeSet::new(),
+        effects: BTreeMap::new(),
+    };
+    Known {
+        herbs,
+        fungi: &NO_FUNGI,
+    }
+}
+
 #[test]
 fn preview_and_lesson() {
     let a = herb("a", &[(Stat::Strength, 3), (Stat::Will, -1)]);
@@ -335,13 +348,13 @@ fn preview_and_lesson() {
     // Alchemy 9%: 4 steps a herb at most, 16 a stat; Herbalism 100% cuts Will.
     let planned = plan(&p, skills(9, 100, 0)).unwrap();
     let mut known = HerbKnowledge::default();
-    let seen = preview(&planned, &known);
+    let seen = preview(&planned, knowing(&known));
     assert!(seen.iter().all(|s| *s == Seen::Unknown));
     // The strongest: Strength 7, from a (3), b (1) and c (3): a first on the tie.
-    let first = lesson(&planned, &known).unwrap();
+    let first = lesson(&planned, knowing(&known)).unwrap();
     assert_eq!((first.herb.as_str(), first.effect), ("a", 0));
     known.learn_effect("a", 0);
-    let next = lesson(&planned, &known).unwrap();
+    let next = lesson(&planned, knowing(&known)).unwrap();
     assert_eq!((next.herb.as_str(), next.effect), ("c", 0));
     known.learn_effect("c", 0);
     known.learn_effect("b", 0);
@@ -349,9 +362,9 @@ fn preview_and_lesson() {
         stat: Stat::Strength,
         step: 7,
     };
-    assert_eq!(preview(&planned, &known)[0], Seen::Known(strength));
+    assert_eq!(preview(&planned, knowing(&known))[0], Seen::Known(strength));
     // Then Aura (3).
-    let aura = lesson(&planned, &known).unwrap();
+    let aura = lesson(&planned, knowing(&known)).unwrap();
     assert_eq!((aura.herb.as_str(), aura.effect), ("b", 1));
 }
 

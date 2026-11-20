@@ -1,18 +1,12 @@
 //! Grinding herbs and an oil into an ointment (decisions 6, 7 and 9 to 13).
 
+use super::GroundHerb;
 use super::boost::{boosted, oil_suits, stat_row};
 use super::cut::cut_unwanted;
 use super::skill::{BrewSkills, cut_steps, most_doses, most_kinds, per_herb_cap, stat_cap};
-use crate::herb::{Effect, HerbDef, Stat, potency};
+use crate::herb::{Effect, Stat, potency};
 use crate::item::Quality;
 use crate::potion::{Contents, Dose, Oil};
-
-/// One kind of herb in a mix, at the quality of the ones used.
-#[derive(Clone, Copy, Debug)]
-pub struct GroundHerb<'a> {
-    pub def: &'a HerbDef,
-    pub quality: Quality,
-}
 
 /// What grinding makes: `doses` of an ointment holding `contents` (which can
 /// be empty when everything cancels out). Each dose used up one of every herb
@@ -61,7 +55,7 @@ pub fn grind(
     if herbs.is_empty() {
         return Err(Refused::NoHerbs);
     }
-    let same = |(i, a): (usize, &GroundHerb)| herbs[..i].iter().any(|b| b.def.key == a.def.key);
+    let same = |(i, a): (usize, &GroundHerb)| herbs[..i].iter().any(|b| b.same_kind(a));
     if herbs.iter().enumerate().any(same) {
         return Err(Refused::SameHerb);
     }
@@ -83,7 +77,7 @@ pub fn grind(
 pub fn ground_doses(herbs: &[GroundHerb], oil: Option<Oil>, skills: BrewSkills) -> Contents {
     let mut totals: Vec<(Stat, i32)> = Stat::ALL.iter().map(|&stat| (stat, 0)).collect();
     for herb in herbs {
-        for &effect in &herb.def.effects {
+        for &effect in herb.effects {
             let at = Stat::ALL
                 .iter()
                 .position(|&s| s == effect.stat)

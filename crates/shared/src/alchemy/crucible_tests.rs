@@ -38,10 +38,7 @@ fn dry(herbs: &[HerbDef]) -> Step<'_> {
     Step::Mortar {
         herbs: herbs
             .iter()
-            .map(|def| GroundHerb {
-                def,
-                quality: Quality::Common,
-            })
+            .map(|def| GroundHerb::herb(def, Quality::Common))
             .collect(),
         solvent: Solvent::Dry,
     }

@@ -72,7 +72,8 @@ pub(super) fn in_place(bench: &Bench, place: Place) -> Option<Id> {
 }
 
 /// Whether the carried stack `id` may go in this space: a Paste, Ointment or
-/// Powder as the source, a Powder in a Filter, a herb (not one already in that Mortar elsewhere), a bottle
+/// Powder as the source, a Powder in a Filter, a herb or a fungus used like one
+/// (not one already in that Mortar elsewhere), a bottle
 /// of oil or pure alcohol, a bottle of water, oil, a drink or pure alcohol, a
 /// bottle of a drink or pure alcohol, a solid a Retort takes.
 pub(super) fn takes(bench: &Bench, carried: &Inventory, place: Place, id: Id) -> bool {
@@ -197,7 +198,7 @@ impl SpaceIcons {
 pub(super) fn tip(place: Place) -> &'static str {
     match place {
         Place::Source => "A Paste, Ointment or Powder to start from, instead of a Mortar",
-        Place::Herb(..) => "A herb, one of each kind",
+        Place::Herb(..) => "A herb, or a fungus used like one, one of each kind",
         Place::Oil(_) => "A bottle of oil, pure alcohol for a tincture, or none for a Paste",
         Place::Liquid(..) => "100 ml of water, oil, a drink or pure alcohol",
         Place::Alcohol(_) => {

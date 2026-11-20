@@ -80,8 +80,11 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
    Healing). A popup tells what eating does only once the fungus is known by name, its poison then too. Herb
    effects are kept for PR 8 to teach. The Vitals message no longer tells when a hidden poison starts
    (`Sheet::told_limits`).
-8. **Alchemy**: herb-like fungi as Mortar inputs (widen `herb_stacks`, `GroundHerb`, order checks, knowledge keys,
-   client panel), deadly ones included.
+8. **Alchemy** (built): the 36 fungi with herb effects, deadly ones included, are Mortar inputs beside herbs:
+   `brewing::Ingredient` (Herb or Fungus) on `GroundHerb` (`GroundHerb::fungus`, Common as fungi have no quality),
+   `HerbStack`, `alchemy::Contribution` and `Lesson`, so a herb's and a fungus's keys never clash; `herb_stacks`
+   offers whole fungi (not servings); Herbalism practised as for herbs; the preview and lessons read and teach
+   `FungusKnowledge`'s effects (`alchemy::Known`). Poison pastes coating weapons are for later (a TODO).
 9. **Harm from handling**: touch and breath harm on picking and handling, gloves and `covers_mouth`, the bandana.
 
 Order: 1 first. Then 2, 3, 6, 7, 8 in any order (non-blocking). 4 needs 3; 5 needs 4; 9 needs 3.
