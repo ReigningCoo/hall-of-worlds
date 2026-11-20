@@ -68,6 +68,10 @@ pub(crate) fn handle_messages(
                             client.keep_time(now, options.idle_minutes)
                                 && client.keep_alcohol(now)
                                 && client.keep_vitals(now)
+                                && {
+                                    super::combat::die_of_poison(client, world, now);
+                                    true
+                                }
                                 && super::strength_room::fit_to_strength(client, world)
                         });
                 }

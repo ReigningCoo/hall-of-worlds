@@ -63,6 +63,10 @@ pub enum Source {
     /// runs alongside food and other poisons, and eating the same again starts
     /// it again.
     FungusPoison(crate::fungus::FungusTag),
+    /// After eating a fungus whose poison alcohol brings on (the common ink
+    /// cap, `fungus::eating`): its bonus while drinking would bring it on
+    /// (`Sheet::drink_alcohol`); its own per fungus.
+    FungusWindow(crate::fungus::FungusTag),
     // New sources go at the end: messages carry one by its place in this list.
 }
 

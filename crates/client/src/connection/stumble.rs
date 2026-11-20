@@ -61,7 +61,7 @@ pub(super) struct Stumbling<'w, 's> {
 
 impl Stumbling<'_, '_> {
     fn veer(&self, map: u32, number: u32) -> Option<shared::alcohol::Veer> {
-        stumble(self.own.0?, map, number, self.sheet.0.alcohol_stage())
+        stumble(self.own.0?, map, number, self.sheet.0.stumble_one_in())
     }
 
     /// Where move `number` on map `map` from `from` towards `to` on a level

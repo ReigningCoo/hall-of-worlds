@@ -4,12 +4,28 @@
 use bevy::prelude::*;
 use shared::alcohol::Stage;
 use shared::bonus::{Amount, Effect, Source, Stat};
+use shared::sheet::Sheet;
 
 /// Behind an effect that helps: a calm blue-green.
 const HELPFUL: Color = Color::srgb(0.16, 0.38, 0.40);
 /// Behind one that harms (drains Health or Mana, or takes anything away): a
 /// sickly yellow-green.
 const HARMFUL: Color = Color::srgb(0.42, 0.46, 0.10);
+
+/// Every effect on the sheet, then those coming later that it was sent (only
+/// ones recognised, `Sheet::as_sent`), earliest first: one per source, the
+/// first found, so a poison's next phase shows once the one before has gone.
+pub(super) fn listed(sheet: &Sheet) -> Vec<Effect> {
+    let mut later: Vec<&Effect> = sheet.later.0.iter().map(|p| &p.effect).collect();
+    later.sort_by_key(|effect| effect.start);
+    let mut listed: Vec<Effect> = Vec::new();
+    for effect in sheet.effects.0.iter().chain(later) {
+        if listed.iter().all(|e| e.source != effect.source) {
+            listed.push(effect.clone());
+        }
+    }
+    listed
+}
 
 /// The effects that show, in the order they are kept: those with an end not
 /// yet reached at tick `now`.
@@ -25,7 +41,7 @@ pub(super) fn is_harmful(effect: &Effect) -> bool {
         let less = match bonus.amount {
             Amount::Flat(milli) | Amount::Percent(milli) => milli < 0,
         };
-        less || matches!(bonus.stat, Stat::Drain(_))
+        less || matches!(bonus.stat, Stat::Drain(_) | Stat::DeadlyDrain(_))
     })
 }
 
@@ -43,7 +59,7 @@ pub(super) fn icon_path(source: Source) -> &'static str {
         | Source::EatenFungus(_) => "icons/delapouite/eating.png",
         Source::FruitEffects(_) => "icons/lorc/shiny-apple.png",
         Source::VegetableEffects(_) => "icons/delapouite/carrot.png",
-        Source::FungusEffects(_) => "icons/lorc/mushroom.png",
+        Source::FungusEffects(_) | Source::FungusWindow(_) => "icons/lorc/mushroom.png",
         Source::FungusPoison(_) => "icons/lorc/spotted-mushroom.png",
         Source::Poison => "icons/lorc/poison-bottle.png",
         Source::Dev => "icons/lorc/magic-swirl.png",

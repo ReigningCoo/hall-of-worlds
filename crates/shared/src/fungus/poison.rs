@@ -1,7 +1,7 @@
 //! What a poisonous fungus does (owner, 2026-11-19, decision 8): how bad, how
-//! soon, its effects and how it harms. For now eating one raw harms at once
-//! (`eating`); later onsets, hidden poisons, deadly drains (fungi plan PR 6)
-//! and harm from handling (PR 9) use the rest.
+//! soon, its effects and how it harms. Eating brings it on (`poisoning`), or
+//! for the common ink cap alcohol after eating; harm from handling and
+//! breathing comes with fungi plan PR 9.
 
 use serde::{Deserialize, Serialize};
 
@@ -63,6 +63,10 @@ pub struct Poison {
     pub raw_only: bool,
     #[serde(default)]
     pub trigger: Trigger,
+    /// Confuses its eater (decision 9: fly agaric, panther cap, Dreamcap):
+    /// the odd move stumbles while it lasts (`Sheet::stumble_one_in`).
+    #[serde(default)]
+    pub confuses: bool,
 }
 
 impl Poison {

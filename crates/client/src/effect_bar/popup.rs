@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use shared::bonus::{Effect, Source};
 
 use super::bar::EffectIcon;
+use super::looks::listed;
 use super::words::{bonus_lines, ends_early, ends_in, name};
 use crate::character::CharacterSheet;
 use crate::common::ServerTick;
@@ -117,7 +118,8 @@ pub(super) fn follow_pointer(
         return;
     }
     popup.close(&mut commands);
-    let Some(effect) = sheet.0.effects.0.iter().find(|e| e.source == source) else {
+    let effects = listed(&sheet.0);
+    let Some(effect) = effects.iter().find(|e| e.source == source) else {
         return;
     };
     let document = commands.spawn(document(&EFFECT_POPUP)).id();
@@ -138,7 +140,7 @@ pub(super) fn follow_pointer(
     popup.open = Some((source, document, left));
 }
 
-/// "Ends in N s" now, or nothing before the server has said the tick.
+/// "Ends in N s" ("Starts in N s" before it starts) now, or nothing before the server has said the tick.
 fn left_words(effect: &Effect, clock: &ServerTick, time: &Time, wording: &Wording) -> String {
     let now = clock.now(time.elapsed_secs_f64());
     now.and_then(|now| ends_in(effect, now, &wording.0))
@@ -162,7 +164,8 @@ pub(super) fn count_down(
         return;
     };
     let now = clock.now(time.elapsed_secs_f64());
-    let effect = sheet.0.effects.0.iter().find(|e| e.source == *source);
+    let effects = listed(&sheet.0);
+    let effect = effects.iter().find(|e| e.source == *source);
     let lasting =
         effect.filter(|e| now.is_some_and(|now| e.end.is_some_and(|end| now < end as f64)));
     let Some(effect) = lasting else {

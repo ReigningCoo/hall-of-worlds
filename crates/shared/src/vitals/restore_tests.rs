@@ -32,6 +32,7 @@ fn restoring_adds_to_refilling_until_it_stops() {
             health: 1000,
             mana: 0,
             until: Some(start + 10 * SECOND),
+            deadly: false,
         },
     );
     // 10 seconds of refilling (100 over 5 minutes: 1/3 a second) plus 1 a second.
@@ -67,6 +68,7 @@ fn a_client_restores_what_it_is_told_the_same_way() {
             health: 1000,
             mana: 500,
             until: Some(900),
+            deadly: false,
         },
     );
     vitals.hurt(w(30), limits, 300, 0);
@@ -91,6 +93,7 @@ fn never_past_the_most() {
             health: 50_000,
             mana: 0,
             until: None,
+            deadly: false,
         },
     );
     assert_eq!(vitals.at(Vital::Health, limits, 10_000), w(20));

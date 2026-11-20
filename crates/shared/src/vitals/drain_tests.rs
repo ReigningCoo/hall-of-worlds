@@ -87,3 +87,18 @@ fn settling_keeps_what_was_drained() {
     assert_eq!(vitals.at(Vital::Health, limits, 4 * SECOND), w(46));
     assert_eq!(vitals.at(Vital::Health, limits, 6 * SECOND), w(44));
 }
+
+#[test]
+fn a_deadly_drain_takes_it_to_nothing() {
+    let mut vitals = Vitals::default();
+    let mut limits = poisoned(5000, None);
+    limits.restore.deadly = true;
+    vitals.hurt(w(90), limits, 0, 0);
+    assert_eq!(vitals.at(Vital::Health, limits, 5 * SECOND), Points::ZERO);
+    // A client told of it drains it there too.
+    let told = vitals.told(Vital::Health, limits, 0);
+    assert!(told.deadly);
+    assert_eq!(told.after(5 * SECOND), Points::ZERO);
+    // Mana's draining keeps its floor.
+    assert!(!limits.rate(Vital::Mana).deadly);
+}

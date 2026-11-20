@@ -5,7 +5,7 @@
 use bevy::prelude::*;
 use shared::bonus::Source;
 
-use super::looks::{colour, gone, icon_path, timed};
+use super::looks::{colour, gone, icon_path, listed, timed};
 use crate::character::CharacterSheet;
 use crate::common::ServerTick;
 use crate::dom::{Solid, Template, document, top_strip};
@@ -76,9 +76,9 @@ pub(super) fn draw_icons(
     let Ok(canvas) = canvas.single() else {
         return;
     };
-    let effects = &sheet.0.effects.0;
+    let effects = listed(&sheet.0);
     let now = clock.now(time.elapsed_secs_f64());
-    let showing: Vec<_> = now.map_or(Vec::new(), |now| timed(effects, now).collect());
+    let showing: Vec<_> = now.map_or(Vec::new(), |now| timed(&effects, now).collect());
     let shown: Shown = showing.iter().map(|e| (e.source, e.start, e.end)).collect();
     if shown == *drawn && added.is_empty() {
         return;
@@ -138,8 +138,9 @@ pub(super) fn show_shades(
     let Some(now) = clock.now(time.elapsed_secs_f64()) else {
         return;
     };
+    let effects = listed(&sheet.0);
     for (mut node, EffectShade(source)) in &mut shades {
-        let effect = sheet.0.effects.0.iter().find(|e| e.source == *source);
+        let effect = effects.iter().find(|e| e.source == *source);
         let gone = effect.map_or(1.0, |effect| gone(effect, now));
         // Over the edge too, which the frame's height doesn't count.
         let height = Val::Px((ABILITY) * gone);

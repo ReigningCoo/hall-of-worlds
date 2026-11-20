@@ -232,6 +232,7 @@ impl Vitals {
                 drain_health: totals.draining(Vital::Health),
                 drain_mana: totals.draining(Vital::Mana),
                 until,
+                deadly: totals.deadly(Vital::Health),
             },
         }
     }

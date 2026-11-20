@@ -1,14 +1,19 @@
 use super::*;
-use crate::bonus::{self, EndsOn, Source};
+use crate::bonus::{self, Source};
 use crate::energy::ACTION_TICKS_PER_SECOND;
 use crate::herb::Stat;
 use crate::id::{Id, stand_ins};
 use crate::item::{ItemKind, StackLimits};
 use crate::rng::Seed;
 use crate::vegetable::Raw;
-use crate::vitals::Vital;
 
 const SECOND: u64 = ACTION_TICKS_PER_SECOND as u64;
+
+/// Someone with 20 Health at most, on Normal.
+pub(super) const EATER: Eater = Eater {
+    most_health: 20,
+    easy: false,
+};
 
 fn def(key: &str) -> &'static FungusDef {
     Fungi::built_in().get(key).expect("a built-in fungus")
@@ -59,31 +64,14 @@ fn raw_healing_is_as_vegetables() {
     // 22 kcal: 5.5 s cooked, 1.375 s raw, rounded to 1.
     assert_eq!(effect_ticks(button), 5 * SECOND);
     assert_eq!(healing(button), 1);
-    let effects = eating(button, 100);
+    let effects = eating(button, 100, EATER);
     assert_eq!(effects.len(), 1);
     let tag = FungusTag::of("button_mushroom");
     assert_eq!(effects[0].source, Source::EatenFungus(tag));
     assert_eq!(effects[0].end, Some(100 + SECOND));
     assert!(effects[0].ends_on.moving && effects[0].ends_on.hurt);
     // Rarely eaten raw: nothing.
-    assert!(eating(def("oyster_mushroom"), 0).is_empty());
-}
-
-#[test]
-fn a_poison_eaten_starts_at_once_for_now() {
-    let effects = eating(def("death_cap"), 10);
-    assert_eq!(effects.len(), 1, "no healing, no food");
-    let poison = &effects[0];
-    assert_eq!(
-        poison.source,
-        Source::FungusPoison(FungusTag::of("death_cap"))
-    );
-    assert_eq!(poison.end, Some(10 + poison_ticks(Severity::Deadly)));
-    assert_eq!(poison.ends_on, EndsOn::NOTHING);
-    let drain = bonus::Stat::Drain(Vital::Health);
-    assert!(poison.bonuses.iter().any(|bonus| bonus.stat == drain));
-    let death_cap = def("death_cap").poison.as_ref().unwrap();
-    assert!(death_cap.false_recovery && death_cap.onset == Onset::Late);
+    assert!(eating(def("oyster_mushroom"), 0, EATER).is_empty());
 }
 
 #[test]
@@ -94,31 +82,36 @@ fn only_poisons_brought_on_by_eating_apply() {
         ink_cap.poison.as_ref().unwrap().trigger,
         Trigger::WithAlcohol
     );
-    assert!(eating(ink_cap, 0).is_empty());
+    let window = eating(ink_cap, 0, EATER);
+    assert_eq!(window.len(), 1);
+    assert_eq!(
+        window[0].source,
+        Source::FungusWindow(FungusTag::of("common_ink_cap"))
+    );
     // The cellar cup's spores harm when breathed, not eaten (PR 9).
     let cellar_cup = def("cellar_cup");
     assert_eq!(
         cellar_cup.poison.as_ref().unwrap().trigger,
         Trigger::Breathed
     );
-    assert!(eating(cellar_cup, 0).is_empty());
+    assert!(eating(cellar_cup, 0, EATER).is_empty());
     // Morels are poisonous raw only, and raw is all there is for now.
     let morel = def("morel").poison.as_ref().unwrap();
     assert!(morel.raw_only && morel.when_eaten());
-    assert_eq!(eating(def("morel"), 0).len(), 1);
+    assert_eq!(eating(def("morel"), 0, EATER).len(), 1);
 }
 
 #[test]
 fn raw_food_effects_apply() {
     // Manna lichen's Strength +1 is raw.
-    let manna = eating(def("manna_lichen"), 0);
+    let manna = eating(def("manna_lichen"), 0, EATER);
     let effects = manna
         .iter()
         .find(|e| matches!(e.source, Source::FungusEffects(_)));
     let strength = bonus::Stat::Attribute(Stat::Strength.attribute().unwrap());
     assert_eq!(effects.expect("Strength").bonuses[0].stat, strength);
     // Lion's mane's is for cooking.
-    assert!(eating(def("lions_mane"), 0).is_empty());
+    assert!(eating(def("lions_mane"), 0, EATER).is_empty());
 }
 
 #[test]

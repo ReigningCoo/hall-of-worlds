@@ -13,7 +13,7 @@ impl Client {
     /// Whether its move or step `number` on this map stumbles, and which way.
     fn stumbles(&self, number: u32) -> Option<Veer> {
         let character = self.character_id?.0;
-        stumble(character, self.map, number, self.sheet.alcohol_stage())
+        stumble(character, self.map, number, self.sheet.stumble_one_in())
     }
 
     /// Where move `number` towards `to` on a level goes: `to`, or where a

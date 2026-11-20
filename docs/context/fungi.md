@@ -63,8 +63,15 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
    dead snag, truffles as a disturbed mound; simplified for the maps, black outlines, a grey copy) drawn by
    `dungeon_map/fungi.rs` (remembered in grey like trees), hover names, `client.fungus_showcase`.
 5. **Glow** (built): client light from glowing patches as decision 12, in `dungeon_map`'s fixed lights (`fixed_lights.rs`, shared with lava's light later): only full-grown patches glow, so picked ones (back to stage 3) stop until grown again; light reaches from every cell of a group whatever is seen, but remembered cells are drawn grey as ever; the models of glowing ones are drawn in full colour in the dark (`HerbMaterials::glow`).
-6. **Poisons**: effects that start later, hidden from the client until recognised (as `Sheet::as_sent` strips
-   alignment), deadly drain (Easy halves), stumbles from other effects, ink cap and alcohol with its bonus.
+6. **Poisons** (built): effects laid on to start later (`bonus::Later` on `Sheet::later`, started by
+   `Sheet::forget_ended`), hidden from the client until recognised (`Sheet::as_sent` leaves out those not known):
+   recognised on eating by knowing that fungus's poison (`FungusKnowledge::knows_poison`, learned by suffering it)
+   or a Healing check (`fungus::recognised`), and shown on the effect bar as "Starts in" when known. Onsets: soon
+   at once, delayed 10 game minutes, late 60; a false recovery is 30 s of sickness, 60 game minutes eased, then the
+   worst. Deadly: Health drained by `bonus::Stat::DeadlyDrain` at 3 × the eater's most over its 120 s (Easy half),
+   with no floor, the server killing at 0 (`die_of_poison`); dying cures poisons. Confusion: fly agaric, panther
+   cap and Dreamcap (`Poison::confuses`) stumble one move in 8 (`Sheet::stumble_one_in`). Common ink cap: Toughness
+   and Will +1 for 3 game days (`Source::FungusWindow`), alcohol drunk then bringing its poison at once.
 7. **Knowing fungi**: "Unknown mushroom" / "Looks like X", a Mycology skill (`gathering/mycology`), names learned by a
    check on picking, effects learned as herbs'.
 8. **Alchemy**: herb-like fungi as Mortar inputs (widen `herb_stacks`, `GroundHerb`, order checks, knowledge keys,

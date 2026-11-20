@@ -50,6 +50,7 @@ item-restores = Restores { $amount } { $stat } a second
 ## Health or Mana taken away over time (poison), signed ("−1").
 
 item-drains = { $amount } { $stat } a second
+item-drains-deadly = { $amount } { $stat } a second, deadly
 
 ## Health or Mana given or taken at once (ointment), signed ("+5", "−5").
 

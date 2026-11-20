@@ -12,6 +12,7 @@ mod effect;
 mod effects;
 mod food;
 mod item;
+mod later;
 mod material;
 mod stat;
 mod totals;
@@ -23,6 +24,7 @@ pub use food::{Food, Others, edible, food, is_food, may_eat, may_use_on_self, us
 pub use item::{
     AGILITY_PER_KG, HAIR_SHIRT_WILL, MANA_PER_KG, TOUGHNESS_PER_KG, item_bonuses, quality_factor,
 };
+pub use later::{Later, Pending};
 pub use material::{MaterialFactors, material_factors};
 pub use stat::{Amount, Bonus, PER_CENT, Stat};
 pub use totals::{Sum, Totals, round_milli};

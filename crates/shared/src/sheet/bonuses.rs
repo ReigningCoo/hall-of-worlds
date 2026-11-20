@@ -51,7 +51,10 @@ impl Sheet {
     pub fn limits(&self, situation: Situation, now: u64) -> Limits {
         let totals = self.totals(situation.worn, now);
         let attributes = totals.attributes(&self.attributes);
-        let until = self.effects.next_end(now);
+        // Rates hold until the next effect ends or one laid on for later starts.
+        let until = (self.effects.next_end(now).into_iter())
+            .chain(self.later.next_start(now))
+            .min();
         Limits {
             refill: situation.refill,
             ..self
@@ -119,14 +122,23 @@ impl Sheet {
     }
 
     /// Forgets the effects that have ended by `now`, each settled at its own
-    /// end, so restoring stops exactly there. Whether any had.
+    /// end, so restoring stops exactly there, and starts those laid on for
+    /// later (`bonus::Later`) at their own starts. Whether any had.
     pub fn forget_ended(&mut self, situation: Situation, now: u64) -> bool {
         let mut any = false;
-        while let Some(end) = self.effects.first_ended(now) {
-            // Just before it ended, everything ending then still counts.
-            let before = self.limits(situation, end.saturating_sub(1));
-            self.effects.forget_ended(end);
-            self.vitals.rebase(before, self.limits(situation, end), end);
+        while let Some(tick) = (self.effects.first_ended(now).into_iter())
+            .chain(self.later.first_due(now))
+            .min()
+        {
+            // Just before, everything ending then still counts and nothing
+            // starting then does yet.
+            let before = self.limits(situation, tick.saturating_sub(1));
+            self.effects.forget_ended(tick);
+            for pending in self.later.take_due(tick) {
+                self.start_pending(pending.effect);
+            }
+            self.vitals
+                .rebase(before, self.limits(situation, tick), tick);
             any = true;
         }
         any

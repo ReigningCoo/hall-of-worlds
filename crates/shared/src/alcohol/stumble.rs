@@ -1,14 +1,18 @@
-//! Stumbling (owner, 2026-11-18): drunk or worse, the odd move veers off
+//! Stumbling (owner, 2026-11-18): drunk or worse, or confused by a fungus's
+//! poison (fungi decision 9), the odd move veers off
 //! to one side, and travel stops there. Whether a move stumbles, and which
 //! way, comes from a hash of the character's id, the map and the move's
 //! number, so the client predicts it exactly and the server applies it to
 //! whatever move it is sent.
 
 use super::Stage;
+use crate::bonus::Source;
 use crate::creature::Size;
 use crate::dungeon::Level;
+use crate::fungus::Fungi;
 use crate::id::Id;
 use crate::movement::{Gait, Step, move_on_level};
+use crate::sheet::Sheet;
 use crate::spot::Spot;
 
 /// Which way a stumbling move veers: an eighth or a quarter of a turn, to
@@ -22,10 +26,33 @@ pub struct Veer {
     pub eighths: u8,
 }
 
-/// Whether `character`'s move `number` on map `map` stumbles at `stage`, and
-/// which way.
-pub fn stumble(character: Id, map: u32, number: u32, stage: Option<Stage>) -> Option<Veer> {
-    let one_in = stage?.stumble_one_in()?;
+/// A confusing fungus's poison (`fungus::Poison::confuses`) stumbles one move
+/// in this many while it lasts. First guess, between drunk and very drunk.
+pub const CONFUSED_ONE_IN: u64 = 8;
+
+impl Sheet {
+    /// One move in how many stumbles, by its drinking's stage and any
+    /// confusing poison on it (ended or not, as `alcohol_stage`, so both sides
+    /// go by the sheet the client was last sent): the likelier.
+    pub fn stumble_one_in(&self) -> Option<u64> {
+        let drunk = self.alcohol_stage().and_then(Stage::stumble_one_in);
+        let confused = self.effects.0.iter().any(|effect| match effect.source {
+            Source::FungusPoison(tag) => (Fungi::built_in().by_tag(tag))
+                .and_then(|def| def.poison.as_ref())
+                .is_some_and(|poison| poison.confuses),
+            _ => false,
+        });
+        drunk
+            .into_iter()
+            .chain(confused.then_some(CONFUSED_ONE_IN))
+            .min()
+    }
+}
+
+/// Whether `character`'s move `number` on map `map` stumbles, one move in
+/// `one_in` (`Sheet::stumble_one_in`), and which way.
+pub fn stumble(character: Id, map: u32, number: u32, one_in: Option<u64>) -> Option<Veer> {
+    let one_in = one_in?;
     let hash = character
         .seed()
         .derive("stumble")

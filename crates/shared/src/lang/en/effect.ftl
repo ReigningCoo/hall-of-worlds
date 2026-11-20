@@ -12,6 +12,7 @@ effect-eaten = Eating: { $item }
 effect-fruit = { $fruit }
 effect-poison = Poisoned
 effect-fungus-poison = Poisoned: { $fungus }
+effect-fungus-window = { $fungus }: alcohol makes you ill
 effect-dev = Dev Bonus
 effect-raw-herb = Raw herb
 effect-ointment = Ointment
@@ -39,6 +40,10 @@ effect-ends = { $ends ->
 
 ## How long it has left, in whole minutes and seconds, counting down.
 
+effect-starts-in = { $minutes ->
+    [0] Starts in { $seconds } s
+   *[other] Starts in { $minutes } min { $seconds } s
+}
 effect-ends-in = { $minutes ->
     [0] Ends in { $seconds } s
    *[other] Ends in { $minutes } min { $seconds } s

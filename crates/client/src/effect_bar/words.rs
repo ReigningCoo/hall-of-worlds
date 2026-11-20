@@ -45,6 +45,10 @@ pub(super) fn name(source: Source, lang: &Lang) -> String {
             let args = Args::new().text("fruit", fungus_name(tag));
             lang.render("effect-fruit", &args)
         }
+        Source::FungusWindow(tag) => {
+            let args = Args::new().text("fungus", fungus_name(tag));
+            lang.render("effect-fungus-window", &args)
+        }
         Source::FungusPoison(tag) => {
             let args = Args::new().text("fungus", fungus_name(tag));
             lang.render("effect-fungus-poison", &args)
@@ -125,12 +129,17 @@ pub(super) fn ends_early(effect: &Effect, lang: &Lang) -> Option<String> {
 }
 
 /// "Ends in 12 s", "Ends in 4 min 30 s": whole seconds left at tick `now`,
-/// rounded up, so it reads 1 until it goes.
+/// rounded up, so it reads 1 until it goes; "Starts in 40 s" before one
+/// coming later starts.
 pub(super) fn ends_in(effect: &Effect, now: f64, lang: &Lang) -> Option<String> {
-    let end = effect.end? as f64;
-    let seconds = ((end - now).max(0.0) / ACTION_TICKS_PER_SECOND).ceil() as i64;
+    let start = effect.start as f64;
+    let (at, id) = match now < start {
+        true => (start, "effect-starts-in"),
+        false => (effect.end? as f64, "effect-ends-in"),
+    };
+    let seconds = ((at - now).max(0.0) / ACTION_TICKS_PER_SECOND).ceil() as i64;
     let args = Args::new()
         .count("minutes", seconds / 60)
         .count("seconds", seconds % 60);
-    Some(written(lang.render("effect-ends-in", &args)))
+    Some(written(lang.render(id, &args)))
 }
