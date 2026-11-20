@@ -55,7 +55,7 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
    honeycomb, club, truffle, lichen tufts/beards/plates) and colours from `look`, with look details added to the table
    (cap shape, gills/pores/spines/ridges, stem, ring, volva, warts); `fungus_one` for PR 4's models; `cargo xtask wiki`
    page per fungus in `docs/fungi/` (raw food effects only, never poisons) with pictures, and that page's table.
-3. **Where they grow and picking**: `FungusPatch` on `dungeon::Level` (as `HerbPatch`), placement underground
+3. **Where they grow and picking** (built): `FungusPatch` on `dungeon::Level` (as `HerbPatch`), placement underground
    (caves, basements, cellars) by niche, temperature, depth; dug kinds; `dim` by skylights and mouths; wilderness
    surface patches; felled cells; server picking, harvest, protocol.
 4. **Models on the maps**: `plants`/`dungeon_map` 3D patches by form and stage, picking by click, hover.

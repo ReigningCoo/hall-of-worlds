@@ -38,6 +38,7 @@ fn cells_come_back_where_they_were() {
         herbs: Vec::new(),
         fruit: Vec::new(),
         vegetables: Vec::new(),
+        fungi: Vec::new(),
         felled: Vec::new(),
         trees: Vec::new(),
         remembered: false,

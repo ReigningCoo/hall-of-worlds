@@ -549,6 +549,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 herbs: Vec::new(),
                 fruit: Vec::new(),
                 vegetables: Vec::new(),
+                fungi: Vec::new(),
                 felled: Vec::new(),
                 trees: Vec::new(),
                 remembered: true,
@@ -657,6 +658,15 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                     picked: Some(12),
                 },
             }],
+            fungi: vec![super::SeenFungus {
+                x: -2,
+                y: 16,
+                patch: crate::fungus::FungusPatch {
+                    fungus: "glowcap".into(),
+                    phase: 99,
+                    picked: Some(40),
+                },
+            }],
             felled: vec![super::SeenFelled {
                 x: -3,
                 y: 16,
@@ -692,6 +702,12 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             y: 16,
             vegetable: "turnip".into(),
             count: 2,
+        }),
+        ServerMessage::Pick(super::PickNews::PickedFungus {
+            x: -2,
+            y: 16,
+            fungus: "glowcap".into(),
+            count: 3,
         }),
         ServerMessage::Pick(super::PickNews::Refused { x: 1, y: -2 }),
         ServerMessage::DoorRefused {

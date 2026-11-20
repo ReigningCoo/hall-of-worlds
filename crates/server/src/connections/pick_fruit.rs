@@ -18,7 +18,7 @@ use crate::ServerWorld;
 use crate::ids::new_id;
 use crate::sites::{keep_harvest, update_sight};
 
-/// Harvests the plant at `(x, y)`, a herb patch, fruit plant or vegetable. Whether the
+/// Harvests the plant at `(x, y)`, a herb patch, fruit plant, vegetable or fungus. Whether the
 /// client is still there, and what it cost.
 pub(super) fn pick(client: &mut Client, world: &mut ServerWorld, x: i64, y: i64) -> (bool, u32) {
     let visit = client.visit.as_ref();
@@ -26,6 +26,8 @@ pub(super) fn pick(client: &mut Client, world: &mut ServerWorld, x: i64, y: i64)
         pick_fruit(client, world, x, y)
     } else if visit.is_some_and(|visit| visit.vegetable_at(x, y).is_some()) {
         super::pick_vegetable::pick_vegetable(client, world, x, y)
+    } else if visit.is_some_and(|visit| visit.fungus_at(x, y).is_some()) {
+        super::pick_fungus::pick_fungus(client, world, x, y)
     } else {
         pick_herb(client, world, x, y)
     }

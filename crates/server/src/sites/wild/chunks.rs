@@ -37,6 +37,7 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
     let mut walls = Vec::new();
     let (mut entrance, mut town, mut spawns) = (None, Vec::new(), Vec::new());
     let (mut herbs, mut fruit, mut vegetables) = (Vec::new(), Vec::new(), Vec::new());
+    let mut fungi = Vec::new();
     let border = plan.cutout().map(Cutout::border).unwrap_or_default();
     let flats = plan
         .cutout()
@@ -51,7 +52,7 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
             walls = first.walls.iter().map(|wall| wall.moved(offset)).collect();
             town.clone_from(&first.buildings);
             spawns = first_level_mobs(cutout.poi(), &first, offset);
-            let plants = crate::sites::site_plants(world, cutout.poi(), &first);
+            let plants = crate::sites::site_plants(world, (cutout.poi(), site), 0, &first);
             let moved = |(x, y): (i64, i64)| (x + offset.0, y + offset.1);
             herbs = (plants.herbs.into_iter())
                 .map(|(at, patch)| (moved(at), patch))
@@ -61,6 +62,9 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
                 .collect();
             vegetables = (plants.vegetables.into_iter())
                 .map(|(at, plant)| (moved(at), plant))
+                .collect();
+            fungi = (plants.fungi.into_iter())
+                .map(|(at, patch)| (moved(at), patch))
                 .collect();
             if let Some(poi) = &poi {
                 crate::sites::stock_set_in_cellar(world, poi, site, &first, offset);
@@ -81,6 +85,7 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
         herbs,
         fruit,
         vegetables,
+        fungi,
     });
 }
 

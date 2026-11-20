@@ -1,6 +1,7 @@
-//! Herb patches (`shared::herb`), fruit plants (`shared::fruit`) and vegetable
-//! plants (`shared::vegetable`) on a visit's level: what a site grows
-//! (herbalists' beds, farms' orchards and fields of crops), where
+//! Herb patches (`shared::herb`), fruit plants (`shared::fruit`), vegetable
+//! plants (`shared::vegetable`) and fungi (`shared::fungus`, `fungi.rs`) on a
+//! visit's level: what a site grows (herbalists' beds, farms' orchards and
+//! fields of crops, fungi underground and on felled trees), where
 //! each plant's harvests are kept (a site's set into the wilderness are its
 //! site's, through the `Mirror`, as doors are), and telling everyone on a
 //! level when one is harvested. A cell has one plant at most, so harvests are
@@ -8,9 +9,10 @@
 
 use shared::dungeon::Level;
 use shared::fruit::{FruitPlant, Fruits, plant_orchards};
+use shared::fungus::FungusPatch;
 use shared::herb::{HerbPatch, plant_beds};
 use shared::poi::Poi;
-use shared::site::SiteLevel;
+use shared::site::{Site, SiteLevel};
 use shared::vegetable::{VegetablePlant, Vegetables, plant_fields};
 
 use super::doors::changed_at;
@@ -35,13 +37,19 @@ pub(crate) struct SitePlants {
     pub(crate) herbs: Vec<((i64, i64), HerbPatch)>,
     pub(crate) fruit: Vec<((i64, i64), FruitPlant)>,
     pub(crate) vegetables: Vec<((i64, i64), VegetablePlant)>,
+    pub(crate) fungi: Vec<((i64, i64), FungusPatch)>,
 }
 
 /// What a site's level grows: herbs in its beds (`plant_beds`), fruit in its
 /// orchards (`plant_orchards`) and a crop in each other field of crops
-/// (`plant_fields`), suiting the land at its poi, from its seed.
-/// Nothing on levels with neither.
-pub(crate) fn site_plants(world: &ServerWorld, poi: &Poi, level: &SiteLevel) -> SitePlants {
+/// (`plant_fields`), suiting the land at its poi, from its seed, and fungi
+/// (`site_fungi`) on level `index` of `site`.
+pub(crate) fn site_plants(
+    world: &ServerWorld,
+    (poi, site): (&Poi, &Site),
+    index: u32,
+    level: &SiteLevel,
+) -> SitePlants {
     let habitat = world.habitat_of_poi(poi);
     let mut planted = level.level.clone();
     plant_beds(&mut planted, &world.herbs, &habitat, poi.seed);
@@ -55,10 +63,12 @@ pub(crate) fn site_plants(world: &ServerWorld, poi: &Poi, level: &SiteLevel) -> 
         habitat.biome,
         poi.seed,
     );
+    let fungi = fungi::site_fungi(poi, site, index, level, &habitat);
     SitePlants {
         herbs,
         fruit,
         vegetables,
+        fungi,
     }
 }
 
@@ -66,11 +76,11 @@ pub(crate) fn site_plants(world: &ServerWorld, poi: &Poi, level: &SiteLevel) -> 
 /// harvested, its trees' kinds, and how far its felled trees have grown back.
 pub(crate) fn put_plants(
     world: &mut ServerWorld,
-    (id, poi): (SiteId, &Poi),
+    (id, poi, site): (SiteId, &Poi, &Site),
     index: u32,
     level: &mut SiteLevel,
 ) {
-    let plants = site_plants(world, poi, level);
+    let plants = site_plants(world, (poi, site), index, level);
     for ((x, y), patch) in plants.herbs {
         level.level.set_herb(x, y, patch);
     }
@@ -79,6 +89,9 @@ pub(crate) fn put_plants(
     }
     for ((x, y), plant) in plants.vegetables {
         level.level.set_vegetable(x, y, plant);
+    }
+    for ((x, y), patch) in plants.fungi {
+        level.level.set_fungus(x, y, patch);
     }
     let key = |x: i64, y: i64| plant_key(id, index, &[], x, x, y);
     for ((x, y), when) in picked_of(world, &level.level, key) {
@@ -119,18 +132,21 @@ pub(crate) fn plant_key(
     (id, index, (kept_x, y))
 }
 
-/// Every cell of `level` with a herb patch, fruit plant or vegetable plant.
+/// Every cell of `level` with a herb patch, fruit plant, vegetable plant or
+/// fungus patch (growing now or not).
 fn plant_cells(level: &Level) -> impl Iterator<Item = (i64, i64)> + '_ {
     (level.herbs().map(|(at, _)| at))
         .chain(level.fruit_plants().map(|(at, _)| at))
         .chain(level.vegetable_plants().map(|(at, _)| at))
+        .chain(level.kept_fungi().map(|(at, _)| at))
 }
 
-/// Notes the plant at `(x, y)` (a herb, fruit or vegetable) harvested at game minute `when`.
+/// Notes the plant at `(x, y)` (a herb, fruit, vegetable or fungus) harvested at game minute `when`.
 pub(crate) fn set_picked(level: &mut Level, x: i64, y: i64, when: u64) {
     level.set_herb_picked(x, y, Some(when));
     level.set_fruit_picked(x, y, Some(when));
     level.set_vegetable_picked(x, y, Some(when));
+    level.set_fungus_picked(x, y, Some(when));
 }
 
 /// When each plant on `level` was last harvested, by its cell there, as saved
@@ -165,6 +181,11 @@ impl Visit {
     /// The vegetable plant at `(x, y)` on its level, if any.
     pub(crate) fn vegetable_at(&self, x: i64, y: i64) -> Option<&VegetablePlant> {
         self.level.level.vegetable_at(x, y)
+    }
+
+    /// The fungus patch growing at `(x, y)` on its level now, if any.
+    pub(crate) fn fungus_at(&self, x: i64, y: i64) -> Option<&FungusPatch> {
+        self.level.level.fungus_at(x, y)
     }
 
     /// Where the plant at `(x, y)` on its level is kept.
@@ -205,6 +226,7 @@ pub(crate) fn share_plants(clients: &mut [Client], world: &mut ServerWorld) {
             (level.herb_at(x, y).map(|patch| patch.picked))
                 .or_else(|| level.fruit_at(x, y).map(|plant| plant.picked))
                 .or_else(|| level.vegetable_at(x, y).map(|plant| plant.picked))
+                .or_else(|| level.kept_fungus_at(x, y).map(|patch| patch.picked))
                 .flatten()
         };
         let here: Vec<((i64, i64), u64)> = plant_cells(level)
@@ -224,8 +246,12 @@ pub(crate) fn share_plants(clients: &mut [Client], world: &mut ServerWorld) {
     }
 }
 
+mod fungi;
+
 #[cfg(test)]
 mod fruit_tests;
+#[cfg(test)]
+mod fungus_tests;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]

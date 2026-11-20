@@ -1,4 +1,4 @@
-//! Picking herbs, fruit and vegetables: a click (or tap) on a patch or plant
+//! Picking herbs, fruit, vegetables and fungi: a click (or tap) on a patch or plant
 //! that can be harvested sends the
 //! player there (`click::pick_on_click`, which sends `TravelTo`) and asks the
 //! server to harvest it (`ClientMessage::Pick`) at once if it is beside
@@ -9,6 +9,7 @@
 
 use bevy::prelude::*;
 use shared::fruit::Fruits;
+use shared::fungus::Fungi;
 use shared::protocol::ClientMessage;
 use shared::vegetable::Vegetables;
 
@@ -37,7 +38,7 @@ pub(in crate::dungeon_map) fn beside_trunk(
         .min_by_key(|&(x, y)| (x - player.x).pow(2) + (y - player.y).pow(2))
 }
 
-/// Whether the herb patch, fruit plant or vegetable at `(x, y)` can be
+/// Whether the herb patch, fruit plant, vegetable or fungus at `(x, y)` can be
 /// harvested now.
 fn ready(
     dungeon: &CurrentDungeon,
@@ -56,7 +57,10 @@ fn ready(
     let vegetable = (level.vegetable_at(x, y))
         .and_then(|plant| Some((plant, Vegetables::built_in().get(&plant.vegetable)?)))
         .is_some_and(|(plant, def)| plant.can_pick(def, now));
-    herb || fruit || vegetable
+    let fungus = (level.fungus_at(x, y))
+        .and_then(|patch| Some((patch, Fungi::built_in().get(&patch.fungus)?)))
+        .is_some_and(|(patch, def)| patch.can_pick(def, now));
+    herb || fruit || vegetable || fungus
 }
 
 /// Whether `at` is beside or under the player: the server's reach.

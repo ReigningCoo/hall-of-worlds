@@ -143,6 +143,10 @@ pub struct LevelChunk {
     /// The vegetable plants on those cells, grown by the clock as herbs are
     /// (`VegetablePlant::stage`).
     pub vegetables: Vec<SeenVegetable>,
+    /// The fungus patches growing on those cells, grown by the clock as herbs
+    /// are (`FungusPatch::stage`): one on a felled tree only while it is
+    /// cleared (`dungeon::Level::fungus_at`).
+    pub fungi: Vec<SeenFungus>,
     /// The trees felled on those cells and growing back, by stage (a grown
     /// one has none: the cell's own tree stands).
     pub felled: Vec<SeenFelled>,
@@ -198,6 +202,14 @@ pub struct SeenVegetable {
     pub x: i64,
     pub y: i64,
     pub plant: crate::vegetable::VegetablePlant,
+}
+
+/// A fungus patch on a cell (`shared::fungus`).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SeenFungus {
+    pub x: i64,
+    pub y: i64,
+    pub patch: crate::fungus::FungusPatch,
 }
 
 /// A tree felled on a cell, and how far it has grown back

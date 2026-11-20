@@ -18,6 +18,7 @@ mod in_poi;
 mod town;
 mod window;
 mod window_looks;
+mod window_plants;
 
 #[cfg(test)]
 mod arrival_tests;

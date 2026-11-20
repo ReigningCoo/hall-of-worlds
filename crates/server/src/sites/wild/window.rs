@@ -96,15 +96,7 @@ fn window_of(world: &mut ServerWorld, (x, y): (i64, i64), blocks: i64) -> Window
             let made = world.wilderness.block(block, &world.herbs);
             level.set(cx, cy, made.cell(wrapped, cy));
             level.set_room(cx, cy, made.room(wrapped, cy));
-            if let Some(patch) = made.herb_at(wrapped, cy) {
-                level.set_herb(cx, cy, patch.clone());
-            }
-            if let Some(plant) = made.fruit_at(wrapped, cy) {
-                level.set_fruit(cx, cy, plant.clone());
-            }
-            if let Some(plant) = made.vegetable_at(wrapped, cy) {
-                level.set_vegetable(cx, cy, plant.clone());
-            }
+            super::window_plants::block_plants(&mut level, made, (cx, cy), wrapped);
             level.set_tree_kind(cx, cy, made.tree_kind_at(wrapped, cy));
         }
     }
@@ -259,18 +251,7 @@ fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &
     for piece in cutout.level().furniture() {
         window.level.level.place_furniture(piece.moved((turn, 0)));
     }
-    for ((x, y), patch) in &wild_chunk.herbs {
-        window.level.level.set_herb(x + turn, *y, patch.clone());
-    }
-    for ((x, y), plant) in &wild_chunk.fruit {
-        window.level.level.set_fruit(x + turn, *y, plant.clone());
-    }
-    for ((x, y), plant) in &wild_chunk.vegetables {
-        window
-            .level
-            .level
-            .set_vegetable(x + turn, *y, plant.clone());
-    }
+    super::window_plants::cutout_plants(&mut window.level.level, wild_chunk, turn);
     for stairs in &wild_chunk.stairs {
         let x = stairs.x + turn;
         window.stairs.push(SeenStairs { x, ..*stairs });

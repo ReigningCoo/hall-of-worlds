@@ -90,6 +90,11 @@ fn show_notices(
                 let name = (vegetables.get(vegetable)).map_or(vegetable.as_str(), |def| &def.name);
                 format!("Picked {count} {name}")
             }
+            ServerMessage::Pick(PickNews::PickedFungus { fungus, count, .. }) => {
+                let fungi = shared::fungus::Fungi::built_in();
+                let name = fungi.get(fungus).map_or(fungus.as_str(), |def| &def.name);
+                format!("Picked {count} {name}")
+            }
             ServerMessage::AbilityLanded {
                 who: None,
                 landed: Landed::Alchemy { made, salt, left },
