@@ -50,3 +50,39 @@ pub const PIG_HEAD: MeasuredHead = MeasuredHead {
         ring(860, 132, -128, 116),
     ],
 };
+
+/// A camel's, a llama's or an alpaca's: a rounded skull, a long face of even
+/// depth and a blunt, drooping muzzle with a split upper lip.
+pub const CAMEL_HEAD: MeasuredHead = MeasuredHead {
+    source: "drawn by hand",
+    length: 0,
+    pitch: 0,
+    rings: [
+        ring(-120, 10, -40, 40),
+        ring(20, 240, -200, 290),
+        ring(160, 230, -215, 305),
+        ring(300, 185, -205, 235),
+        ring(440, 150, -190, 175),
+        ring(580, 130, -185, 140),
+        ring(720, 125, -180, 120),
+        ring(850, 110, -150, 95),
+    ],
+};
+
+/// A rabbit's: a round skull wide at the cheeks, big eyes, and a short, blunt,
+/// deep muzzle.
+pub const RABBIT_HEAD: MeasuredHead = MeasuredHead {
+    source: "drawn by hand",
+    length: 0,
+    pitch: 0,
+    rings: [
+        ring(-100, 20, -40, 40),
+        ring(40, 360, -300, 360),
+        ring(200, 380, -330, 380),
+        ring(360, 340, -320, 330),
+        ring(520, 280, -290, 260),
+        ring(680, 220, -250, 200),
+        ring(800, 170, -200, 150),
+        ring(880, 120, -150, 100),
+    ],
+};

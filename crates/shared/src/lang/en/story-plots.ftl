@@ -203,6 +203,14 @@ reason-learning = learning
 
 ## Creatures, by how many.
 
+creature-alpaca = { $count ->
+    [one] alpaca
+   *[other] alpacas
+}
+creature-bactrian-camel = { $count ->
+    [one] Bactrian camel
+   *[other] Bactrian camels
+}
 creature-beggar = { $count ->
     [one] beggar
    *[other] beggars
@@ -224,9 +232,17 @@ creature-coo = { $count ->
     [one] highland cow
    *[other] highland cattle
 }
+creature-donkey = { $count ->
+    [one] donkey
+   *[other] donkeys
+}
 creature-drider = { $count ->
     [one] drider
    *[other] driders
+}
+creature-dromedary = { $count ->
+    [one] dromedary
+   *[other] dromedaries
 }
 creature-dwarf = { $count ->
     [one] dwarf
@@ -265,9 +281,17 @@ creature-kobold = { $count ->
    *[other] kobolds
 }
 creature-lizardfolk = lizardfolk
+creature-llama = { $count ->
+    [one] llama
+   *[other] llamas
+}
 creature-minotaur = { $count ->
     [one] minotaur
    *[other] minotaurs
+}
+creature-mule = { $count ->
+    [one] mule
+   *[other] mules
 }
 creature-orc = { $count ->
     [one] orc
@@ -277,6 +301,11 @@ creature-pig = { $count ->
     [one] pig
    *[other] pigs
 }
+creature-rabbit = { $count ->
+    [one] rabbit
+   *[other] rabbits
+}
+creature-reindeer = reindeer
 creature-scorpion-man = { $count ->
     [one] scorpion man
    *[other] scorpion men

@@ -67,11 +67,12 @@ impl CreatureKind {
         use CreatureKind::*;
         match self {
             Halfling => Temper::Friendly,
-            Chicken | Horse | Sheep => Temper::Timid,
+            Chicken | Horse | Rabbit | Reindeer | Sheep => Temper::Timid,
             Lizardfolk | ScorpionMan | Wolf => Temper::Territorial,
             Drider | Goblin | Kobold | Minotaur | Orc => Temper::Hostile,
-            Beggar | Birdfolk | Cattle | Centaur | Coo | Dwarf | Elf | Giant | Goat | Human
-            | Pig | WaterBuffalo | Yak => Temper::Neutral,
+            Alpaca | BactrianCamel | Beggar | Birdfolk | Cattle | Centaur | Coo | Donkey
+            | Dromedary | Dwarf | Elf | Giant | Goat | Human | Llama | Mule | Pig
+            | WaterBuffalo | Yak => Temper::Neutral,
         }
     }
 
@@ -81,9 +82,10 @@ impl CreatureKind {
     pub const fn field_of_view(self) -> u16 {
         use CreatureKind::*;
         match self {
-            Horse => 350,
+            Horse | Rabbit => 350,
+            Donkey | Mule | Reindeer => 340,
             Cattle | Coo | Sheep | WaterBuffalo | Yak => 330,
-            Goat => 320,
+            Alpaca | BactrianCamel | Dromedary | Goat | Llama => 320,
             Pig => 310,
             Chicken => 300,
             Minotaur => 240,
@@ -109,7 +111,12 @@ impl CreatureKind {
         match self {
             Beggar | Human => senses(Normal, DarkSight::None, Normal, Poor),
             Birdfolk => senses(Keen, DarkSight::None, Normal, Poor),
-            Cattle | Coo | Goat => senses(Normal, DarkSight::Low, Keen, Keen),
+            Cattle | Coo | Donkey | Goat | Mule | Rabbit => {
+                senses(Normal, DarkSight::Low, Keen, Keen)
+            }
+            BactrianCamel | Dromedary => senses(Normal, DarkSight::Low, Normal, Keen),
+            Alpaca | Llama => senses(Normal, DarkSight::Low, Keen, Normal),
+            Reindeer => senses(Normal, DarkSight::Dark, Keen, Keen),
             Pig => senses(Poor, DarkSight::Low, Keen, Keen),
             Sheep => senses(Normal, DarkSight::Low, Keen, Normal),
             WaterBuffalo | Yak => senses(Normal, DarkSight::Low, Normal, Keen),

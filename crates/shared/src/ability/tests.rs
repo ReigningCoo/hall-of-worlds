@@ -28,8 +28,11 @@ fn usable(ability: Ability, kind: CreatureKind) -> bool {
 fn kicker() -> CreatureKind {
     *CreatureKind::ALL
         .iter()
-        .find(|kind| kind.def().abilities.contains(&Ability::Kick))
-        .expect("some kind kicks")
+        .find(|kind| {
+            let abilities = kind.def().abilities;
+            abilities.contains(&Ability::Kick) && abilities.contains(&Ability::Trample)
+        })
+        .expect("some kind kicks and tramples")
 }
 
 fn slot(ability: Ability, auto: bool) -> Option<BarSlot> {

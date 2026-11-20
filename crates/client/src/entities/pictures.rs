@@ -25,10 +25,20 @@ pub(super) fn picture(kind: CreatureKind) -> &'static str {
         | CreatureKind::Sheep
         | CreatureKind::WaterBuffalo
         | CreatureKind::Yak => "monsters/cowright.png",
-        CreatureKind::Chicken => "monsters/chicken1.png",
+        // (No rabbit among the pictures yet.)
+        CreatureKind::Chicken | CreatureKind::Rabbit => "monsters/chicken1.png",
         CreatureKind::Drider => "monsters/spiderblack.png",
         CreatureKind::Giant => "monsters/gianthill.png",
-        CreatureKind::Horse => "monsters/horse01.png",
+        // (No donkey, mule, camel, llama, alpaca or reindeer among the pictures
+        // yet.)
+        CreatureKind::Horse
+        | CreatureKind::Donkey
+        | CreatureKind::Mule
+        | CreatureKind::Dromedary
+        | CreatureKind::BactrianCamel
+        | CreatureKind::Llama
+        | CreatureKind::Alpaca
+        | CreatureKind::Reindeer => "monsters/horse01.png",
         CreatureKind::Kobold => "monsters/koboldfighter.png",
         CreatureKind::Halfling => "monsters/halflingfighter.png",
         CreatureKind::Lizardfolk => "monsters/lizardgreen.png",

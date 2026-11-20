@@ -11,7 +11,8 @@ use crate::sheet::{Appearance, Trait};
 /// mostly red-brown (owner, from the breed's records): 60 red-brown, 22
 /// yellow-brown, 6 silvery brown, 6 black, and 6 brindled, split between the two
 /// brindles. Kept cattle never have an aurochs's coat or eel stripe (the last
-/// choices), which are for wild cattle.
+/// choices), which are for wild cattle. Donkeys are mostly grey-dun with a
+/// dark cross, mules mostly pale-pointed and reindeer mostly pale-necked.
 const WEIGHTS: &[(CreatureKind, Trait, &[u64])] = &[
     (CreatureKind::Coo, Trait::CoatColour, &[60, 22, 6, 6, 3, 3]),
     (
@@ -24,6 +25,11 @@ const WEIGHTS: &[(CreatureKind, Trait, &[u64])] = &[
         Trait::Markings,
         &[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     ),
+    (CreatureKind::Donkey, Trait::CoatColour, &[6, 2, 1, 1, 2]),
+    (CreatureKind::Donkey, Trait::Markings, &[1, 5, 3]),
+    (CreatureKind::Mule, Trait::CoatColour, &[3, 3, 2, 1, 2, 1]),
+    (CreatureKind::Mule, Trait::Markings, &[3, 4, 1, 1]),
+    (CreatureKind::Reindeer, Trait::Markings, &[1, 4]),
 ];
 
 /// The weights for a kind's trait, if it has any; otherwise all choices are even.

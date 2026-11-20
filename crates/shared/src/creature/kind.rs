@@ -11,13 +11,19 @@ use crate::sheet::{Feeling, Reaction};
 )]
 pub enum CreatureKind {
     Beggar,
+    Alpaca,
+    /// The two-humped camel of cold deserts.
+    BactrianCamel,
     Birdfolk,
     Cattle,
     Centaur,
     Chicken,
     /// A highland cow ("coo" in Scots): shaggy, long-horned, at home in the cold.
     Coo,
+    Donkey,
     Drider,
+    /// The one-humped camel.
+    Dromedary,
     Dwarf,
     Elf,
     Giant,
@@ -29,9 +35,14 @@ pub enum CreatureKind {
     Human,
     Kobold,
     Lizardfolk,
+    Llama,
     Minotaur,
+    /// A donkey sire's and a horse mare's sterile young.
+    Mule,
     Orc,
     Pig,
+    Rabbit,
+    Reindeer,
     ScorpionMan,
     Sheep,
     WaterBuffalo,
