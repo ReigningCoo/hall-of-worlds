@@ -40,7 +40,7 @@ pub use mortar::{Contribution, TINCTURE_PERCENT};
 pub use order::{AlchemyOrder, Checked, MOST_REPEATS, OrderRefused, OrderStep};
 pub use outcome::{Outcome, outcome};
 pub use paste::{PASTE_GRAMS, POWDER_GRAMS, new_mixture};
-pub use pelican::{CIRCULATION_PERCENT, circulated_quality};
+pub use pelican::{CIRCULATION_PERCENT, circulated_quality, worked_quality};
 pub use plan::{Planned, Product, plan};
 pub use process::{Form, Process, RETORT_UNITS, Refused, Solvent, Step, Stored};
 pub use quality::{LUCKY_ONCE, LUCKY_TWICE, least_quality, luck_steps, moved, skill_steps};

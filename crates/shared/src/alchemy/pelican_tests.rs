@@ -30,7 +30,14 @@ fn powder(doses: &[(Stat, i16)]) -> Option<Stored> {
 }
 
 fn run(source: Option<Stored>, steps: Vec<Step<'_>>) -> Result<Planned, Refused> {
-    plan(&Process { source, steps }, untrained())
+    plan(
+        &Process {
+            source,
+            steps,
+            at_bench: false,
+        },
+        untrained(),
+    )
 }
 
 #[test]

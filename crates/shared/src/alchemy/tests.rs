@@ -54,6 +54,7 @@ fn process(steps: Vec<Step<'_>>) -> Process<'_> {
     Process {
         source: None,
         steps,
+        at_bench: false,
     }
 }
 
@@ -237,6 +238,7 @@ fn infusing_is_practised_only_for_a_mixture() {
             }]),
         }),
         steps: vec![retort(&[WATER])],
+        at_bench: false,
     };
     assert_eq!(
         plan(&stored, skills(0, 0, 0)).unwrap().practised,
@@ -310,6 +312,7 @@ fn an_old_source_loses_a_step_and_failing_makes_nothing() {
         let p = Process {
             source: Some(source(form)),
             steps: vec![retort(&[WATER])],
+            at_bench: false,
         };
         plan(&p, skills(0, 0, 0)).unwrap()
     };

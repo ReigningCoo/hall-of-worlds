@@ -70,6 +70,7 @@ fn planned(steps: Vec<Step<'_>>) -> Result<Planned, Refused> {
         &Process {
             source: None,
             steps,
+            at_bench: false,
         },
         untrained(),
     )

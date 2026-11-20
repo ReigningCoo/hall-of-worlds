@@ -4,11 +4,11 @@
 
 use super::alembic::alembic;
 use super::batch::Batch;
-use super::circulated_quality;
 use super::crucible::{crucible, filter};
 use super::mortar::mortar;
 use super::pelican::pelican;
 use super::retort::retort;
+use super::worked_quality;
 use super::{
     AlchemySkills, Apparatus, Contribution, Form, Mix, Process, Refused, Step, chance,
     least_quality, skill_steps,
@@ -129,7 +129,7 @@ pub fn plan(process: &Process, skills: AlchemySkills) -> Result<Planned, Refused
     let used: Vec<Apparatus> = process.steps.iter().map(Step::apparatus).collect();
     let old = source.is_some_and(|stored| stored.form.is_old());
     let quality = product.has_quality().then(|| {
-        let purity = circulated_quality(product.contents(), batch.circulated);
+        let purity = worked_quality(product.contents(), batch.circulated, process.at_bench);
         least_quality(purity, chance, skill_steps(steps, &used, skills), old)
     });
     Ok(Planned {

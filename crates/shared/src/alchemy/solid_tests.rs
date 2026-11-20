@@ -34,6 +34,7 @@ fn retorted(doses: &[(Stat, i16)], solid: Option<Solid>) -> Result<Planned, Refu
             liquids: vec![Liquid::Water(Water::Plain)],
             solid,
         }],
+        at_bench: false,
     };
     plan(&process, AlchemySkills::default())
 }
@@ -112,6 +113,7 @@ fn a_solid_alone_needs_something_before_it() {
             liquids: Vec::new(),
             solid: Some(carrot()),
         }],
+        at_bench: false,
     };
     let planned = plan(&paste, AlchemySkills::default()).unwrap();
     assert_eq!(
@@ -127,6 +129,7 @@ fn a_solid_alone_needs_something_before_it() {
             liquids: Vec::new(),
             solid: Some(Solid::Salt),
         }],
+        at_bench: false,
     };
     assert_eq!(
         plan(&alone, AlchemySkills::default()),

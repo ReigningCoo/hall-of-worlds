@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{BenchStyle, ChairStyle, Material, TableStyle};
+use crate::crafting_bench::Craft;
 use crate::door::Side;
 
 /// How much longer a move takes over a table than over open floor, in
@@ -16,9 +17,22 @@ pub const SEAT_COST_PER_MILLE: u32 = 1500;
 /// What a piece is.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Furniture {
-    Table { style: TableStyle },
-    Chair { style: ChairStyle, arms: bool },
-    Bench { style: BenchStyle },
+    Table {
+        style: TableStyle,
+    },
+    Chair {
+        style: ChairStyle,
+        arms: bool,
+    },
+    Bench {
+        style: BenchStyle,
+    },
+    /// A crafting bench (`shared::crafting_bench`): a table-like piece, 1
+    /// deep, back to a wall, holding its craft's tools on a raised shelf
+    /// along its back.
+    CraftingBench {
+        craft: Craft,
+    },
 }
 
 impl Furniture {
@@ -29,7 +43,7 @@ impl Furniture {
     /// How much longer a move over it takes, in thousandths of open floor's.
     pub fn cost_per_mille(self) -> u32 {
         match self {
-            Self::Table { .. } => TABLE_COST_PER_MILLE,
+            Self::Table { .. } | Self::CraftingBench { .. } => TABLE_COST_PER_MILLE,
             Self::Chair { .. } | Self::Bench { .. } => SEAT_COST_PER_MILLE,
         }
     }
@@ -41,11 +55,14 @@ pub struct Piece {
     /// Its north-west cell.
     pub at: (i64, i64),
     /// Cells east–west and north–south (a table 1 × 1 to 2 × 3 either way
-    /// round, a chair 1 × 1, a bench 1 to 3 long and 1 deep).
+    /// round, a chair 1 × 1, a bench 1 to 3 long and 1 deep, a crafting
+    /// bench its craft's length and 1 deep).
     pub size: (u8, u8),
     /// A seat: the way someone sitting on it faces (towards their table, or
     /// away from the wall behind). A table: the way its length runs from its
-    /// head, east or south (east for a square one).
+    /// head, east or south (east for a square one). A crafting bench: the way
+    /// its front faces, away from the wall behind it (as a seat's); its shelf
+    /// is along the opposite side.
     pub facing: Side,
     pub material: Material,
     pub furniture: Furniture,

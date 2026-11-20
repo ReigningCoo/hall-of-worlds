@@ -10,6 +10,7 @@ use super::{
     AlchemySkills, Apparatus, Planned, Process, Refused, Solid, Solvent, Step, Stored, plan,
 };
 use crate::brewing::{GroundHerb, Ingredient};
+use crate::crafting_bench::BenchTools;
 use crate::fungus::Fungi;
 use crate::herb::Herbs;
 use crate::id::Id;
@@ -78,7 +79,7 @@ impl OrderStep {
 pub enum OrderRefused {
     /// The count is 0 or over `MOST_REPEATS`.
     Count,
-    /// This apparatus isn't carried.
+    /// This apparatus isn't carried (nor on the bench used).
     Apparatus(Apparatus),
     /// The source isn't a carried Paste, Ointment or Powder.
     Source,
@@ -117,6 +118,18 @@ impl Inventory {
         herbs: &Herbs,
         skills: AlchemySkills,
     ) -> Result<Checked, OrderRefused> {
+        self.check_alchemy_at(order, herbs, skills, None)
+    }
+
+    /// The same at a crafting bench: its tools are used as apparatus before
+    /// carried ones, and using any of them works the process at the bench.
+    pub fn check_alchemy_at(
+        &self,
+        order: &AlchemyOrder,
+        herbs: &Herbs,
+        skills: AlchemySkills,
+        bench: Option<&BenchTools>,
+    ) -> Result<Checked, OrderRefused> {
         if !(1..=MOST_REPEATS).contains(&order.count) {
             return Err(OrderRefused::Count);
         }
@@ -128,11 +141,15 @@ impl Inventory {
         let herb_stacks = self.herb_stacks();
         let mut steps = Vec::new();
         let mut handled = Vec::new();
+        let mut at_bench = false;
         for step in &order.steps {
             let apparatus = step.apparatus();
-            let kind = apparatus.item();
-            if kind.is_some_and(|kind| self.count_of(kind) == 0) {
-                return Err(OrderRefused::Apparatus(apparatus));
+            if let Some(kind) = apparatus.item() {
+                if bench.is_some_and(|bench| bench.has(kind)) {
+                    at_bench = true;
+                } else if self.count_of(kind) == 0 {
+                    return Err(OrderRefused::Apparatus(apparatus));
+                }
             }
             steps.push(match step {
                 OrderStep::Mortar {
@@ -220,7 +237,11 @@ impl Inventory {
         if !uses.iter().all(enough) {
             return Err(OrderRefused::TooFew);
         }
-        let process = Process { source, steps };
+        let process = Process {
+            source,
+            steps,
+            at_bench,
+        };
         let planned = plan(&process, skills).map_err(OrderRefused::Rules)?;
         Ok(Checked {
             planned,

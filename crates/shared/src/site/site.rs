@@ -157,7 +157,8 @@ impl Site {
 
     /// Generates level `index` (`0` is the one entered from the world map:
     /// a building's ground floor, a cave's first level), furnished last
-    /// (`furniture::furnish`; a Dev Area's building brings its own).
+    /// (`furniture::furnish`, then `crafting_bench::place_benches`; a Dev
+    /// Area's building brings its own).
     pub fn level(&self, index: u32) -> SiteLevel {
         assert!(index < self.levels(), "no level {index}");
         let mut level = match &self.plan {
@@ -171,6 +172,10 @@ impl Site {
         };
         if !matches!(self.plan, Plan::DevArea(_)) {
             crate::furniture::furnish(&mut level, self.kind, self.seed, index, self.ruin);
+            let levels = self.levels();
+            crate::crafting_bench::place_benches(
+                &mut level, self.kind, self.seed, levels, index, self.ruin,
+            );
         }
         level.level.set_natural_walls(self.kind.natural_walls());
         level
