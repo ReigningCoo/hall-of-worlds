@@ -1,12 +1,14 @@
 //! Eating a fungus raw (through `consume.rs`): its healing, raw effects and
 //! poison (`fungus::eating`), a poison starting later hidden from the player
-//! unless recognised (`fungus::recognised`: known, or a Healing check). A big piece is cut first (`fungus::cut`): one
+//! unless recognised (`fungus::recognised`: known, or a Healing or Mycology
+//! check). A big piece is cut first (`fungus::cut`): one
 //! serving is eaten and the rest go back, as a cut fruit's do
 //! (`eat_fruit::put_back`).
 
 use bevy::prelude::*;
 use shared::difficulty::Difficulty;
-use shared::fungus::{Eater, Fungi, cut, eating, recognised};
+use shared::fungus::{Eater, Fungi, MYCOLOGY, cut, eating, recognised};
+use shared::herb::{skill_percent, skill_value};
 use shared::item::Item;
 use shared::magic::heal_skill;
 use shared::rng::Seed;
@@ -38,8 +40,9 @@ pub(super) fn eat_fungus(
         easy: client.playing_on() == Difficulty::Easy,
     };
     let healing = client.sheet.skills.percent(heal_skill());
+    let mycology = skill_percent(skill_value(&client.sheet.skills, MYCOLOGY));
     let roll = Seed::new(new_id().seed().value()).rng().range_u64(0, 100) as u32;
-    let known = recognised(&client.sheet.fungi, def, healing, roll);
+    let known = recognised(&client.sheet.fungi, def, healing.max(mycology), roll);
     let (sheet, situation) = client.sheet_and_situation();
     sheet.lay_on(eating(def, now, eater), known, situation, now);
     client.unsaved = true;

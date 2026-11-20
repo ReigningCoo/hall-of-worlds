@@ -49,12 +49,22 @@ impl Sheet {
     /// back. Call `forget_ended` first: an effect ended but not yet forgotten
     /// no longer counts, so what it restored since the last settling is lost.
     pub fn limits(&self, situation: Situation, now: u64) -> Limits {
+        self.limits_until(situation, now, self.later.next_start(now))
+    }
+
+    /// The limits its player is told of: as `limits`, but rates said to hold
+    /// past the start of an effect laid on for later that they don't know of,
+    /// so a hidden poison's start can't be read from when restoring ends.
+    pub fn told_limits(&self, situation: Situation, now: u64) -> Limits {
+        self.limits_until(situation, now, self.later.known().next_start(now))
+    }
+
+    /// `limits` with `later` the next start counted.
+    fn limits_until(&self, situation: Situation, now: u64, later: Option<u64>) -> Limits {
         let totals = self.totals(situation.worn, now);
         let attributes = totals.attributes(&self.attributes);
         // Rates hold until the next effect ends or one laid on for later starts.
-        let until = (self.effects.next_end(now).into_iter())
-            .chain(self.later.next_start(now))
-            .min();
+        let until = (self.effects.next_end(now).into_iter()).chain(later).min();
         Limits {
             refill: situation.refill,
             ..self

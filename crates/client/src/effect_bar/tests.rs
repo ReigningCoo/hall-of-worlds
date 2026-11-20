@@ -56,6 +56,11 @@ fn poison_is_harmful_and_food_is_not() {
 #[test]
 fn the_popup_says_what_it_is_what_ends_it_and_when() {
     let lang = Lang::new(Language::English);
+    let mut all = shared::fungus::FungusKnowledge::default();
+    for def in shared::fungus::Fungi::built_in().iter() {
+        all.learn_name(&def.key);
+    }
+    let name = |source, lang: &Lang| name(source, &all, lang);
     let bread = food_effect(ItemKind::Bread, 0).unwrap();
     assert_eq!(name(bread.source, &lang), "Eating: Bread");
     assert_eq!(name(Source::Poison, &lang), "Poisoned");
@@ -89,6 +94,16 @@ fn the_popup_says_what_it_is_what_ends_it_and_when() {
     assert_eq!(
         name(Source::FungusPoison(fungus("death_cap")), &lang),
         "Poisoned: Death cap"
+    );
+    // Fungi not known by name are never named.
+    let none = shared::fungus::FungusKnowledge::default();
+    assert_eq!(
+        super::words::name(Source::FungusPoison(fungus("death_cap")), &none, &lang),
+        "Poisoned: Unknown mushroom"
+    );
+    assert_eq!(
+        super::words::name(Source::FungusEffects(fungus("manna_lichen")), &none, &lang),
+        "Unknown lichen"
     );
     assert_eq!(
         bonus_lines(&bread, &lang),

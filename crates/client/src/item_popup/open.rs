@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::Item;
 
+use super::fungus::fungus_words;
 use super::herb::herb_words;
 use super::keys::key_lines;
 use super::needs::Viewer;
@@ -141,7 +142,8 @@ pub(super) fn follow_pointed(
         }
         name
     });
-    let herb = herb_words(&pointed.item, &herbs.0, &sheet.0.herbs, &wording.0);
+    let herb = herb_words(&pointed.item, &herbs.0, &sheet.0.herbs, &wording.0)
+        .or_else(|| fungus_words(&pointed.item, &sheet.0.fungi, &wording.0));
     let name = herb.as_ref().map(|herb| herb.name.clone());
     // Staff with any debug tool see the item's id, to copy.
     let staff = role.powers.debug_tools().next().is_some();

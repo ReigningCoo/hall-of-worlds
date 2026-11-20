@@ -127,7 +127,7 @@ pub(super) fn follow_pointer(
     dom.set("effect_popup/box", "left", &at.x.to_string());
     dom.set("effect_popup/box", "top", &at.y.to_string());
     let lang = &wording.0;
-    dom.set_text("effect_popup/name", name(source, lang));
+    dom.set_text("effect_popup/name", name(source, &sheet.0.fungi, lang));
     let lines = bonus_lines(effect, lang);
     dom.set_flag("effect_popup/bonuses", "hidden", lines.is_empty());
     dom.set_text("effect_popup/bonuses", lines.join("\n"));

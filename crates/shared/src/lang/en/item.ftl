@@ -38,6 +38,28 @@ herb-effect = { $way ->
 } { $stat }
 herb-effect-unknown = ?
 
+## Fungi: one whose name isn't known (never wrong information), or that looks
+## like $fungus, a fungus whose name is known.
+
+fungus-unknown = Unknown mushroom
+lichen-unknown = Unknown lichen
+fungus-looks-like = Looks like { $fungus }
+
+## A known fungus's poison: when it starts ($onset soon, delayed or late), a
+## line for each effect ($line), deadly, a false recovery; the common ink cap's
+## window after eating and what alcohol drunk in it brings.
+
+fungus-onset = { $onset ->
+    [soon] Poisonous: at once
+    [late] Poisonous: an hour or more after eating
+   *[delayed] Poisonous: about 10 minutes after eating
+}
+fungus-poison = Poison: { $line }
+fungus-deadly = Deadly unless healed
+fungus-false-recovery = Seems to wear off, then comes back worse
+fungus-window = For 3 days after eating: { $line }
+fungus-with-alcohol = Alcohol within 3 days brings: { $line }
+
 ## A bonus: the amount with its sign ("+40", "−8"), then what it changes.
 
 item-bonus = { $amount } { $stat }

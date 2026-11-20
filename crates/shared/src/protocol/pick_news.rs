@@ -38,13 +38,15 @@ pub enum PickNews {
         count: u32,
     },
     /// The fungus patch at `(x, y)` was picked: `count` of the fungus with key
-    /// `fungus` now carried (or on the ground under the player). `Inventory`,
-    /// `Sheet` and the patch's chunk follow.
+    /// `fungus` now carried (or on the ground under the player); `named` if
+    /// picking taught its name (a Mycology check, `fungus::names_on_picking`).
+    /// `Inventory`, `Sheet` and the patch's chunk follow.
     PickedFungus {
         x: i64,
         y: i64,
         fungus: String,
         count: u32,
+        named: bool,
     },
     /// Nothing could be harvested at `(x, y)`: no patch there, out of reach,
     /// not grown enough, or nothing to take this early.

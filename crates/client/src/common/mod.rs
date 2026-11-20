@@ -41,6 +41,7 @@ mod display;
 mod drawn_ground;
 mod dungeon;
 mod facing;
+mod fungus_name;
 mod graphics;
 mod item_text;
 mod items;
@@ -95,6 +96,7 @@ pub use display::{
 pub use drawn_ground::DrawnGround;
 pub use dungeon::CurrentDungeon;
 pub use facing::{FaceTowards, Facing, PlayerCone, PlayerField, PointedAtMap};
+pub use fungus_name::{fungus_key_name, fungus_name, item_name};
 pub use graphics::{
     AntiAliasing, BRIGHTNESS_MOST, Background, FrameRate, GraphicsPrefs, IN_BROWSER, MaxResolution,
     Precipitation, Preset, RENDER_SCALES, Remembered, Shadows, ViewDistance,

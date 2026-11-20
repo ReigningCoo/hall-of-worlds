@@ -9,8 +9,9 @@ use serde::{Deserialize, Serialize};
 pub enum DevHerbs {
     /// Learns the name and every effect of the herb with this key.
     Learn(String),
-    /// Learns the name and every effect of every herb the server has.
+    /// Learns the name and every effect of every herb the server has, and
+    /// everything of every fungus.
     LearnAll,
-    /// Forgets everything known of herbs.
+    /// Forgets everything known of herbs and fungi.
     ForgetAll,
 }

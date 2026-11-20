@@ -43,6 +43,8 @@ fn a_poison_not_recognised_is_hidden_until_it_starts() {
     let start = sheet.later.next_start(0).unwrap();
     assert_eq!(sheet.limits(situation(), start - 1).restore.drain_health, 0);
     assert_eq!(sheet.limits(situation(), 0).restore.until, Some(start));
+    // Its player isn't told when restoring would change, or they'd know.
+    assert_eq!(sheet.told_limits(situation(), 0).restore.until, None);
     assert!(sheet.forget_ended(situation(), start));
     let tag = FungusTag::of("death_cap");
     assert_eq!(sheet.effects.0[0].source, Source::FungusPoison(tag));
@@ -58,6 +60,8 @@ fn a_recognised_poison_is_sent_before_it_starts() {
     let mut sheet = sheet();
     death_cap(&mut sheet, true);
     assert_eq!(sheet.as_sent().later.0.len(), 2);
+    let start = sheet.later.next_start(0);
+    assert_eq!(sheet.told_limits(situation(), 0).restore.until, start);
 }
 
 #[test]

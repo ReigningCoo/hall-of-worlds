@@ -72,8 +72,14 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
    with no floor, the server killing at 0 (`die_of_poison`); dying cures poisons. Confusion: fly agaric, panther
    cap and Dreamcap (`Poison::confuses`) stumble one move in 8 (`Sheet::stumble_one_in`). Common ink cap: Toughness
    and Will +1 for 3 game days (`Source::FungusWindow`), alcohol drunk then bringing its poison at once.
-7. **Knowing fungi**: "Unknown mushroom" / "Looks like X", a Mycology skill (`gathering/mycology`), names learned by a
-   check on picking, effects learned as herbs'.
+7. **Knowing fungi** (built): `FungusKnowledge` widened as `HerbKnowledge` (names, herb effects, poisons; knowing
+   the name knows the poison), shown as "Unknown mushroom" / "Unknown lichen" / "Looks like X" (`Shown`,
+   `client: common`'s `fungus_name`) in hover names, item popups, the effect bar, notices and the held item; a
+   Mycology skill (`gathering/mycology`, Intellect and Perception) practised by picking, whose check (20% + Mycology
+   + half Foraging, at most 95%) teaches the name; it also counts towards recognising a poison on eating (with
+   Healing). A popup tells what eating does only once the fungus is known by name, its poison then too. Herb
+   effects are kept for PR 8 to teach. The Vitals message no longer tells when a hidden poison starts
+   (`Sheet::told_limits`).
 8. **Alchemy**: herb-like fungi as Mortar inputs (widen `herb_stacks`, `GroundHerb`, order checks, knowledge keys,
    client panel), deadly ones included.
 9. **Harm from handling**: touch and breath harm on picking and handling, gloves and `covers_mouth`, the bandana.

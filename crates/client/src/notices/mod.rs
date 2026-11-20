@@ -4,9 +4,12 @@
 
 use bevy::prelude::*;
 use shared::item::ItemKind;
+use shared::lang::Lang;
 use shared::protocol::{Alchemised, Landed, PickNews, ServerMessage};
+use shared::sheet::Sheet;
 
-use crate::common::{HerbTable, words};
+use crate::character::CharacterSheet;
+use crate::common::{HerbTable, Wording, fungus_key_name, words};
 use crate::connection::FromServer;
 use crate::dom::{Dom, Template, document, top_strip};
 use crate::html;
@@ -58,6 +61,20 @@ fn picked(count: u32, herb: &str, table: &HerbTable) -> String {
     format!("Picked {count} {name}")
 }
 
+/// What picking a fungus says: "Picked 2 Unknown mushroom", or with its name
+/// when known ("Picked 2 Chanterelle"), saying so when picking taught it (the
+/// sheet that knows it may come after this).
+fn picked_fungus(key: &str, count: u32, named: bool, (sheet, lang): (&Sheet, &Lang)) -> String {
+    let def = shared::fungus::Fungi::built_in().get(key);
+    match def.filter(|_| named) {
+        Some(def) => format!("Picked {count} {}, and learned its name", def.name),
+        None => format!(
+            "Picked {count} {}",
+            fungus_key_name(key, &sheet.fungi, lang)
+        ),
+    }
+}
+
 /// What a door found locked says.
 const LOCKED: &str = "Locked";
 
@@ -70,6 +87,7 @@ fn show_notices(
     mut dom: Dom,
     mut showing: Local<bool>,
     table: Res<HerbTable>,
+    (sheet, wording): (Res<CharacterSheet>, Res<Wording>),
 ) {
     for FromServer(message) in from_server.read() {
         let words = match message {
@@ -90,11 +108,12 @@ fn show_notices(
                 let name = (vegetables.get(vegetable)).map_or(vegetable.as_str(), |def| &def.name);
                 format!("Picked {count} {name}")
             }
-            ServerMessage::Pick(PickNews::PickedFungus { fungus, count, .. }) => {
-                let fungi = shared::fungus::Fungi::built_in();
-                let name = fungi.get(fungus).map_or(fungus.as_str(), |def| &def.name);
-                format!("Picked {count} {name}")
-            }
+            ServerMessage::Pick(PickNews::PickedFungus {
+                fungus,
+                count,
+                named,
+                ..
+            }) => picked_fungus(fungus, *count, *named, (&sheet.0, &wording.0)),
             ServerMessage::AbilityLanded {
                 who: None,
                 landed: Landed::Alchemy { made, salt, left },

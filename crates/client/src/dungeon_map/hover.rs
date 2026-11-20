@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use shared::door::Swing;
 use shared::dungeon::{Cell, Level};
 use shared::fungus::Fungi;
+use shared::lang::Lang;
 use shared::sheet::Sheet;
 use shared::site::StairsDirection;
 
@@ -15,7 +16,8 @@ use super::picking::{door_clicked, pick};
 use super::tree_picking::{tree_clicked, tree_name};
 use crate::character::CharacterSheet;
 use crate::common::{
-    CurrentDungeon, DrawnGround, GameView, HerbTable, HoveredOnMap, PointerPosition, ServerClock,
+    self, CurrentDungeon, DrawnGround, GameView, HerbTable, HoveredOnMap, PointerPosition,
+    ServerClock, Wording,
 };
 use crate::view3d::ViewCamera;
 
@@ -30,7 +32,7 @@ pub(super) fn name_hovered_place(
     pointer: Res<PointerPosition>,
     camera: Single<(&Camera, &GlobalTransform), With<ViewCamera>>,
     (dungeon, shown): (Res<CurrentDungeon>, Res<Shown>),
-    heights: Res<DrawnGround>,
+    (heights, wording): (Res<DrawnGround>, Res<Wording>),
     (table, sheet, clock): (Res<HerbTable>, Res<CharacterSheet>, Res<ServerClock>),
     mut hovered: ResMut<HoveredOnMap>,
 ) {
@@ -77,7 +79,8 @@ pub(super) fn name_hovered_place(
             if let Some(name) = herb_name(&dungeon.level, &table, &sheet.0, now, (x, y)) {
                 return Some(name);
             }
-            if let Some(name) = fungus_name(&dungeon.level, now, (x, y)) {
+            let fungus = fungus_name(&dungeon.level, (&sheet.0, &wording.0), now, (x, y));
+            if let Some(name) = fungus {
                 return Some(name);
             }
             if let Some(name) = super::fruit::fruit_name(&dungeon.level, now, (x, y)) {
@@ -149,18 +152,24 @@ fn herb_name(
     })
 }
 
-/// What a fungus patch is called: its fungus's name, saying when it is ready
-/// to pick; nothing while picked. (Knowing fungi, fungi plan PR 7, will hide
-/// names the character doesn't know.)
-fn fungus_name(level: &Level, now: u64, (x, y): (i64, i64)) -> Option<String> {
+/// What a fungus patch is called: its fungus's name as the character knows
+/// it ("Unknown mushroom", "Looks like Chanterelle": `common::fungus_name`),
+/// saying when it is ready to pick; nothing while picked.
+fn fungus_name(
+    level: &Level,
+    (sheet, lang): (&Sheet, &Lang),
+    now: u64,
+    (x, y): (i64, i64),
+) -> Option<String> {
     let patch = level.fungus_at(x, y)?;
     let def = Fungi::built_in().get(&patch.fungus)?;
     if patch.stage(def, now) == 0 {
         return None;
     }
+    let name = common::fungus_name(def, &sheet.fungi, lang);
     Some(if patch.can_pick(def, now) {
-        format!("{}, ready to pick", def.name)
+        format!("{name}, ready to pick")
     } else {
-        def.name.clone()
+        name
     })
 }

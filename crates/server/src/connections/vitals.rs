@@ -25,11 +25,12 @@ impl Client {
         }
     }
 
-    /// Tells the client its Health and Mana as they are now. `false` if it
-    /// has gone.
+    /// Tells the client its Health and Mana as they are now, never when a
+    /// poison it hasn't recognised starts. `false` if it has gone.
     pub(super) fn send_vitals(&mut self, now: u64) -> bool {
-        let limits = self.limits(now);
-        self.vitals_told = Some(limits);
+        self.vitals_told = Some(self.limits(now));
+        // Hidden poisons' starts left out (`Sheet::told_limits`).
+        let limits = self.sheet.told_limits(self.situation(), now);
         let vitals = &self.sheet.vitals;
         self.link.send(&ServerMessage::Vitals {
             who: None,
