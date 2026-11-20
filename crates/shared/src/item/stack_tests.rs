@@ -548,6 +548,7 @@ fn counted_kinds_are_plain() {
             ItemKind::Bottle
                 | ItemKind::Fruit
                 | ItemKind::Vegetable
+                | ItemKind::Fungus
                 | ItemKind::Flour
                 | ItemKind::Yeast
                 | ItemKind::Kindling

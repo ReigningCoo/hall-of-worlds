@@ -63,10 +63,15 @@ pub fn food(kind: ItemKind) -> Option<Food> {
 }
 
 /// Whether it can be eaten by someone: what can be dropped on the body and go
-/// on the action bar. Fruit and vegetables are, eaten by their own rules
-/// (`fruit::eating`, `vegetable::eating`), grain too, though it heals nothing.
+/// on the action bar. Fruit, vegetables and fungi are, eaten by their own
+/// rules (`fruit::eating`, `vegetable::eating`, `fungus::eating`), grain too,
+/// though it heals nothing.
 pub fn is_food(kind: ItemKind) -> bool {
-    food(kind).is_some() || matches!(kind, ItemKind::Fruit | ItemKind::Vegetable)
+    food(kind).is_some()
+        || matches!(
+            kind,
+            ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Fungus
+        )
 }
 
 /// Whether it can be eaten at all: food, or a herb (eaten raw, for a weak dose
@@ -77,12 +82,16 @@ pub fn edible(kind: ItemKind) -> bool {
     is_food(kind) || matches!(kind, ItemKind::Herb | ItemKind::Ointment)
 }
 
-/// Whether a creature of this kind may eat it: a herb, fruit or vegetable, or
-/// ointment (anyone may), or food not refused to it.
+/// Whether a creature of this kind may eat it: a herb, fruit, vegetable,
+/// fungus or ointment (anyone may), or food not refused to it.
 pub fn may_eat(kind: ItemKind, eater: CreatureKind) -> bool {
     matches!(
         kind,
-        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Ointment
+        ItemKind::Herb
+            | ItemKind::Fruit
+            | ItemKind::Vegetable
+            | ItemKind::Fungus
+            | ItemKind::Ointment
     ) || food(kind).is_some_and(|food| food.suits(eater) || food.others != Others::Refused)
 }
 

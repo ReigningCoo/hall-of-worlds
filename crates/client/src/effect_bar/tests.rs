@@ -77,6 +77,19 @@ fn the_popup_says_what_it_is_what_ends_it_and_when() {
         name(Source::VegetableEffects(vegetable("cassava")), &lang),
         "Cassava"
     );
+    let fungus = shared::fungus::FungusTag::of;
+    assert_eq!(
+        name(Source::EatenFungus(fungus("morel")), &lang),
+        "Eating: Morel"
+    );
+    assert_eq!(
+        name(Source::FungusEffects(fungus("manna_lichen")), &lang),
+        "Manna lichen"
+    );
+    assert_eq!(
+        name(Source::FungusPoison(fungus("death_cap")), &lang),
+        "Poisoned: Death cap"
+    );
     assert_eq!(
         bonus_lines(&bread, &lang),
         vec!["Restores 1 Health a second"]

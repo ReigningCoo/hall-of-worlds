@@ -146,11 +146,11 @@ pub(in crate::debug_menu) fn press_give_button(
     }
 }
 
-/// Whether Give Item asks this kind for a herb, fruit, vegetable or grain by
-/// key (`give_herb.rs`'s dropdown).
+/// Whether Give Item asks this kind for a herb, fruit, vegetable, fungus or
+/// grain by key (`give_herb.rs`'s dropdown).
 pub(super) fn takes_herb(kind: ItemKind) -> bool {
     matches!(
         kind,
-        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Flour
+        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Fungus | ItemKind::Flour
     )
 }

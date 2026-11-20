@@ -18,6 +18,9 @@ impl ItemKind {
             // Counted, a stack keying on its vegetable (`shared::vegetable`),
             // as fruit.
             Self::Vegetable => plain("Vegetable", 100, Shape::rectangle(1, 1)).counted(),
+            // Counted, a stack keying on its fungus (`shared::fungus`), as
+            // vegetables.
+            Self::Fungus => plain("Fungus", 100, Shape::rectangle(1, 1)).counted(),
             // Counted, a stack keying on its grain (`shared::flour`): its form
             // says its name and weight. Not eaten as it is.
             Self::Flour => plain("Flour", 29, Shape::rectangle(1, 1)).counted(),

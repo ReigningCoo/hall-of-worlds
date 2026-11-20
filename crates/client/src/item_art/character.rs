@@ -139,7 +139,8 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
         | ItemForm::Paste(_)
         | ItemForm::Powder(_)
         | ItemForm::Fruit(_)
-        | ItemForm::Vegetable(_) => {
+        | ItemForm::Vegetable(_)
+        | ItemForm::Fungus(_) => {
             return None;
         }
     })

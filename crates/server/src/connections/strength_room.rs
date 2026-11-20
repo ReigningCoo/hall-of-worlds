@@ -8,6 +8,7 @@
 use bevy::prelude::*;
 use shared::bonus::Effect;
 use shared::fruit::Fruits;
+use shared::fungus::Fungi;
 use shared::herb::{HERBALISM, eating_herb, skill_value};
 use shared::id::Id;
 use shared::item::{Inventory, Item, MoveRefused, Quality, StackLimits, cells_for_strength};
@@ -119,13 +120,18 @@ pub(super) fn eating_allowed(
     allowed.is_ok()
 }
 
-/// What eating a fruit or vegetable does (`fruit::eating`, `vegetable::eating`),
-/// or `None` for anything else.
+/// What eating a fruit, vegetable or fungus does (`fruit::eating`,
+/// `vegetable::eating`, `fungus::eating`), or `None` for anything else.
 fn eaten_effects(food: &Item, now: u64) -> Option<Vec<Effect>> {
     if let Some(form) = food.fruit() {
         return Fruits::built_in()
             .get(&form.fruit)
             .map(|def| shared::fruit::eating(def, now));
+    }
+    if let Some(form) = food.fungus() {
+        return Fungi::built_in()
+            .get(&form.fungus)
+            .map(|def| shared::fungus::eating(def, now));
     }
     let form = food.vegetable()?;
     let def = Vegetables::built_in().get(&form.vegetable)?;

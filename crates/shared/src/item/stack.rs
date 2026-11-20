@@ -194,6 +194,10 @@ impl Item {
             // Each one looks a little different: a stack keys on fruit and serving.
             fruit.look = 0;
         }
+        if let Some(ItemForm::Fungus(fungus)) = &mut copy.form {
+            // As fruit: a stack keys on fungus and serving.
+            fungus.look = 0;
+        }
         if let Some(ItemForm::Vegetable(vegetable)) = &mut copy.form {
             // As fruit: a stack keys on vegetable and serving.
             vegetable.look = 0;

@@ -32,6 +32,7 @@ impl ItemKind {
                 }
                 Self::Fruit
                 | Self::Vegetable
+                | Self::Fungus
                 | Self::Flour
                 | Self::Yeast
                 | Self::Bread
@@ -46,8 +47,7 @@ impl ItemKind {
                 | Self::Keyring
                 | Self::Pouch
                 | Self::SmallBox => self.bag_def(),
-                // Both arms, or one; its form says its name, cells and weight, and whether
-                // it is padded (kote).
+                // Both arms, or one; its form says its name, cells, weight and padding.
                 Self::ArmArmour => plain("Arm Armour", 2000, Shape::rectangle(2, 3)).worn(wear(
                     Outer,
                     &[Arms],
@@ -247,6 +247,7 @@ impl ItemKind {
         def.taking(match self {
             Self::Fruit
             | Self::Vegetable
+            | Self::Fungus
             | Self::Flour
             | Self::Yeast
             | Self::Bread

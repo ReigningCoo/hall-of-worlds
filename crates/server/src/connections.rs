@@ -44,6 +44,7 @@ pub(crate) mod difficulty;
 mod drink;
 mod drink_vessel;
 mod eat_fruit;
+mod eat_fungus;
 mod eat_herb;
 mod eat_vegetable;
 mod facing;
@@ -285,6 +286,8 @@ mod dev_skills_tests;
 mod difficulty_tests;
 #[cfg(test)]
 mod fruit_tests;
+#[cfg(test)]
+mod fungus_tests;
 #[cfg(test)]
 mod go_to_place_tests;
 #[cfg(test)]

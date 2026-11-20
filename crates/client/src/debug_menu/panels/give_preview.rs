@@ -6,6 +6,7 @@ use bevy::prelude::*;
 use shared::creature::CreatureKind;
 use shared::flour::dev_flour;
 use shared::fruit::dev_fruit;
+use shared::fungus::dev_fungus;
 use shared::herb::{Herbs, dev_herb, new_item};
 use shared::id::Id;
 use shared::item::{Inventory, Item, ItemKind, StackLimits};
@@ -158,6 +159,11 @@ fn one_of(
         // As the server makes them (`vegetable::dev_vegetable`).
         let def = dev_vegetable(herb.key, seed).ok_or(Refused(Field::Material))?;
         return Ok(shared::vegetable::new_item(def, 1, id, None));
+    }
+    if order.kind == ItemKind::Fungus {
+        // As the server makes them (`fungus::dev_fungus`).
+        let def = dev_fungus(herb.key, seed).ok_or(Refused(Field::Material))?;
+        return Ok(shared::fungus::new_item(def, 1, id, None));
     }
     if order.kind == ItemKind::Flour {
         // As the server makes them (`flour::dev_flour`).

@@ -6,13 +6,14 @@ use shared::alcohol::Stage;
 use shared::bonus::{Effect, Source};
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::fruit::{FruitTag, Fruits};
+use shared::fungus::{Fungi, FungusTag};
 use shared::lang::{Args, Lang};
 use shared::vegetable::{VegetableTag, Vegetables};
 
 use crate::common::{amount_of, bonus_line, written};
 
-/// "Eating: Bread", "Eating: Apple", "Apple" (a fruit's or vegetable's effects),
-/// "Poisoned", "Dev Bonus", "Raw herb", "Ointment", "Potion: Strength",
+/// "Eating: Bread", "Eating: Apple", "Apple" (a fruit's, vegetable's or
+/// fungus's effects), "Poisoned", "Poisoned: Death cap", "Dev Bonus", "Raw herb", "Ointment", "Potion: Strength",
 /// "Apple Juice", "Apple Cordial", "Drink", "Tipsy", "Hangover".
 pub(super) fn name(source: Source, lang: &Lang) -> String {
     let words = match source {
@@ -35,6 +36,18 @@ pub(super) fn name(source: Source, lang: &Lang) -> String {
         Source::VegetableEffects(tag) => {
             let args = Args::new().text("fruit", vegetable_name(tag));
             lang.render("effect-fruit", &args)
+        }
+        Source::EatenFungus(tag) => {
+            let args = Args::new().text("item", fungus_name(tag));
+            lang.render("effect-eaten", &args)
+        }
+        Source::FungusEffects(tag) => {
+            let args = Args::new().text("fruit", fungus_name(tag));
+            lang.render("effect-fruit", &args)
+        }
+        Source::FungusPoison(tag) => {
+            let args = Args::new().text("fungus", fungus_name(tag));
+            lang.render("effect-fungus-poison", &args)
         }
         Source::Poison => lang.render("effect-poison", &Args::new()),
         Source::Dev => lang.render("effect-dev", &Args::new()),
@@ -84,6 +97,13 @@ fn vegetable_name(tag: VegetableTag) -> &'static str {
     Vegetables::built_in()
         .by_tag(tag)
         .map_or("Vegetable", |def| def.name.as_str())
+}
+
+/// A fungus's name by its tag, or "Fungus" for one the table lacks.
+fn fungus_name(tag: FungusTag) -> &'static str {
+    Fungi::built_in()
+        .by_tag(tag)
+        .map_or("Fungus", |def| def.name.as_str())
 }
 
 /// A line for each bonus it gives: "Restores 1 Health a second".

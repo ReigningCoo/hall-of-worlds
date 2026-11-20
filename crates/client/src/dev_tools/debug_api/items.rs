@@ -29,6 +29,8 @@ pub(super) struct GiveItemParams {
     fruit: Option<String>,
     /// For `"Vegetable"`: the vegetable's key (`"carrot"`); any if missing.
     vegetable: Option<String>,
+    /// For `"Fungus"`: the fungus's key (`"morel"`); any if missing.
+    fungus: Option<String>,
     /// For `"Flour"`: the grain's key (`"rye"`); any grain's if missing.
     flour: Option<String>,
     /// For `"Bottle"`: what it holds, `{ "Water": "Moon" }` (`Plain`, `Cave`,
@@ -54,6 +56,7 @@ pub(super) struct GiveItemParams {
 /// (or `{ "kind": "Herb", "herb": "roseroot", "count": 3 }`,
 /// `{ "kind": "Fruit", "fruit": "watermelon" }`,
 /// `{ "kind": "Vegetable", "vegetable": "carrot" }`,
+/// `{ "kind": "Fungus", "fungus": "morel" }`,
 /// `{ "kind": "Flour", "flour": "rye" }`, `{ "kind": "Log", "material": "Oak" }`,
 /// `{ "kind": "Axe", "limits": { "most_grams": 1200 } }`, or
 /// `{ "kind": "Bottle", "effects": 2 }` for a potion,
@@ -73,6 +76,7 @@ pub(super) fn give_item(
         herb,
         fruit,
         vegetable,
+        fungus,
         flour,
         liquid,
         effects,
@@ -100,7 +104,7 @@ pub(super) fn give_item(
                 limits,
                 ..shared::item_form::RollRequest::NONE
             },
-            herb: herb.or(fruit).or(vegetable).or(flour),
+            herb: herb.or(fruit).or(vegetable).or(fungus).or(flour),
             to: None,
         },
     )));
