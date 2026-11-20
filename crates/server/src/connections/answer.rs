@@ -1,7 +1,7 @@
 //! Answering a client's message: greeting, logging in, characters and moving about; items and dev tools go to `answer_items` and `answer_dev`.
 
 use bevy::prelude::*;
-use shared::protocol::{ClientMessage, LoginMethod, PROTOCOL_VERSION, ServerMessage};
+use shared::protocol::{BenchAsk, ClientMessage, LoginMethod, PROTOCOL_VERSION, ServerMessage};
 use shared::role::Permission;
 
 use super::answer_dev::answer_dev;
@@ -253,18 +253,13 @@ pub(crate) fn answer(
             client.waiting.push_back(Action::Door(ask));
             true
         }
-        ClientMessage::Consume { item } => {
-            client.waiting.push_back(Action::Consume { item });
-            true
+        ClientMessage::Consume { item } => client.queue(Action::Consume { item }),
+        ClientMessage::Pour { from, into } => client.queue(Action::Pour { from, into }),
+        ClientMessage::Pick { x, y } => client.queue(Action::Pick { x, y }),
+        ClientMessage::Bench(BenchAsk::Dev(order)) => {
+            crate::sites::create_bench(client, world, order)
         }
-        ClientMessage::Pour { from, into } => {
-            client.waiting.push_back(Action::Pour { from, into });
-            true
-        }
-        ClientMessage::Pick { x, y } => {
-            client.waiting.push_back(Action::Pick { x, y });
-            true
-        }
+        ClientMessage::Bench(ask) => client.queue(Action::Bench(ask)),
         ClientMessage::DevGoToPlace(ask) => super::go_to_place::asked(client, ask, options),
         ClientMessage::DevTeleport { .. }
         | ClientMessage::DevBackToStart

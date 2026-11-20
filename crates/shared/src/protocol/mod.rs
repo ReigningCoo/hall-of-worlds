@@ -29,6 +29,7 @@ pub use version::{GAME_NAME, ServerVersion, VERSION_PATH};
 use crate::poi::CHUNK_SIZE;
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod bench;
 mod client_message;
 mod combat;
 mod dev_alignment;
@@ -55,6 +56,7 @@ mod strike;
 mod world_chunk;
 mod yeast_ask;
 
+pub use bench::{BenchAsk, BenchNews, DevBench, SeenBench};
 pub use client_message::ClientMessage;
 pub use combat::{Alchemised, Landed};
 pub use dev_alignment::DevAlignment;
@@ -82,7 +84,7 @@ pub use yeast_ask::YeastAsk;
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 146;
+pub const PROTOCOL_VERSION: u32 = 147;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

@@ -61,9 +61,8 @@ pub enum ClientMessage {
     Step { map: u32, number: u32, step: Step },
     /// A move on a level or in the Hall, straight to `to` (`protocol::moves`).
     Move { map: u32, number: u32, to: Spot },
-    /// Go into the poi in this world map chunk (the player must be near
-    /// enough, `poi::can_enter_from`): into the wilderness where it is set
-    /// in, at its entrance or where they last walked out of it.
+    /// Go into the poi in this world map chunk, if near enough (`poi::can_enter_from`):
+    /// into the wilderness where it is set in, at its entrance or where last walked out.
     EnterSite { chunk: ChunkPos },
     /// Use what is underfoot: stairs, or outside ground at the level's edge (to the world map).
     UseExit,
@@ -296,4 +295,6 @@ pub enum ClientMessage {
     Mark(super::MarkAsk),
     /// Feed yeast or begin a starter (`YeastAsk`): answered with `Inventory`.
     Yeast(super::YeastAsk),
+    /// About crafting benches (`BenchAsk`): tools on and off, or making one.
+    Bench(super::BenchAsk),
 }

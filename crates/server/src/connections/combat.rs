@@ -89,7 +89,8 @@ pub(super) fn start_ability(
     ability: Ability,
     target: Option<Id>,
 ) -> (bool, u32) {
-    let can_use = ability.can_use(&client.inventory, &client.sheet);
+    let can_use = ability.can_use(&client.inventory, &client.sheet)
+        || (ability == Ability::Alchemy && super::alchemy_bench::can_use_at_bench(client, world));
     if ability.is_toggle() && can_use {
         return (client.toggle_sneak(), 0);
     }
@@ -303,6 +304,8 @@ mod alchemy_tests;
 mod alcohol_tests;
 #[cfg(test)]
 mod alignment_tests;
+#[cfg(test)]
+mod bench_alchemy_tests;
 #[cfg(test)]
 mod collect_water_tests;
 #[cfg(test)]

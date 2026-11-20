@@ -45,6 +45,8 @@ pub(super) fn level_of(
     }
     super::put_plants(world, (new.id, &new.poi, site), index, &mut level);
     super::stock_cellar(world, (new.id, &new.poi), site, index, &level);
+    super::stock_benches(world, (new.id, &new.poi), index, &level);
+    super::put_made_benches(world, new.id, index, &mut level);
     let stairs = level
         .stairs
         .iter()
@@ -228,6 +230,7 @@ pub(super) fn enter_level(
         wild_area: 0,
         further: 0,
         floors,
+        benches_sent: Default::default(),
     };
     if visit.is_town() {
         let looks = visit.level.buildings.iter().map(|b| b.look.clone());

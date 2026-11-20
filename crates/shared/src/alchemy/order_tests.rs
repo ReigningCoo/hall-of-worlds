@@ -69,6 +69,7 @@ fn an_order_is_checked_against_what_is_carried() {
         solvent: Some(oil),
     };
     let order = AlchemyOrder {
+        bench: None,
         source: None,
         steps: vec![
             mortar.clone(),
@@ -84,6 +85,7 @@ fn an_order_is_checked_against_what_is_carried() {
     assert_eq!(checked.planned.practised.len(), 2);
     // Three waters from a stack of two is too many.
     let thirsty = AlchemyOrder {
+        bench: None,
         steps: vec![
             mortar.clone(),
             OrderStep::Retort {
@@ -96,12 +98,14 @@ fn an_order_is_checked_against_what_is_carried() {
     let refused = carried.check_alchemy(&thirsty, &herbs, skills);
     assert_eq!(refused.unwrap_err(), OrderRefused::TooFew);
     let none = AlchemyOrder {
+        bench: None,
         count: 0,
         ..order.clone()
     };
     let refused = carried.check_alchemy(&none, &herbs, skills);
     assert_eq!(refused.unwrap_err(), OrderRefused::Count);
     let twice = AlchemyOrder {
+        bench: None,
         steps: vec![OrderStep::Mortar {
             herbs: vec![stack_of(&carried, &a), stack_of(&carried, &a)],
             solvent: None,
@@ -111,6 +115,7 @@ fn an_order_is_checked_against_what_is_carried() {
     let refused = carried.check_alchemy(&twice, &herbs, skills);
     assert_eq!(refused.unwrap_err(), OrderRefused::Rules(Refused::SameHerb));
     let alembic = AlchemyOrder {
+        bench: None,
         steps: vec![mortar, OrderStep::Alembic { alcohol: None }],
         ..order
     };
@@ -125,6 +130,7 @@ fn an_apparatus_must_be_carried() {
     let (a, _) = two_herbs(&herbs);
     let carried = carrying(vec![herb(&herbs, &a, 1, 1)]);
     let order = AlchemyOrder {
+        bench: None,
         source: None,
         steps: vec![OrderStep::Mortar {
             herbs: vec![Id::for_test(1)],
@@ -160,6 +166,7 @@ fn a_stored_paste_can_start_a_process() {
         .unwrap();
     let water = carried.water_stacks()[0].stack;
     let order = AlchemyOrder {
+        bench: None,
         source: Some(Id::for_test(7)),
         steps: vec![OrderStep::Retort {
             liquids: vec![water],
@@ -175,6 +182,7 @@ fn a_stored_paste_can_start_a_process() {
     ));
     // An herb stack isn't a source.
     let wrong = AlchemyOrder {
+        bench: None,
         source: Some(Id::for_test(1)),
         ..order
     };

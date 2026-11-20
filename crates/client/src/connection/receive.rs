@@ -257,6 +257,7 @@ pub(super) fn receive(
                 | ServerMessage::Turned(_)
                 | ServerMessage::Quest(_)
                 | ServerMessage::Marks(_)
+                | ServerMessage::Bench(_)
                 | ServerMessage::EntityGone { .. }),
             )) => {
                 from_server.write(FromServer(message));

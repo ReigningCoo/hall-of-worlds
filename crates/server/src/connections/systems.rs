@@ -84,6 +84,7 @@ pub(crate) fn run_mobs(
 pub(crate) fn share_doors(mut connections: ResMut<Connections>, mut worlds: ResMut<ServerWorlds>) {
     for_each_world(&mut connections.clients, &mut worlds, |clients, world| {
         crate::sites::share_furniture(clients, world);
+        crate::sites::share_benches(clients, world);
         crate::sites::share_doors(clients, world);
         crate::sites::share_plants(clients, world);
         crate::sites::grow_trees(clients, world);

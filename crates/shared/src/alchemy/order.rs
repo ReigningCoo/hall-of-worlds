@@ -24,6 +24,11 @@ pub const MOST_REPEATS: u32 = 99;
 /// the steps with the stacks put into each, and how many times to run it.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct AlchemyOrder {
+    /// A cell of the crafting bench to work at, which the player must be at
+    /// (`crafting_bench::bench_faced`): its tools are used before carried
+    /// ones. `None` uses only what is carried.
+    #[serde(default)]
+    pub bench: Option<(i64, i64)>,
     pub source: Option<Id>,
     pub steps: Vec<OrderStep>,
     /// 1 to `MOST_REPEATS`: each run its own, with its own rolls.

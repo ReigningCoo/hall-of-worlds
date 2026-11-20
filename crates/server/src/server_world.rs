@@ -68,13 +68,11 @@ pub struct ServerWorld {
     /// The sites entered so far (loaded when first needed).
     pub(super) sites: BTreeMap<SiteId, SiteSave>,
     unsaved_sites: Unsaved<SiteId>,
-    /// Sites whose saves couldn't be reached, so what is in `sites` for them is
-    /// blank, and must not be saved over the real one.
+    /// Sites whose saves couldn't be reached: blank in `sites`, never saved over the real one.
     unreachable_sites: BTreeSet<SiteId>,
     /// Who is on the site levels in use.
     pub(crate) populations: Populations,
-    /// Mobs that died since players were last told who they see, so those who
-    /// saw them go are told they died (`entities::sync`).
+    /// Mobs died since players were last told who they see (`entities::sync`).
     pub(crate) died: BTreeSet<shared::id::Id>,
     /// Creatures harmed lately, told to others who see them (`entities::sync`).
     pub(crate) harmed: Vec<crate::combat::Harm>,
@@ -84,6 +82,8 @@ pub struct ServerWorld {
     pub(crate) door_changes: Vec<crate::sites::DoorChange>,
     /// Herb patches harvested lately, for `sites::share_plants`.
     pub(crate) plant_changes: Vec<crate::sites::PlantChange>,
+    /// Crafting benches whose tools changed this tick (`sites::share_benches`).
+    pub(crate) bench_changes: Vec<crate::sites::BenchKey>,
     /// Trees chopped at, felled or grown lately, for `sites::share_trees`.
     pub(crate) tree_changes: Vec<crate::sites::TreeChange>,
     /// Furniture put down by hand (dev tools), for `sites::share_furniture`.
@@ -93,8 +93,7 @@ pub struct ServerWorld {
     pub(crate) mobs_frozen: bool,
     /// How big stacks of items may get here.
     pub(crate) stacks: StackLimits,
-    /// Sites forgotten since `super::connections::handle_messages` last looked, for
-    /// putting out anyone else in them.
+    /// Sites forgotten since `connections::handle_messages` looked, to put others out of.
     forgotten: Forgotten,
     /// The wilderness's generator and what was made of it lately.
     pub(crate) wilderness: crate::wilderness::WildernessMaps,
@@ -194,6 +193,7 @@ impl ServerWorld {
             kills: Vec::new(),
             door_changes: Vec::new(),
             plant_changes: Vec::new(),
+            bench_changes: Vec::new(),
             tree_changes: Vec::new(),
             furniture_changes: Vec::new(),
             standing: Default::default(),
