@@ -1,5 +1,6 @@
 //! Neckwear: scarves and kerchiefs at the throat, the cravat, the ruff, the falling
-//! band and the jabot. On the Neck, over any necklace (which is on the Skin).
+//! band, the jabot, and the bandana tied up over the mouth and nose. On the Neck, over
+//! any necklace (which is on the Skin).
 
 use serde::{Deserialize, Serialize};
 
@@ -22,6 +23,9 @@ pub enum NeckwearForm {
     FallingBand,
     /// A lace fall (17th century).
     Jabot,
+    /// A neckerchief tied up over the mouth and nose, knotted behind: it keeps out
+    /// spores and dust (`Item::covers_mouth`).
+    Bandana,
 }
 
 /// How wide a ruff stands.
@@ -41,13 +45,14 @@ pub struct Neckwear {
 }
 
 /// Later pieces rarer.
-const FORMS: [(NeckwearForm, u64); 6] = [
+const FORMS: [(NeckwearForm, u64); 7] = [
     (NeckwearForm::Scarf, 35),
     (NeckwearForm::Neckerchief, 30),
     (NeckwearForm::Cravat, 8),
     (NeckwearForm::Ruff, 12),
     (NeckwearForm::FallingBand, 8),
     (NeckwearForm::Jabot, 7),
+    (NeckwearForm::Bandana, 10),
 ];
 
 /// A ruff's size; `rank` allows the cartwheel, only rolled at Rare and better.
@@ -81,6 +86,7 @@ impl Neckwear {
         match self.form {
             NeckwearForm::Scarf => vec![(Wool, 50), (Silk, 25), (Linen, 15), (Cotton, 10)],
             NeckwearForm::Neckerchief => vec![(Cotton, 40), (Linen, 30), (Silk, 30)],
+            NeckwearForm::Bandana => vec![(Cotton, 60), (Linen, 25), (Silk, 15)],
             NeckwearForm::Cravat | NeckwearForm::Jabot => vec![(Linen, 60), (Silk, 40)],
             NeckwearForm::Ruff | NeckwearForm::FallingBand => vec![(Linen, 1)],
         }
@@ -88,7 +94,10 @@ impl Neckwear {
 
     /// Whether it may be striped or checked.
     pub(super) fn patterned(&self) -> bool {
-        matches!(self.form, NeckwearForm::Scarf | NeckwearForm::Neckerchief)
+        matches!(
+            self.form,
+            NeckwearForm::Scarf | NeckwearForm::Neckerchief | NeckwearForm::Bandana
+        )
     }
 
     /// Its name from the research's signatures.
@@ -100,6 +109,7 @@ impl Neckwear {
             NeckwearForm::Ruff => "Ruff",
             NeckwearForm::FallingBand => "Falling Band",
             NeckwearForm::Jabot => "Jabot",
+            NeckwearForm::Bandana => "Bandana",
         }
     }
 

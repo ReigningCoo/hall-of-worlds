@@ -239,8 +239,9 @@ impl Wear<'_> {
         limb(model.of(Stuff::Shade), &brow);
     }
 
-    /// Cloth over the mouth and nose, and a snout, wrapped round to the back.
-    fn litham(&self, model: &mut Model) {
+    /// Cloth over the mouth and nose, and a snout, wrapped round to the back
+    /// (a litham's, a bandana's).
+    pub(super) fn litham(&self, model: &mut Model) {
         // Standing out over a snout's root.
         let lift = if self.snout() { 24.0 } else { 0.0 };
         let surface = |u: f32, v: f32| {

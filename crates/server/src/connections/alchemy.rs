@@ -8,6 +8,8 @@
 //! alcohol's first) holding the potion or pure alcohol (one per 100 ml left),
 //! the rest empty, and any Salt an Alembic left. The sub-skills used and
 //! Herbalism are practised either way; a success teaches one herb effect (`alchemy::lesson`).
+//! A fungus ground that harms by touch or breath harms the alchemist as picking
+//! it would (`fungus_harm::handle_fungus`).
 //! Then the next run begins, until `count` runs are done or the ingredients run
 //! out. Moving or being harmed calls it off, repeats and all
 //! (`stop_collecting`). `can_use` has already checked an apparatus is carried.
@@ -28,6 +30,7 @@ use shared::rng::Seed;
 
 use super::Client;
 use super::action::Action;
+use super::fungus_harm::{fungi_in_order, handle_fungus};
 use super::give::{give, practise};
 use crate::ServerWorld;
 use crate::combat::{Act, Pending};
@@ -95,6 +98,9 @@ pub(super) fn land_alchemy(client: &mut Client, world: &mut ServerWorld) -> bool
         });
     };
     let mut salt = 0;
+    for fungus in fungi_in_order(client, &order) {
+        handle_fungus(client, fungus, tick);
+    }
     let bottles = use_up(client, world, &order);
     let mut rng = Seed::new(new_id().seed().value()).rng();
     let chance_roll = rng.range_u64(0, u64::from(CERTAIN)) as u32;

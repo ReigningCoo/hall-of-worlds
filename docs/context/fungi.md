@@ -85,6 +85,14 @@ Mushrooms, fungi and lichens in 9 PRs (owner, 2026-11-19): mostly underground, f
    `HerbStack`, `alchemy::Contribution` and `Lesson`, so a herb's and a fungus's keys never clash; `herb_stacks`
    offers whole fungi (not servings); Herbalism practised as for herbs; the preview and lessons read and teach
    `FungusKnowledge`'s effects (`alchemy::Known`). Poison pastes coating weapons are for later (a TODO).
-9. **Harm from handling**: touch and breath harm on picking and handling, gloves and `covers_mouth`, the bandana.
+9. **Harm from handling** (built): a `Touched` or `Breathed` poison (oakmoss; common puffball, cellar cup, split gill,
+   Sleepdust puffball) harms whoever picks it or grinds it in a Mortar (`fungus::handling`, `Guard`, `Guarded`;
+   server `connections/fungus_harm.rs`), from its onset as if eaten, hidden until recognised. Touch is kept off by
+   anything worn on the Hands (`Inventory::hands_covered`), breath by `Item::covers_mouth` (`Inventory::mouth_covered`:
+   a litham, a closed helmet, an aventail `Closed` or `Ventail`, a set with either, and the new **Bandana**, a
+   `NeckwearForm` drawn as a neck roll, the litham's face cloth and a knot behind). A known fungus's popup says how it
+   harms and "Gloves protect" or "Cover the mouth". Herbs harming whoever handles them stay a TODO (no herb data for it).
+
+All 9 built.
 
 Order: 1 first. Then 2, 3, 6, 7, 8 in any order (non-blocking). 4 needs 3; 5 needs 4; 9 needs 3.

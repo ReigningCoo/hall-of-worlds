@@ -150,6 +150,7 @@ fn every_name_from_the_research_turns_up() {
         "Ruff",
         "Falling Band",
         "Jabot",
+        "Bandana",
         "Shawl",
         "Partlet",
         "Fichu",

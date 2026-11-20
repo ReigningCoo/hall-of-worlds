@@ -8,8 +8,9 @@
 //! recognised, deadly ones, confusion and the ink cap with alcohol
 //! (`poisoning`); what a character knows of each (`FungusKnowledge`: names
 //! by a Mycology check on picking, shown as "Unknown mushroom" or "Looks like
-//! X" until then, `Shown`). Alchemy and harm from handling come in later PRs of the fungi plan (`docs/context/fungi.md`). Research and the
-//! owner's decisions: `docs/context/research-fungi.md`.
+//! X" until then, `Shown`); harm from handling one with bare hands or an
+//! uncovered mouth (`handling`, `Guard`). The plan: `docs/context/fungi.md`.
+//! Research and the owner's decisions: `docs/context/research-fungi.md`.
 
 mod cut;
 mod def;
@@ -17,6 +18,7 @@ mod dev;
 mod eating;
 mod felled;
 mod form;
+mod handling;
 mod knowledge;
 mod look;
 mod naming;
@@ -38,6 +40,7 @@ pub use eating::{
 };
 pub use felled::{FELLED_PERCENT, felled_patch};
 pub use form::{FungusForm, new_item};
+pub use handling::{Guard, Guarded, handling};
 pub use knowledge::FungusKnowledge;
 pub use look::{Cap, Form, FungusLook, MOST_COLOURS, Stem, Under};
 pub use naming::{MYCOLOGY, NAME_BASE, NAME_MOST, Shown, name_chance, names_on_picking};
@@ -53,6 +56,8 @@ pub use tag::FungusTag;
 pub use traits::{Group, Niche, Where};
 pub use underground::{DIM_REACH, PATCH_ONE_IN, Underground, WATER_REACH, grow_underground};
 
+#[cfg(test)]
+mod handling_tests;
 #[cfg(test)]
 mod naming_tests;
 #[cfg(test)]

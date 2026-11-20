@@ -15,6 +15,7 @@ use crate::item_form::ItemForm;
 mod changes;
 mod check;
 mod death;
+mod guards;
 mod secrets;
 mod shown;
 mod swap;
