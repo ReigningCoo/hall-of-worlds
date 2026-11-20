@@ -33,6 +33,9 @@ pub struct Marks {
     pub hackles: bool,
     /// A narrow stripe along the top of the back, as an aurochs bull's.
     pub eel: bool,
+    /// A stripe down over each shoulder, which with an eel stripe makes a
+    /// donkey's cross.
+    pub cross: bool,
 }
 
 impl Marks {
@@ -47,6 +50,7 @@ impl Marks {
             hood: false,
             hackles: false,
             eel: false,
+            cross: false,
         }
     }
 }
@@ -87,6 +91,7 @@ const fn marks(colour: [u8; 3], belly: bool, face: Face) -> Marks {
         hood: false,
         hackles: false,
         eel: false,
+        cross: false,
     }
 }
 
@@ -102,6 +107,7 @@ const fn patched(name: &'static str, colour: [u8; 3], layout: u8) -> Choice {
             hood: false,
             hackles: false,
             eel: false,
+            cross: false,
         },
     )
 }
@@ -184,6 +190,60 @@ const MINOTAUR: &[Choice] = &[
     patched("Patched", WHITE, 10),
 ];
 
+/// Donkeys: mostly a dark cross over the shoulders and along the back, or a
+/// pale muzzle, eyes and belly; mobs roll these with the weights in `mob::looks`.
+/// (One colour each, so a donkey has the cross or the pale points, not both.)
+const DONKEY: &[Choice] = &[
+    word("Plain"),
+    marked("Dark cross", DONKEY_CROSS),
+    marked("Pale points", marks(CREAM, true, Face::Mask)),
+];
+
+/// A donkey's dark stripe along the back and across the shoulders.
+const DONKEY_CROSS: Marks = Marks {
+    eel: true,
+    cross: true,
+    ..marks([58, 48, 42], false, Face::Bare)
+};
+
+/// Mules: mostly a donkey's mealy pale points, sometimes its cross, or a
+/// horse's blaze.
+const MULE: &[Choice] = &[
+    word("Plain"),
+    marked("Pale points", marks(CREAM, true, Face::Mask)),
+    marked("Dark cross", DONKEY_CROSS),
+    marked("Blaze", marks(WHITE, false, Face::Blaze)),
+];
+
+/// Camels: plain, or paler underneath.
+const CAMEL: &[Choice] = &[
+    word("Plain"),
+    marked("Pale belly", marks(CREAM, true, Face::Bare)),
+];
+
+/// Llamas and alpacas: plain, a white face, or piebald.
+const LLAMA: &[Choice] = &[
+    word("Plain"),
+    marked("White face", marks(WHITE, false, Face::Whole)),
+    patched("White patches", WHITE, 18),
+    patched("Dark patches", DARK, 19),
+];
+
+/// Reindeer: mostly a pale neck and belly; mobs roll these with the weights in
+/// `mob::looks`.
+const REINDEER: &[Choice] = &[
+    word("Plain"),
+    marked("Pale neck and belly", marks(CREAM, true, Face::Bare)),
+];
+
+/// Rabbits: plain, a wild rabbit's pale belly, or a spotted rabbit's patches.
+const RABBIT: &[Choice] = &[
+    word("Plain"),
+    marked("Pale belly", marks(CREAM, true, Face::Bare)),
+    patched("White patches", WHITE, 20),
+    patched("Dark patches", DARK, 21),
+];
+
 /// The markings a creature of this kind may have; none for a kind without.
 pub(super) fn markings_choices(kind: CreatureKind) -> &'static [Choice] {
     match kind {
@@ -196,6 +256,12 @@ pub(super) fn markings_choices(kind: CreatureKind) -> &'static [Choice] {
         CreatureKind::Pig => PIG,
         CreatureKind::WaterBuffalo => WATER_BUFFALO,
         CreatureKind::Yak => YAK,
+        CreatureKind::Donkey => DONKEY,
+        CreatureKind::Mule => MULE,
+        CreatureKind::Dromedary | CreatureKind::BactrianCamel => CAMEL,
+        CreatureKind::Llama | CreatureKind::Alpaca => LLAMA,
+        CreatureKind::Reindeer => REINDEER,
+        CreatureKind::Rabbit => RABBIT,
         _ => &[],
     }
 }

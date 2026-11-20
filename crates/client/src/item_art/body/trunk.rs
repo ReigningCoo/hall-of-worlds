@@ -80,6 +80,12 @@ pub(super) fn underside(layout: &Layout, at: Vec3) -> f32 {
     (at - middle_of(&axes, &ring)).dot(axes.front) / deep
 }
 
+/// How far along the spine a point is from the middle of the hips.
+pub(super) fn along(layout: &Layout, at: Vec3) -> f32 {
+    let axes = Axes::of(layout);
+    (at - axes.base).dot(axes.along)
+}
+
 /// The point at the middle of a ring's outline, between its front and its back.
 pub(super) fn middle_of(axes: &Axes, ring: &Ring) -> Vec3 {
     axes.at(ring.along as f32) + axes.front * (ring.belly - ring.back) as f32 / 2.0

@@ -54,9 +54,14 @@ fn a_sex_puts_all_its_parts_on_and_keeps_the_rest() {
         udder: 0,
         horns: crate::body::Horns::None,
         horn_length: 0,
+        mane: 40,
+        dewlap: -500,
         size: WHOLE,
     };
     let parts = stag.on(neutral);
+    // The mane and dewlap are added to the body's, never below none.
+    assert_eq!(parts.mane, neutral.mane + 40);
+    assert_eq!(parts.dewlap, 0);
     assert_eq!((parts.antlers, parts.tines, parts.tusks), (900, 5, 60));
     assert_eq!((parts.beard, parts.comb, parts.wattles), (120, 30, 25));
     assert_eq!((parts.hump, parts.udder), (300, 0));

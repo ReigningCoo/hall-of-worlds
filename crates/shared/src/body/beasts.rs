@@ -15,8 +15,11 @@ pub use table::BEASTS;
 mod build;
 mod chicken_head;
 mod drawn_heads;
+mod drawn_trunks;
 mod livestock;
+mod livestock_more;
 mod livestock_sexes;
+mod more_sexes;
 mod sexes;
 mod table;
 

@@ -1,7 +1,7 @@
 //! How a beast's males and females differ: their horns or antlers, tusks, a
-//! beard, a comb and wattles, a hump, an udder, and how big they are. Only for
-//! looks: a creature's `Size`, weight and footprint are its kind's whatever its
-//! gender. Colours that differ by gender are looks' choices
+//! beard, a comb and wattles, a hump, an udder, a mane, a dewlap, and how big
+//! they are. Only for looks: a creature's `Size`, weight and footprint are its
+//! kind's whatever its gender. Colours that differ by gender are looks' choices
 //! (`shared::sheet::Choice::gender`).
 
 use super::super::Layout;
@@ -11,8 +11,9 @@ use super::Beast;
 use crate::creature::CreatureKind;
 use crate::gender::Gender;
 
-/// What one sex has in place of the neutral body's: each of these replaces the
-/// neutral body's own (`Parts`), so a sex states all of them.
+/// What one sex has in place of the neutral body's: each of these but the mane
+/// and dewlap replaces the neutral body's own (`Parts`), so a sex states all of
+/// them.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Sex {
     pub horns: Horns,
@@ -28,6 +29,13 @@ pub struct Sex {
     /// Each hump's height (as many as the neutral body has).
     pub hump: i32,
     pub udder: i32,
+    /// How much more mane than the neutral body's (less if negative): a
+    /// Bactrian bull's heavier one. Added, unlike the rest, so a sex that leaves
+    /// it out keeps the body's.
+    pub mane: i32,
+    /// How much more dewlap than the neutral body's, as a rabbit doe's; added as
+    /// the mane is.
+    pub dewlap: i32,
     /// How big it is, in thousandths of the neutral body.
     pub size: i32,
 }
@@ -47,6 +55,8 @@ impl Sex {
             wattles: parts.wattles,
             hump: parts.hump,
             udder: parts.udder,
+            mane: 0,
+            dewlap: 0,
             size: WHOLE,
         }
     }
@@ -64,6 +74,8 @@ impl Sex {
             wattles: self.wattles,
             hump: self.hump,
             udder: self.udder,
+            mane: (parts.mane + self.mane).max(0),
+            dewlap: (parts.dewlap + self.dewlap).max(0),
             ..parts
         }
     }

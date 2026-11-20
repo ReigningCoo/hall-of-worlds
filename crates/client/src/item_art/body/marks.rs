@@ -4,7 +4,8 @@
 //! from the markings' own number laid over the trunk, neck, head and tops of the legs;
 //! a brindle's wavy stripes across the trunk, neck and legs; a drake's hood (the head
 //! and the neck's top half), a cock's hackles (the neck but its underside) and an
-//! aurochs bull's eel stripe (the top of the back).
+//! aurochs bull's eel stripe (the top of the back), crossed over the withers for a
+//! donkey's cross.
 //! Triangles are halved along each side first, so the edges are less jagged.
 
 use bevy::prelude::*;
@@ -56,6 +57,10 @@ const PATCH_LEVEL: f32 = 0.52;
 /// that each stripe takes.
 const STRIPE_SHARE: f32 = 0.4;
 const STRIPE_WIDTH: f32 = 0.4;
+/// Where a donkey's shoulder stripe crosses the back, as a share of the way from
+/// the hips to the shoulders, and half its width.
+const CROSS_AT: f32 = 0.8;
+const CROSS_WIDTH: f32 = 0.035;
 
 impl<'a> Body<'a> {
     fn of(layout: &'a Layout) -> Self {
@@ -107,7 +112,17 @@ impl<'a> Body<'a> {
             };
         let hackles = marks.hackles && part == BodyPart::NECK && !self.under_neck(at);
         let eel = marks.eel && part == BodyPart::TRUNK && trunk::underside(self.layout, at) < -0.9;
-        belly || face || patched || striped || hood || hackles || eel
+        let cross = marks.cross && part == BodyPart::TRUNK && self.over_shoulders(at);
+        belly || face || patched || striped || hood || hackles || eel || cross
+    }
+
+    /// Whether a point is in a donkey's shoulder stripe: a narrow band down
+    /// each side over the withers, from the back to halfway down.
+    fn over_shoulders(&self, at: Vec3) -> bool {
+        let withers = self.layout.spine.shoulders as f32 * CROSS_AT;
+        let wide = self.layout.spine.shoulders as f32 * CROSS_WIDTH;
+        (trunk::along(self.layout, at) - withers).abs() < wide
+            && trunk::underside(self.layout, at) < 0.0
     }
 
     /// How far up the neck a point is, from its root (0) to the head (1).

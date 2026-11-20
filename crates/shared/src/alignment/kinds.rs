@@ -14,7 +14,8 @@ impl CreatureKind {
     pub const fn alignment_leaning(self) -> Option<i16> {
         use CreatureKind::*;
         match self {
-            Cattle | Chicken | Coo | Goat | Horse | Pig | Sheep | WaterBuffalo | Wolf | Yak => None,
+            Alpaca | BactrianCamel | Cattle | Chicken | Coo | Donkey | Dromedary | Goat | Horse
+            | Llama | Mule | Pig | Rabbit | Reindeer | Sheep | WaterBuffalo | Wolf | Yak => None,
             Drider | Goblin | Kobold | Minotaur | Orc => Some(-400),
             Beggar | Halfling => Some(150),
             Birdfolk | Centaur | Dwarf | Elf | Giant | Human | Lizardfolk | ScorpionMan => Some(0),

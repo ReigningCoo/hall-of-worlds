@@ -4,12 +4,15 @@ use super::super::measured::{COW, DOG, HORSE};
 use super::super::measured_heads::{COW_HEAD, HORSE_HEAD, WOLF_HEAD};
 use super::super::parts::{Ears, Feet, Horns, NONE, Parts, Snout, Tail, Wings};
 use super::livestock::{GOAT, PIG, SHEEP, WATER_BUFFALO, YAK};
+use super::livestock_more::{
+    ALPACA, BACTRIAN_CAMEL, DONKEY, DROMEDARY, LLAMA, MULE, RABBIT, REINDEER,
+};
 use super::{Beast, Bird, CHICKEN_HEAD, Fourfoot, Plan, livestock_sexes, sexes};
 
 /// The animals drawn, measured from the research's heights and lengths (the
 /// middle of each range); the kept animals after the first five are in
-/// `livestock.rs`.
-pub const BEASTS: [Beast; 10] = [
+/// `livestock.rs` and `livestock_more.rs`.
+pub const BEASTS: [Beast; 18] = [
     Beast {
         name: "Horse",
         plan: Plan::Fourfoot(Fourfoot {
@@ -154,4 +157,12 @@ pub const BEASTS: [Beast; 10] = [
     PIG,
     WATER_BUFFALO,
     YAK,
+    DONKEY,
+    MULE,
+    DROMEDARY,
+    BACTRIAN_CAMEL,
+    LLAMA,
+    ALPACA,
+    REINDEER,
+    RABBIT,
 ];

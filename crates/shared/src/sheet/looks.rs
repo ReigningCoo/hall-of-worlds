@@ -7,9 +7,7 @@ use crate::creature::CreatureKind;
 use crate::gender::Gender;
 
 use super::Trait;
-use super::livestock_coats::{
-    BUFFALO_COAT, CATTLE_COAT, COO_COAT, GOAT_COAT, PIG_COAT, SHEEP_COAT, YAK_COAT,
-};
+use super::livestock_coats::livestock_coat;
 use super::markings::{Marks, markings_choices};
 
 /// One choice for a trait: what it is called and, for a colour, its colour and
@@ -239,8 +237,8 @@ impl Trait {
     /// perhaps only for one gender: `Choice::gender`).
     pub fn choices_for(self, kind: CreatureKind) -> &'static [Choice] {
         use CreatureKind::{
-            Birdfolk, Cattle, Coo, Drider, Dwarf, Elf, Goat, Goblin, Horse, Kobold, Lizardfolk,
-            Minotaur, Orc, Pig, ScorpionMan, Sheep, WaterBuffalo, Wolf, Yak,
+            Birdfolk, Drider, Dwarf, Elf, Goblin, Kobold, Lizardfolk, Minotaur, Orc, ScorpionMan,
+            Wolf,
         };
         match self {
             Self::Height => HEIGHT,
@@ -258,21 +256,13 @@ impl Trait {
                 Lizardfolk => LIZARD_SKIN,
                 _ => SKIN,
             },
-            Self::CoatColour => match kind {
-                Horse => HORSE_COAT,
-                Cattle => CATTLE_COAT,
-                Coo => COO_COAT,
-                Sheep => SHEEP_COAT,
-                Goat => GOAT_COAT,
-                Pig => PIG_COAT,
-                WaterBuffalo => BUFFALO_COAT,
-                Yak => YAK_COAT,
+            Self::CoatColour => livestock_coat(kind).unwrap_or(match kind {
                 Drider => SPIDER_CHITIN,
                 ScorpionMan => SCORPION_CHITIN,
                 Wolf => WOLF_COAT,
                 Minotaur => BULL_COAT,
                 _ => HORSE_COAT,
-            },
+            }),
             Self::FeatherColour => match kind {
                 Birdfolk => BIRD_FEATHERS,
                 _ => HEN_FEATHERS,

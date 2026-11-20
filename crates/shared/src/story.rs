@@ -58,7 +58,8 @@ use crate::creature::CreatureKind;
 fn is_people(kind: CreatureKind) -> bool {
     use CreatureKind::*;
     match kind {
-        Cattle | Chicken | Coo | Goat | Horse | Pig | Sheep | WaterBuffalo | Wolf | Yak => false,
+        Alpaca | BactrianCamel | Cattle | Chicken | Coo | Donkey | Dromedary | Goat | Horse
+        | Llama | Mule | Pig | Rabbit | Reindeer | Sheep | WaterBuffalo | Wolf | Yak => false,
         Beggar | Birdfolk | Centaur | Drider | Dwarf | Elf | Giant | Goblin | Halfling | Human
         | Kobold | Lizardfolk | Minotaur | Orc | ScorpionMan => true,
     }
