@@ -1,7 +1,7 @@
 //! Working out a wilderness chunk: its poi's site as the server has it, the
 //! cutout made from it and its stairs as players see them.
 
-use shared::mob::{Spawn, spawns};
+use shared::mob::{Habitat, Spawn, site_spawns};
 use shared::poi::{ChunkPos, Poi};
 use shared::protocol::SeenStairs;
 use shared::site::{BuildingLook, Exit, FieldLook, Rect, Site, SiteLevel, StairsDirection};
@@ -51,7 +51,8 @@ pub(in crate::sites) fn ensure_chunk(world: &mut ServerWorld, chunk: ChunkPos) {
             (buildings, fields) = looks(&first, offset);
             walls = first.walls.iter().map(|wall| wall.moved(offset)).collect();
             town.clone_from(&first.buildings);
-            spawns = first_level_mobs(cutout.poi(), &first, offset);
+            let land = world.habitat_of_poi(cutout.poi());
+            spawns = first_level_mobs(cutout.poi(), &first, offset, land);
             let plants = crate::sites::site_plants(world, (cutout.poi(), site), 0, &first);
             let moved = |(x, y): (i64, i64)| (x + offset.0, y + offset.1);
             herbs = (plants.herbs.into_iter())
@@ -101,9 +102,14 @@ fn entrance_of(cutout: &Cutout, first: &SiteLevel) -> Option<(i64, i64)> {
 
 /// Who lives on a site's first level, as its own visit makes them, moved by
 /// `offset` into the wilderness.
-fn first_level_mobs(poi: &Poi, first: &SiteLevel, (ox, oy): (i64, i64)) -> Vec<Spawn> {
+fn first_level_mobs(
+    poi: &Poi,
+    first: &SiteLevel,
+    (ox, oy): (i64, i64),
+    land: Habitat,
+) -> Vec<Spawn> {
     let stairs: Vec<_> = first.stairs.iter().map(|s| (s.x, s.y)).collect();
-    let made = spawns(poi.seed, 0, poi.kind, &first.level, &stairs);
+    let made = site_spawns(poi.seed, 0, poi.kind, first, &stairs, land);
     made.into_iter()
         .map(|spawn| Spawn {
             position: (spawn.position.0 + ox, spawn.position.1 + oy),
@@ -131,10 +137,7 @@ fn looks(first: &SiteLevel, (ox, oy): (i64, i64)) -> (Vec<BuildingLook>, Vec<Fie
     let fields = first
         .fields
         .iter()
-        .map(|field| FieldLook {
-            rect: moved(field.rect),
-            ..*field
-        })
+        .map(|field| field.moved((ox, oy)))
         .collect();
     (buildings, fields)
 }

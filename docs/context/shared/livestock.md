@@ -38,7 +38,7 @@ The animals people keep (owner's research, 2026-11-19): a table of data with loo
 
 ## Used by
 
-- `body` (`Stage` for `Layout::of_stage`), `mob` (`EntityLook::stage`; `wild_spawns` from wild forms, feral herds, stages and `age_hours`, PR 7), server `entities/sync.rs` (`stage_of`), client `item_art` and `entities`. The plan's PR 8 (farms) and production will read the rest.
+- `body` (`Stage` for `Layout::of_stage`), `mob` (`EntityLook::stage`; `wild_spawns` from wild forms, feral herds, stages and `age_hours`, PR 7), server `entities/sync.rs` (`stage_of`), client `item_art` and `entities`. `mob::site_spawns` (kept animals by `kept` biomes, PR 8). Production will read the rest.
 
 ## Notes
 

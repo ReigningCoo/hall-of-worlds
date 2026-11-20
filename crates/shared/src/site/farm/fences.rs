@@ -17,7 +17,7 @@ pub(in crate::site) fn fence_line(plot: Plot) -> Vec<(i64, i64)> {
 
 /// Sows a plot and fences it, with its gate on the part of the fence (not a
 /// corner) nearest `door`. Gives the cell outside the gate.
-pub(super) fn fence_field(
+pub(in crate::site) fn fence_field(
     level: &mut Level,
     rng: &mut Rng,
     plot: Plot,

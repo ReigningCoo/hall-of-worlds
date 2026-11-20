@@ -102,7 +102,15 @@ fn millers_move_nothing_else() {
                 let mill = millers(&site)
                     .iter()
                     .any(|m| site.level.room(x, y) == Some(RoomId(m.look.id)));
-                if !mill {
+                // Yards come after millers, so may go elsewhere.
+                let pen = [&site, &old].iter().any(|level| {
+                    level.fields.iter().any(|f| {
+                        let r = f.rect;
+                        (r.x - 1..=r.x + r.width).contains(&x)
+                            && (r.y - 1..=r.y + r.height).contains(&y)
+                    })
+                });
+                if !mill && !pen {
                     assert_eq!(site.level.cell(x, y), old.level.cell(x, y), "{kind:?}");
                 }
             }

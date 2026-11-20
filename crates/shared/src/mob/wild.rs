@@ -152,6 +152,7 @@ pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) ->
             ),
             gear: roll_gear(&own, kind),
             coins: roll_coins(&own, kind),
+            penned: false,
         });
     }
     mobs

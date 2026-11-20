@@ -3,7 +3,7 @@
 //! site's trees (an oasis's), rolled as its site rolls them.
 
 use shared::dungeon::Cell;
-use shared::site::{BuildingLook, FieldLook, Rect};
+use shared::site::{BuildingLook, Rect};
 use shared::wilderness::Wilderness;
 
 use super::window::Window;
@@ -23,10 +23,7 @@ pub(super) fn add_looks(window: &mut Window, wild: &Wilderness, wild_chunk: &Wil
         });
     }
     for field in &wild_chunk.fields {
-        window.fields.push(FieldLook {
-            rect: turned(field.rect),
-            ..*field
-        });
+        window.fields.push(field.moved((turn, 0)));
     }
     for wall in &wild_chunk.walls {
         window.walls.push(wall.moved((turn, 0)));

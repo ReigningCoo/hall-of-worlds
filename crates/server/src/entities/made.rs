@@ -64,6 +64,7 @@ impl Mob {
             still: false,
             kept_in: None,
             escort: None,
+            penned: spawn.penned,
         }
     }
 

@@ -29,12 +29,14 @@ fn fields_are_fenced_rectangles_with_one_gate() {
         let ground = site.level(0);
         let level = &ground.level;
         let water = cells_of(level).any(|(x, y)| level.cell(x, y) == Cell::Water);
-        let count = ground.fields.len() + usize::from(water);
+        // Pens (`site::pen`) are tested on their own.
+        let fields: Vec<_> = ground.fields.iter().filter(|f| f.pen.is_none()).collect();
+        let count = fields.len() + usize::from(water);
         assert!((1..=8).contains(&count), "{count}");
-        assert!(!ground.fields.is_empty());
+        assert!(!fields.is_empty());
         most = most.max(count);
         ponds += usize::from(water);
-        for field in &ground.fields {
+        for field in fields {
             let Rect {
                 x,
                 y,

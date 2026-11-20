@@ -7,7 +7,8 @@ use super::super::pond::{PondShape, dig_pond};
 use super::super::town::Rect;
 use super::{
     ALL_CROPS_PERCENT, ALL_PASTURE_PERCENT, BORDER, FarmOptions, FieldLook, LANE, MIN_FIELD,
-    ORCHARD_PERCENT, PLACE_SIZE, POND_BLOBS, POND_PERCENT, POND_REACH, fence_field, lay_tracks,
+    ORCHARD_PERCENT, PLACE_SIZE, POND_BLOBS, POND_PERCENT, POND_REACH, add_pens, fence_field,
+    lay_tracks,
 };
 use crate::dungeon::{Cell, Level};
 use crate::rng::{Rng, Seed};
@@ -64,9 +65,11 @@ pub(super) fn lay_out(options: &FarmOptions, seed: Seed, house: &building::Plan)
             variety,
             // From the variety, drawing nothing more: the rest is as before.
             orchard: !livestock && variety % 100 < ORCHARD_PERCENT,
+            pen: None,
         });
     }
     lay_tracks(&mut level, house, entrance, &gates);
+    fields.extend(add_pens(&mut level, seed, entrance, ruin));
 
     SiteLevel {
         level,

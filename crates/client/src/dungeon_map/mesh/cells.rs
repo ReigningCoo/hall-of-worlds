@@ -50,6 +50,7 @@ pub(super) fn build_cell_at(
         build_hole(layers, scene, (x, y));
     } else if cell == Cell::Field && field::build_field(layers, scene, (x, y)) {
         // Drawn: anything else of a field is the land's own ground.
+        field::build_pen(layers, scene, (x, y));
     } else if scene.tint.is_some() && matches!(cell, Cell::Grass | Cell::Tree | Cell::WorldGate) {
         // The wilderness: its own ground (trees are `trees`' models).
         build_open_cell(layers, scene, (x, y), None);

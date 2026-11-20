@@ -40,8 +40,9 @@ impl Plan {
         self.house.footprint()
     }
 
-    /// How many fields there are, without any pond.
+    /// How many fields there are, without any pond or pens.
     pub fn fields(&self) -> usize {
-        self.ground.fields.len()
+        let fields = self.ground.fields.iter();
+        fields.filter(|field| field.pen.is_none()).count()
     }
 }

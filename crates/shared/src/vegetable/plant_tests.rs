@@ -97,6 +97,7 @@ fn field(x: i64, livestock: bool, orchard: bool) -> FieldLook {
         livestock,
         variety: 0,
         orchard,
+        pen: None,
     }
 }
 

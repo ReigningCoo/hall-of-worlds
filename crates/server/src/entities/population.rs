@@ -3,7 +3,7 @@
 use shared::clearance::{Crowding, Other};
 use shared::creature::CreatureKind;
 use shared::dungeon::line_is_clear;
-use shared::mob::{Memory, spawns};
+use shared::mob::{Memory, site_spawns};
 use shared::poi::Poi;
 use shared::protocol::CharacterId;
 use shared::relief::LevelGround;
@@ -40,6 +40,7 @@ impl ServerWorld {
             SiteId::Poi(_) if index == 0 => super::wild::take_site_mobs_back(self, id),
             _ => BTreeSet::new(),
         };
+        let land = self.habitat_of_poi(&poi);
         let mut plan = match id {
             SiteId::DevArea(area) => area.spawns(level),
             // A quest's own dungeon: its own creatures, enough for its count.
@@ -47,7 +48,7 @@ impl ServerWorld {
                 Some(dungeon) => dungeon.spawns(index, &level.level, &stairs),
                 None => Vec::new(),
             },
-            _ => spawns(poi.seed, index, poi.kind, &level.level, &stairs),
+            _ => site_spawns(poi.seed, index, poi.kind, level, &stairs, land),
         };
         if let SiteId::Poi(_) = id {
             let boss =
@@ -56,7 +57,6 @@ impl ServerWorld {
         }
         let self_tick = self.action_clock.ticks();
         let made_at = self.made_now();
-        let land = self.habitat_of_poi(&poi);
         let saved = self.site_mut(id).levels.entry(index).or_default();
         let unsettled = std::mem::take(&mut saved.unsettled);
         let mut scents = std::mem::take(&mut saved.scents);

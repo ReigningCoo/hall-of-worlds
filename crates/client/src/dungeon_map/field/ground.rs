@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 
-use super::super::town::{self, GRASS_TILE, PLOUGHED_TILE};
+use super::super::town::{self, DIRT_TILE, GRASS_TILE, PLOUGHED_TILE};
 use super::super::walls::{Layers, Scene};
 use super::{HALF_CELL, RUINED_TILES, Stage};
 
@@ -25,6 +25,7 @@ pub fn build_field(layers: &mut Layers, scene: &Scene, (x, y): (i64, i64)) -> bo
         let field = scene.fields.iter().find(|field| field.contains(x, y));
         Some(match field.map(Stage::of) {
             Some(Stage::Ploughed) => PLOUGHED_TILE,
+            Some(Stage::Trodden) => DIRT_TILE,
             _ => GRASS_TILE,
         })
     };
