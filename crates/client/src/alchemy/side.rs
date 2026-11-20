@@ -6,15 +6,16 @@
 
 use bevy::prelude::*;
 use shared::alchemy::{AlchemySkills, Known, OrderRefused, preview, steps_allowed};
+use shared::crafting_bench::Craft;
 use shared::protocol::ClientMessage;
 
 use super::bench::{Bench, Running};
 use super::boxes::space_shown;
-use super::markup::{NONE_KNOWN, WORDS};
+use super::markup::{AT_BENCH, NONE_KNOWN, WORDS};
 use super::rows::known_apparatus;
 use super::words::{chance_words, effect_words, product_item, product_name, refused_words};
 use crate::character::CharacterSheet;
-use crate::common::HerbTable;
+use crate::common::{BenchHere, HerbTable};
 use crate::connection::ToServer;
 use crate::dom::{Dom, SlotShown, UiEvent, UiValue};
 use crate::inventory::Carried;
@@ -28,6 +29,7 @@ pub(super) fn answer_panel(
     mut events: MessageReader<UiEvent>,
     mut bench: ResMut<Bench>,
     (carried, sheet, table): (Res<Carried>, Res<CharacterSheet>, Res<HerbTable>),
+    here: Res<BenchHere>,
     time: Res<Time>,
     mut to_server: MessageWriter<ToServer>,
 ) {
@@ -45,10 +47,10 @@ pub(super) fn answer_panel(
             }
             "start" => {
                 let skills = AlchemySkills::of(&sheet.0.skills);
-                let Ok(checked) = bench.check(&carried.0, &table.0, skills) else {
+                let Ok(checked) = bench.check(&carried.0, &table.0, skills, &here) else {
                     continue;
                 };
-                let order = bench.order(bench.count.min(most));
+                let order = bench.order(bench.count.min(most), here.at());
                 to_server.write(ToServer(ClientMessage::Alchemy(order)));
                 bench.made = None;
                 bench.running = Some(Running {
@@ -71,12 +73,14 @@ pub(super) fn answer_panel(
 pub(super) fn show_side(
     bench: Res<Bench>,
     (carried, sheet, table): (Res<Carried>, Res<CharacterSheet>, Res<HerbTable>),
+    here: Res<BenchHere>,
     mut product: Query<&mut SlotShown, With<ProductSlot>>,
     added: Query<(), Added<ProductSlot>>,
     mut dom: Dom,
 ) {
     let changed = bench.is_changed() || carried.is_changed() || sheet.is_changed();
-    if !bench.is_open() || !(changed || table.is_changed() || !added.is_empty()) {
+    let changed = changed || here.is_changed() || table.is_changed();
+    if !bench.is_open() || !(changed || !added.is_empty()) {
         return;
     }
     let skills = AlchemySkills::of(&sheet.0.skills);
@@ -94,7 +98,12 @@ pub(super) fn show_side(
     let most = bench.most_runs(&carried.0);
     let count = bench.count.min(most);
     dom.set_text("alchemy/count", count.to_string());
-    let checked = bench.check(&carried.0, &table.0, skills);
+    let checked = bench.check(&carried.0, &table.0, skills, &here);
+    let at_bench = here
+        .tools()
+        .is_some_and(|tools| tools.craft == Craft::Alchemy);
+    dom.set_flag("alchemy/at_bench", "hidden", !at_bench);
+    dom.set_text("alchemy/at_bench", AT_BENCH);
     let running = bench.is_running();
     dom.set_text("alchemy/start", if running { "Stop" } else { "Start" });
     dom.set_flag("alchemy/start", "disabled", !running && checked.is_err());

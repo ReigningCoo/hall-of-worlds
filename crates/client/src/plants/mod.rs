@@ -19,7 +19,7 @@ mod triangles;
 mod vegetable;
 
 pub use fruit::{FruitModels, fruit_plant_size};
-pub use fungus::FungusModels;
+pub use fungus::{FungusModels, Shell};
 pub use layout::patch_layout;
 pub use models::PlantModels;
 pub use tree::{TreeModel, TreeModels, tree_size};

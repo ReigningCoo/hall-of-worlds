@@ -8,6 +8,7 @@ use shared::ability::{Ability, known};
 use super::icons::icon_path;
 use crate::character::CharacterSheet;
 use crate::common::AbilitiesPage;
+use crate::common::BenchHere;
 use crate::dom::{AbilityGridShown, AbilityThing, KnownAbilities};
 use crate::inventory::Carried;
 use crate::widgets::{AbilityLook, Shade, attribute_colour};
@@ -29,13 +30,17 @@ pub(super) struct PageAbility(pub Ability);
 pub(super) struct DrawnFor(Vec<(Ability, bool)>);
 
 /// Every ability, whether it is known and whether it can be used now.
-fn standing(carried: &Carried, sheet: &CharacterSheet) -> Vec<(Ability, bool, bool)> {
+fn standing(
+    carried: &Carried,
+    sheet: &CharacterSheet,
+    here: &BenchHere,
+) -> Vec<(Ability, bool, bool)> {
     let kind = carried.0.creature;
     Ability::ALL
         .into_iter()
         .map(|ability| {
             let known = ability.is_known(kind, &sheet.0);
-            (ability, known, usable(ability, carried, sheet))
+            (ability, known, usable(ability, carried, sheet, here))
         })
         .collect()
 }
@@ -44,12 +49,12 @@ fn standing(carried: &Carried, sheet: &CharacterSheet) -> Vec<(Ability, bool, bo
 /// usable changed.
 pub(super) fn fill_pages(
     pages: Query<(Entity, Option<&DrawnFor>), With<AbilitiesPage>>,
-    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
+    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
     assets: Res<AssetServer>,
     mut commands: Commands,
 ) {
     let now = DrawnFor(
-        standing(&carried, &sheet)
+        standing(&carried, &sheet, &here)
             .into_iter()
             .filter(|(_, known, _)| *known)
             .map(|(ability, _, usable)| (ability, usable))
@@ -61,25 +66,25 @@ pub(super) fn fill_pages(
         }
         let mut page = commands.entity(page);
         page.despawn_children().insert(now.clone());
-        page.with_children(|page| spawn_contents(page, &carried, &sheet, &assets));
+        page.with_children(|page| spawn_contents(page, (&carried, &sheet, &here), &assets));
     }
 }
 
 /// Says how every ability looks for the character as they are, by name, for an
 /// `<object type="ability">` anywhere: again when what can be used changes.
 pub(super) fn name_abilities(
-    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
+    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
     assets: Res<AssetServer>,
     mut known: ResMut<KnownAbilities>,
     mut named_for: Local<Option<Vec<(Ability, bool, bool)>>>,
 ) {
-    let now = standing(&carried, &sheet);
+    let now = standing(&carried, &sheet, &here);
     if named_for.as_ref() == Some(&now) {
         return;
     }
     *named_for = Some(now);
     for ability in Ability::ALL {
-        let look = look(ability, usable(ability, &carried, &sheet), &assets);
+        let look = look(ability, usable(ability, &carried, &sheet, &here), &assets);
         known.set(
             ability_id(ability),
             AbilityThing {
@@ -93,14 +98,13 @@ pub(super) fn name_abilities(
 /// The list of what the character knows, which draws itself (`dom`).
 fn spawn_contents(
     page: &mut ChildSpawnerCommands,
-    carried: &Carried,
-    sheet: &CharacterSheet,
+    (carried, sheet, here): (&Carried, &CharacterSheet, &BenchHere),
     assets: &AssetServer,
 ) {
     let known = known(carried.0.creature, &sheet.0);
     let things = known.into_iter().map(|ability| AbilityThing {
         thing: ability.into(),
-        look: look(ability, usable(ability, carried, sheet), assets),
+        look: look(ability, usable(ability, carried, sheet, here), assets),
     });
     let shown = AbilityGridShown {
         columns: PER_ROW,
@@ -109,10 +113,16 @@ fn spawn_contents(
     page.spawn((PageList, shown));
 }
 
-/// Whether the character can use it now (`Ability::can_use`), or it is passive,
+/// Whether the character can use it now (`Ability::can_use_at`, at the
+/// crafting bench they are at if any), or it is passive,
 /// which is never shown as unusable as it is never done.
-pub(super) fn usable(ability: Ability, carried: &Carried, sheet: &CharacterSheet) -> bool {
-    !ability.is_active() || ability.can_use(&carried.0, &sheet.0)
+pub(super) fn usable(
+    ability: Ability,
+    carried: &Carried,
+    sheet: &CharacterSheet,
+    here: &BenchHere,
+) -> bool {
+    !ability.is_active() || ability.can_use_at(&carried.0, &sheet.0, here.tools())
 }
 
 /// How an ability shows on the page, greyed unless `usable` (`usable`).

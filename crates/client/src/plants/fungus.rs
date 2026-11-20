@@ -12,6 +12,8 @@ mod ground;
 mod patch;
 mod shell;
 
+pub use shell::Shell;
+
 /// A patch model's meshes: its colours, its black outline (drawn inside out),
 /// and sepia for where it is remembered.
 #[derive(Clone, Debug)]

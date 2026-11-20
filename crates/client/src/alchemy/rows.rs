@@ -18,6 +18,7 @@ use super::boxes::{
 use super::drag::{BenchAim, Dragging};
 use super::spaces::{Place, SpaceIcons, in_place, places, tip};
 use crate::character::CharacterSheet;
+use crate::common::BenchHere;
 use crate::dom::Solid;
 use crate::inventory::Carried;
 use crate::widgets::HoverTip;
@@ -58,7 +59,7 @@ type NewRow = Or<(Added<ApparatusRow>, Added<ProcessRow>)>;
 #[allow(clippy::too_many_arguments)]
 pub(super) fn draw_rows(
     mut bench: ResMut<Bench>,
-    (carried, sheet): (Res<Carried>, Res<CharacterSheet>),
+    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
     (aim, icons): (Res<BenchAim>, Res<SpaceIcons>),
     top: Query<Entity, With<ApparatusRow>>,
     process: Query<Entity, With<ProcessRow>>,
@@ -73,7 +74,7 @@ pub(super) fn draw_rows(
         }
     }
     let changed = bench.is_changed() || carried.is_changed() || sheet.is_changed();
-    if !(changed || aim.is_changed() || !added.is_empty()) {
+    if !(changed || here.is_changed() || aim.is_changed() || !added.is_empty()) {
         return;
     }
     let known = known_apparatus(&sheet.0.skills);
@@ -84,9 +85,11 @@ pub(super) fn draw_rows(
                 for apparatus in &known {
                     let kind = apparatus.item();
                     let carried = kind.is_some_and(|kind| carried.0.count_of(kind) > 0);
-                    let tip = match carried {
-                        true => apparatus.name().to_owned(),
-                        false => format!("{} (not carried)", apparatus.name()),
+                    let on_bench = kind.zip(here.tools()).is_some_and(|(k, t)| t.has(k));
+                    let tip = match (on_bench, carried) {
+                        (true, _) => format!("{} (on the bench)", apparatus.name()),
+                        (false, true) => apparatus.name().to_owned(),
+                        (false, false) => format!("{} (not carried)", apparatus.name()),
                     };
                     let marks = (ApparatusNode(*apparatus), id("kit", apparatus.index()));
                     spawn_box(row, (kind, false), tip, marks, |_| {});

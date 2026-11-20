@@ -24,6 +24,21 @@ pub(super) struct Table {
 }
 
 impl Table {
+    /// The table `piece` would be, whatever it is: its size and looks.
+    pub(super) fn of(piece: &Piece) -> Self {
+        let (length, width) = Frame::of(piece).size(piece);
+        Self {
+            length,
+            width,
+            under: TABLE_TOP - TOP_THICKNESS,
+            seed: Seed::new(
+                Seed::new(0)
+                    .derive("furniture look")
+                    .at(&[piece.at.0, piece.at.1]),
+            ),
+        }
+    }
+
     /// A number for one choice about how it looks, the same every time.
     pub(super) fn hash(&self, choice: i64) -> u64 {
         self.seed.at(&[choice])
@@ -60,18 +75,7 @@ pub(super) fn parts(piece: &Piece) -> Option<Vec<Part>> {
     let Furniture::Table { style } = piece.furniture else {
         return None;
     };
-    let frame = Frame::of(piece);
-    let (length, width) = frame.size(piece);
-    let table = Table {
-        length,
-        width,
-        under: TABLE_TOP - TOP_THICKNESS,
-        seed: Seed::new(
-            Seed::new(0)
-                .derive("furniture look")
-                .at(&[piece.at.0, piece.at.1]),
-        ),
-    };
+    let table = Table::of(piece);
     Some(match style {
         TableStyle::Trestle => wooden_tables::trestle(&table),
         TableStyle::Joined => wooden_tables::joined(&table),

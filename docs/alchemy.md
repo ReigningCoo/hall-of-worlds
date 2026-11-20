@@ -21,7 +21,20 @@ Alchemy turns [herbs](herbs) into potions. Fill bottles with water and press oil
 | Pelican | Alchemy: circulating | Herbalists and potion shops |
 | Sulphur, Mercury | Alchemy: solids for the Retort | Herbalists and potion shops |
 
-An ability whose tool you don't carry is greyed out. A tool in a bag counts. Alchemy needs at least one apparatus. The first time you carry an apparatus, you learn its skill: **Grinding** for the Mortar and Pestle, **Infusing** for the Retort, **Distilling** for the Alembic, **Calcining** for the Crucible, **Filtering** for the Filter, **Circulating** for the Pelican.
+An ability whose tool you don't carry is greyed out. A tool in a bag counts. Alchemy needs at least one apparatus, carried or on an [Alchemy Bench](#alchemy-benches) you are at. The first time you carry an apparatus, you learn its skill: **Grinding** for the Mortar and Pestle, **Infusing** for the Retort, **Distilling** for the Alembic, **Calcining** for the Crucible, **Filtering** for the Filter, **Circulating** for the Pelican.
+
+## Alchemy Benches
+
+An **Alchemy Bench** is a work table against a wall, with a raised shelf along its back. Most herbalists' huts have one, and so do some stone towers and castles. The apparatus on it stand on show: tall ones on the shelf, the rest on the table in front. A bench is often found with a Mortar and Pestle on it, sometimes more.
+
+Click or tap a bench to walk up to it and open its panel, which shows what is on it. Anyone may use a bench, and anyone may take from it.
+
+- **To put an apparatus on it,** pick it up from your Inventory and let go of it on the bench's panel. A bench holds one of each kind: putting on one of a kind it already has swaps them, and the old one comes back to you. A bench won't take everything, and it won't say what it takes.
+- **To take one off,** pick it up from the panel and let go of it in your Inventory.
+
+The panel closes when you walk away, or with Esc or its close button.
+
+**Working at a bench:** stand at it and face it, then use Alchemy. Its apparatus count as yours, and are used before any you carry, so you can work with nothing in your bags. Whatever is made using any of them is a tenth purer, on top of any Pelicans, and the Alchemy panel says when you are at a bench. Walking away or turning from it stops a process.
 
 ## Waters
 

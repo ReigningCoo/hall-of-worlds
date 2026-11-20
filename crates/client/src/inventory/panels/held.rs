@@ -59,6 +59,10 @@ pub(in crate::inventory) fn show_tooltip(
             format!("Drop {name}")
         }
         Some(Target::Drop { allowed: false }) => format!("Can't drop {name}"),
+        // Onto a crafting bench's panel.
+        Some(Target::Someone(to)) if crate::common::Benches::at_of(to).is_some() => {
+            format!("Put {name} on the bench")
+        }
         Some(Target::Someone(_)) => format!("Give {name}"),
         Some(Target::Bin) => match carried.0.bin.as_ref() {
             Some(old) => format!("Throw away {name}, destroying {}", named(old)),

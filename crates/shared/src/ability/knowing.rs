@@ -50,4 +50,20 @@ impl Ability {
     pub fn can_use(self, carried: &Inventory, sheet: &Sheet) -> bool {
         self.is_active() && self.is_known(carried.creature, sheet) && self.has_tool(carried)
     }
+
+    /// The same for someone at a crafting bench (`crafting_bench::bench_faced`)
+    /// holding `bench`'s tools: Alchemy can also be done with no apparatus
+    /// carried when an Alchemy bench there holds one, as the server allows.
+    pub fn can_use_at(
+        self,
+        carried: &Inventory,
+        sheet: &Sheet,
+        bench: Option<&crate::crafting_bench::BenchTools>,
+    ) -> bool {
+        let at_bench = bench.is_some_and(|bench| {
+            bench.craft == crate::crafting_bench::Craft::Alchemy && !bench.tools().is_empty()
+        });
+        self.can_use(carried, sheet)
+            || (self == Self::Alchemy && at_bench && self.is_known(carried.creature, sheet))
+    }
 }

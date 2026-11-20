@@ -23,8 +23,8 @@ use super::woodcutting::{log_aim, tree_to_fell};
 use crate::alchemy::OpenAlchemy;
 use crate::character::CharacterSheet;
 use crate::common::{
-    CurrentDungeon, FaceTowards, Facing, Other, OwnAbility, OwnVitals, ServerTick, SpotPosition,
-    Target,
+    BenchHere, CurrentDungeon, FaceTowards, Facing, Other, OwnAbility, OwnVitals, ServerTick,
+    SpotPosition, Target,
 };
 use crate::connection::ToServer;
 use crate::inventory::{Carried, DrinkPotion, EatKind, GroundShown};
@@ -89,12 +89,7 @@ impl Manual {
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
-    (carried, sheet, clock, time): (
-        Res<Carried>,
-        Res<CharacterSheet>,
-        Res<ServerTick>,
-        Res<Time>,
-    ),
+    (carried, sheet, here, clock, time): Standing,
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
@@ -124,7 +119,7 @@ pub(super) fn use_slots(
                 continue;
             }
         };
-        if !ability.can_use(&carried.0, &sheet.0) {
+        if !ability.can_use_at(&carried.0, &sheet.0, here.tools()) {
             continue;
         }
         if ability == Ability::PressOil {
@@ -149,6 +144,15 @@ pub(super) fn use_slots(
         }
     }
 }
+
+/// What the character carries and knows, the bench they are at, and the time.
+type Standing<'w> = (
+    Res<'w, Carried>,
+    Res<'w, CharacterSheet>,
+    Res<'w, BenchHere>,
+    Res<'w, ServerTick>,
+    Res<'w, Time>,
+);
 
 /// The requesters and panels abilities open.
 type Panels<'w> = (
