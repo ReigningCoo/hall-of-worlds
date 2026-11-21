@@ -22,6 +22,7 @@ Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooki
 - `cooking/dish.rs`: `DishDef` and its `check`, `Wanted`, `Wetness`, `DishForm`. `cooking/dishes.rs`: `Dishes`, built in.
 - `cooking/mix.rs`: crate-private `Foods` (each food once with its grams, the leeway) and `RoleMix` (role weights, `has`, `biggest`); `ROLE_PERCENT`, `SEASONING_PERCENT`.
 - `cooking/shape.rs`: `Shape`. `cooking/classify.rs`: `classify`, `Dish`, `DishName`, `NAMED_FOODS`. `cooking/generic.rs`: `Generic`, `DOUGH_PERCENT`. `cooking/names.rs`: `food_name`.
+- `cooking/order.rs`: `CookOrder`, `OrderStep`, `OrderInput`, `Kitchen`, `OrderRefused`, `MOST_REPEATS`. `cooking/order_check.rs`: `Inventory::check_cooking`, `has_cooking_tool`, `Checked`. `cooking/run.rs`: `Tool::{first_seconds, seconds}`, `run_seconds`, `run_ticks`, `heat_seconds`, `drawn`, `COOK_PRACTICE`. Tests in `cooking/order_tests.rs`.
 - `cooking/diet.rs`: `Diet`. `cooking/well_fed.rs`: `WellFed`, `well_fed_ticks` and constants. `cooking/poisons.rs`: `poisons`. Tests of all these in `cooking/dish_tests.rs`.
 
 ## Public API
@@ -40,17 +41,19 @@ Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooki
 - `WellFed::of(portions, cooked, ingredients) -> WellFed { health, mana, bonuses }`: `WELL_FED_RESTORE` (250 thousandths a second, a first guess) split by role weight, Protein, Fat and Nut to Health, Starch and Sweet to Mana, the rest halves; bonuses from vegetables' cooked effects (raw ones if nothing was heated), fruits', fungi's food effects and each herb's first, added by stat, at most `MOST_CHANGE` (3) either way. `effect(quality, now)`: `bonus::Source::WellFed` for `well_fed_ticks` (20 minutes at Poor, 10 more a quality step).
 - `poisons(portions, cooked, fungi)`: the fungi whose poison eating the dish brings on (eaten, or the ink cap's window), each once, less raw-only ones when cooked; for the server only (`fungus::poisoning` when eaten, PR 6), never in a preview.
 - `least_quality(ingredients, balance, history, chance, heat)`: `ingredient_quality` (mean rank by grams, rounded down) moved by balance − `BALANCED_ROLES` (2), plus `skill_steps` (halves × Σroots ÷ (tools × 20), Alchemy's steps × mean ∛ ÷ 10) only when certain; Poor to Legendary, then `capped` at `AWAY_CAP` (Rare) unless `Heat::Hearth`. `outcome(planned, chance_roll, luck_roll) -> Outcome::{Failed, Made { qualities }}`: Alchemy's luck, still capped.
+- The order (PR 9): `CookOrder { bench, rows, sources, steps, culture, count }`: `bench` a hearth's cell to work at (faced); `sources` by row, a carried intermediate or one in the hearth's storage, used whole; `OrderStep { tool, column, row, height, inputs }` with `OrderInput::{Food { stack, count }, Liquid { stack, ml }, WaterFaced { ml }}` (food each its own weight, `Item::own_weight`; water, milk or honey from a bottle in whole 100 ml, a vessel or a cask; water faced); `culture` a carried Yeast item, used only where an output ferments; `count` 1 to `MOST_REPEATS` (Alchemy's 99). `Kitchen { heat, oven, tools, storage, water_faced }`, found by the server (a lit hearth or a town: `Hearth` and the Oven; a lit campfire faced: `Fire`; else `Cold`). `Inventory::check_cooking(order, kitchen, ingredients, dishes, skills) -> Result<Checked { planned, fungi, culture }, OrderRefused>`: tools on the hearth or in the town before carried ones (`has_cooking_tool`; the Oven only from the kitchen), every stack carried and not worn with enough for one run, then `plan` (`OrderRefused::Rules`). `run_seconds` (each step's `Tool::first_seconds`, Knife, Bowl, Sieve and Mortar 10, Pan 20, Cauldron 30, Oven 40, less the sub-skill's ∛, a join half again), `heat_seconds` (the heat steps', for a hearth's Ash), `drawn(item, ml)` (a bottle emptied, a vessel or cask holding less, opened), `COOK_PRACTICE` (8 a step's sub-skill a run).
 - `Tool::of_item`: knives and daggers are a Knife, the Pan, Bowl, Sieve, Cauldron and Mortar & pestle themselves (PR 8); the Oven has no item, it is a lit hearth's (`crafting_bench`).
 
 ## Depends on
 
 - `item_form` (`ItemForm` and the herb, fruit, vegetable, fungus, flour and egg forms' keys), `potion` (`Liquid`), `ron`, `serde`.
 - `herb`, `fruit`, `vegetable`, `fungus`, `livestock`, `farmyard` (names, effects, grain, poisons; `fruit::bonus_of`), `bonus` (`Effect`, `Source::WellFed`).
-- `alchemy` (`CERTAIN`, `steps_allowed`, `moved`, `luck_steps`, `succeeds`), `herb` (`skill_value`, `skill_percent`, `cube_root`), `item` (`ItemKind`, `Quality`), `skill` (`Skills`).
+- `crafting_bench` (`town_tools` in tests), `pour` (`Held`, `BOTTLE_ML`), `vessel`, `cask`, `brewing` (`brewed_into`), `energy`, `yeast` (a culture's strain), `food` (`Culture`).
+- `alchemy` (`MOST_REPEATS`, `CERTAIN`, `steps_allowed`, `moved`, `luck_steps`, `succeeds`), `herb` (`skill_value`, `skill_percent`, `cube_root`), `item` (`ItemKind`, `Quality`), `skill` (`Skills`).
 
 ## Used by
 
-- `farmyard` (`Usage` weighting which animal's milk or eggs a town sells), `food` (items from outputs, Well Fed and poisons on eating, Give Item's samples planned by `plan`).
+- `farmyard` (`Usage` weighting which animal's milk or eggs a town sells), `food` (items from outputs, Well Fed and poisons on eating, Give Item's samples planned by `plan`), `ability` (`COOKING`: Cook), `protocol` (`ClientMessage::Cook`); server `connections/cook.rs`, `cook_kitchen.rs`, `cook_use.rs`.
 
 ## Notes
 

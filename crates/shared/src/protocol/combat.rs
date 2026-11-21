@@ -49,6 +49,9 @@ pub enum Landed {
     /// A campfire was lit or fed (Make Campfire: `target` is `None`): it has
     /// this many pieces of kindling left.
     Campfire { pieces: u8 },
+    /// One run of a cooking process ended (Cook: `target` is `None`): what
+    /// came of it, the Ash a hearth left, and how many runs are left.
+    Cooked { made: Cooked, ash: u32, left: u32 },
 }
 
 /// What one run of an Alchemy process made (`Landed::Alchemy`). The
@@ -68,4 +71,20 @@ pub enum Alchemised {
     },
     /// It made this many bottles of pure alcohol (which has no quality).
     Alcohol { count: u32 },
+}
+
+/// What one run of a cooking process made (`Landed::Cooked`). The
+/// ingredients are used up whatever it was.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Cooked {
+    /// The chance roll failed.
+    Failed,
+    /// It worked: its first output, this many of a kind (a Dish's servings,
+    /// an intermediate) at this quality, and how many outputs it gave in all.
+    Made {
+        kind: crate::item::ItemKind,
+        count: u32,
+        quality: Quality,
+        outputs: u32,
+    },
 }

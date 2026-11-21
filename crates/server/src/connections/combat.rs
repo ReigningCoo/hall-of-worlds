@@ -80,9 +80,8 @@ impl Client {
     }
 }
 
-/// Begins an ability the client asked for, if it can be done now: Attack, at
-/// a mob in sight and in reach, or Heal (`heal.rs`). Whether the client is
-/// still there, and what it cost (nothing if it wasn't begun).
+/// Begins an ability asked for if it can be done now (Attack at a mob in sight
+/// and reach, the rest in their files): whether the client stays, and the cost.
 pub(super) fn start_ability(
     client: &mut Client,
     world: &mut ServerWorld,
@@ -111,6 +110,7 @@ pub(super) fn start_ability(
         Ability::PressOil => return super::press_oil::choose_press(client, world, target),
         Ability::PressJuice => return super::press_juice::choose_juice(client, world, target),
         Ability::Alchemy => return super::alchemy::start_alchemy(client, world),
+        Ability::Cook => return super::cook::start_cook(client, world),
         Ability::Ferment => return super::ferment::start_ferment(client, world),
         Ability::FellTree => return fell_tree::start_fell(client, world),
         Ability::CutKindling => return super::cut_kindling::start_cut(client, world, target),
@@ -151,9 +151,8 @@ pub(super) fn start_ability(
     (stayed, swing.cost)
 }
 
-/// Every tick: lands the player's ability once its wind-up is over, on its
-/// target if it is still in sight and reach, or fizzles. `false` if the client
-/// has gone.
+/// Every tick: lands the player's ability once its wind-up is over, on its target
+/// if still in sight and reach, or fizzles. `false` if the client has gone.
 pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool {
     let tick = world.action_clock.ticks();
     let Some(pending) = client.fight.pending.filter(|p| p.lands_at <= tick) else {
@@ -169,6 +168,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::PressOil => return super::press_oil::land_press(client, world),
         Act::PressJuice => return super::press_juice::land_juice(client, world),
         Act::Alchemy => return super::alchemy::land_alchemy(client, world),
+        Act::Cook => return super::cook::land_cook(client, world),
         Act::Ferment => return super::ferment::land_ferment(client, world),
         Act::FellTree { at, ticks } => return fell_tree::land_fell(client, world, at, ticks),
         Act::CutKindling(log) => return super::cut_kindling::land_cut(client, world, log),
@@ -310,6 +310,8 @@ mod bench_alchemy_tests;
 mod campfire_tests;
 #[cfg(test)]
 mod collect_water_tests;
+#[cfg(test)]
+mod cook_tests;
 #[cfg(test)]
 mod death_tests;
 #[cfg(test)]

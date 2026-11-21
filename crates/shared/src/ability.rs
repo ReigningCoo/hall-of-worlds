@@ -65,6 +65,10 @@ pub enum Ability {
     /// A campfire lit on the ground faced, or the one faced fed, with a piece
     /// of kindling (`shared::campfire`): learned on first carrying kindling.
     MakeCampfire,
+    /// A process of tool steps in rows worked through the Cooking panel
+    /// (`shared::cooking`): from Cooking, at a hearth, a town, a campfire or
+    /// with what is carried.
+    Cook,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -80,7 +84,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 15] = [
+    pub const ALL: [Ability; 16] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -91,6 +95,7 @@ impl Ability {
         Self::PressOil,
         Self::PressJuice,
         Self::Alchemy,
+        Self::Cook,
         Self::Ferment,
         Self::CollectWater,
         Self::FellTree,
@@ -116,6 +121,7 @@ impl Ability {
             Self::CutKindling => "Cut Kindling",
             Self::Ferment => "Ferment",
             Self::MakeCampfire => "Make Campfire",
+            Self::Cook => "Cook",
         }
     }
 
@@ -136,7 +142,8 @@ impl Ability {
             | Self::FellTree
             | Self::CutKindling
             | Self::Ferment
-            | Self::MakeCampfire => Use::Active,
+            | Self::MakeCampfire
+            | Self::Cook => Use::Active,
         }
     }
 
@@ -155,7 +162,8 @@ impl Ability {
             Self::MakeCampfire => &[Toughness, Perception],
             // As its skill, Water.
             // Collect Water and Ferment as their skills, Water and Fermenting.
-            Self::NightVision | Self::CollectWater | Self::Ferment => &[Perception],
+            // Cook as its skill, Cooking.
+            Self::NightVision | Self::CollectWater | Self::Ferment | Self::Cook => &[Perception],
             Self::Sneak => &[Agility],
             // As its skill, Healing, under Divine.
             Self::Heal => &[Empathy],
@@ -185,6 +193,7 @@ impl Ability {
             Self::MakeCampfire => {
                 "Lights a campfire on the ground you face with kindling, or feeds the fire you face."
             }
+            Self::Cook => "Cooks food through your tools, step by step, in rows that can join.",
             Self::Ferment => {
                 "Sets a cask of juice, or of water with fruit or grain, fermenting with yeast."
             }
