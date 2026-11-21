@@ -46,6 +46,12 @@ impl Herbs {
         BUILT_IN_TABLE.clone()
     }
 
+    /// The herbs built into the game, shared, without a server's mods: for
+    /// what needs only their names or data (cooking's dish names).
+    pub fn built_in_ref() -> &'static Self {
+        &BUILT_IN_TABLE
+    }
+
     /// The herbs written in a RON file (a list of `HerbDef`s), each checked
     /// (`HerbDef::check`): an error for a mod's author if any is wrong.
     pub fn read(text: &str) -> Result<Vec<HerbDef>, String> {

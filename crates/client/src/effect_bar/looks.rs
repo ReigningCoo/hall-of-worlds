@@ -61,6 +61,7 @@ pub(super) fn icon_path(source: Source) -> &'static str {
         Source::VegetableEffects(_) => "icons/delapouite/carrot.png",
         Source::FungusEffects(_) | Source::FungusWindow(_) => "icons/lorc/mushroom.png",
         Source::FungusPoison(_) => "icons/lorc/spotted-mushroom.png",
+        Source::WellFed => "icons/lorc/bubbling-bowl.png",
         Source::Poison => "icons/lorc/poison-bottle.png",
         Source::Dev => "icons/lorc/magic-swirl.png",
         Source::RawHerb => "icons/delapouite/herbs-bundle.png",

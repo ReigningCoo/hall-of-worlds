@@ -20,6 +20,7 @@ effect-potion = Potion: { $stat }
 effect-juice = { $fruit } Juice
 effect-cordial = { $fruit } Cordial
 effect-drink = Drink
+effect-well-fed = Well Fed
 effect-alcohol = { $stage ->
     [tipsy] Tipsy
     [drunk] Drunk

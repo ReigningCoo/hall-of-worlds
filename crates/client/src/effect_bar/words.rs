@@ -74,6 +74,7 @@ pub(super) fn name(source: Source, known: &FungusKnowledge, lang: &Lang) -> Stri
             lang.render("effect-cordial", &args)
         }
         Source::Drink => lang.render("effect-drink", &Args::new()),
+        Source::WellFed => lang.render("effect-well-fed", &Args::new()),
         Source::Alcohol(stage) => {
             let args = Args::new().text("stage", stage_key(stage));
             lang.render("effect-alcohol", &args)

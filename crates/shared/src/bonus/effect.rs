@@ -67,6 +67,9 @@ pub enum Source {
     /// cap, `fungus::eating`): its bonus while drinking would bring it on
     /// (`Sheet::drink_alcohol`); its own per fungus.
     FungusWindow(crate::fungus::FungusTag),
+    /// Well Fed, from eating a dish (`cooking::WellFed`): its own source, so it
+    /// runs alongside food and drinks, and only the latest dish's counts.
+    WellFed,
     // New sources go at the end: messages carry one by its place in this list.
 }
 
