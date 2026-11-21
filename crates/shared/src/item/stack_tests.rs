@@ -543,7 +543,8 @@ fn counted_kinds_are_plain() {
         let mut item = Item::new(id(1), kind);
         crate::item_form::give_form(&mut item, None, &mut || id(2));
         // A bottle's form is its contents and look, a fruit's which fruit and
-        // its look (a vegetable's likewise), compared without the look.
+        // its look (a vegetable's likewise), compared without the look; a
+        // recipe scroll's its craft and dish.
         let form = matches!(
             kind,
             ItemKind::Bottle
@@ -558,6 +559,7 @@ fn counted_kinds_are_plain() {
                 | ItemKind::Ointment
                 | ItemKind::Paste
                 | ItemKind::Powder
+                | ItemKind::Recipe
         );
         assert_eq!(item.form.is_some(), form, "{kind:?} has a form");
         assert!(item.name.is_none(), "{kind:?} has its own name");

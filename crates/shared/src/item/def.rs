@@ -33,6 +33,10 @@ impl ItemKind {
                 _ if self.has_food_row() => self.food_def(), // `food_def.rs`
                 Self::Log | Self::Kindling | Self::Ash => self.wood_def(), // `wood_def.rs`
                 Self::Pan | Self::Bowl | Self::Sieve => self.kitchen_def(), // `kitchen_def.rs`
+                // A recipe scroll (`shared::recipe`): one cell, counted, no quality.
+                Self::Recipe => plain("Recipe", crate::recipe::RECIPE_GRAMS, square)
+                    .without_quality()
+                    .counted(),
                 // Bags, boxes and backpacks: in `bag_def.rs`.
                 Self::Backpack
                 | Self::Bag

@@ -70,7 +70,8 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         | ItemForm::Vessel(_)
         | ItemForm::Ointment(_)
         | ItemForm::Paste(_)
-        | ItemForm::Powder(_) => {
+        | ItemForm::Powder(_)
+        | ItemForm::Recipe(_) => {
             return None;
         }
     })

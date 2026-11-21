@@ -29,6 +29,12 @@ mod plan;
 mod poisons;
 mod process;
 mod quality;
+mod recipe;
+mod recipe_build;
+mod recipe_layout;
+mod recipe_order;
+mod recipe_tune;
+mod recipe_unit;
 mod run;
 mod shape;
 mod skills;
@@ -56,6 +62,9 @@ pub use process::{
     Carried, Heat, History, MOST_COLUMNS, MOST_ROWS, Portion, Process, Refused, Step,
 };
 pub use quality::{AWAY_CAP, capped, ingredient_quality, least_quality, skill_steps};
+pub use recipe::{Recipe, RecipeInput, RecipeStep};
+pub use recipe_build::{build_recipe, dish_recipe, makes};
+pub use recipe_unit::{is_liquid_food, unit_grams, usual_food};
 pub use run::{COOK_PRACTICE, drawn, heat_seconds, run_seconds, run_ticks};
 pub use shape::Shape;
 pub use skills::CookingSkills;
@@ -72,6 +81,8 @@ mod dish_tests;
 mod grid_tests;
 #[cfg(test)]
 mod order_tests;
+#[cfg(test)]
+mod recipe_tests;
 #[cfg(test)]
 mod rules_tests;
 #[cfg(test)]

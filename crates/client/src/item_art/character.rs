@@ -161,7 +161,8 @@ fn piece_look(worn: &WornLook) -> Option<Look> {
         | ItemForm::Powder(_)
         | ItemForm::Fruit(_)
         | ItemForm::Vegetable(_)
-        | ItemForm::Fungus(_) => {
+        | ItemForm::Fungus(_)
+        | ItemForm::Recipe(_) => {
             return None;
         }
     })

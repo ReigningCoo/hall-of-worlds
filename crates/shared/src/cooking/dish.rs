@@ -8,7 +8,7 @@ use super::{Role, Source, Tool};
 
 /// A food a dish asks for: any of a source (any egg, any milk), or one by
 /// its key.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Wanted {
     Any(Source),
     One(Source, String),

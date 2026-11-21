@@ -201,6 +201,9 @@ pub enum ItemKind {
     Bowl,
     /// A kitchen tool: a sieve, the Sieve step's.
     Sieve,
+    /// A recipe scroll (`shared::recipe`): its form says which craft and
+    /// dish; read into the recipe book, which uses it up.
+    Recipe,
 }
 
 impl ItemKind {

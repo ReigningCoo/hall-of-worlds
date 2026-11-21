@@ -65,6 +65,7 @@ pub mod pour;
 pub mod produce;
 pub mod protocol;
 pub mod quest;
+pub mod recipe;
 pub mod relief;
 pub mod requirement;
 pub mod river;
