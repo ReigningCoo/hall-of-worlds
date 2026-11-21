@@ -179,3 +179,7 @@ delapouite/knocked-out-stars
 lorc/vomiting
 lorc/brain-freeze
 lorc/powder
+# Cooking panel (cooking/spaces.rs)
+lorc/drop
+delapouite/bread
+delapouite/chicken-oven

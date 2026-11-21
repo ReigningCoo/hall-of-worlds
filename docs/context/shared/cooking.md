@@ -53,7 +53,7 @@ Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooki
 
 ## Used by
 
-- `farmyard` (`Usage` weighting which animal's milk or eggs a town sells), `food` (items from outputs, Well Fed and poisons on eating, Give Item's samples planned by `plan`), `ability` (`COOKING`: Cook), `protocol` (`ClientMessage::Cook`); server `connections/cook.rs`, `cook_kitchen.rs`, `cook_use.rs`.
+- `farmyard` (`Usage` weighting which animal's milk or eggs a town sells), `food` (items from outputs, Well Fed and poisons on eating, Give Item's samples planned by `plan`), `ability` (`COOKING`: Cook), `protocol` (`ClientMessage::Cook`); server `connections/cook.rs`, `cook_kitchen.rs`, `cook_use.rs`; client `cooking` (the panel: `CookOrder`, `check_cooking`, `has_cooking_tool`, `Tool`, `steps_allowed`' rows; `food_item`, `tint`, `Rest`, `WellFed`, `Diet` for the preview).
 
 ## Notes
 
