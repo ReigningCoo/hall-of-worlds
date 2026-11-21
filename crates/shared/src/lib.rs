@@ -34,6 +34,7 @@ pub mod ferment;
 pub mod fermentation;
 pub mod floor_sight;
 pub mod flour;
+pub mod food;
 pub mod footwear;
 pub mod fruit;
 pub mod fungus;

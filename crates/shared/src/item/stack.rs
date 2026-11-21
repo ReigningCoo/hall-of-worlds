@@ -213,9 +213,10 @@ impl Item {
         if let Some(ItemForm::Yeast(yeast)) = &mut copy.form {
             // Each keeps its own clock and progress (owner, 2026-11-18): a
             // stack keys on quality, and whether it is a starter still
-            // developing.
+            // developing, and its strain.
             *yeast = crate::yeast::YeastForm {
                 developing: u32::from(yeast.developing > 0),
+                strain: yeast.strain,
                 ..Default::default()
             };
         }

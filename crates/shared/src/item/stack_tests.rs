@@ -533,6 +533,7 @@ fn counted_kinds_are_plain() {
                         | ItemKind::Ointment
                         | ItemKind::Paste
                         | ItemKind::Powder
+                        | ItemKind::Dish
                 ),
             "{kind:?} has quality"
         );
@@ -551,6 +552,7 @@ fn counted_kinds_are_plain() {
                 | ItemKind::Fungus
                 | ItemKind::Flour
                 | ItemKind::Egg
+                | ItemKind::Dish
                 | ItemKind::Yeast
                 | ItemKind::Kindling
                 | ItemKind::Ointment

@@ -45,6 +45,7 @@ mod dev_skills;
 pub(crate) mod difficulty;
 mod drink;
 mod drink_vessel;
+mod eat_dish;
 mod eat_fruit;
 mod eat_fungus;
 mod eat_herb;

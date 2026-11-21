@@ -69,6 +69,7 @@ pub(super) fn parts_of(
         Look::Tool(kind) => super::tool::tool_parts(kind, meshes, materials),
         Look::Flour(flour) => super::flour::flour_parts(flour, meshes, materials),
         Look::Egg(egg) => super::egg::egg_parts(egg, meshes, materials),
+        Look::Dish(dish) => super::dish::dish_parts(dish, meshes, materials),
         Look::Yeast => super::yeast::yeast_parts(meshes, materials),
         Look::Solid(shared::item::ItemKind::Sulphur) => {
             super::solids::sulphur_parts(meshes, materials)

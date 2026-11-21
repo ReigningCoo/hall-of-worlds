@@ -2,7 +2,8 @@
 //! (`about-<kind>`, such as `about-dwarven-bread`), a line under its name; a
 //! cask's or vessel's says how much it holds too, and whether it is sealed (a
 //! cask's drink and clocks: `cask.rs`); a
-//! yeast's when each in the stack next needs feeding (`yeast.rs`).
+//! yeast's when each in the stack next needs feeding (`yeast.rs`); cooked
+//! food's foods, diet labels and rest (`food.rs`).
 
 use shared::item::{Item, ItemKind};
 use shared::lang::{Args, Lang};
@@ -25,7 +26,8 @@ pub(super) fn about(item: &Item, lang: &Lang) -> Option<String> {
             ),
             None => holds,
         })
-        .or_else(|| super::yeast::yeast_lines(item, lang));
+        .or_else(|| super::yeast::yeast_lines(item, lang))
+        .or_else(|| super::food::food_lines(item, lang));
     let Some(holds) = more else {
         return about;
     };

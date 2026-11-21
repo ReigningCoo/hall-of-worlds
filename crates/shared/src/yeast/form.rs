@@ -41,6 +41,10 @@ pub struct YeastForm {
     /// fed or used, and its clock counts this down before `unfed`.
     #[serde(default)]
     pub developing: u32,
+    /// Which culture it is: bread yeast, as every yeast was before cultures
+    /// (cooking plan PR 6).
+    #[serde(default)]
+    pub strain: super::Strain,
 }
 
 impl YeastForm {

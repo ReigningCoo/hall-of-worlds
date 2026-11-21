@@ -50,6 +50,7 @@ pub(crate) fn drop_at(
     let now = crate::quests::unix_now().max(0) as u64;
     let items = items.into_iter().map(|mut item| {
         item.lay_yeast_down(now);
+        item.lay_food_down(now);
         item.lay_casks_down(now);
         item
     });

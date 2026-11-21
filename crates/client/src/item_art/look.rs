@@ -119,6 +119,8 @@ pub enum Look {
     Flour(super::FlourLook),
     /// An egg, by the animal that laid it (`egg.rs`).
     Egg(super::EggLook),
+    /// A Dish or an intermediate, a placeholder by its tint (`dish.rs`).
+    Dish(super::DishLook),
     /// A crock of yeast, the same for every one (`yeast.rs`).
     Yeast,
     /// Salt, Sulphur or Mercury, by kind (`salt.rs`, `solids.rs`).
@@ -212,6 +214,7 @@ impl Look {
             Self::Pouch => (2, 2),
             Self::Keyring | Self::HerbPouch => (2, 1),
             Self::Food(_) => (2, 1),
+            Self::Dish(dish) => dish.cells,
             Self::Tool(kind) => super::tool::cells(*kind),
             Self::Cask(cask) => super::cask::cells(*cask),
             Self::Log(_) => (8, 3),
