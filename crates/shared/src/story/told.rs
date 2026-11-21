@@ -45,6 +45,17 @@ pub struct Story {
     pub facts: Facts,
     /// Up to three paragraphs of beats; the last holds the ask.
     pub paragraphs: Vec<Vec<Beat>>,
+    /// Its place in a chain of quests, shown after its name; none for a
+    /// quest standing alone.
+    pub part: Option<Part>,
+}
+
+/// A quest's place in its chain: its number (from 1) and, when known, how
+/// many there are.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Part {
+    pub number: u8,
+    pub of: Option<u8>,
 }
 
 /// The real value of a fact someone lied about.

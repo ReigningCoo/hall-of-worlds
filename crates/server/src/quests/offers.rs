@@ -1,6 +1,7 @@
-//! What a giver has for a character: the next quest of each of their chains
-//! not yet handed in, their daily, and the character's quests from them under
-//! way; and the marker over each giver's door that follows from it.
+//! What a giver has for a character: one quest at a time (owner) from their
+//! chains (the one under way, else the first they may take, else the first
+//! they may not yet), and their daily; and the marker over each giver's door
+//! that follows from it.
 
 use std::collections::BTreeSet;
 
@@ -40,9 +41,9 @@ pub(crate) fn giver_offers(
         return Vec::new();
     };
     let book = &client.character.quests;
-    let mut offers = Vec::new();
-    // Each chain (the feeder and the artifact line too) offers its first
-    // quest not handed in.
+    let mut chained = Vec::new();
+    // Each chain (the feeder and the artifact line too) has its first quest
+    // not handed in; the giver offers one of them.
     let mut chains_seen = BTreeSet::new();
     for quest in found
         .quests
@@ -58,12 +59,32 @@ pub(crate) fn giver_offers(
             continue;
         }
         chains_seen.insert(chain);
-        offers.extend(offered(client, world, quest, now));
+        chained.extend(offered(client, world, quest, now));
     }
+    let mut offers = one_at_a_time(chained);
     if daily_givers(&found.poi, &found.buildings).contains(&building) {
         offers.extend(daily_offer(client, world, town, building, now));
     }
     offers
+}
+
+/// A giver's one quest of their chains (owner): those under way (only one
+/// can be, as no other is offered meanwhile), else the first that may be
+/// taken, else the first that may not yet.
+fn one_at_a_time(offers: Vec<Offered>) -> Vec<Offered> {
+    let rank = |offer: &Offered| match offer.state {
+        OfferState::Ready | OfferState::Taken => 0,
+        OfferState::Available { .. } => 1,
+        OfferState::Locked(_) => 2,
+    };
+    let Some(best) = offers.iter().map(rank).min() else {
+        return offers;
+    };
+    let mut kept: Vec<Offered> = offers.into_iter().filter(|o| rank(o) == best).collect();
+    if best > 0 {
+        kept.truncate(1);
+    }
+    kept
 }
 
 /// A giver's daily: the one taken, if any; else today's, a day after the last

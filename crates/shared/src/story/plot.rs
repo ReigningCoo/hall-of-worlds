@@ -162,6 +162,7 @@ pub fn tell(request: &Request) -> Telling {
             cast,
             facts,
             paragraphs,
+            part: None,
         },
         ending: Ending {
             beats: ending,

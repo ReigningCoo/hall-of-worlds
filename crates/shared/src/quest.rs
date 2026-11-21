@@ -23,6 +23,7 @@ mod make;
 mod model;
 mod moon;
 mod neighbour;
+mod opening;
 mod owner;
 mod plan;
 mod prize;

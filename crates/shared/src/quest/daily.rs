@@ -61,6 +61,7 @@ pub fn daily_quest(
         chain: 0,
         earlier: None,
         dark: false,
+        parts: 1,
         continues: false,
         text_seed: seed.derive("text"),
         prize: None,

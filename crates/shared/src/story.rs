@@ -49,7 +49,7 @@ pub use place::{Condition, PlaceDescription, PlaceKind};
 pub use plot::{choose_reason, tell};
 pub use render::reward_text;
 pub use request::{Ask, Creatures, Destination, Length, Place, Request};
-pub use told::{Ending, Facts, Lie, Story, Telling, Truth};
+pub use told::{Ending, Facts, Lie, Part, Story, Telling, Truth};
 
 use crate::creature::CreatureKind;
 
