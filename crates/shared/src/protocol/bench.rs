@@ -43,6 +43,9 @@ pub enum BenchNews {
 pub struct SeenBench {
     pub at: (i64, i64),
     pub tools: BenchTools,
+    /// Whether a hearth gives heat now (`BenchTools::is_lit` by the server's
+    /// clock); `false` for other benches.
+    pub lit: bool,
 }
 
 /// Developer tools (Create Crafting Bench): a bench for the server to put on

@@ -1,7 +1,8 @@
 //! Crafting benches (`Furniture::CraftingBench`, crafting benches plan PR 3):
 //! a joined table with a second layer raised over its rear third, the side
 //! by the wall behind it, and where each of its tools stands: tall ones on
-//! that shelf, the rest on the table in front of it.
+//! that shelf, the rest on the table in front of it. Hearths are drawn by
+//! `hearth.rs`.
 
 use bevy::prelude::*;
 use shared::door::Side;
@@ -27,11 +28,15 @@ const LOW: [ItemKind; 3] = [
     ItemKind::Filter,
 ];
 
-/// A bench's parts, or `None` for anything else.
+/// A bench's parts (a hearth's are `hearth.rs`'s), or `None` for anything
+/// else.
 pub(super) fn parts(piece: &Piece) -> Option<Vec<Part>> {
-    let Furniture::CraftingBench { .. } = piece.furniture else {
+    let Furniture::CraftingBench { craft } = piece.furniture else {
         return None;
     };
+    if craft.is_hearth() {
+        return super::hearth::parts(piece);
+    }
     let table = Table::of(piece);
     let mut parts = wooden_tables::joined(&table);
     let (back, front) = shelf_band(piece, table.length);
@@ -86,6 +91,9 @@ fn shelf_band(piece: &Piece, depth: f32) -> (f32, f32) {
 /// level's flat floor: the caller raises it with the ground), and how much
 /// room it has across the ground, or `None` for a kind it never shows.
 pub(in crate::dungeon_map) fn tool_spot(piece: &Piece, kind: ItemKind) -> Option<(Vec3, f32)> {
+    if let Some((local, room)) = super::hearth::tool_place(piece, kind) {
+        return Some((Frame::of(piece).place(local), room));
+    }
     let table = Table::of(piece);
     let (back, front) = shelf_band(piece, table.length);
     let (place, depth, height) = match TALL.iter().position(|&tall| tall == kind) {

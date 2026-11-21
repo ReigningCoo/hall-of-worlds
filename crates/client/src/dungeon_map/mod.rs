@@ -66,6 +66,7 @@ use crate::view3d::{TOKEN_DIAMETER, View3dSystems};
 mod click;
 mod face_point;
 mod flowing;
+mod hearth_fires;
 mod hover;
 mod lights;
 mod parts;
@@ -142,6 +143,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<fungi::DrawnFungi>()
             .init_resource::<fixed_lights::FixedLights>()
             .init_resource::<campfires::DrawnFires>()
+            .init_resource::<hearth_fires::DrawnHearthFires>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -194,7 +196,12 @@ impl Plugin for DungeonMapPlugin {
                         vegetable_plants::update_vegetables,
                         fungi::update_fungi,
                         bench_tools::update_bench_tools,
-                        (campfires::update_campfires, campfires::flicker_flames).chain(),
+                        (
+                            campfires::update_campfires,
+                            hearth_fires::update_hearth_fires,
+                            campfires::flicker_flames,
+                        )
+                            .chain(),
                         aim_at_herbs,
                         pick_on_arrival,
                     ),

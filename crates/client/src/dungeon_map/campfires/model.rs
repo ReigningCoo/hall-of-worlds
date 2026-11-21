@@ -22,9 +22,12 @@ const OUTLINE_GROW: f32 = 1.12;
 /// Where the flames stand, over the sticks, in cells.
 const FLAME_BASE: f32 = 0.06;
 
+/// How large a fire in a hearth's firebox is drawn, against a campfire.
+const HEARTH_SCALE: f32 = 0.55;
+
 /// What every fire is built from.
 #[derive(Clone)]
-pub(super) struct FireParts {
+pub(in crate::dungeon_map) struct FireParts {
     stone: Handle<Mesh>,
     stick: Handle<Mesh>,
     flame: Handle<Mesh>,
@@ -36,7 +39,10 @@ pub(super) struct FireParts {
 }
 
 impl FireParts {
-    pub(super) fn new(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> Self {
+    pub(in crate::dungeon_map) fn new(
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+    ) -> Self {
         let unlit = |colour: Color| StandardMaterial {
             base_color: colour,
             unlit: true,
@@ -90,18 +96,21 @@ fn part(
         .id()
 }
 
-/// Builds the fire at `cell` with `pieces` of kindling left under `fire`.
-pub(super) fn spawn_fire(
+/// Builds the fire at `cell` with `pieces` of kindling left under `fire`;
+/// in a hearth's firebox (`in_hearth`), without the ring of stones and
+/// smaller, to fit under its slab.
+pub(in crate::dungeon_map) fn spawn_fire(
     commands: &mut Commands,
     fire: Entity,
     parts: &FireParts,
-    cell: (i64, i64),
-    pieces: u8,
+    (cell, pieces): ((i64, i64), u8),
+    in_hearth: bool,
 ) {
+    let small = if in_hearth { HEARTH_SCALE } else { 1.0 };
     // Turned by its cell, so fires side by side differ.
     let turn = (cell.0 * 7 + cell.1 * 13).rem_euclid(12) as f32 / 12.0 * TAU;
     commands.entity(fire).with_children(|parent| {
-        for stone in 0..6 {
+        for stone in 0..if in_hearth { 0 } else { 6 } {
             let angle = turn + stone as f32 / 6.0 * TAU;
             let at = Vec3::new(angle.cos(), 0.0, angle.sin()) * RING * CELL_SIZE;
             let transform = Transform::from_translation(at.with_y(0.03 * CELL_SIZE))
@@ -123,7 +132,9 @@ pub(super) fn spawn_fire(
         for stick in 0..3 {
             let angle = turn + stick as f32 / 3.0 * TAU / 2.0;
             let lean = Quat::from_rotation_y(angle) * Quat::from_rotation_z(TAU / 4.0 - 0.25);
-            let transform = Transform::from_xyz(0.0, 0.05 * CELL_SIZE, 0.0).with_rotation(lean);
+            let transform = Transform::from_xyz(0.0, 0.05 * CELL_SIZE, 0.0)
+                .with_rotation(lean)
+                .with_scale(Vec3::splat(small));
             part(parent, &parts.stick, sticks, &parts.outline, transform);
         }
         if pieces == 0 {
@@ -132,7 +143,7 @@ pub(super) fn spawn_fire(
         // Taller the more is left: under half a cell for one piece, a cell
         // for a full fire; one flame, and two more round it from three pieces.
         let full = f32::from(pieces).min(MAX_KINDLING as f32) / MAX_KINDLING as f32;
-        let height = (0.4 + 0.6 * full) * CELL_SIZE;
+        let height = (0.4 + 0.6 * full) * CELL_SIZE * small;
         let flames: &[(f32, f32, f32)] = match pieces {
             1 | 2 => &[(0.0, 0.0, 1.0)],
             _ => &[(0.0, 0.0, 1.0), (0.08, 0.0, 0.7), (-0.06, 0.07, 0.6)],

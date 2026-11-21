@@ -40,7 +40,7 @@ Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooki
 - `WellFed::of(portions, cooked, ingredients) -> WellFed { health, mana, bonuses }`: `WELL_FED_RESTORE` (250 thousandths a second, a first guess) split by role weight, Protein, Fat and Nut to Health, Starch and Sweet to Mana, the rest halves; bonuses from vegetables' cooked effects (raw ones if nothing was heated), fruits', fungi's food effects and each herb's first, added by stat, at most `MOST_CHANGE` (3) either way. `effect(quality, now)`: `bonus::Source::WellFed` for `well_fed_ticks` (20 minutes at Poor, 10 more a quality step).
 - `poisons(portions, cooked, fungi)`: the fungi whose poison eating the dish brings on (eaten, or the ink cap's window), each once, less raw-only ones when cooked; for the server only (`fungus::poisoning` when eaten, PR 6), never in a preview.
 - `least_quality(ingredients, balance, history, chance, heat)`: `ingredient_quality` (mean rank by grams, rounded down) moved by balance − `BALANCED_ROLES` (2), plus `skill_steps` (halves × Σroots ÷ (tools × 20), Alchemy's steps × mean ∛ ÷ 10) only when certain; Poor to Legendary, then `capped` at `AWAY_CAP` (Rare) unless `Heat::Hearth`. `outcome(planned, chance_roll, luck_roll) -> Outcome::{Failed, Made { qualities }}`: Alchemy's luck, still capped.
-- `Tool::of_item`: knives and daggers are a Knife, the Cauldron and Mortar & pestle themselves; pans, bowls, ovens and sieves have no items until hearths (PR 8).
+- `Tool::of_item`: knives and daggers are a Knife, the Pan, Bowl, Sieve, Cauldron and Mortar & pestle themselves (PR 8); the Oven has no item, it is a lit hearth's (`crafting_bench`).
 
 ## Depends on
 

@@ -21,7 +21,8 @@ use crate::sites::{FireTarget, fire_target, light_or_feed};
 /// Begins lighting or feeding a fire, if there is kindling and somewhere to:
 /// whether the client is still there, and what it cost.
 pub(super) fn start_fire(client: &mut Client, world: &mut ServerWorld) -> (bool, u32) {
-    let target = (client.visit.as_ref()).and_then(|visit| fire_target(visit, client.heading));
+    let target =
+        (client.visit.as_ref()).and_then(|visit| fire_target(world, visit, client.heading));
     let (Some(target), Some(_)) = (target, kindling_to_burn(&client.inventory)) else {
         debug!("Not starting Make Campfire: no kindling, or nowhere faced for a fire");
         return (true, 0);
@@ -29,6 +30,8 @@ pub(super) fn start_fire(client: &mut Client, world: &mut ServerWorld) -> (bool,
     let lands_in = match target {
         FireTarget::Feed(_) => feed_ticks(),
         FireTarget::Light(_) => light_ticks(),
+        // A hearth: lighting it or feeding it are alike quick.
+        FireTarget::Hearth(_) => feed_ticks(),
     };
     let tick = world.action_clock.ticks();
     client.fight.pending = Some(Pending {
@@ -52,7 +55,7 @@ pub(super) fn start_fire(client: &mut Client, world: &mut ServerWorld) -> (bool,
 /// has gone.
 pub(super) fn land_fire(client: &mut Client, world: &mut ServerWorld, target: FireTarget) -> bool {
     let burnt = (client.visit.as_ref())
-        .filter(|visit| fire_target(visit, client.heading) == Some(target))
+        .filter(|visit| fire_target(world, visit, client.heading) == Some(target))
         .zip(kindling_to_burn(&client.inventory))
         .and_then(|(visit, (id, wood))| Some((id, light_or_feed(world, visit, target, wood)?)));
     let Some((kindling, pieces)) = burnt else {

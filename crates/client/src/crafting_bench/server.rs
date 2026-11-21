@@ -27,14 +27,19 @@ pub(super) fn read_server(
             | ServerMessage::EnterHall { .. }
             | ServerMessage::OnWorldMap { .. } => {
                 benches.0.clear();
+                benches.1.clear();
                 close_panel(&mut panel, &mut commands);
             }
             ServerMessage::Bench(BenchNews::Tools(told)) => {
                 for seen in told {
                     benches.0.insert(seen.at, seen.tools.clone());
+                    match seen.lit {
+                        true => benches.1.insert(seen.at),
+                        false => benches.1.remove(&seen.at),
+                    };
                     let open = panel.0.as_mut().filter(|open| open.piece.at == seen.at);
                     if let Some(open) = open {
-                        open.grid.heard(seen.tools.tools());
+                        open.grid.heard(&shown(&seen.tools));
                         dom.set_flag("bench/refused", "hidden", true);
                     }
                 }
@@ -43,8 +48,7 @@ pub(super) fn read_server(
                 // What was let go on the grid goes back to what it was.
                 if let Some(open) = &mut panel.0 {
                     let tools = benches.0.get(&open.piece.at);
-                    open.grid
-                        .heard(tools.map_or(&[][..], |tools| tools.tools()));
+                    open.grid.heard(&tools.map(shown).unwrap_or_default());
                     dom.set_text("bench/refused", REFUSED);
                     dom.set_flag("bench/refused", "hidden", false);
                 }
@@ -52,4 +56,9 @@ pub(super) fn read_server(
             _ => {}
         }
     }
+}
+
+/// What a bench's panel shows: its tools, then what lies in its storage.
+pub(super) fn shown(tools: &shared::crafting_bench::BenchTools) -> Vec<shared::item::Item> {
+    tools.items().cloned().collect()
 }

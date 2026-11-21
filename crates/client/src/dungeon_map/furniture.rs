@@ -6,7 +6,8 @@
 //! tinted per vertex by the wood or stone and lit where they stand. Tops stay
 //! level on sloping ground, their legs reaching down to it. Black outlines.
 //! Seats facing a table reach a little under its edge. Crafting benches are
-//! a table with a shelf over its back (`crafting_bench.rs`).
+//! a table with a shelf over its back (`crafting_bench.rs`); hearths a stone
+//! stove with a hood, and a counter (`hearth.rs`).
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod atlas;
@@ -16,6 +17,7 @@ mod colour;
 mod crafting_bench;
 mod draw;
 mod frame;
+mod hearth;
 mod part;
 mod seats;
 mod stone_tables;
@@ -29,6 +31,7 @@ use super::CELL_SIZE;
 use super::walls::{Layers, Scene};
 
 pub(super) use crafting_bench::{ghost_boxes, tool_spot};
+pub(super) use hearth::firebox;
 
 /// How high a table's top is, and how thick.
 const TABLE_TOP: f32 = CELL_SIZE * 0.39;

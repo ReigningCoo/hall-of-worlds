@@ -20,7 +20,7 @@ impl ItemKind {
             Self::Salt => solid("Salt", SALT_GRAMS),
             Self::Sulphur => solid("Sulphur", SULPHUR_GRAMS),
             Self::Mercury => solid("Mercury", MERCURY_GRAMS),
-            // Kept for cooking later; no longer used.
+            // Cooking's Cauldron (`cooking::Tool::of_item`), on hearths too.
             _ => plain("Cauldron", 4000, Shape::rectangle(2, 2)),
         }
     }

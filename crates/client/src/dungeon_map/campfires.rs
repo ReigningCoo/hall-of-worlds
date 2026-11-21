@@ -19,10 +19,10 @@ use crate::common::{
 
 mod model;
 
-use model::{FireParts, spawn_fire};
+pub(super) use model::{FireParts, spawn_fire};
 
 /// A fire's light: firelight's warm orange.
-const FIRE_LIGHT: Color = Color::srgb(1.0, 0.62, 0.28);
+pub(super) const FIRE_LIGHT: Color = Color::srgb(1.0, 0.62, 0.28);
 
 /// How far embers' light reaches, in cells.
 const EMBER_CELLS: u32 = 1;
@@ -100,7 +100,7 @@ pub(super) fn update_campfires(
                 light,
             ))
             .id();
-        spawn_fire(&mut commands, fire, &parts, (x, y), pieces);
+        spawn_fire(&mut commands, fire, &parts, ((x, y), pieces), false);
         commands.entity(*scene).add_child(fire);
         keep.insert((x, y), (fire, now));
     }

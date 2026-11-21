@@ -126,9 +126,7 @@ fn door_name(level: &Level, (x, y): (i64, i64)) -> Option<&'static str> {
 
 /// What a crafting bench is called, by its craft.
 fn bench_name(craft: Craft) -> &'static str {
-    match craft {
-        Craft::Alchemy => "Alchemy Bench",
-    }
+    craft.name()
 }
 
 /// What stairs are called, by the way they go.

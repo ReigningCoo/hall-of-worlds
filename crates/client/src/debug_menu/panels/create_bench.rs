@@ -7,7 +7,7 @@
 use bevy::prelude::*;
 use shared::crafting_bench::Craft;
 use shared::door::Side;
-use shared::furniture::{Furniture, Material, Piece, Wood, footprint};
+use shared::furniture::{Furniture, Material, Piece, Stone, Wood, footprint};
 use shared::item::Quality;
 use shared::protocol::DevBench;
 
@@ -52,7 +52,11 @@ impl BenchOrder {
             at,
             size: footprint(furniture, (self.craft.length(), 1), self.facing),
             facing: self.facing,
-            material: Material::Wood(Wood::Oak),
+            // Hearths are of stone (`Piece::is_well_made`).
+            material: match self.craft.is_hearth() {
+                true => Material::Stone(Stone::Granite),
+                false => Material::Wood(Wood::Oak),
+            },
             furniture,
         };
         let kinds = self.craft.tools().into_iter().zip(&self.tools);
@@ -82,6 +86,7 @@ impl BenchOrder {
 pub(super) fn craft_name(craft: Craft) -> &'static str {
     match craft {
         Craft::Alchemy => "Alchemy",
+        hearth => hearth.name(),
     }
 }
 

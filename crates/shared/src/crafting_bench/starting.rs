@@ -10,9 +10,13 @@ use crate::rng::Seed;
 /// Each tool a site of `kind` may start with on a bench of `craft`, and how
 /// likely, in percent (owner's, chances Claude's first guesses): a herbalist
 /// a Mortar and Pestle; a tower a Retort too; a castle besides half the time
-/// an Alembic, and a quarter of the time each a Crucible, Filter and Pelican.
+/// an Alembic, and a quarter of the time each a Crucible, Filter and Pelican;
+/// a Hearth or Range a Pan and Cauldron and perhaps more kitchen tools.
 fn chances(craft: Craft, kind: PoiKind) -> &'static [(ItemKind, u64)] {
-    use ItemKind::{Alembic, Crucible, Filter, MortarAndPestle, Pelican, Retort};
+    use ItemKind::{
+        Alembic, Bowl, Cauldron, Crucible, Filter, Knife, MortarAndPestle, Pan, Pelican, Retort,
+        Sieve,
+    };
     match (craft, kind) {
         (Craft::Alchemy, PoiKind::StoneTower) => &[(MortarAndPestle, 100), (Retort, 100)],
         (Craft::Alchemy, PoiKind::Castle) => &[
@@ -24,6 +28,25 @@ fn chances(craft: Craft, kind: PoiKind) -> &'static [(ItemKind, u64)] {
             (Pelican, 25),
         ],
         (Craft::Alchemy, _) => &[(MortarAndPestle, 100)],
+        (Craft::Stove, _) => &[],
+        // Hearths: a pan and a pot always, the rest more often in grander
+        // sites (Claude's first guesses).
+        (Craft::Hearth | Craft::Range, PoiKind::Castle | PoiKind::Fort) => &[
+            (Pan, 100),
+            (Cauldron, 100),
+            (Bowl, 100),
+            (Knife, 75),
+            (Sieve, 50),
+            (MortarAndPestle, 50),
+        ],
+        (Craft::Hearth | Craft::Range, _) => &[
+            (Pan, 100),
+            (Cauldron, 100),
+            (Bowl, 60),
+            (Knife, 40),
+            (Sieve, 25),
+            (MortarAndPestle, 20),
+        ],
     }
 }
 

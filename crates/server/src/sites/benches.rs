@@ -75,6 +75,32 @@ pub(crate) fn bench_tools(world: &mut ServerWorld, key: BenchKey, craft: Craft) 
         .unwrap_or_else(|| BenchTools::new(craft))
 }
 
+/// The bench kept at `key` (`bench_tools`) with the food in its storage
+/// rested to now at `celsius` (as food on the ground, `shared::food`), kept
+/// so without telling anyone (what changes is sent with it).
+pub(crate) fn settle_storage(
+    world: &mut ServerWorld,
+    key: BenchKey,
+    craft: Craft,
+    celsius: i32,
+) -> BenchTools {
+    let mut tools = bench_tools(world, key, craft);
+    if tools.storage().is_empty() {
+        return tools;
+    }
+    let now = crate::quests::unix_now().max(0) as u64;
+    let mut changed = false;
+    for item in tools.storage_mut() {
+        changed |= item.settle_lying_food(now, celsius).seen();
+    }
+    if changed {
+        let (id, index, at) = key;
+        let saved = world.site_mut(id).levels.entry(index).or_default();
+        saved.benches.insert(at, tools.clone());
+    }
+    tools
+}
+
 /// Keeps the tools on the bench at `key` and has them sent to everyone who
 /// has the bench.
 pub(crate) fn keep_bench(world: &mut ServerWorld, key: BenchKey, tools: BenchTools) {

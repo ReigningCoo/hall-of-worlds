@@ -195,6 +195,12 @@ pub enum ItemKind {
     /// What a campfire leaves when it burns out (`shared::campfire`),
     /// counted: for nixtamal later (cooking plan).
     Ash,
+    /// A kitchen tool (cooking plan PR 8): a frying pan, the Pan step's.
+    Pan,
+    /// A kitchen tool: a mixing bowl, the Bowl step's.
+    Bowl,
+    /// A kitchen tool: a sieve, the Sieve step's.
+    Sieve,
 }
 
 impl ItemKind {

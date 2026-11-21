@@ -4,7 +4,7 @@
 //! sends what is let go on a bench's panel, and `abilities` and `alchemy`
 //! work at the bench the player is at.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use bevy::prelude::*;
 use shared::crafting_bench::BenchTools;
@@ -18,9 +18,10 @@ const BENCH_MARK: u64 = 0xBE0C << 48;
 const CELL_BITS: u64 = 0xFF_FFFF;
 
 /// Each bench's tools as the server last told them, by its piece's
-/// north-west cell (`Piece::at`). Out of sight they stay as last told.
+/// north-west cell (`Piece::at`), and the hearths it said are lit (cooking
+/// plan PR 8). Out of sight they stay as last told.
 #[derive(Resource, Default, Debug, PartialEq)]
-pub struct Benches(pub HashMap<(i64, i64), BenchTools>);
+pub struct Benches(pub HashMap<(i64, i64), BenchTools>, pub HashSet<(i64, i64)>);
 
 impl Benches {
     /// The bench at `at` as an id, for its panel's grid (`StockCell`,

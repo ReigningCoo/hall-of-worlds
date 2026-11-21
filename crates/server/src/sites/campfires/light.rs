@@ -1,6 +1,7 @@
-//! Make Campfire on a visit's level: the fire faced to feed, else the cell
-//! faced to light a new one on (`shared::campfire`), and doing it once the
-//! wind-up lands, checked again then.
+//! Make Campfire on a visit's level: a hearth faced that burns kindling (not
+//! one always lit) to light or feed (cooking plan PR 8), else the fire faced
+//! to feed, else the cell faced to light a new one on (`shared::campfire`),
+//! and doing it once the wind-up lands, checked again then.
 
 use shared::campfire::{Campfire, campfire_faced, can_hold_fire, place_faced};
 use shared::facing::Heading;
@@ -8,7 +9,7 @@ use shared::material::Material;
 
 use super::{fire_now, keep_campfire, saved_campfire};
 use crate::ServerWorld;
-use crate::sites::Visit;
+use crate::sites::{Visit, bench_tools, keep_bench};
 
 /// What Make Campfire would do.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -17,13 +18,15 @@ pub(crate) enum FireTarget {
     Feed((i64, i64)),
     /// Light a new fire at this cell.
     Light((i64, i64)),
+    /// Light or feed the hearth whose piece is at this cell (`Piece::at`).
+    Hearth((i64, i64)),
 }
 
 impl FireTarget {
     /// The cell it is at.
     pub(crate) fn cell(self) -> (i64, i64) {
         match self {
-            Self::Feed(cell) | Self::Light(cell) => cell,
+            Self::Feed(cell) | Self::Light(cell) | Self::Hearth(cell) => cell,
         }
     }
 }
@@ -37,7 +40,19 @@ fn free_for_fire(visit: &Visit, (x, y): (i64, i64)) -> bool {
 
 /// What Make Campfire does for someone on this visit facing `heading`: feed
 /// the fire faced, else light one on the ground faced; `None` if neither.
-pub(crate) fn fire_target(visit: &Visit, heading: Heading) -> Option<FireTarget> {
+pub(crate) fn fire_target(
+    world: &mut ServerWorld,
+    visit: &Visit,
+    heading: Heading,
+) -> Option<FireTarget> {
+    let hearth = visit
+        .bench_faced(heading)
+        .filter(|bench| bench.craft.is_hearth());
+    if let Some(hearth) = hearth
+        && !bench_tools(world, hearth.key, hearth.craft).always_lit
+    {
+        return Some(FireTarget::Hearth(hearth.piece.at));
+    }
     let level = visit.cells();
     let burning = |x: i64, y: i64| level.campfire_at(x, y).is_some();
     if let Some(cell) = campfire_faced(level, visit.spot(), heading, burning) {
@@ -57,6 +72,9 @@ pub(crate) fn light_or_feed(
     wood: Material,
 ) -> Option<usize> {
     let now = fire_now(world);
+    if let FireTarget::Hearth(at) = target {
+        return hearth_fire(world, visit, at, wood, now);
+    }
     let (x, y) = target.cell();
     let key = visit.plant_key(x, y);
     let kept = saved_campfire(world, key).filter(|fire| fire.is_lit(now));
@@ -74,5 +92,32 @@ pub(crate) fn light_or_feed(
     };
     let pieces = fire.pieces_left(now);
     keep_campfire(world, key, Some(fire));
+    Some(pieces)
+}
+
+/// Lights the hearth at `at` with a piece of `wood`'s kindling, or feeds its
+/// fire: the pieces it has left after, or `None` if it is full or always lit.
+fn hearth_fire(
+    world: &mut ServerWorld,
+    visit: &Visit,
+    at: (i64, i64),
+    wood: Material,
+    now: u64,
+) -> Option<usize> {
+    let hearth = visit.bench_at(at.0, at.1).filter(|b| b.craft.is_hearth())?;
+    let mut tools = bench_tools(world, hearth.key, hearth.craft);
+    if tools.always_lit {
+        return None;
+    }
+    let fire = match tools.fire.take().filter(|fire| fire.is_lit(now)) {
+        Some(mut fire) => {
+            fire.feed(now, wood).ok()?;
+            fire
+        }
+        None => Campfire::lit(now, wood),
+    };
+    let pieces = fire.pieces_left(now);
+    tools.fire = Some(fire);
+    keep_bench(world, hearth.key, tools);
     Some(pieces)
 }

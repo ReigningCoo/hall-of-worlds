@@ -1,7 +1,8 @@
 //! Putting tools on a crafting bench and taking them off
 //! (`ClientMessage::Bench`, crafting benches plan PR 2), in turn with steps:
 //! the bench must be in reach (`sites::BenchHere::in_reach`). Anyone may put
-//! or take (owner's). A tool of a kind already there swaps with it; anything
+//! or take (owner's), food in a Range's storage too (cooking plan PR 8),
+//! where its clocks run on real time at the land's warmth as on the ground. A tool of a kind already there swaps with it; anything
 //! the bench won't take is refused with `BenchRefused`, never saying why.
 
 use bevy::prelude::*;
@@ -10,7 +11,12 @@ use shared::protocol::{BenchAsk, BenchNews, ServerMessage};
 use super::Client;
 use super::give::give;
 use crate::ServerWorld;
-use crate::sites::{BenchHere, bench_tools, keep_bench};
+use crate::sites::{BenchHere, bench_tools, keep_bench, settle_storage};
+
+/// Real time now, in Unix seconds, as food on the ground rests by.
+fn unix_now() -> u64 {
+    crate::quests::unix_now().max(0) as u64
+}
 
 /// Does what was asked of the bench. Whether the client is still there, and
 /// what it cost (nothing).
@@ -67,9 +73,11 @@ fn put(
     if !client.may_take_off(item) || !client.change_allowed(letting_go, tick) {
         return true;
     }
-    let Some(item) = client.inventory.hand_over(item) else {
+    let Some(mut item) = client.inventory.hand_over(item) else {
         return true;
     };
+    // Food left in storage rests as on the ground (tools have no clocks).
+    item.lay_food_down(unix_now());
     let Ok(old) = tools.put(item) else {
         unreachable!("checked on a copy");
     };
@@ -84,10 +92,13 @@ fn put(
 
 /// Takes tool `item` off the bench into what is carried (or onto the ground).
 fn take(client: &mut Client, world: &mut ServerWorld, here: BenchHere, item: shared::id::Id) {
-    let mut tools = bench_tools(world, here.key, here.craft);
-    let Some(tool) = tools.take(item) else {
+    let celsius = world.habitat_at(client.world_position()).celsius;
+    let mut tools = settle_storage(world, here.key, here.craft, celsius);
+    let Some(mut tool) = tools.take(item) else {
         return;
     };
+    // Stored food's time lying there counted, its clock carried from now.
+    tool.rest_food(0, unix_now(), celsius);
     keep_bench(world, here.key, tools);
     give(client, world, tool);
     client.unsaved = true;
