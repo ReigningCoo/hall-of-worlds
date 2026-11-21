@@ -94,7 +94,7 @@ fn chance_as_alchemy_with_a_join_a_step_and_a_half() {
 
 #[test]
 fn a_stew_worked_out() {
-    let planned = plan(&stew(Heat::Hearth), ingredients(), skilled(0)).unwrap();
+    let planned = plan(&stew(Heat::Hearth), ingredients(), dishes(), skilled(0)).unwrap();
     assert_eq!(planned.chance, CERTAIN / 2);
     assert_eq!(planned.practised, vec![Tool::Knife, Tool::Cauldron]);
     let [output] = planned.outputs.as_slice() else {
@@ -111,23 +111,23 @@ fn a_stew_worked_out() {
 
 #[test]
 fn heat_and_liquid() {
-    let cold = plan(&stew(Heat::Cold), ingredients(), skilled(0));
+    let cold = plan(&stew(Heat::Cold), ingredients(), dishes(), skilled(0));
     assert_eq!(cold, Err(Refused::NoHeat { step: 1 }));
     let mut dry = stew(Heat::Fire);
     dry.steps[1].portions.clear();
     assert_eq!(
-        plan(&dry, ingredients(), skilled(0)),
+        plan(&dry, ingredients(), dishes(), skilled(0)),
         Err(Refused::NoLiquid { step: 1 })
     );
     dry.steps[0]
         .portions
         .push(food(Source::Milk, "cattle", 300));
-    assert!(plan(&dry, ingredients(), skilled(0)).is_ok());
+    assert!(plan(&dry, ingredients(), dishes(), skilled(0)).is_ok());
     let mut unknown = stew(Heat::Fire);
     unknown.steps[0]
         .portions
         .push(food(Source::Meat, "dragon", 10));
-    let refused = plan(&unknown, ingredients(), skilled(0));
+    let refused = plan(&unknown, ingredients(), dishes(), skilled(0));
     assert_eq!(refused, Err(Refused::UnknownIngredient { step: 0 }));
 }
 
@@ -139,10 +139,10 @@ fn capped_at_rare_away_from_a_hearth() {
             *quality = Some(Quality::Epic);
         }
     }
-    let at_hearth = plan(&process, ingredients(), skilled(100)).unwrap();
+    let at_hearth = plan(&process, ingredients(), dishes(), skilled(100)).unwrap();
     assert_eq!(at_hearth.outputs[0].quality, Quality::Legendary);
     process.heat = Heat::Fire;
-    let by_fire = plan(&process, ingredients(), skilled(100)).unwrap();
+    let by_fire = plan(&process, ingredients(), dishes(), skilled(100)).unwrap();
     assert_eq!(by_fire.outputs[0].quality, AWAY_CAP);
     let Outcome::Made { qualities } = outcome(&by_fire, 0, 0) else {
         panic!("made");
@@ -166,7 +166,7 @@ fn ingredient_quality_weighed_by_grams() {
 fn balance_loses_for_excess_and_bitterness() {
     // An egg alone is all Protein, and 40 points past its 60% share.
     let egg = [food(Source::Egg, "chicken", 100)];
-    assert_eq!(balance(&egg, ingredients()), 1 - 2);
+    assert_eq!(balance(&egg, ingredients(), &Wants::default()), 1 - 2);
     // Basil is at most a few percent: half the dish is far past it.
     let basil = [
         food(Source::Egg, "chicken", 100),
@@ -175,21 +175,30 @@ fn balance_loses_for_excess_and_bitterness() {
     let def = ingredients().get(Source::Herb, "basil").unwrap();
     let past = 50 - u32::from(def.max_share);
     assert_eq!(
-        balance(&basil, ingredients()),
+        balance(&basil, ingredients(), &Wants::default()),
         2 - past.div_ceil(EXCESS_STEP) as i32
     );
     let mut mixed = vec![
         food(Source::Egg, "chicken", 500),
         food(Source::Vegetable, "carrot", 400),
     ];
-    assert_eq!(balance(&mixed, ingredients()), ROLES_COUNTED);
+    assert_eq!(
+        balance(&mixed, ingredients(), &Wants::default()),
+        ROLES_COUNTED
+    );
     // A medicinal herb in its share still tastes bitter.
     let mut bitter = mixed.clone();
     bitter.push(food(Source::Herb, "bearberry", 20));
-    assert_eq!(balance(&bitter, ingredients()), ROLES_COUNTED - 1);
+    assert_eq!(
+        balance(&bitter, ingredients(), &Wants::default()),
+        ROLES_COUNTED - 1
+    );
     // Anything inedible is past its share of none.
     mixed.push(food(Source::Herb, "foxglove", 1));
-    assert_eq!(balance(&mixed, ingredients()), ROLES_COUNTED - 1);
+    assert_eq!(
+        balance(&mixed, ingredients(), &Wants::default()),
+        ROLES_COUNTED - 1
+    );
 }
 
 #[test]
@@ -199,6 +208,7 @@ fn an_intermediate_carries_its_history() {
         history: History {
             halves: 6,
             roots: vec![(Tool::Bowl, 1), (Tool::Knife, 4)],
+            ..History::default()
         },
     };
     let process = Process {
@@ -207,7 +217,7 @@ fn an_intermediate_carries_its_history() {
         steps: vec![Step::at(Tool::Knife, 0, 0, Vec::new())],
         heat: Heat::Cold,
     };
-    let planned = plan(&process, ingredients(), skilled(8)).unwrap();
+    let planned = plan(&process, ingredients(), dishes(), skilled(8)).unwrap();
     // Only this session's step for the chance.
     assert_eq!(planned.chance, CERTAIN + 800);
     let history = &planned.outputs[0].history;
@@ -219,16 +229,21 @@ fn an_intermediate_carries_its_history() {
     let long = History {
         halves: 20,
         roots: vec![(Tool::Bowl, 4), (Tool::Pan, 4)],
+        ..History::default()
     };
     assert_eq!(skill_steps(&long), 4);
 }
 
 #[test]
 fn outcome_rolls_chance_then_luck() {
-    let planned = plan(&stew(Heat::Hearth), ingredients(), skilled(0)).unwrap();
+    let planned = plan(&stew(Heat::Hearth), ingredients(), dishes(), skilled(0)).unwrap();
     assert_eq!(outcome(&planned, planned.chance, 0), Outcome::Failed);
     let Outcome::Made { qualities } = outcome(&planned, 0, LUCKY_TWICE - 1) else {
         panic!("made");
     };
     assert_eq!(qualities, vec![Quality::Legendary]);
+}
+
+fn dishes() -> &'static Dishes {
+    Dishes::built_in()
 }

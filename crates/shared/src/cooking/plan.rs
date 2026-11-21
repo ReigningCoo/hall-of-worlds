@@ -3,14 +3,12 @@
 
 use super::grid::{Input, flow};
 use super::{
-    CookingSkills, Heat, History, Ingredients, Portion, Process, Refused, Tool, balance, chance,
-    ingredient_quality, least_quality,
+    CookingSkills, Diet, Dish, Dishes, Heat, History, Ingredients, Portion, Process, Refused,
+    Shape, Tool, balance, chance, classify, ingredient_quality, least_quality,
 };
 use crate::item::Quality;
 
-/// What one output (a step nothing takes on from) holds. Naming it and
-/// whether it is a dish or an intermediate come with the rules of cooking's
-/// second part (plan PR 5).
+/// What one output (a step nothing takes on from) holds and what it is.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Output {
     /// The step it comes out of.
@@ -20,6 +18,10 @@ pub struct Output {
     /// Its steps (this session's and its sources') and the sub-skills at
     /// them, for an intermediate to carry on.
     pub history: History,
+    /// What it is called and served as (`classify`).
+    pub dish: Dish,
+    pub diet: Diet,
+    /// Wanting what its dish wants (`Dish::wants`).
     pub balance: i32,
     /// Its least quality, before the server's luck.
     pub quality: Quality,
@@ -41,6 +43,7 @@ pub struct Planned {
 pub fn plan(
     process: &Process,
     ingredients: &Ingredients,
+    dishes: &Dishes,
     skills: CookingSkills,
 ) -> Result<Planned, Refused> {
     let flow = flow(process)?;
@@ -62,7 +65,7 @@ pub fn plan(
         if step.tool.needs_heat() && process.heat == Heat::Cold {
             return Err(Refused::NoHeat { step: i });
         }
-        let (portions, _) = gather(process, &flow.inputs, skills, i);
+        let (portions, _, _) = gather(process, &flow.inputs, skills, i);
         if step.tool.needs_liquid() && !portions.iter().any(Portion::is_liquid) {
             return Err(Refused::NoLiquid { step: i });
         }
@@ -71,8 +74,10 @@ pub fn plan(
     let chance = chance(skills.cooking_percent(), halves);
     let outputs = (flow.ends.iter())
         .map(|&step| {
-            let (portions, history) = gather(process, &flow.inputs, skills, step);
-            let balance = balance(&portions, ingredients);
+            let (portions, history, water) = gather(process, &flow.inputs, skills, step);
+            let shape = Shape::of(&history, &portions, water, ingredients);
+            let dish = classify(&portions, &shape, ingredients, dishes);
+            let balance = balance(&portions, ingredients, &dish.wants(dishes));
             let quality = least_quality(
                 ingredient_quality(&portions),
                 balance,
@@ -82,8 +87,10 @@ pub fn plan(
             );
             Output {
                 step,
+                diet: Diet::of(&portions, ingredients),
                 portions,
                 history,
+                dish,
                 balance,
                 quality,
             }
@@ -98,26 +105,30 @@ pub fn plan(
 }
 
 /// Everything that went into step `i` (its own portions after what it
-/// takes), and the history so far: its steps and every one before it, with
-/// this cook's sub-skills, and its sources' histories.
+/// takes), the history so far (its steps and every one before it, with this
+/// cook's sub-skills, and its sources' histories), and the millilitres of
+/// water still in it: water taken on to anything but a Cauldron is drained.
 fn gather(
     process: &Process,
     inputs: &[Vec<Input>],
     skills: CookingSkills,
     i: usize,
-) -> (Vec<Portion>, History) {
+) -> (Vec<Portion>, History, u32) {
     let step = &process.steps[i];
     let mut portions = Vec::new();
     let mut history = History::default();
+    let mut taken_water = 0;
     for &input in &inputs[i] {
         match input {
             Input::Step(j) => {
-                let (before, past) = gather(process, inputs, skills, j);
+                let (before, past, water) = gather(process, inputs, skills, j);
+                taken_water += water;
                 portions.extend(before);
                 history.merge(&past);
             }
             Input::Source(row) => {
                 if let Some(Some(carried)) = process.sources.get(usize::from(row)) {
+                    taken_water += water_in(&carried.portions);
                     portions.extend(carried.portions.iter().cloned());
                     history.merge(&carried.history);
                 }
@@ -126,6 +137,22 @@ fn gather(
     }
     portions.extend(step.portions.iter().cloned());
     history.halves += step.halves();
+    history.tools.push(step.tool);
     history.add_root(step.tool, skills.sub_root(step.tool));
-    (portions, history)
+    let kept = if step.tool == Tool::Cauldron {
+        taken_water
+    } else {
+        0
+    };
+    (portions, history, kept + water_in(&step.portions))
+}
+
+/// The millilitres of water in these portions.
+fn water_in(portions: &[Portion]) -> u32 {
+    (portions.iter())
+        .map(|portion| match portion {
+            Portion::Water { ml } => *ml,
+            Portion::Food { .. } => 0,
+        })
+        .sum()
 }

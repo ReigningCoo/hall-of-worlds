@@ -48,15 +48,31 @@ pub struct History {
     /// The ∛ of each tool's sub-skill used (`CookingSkills::sub_root`), each
     /// tool once, the lowest kept when two cooks used it.
     pub roots: Vec<(Tool, u32)>,
+    /// Its tools in the order they were used (a source's first), for naming
+    /// what it becomes (`classify`).
+    #[serde(default)]
+    pub tools: Vec<Tool>,
 }
 
 impl History {
     /// Adds `other`'s steps, keeping the lower root of a tool in both.
     pub fn merge(&mut self, other: &History) {
         self.halves += other.halves;
+        self.tools.extend(other.tools.iter().copied());
         for &(tool, root) in &other.roots {
             self.add_root(tool, root);
         }
+    }
+
+    /// How many of its steps were joins: each counts a half more than a step.
+    pub fn joins(&self) -> u32 {
+        self.halves.saturating_sub(2 * self.tools.len() as u32)
+    }
+
+    /// Whether any of its steps used heat (`Tool::needs_heat`): cooked, not
+    /// raw.
+    pub fn cooked(&self) -> bool {
+        self.tools.iter().any(|tool| tool.needs_heat())
     }
 
     /// Notes `tool` used at `root`, keeping the lower if already there.
