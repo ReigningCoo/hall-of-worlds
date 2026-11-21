@@ -58,6 +58,7 @@ pub fn cask_to(rng: &mut Rng, request: &RollRequest) -> Result<CaskForm, Refused
         Some(LiquidKind::Alcohol) => Ok(cask.full_of(Liquid::Alcohol)),
         Some(LiquidKind::Milk) => Ok(cask.full_of(crate::farmyard::rolled_milk(rng))),
         Some(LiquidKind::Honey) => Ok(cask.full_of(crate::farmyard::rolled_honey(rng))),
+        Some(LiquidKind::SoySauce) => Ok(cask.full_of(Liquid::SoySauce)),
         Some(LiquidKind::Potion) => Err(Refused(Field::Liquid)),
     }
 }

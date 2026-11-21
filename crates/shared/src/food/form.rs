@@ -89,9 +89,13 @@ impl FoodForm {
     /// What it brings to a row's source space when a later row starts from
     /// it.
     pub fn carried(&self) -> Carried {
+        let mut history = self.history.clone();
+        history
+            .rests
+            .extend(self.rest.as_ref().map(|rest| rest.kind));
         Carried {
             portions: self.portions.clone(),
-            history: self.history.clone(),
+            history,
         }
     }
 }

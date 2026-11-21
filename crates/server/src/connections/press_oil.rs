@@ -33,10 +33,13 @@ pub(super) fn choose_press(
 
 /// Begins pressing the next bottle, if it can be: whether the client is still
 /// there, and what it cost.
-fn start_press(client: &mut Client, world: &mut ServerWorld) -> (bool, u32) {
-    let can = (client.pressing.as_ref())
-        .and_then(|pressing| client.inventory.can_press(pressing, &world.herbs));
-    if can.is_none() {
+pub(super) fn start_press(client: &mut Client, world: &mut ServerWorld) -> (bool, u32) {
+    let can = match client.pressing.as_ref() {
+        Some(Pressing::Moromi) => client.inventory.moromi_to_press().is_some(),
+        Some(pressing) => (client.inventory.can_press(pressing, &world.herbs)).is_some(),
+        None => false,
+    };
+    if !can {
         debug!("Not pressing oil: nothing chosen, too little, or no empty bottle");
         client.pressing = None;
         return (true, 0);
@@ -68,6 +71,9 @@ pub(super) fn land_press(client: &mut Client, world: &mut ServerWorld) -> bool {
     let Some(pressing) = client.pressing.clone() else {
         return true;
     };
+    if pressing == Pressing::Moromi {
+        return super::press_moromi::land_moromi(client, world);
+    }
     let can = client.inventory.can_press(&pressing, &world.herbs);
     let bottle = client.inventory.empty_bottle();
     let (Some(oil), Some(bottle)) = (can, bottle) else {
@@ -89,11 +95,7 @@ pub(super) fn land_press(client: &mut Client, world: &mut ServerWorld) -> bool {
         crate::ground::put_down(client, world, item);
         client.ground_told.again = true;
     }
-    if let Some(skill) = SkillId::find(ALCHEMY) {
-        let amount = client.learning.skills.take(skill, PRESS_PRACTICE, tick);
-        client.sheet.skills.practise(skill, amount);
-        client.sheet.skills.used(skill, client.activity.played);
-    }
+    practise_pressing(client, tick, 1);
     client.unsaved = true;
     client.update_speed(tick);
     let told = client.send_inventory()
@@ -110,6 +112,15 @@ pub(super) fn land_press(client: &mut Client, world: &mut ServerWorld) -> bool {
     let (stayed, cost) = start_press(client, world);
     client.energy.spend(tick, client.speed, cost);
     stayed
+}
+
+/// Alchemy practised for `bottles` pressed.
+pub(super) fn practise_pressing(client: &mut Client, tick: u64, bottles: u32) {
+    if let Some(skill) = SkillId::find(ALCHEMY) {
+        let amount = (client.learning.skills).take(skill, PRESS_PRACTICE * bottles, tick);
+        client.sheet.skills.practise(skill, amount);
+        client.sheet.skills.used(skill, client.activity.played);
+    }
 }
 
 /// Takes `pressing` one at a time, smallest stacks first, until at least

@@ -13,6 +13,7 @@ use shared::rng::Seed;
 const MILK: Rgb = Rgb(246, 242, 228);
 /// Honey's.
 const HONEY: Rgb = Rgb(222, 150, 30);
+const SOY_SAUCE: Rgb = Rgb(60, 28, 12);
 
 /// The most the steps added up (helpful minus harmful) count for lightness.
 pub(super) const MOST_NET: i16 = 12;
@@ -110,6 +111,11 @@ impl LiquidLook {
             })),
             Liquid::Honey(_) => Some(plain(Base::Juice {
                 colour: HONEY,
+                cordial: false,
+            })),
+            // Dark brown, almost black (cooking plan PR 12).
+            Liquid::SoySauce => Some(plain(Base::Juice {
+                colour: SOY_SAUCE,
                 cordial: false,
             })),
         }

@@ -2,9 +2,10 @@
 //! vegetables pressed into an empty bottle. What can be pressed and into
 //! which oil, how much a bottle takes, how long it takes, and what the
 //! player has enough of. The server decides; the client lists the choices
-//! with the same rules.
+//! with the same rules. Moromi is pressed with it too, into bottles of soy
+//! sauce (cooking plan PR 12: `press_moromi.rs`).
 
-use super::{BottleForm, Liquid, Oil};
+use super::{Liquid, Oil};
 use crate::energy::ACTION_TICKS_PER_SECOND;
 use crate::fruit::{FruitSet, Fruits};
 use crate::herb::{Herbs, cube_root, skill_percent, skill_value};
@@ -28,12 +29,17 @@ pub enum Pressing {
     Fruit(String),
     Vegetable(String),
     Herb(String),
+    /// Any moromi carried, one whole at a time, into soy sauce.
+    Moromi,
 }
 
 impl Pressing {
     /// What pressing this item would be, if it is something that can be
     /// pressed (`oil`).
     pub fn of(item: &Item, herbs: &Herbs) -> Option<Self> {
+        if crate::food::soy_sauce_bottles(item) > 0 {
+            return Some(Self::Moromi);
+        }
         let pressing = match item.form.as_ref()? {
             ItemForm::Fruit(form) => Self::Fruit(form.fruit.clone()),
             ItemForm::Vegetable(form) => Self::Vegetable(form.vegetable.clone()),
@@ -67,6 +73,15 @@ impl Pressing {
                 let def = herbs.get(key)?;
                 (def.part == crate::herb::Part::Seeds).then_some(Oil::Seed)
             }
+            Self::Moromi => None,
+        }
+    }
+
+    /// What it fills bottles with: its oil, or moromi's soy sauce.
+    pub fn liquid(&self, herbs: &Herbs) -> Option<Liquid> {
+        match self {
+            Self::Moromi => Some(Liquid::SoySauce),
+            _ => self.oil(herbs).map(Liquid::Oil),
         }
     }
 
@@ -76,6 +91,7 @@ impl Pressing {
             (Self::Fruit(key), Some(ItemForm::Fruit(form))) => form.fruit == *key,
             (Self::Vegetable(key), Some(ItemForm::Vegetable(form))) => form.vegetable == *key,
             (Self::Herb(key), Some(ItemForm::Herb(form))) => form.herb == *key,
+            (Self::Moromi, _) => crate::food::soy_sauce_bottles(item) > 0,
             _ => false,
         }
     }
@@ -105,18 +121,16 @@ pub fn press_ticks(skills: &Skills) -> u64 {
 }
 
 /// The bottle `item` holding `oil`, keeping its look.
-pub fn pressed(mut item: Item, oil: Oil) -> Item {
-    let look = item.bottle().map_or(0, |bottle| bottle.look);
-    let liquid = Some(Liquid::Oil(oil));
-    item.form = Some(ItemForm::Bottle(BottleForm::new(liquid, look)));
-    item
+pub fn pressed(item: Item, oil: Oil) -> Item {
+    super::pressed_into(item, Liquid::Oil(oil))
 }
 
 /// One thing the player could press now, for choosing.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PressChoice {
     pub pressing: Pressing,
-    pub oil: Oil,
+    /// An oil, or soy sauce.
+    pub liquid: Liquid,
     /// One of its stacks, to show and to ask with.
     pub stack: Id,
     /// How many of it are carried.
@@ -156,10 +170,7 @@ impl Inventory {
     /// Everything that could be pressed now, a bottle's worth at least, in the
     /// order first found (own grid first). Empty if no empty bottle is carried.
     pub fn press_choices(&self, herbs: &Herbs) -> Vec<PressChoice> {
-        let empty: u32 = self
-            .stacks_where(|item| item.bottle().is_some_and(BottleForm::is_empty))
-            .map(|(stack, _)| stack.count())
-            .sum();
+        let empty = self.empty_bottle_count();
         let mut choices: Vec<PressChoice> = Vec::new();
         for (stack, _) in self.stacks_where(|_| true) {
             let Some(pressing) = Pressing::of(stack.top(), herbs) else {
@@ -168,18 +179,22 @@ impl Inventory {
             if choices.iter().any(|choice| choice.pressing == pressing) {
                 continue;
             }
-            let Some(oil) = pressing.oil(herbs) else {
+            let Some(liquid) = pressing.liquid(herbs) else {
                 continue;
             };
             let count = self
                 .stacks_where(|item| pressing.is(item))
                 .map(|(stack, _)| stack.count())
                 .sum();
-            let bottles = (self.grams_of(&pressing) / grams_per_bottle(oil)).min(empty);
+            let bottles = match pressing.oil(herbs) {
+                Some(oil) => self.grams_of(&pressing) / grams_per_bottle(oil),
+                None => self.soy_sauce_carried(),
+            };
+            let bottles = bottles.min(empty);
             if bottles > 0 {
                 choices.push(PressChoice {
                     pressing,
-                    oil,
+                    liquid,
                     stack: stack.id,
                     count,
                     bottles,

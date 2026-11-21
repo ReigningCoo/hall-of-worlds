@@ -29,7 +29,7 @@ pub fn food_name(source: Source, key: &str) -> String {
         Source::Egg if key == "chicken" => Some("Egg".to_owned()),
         Source::Egg => Some(crate::farmyard::egg_name(key)),
         Source::Honey => Some(honey_name(key)),
-        Source::Part => None,
+        Source::Part | Source::Pantry => None,
     };
     named.unwrap_or_else(|| words(key))
 }

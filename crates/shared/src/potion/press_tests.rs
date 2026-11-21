@@ -79,7 +79,7 @@ fn choices_need_a_bottles_worth_and_an_empty_bottle() {
     let choices = two.press_choices(&herbs);
     assert_eq!(choices.len(), 1);
     assert_eq!(choices[0].pressing, walnuts);
-    assert_eq!(choices[0].oil, Oil::Nut);
+    assert_eq!(choices[0].liquid, Liquid::Oil(Oil::Nut));
     assert_eq!(choices[0].count, enough * 3);
     assert_eq!(choices[0].bottles, 2, "as many as the empty bottles");
     assert_eq!(two.can_press(&walnuts, &herbs), Some(Oil::Nut));

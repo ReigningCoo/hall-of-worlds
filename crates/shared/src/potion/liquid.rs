@@ -95,6 +95,8 @@ pub enum Liquid {
     Milk(String),
     /// Honey, by the animal that made it (`livestock`'s key: `honeybee`).
     Honey(String),
+    /// Soy sauce, pressed from moromi (`shared::food`, cooking plan PR 12).
+    SoySauce,
     // New liquids go at the end: messages carry one by its place in this list.
 }
 
@@ -112,6 +114,7 @@ impl Liquid {
             Self::Alcohol => LiquidKind::Alcohol,
             Self::Milk(_) => LiquidKind::Milk,
             Self::Honey(_) => LiquidKind::Honey,
+            Self::SoySauce => LiquidKind::SoySauce,
         }
     }
 
@@ -185,6 +188,8 @@ pub enum LiquidKind {
     Milk,
     /// Honey.
     Honey,
+    /// Soy sauce.
+    SoySauce,
 }
 
 impl LiquidKind {
@@ -204,6 +209,7 @@ impl LiquidKind {
                 Self::Alcohol,
                 Self::Milk,
                 Self::Honey,
+                Self::SoySauce,
             ])
             .collect()
     }
@@ -221,6 +227,7 @@ impl LiquidKind {
             Self::Alcohol => "Pure Alcohol",
             Self::Milk => "Milk",
             Self::Honey => "Honey",
+            Self::SoySauce => "Soy Sauce",
         }
     }
 }

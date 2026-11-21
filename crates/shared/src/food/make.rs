@@ -18,8 +18,7 @@ pub fn food_item(
     id: Id,
     made_at: Option<MadeAt>,
 ) -> Item {
-    let tools = &output.history.tools;
-    let rest = Rest::of(&output.dish, &output.portions, tools, ingredients);
+    let rest = Rest::of(output, ingredients);
     let mut form = FoodForm {
         dish: output.dish.clone(),
         portions: output.portions.clone(),

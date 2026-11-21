@@ -9,7 +9,6 @@ use bevy::prelude::*;
 use shared::cooking::Ingredients;
 use shared::id::Id;
 use shared::item::{Inventory, Item, ItemKind};
-use shared::item_form::ItemForm;
 use shared::potion::Liquid;
 use shared::pour::{BOTTLE_ML, Held};
 
@@ -73,14 +72,6 @@ fn carried_stack(carried: &Inventory, id: Id) -> Option<&Item> {
     (!carried.is_worn(id)).then(|| carried.find(id)).flatten()
 }
 
-/// Whether `form` is a container of a liquid.
-fn is_container(form: &ItemForm) -> bool {
-    matches!(
-        form,
-        ItemForm::Bottle(_) | ItemForm::Vessel(_) | ItemForm::Cask(_)
-    )
-}
-
 /// The water, milk or honey `item` holds, if any.
 fn cooking_liquid(item: &Item) -> Option<Liquid> {
     let liquid = Held::of(item)?.liquid?;
@@ -106,9 +97,7 @@ pub(super) fn takes(carried: &Inventory, kitchen: &KitchenNow, place: Place, id:
     let top = stack.top();
     match place {
         Place::Source(_) | Place::Faced(_) => false,
-        Place::Food(..) => (top.form.as_ref())
-            .filter(|form| !is_container(form))
-            .is_some_and(|form| Ingredients::built_in().of_form(form).is_some()),
+        Place::Food(..) => Ingredients::built_in().of_item(top).is_some(),
         Place::Liquid(..) => cooking_liquid(top).is_some(),
         Place::Culture => top.yeast().is_some(),
     }

@@ -2,7 +2,7 @@
 //! wild, poorer and slower; a matching culture does best, any other strain
 //! helps (koji: ordinary yeast works, a koji culture does better). A culture
 //! is taken from a good product as yeast is: a yoghurt gives a yoghurt
-//! culture of its quality.
+//! culture of its quality, soybean koji a koji culture.
 
 use serde::{Deserialize, Serialize};
 
@@ -39,14 +39,17 @@ pub fn turned_quality(base: Quality, culture: Option<Culture>, wants: Option<Str
     }
 }
 
-/// A culture sampled from `item`, a yoghurt: a fresh Yeast item of the
-/// yoghurt strain at its quality. `None` from anything else.
+/// A culture sampled from `item`, a yoghurt or soybean koji: a fresh Yeast
+/// item of the yoghurt or koji strain at its quality. `None` from anything
+/// else.
 pub fn culture_from(item: &Item, id: Id, made_at: Option<MadeAt>) -> Option<Item> {
     let rest = item.food()?.rest.as_ref()?;
-    if rest.kind != Rest::Yoghurt {
-        return None;
-    }
+    let strain = match rest.kind {
+        Rest::Yoghurt => Strain::Yoghurt,
+        Rest::Koji => Strain::Koji,
+        _ => return None,
+    };
     let mut culture = crate::yeast::new_item(item.quality.unwrap_or_default(), id, made_at);
-    culture.yeast_mut()?.strain = Strain::Yoghurt;
+    culture.yeast_mut()?.strain = strain;
     Some(culture)
 }

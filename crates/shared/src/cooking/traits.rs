@@ -17,6 +17,9 @@ pub enum Source {
     Egg,
     Honey,
     Part,
+    /// Kitchen staples made rather than grown, by key (`PANTRY`): salt,
+    /// soy sauce (cooking plan PR 12).
+    Pantry,
 }
 
 /// What an ingredient is in a dish. A dish is classified by its tool steps
