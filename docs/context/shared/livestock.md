@@ -30,6 +30,7 @@ The animals people keep (owner's research, 2026-11-19): a table of data with loo
 - `Hide { name, cure, cured, lowest, highest, young, note }`: `Cure::Leather` or `Pelt` (furry, decision 7), a `YoungHide` (calfskin, lambskin, kidskin), none for birds and insects; `HIDE_ROTS_AFTER_SECONDS` (7 h, decision 8; salt stops it).
 - `Parts { organs, fats, others }`: `built_in()`, `read(text, animals)` (checked against the animals), `organs_of(def)`, `fats_of(def)`, `others_of(def)`. `Organ { key, name, from, except, only, food, effects, other, base, stone, bottled, quest }` (`effects` herb `Effect`s, proposed; decision 10 leaves Alchemy's use open; `bottled` blood, decision 12), `Fat { key, name, from, rendered_from, note }` (every fat an ointment base, decision 11), `Part { key, name, from, only, uses }`; `Animals` (`All` mammals and birds, `Mammals`, `Birds`, `Ruminants`, `Animal(key)`), `Only` (`Young`, `Old`, `IntactMale`, `Fattened`, `GrowingAntlers`), `comes_from(def)` ignoring `only`.
 - `organ_chance(base, stone, butchery) -> u32` out of `OUT_OF` (10,000): base + (95 − base) × Butchery%, a stone base × 0.5 to 1.5 (decision 9).
+- `LivestockDef::gives(product)`, `egg_grams()`: in `shared::farmyard` (`farmyard/animals.rs`).
 - `Livestock`: `built_in()`, `read(ron_text)` (each checked; keys and kinds once; variants of a row that is no variant), `new(defs)`, `get(key)`, `by_kind(kind)`, `variants(key)`, `iter`, `len`.
 
 ## Depends on
@@ -38,7 +39,7 @@ The animals people keep (owner's research, 2026-11-19): a table of data with loo
 
 ## Used by
 
-- `body` (`Stage` for `Layout::of_stage`), `mob` (`EntityLook::stage`; `wild_spawns` from wild forms, feral herds, stages and `age_hours`, PR 7), server `entities/sync.rs` (`stage_of`), client `item_art` and `entities`. `mob::site_spawns` (kept animals by `kept` biomes, PR 8). Production will read the rest.
+- `body` (`Stage` for `Layout::of_stage`), `mob` (`EntityLook::stage`; `wild_spawns` from wild forms, feral herds, stages and `age_hours`, PR 7), server `entities/sync.rs` (`stage_of`), client `item_art` and `entities`. `mob::site_spawns` (kept animals by `kept` biomes, PR 8). `farmyard` (milk, egg and honey items by the animals giving them). Production will read the rest.
 
 ## Notes
 

@@ -20,6 +20,9 @@ pub enum ItemKind {
     /// A sack of flour milled from a grain (`shared::flour`), counted: which
     /// grain is in its form.
     Flour,
+    /// An egg (`shared::farmyard`), counted: which animal laid it is in its
+    /// form.
+    Egg,
     /// A log of a tree's wood, felled (`shared::woodcutting`): which wood is in
     /// its form.
     Log,

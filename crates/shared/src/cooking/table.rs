@@ -7,6 +7,7 @@ use std::sync::LazyLock;
 
 use super::{IngredientDef, Source};
 use crate::item_form::ItemForm;
+use crate::potion::Liquid;
 
 /// The ingredients built into the game, as written.
 const BUILT_IN: &str = include_str!("ingredients.ron");
@@ -68,8 +69,9 @@ impl Ingredients {
     }
 
     /// What an item with this form is as an ingredient: herbs, fruit,
-    /// vegetables and fungi by their key, flour as its grain. `None` for
-    /// anything else (and for a server's own herbs, which have no row).
+    /// vegetables and fungi by their key, flour as its grain, eggs by their
+    /// animal, and a bottle, vessel or cask by the milk or honey in it. `None`
+    /// for anything else (and for a server's own herbs, which have no row).
     pub fn of_form(&self, form: &ItemForm) -> Option<&IngredientDef> {
         match form {
             ItemForm::Herb(herb) => self.get(Source::Herb, &herb.herb),
@@ -77,6 +79,20 @@ impl Ingredients {
             ItemForm::Vegetable(vegetable) => self.get(Source::Vegetable, &vegetable.vegetable),
             ItemForm::Fungus(fungus) => self.get(Source::Fungus, &fungus.fungus),
             ItemForm::Flour(flour) => self.get(Source::Vegetable, &flour.grain),
+            ItemForm::Egg(egg) => self.get(Source::Egg, &egg.animal),
+            ItemForm::Bottle(bottle) => self.of_liquid(bottle.liquid.as_ref()?),
+            ItemForm::Vessel(vessel) => self.of_liquid(vessel.liquid.as_ref()?),
+            ItemForm::Cask(cask) => self.of_liquid(cask.liquid.as_ref()?),
+            _ => None,
+        }
+    }
+
+    /// What a liquid is as an ingredient: milk and honey by their animal.
+    /// `None` for any other so far.
+    pub fn of_liquid(&self, liquid: &Liquid) -> Option<&IngredientDef> {
+        match liquid {
+            Liquid::Milk(animal) => self.get(Source::Milk, animal),
+            Liquid::Honey(animal) => self.get(Source::Honey, animal),
             _ => None,
         }
     }

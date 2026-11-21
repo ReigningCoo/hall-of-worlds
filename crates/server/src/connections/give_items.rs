@@ -6,6 +6,7 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::farmyard::dev_animal;
 use shared::flour::dev_flour;
 use shared::fruit::dev_fruit;
 use shared::fungus::dev_fungus;
@@ -142,6 +143,14 @@ fn count_made(
             let def = def.ok_or(Refused(Field::Material))?;
             let flour = shared::flour::new_item(def, 1, new_id(), made_at);
             return flour.ok_or(Refused(Field::Material));
+        }
+        if batch.order.kind == ItemKind::Egg {
+            // An animal's egg, chosen as flour is (`farmyard::dev_animal`).
+            let product = shared::livestock::Product::Egg;
+            let def = dev_animal(product, batch.herb.as_deref(), seed);
+            let def = def.ok_or(Refused(Field::Material))?;
+            let egg = shared::farmyard::new_egg(def, 1, new_id(), made_at);
+            return egg.ok_or(Refused(Field::Material));
         }
         try_make_item(&batch.order, wearer, new_id(), seed, made_at, &mut new_id)
     };

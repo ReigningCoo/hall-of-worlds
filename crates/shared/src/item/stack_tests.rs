@@ -550,6 +550,7 @@ fn counted_kinds_are_plain() {
                 | ItemKind::Vegetable
                 | ItemKind::Fungus
                 | ItemKind::Flour
+                | ItemKind::Egg
                 | ItemKind::Yeast
                 | ItemKind::Kindling
                 | ItemKind::Ointment

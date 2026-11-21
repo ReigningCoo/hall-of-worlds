@@ -13,6 +13,7 @@ mod coin;
 mod colours;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
+mod egg;
 mod flour;
 mod food;
 mod footwear;
@@ -54,6 +55,7 @@ pub use cask::{CaskMesh, cask_mesh, cask_radius_share, height_of as cask_height}
 pub use character::{character_look, character_look_at, portrait_look};
 pub use clothing::ClothingLook;
 pub use colours::Colours;
+pub use egg::EggLook;
 pub use flour::FlourLook;
 pub use footwear::FootwearLook;
 pub use fruit::{FRUIT_VARIANTS, FruitItemLook};
@@ -84,6 +86,7 @@ mod parts;
 mod pictures;
 mod samples;
 mod scale;
+mod setting_look;
 mod sheet;
 mod spawn;
 

@@ -9,6 +9,11 @@ use shared::herb::{Rgb, Stat};
 use shared::potion::{BottleForm, Contents, Dose, Liquid, Oil, Water};
 use shared::rng::Seed;
 
+/// Milk's colour in a bottle.
+const MILK: Rgb = Rgb(246, 242, 228);
+/// Honey's.
+const HONEY: Rgb = Rgb(222, 150, 30);
+
 /// The most the steps added up (helpful minus harmful) count for lightness.
 pub(super) const MOST_NET: i16 = 12;
 /// The most all the steps together count for how see-through it is.
@@ -97,6 +102,16 @@ impl LiquidLook {
             Liquid::Vinegar(base) => Some(plain(brewed(base, true))),
             // As clear as water.
             Liquid::Alcohol => Some(plain(Base::Water(Water::Plain))),
+            // Drawn as a juice is, in their own colours: creamy milk, amber
+            // honey (cooking plan PR 3).
+            Liquid::Milk(_) => Some(plain(Base::Juice {
+                colour: MILK,
+                cordial: false,
+            })),
+            Liquid::Honey(_) => Some(plain(Base::Juice {
+                colour: HONEY,
+                cordial: false,
+            })),
         }
     }
 

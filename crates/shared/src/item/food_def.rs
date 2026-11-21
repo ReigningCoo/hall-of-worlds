@@ -7,6 +7,22 @@ use super::item_def::plain;
 use super::{ItemDef, ItemKind, Shape};
 
 impl ItemKind {
+    /// Whether its row is here: food, flour, eggs and yeast.
+    pub(super) const fn has_food_row(self) -> bool {
+        matches!(
+            self,
+            Self::Fruit
+                | Self::Vegetable
+                | Self::Fungus
+                | Self::Flour
+                | Self::Egg
+                | Self::Yeast
+                | Self::Bread
+                | Self::DwarvenBread
+                | Self::RawMeat
+        )
+    }
+
     pub(super) const fn food_def(self) -> ItemDef {
         let def = match self {
             Self::Bread => plain("Bread", 300, Shape::rectangle(2, 1)),
@@ -24,6 +40,10 @@ impl ItemKind {
             // Counted, a stack keying on its grain (`shared::flour`): its form
             // says its name and weight. Not eaten as it is.
             Self::Flour => plain("Flour", 29, Shape::rectangle(1, 1)).counted(),
+            // Counted, a stack keying on the animal that laid it
+            // (`shared::farmyard`): its form says its name and weight. Not
+            // eaten as it is.
+            Self::Egg => plain("Egg", 55, Shape::rectangle(1, 1)).counted(),
             // Each its own item, not counted, with quality (`shared::yeast`):
             // a small lidded crock of starter.
             Self::Yeast => return plain("Yeast", 250, Shape::rectangle(1, 1)),

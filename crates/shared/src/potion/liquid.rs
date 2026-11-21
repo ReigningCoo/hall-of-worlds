@@ -90,6 +90,11 @@ pub enum Liquid {
     /// Pure alcohol, distilled in the Alembic (`shared::alchemy`, Alchemy plan
     /// PR 5): a Mortar's solvent for a tincture, or fed to an Alembic.
     Alcohol,
+    /// An animal's milk, by `livestock`'s animal key (`shared::farmyard`,
+    /// cooking plan PR 3).
+    Milk(String),
+    /// Honey, by the animal that made it (`livestock`'s key: `honeybee`).
+    Honey(String),
     // New liquids go at the end: messages carry one by its place in this list.
 }
 
@@ -105,6 +110,8 @@ impl Liquid {
             Self::Drink(_) => LiquidKind::Drink,
             Self::Vinegar(_) => LiquidKind::Vinegar,
             Self::Alcohol => LiquidKind::Alcohol,
+            Self::Milk(_) => LiquidKind::Milk,
+            Self::Honey(_) => LiquidKind::Honey,
         }
     }
 
@@ -140,6 +147,8 @@ impl Liquid {
         match self {
             Self::Drink(drink) => return drink.name(),
             Self::Vinegar(base) => return base.vinegar_name().to_owned(),
+            Self::Milk(animal) => return crate::farmyard::milk_name(animal),
+            Self::Honey(animal) => return crate::farmyard::honey_name(animal),
             _ => {}
         }
         let kind = self.kind().name();
@@ -172,6 +181,10 @@ pub enum LiquidKind {
     Vinegar,
     /// Pure alcohol.
     Alcohol,
+    /// Some animal's milk: Give Item rolls the animal.
+    Milk,
+    /// Honey.
+    Honey,
 }
 
 impl LiquidKind {
@@ -189,6 +202,8 @@ impl LiquidKind {
                 Self::Drink,
                 Self::Vinegar,
                 Self::Alcohol,
+                Self::Milk,
+                Self::Honey,
             ])
             .collect()
     }
@@ -204,6 +219,8 @@ impl LiquidKind {
             Self::Drink => "Drink",
             Self::Vinegar => "Vinegar",
             Self::Alcohol => "Pure Alcohol",
+            Self::Milk => "Milk",
+            Self::Honey => "Honey",
         }
     }
 }

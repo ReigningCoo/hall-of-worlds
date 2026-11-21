@@ -30,14 +30,7 @@ impl ItemKind {
                 Self::Boots | Self::Clogs | Self::Sandals | Self::Shoes | Self::Slippers => {
                     self.feet_def()
                 }
-                Self::Fruit
-                | Self::Vegetable
-                | Self::Fungus
-                | Self::Flour
-                | Self::Yeast
-                | Self::Bread
-                | Self::DwarvenBread
-                | Self::RawMeat => self.food_def(),
+                _ if self.has_food_row() => self.food_def(), // `food_def.rs`
                 Self::Log | Self::Kindling => self.wood_def(), // `wood_def.rs`
                 // Bags, boxes and backpacks: in `bag_def.rs`.
                 Self::Backpack
@@ -245,15 +238,8 @@ impl ItemKind {
             };
         // First guesses at how much work each is beside the usual.
         def.taking(match self {
-            Self::Fruit
-            | Self::Vegetable
-            | Self::Fungus
-            | Self::Flour
-            | Self::Yeast
-            | Self::Bread
-            | Self::DwarvenBread
-            | Self::RawMeat
-            | Self::Stone => 10,
+            _ if self.has_food_row() => 10,
+            Self::Stone => 10,
             _ if self.coin_value().is_some() => 10,
             Self::Ring
             | Self::Pouch

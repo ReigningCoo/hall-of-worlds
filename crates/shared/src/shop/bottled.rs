@@ -1,6 +1,7 @@
 //! What a shop's bottles hold: Herbalists and Potion Shops sell waters (never
-//! Salt Water or Rain Water) and oils (brewing plan, owner, 2026-11-17); which vessels a
-//! shop makes (drinks plan PR 2).
+//! Salt Water or Rain Water) and oils (brewing plan, owner, 2026-11-17),
+//! Herbalists milk and honey too (cooking plan PR 3); which vessels a shop
+//! makes (drinks plan PR 2).
 
 use crate::item::ItemKind;
 use crate::item_form::RollRequest;
@@ -19,10 +20,25 @@ const BREWERS: &[LiquidKind] = &[
     LiquidKind::Oil(Oil::Seed),
 ];
 
+/// A herbalist's: the brewers' and, until towns have farm shops or general
+/// stores, milk and honey (the animal suited to the town by the server).
+const HERBALISTS: &[LiquidKind] = &[
+    LiquidKind::Water(Water::Plain),
+    LiquidKind::Water(Water::Cave),
+    LiquidKind::Water(Water::Moon),
+    LiquidKind::Oil(Oil::Neutral),
+    LiquidKind::Oil(Oil::Grain),
+    LiquidKind::Oil(Oil::Nut),
+    LiquidKind::Oil(Oil::Seed),
+    LiquidKind::Milk,
+    LiquidKind::Honey,
+];
+
 /// The liquids a kind of building's bottles hold: none if it sells no bottles.
 pub fn bottled(kind: BuildingKind) -> &'static [LiquidKind] {
     match kind {
-        BuildingKind::Herbalist | BuildingKind::PotionShop => BREWERS,
+        BuildingKind::Herbalist => HERBALISTS,
+        BuildingKind::PotionShop => BREWERS,
         _ => &[],
     }
 }

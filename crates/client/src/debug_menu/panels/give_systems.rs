@@ -151,6 +151,11 @@ pub(in crate::debug_menu) fn press_give_button(
 pub(super) fn takes_herb(kind: ItemKind) -> bool {
     matches!(
         kind,
-        ItemKind::Herb | ItemKind::Fruit | ItemKind::Vegetable | ItemKind::Fungus | ItemKind::Flour
+        ItemKind::Herb
+            | ItemKind::Fruit
+            | ItemKind::Vegetable
+            | ItemKind::Fungus
+            | ItemKind::Flour
+            | ItemKind::Egg
     )
 }

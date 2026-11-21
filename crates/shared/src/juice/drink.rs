@@ -52,13 +52,13 @@ pub fn drink_effect(liquid: &Liquid, ml: u32, now: u64) -> Option<Effect> {
 }
 
 impl Liquid {
-    /// Whether it can be drunk: a water, a juice, a cordial or a fermented
-    /// drink (potions are drunk their own way, `brewing::drunk`; oil and
+    /// Whether it can be drunk: a water, a juice, a cordial, a fermented
+    /// drink or milk (which does nothing yet, as water; potions are drunk their own way, `brewing::drunk`; oil and
     /// vinegar can't be).
     pub fn is_drink(&self) -> bool {
         matches!(
             self,
-            Self::Water(_) | Self::Juice(_) | Self::Cordial(_) | Self::Drink(_)
+            Self::Water(_) | Self::Juice(_) | Self::Cordial(_) | Self::Drink(_) | Self::Milk(_)
         )
     }
 }

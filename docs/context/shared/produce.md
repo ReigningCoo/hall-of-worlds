@@ -13,11 +13,11 @@ Fruit, nuts, vegetables, pulses and grains suiting a place, for what town shops 
 - `fruit_for(fruits, habitat, source, seed)`: grown ones by `orchard_weight`; foraged ones from `fruit::wild_fruits` by `wild_weight`, else grown ones.
 - `vegetable_for(vegetables, habitat, source, seed)`: grown ones from `vegetable::field_crops` (the farms' crops there); foraged ones from what grows wild in the biome (`wild_crops` and `wild_only_vegetables`), else those crops; both by `choose_wild`'s weights (the commoner more often).
 - `flour_grain_for(vegetables, habitat, seed)`: the grain a miller there mills: one of the farms' crops there (`field_crops`) that is a grain, by `choose_wild`'s weights, else any grain.
-- `suit_to_place(item, habitat, source)`: a Fruit, Vegetable or Flour item made one of those, chosen from its id's seed (its look too), its count kept; anything else untouched.
+- `suit_to_place(item, habitat, source)`: a Fruit, Vegetable, Flour or Egg item made one of those, and the milk or honey in a bottle, vessel or cask an animal's kept there (`farmyard::animal_for`), chosen from its id's seed (its look too), its count kept; anything else untouched.
 
 ## Depends on
 
-- `fruit`, `vegetable`, `flour` (`FlourForm`), `mob` (`Habitat`), `item`, `item_form` (`ItemForm::Fruit`, `Vegetable`), `rng`; tests use `herb::climate_tests::extremes`.
+- `fruit`, `vegetable`, `flour` (`FlourForm`), `farmyard` (`animal_for`, `EggForm`), `livestock` (`Product`), `potion` (`Liquid`), `mob` (`Habitat`), `item`, `item_form` (`ItemForm::Fruit`, `Vegetable`), `rng`; tests use `herb::climate_tests::extremes`.
 
 ## Used by
 

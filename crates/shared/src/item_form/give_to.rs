@@ -15,6 +15,7 @@ use crate::blade;
 use crate::creature::Size;
 use crate::id::Id;
 use crate::item::{Item, ItemKind, Made, MadeAt, Quality};
+use crate::livestock::Product;
 use crate::potion::bottle_to;
 use crate::rng::Seed;
 
@@ -73,6 +74,13 @@ pub fn give_form_to(
             let def = def.expect("the built-in grains");
             let form = crate::flour::FlourForm::of(def).expect("grain mills");
             (ItemForm::Flour(form), Size::Medium)
+        }
+        // Any animal's egg, rolled from the seed (`farmyard::dev_animal`).
+        ItemKind::Egg => {
+            let def = crate::farmyard::dev_animal(Product::Egg, None, seed);
+            let def = def.expect("the built-in laying animals");
+            let form = crate::farmyard::EggForm::of(def).expect("it lays");
+            (ItemForm::Egg(form), Size::Medium)
         }
         // A log or kindling of the wood asked for, or rolled from the seed
         // (`woodcutting::dev_wood`).
