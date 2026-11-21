@@ -46,6 +46,14 @@ pub struct Element {
     pub(super) attrs: Attrs,
 }
 
+impl Element {
+    /// Which items and kinds written in its words are missing for this viewer
+    /// (its `missing`), counted from 0 in the order written.
+    pub fn missing(&self) -> Vec<usize> {
+        self.attrs.missing().unwrap_or_default()
+    }
+}
+
 /// On an element the pointer is never on, nor on anything in it (`inert`).
 #[derive(Component, Clone, Copy, Debug)]
 pub struct Inert;

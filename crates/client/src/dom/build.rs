@@ -56,9 +56,9 @@ pub(super) fn font_of(style: TextStyle) -> TextFont {
     }
 }
 
-/// Whether this writing has an item written into it.
+/// Whether this writing has an item or kind of item written into it.
 pub(super) fn has_items(words: &str) -> bool {
-    !shared::item_text::items_in(words).is_empty()
+    shared::item_text::has_tokens(words)
 }
 
 pub(super) struct Builder<'a, 'w, 's> {
@@ -81,8 +81,9 @@ impl Builder<'_, '_, '_> {
         }
     }
 
-    /// Writing in `parent`. Any items written into it (`${item:<uuid>}`) are
-    /// shown as the items, in among the words.
+    /// Writing in `parent`. Any items or kinds of item written into it
+    /// (`${item:<uuid>}`, `${kind:egg}`) are shown as pictures, in among the
+    /// words.
     pub fn words(&mut self, parent: Entity, words: &str, style: TextStyle) -> Entity {
         let items = has_items(words);
         let text = (

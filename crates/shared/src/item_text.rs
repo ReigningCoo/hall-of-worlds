@@ -3,12 +3,20 @@
 //! item; what it is called and looks like is asked of the server
 //! (`ClientMessage::LookUpItems`), so the text itself gives nothing away.
 //!
-//! Only that exact shape counts: anything else, a misspelt one included, is plain
+//! A kind of item rather than one (`${kind:egg}`, `${kind:vegetable:carrot}`) is
+//! written by `KindToken` (`item_text/kind.rs`).
+//!
+//! Only those exact shapes count: anything else, a misspelt one included, is plain
 //! text. `@name` is kept for mentioning players later.
+
+mod kind;
+mod kind_item;
 
 use uuid::Uuid;
 
 use crate::id::Id;
+
+pub use kind::{KIND_START, KindToken, kind_at};
 
 /// What starts an item in text.
 pub const ITEM_START: &str = "${item:";
@@ -17,11 +25,29 @@ pub const ITEM_END: char = '}';
 /// How long the id between them is: the hyphenated form of a UUID.
 const ID_LENGTH: usize = 36;
 
-/// A part of some text: plain words, or an item.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+/// A part of some text: plain words, an item, or a kind of item.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Piece<'a> {
     Text(&'a str),
     Item(Id),
+    Kind(KindToken),
+}
+
+/// What is written in text as one whole: an item, or a kind of item.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Token {
+    Item(Id),
+    Kind(KindToken),
+}
+
+impl Token {
+    /// How it is written.
+    pub fn token(&self) -> String {
+        match self {
+            Self::Item(id) => item_token(*id),
+            Self::Kind(kind) => kind.token(),
+        }
+    }
 }
 
 /// How an item is written into text.
@@ -43,29 +69,46 @@ pub fn item_at(text: &str) -> Option<(Id, usize)> {
     Some((Id(uuid), ITEM_START.len() + ID_LENGTH + 1))
 }
 
-/// The text in order as plain words and items. Neighbouring words are one piece,
-/// and there are no empty ones.
+/// The item or kind of item written at the start of `text`, and how many bytes
+/// it takes.
+pub fn token_at(text: &str) -> Option<(Token, usize)> {
+    if let Some((id, length)) = item_at(text) {
+        return Some((Token::Item(id), length));
+    }
+    kind_at(text).map(|(kind, length)| (Token::Kind(kind), length))
+}
+
+/// The text in order as plain words, items and kinds of item. Neighbouring
+/// words are one piece, and there are no empty ones.
 pub fn pieces(text: &str) -> Vec<Piece<'_>> {
     let mut pieces = Vec::new();
     let (mut start, mut at) = (0, 0);
-    while let Some(found) = text[at..].find(ITEM_START) {
+    while let Some(found) = text[at..].find("${") {
         at += found;
-        match item_at(&text[at..]) {
-            Some((id, length)) => {
+        match token_at(&text[at..]) {
+            Some((token, length)) => {
                 if start < at {
                     pieces.push(Piece::Text(&text[start..at]));
                 }
-                pieces.push(Piece::Item(id));
+                pieces.push(match token {
+                    Token::Item(id) => Piece::Item(id),
+                    Token::Kind(kind) => Piece::Kind(kind),
+                });
                 at += length;
                 start = at;
             }
-            None => at += ITEM_START.len(),
+            None => at += 2,
         }
     }
     if start < text.len() {
         pieces.push(Piece::Text(&text[start..]));
     }
     pieces
+}
+
+/// Whether anything is written in the text as a whole: an item or a kind.
+pub fn has_tokens(text: &str) -> bool {
+    (pieces(text).iter()).any(|piece| !matches!(piece, Piece::Text(_)))
 }
 
 /// Every item written in the text, each once, in the order first written.
@@ -81,5 +124,7 @@ pub fn items_in(text: &str) -> Vec<Id> {
     items
 }
 
+#[cfg(test)]
+mod kind_tests;
 #[cfg(test)]
 mod tests;

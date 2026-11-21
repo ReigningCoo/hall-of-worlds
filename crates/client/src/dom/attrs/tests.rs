@@ -84,3 +84,12 @@ fn clearing_puts_one_attribute_back() {
     assert_eq!(attrs.width, Some(Length::Pixels(40.0)));
     assert!(attrs.clear(Tag::P, "src").is_err());
 }
+
+#[test]
+fn missing_is_whole_numbers() {
+    let mut attrs = Attrs::default();
+    set(&mut attrs, Tag::P, "missing", "0 2").unwrap();
+    assert_eq!(attrs.missing(), Some(vec![0, 2]));
+    assert!(set(&mut attrs, Tag::P, "missing", "0 two").is_err());
+    assert!(set(&mut attrs, Tag::Button, "missing", "1").is_err());
+}

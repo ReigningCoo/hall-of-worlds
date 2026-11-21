@@ -39,6 +39,10 @@ pub(super) static HTML_SAMPLE: Template = html!(
     <object id="able" type="ability" for="attack"/>
   </span>
   <p id="written">Nothing carried to write of.</p>
+  <p missing="1">
+    Kinds of item: ${kind:vegetable:carrot}, ${kind:egg} (missing), ${kind:knife},
+    ${kind:oven}, ${kind:bottle:water} and ${kind:milk}.
+  </p>
   <h2>Controls</h2>
   <span>
     <button id="plain">Button</button>

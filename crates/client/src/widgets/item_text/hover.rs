@@ -1,10 +1,11 @@
-//! Naming the item in writing under the pointer, as for items anywhere.
+//! Naming the item in writing under the pointer, as for items anywhere; a kind
+//! of item by its kind's name ("Carrot", "Any egg").
 
 use bevy::prelude::*;
 use bevy::text::TextLayoutInfo;
 use bevy::ui::UiGlobalTransform;
 
-use super::inline::InlineItem;
+use super::inline::{Inline, InlineItem};
 use crate::common::{KnownItem, KnownItems};
 use crate::dom::Hit;
 use crate::widgets::item::TOOLTIP_OFFSET;
@@ -16,8 +17,13 @@ fn tip(known: Option<&KnownItem>, at: Vec2) -> ItemTip {
         Some(KnownItem::Unknown(_)) => "Unknown item",
         _ => "Finding out what this is",
     };
+    named(words.to_owned(), at)
+}
+
+/// A tip of these words.
+fn named(words: String, at: Vec2) -> ItemTip {
     ItemTip {
-        words: words.to_owned(),
+        words,
         quality: None,
         set: false,
         at: at + TOOLTIP_OFFSET,
@@ -54,7 +60,14 @@ pub(in crate::widgets) fn name_inline_items(
     let Some(item) = under else {
         return;
     };
-    match known.get(item.id) {
+    let id = match &item.what {
+        Inline::Item(id) => *id,
+        Inline::Kind { name, .. } => {
+            tooltip.0 = Some(named(name.clone(), at));
+            return;
+        }
+    };
+    match known.get(id) {
         Some(KnownItem::Found(item, _)) => {
             let (item, notes) = ((**item).clone(), String::new());
             pointed.0 = Some(Pointed { item, notes, at });

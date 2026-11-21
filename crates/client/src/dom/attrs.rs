@@ -90,6 +90,13 @@ impl Attrs {
         self.text(name).is_some()
     }
 
+    /// The items and kinds written in its words that are `missing`, counted
+    /// from 0 in the order written; `None` if any isn't a whole number.
+    pub fn missing(&self) -> Option<Vec<usize>> {
+        let written = self.text("missing").unwrap_or_default();
+        written.split_whitespace().map(|n| n.parse().ok()).collect()
+    }
+
     /// Whether it is placed in its parent by its sides, out of the flow.
     pub fn is_placed(&self) -> bool {
         self.top.is_some() || self.left.is_some() || self.right.is_some() || self.bottom.is_some()
@@ -105,6 +112,8 @@ impl Attrs {
             Some("`top` and `bottom` already give the height".into())
         } else if (tag == Tag::Progress || kind == Some("range")) && !numeric("value") {
             Some("`value` must be a number here".into())
+        } else if self.text("missing").is_some() && self.missing().is_none() {
+            Some("`missing` must be whole numbers, apart by spaces".into())
         } else {
             None
         }
