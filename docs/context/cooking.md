@@ -55,7 +55,7 @@ row 2  [Knife: onion, carrot]         â†’ [Cauldron: minced beef, wine, milk] â”
 | 1 | Plan, research and culinary roles: `shared::cooking`'s table of each raw food's roles, functions, cooking need, strength, max share and diet flags (built) | none | first |
 | 2 | New kitchen ingredients (above); plant looks, wiki pages regenerated (built) | 1 | independent |
 | 3 | Milk, Egg and Honey items (per animal, counted or by the ml as fits), sold by farms' and general shops (built: `shared::farmyard`; herbalists sell them for now) | 1 | independent |
-| 4 | Shared rules I: the grid (rows, columns, joins), tools and their sub-skills, the Cooking skill, chance and step limit (a join 1.5 steps), balance, quality with history carried by intermediates, heat needs and the Rare cap away from a hearth | 1 | in order |
+| 4 | Shared rules I: the grid (rows, columns, joins), tools and their sub-skills, the Cooking skill, chance and step limit (a join 1.5 steps), balance, quality with history carried by intermediates, heat needs and the Rare cap away from a hearth (built) | 1 | in order |
 | 5 | Shared rules II: classifying and naming (the dish patterns table, real names when close, generic otherwise, herb and spice leeway), Well Fed, diet labels, poisons carried through | 4 | in order |
 | 6 | Food items: the Dish item (form, name, tint, diet labels in the popup), intermediates with rest clocks run by warmth, eating gives Well Fed, cultures as strains on the Yeast item, ferments forming wild without one | 5 | in order |
 | 7 | Campfire and Ash (above) | none | independent |
