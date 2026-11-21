@@ -57,7 +57,7 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld) {
     }
 }
 
-/// Yeast and casks lying in players' reach let the real time pass
+/// Yeast, casks and intermediates (at the land's warmth) lying in players' reach let the real time pass
 /// (`shared::yeast`, `shared::ferment`), so what they see of them is up to
 /// date: everyone on a level where something changed that they would see is
 /// told the ground again, and its site saved; a player by a cask soon to be
@@ -69,6 +69,8 @@ fn settle_yeast(clients: &mut [Client], world: &mut ServerWorld) {
         let Some((id, index, at)) = standing_at(client) else {
             continue;
         };
+        // Intermediates rest at the land's warmth (`shared::food`).
+        let celsius = world.habitat_at(client.world_position()).celsius;
         // Unmarked: a save left with an older clock counts the same time
         // when next settled. Marked once something is seen to change.
         let Some(level) = world.site(id).levels.get_mut(&index) else {
@@ -80,6 +82,7 @@ fn settle_yeast(clients: &mut [Client], world: &mut ServerWorld) {
             let mut changed = false;
             for item in items {
                 changed |= item.settle_lying_yeast(now).seen();
+                changed |= item.settle_lying_food(now, celsius).seen();
                 let casks = item.settle_lying_casks(now);
                 changed |= casks.seen;
                 for name in casks.warned {

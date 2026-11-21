@@ -94,6 +94,8 @@ impl Client {
             return true;
         }
         let yeast = self.inventory.age_yeast(secs, now).seen();
+        // Intermediates rest too (`shared::food`), at a body's warmth.
+        let yeast = self.inventory.rest_food(secs, now).seen() || yeast;
         let casks = self.inventory.age_casks(secs, now);
         for name in casks.warned {
             if !self.link.send(&ServerMessage::VinegarSoon(name)) {

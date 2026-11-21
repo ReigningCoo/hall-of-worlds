@@ -5,7 +5,7 @@
 use crate::fermentation::Mash;
 use crate::fruit::Fruits;
 use crate::id::Id;
-use crate::item::{Inventory, Item, ItemKind, Quality};
+use crate::item::{Inventory, Item, Quality};
 use crate::potion::{Liquid, Water};
 use crate::vegetable::{VegetableSet, Vegetables};
 
@@ -61,7 +61,7 @@ impl Inventory {
     pub fn ferment_choices(&self) -> FermentChoices {
         let casks = self.stacks_where(fermentable_cask);
         let adds = self.stacks_where(fermentable_add);
-        let yeasts = self.stacks_where(|item| item.kind == ItemKind::Yeast);
+        let yeasts = self.stacks_where(|item| item.yeast().is_some_and(|y| y.strain.brews()));
         FermentChoices {
             casks: (casks.filter(|(stack, _)| stack.count() == 1))
                 .map(|(stack, _)| stack.id)

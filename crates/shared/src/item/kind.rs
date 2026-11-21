@@ -31,6 +31,12 @@ pub enum ItemKind {
     Kindling,
     /// A yeast (`shared::yeast`): each its own item, with its own clock.
     Yeast,
+    /// A dish cooked (`shared::food`), counted in servings: what it is in its
+    /// form.
+    Dish,
+    /// An intermediate (`shared::food`: dough, stock, butter, ...), each its
+    /// own item with a rest clock in its form.
+    Intermediate,
     Bread,
     DwarvenBread,
     RawMeat,

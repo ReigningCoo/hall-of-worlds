@@ -78,8 +78,9 @@ pub fn is_food(kind: ItemKind) -> bool {
 /// of its first effect: `herb::raw_dose`). Herbs aren't food: they never go on
 /// the action bar (`is_food`). Ointment counts too: used the same way (let go
 /// of on the body), it is rubbed on rather than eaten (`brewing::skin_effect`).
+/// A Dish too, for Well Fed (`food::eating`), though not on the bar yet.
 pub fn edible(kind: ItemKind) -> bool {
-    is_food(kind) || matches!(kind, ItemKind::Herb | ItemKind::Ointment)
+    is_food(kind) || matches!(kind, ItemKind::Herb | ItemKind::Ointment | ItemKind::Dish)
 }
 
 /// Whether a creature of this kind may eat it: a herb, fruit, vegetable,
@@ -92,6 +93,7 @@ pub fn may_eat(kind: ItemKind, eater: CreatureKind) -> bool {
             | ItemKind::Vegetable
             | ItemKind::Fungus
             | ItemKind::Ointment
+            | ItemKind::Dish
     ) || food(kind).is_some_and(|food| food.suits(eater) || food.others != Others::Refused)
 }
 

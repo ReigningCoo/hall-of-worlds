@@ -1,6 +1,6 @@
 # shared: cooking
 
-Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooking.md`). The culinary data of every raw food: its roles in a dish, how it is used and cooked, texture, functions, methods, flavours, strength, max share and diet flags. And a process's rules (plan PR 4): the grid of rows and tool steps (a tall step joining rows), tools and their sub-skills, chance, balance, least quality with an intermediate's history, heat and the Rare cap away from a hearth; pure functions on whole numbers, so the client's preview matches the server. And what an output is (PR 5): named after the closest real dish (a table of 219 from the research) or generically, its diet labels, Well Fed, and the poisons fungi carry into it. Not yet: items (PR 6).
+Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooking.md`). The culinary data of every raw food: its roles in a dish, how it is used and cooked, texture, functions, methods, flavours, strength, max share and diet flags. And a process's rules (plan PR 4): the grid of rows and tool steps (a tall step joining rows), tools and their sub-skills, chance, balance, least quality with an intermediate's history, heat and the Rare cap away from a hearth; pure functions on whole numbers, so the client's preview matches the server. And what an output is (PR 5): named after the closest real dish (a table of 219 from the research) or generically, its diet labels, Well Fed, and the poisons fungi carry into it. Its items are `shared::food` (PR 6).
 
 ## Files
 
@@ -50,7 +50,7 @@ Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooki
 
 ## Used by
 
-- `farmyard` (`Usage` weighting which animal's milk or eggs a town sells). The rules of cooking next (plan PRs 4 and 5).
+- `farmyard` (`Usage` weighting which animal's milk or eggs a town sells), `food` (items from outputs, Well Fed and poisons on eating, Give Item's samples planned by `plan`).
 
 ## Notes
 

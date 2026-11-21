@@ -16,6 +16,8 @@ impl ItemKind {
                 | Self::Fungus
                 | Self::Flour
                 | Self::Egg
+                | Self::Dish
+                | Self::Intermediate
                 | Self::Yeast
                 | Self::Bread
                 | Self::DwarvenBread
@@ -44,6 +46,12 @@ impl ItemKind {
             // (`shared::farmyard`): its form says its name and weight. Not
             // eaten as it is.
             Self::Egg => plain("Egg", 55, Shape::rectangle(1, 1)).counted(),
+            // Counted in servings, with quality, a stack keying on its form
+            // (`shared::food`): it says its name, cells and weight.
+            Self::Dish => return plain("Dish", 300, Shape::rectangle(2, 2)).counted(),
+            // Each its own item, not counted, with quality (`shared::food`):
+            // its form says its name and weight, its clock its quality.
+            Self::Intermediate => return plain("Intermediate", 300, Shape::rectangle(1, 1)),
             // Each its own item, not counted, with quality (`shared::yeast`):
             // a small lidded crock of starter.
             Self::Yeast => return plain("Yeast", 250, Shape::rectangle(1, 1)),

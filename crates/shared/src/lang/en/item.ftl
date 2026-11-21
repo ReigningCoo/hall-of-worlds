@@ -10,6 +10,8 @@ about-dwarven-bread = Looks and feels like a lump of stone. To a dwarf it tastes
 about-pelican = A glass flask whose two curved arms bend back into its belly: Alchemy's apparatus for circulating what came before, its vapours running back down again and again. It changes nothing in what it holds but leaves it a fifth purer, which can lift it to the next quality. Carrying one teaches Circulating.
 about-filter = A glass funnel lined with paper: Alchemy's apparatus for filtering what came before through a Powder. What both hold adds together; the rest is taken out. Carrying one teaches Filtering.
 about-egg = A whole egg in its shell, kept for cooking.
+about-dish = Cooked food, a serving at a time. Eat it for Well Fed.
+about-intermediate = Part-made food, to finish later in a new row. Some change as they rest: warmth hurries them, cold slows them.
 about-flour = Grain stone-ground into wholemeal flour, in an open hessian sack.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-paste = Herbs ground dry in a mortar. It does nothing by itself: it is a start for Alchemy, mixed with an oil or a water in a retort.
@@ -107,6 +109,19 @@ yeast-used = used since fed
 ## A starter begun from flour and water, hours until it is ready.
 yeast-starting = Starter: ready in { $hours } h
 yeast-more = and { $count } more
+
+## Cooked food (cooking): its biggest foods, its diet labels, and how an
+## intermediate is resting, in hours of rest at its usual pace.
+
+food-made-with = Made with { $foods }
+food-diet = { $labels }
+food-turns = { $into } in { $hours } h
+food-wild = setting wild
+food-cultured = with a culture
+food-proving = Proving: at its best in { $hours } h
+food-proved = At its best for { $hours } h more
+food-resting = Over-proving in { $hours } h
+food-over-proved = Over-proved
 
 item-holds = Holds { $amount } of { $most }
 item-sealed = sealed

@@ -11,6 +11,7 @@ Yeast as items (drinks plan PR 4, `docs/context/drinks.md`, owner's decisions 26
 - `yeast/feed.rs`: one yeast fed: `Window`, `Fed`, `feed`, `feed_points`, `step_up_chance`, `FEED_PRACTICE`, `BEST_BY_FEEDING`, `YeastForm::{window, feedable}`.
 - `yeast/feed_stack.rs`: a stack fed: `Supplies`, `FeedRefused`, `FeedPlan`, `plan_feeding`, `Inventory::feed_yeasts`.
 - `yeast/supplies.rs`: what feeding uses: `WATER_ML`, `fresh`, `water_portions`, `drawn`, `Inventory::{feed_supplies, water_source, empty_bottles, use_flour}`.
+- `yeast/strain.rs`: `Strain` (cooking plan PR 6).
 - `yeast/starter.rs`: `STARTS_IN`, `STARTER_PRACTICE`, `StartRefused`, `can_start`, `new_starter`. Tests also in `yeast/feed_tests.rs`.
 
 ## Public API
@@ -22,6 +23,7 @@ Yeast as items (drinks plan PR 4, `docs/context/drinks.md`, owner's decisions 26
 - Feeding (owner's decisions 29 to 31): `feed(one, fermenting, roll)` by `window()`: `Early` (under `FEED_AFTER`) splits (`Fed::Split`: progress reset, `used` set; refused while used, `feedable`); `OnTime` adds `feed_points` (10 + whole Fermenting points) and steps up by `step_up_chance` (progress in 100 at Poor, ÷ 2 at Common, ÷ 3 Uncommon..., none from `BEST_BY_FEEDING`, Legendary), progress reset on a step; `Late` only feeds. Each resets `unfed` and the use (bar a split). `plan_feeding(stack, Supplies)`: every feedable yeast, longest unfed first, a sack and 100 ml each (a split twice, and an empty bottle), skipping one the supplies can't cover; `FeedRefused` (`words()`). `Inventory::feed_yeasts(stack, plan, fermenting, roll)`: the splits' second yeasts (ids to give) and steps up.
 - Supplies: `feed_supplies(flour)` (sacks in that carried stack, fresh water portions in carried bottles (whole) and vessels (100 ml), not casks, empty bottles), `water_source()` (bottles first), `empty_bottles()`, `use_flour(stack, n)`, `drawn(container)` (after 100 ml taken), `fresh` (any water but salt).
 - Starters: `can_start(flour, bottle)` (flour on a bottle of fresh water; `StartRefused`), `new_starter(id, made_at)`: a Poor yeast developing for `STARTS_IN` (24 h of its clock), the bottle used up.
+- `Strain` (`YeastForm::strain`, default Bread, as older saves load): Bread, Yoghurt (a culture taken from a yoghurt, `food::culture_from`; never fed, `fed`), Koji (fed as yeast); `name` ("Yeast", "Yoghurt Culture", "Koji", the item's name), `brews` (only bread yeast ferments casks: `ferment`'s choices and usable yeasts). Stacks key on it too.
 - `shop_quality(rolled, rng)`: Common 95% of the time, else the shop's roll (`shop::catch_up`).
 
 ## Depends on

@@ -140,6 +140,8 @@ impl ItemKind {
             | Self::Bread
             | Self::DwarvenBread
             | Self::Egg
+            | Self::Dish
+            | Self::Intermediate
             | Self::RawMeat => Food,
             Self::CopperCoin | Self::SilverCoin | Self::GoldCoin | Self::Gem => Valuables,
             Self::Stone

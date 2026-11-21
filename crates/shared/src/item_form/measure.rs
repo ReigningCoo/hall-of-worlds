@@ -28,6 +28,7 @@ impl ItemForm {
             Self::Vessel(vessel) => Some(vessel.vessel.shape()),
             Self::Flour(flour) => Some(flour.shape()),
             Self::Egg(egg) => Some(egg.shape()),
+            Self::Food(food) => Some(food.shape()),
             Self::Log(log) => Some(log.shape()),
             Self::Kindling(kindling) => Some(kindling.shape()),
             Self::Gem(_)
@@ -75,6 +76,7 @@ impl ItemForm {
             Self::Vessel(vessel) => Some(vessel.grams()),
             Self::Flour(flour) => Some(flour.grams),
             Self::Egg(egg) => Some(egg.grams),
+            Self::Food(food) => Some(food.grams()),
             Self::Log(log) => Some(log.grams()),
             Self::Kindling(_) => Some(crate::woodcutting::KINDLING_GRAMS),
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) | Self::Yeast(_) => None,

@@ -9,7 +9,7 @@ use crate::item::{Inventory, Item, Quality};
 /// The qualities of up to `count` usable yeasts in `stack`, top first.
 pub(super) fn usable(stack: &Item, count: u32) -> Vec<Quality> {
     (stack.members().rev())
-        .filter(|one| one.yeast().is_some_and(|yeast| yeast.usable()))
+        .filter(|one| one.yeast().is_some_and(|y| y.usable() && y.strain.brews()))
         .take(count as usize)
         .map(|one| one.quality.unwrap_or_default())
         .collect()

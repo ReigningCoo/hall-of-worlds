@@ -92,6 +92,14 @@ pub fn give_form_to(
             };
             (form, Size::Medium)
         }
+        // A sample cooked by the rules, chosen from the seed (`food::dev_food`).
+        ItemKind::Dish | ItemKind::Intermediate => {
+            let form = crate::food::dev_food(item.kind, quality, seed);
+            (
+                ItemForm::Food(Box::new(form.expect("the samples cook"))),
+                Size::Medium,
+            )
+        }
         // Fed just now (`shared::yeast`).
         ItemKind::Yeast => (
             ItemForm::Yeast(crate::yeast::YeastForm::default()),

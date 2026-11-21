@@ -6,7 +6,8 @@
 //! while it lies on the ground. Feeding with flour and water (PR 8) resets the
 //! clock: early it splits, on time it gains progress towards a better quality;
 //! between feeds a yeast can be used in one thing (PR 6) without being used
-//! up. A starter can be begun from flour and a bottle of fresh water.
+//! up. A starter can be begun from flour and a bottle of fresh water. Cultures
+//! for cooking are strains of it (`Strain`: yoghurt, koji).
 
 mod clock;
 mod feed;
@@ -14,6 +15,7 @@ mod feed_stack;
 mod form;
 mod shop;
 mod starter;
+mod strain;
 mod supplies;
 
 pub use clock::{SECONDS_PER_HOUR, Settled};
@@ -22,6 +24,7 @@ pub use feed_stack::{FeedPlan, FeedRefused, Supplies, plan_feeding};
 pub use form::{FEED_AFTER, WEAKENS_EVERY, YeastForm, new_item};
 pub use shop::shop_quality;
 pub use starter::{STARTER_PRACTICE, STARTS_IN, StartRefused, can_start, new_starter};
+pub use strain::Strain;
 pub use supplies::{WATER_ML, drawn, fresh, water_portions};
 
 #[cfg(test)]

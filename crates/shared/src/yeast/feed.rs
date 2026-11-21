@@ -49,7 +49,7 @@ impl YeastForm {
     /// Whether it can be fed now: ready, and not early once its use is gone
     /// (a split needs 12 hours and an on-time feed before another).
     pub fn feedable(&self) -> bool {
-        self.developing == 0 && (self.window() != Window::Early || !self.used)
+        self.strain.fed() && self.developing == 0 && (self.window() != Window::Early || !self.used)
     }
 }
 

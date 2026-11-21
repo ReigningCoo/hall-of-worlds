@@ -10,6 +10,7 @@
 mod about;
 mod cask;
 mod copy;
+mod food;
 mod fungus;
 mod herb;
 mod keys;

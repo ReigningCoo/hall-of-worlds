@@ -130,6 +130,8 @@ pub enum ItemForm {
     Vessel(crate::vessel::VesselForm),
     /// A yeast (`shared::yeast`): its clock and progress.
     Yeast(crate::yeast::YeastForm),
+    /// A Dish or an intermediate (`shared::food`): what it is and holds.
+    Food(Box<crate::food::FoodForm>),
 }
 
 impl ItemForm {
@@ -170,7 +172,8 @@ impl ItemForm {
             Self::Log(log) => log.name(),
             Self::Kindling(kindling) => kindling.name(),
             Self::Vessel(vessel) => vessel.name(),
-            Self::Yeast(_) => "Yeast".to_owned(),
+            Self::Yeast(yeast) => yeast.strain.name().to_owned(),
+            Self::Food(food) => food.name(),
         }
     }
 
@@ -222,7 +225,8 @@ impl ItemForm {
             | Self::Log(_)
             | Self::Kindling(_)
             | Self::Vessel(_)
-            | Self::Yeast(_) => &[],
+            | Self::Yeast(_)
+            | Self::Food(_) => &[],
         };
         settings.iter().filter_map(|setting| setting.gem.as_ref())
     }
