@@ -93,7 +93,7 @@ fn words(name: &str, choice: &PressChoice) -> String {
     } else {
         "bottles"
     };
-    let oil = choice.oil.name();
+    let oil = choice.liquid.name();
     format!(
         "{name} ({}): {} {bottles} of {oil}",
         choice.count, choice.bottles

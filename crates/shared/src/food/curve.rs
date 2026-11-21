@@ -1,6 +1,7 @@
 //! How an intermediate changes as it rests (owner, 2026-11-21): stable
-//! (dried noodles), proving, better and then worse (dough), or turning into
-//! another (fresh noodles drying, warm milk setting into yoghurt).
+//! (dried noodles), proving, better and then worse (dough), turning into
+//! another (fresh noodles drying, warm milk setting into yoghurt), or ageing
+//! better (moromi, miso, cheese).
 
 use super::Rest;
 use crate::item::Quality;
@@ -24,6 +25,9 @@ pub enum Curve {
     },
     /// It becomes `into` after `after` (a culture's pace changing it).
     Turns { after: u32, into: Rest },
+    /// A step better each `every`, `most` steps at most, never worse:
+    /// moromi, miso and cheese ageing (cooking plan PR 12).
+    Ages { every: u32, most: u32 },
 }
 
 impl Curve {
@@ -57,6 +61,10 @@ impl Curve {
                 }
                 let steps = 1 + (secs - worse_from) / worse_every.max(1);
                 (0..steps).fold(base, |quality, _| quality.worse())
+            }
+            Self::Ages { every, most } => {
+                let steps = (secs / every.max(1)).min(most);
+                (0..steps).fold(base, |quality, _| better(quality))
             }
             Self::Stable | Self::Turns { .. } => base,
         }

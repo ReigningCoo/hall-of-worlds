@@ -1,11 +1,14 @@
 //! The kinds of intermediate (owner, 2026-11-21): what a row stopped early
-//! gives when it is one, and how each rests.
+//! gives when it is one, and how each rests. The long processes (cooking
+//! plan PR 12) are some of these: cooked soybeans growing koji, koji salted
+//! into moromi (pressed into soy sauce) or miso, fresh cheese salted into a
+//! cheese, the last three ageing better for weeks of game days.
 
 use serde::{Deserialize, Serialize};
 
 use super::Curve;
 use crate::cooking::{
-    Dish, DishName, Function, Generic, IngredientDef, Ingredients, Portion, Role, Source, Tool,
+    DishName, Function, Generic, IngredientDef, Ingredients, Output, Portion, Role, Source, Tool,
     is_seasoning,
 };
 use crate::yeast::Strain;
@@ -19,6 +22,18 @@ pub const YOGHURT_SETS: u32 = 8 * HOUR;
 /// Fresh noodles are dried after this long.
 pub const NOODLES_DRY: u32 = 12 * HOUR;
 
+/// Cooked soybeans grow koji after this long with a koji culture (2 days, as
+/// real koji; longer with another strain or wild).
+pub const KOJI_GROWS: u32 = 48 * HOUR;
+
+/// A game day in seconds (`fermentation::GAME_DAY_SECS`): ageing is
+/// counted in them, as casks' is.
+const GAME_DAY: u32 = crate::fermentation::GAME_DAY_SECS as u32;
+
+/// The least salt, in percent of the foods' weight, that makes koji moromi
+/// or miso and fresh cheese a cheese to age.
+pub const SALTED_PERCENT: u32 = 5;
+
 /// A kind of intermediate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Rest {
@@ -31,10 +46,17 @@ pub enum Rest {
     FreshCheese,
     WarmMilk,
     Yoghurt,
+    // The long processes (cooking plan PR 12); new kinds go at the end, as
+    // messages carry one by its place.
+    CookedSoybeans,
+    Koji,
+    Moromi,
+    Miso,
+    Cheese,
 }
 
 impl Rest {
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 14] = [
         Self::Dough,
         Self::FreshNoodles,
         Self::DriedNoodles,
@@ -44,6 +66,11 @@ impl Rest {
         Self::FreshCheese,
         Self::WarmMilk,
         Self::Yoghurt,
+        Self::CookedSoybeans,
+        Self::Koji,
+        Self::Moromi,
+        Self::Miso,
+        Self::Cheese,
     ];
 
     /// What it is called (dough and noodles add their biggest food:
@@ -59,6 +86,11 @@ impl Rest {
             Self::FreshCheese => "Fresh Cheese",
             Self::WarmMilk => "Warm Milk",
             Self::Yoghurt => "Yoghurt",
+            Self::CookedSoybeans => "Cooked Soybeans",
+            Self::Koji => "Soybean Koji",
+            Self::Moromi => "Moromi",
+            Self::Miso => "Miso",
+            Self::Cheese => "Cheese",
         }
     }
 
@@ -74,6 +106,23 @@ impl Rest {
                 after: YOGHURT_SETS,
                 into: Self::Yoghurt,
             },
+            Self::CookedSoybeans => Curve::Turns {
+                after: KOJI_GROWS,
+                into: Self::Koji,
+            },
+            // A step better a month of game days, as in a cask, three at most.
+            Self::Moromi => Curve::Ages {
+                every: 30 * GAME_DAY,
+                most: 3,
+            },
+            Self::Miso => Curve::Ages {
+                every: 20 * GAME_DAY,
+                most: 3,
+            },
+            Self::Cheese => Curve::Ages {
+                every: 15 * GAME_DAY,
+                most: 3,
+            },
             _ => Curve::Stable,
         }
     }
@@ -82,18 +131,19 @@ impl Rest {
     pub const fn culture(self) -> Option<Strain> {
         match self {
             Self::WarmMilk => Some(Strain::Yoghurt),
+            Self::CookedSoybeans => Some(Strain::Koji),
             _ => None,
         }
     }
 
-    /// The intermediate an output is, if it is one: by the real dish it is
-    /// named after, else by its generic kind, its tools and its foods.
-    pub fn of(
-        dish: &Dish,
-        portions: &[Portion],
-        tools: &[Tool],
-        ing: &Ingredients,
-    ) -> Option<Self> {
+    /// The intermediate an output is, if it is one: a long process's
+    /// (`long_process`), else by the real dish it is named after, else by its
+    /// generic kind, its tools and its foods.
+    pub fn of(output: &Output, ing: &Ingredients) -> Option<Self> {
+        if let Some(rest) = super::long::long_process(output, ing) {
+            return Some(rest);
+        }
+        let (dish, portions, tools) = (&output.dish, &output.portions, &output.history.tools[..]);
         let foods: Vec<_> = (portions.iter())
             .filter_map(|portion| match portion {
                 Portion::Food { source, key, .. } => ing.get(*source, key),

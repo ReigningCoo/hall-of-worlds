@@ -122,6 +122,11 @@ food-proving = Proving: at its best in { $hours } h
 food-proved = At its best for { $hours } h more
 food-resting = Over-proving in { $hours } h
 food-over-proved = Over-proved
+food-ageing = Ageing: { $steps ->
+    [0] better
+   *[other] { $steps } steps better, more
+  } in { $hours } h
+food-aged = Fully aged
 
 item-holds = Holds { $amount } of { $most }
 item-sealed = sealed

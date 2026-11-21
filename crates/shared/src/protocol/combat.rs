@@ -52,6 +52,9 @@ pub enum Landed {
     /// One run of a cooking process ended (Cook: `target` is `None`): what
     /// came of it, the Ash a hearth left, and how many runs are left.
     Cooked { made: Cooked, ash: u32, left: u32 },
+    /// A moromi was pressed (Press Oil: `target` is `None`) into this many
+    /// bottles of soy sauce (cooking plan PR 12).
+    SoySauce { bottles: u32 },
 }
 
 /// What one run of an Alchemy process made (`Landed::Alchemy`). The

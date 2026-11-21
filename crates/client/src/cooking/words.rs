@@ -25,14 +25,7 @@ pub(super) fn output_item(output: &Output, quality: Quality) -> Item {
 /// Whether an output is an intermediate (it rests, and starts a later row)
 /// rather than a dish.
 pub(super) fn is_intermediate(output: &Output) -> bool {
-    let tools = &output.history.tools;
-    Rest::of(
-        &output.dish,
-        &output.portions,
-        tools,
-        Ingredients::built_in(),
-    )
-    .is_some()
+    Rest::of(output, Ingredients::built_in()).is_some()
 }
 
 /// "Common Fried Egg, at least".

@@ -82,6 +82,7 @@ mod pick_vegetable;
 mod playtime;
 mod pour;
 mod press_juice;
+mod press_moromi;
 mod press_oil;
 mod roads;
 mod role;

@@ -2,9 +2,10 @@
 //! (`cooking::plan`), one chosen from the seed, until the server can cook
 //! (plan PR 9).
 
-use super::FoodForm;
+use super::{FoodForm, Rest};
 use crate::cooking::{
-    CookingSkills, Dishes, Heat, Ingredients, Portion, Process, Source, Step, Tool, plan,
+    Carried, CookingSkills, Dishes, Heat, History, Ingredients, Portion, Process, Source, Step,
+    Tool, plan,
 };
 use crate::item::{ItemKind, Quality};
 use crate::rng::Seed;
@@ -51,7 +52,50 @@ fn dishes() -> Vec<Process> {
     ]
 }
 
-/// Intermediates: wheat dough, fresh noodles, warm milk, butter, a roux.
+/// A row started from an intermediate of `kind` holding `portions`, then
+/// one step of `tool` with `added` put in.
+fn after(kind: Rest, portions: Vec<Portion>, tool: Tool, added: Vec<Portion>) -> Process {
+    let history = History {
+        halves: 4,
+        tools: vec![Tool::Cauldron, Tool::Sieve],
+        rests: vec![kind],
+        ..History::default()
+    };
+    let mut process = row(vec![(tool, added)]);
+    process.sources = vec![Some(Carried { portions, history })];
+    process
+}
+
+/// The long processes (cooking plan PR 12): cooked soybeans, moromi, miso
+/// and a cheese, each from what it is made from.
+fn long() -> Vec<Process> {
+    let soy = || vec![food(Source::Vegetable, "soybean", 1000)];
+    let salt = |grams| food(Source::Pantry, "salt", grams);
+    let curd = vec![
+        food(Source::Milk, "cattle", 1000),
+        food(Source::Fruit, "lemon", 30),
+    ];
+    vec![
+        row(vec![
+            (
+                Tool::Cauldron,
+                vec![soy()[0].clone(), Portion::Water { ml: 1500 }],
+            ),
+            (Tool::Sieve, vec![]),
+        ]),
+        after(
+            Rest::Koji,
+            soy(),
+            Tool::Bowl,
+            vec![salt(200), Portion::Water { ml: 1200 }],
+        ),
+        after(Rest::Koji, soy(), Tool::Mortar, vec![salt(120)]),
+        after(Rest::FreshCheese, curd, Tool::Bowl, vec![salt(60)]),
+    ]
+}
+
+/// Intermediates: wheat dough, fresh noodles, warm milk, butter, a roux,
+/// and the long processes'.
 fn intermediates() -> Vec<Process> {
     let flour = || food(Source::Vegetable, "wheat", 300);
     let water = || Portion::Water { ml: 150 };
@@ -72,6 +116,9 @@ fn intermediates() -> Vec<Process> {
             ],
         )]),
     ]
+    .into_iter()
+    .chain(long())
+    .collect()
 }
 
 /// A Dish or an intermediate (`kind`) at `quality`, chosen from `seed`;

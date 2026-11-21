@@ -52,6 +52,11 @@ pub struct History {
     /// what it becomes (`classify`).
     #[serde(default)]
     pub tools: Vec<Tool>,
+    /// The kinds of intermediate that went into it as sources, in order
+    /// (`food::FoodForm::carried`): koji salted into moromi or miso, fresh
+    /// cheese salted into a cheese to age (cooking plan PR 12).
+    #[serde(default)]
+    pub rests: Vec<crate::food::Rest>,
 }
 
 impl History {
@@ -59,6 +64,7 @@ impl History {
     pub fn merge(&mut self, other: &History) {
         self.halves += other.halves;
         self.tools.extend(other.tools.iter().copied());
+        self.rests.extend(other.rests.iter().copied());
         for &(tool, root) in &other.roots {
             self.add_root(tool, root);
         }

@@ -11,7 +11,6 @@ use super::{
 use crate::food::Culture;
 use crate::id::Id;
 use crate::item::{Inventory, Item, ItemKind};
-use crate::item_form::ItemForm;
 use crate::potion::Liquid;
 use crate::pour::{BOTTLE_ML, Held};
 
@@ -164,9 +163,7 @@ impl Inventory {
             OrderInput::Food { stack, count } => {
                 let item = self.cook_stack(stack).ok_or(OrderRefused::Food)?;
                 let top = item.top();
-                let form = top.form.as_ref().filter(|form| !is_container(form));
-                let def =
-                    (form.and_then(|form| ingredients.of_form(form))).ok_or(OrderRefused::Food)?;
+                let def = ingredients.of_item(top).ok_or(OrderRefused::Food)?;
                 if count == 0 {
                     return Err(OrderRefused::Food);
                 }
@@ -216,13 +213,4 @@ impl Inventory {
         let (stack, _) = stacks.find(|(stack, _)| stack.id == id)?;
         (!self.is_worn(id)).then_some(stack)
     }
-}
-
-/// Whether `form` is a container of a liquid (taken by the millilitre, as
-/// `OrderInput::Liquid`, never as food).
-fn is_container(form: &ItemForm) -> bool {
-    matches!(
-        form,
-        ItemForm::Bottle(_) | ItemForm::Vessel(_) | ItemForm::Cask(_)
-    )
 }

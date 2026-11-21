@@ -1,5 +1,6 @@
 //! Intermediates, one cell each: dough, noodles fresh and dried, roux,
-//! stock, butter, fresh cheese, warm milk and yoghurt.
+//! stock, butter, fresh cheese, warm milk and yoghurt (the long processes'
+//! in `long.rs`).
 
 use bevy::prelude::*;
 use shared::food::Rest;
@@ -10,6 +11,9 @@ use super::shaped::nest;
 
 /// An intermediate's pieces.
 pub(super) fn rest(kit: &mut Kit, kind: Rest) {
+    if super::long::long(kit, kind) {
+        return;
+    }
     match kind {
         Rest::Dough => dough(kit),
         Rest::FreshNoodles => {
@@ -24,6 +28,7 @@ pub(super) fn rest(kit: &mut Kit, kind: Rest) {
         Rest::FreshCheese => fresh_cheese(kit),
         Rest::WarmMilk => cup(kit),
         Rest::Yoghurt => yoghurt(kit),
+        Rest::CookedSoybeans | Rest::Koji | Rest::Moromi | Rest::Miso | Rest::Cheese => {}
     }
 }
 

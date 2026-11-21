@@ -5,6 +5,7 @@
 
 mod baked;
 mod kit;
+mod long;
 mod look;
 mod pieces;
 mod rest;

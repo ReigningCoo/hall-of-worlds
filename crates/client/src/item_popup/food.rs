@@ -51,6 +51,18 @@ fn rest_line(rest: &RestClock, lang: &Lang) -> Option<String> {
     let secs = rest.seconds();
     let line = match rest.kind.curve() {
         Curve::Stable => return None,
+        Curve::Ages { every, most } => {
+            let steps = (secs / every.max(1)).min(most);
+            if steps >= most {
+                written(lang.render("food-aged", &Args::new()))
+            } else {
+                let left = every - secs % every.max(1);
+                let args = Args::new()
+                    .count("steps", i64::from(steps))
+                    .text("hours", hours(left));
+                written(lang.render("food-ageing", &args))
+            }
+        }
         Curve::Turns { into, .. } => {
             let left = rest.turns_in().unwrap_or(0);
             let args = Args::new()

@@ -48,6 +48,7 @@ fn every_row_names_something_in_its_table() {
                 Livestock::built_in().get(key).is_some()
             }
             Source::Part => part_keys.contains(&key),
+            Source::Pantry => PANTRY.contains(&key),
         };
         assert!(found, "{:?} {key}", def.source);
     }
@@ -55,7 +56,8 @@ fn every_row_names_something_in_its_table() {
 
 #[test]
 fn the_research_is_all_there() {
-    assert_eq!(table().len(), 483);
+    assert_eq!(table().len(), 485);
+    assert_eq!(table().from_source(Source::Pantry).count(), PANTRY.len());
     assert_eq!(table().from_source(Source::Meat).count(), 25);
     assert_eq!(table().from_source(Source::Part).count(), 45);
 }

@@ -59,7 +59,7 @@ pub use quality::{AWAY_CAP, capped, ingredient_quality, least_quality, skill_ste
 pub use run::{COOK_PRACTICE, drawn, heat_seconds, run_seconds, run_ticks};
 pub use shape::Shape;
 pub use skills::CookingSkills;
-pub use table::Ingredients;
+pub use table::{Ingredients, PANTRY};
 pub use tool::{BAKING, BOILING, COOKING, CUTTING, FRYING, MIXING, POUNDING, STRAINING, Tool};
 pub use traits::{CookingNeed, Flavour, Function, Method, Role, Source, Texture, Usage};
 pub use well_fed::{

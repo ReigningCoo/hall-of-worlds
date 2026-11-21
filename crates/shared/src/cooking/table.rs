@@ -6,11 +6,16 @@ use std::collections::BTreeMap;
 use std::sync::LazyLock;
 
 use super::{IngredientDef, Source};
+use crate::item::{Item, ItemKind};
 use crate::item_form::ItemForm;
 use crate::potion::Liquid;
 
 /// The ingredients built into the game, as written.
 const BUILT_IN: &str = include_str!("ingredients.ron");
+
+/// The kitchen staples' keys (`Source::Pantry`): Salt (`ItemKind::Salt`) and
+/// soy sauce (`Liquid::SoySauce`, pressed from moromi).
+pub const PANTRY: [&str; 2] = ["salt", "soy_sauce"];
 
 static BUILT_IN_TABLE: LazyLock<Ingredients> = LazyLock::new(|| {
     let defs = Ingredients::read(BUILT_IN)
@@ -93,8 +98,24 @@ impl Ingredients {
         match liquid {
             Liquid::Milk(animal) => self.get(Source::Milk, animal),
             Liquid::Honey(animal) => self.get(Source::Honey, animal),
+            Liquid::SoySauce => self.get(Source::Pantry, "soy_sauce"),
             _ => None,
         }
+    }
+
+    /// What a carried item is as an ingredient: Salt by its kind, else by
+    /// its form (`of_form`), never a container of a liquid (taken by the
+    /// millilitre instead).
+    pub fn of_item(&self, item: &Item) -> Option<&IngredientDef> {
+        if item.kind == ItemKind::Salt {
+            return self.get(Source::Pantry, "salt");
+        }
+        let form = item.form.as_ref()?;
+        let container = matches!(
+            form,
+            ItemForm::Bottle(_) | ItemForm::Vessel(_) | ItemForm::Cask(_)
+        );
+        if container { None } else { self.of_form(form) }
     }
 
     /// Every ingredient from this source.

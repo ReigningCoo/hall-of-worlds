@@ -25,6 +25,9 @@ pub struct Output {
     pub balance: i32,
     /// Its least quality, before the server's luck.
     pub quality: Quality,
+    /// The millilitres of water still in it (drained unless its last step
+    /// kept it): moromi from miso (`food::Rest::of`).
+    pub water: u32,
 }
 
 /// A process worked out.
@@ -93,6 +96,7 @@ pub fn plan(
                 dish,
                 balance,
                 quality,
+                water,
             }
         })
         .collect();

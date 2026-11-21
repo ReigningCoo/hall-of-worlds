@@ -28,6 +28,7 @@ pub fn vessel_to(rng: &mut Rng, request: &RollRequest) -> Result<VesselForm, Ref
         Some(LiquidKind::Alcohol) => Ok(empty.full_of(Liquid::Alcohol)),
         Some(LiquidKind::Milk) => Ok(empty.full_of(crate::farmyard::rolled_milk(rng))),
         Some(LiquidKind::Honey) => Ok(empty.full_of(crate::farmyard::rolled_honey(rng))),
+        Some(LiquidKind::SoySauce) => Ok(empty.full_of(Liquid::SoySauce)),
         Some(LiquidKind::Potion) => Err(Refused(Field::Liquid)),
     }
 }

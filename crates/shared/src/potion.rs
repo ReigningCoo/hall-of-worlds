@@ -14,6 +14,7 @@ mod form;
 mod key;
 mod liquid;
 mod press;
+mod press_moromi;
 mod roll;
 
 pub use collect::{
@@ -27,6 +28,7 @@ pub use liquid::{Liquid, LiquidKind, Oil, PURE_STRENGTH, Water};
 pub use press::{
     PRESS_PRACTICE, PressChoice, Pressing, grams_per_bottle, press_seconds, press_ticks, pressed,
 };
+pub use press_moromi::pressed_into;
 pub use roll::{MOST_EFFECTS, bottle_to, roll_contents};
 
 #[cfg(test)]

@@ -1453,4 +1453,10 @@
     (source: Part, key: "fleece", usage: Inedible, roles: [],
         cooking: Never, texture: Soft, functions: [], methods: [],
         flavours: [], strength: 1, max_share: 0, animal_product: true),
+    (source: Pantry, key: "salt", usage: Staple, roles: [Spice], main: Some(Spice),
+        cooking: Either, texture: Dry, functions: [], methods: [Raw, Pickle],
+        flavours: [Savoury], strength: 5, max_share: 20),
+    (source: Pantry, key: "soy_sauce", usage: Common, roles: [Spice, Protein], main: Some(Spice),
+        cooking: Either, texture: Juicy, functions: [Colours], methods: [Raw, Fry, Stew],
+        flavours: [Savoury], strength: 5, max_share: 10),
 ]
