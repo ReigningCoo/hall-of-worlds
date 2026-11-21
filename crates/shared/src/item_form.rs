@@ -120,6 +120,8 @@ pub enum ItemForm {
     Cask(crate::cask::CaskForm),
     /// A sack of flour (`shared::flour`): which grain it was milled from.
     Flour(crate::flour::FlourForm),
+    /// An egg (`shared::farmyard`): which animal laid it.
+    Egg(crate::farmyard::EggForm),
     /// A log (`shared::woodcutting`): its wood.
     Log(crate::woodcutting::LogForm),
     /// Kindling (`shared::woodcutting`): its wood.
@@ -164,6 +166,7 @@ impl ItemForm {
             Self::Powder(_) => "Powder".to_owned(),
             Self::Cask(cask) => cask.name(),
             Self::Flour(flour) => flour.name(),
+            Self::Egg(egg) => egg.name(),
             Self::Log(log) => log.name(),
             Self::Kindling(kindling) => kindling.name(),
             Self::Vessel(vessel) => vessel.name(),
@@ -215,6 +218,7 @@ impl ItemForm {
             | Self::Powder(_)
             | Self::Cask(_)
             | Self::Flour(_)
+            | Self::Egg(_)
             | Self::Log(_)
             | Self::Kindling(_)
             | Self::Vessel(_)

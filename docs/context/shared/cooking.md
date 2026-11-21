@@ -14,15 +14,15 @@ Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooki
 
 - `IngredientDef { source, key, usage, roles, main, cooking, texture, functions, methods, flavours, strength, max_share, meat, animal_product, gluten, dairy, nut_allergen }`; `check()` (strength 1 to 5, share at most 100%, the main role among the roles, meat an animal product).
 - `Source`: Herb, Fruit, Vegetable, Fungus (by their tables' keys), Meat, Milk, Egg, Honey (by `livestock`'s animal key), Part (by `parts.ron`'s key).
-- `Ingredients::built_in()`, `read(text)` (checked, each source and key once), `new`, `get(source, key)`, `of_form(&ItemForm)` (herb, fruit, vegetable, fungus by key, flour as its grain; `None` otherwise, and for a server's modded herbs), `from_source`, `iter`, `len`.
+- `Ingredients::built_in()`, `read(text)` (checked, each source and key once), `new`, `get(source, key)`, `of_form(&ItemForm)` (herb, fruit, vegetable, fungus by key, flour as its grain, an egg by its animal, a bottle, vessel or cask by its liquid; `None` otherwise, and for a server's modded herbs), `of_liquid(&Liquid)` (milk and honey by animal), `from_source`, `iter`, `len`.
 
 ## Depends on
 
-- `item_form` (`ItemForm` and the herb, fruit, vegetable, fungus and flour forms' keys), `ron`, `serde`.
+- `item_form` (`ItemForm` and the herb, fruit, vegetable, fungus, flour and egg forms' keys), `potion` (`Liquid`), `ron`, `serde`.
 
 ## Used by
 
-- Nothing yet: the rules of cooking (plan PRs 4 and 5).
+- `farmyard` (`Usage` weighting which animal's milk or eggs a town sells). The rules of cooking next (plan PRs 4 and 5).
 
 ## Notes
 

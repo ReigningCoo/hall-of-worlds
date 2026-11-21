@@ -6,12 +6,17 @@
 //! a mob has what it picked up (`Source::Foraged`), what grows wild there,
 //! or what is grown there when nothing does. Either way the commoner more
 //! often, chosen as `herb::wild_herbs` chooses herbs: by biome and warmth.
+//! Eggs, and milk and honey wherever they are held, are of an animal kept
+//! there (`farmyard::animal_for`).
 
+use crate::farmyard::{self, EggForm};
 use crate::flour::FlourForm;
 use crate::fruit::{self, Abundance as FruitAbundance, FruitDef, FruitForm, Fruits};
 use crate::item::{Item, ItemKind};
 use crate::item_form::ItemForm;
+use crate::livestock::Product;
 use crate::mob::Habitat;
+use crate::potion::Liquid;
 use crate::rng::Seed;
 use crate::vegetable::{self, VegetableDef, VegetableForm, VegetableSet, Vegetables};
 
@@ -95,11 +100,13 @@ pub fn flour_grain_for<'a>(
     vegetable::choose_wild(&any, &mut rng)
 }
 
-/// Makes a fruit, vegetable or flour item one suiting a place like this, chosen from
-/// its own id's seed, so the same item is always the same; anything else is
-/// left alone. Its count and everything else stay as they were.
+/// Makes a fruit, vegetable, flour or egg item, or the milk or honey in a
+/// bottle, vessel or cask, one suiting a place like this, chosen from its own
+/// id's seed, so the same item is always the same; anything else is left
+/// alone. Its count and everything else stay as they were.
 pub fn suit_to_place(item: &mut Item, habitat: &Habitat, source: Source) {
     let seed = item.id.seed();
+    suit_liquid(item, habitat);
     let form = match item.kind {
         ItemKind::Fruit => fruit_for(Fruits::built_in(), habitat, source, seed)
             .map(|def| ItemForm::Fruit(FruitForm::new(def, seed))),
@@ -108,10 +115,33 @@ pub fn suit_to_place(item: &mut Item, habitat: &Habitat, source: Source) {
         ItemKind::Flour => flour_grain_for(Vegetables::built_in(), habitat, seed)
             .and_then(FlourForm::of)
             .map(ItemForm::Flour),
+        ItemKind::Egg => farmyard::animal_for(Product::Egg, habitat.biome, seed)
+            .and_then(EggForm::of)
+            .map(ItemForm::Egg),
         _ => None,
     };
     if form.is_some() {
         item.form = form;
+    }
+}
+
+/// The milk or honey a bottle, vessel or cask holds made an animal's kept
+/// there; any other liquid is left alone.
+fn suit_liquid(item: &mut Item, habitat: &Habitat) {
+    let seed = item.id.seed();
+    let liquid = match &mut item.form {
+        Some(ItemForm::Bottle(bottle)) => bottle.liquid.as_mut(),
+        Some(ItemForm::Vessel(vessel)) => vessel.liquid.as_mut(),
+        Some(ItemForm::Cask(cask)) => cask.liquid.as_mut(),
+        _ => None,
+    };
+    let (product, animal) = match liquid {
+        Some(Liquid::Milk(animal)) => (Product::Milk, animal),
+        Some(Liquid::Honey(animal)) => (Product::Honey, animal),
+        _ => return,
+    };
+    if let Some(def) = farmyard::animal_for(product, habitat.biome, seed) {
+        *animal = def.key.clone();
     }
 }
 

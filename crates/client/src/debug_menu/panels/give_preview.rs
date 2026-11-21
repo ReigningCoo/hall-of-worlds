@@ -4,6 +4,7 @@
 
 use bevy::prelude::*;
 use shared::creature::CreatureKind;
+use shared::farmyard::dev_animal;
 use shared::flour::dev_flour;
 use shared::fruit::dev_fruit;
 use shared::fungus::dev_fungus;
@@ -169,6 +170,12 @@ fn one_of(
         // As the server makes them (`flour::dev_flour`).
         let def = dev_flour(herb.key, seed).ok_or(Refused(Field::Material))?;
         return shared::flour::new_item(def, 1, id, None).ok_or(Refused(Field::Material));
+    }
+    if order.kind == ItemKind::Egg {
+        // As the server makes them (`farmyard::dev_animal`).
+        let def = dev_animal(shared::livestock::Product::Egg, herb.key, seed);
+        let def = def.ok_or(Refused(Field::Material))?;
+        return shared::farmyard::new_egg(def, 1, id, None).ok_or(Refused(Field::Material));
     }
     try_make_item(order, wearer, id, seed, None, &mut new_id)
 }

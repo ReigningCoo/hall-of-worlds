@@ -62,6 +62,7 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         | ItemForm::Vegetable(_)
         | ItemForm::Fungus(_)
         | ItemForm::Flour(_)
+        | ItemForm::Egg(_)
         | ItemForm::Yeast(_)
         | ItemForm::Log(_)
         | ItemForm::Kindling(_)

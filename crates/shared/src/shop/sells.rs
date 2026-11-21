@@ -10,12 +10,12 @@ use crate::site::BuildingKind;
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
         Alembic, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies,
-        BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Crucible, Filter, Flour, Fruit, Gauntlets,
-        Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern, LinenCoif,
-        Loincloth, Mercury, MortarAndPestle, Necklace, Neckwear, OilPress, PaddedChausses,
-        PaddedGloves, Pelican, Petticoat, Pouch, Retort, Ring, Sandals, Shawl, Shirt, Shoes,
-        Slippers, SmallBox, Socks, Sulphur, Surcoat, Sword, Tabard, Tap, Trousers, Vegetable,
-        Vessel, Wimple, Yeast,
+        BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Crucible, Egg, Filter, Flour, Fruit,
+        Gauntlets, Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern,
+        LinenCoif, Loincloth, Mercury, MortarAndPestle, Necklace, Neckwear, OilPress,
+        PaddedChausses, PaddedGloves, Pelican, Petticoat, Pouch, Retort, Ring, Sandals, Shawl,
+        Shirt, Shoes, Slippers, SmallBox, Socks, Sulphur, Surcoat, Sword, Tabard, Tap, Trousers,
+        Vegetable, Vessel, Wimple, Yeast,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -28,10 +28,13 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
         ],
         // Their bottles hold waters and oils (`bottled`); fruit and
         // vegetables are what is grown near the town (`shared::produce`).
-        // Yeast until towns have bakers (drinks PR 4).
+        // Yeast until towns have bakers (drinks PR 4); eggs, and milk and
+        // honey in bottles, until there are farm shops or general stores
+        // (cooking PR 3), of animals kept near the town (`shared::produce`).
         BuildingKind::Herbalist => &[
             (Fruit, 3),
             (Vegetable, 3),
+            (Egg, 2),
             (Bottle, 2),
             (Pouch, 1),
             (HerbPouch, 1),

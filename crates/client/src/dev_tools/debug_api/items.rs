@@ -33,9 +33,12 @@ pub(super) struct GiveItemParams {
     fungus: Option<String>,
     /// For `"Flour"`: the grain's key (`"rye"`); any grain's if missing.
     flour: Option<String>,
+    /// For `"Egg"`: the laying animal's key (`"duck"`); any if missing.
+    egg: Option<String>,
     /// For `"Bottle"`: what it holds, `{ "Water": "Moon" }` (`Plain`, `Cave`,
-    /// `Moon`, `Salt`), `{ "Oil": "Nut" }` (`Vegetable`, `Nut`, `Seed`) or
-    /// `"Potion"`; by `effects` if missing.
+    /// `Moon`, `Salt`), `{ "Oil": "Nut" }` (`Vegetable`, `Nut`, `Seed`),
+    /// `"Milk"`, `"Honey"` (the animal rolled) or `"Potion"`; by `effects` if
+    /// missing.
     liquid: Option<shared::potion::LiquidKind>,
     /// For `"Bottle"`: how many effects the potion holds; empty if missing
     /// and no liquid is asked for.
@@ -57,7 +60,8 @@ pub(super) struct GiveItemParams {
 /// `{ "kind": "Fruit", "fruit": "watermelon" }`,
 /// `{ "kind": "Vegetable", "vegetable": "carrot" }`,
 /// `{ "kind": "Fungus", "fungus": "morel" }`,
-/// `{ "kind": "Flour", "flour": "rye" }`, `{ "kind": "Log", "material": "Oak" }`,
+/// `{ "kind": "Flour", "flour": "rye" }`, `{ "kind": "Egg", "egg": "duck" }`,
+/// `{ "kind": "Log", "material": "Oak" }`,
 /// `{ "kind": "Axe", "limits": { "most_grams": 1200 } }`, or
 /// `{ "kind": "Bottle", "effects": 2 }` for a potion,
 /// `{ "kind": "Vessel", "vessel": "Tankard", "liquid": { "Water": "Plain" } }`, or
@@ -78,6 +82,7 @@ pub(super) fn give_item(
         vegetable,
         fungus,
         flour,
+        egg,
         liquid,
         effects,
         vessel,
@@ -104,7 +109,7 @@ pub(super) fn give_item(
                 limits,
                 ..shared::item_form::RollRequest::NONE
             },
-            herb: herb.or(fruit).or(vegetable).or(fungus).or(flour),
+            herb: herb.or(fruit).or(vegetable).or(fungus).or(flour).or(egg),
             to: None,
         },
     )));

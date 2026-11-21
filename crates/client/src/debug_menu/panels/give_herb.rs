@@ -1,16 +1,19 @@
-//! Give Item's herb, fruit, vegetable, fungus or flour (for the Herb, Fruit,
-//! Vegetable, Fungus and Flour kinds): a dropdown of the server's herbs, the
-//! fruits, the vegetables, the fungi or the grains' flours, by name, "Any
-//! herb", "Any fruit", "Any vegetable", "Any fungus" or "Any flour" first for
-//! one rolled from the seed (`herb::dev_herb`, `fruit::dev_fruit`,
-//! `vegetable::dev_vegetable`, `fungus::dev_fungus`, `flour::dev_flour`), on
-//! the Form line, which only these and kinds with a form show.
+//! Give Item's herb, fruit, vegetable, fungus, flour or egg (for the Herb,
+//! Fruit, Vegetable, Fungus, Flour and Egg kinds): a dropdown of the server's
+//! herbs, the fruits, the vegetables, the fungi, the grains' flours or the
+//! laying animals' eggs, by name, "Any herb", "Any fruit", "Any vegetable",
+//! "Any fungus", "Any flour" or "Any egg" first for one rolled from the seed
+//! (`herb::dev_herb`, `fruit::dev_fruit`, `vegetable::dev_vegetable`,
+//! `fungus::dev_fungus`, `flour::dev_flour`, `farmyard::dev_animal`), on the
+//! Form line, which only these and kinds with a form show.
 
 use bevy::prelude::*;
+use shared::farmyard::{egg_name, givers};
 use shared::flour::grains;
 use shared::fruit::Fruits;
 use shared::fungus::Fungi;
 use shared::item::ItemKind;
+use shared::livestock::Product;
 use shared::vegetable::Vegetables;
 
 use super::GiveForm;
@@ -75,6 +78,10 @@ pub(in crate::debug_menu) fn fill_give_herb(
             ItemKind::Flour => (
                 (grains().map(|def| (format!("{} Flour", def.name), &def.key))).collect(),
                 "Any flour",
+            ),
+            ItemKind::Egg => (
+                (givers(Product::Egg).map(|def| (egg_name(&def.key), &def.key))).collect(),
+                "Any egg",
             ),
             _ => (
                 table

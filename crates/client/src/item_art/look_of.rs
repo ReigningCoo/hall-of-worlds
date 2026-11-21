@@ -42,6 +42,9 @@ pub fn look_of(item: &Item) -> Option<Look> {
     if let Some(flour) = super::FlourLook::of(item) {
         return Some(Look::Flour(flour));
     }
+    if let Some(egg) = super::EggLook::of(item) {
+        return Some(Look::Egg(egg));
+    }
     if let Some(vessel) = item.vessel() {
         return Some(Look::Vessel(vessel.vessel));
     }
