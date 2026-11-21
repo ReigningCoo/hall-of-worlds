@@ -48,6 +48,9 @@ struct Asked {
     gender: Option<Gender>,
     looks: Option<Appearance>,
     stage: Option<Stage>,
+    /// ...or a cooked food's model (`{"Dish": "Pie"}`, `{"Rest": "Dough"}`)
+    /// in sample colours.
+    dish: Option<super::dish::Model>,
 }
 
 /// Pictures asked for and not yet read back.
@@ -62,7 +65,7 @@ pub(super) fn add(app: &mut App) {
 }
 
 /// `client.save_picture {path, pixels, herb?, fruit?, vegetable?, serving?, variant?, item?,
-/// creature?, gender?, looks?, stage?}`:
+/// creature?, gender?, looks?, stage?, dish?}`:
 /// answers the full path, the picture's `width` and `height`, and `wait_for_file`.
 fn save_picture(
     In(request): In<Option<Value>>,
@@ -79,6 +82,13 @@ fn save_picture(
             asked.stage.unwrap_or_default(),
             asked.looks.unwrap_or_default(),
         )?,
+        (None, None) if asked.dish.is_some() => Look::Dish(super::DishLook::sample(
+            asked
+                .dish
+                .unwrap_or(super::dish::Model::Dish(shared::cooking::DishForm::Bowl)),
+            shared::herb::Rgb(205, 160, 95),
+            shared::herb::Rgb(95, 140, 60),
+        )),
         (None, None) if asked.fruit.is_some() => fruit_look(
             asked.fruit.unwrap_or_default(),
             asked.serving,

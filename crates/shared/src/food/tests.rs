@@ -243,3 +243,17 @@ fn tinted_by_foods_and_browned() {
     let browned = tint(&form.portions, &history, ingredients);
     assert!(browned[0] < pale[0] && fried == pale);
 }
+
+#[test]
+fn accent_is_the_second_colour_by_grams() {
+    let ingredients = Ingredients::built_in();
+    let history = crate::cooking::History::default();
+    let milk = food(Source::Milk, "cattle", 200);
+    assert_eq!(
+        accent(std::slice::from_ref(&milk), &history, ingredients),
+        None
+    );
+    let eggs = food(Source::Egg, "chicken", 100);
+    let mixed = [milk, eggs];
+    assert_eq!(accent(&mixed, &history, ingredients), Some([240, 200, 90]));
+}

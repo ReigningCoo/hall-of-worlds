@@ -29,7 +29,7 @@ pub use give::dev_food;
 pub use make::food_item;
 pub use rest::Rest;
 pub use serving::{SERVING_GRAMS, servings};
-pub use tint::tint;
+pub use tint::{accent, tint};
 pub use warmth::{CARRIED_CELSIUS, warmth_percent};
 
 #[cfg(test)]

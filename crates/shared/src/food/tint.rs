@@ -1,5 +1,6 @@
-//! A food's tint, for its picture (and PR 11's models): its foods' colours
-//! by their main role, weighed by grams, browned by a Pan or an Oven.
+//! A food's tint, for its picture and model: its foods' colours by their
+//! main role, weighed by grams, browned by a Pan or an Oven; and an accent,
+//! the second colour, for its pieces.
 
 use crate::cooking::{History, Ingredients, Portion, Role, Source, Tool};
 
@@ -22,35 +23,71 @@ const fn role_colour(role: Role) -> [u8; 3] {
     }
 }
 
-/// The tint of these portions after these steps, as sRGB bytes.
-pub fn tint(portions: &[Portion], history: &History, ingredients: &Ingredients) -> [u8; 3] {
-    let mut sum = [0u64; 3];
-    let mut weight = 0u64;
-    for portion in portions {
+/// The colour of each food's grams in these portions, as their pictures see
+/// them.
+fn coloured<'a>(
+    portions: &'a [Portion],
+    ingredients: &'a Ingredients,
+) -> impl Iterator<Item = ([u8; 3], u64)> + 'a {
+    portions.iter().filter_map(|portion| {
         let Portion::Food {
             source, key, grams, ..
         } = portion
         else {
-            continue;
+            return None;
         };
-        let Some(def) = ingredients.get(*source, key) else {
-            continue;
-        };
+        let def = ingredients.get(*source, key)?;
         let colour = match (def.source, def.main) {
             (Source::Milk, _) => [245, 240, 225],
             (Source::Egg, _) => [240, 200, 90],
             (_, Some(role)) => role_colour(role),
             (_, None) => PLAIN,
         };
+        Some((colour, u64::from(*grams)))
+    })
+}
+
+/// How much a Pan or an Oven browned it: a share of 100.
+fn shade(history: &History) -> u64 {
+    let browned = (history.tools.iter()).any(|tool| matches!(tool, Tool::Pan | Tool::Oven));
+    if browned { 80 } else { 100 }
+}
+
+/// The tint of these portions after these steps, as sRGB bytes.
+pub fn tint(portions: &[Portion], history: &History, ingredients: &Ingredients) -> [u8; 3] {
+    let mut sum = [0u64; 3];
+    let mut weight = 0u64;
+    for (colour, grams) in coloured(portions, ingredients) {
         for (total, part) in sum.iter_mut().zip(colour) {
-            *total += u64::from(part) * u64::from(*grams);
+            *total += u64::from(part) * grams;
         }
-        weight += u64::from(*grams);
+        weight += grams;
     }
     if weight == 0 {
         return PLAIN;
     }
-    let browned = (history.tools.iter()).any(|tool| matches!(tool, Tool::Pan | Tool::Oven));
-    let shade = if browned { 80 } else { 100 };
+    let shade = shade(history);
     sum.map(|total| (total / weight * shade / 100).min(255) as u8)
+}
+
+/// A second colour for its model's pieces, toppings and fillings (cooking
+/// PR 11): the colour with the second most grams, browned as the tint is;
+/// `None` when every food shares one colour.
+pub fn accent(
+    portions: &[Portion],
+    history: &History,
+    ingredients: &Ingredients,
+) -> Option<[u8; 3]> {
+    let mut groups: Vec<([u8; 3], u64)> = Vec::new();
+    for (colour, grams) in coloured(portions, ingredients) {
+        match groups.iter_mut().find(|(seen, _)| *seen == colour) {
+            Some((_, total)) => *total += grams,
+            None => groups.push((colour, grams)),
+        }
+    }
+    // Most grams first; ties by colour, so the same foods give the same.
+    groups.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    let (colour, _) = groups.get(1)?;
+    let shade = shade(history);
+    Some(colour.map(|part| (u64::from(part) * shade / 100) as u8))
 }
