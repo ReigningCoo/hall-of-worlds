@@ -9,7 +9,7 @@ use super::{Quest, QuestId, QuestKind, QuestWorld, Requirement};
 use crate::alignment::Deed;
 use crate::poi::Poi;
 use crate::rng::{Rng, Seed};
-use crate::story::{Goal, RewardPart, Story};
+use crate::story::{Goal, Part, RewardPart, Story};
 
 /// Everything about a quest but its plan.
 pub(super) struct Making<'a> {
@@ -20,6 +20,8 @@ pub(super) struct Making<'a> {
     pub requirements: Vec<Requirement>,
     /// Its place in its chain (0 first).
     pub chain: u8,
+    /// How many quests its chain has (1 alone).
+    pub parts: u8,
     pub earlier: Option<&'a Story>,
     pub dark: bool,
     pub continues: bool,
@@ -53,7 +55,11 @@ pub(super) fn make(
         continues: making.continues,
         daily,
     };
-    let telling = tell_plan(world, town, plan, tale);
+    let mut telling = tell_plan(world, town, plan, tale);
+    telling.story.part = (making.parts > 1).then_some(Part {
+        number: making.chain + 1,
+        of: Some(making.parts),
+    });
     Quest {
         id: making.id,
         kind: making.kind,

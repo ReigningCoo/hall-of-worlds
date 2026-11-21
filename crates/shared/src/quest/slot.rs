@@ -1,5 +1,5 @@
 //! One giver's slot: a chain of one to three quests, each needing the one
-//! before and more standing, keeping the first one's cast and reason.
+//! before (and more standing: `opening`), keeping the first one's cast and reason.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -10,9 +10,7 @@ use super::make::{Making, make};
 use super::plan::Plan;
 use super::template::plan;
 use super::world::size;
-use super::{
-    Giver, Hook, Need, Quest, QuestId, QuestKind, QuestWorld, Requirement, Slot, Standing,
-};
+use super::{Giver, Hook, Need, Quest, QuestId, QuestKind, QuestWorld, Requirement, Slot};
 use crate::alignment::Band;
 use crate::poi::{ChunkPos, Poi};
 use crate::rng::{Rng, Seed};
@@ -88,7 +86,7 @@ pub(super) fn slot_quests(
                 chain,
             },
         };
-        let mut requirements = requirements(town, id, plan, dark, &mut rng);
+        let mut requirements = requirements(id, plan, dark, &mut rng);
         requirements.extend(super::moon::moon_need(town, id, world.moons));
         let making = Making {
             id,
@@ -99,6 +97,7 @@ pub(super) fn slot_quests(
             chain,
             earlier: quests.last().map(|q| &q.story),
             dark,
+            parts: plans.len() as u8,
             continues: usize::from(chain) + 1 < plans.len(),
             text_seed: Seed::new(seed.derive("text").at(&[i64::from(chain)])),
             prize: None,
@@ -133,27 +132,13 @@ fn hook_of(step: &super::Step) -> Hook {
     }
 }
 
-/// What a chain's quest needs: the one before and more standing for later
-/// ones, a bad name for dark chains, and sometimes a hidden skill.
-fn requirements(
-    town: &Poi,
-    id: QuestId,
-    plan: &Plan,
-    dark: bool,
-    rng: &mut Rng,
-) -> Vec<Requirement> {
+/// What a chain's quest needs: the one before for later ones, a bad name for dark chains, and sometimes a hidden skill.
+fn requirements(id: QuestId, plan: &Plan, dark: bool, rng: &mut Rng) -> Vec<Requirement> {
     let mut needs = Vec::new();
+    // Standing comes later, once the whole town's quests are known
+    // (`opening::add_standing_needs`).
     if let Some(earlier) = id.earlier() {
         needs.push(Requirement::shown(Need::Done(earlier)));
-        let chain = if let Slot::Giver { chain, .. } = id.slot {
-            chain
-        } else {
-            0
-        };
-        needs.push(Requirement::shown(Need::Standing {
-            town: town.chunk,
-            least: Standing::ALL[usize::from(chain).min(Standing::ALL.len() - 1)],
-        }));
     }
     if dark {
         needs.push(Requirement::shown(Need::Alignment(Band::Evil)));

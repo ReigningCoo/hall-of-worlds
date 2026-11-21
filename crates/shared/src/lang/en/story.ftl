@@ -75,3 +75,8 @@ distance-near = in sight of town
 distance-short = a short walk away
 distance-day = most of a day away
 distance-far = days away
+
+## A quest's name with its part in a chain: how many when known.
+
+story-title-part-of = { $title } [{ $part }/{ $parts }]
+story-title-part = { $title }, part { $part }

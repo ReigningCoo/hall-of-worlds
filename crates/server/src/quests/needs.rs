@@ -1,7 +1,7 @@
 //! Whether a character may take a quest: its requirements against what they
 //! have done and are, and the hints a giver gives for what is missing (never
 //! numbers). An alignment requirement they don't meet hides the quest
-//! entirely (owner).
+//! entirely, as does standing two tiers or more beyond theirs (owner).
 
 use shared::protocol::{Heard, Hint};
 use shared::quest::{Need, Quest, QuestId, Slot};
@@ -36,7 +36,12 @@ pub(crate) fn judge(quest: &Quest, client: &Client, world: &ServerWorld) -> Verd
                 continue;
             }
             Need::Standing { town, least } => {
-                (standing(book, town) < least).then_some(Hint::Standing { least })
+                let ours = standing(book, town);
+                // Two tiers or more beyond: not told of at all (owner).
+                if least as usize > ours as usize + 1 {
+                    return Verdict::Hidden;
+                }
+                (ours < least).then_some(Hint::Standing { least })
             }
             Need::Done(id) => (!book.done.contains_key(&id)).then(|| done_hint(quest, id, world)),
             Need::Skill { skill, least } => {

@@ -45,10 +45,20 @@ impl Story {
             .collect()
     }
 
-    /// The quest's name, from its reason (`story-title-<reason>`).
+    /// The quest's name, from its reason (`story-title-<reason>`), with its
+    /// part in a chain after it ("[1/3]", or "part 2" when how many isn't
+    /// known).
     pub fn title(&self, lang: &Lang) -> Result<String, RenderError> {
         let id = format!("story-title-{}", self.reason.key());
-        lang.render(&wording(lang, self.text_seed, &id), &self.args(lang)?)
+        let title = lang.render(&wording(lang, self.text_seed, &id), &self.args(lang)?)?;
+        let Some(part) = self.part else {
+            return Ok(title);
+        };
+        let args = (Args::new().text("title", title)).count("part", i64::from(part.number));
+        match part.of {
+            Some(of) => lang.render("story-title-part-of", &args.count("parts", i64::from(of))),
+            None => lang.render("story-title-part", &args),
+        }
     }
 
     /// A step's few words ("Slay kobolds 2/6"): ask `index`, with `done` of

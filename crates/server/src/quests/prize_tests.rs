@@ -120,6 +120,17 @@ fn an_artifact_line_opens_to_the_honoured() {
             .find(|offer| offer.quest.id == first.id)
             .map(|offer| offer.state)
     };
+    // Too far beyond a stranger to be told of at all (owner).
+    assert!(state(&mut test).is_none());
+    // The giver's other quests done, as they offer one at a time (owner).
+    let others: Vec<_> = (cache::town(&mut test.world, city).unwrap().quests.iter())
+        .filter(|quest| quest.building == first.building && quest.kind == QuestKind::Normal)
+        .map(|quest| quest.id)
+        .collect();
+    for id in others {
+        test.client.character.quests.done.insert(id, NOW);
+    }
+    test.client.character.quests.standing.insert(city, 30);
     assert!(matches!(state(&mut test), Some(OfferState::Locked(_))));
     test.client.character.quests.standing.insert(city, 75);
     assert!(matches!(

@@ -92,6 +92,7 @@ pub(super) fn artifact_line(
             chain: step,
             earlier: quests.last().map(|q| &q.story),
             dark: false,
+            parts: plans.len() as u8,
             continues: !last,
             text_seed: Seed::new(seed.derive("text").at(&[i64::from(step)])),
             prize: last.then_some(prize),
