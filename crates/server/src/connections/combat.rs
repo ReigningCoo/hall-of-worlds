@@ -323,6 +323,8 @@ mod grudge_tests;
 #[cfg(test)]
 mod heal_tests;
 #[cfg(test)]
+mod hearth_fire_tests;
+#[cfg(test)]
 mod kick_tests;
 #[cfg(test)]
 mod pour_tests;

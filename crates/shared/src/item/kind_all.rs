@@ -4,7 +4,7 @@ use super::ItemKind;
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 125] = [
+    pub const ALL: [Self; 128] = [
         Self::Alembic,
         Self::ArmArmour,
         Self::ArmingCap,
@@ -24,6 +24,7 @@ impl ItemKind {
         Self::Boomerang,
         Self::Boots,
         Self::Bottle,
+        Self::Bowl,
         Self::Braies,
         Self::Bread,
         Self::BreastBand,
@@ -89,6 +90,7 @@ impl ItemKind {
         Self::Ointment,
         Self::PaddedChausses,
         Self::PaddedGloves,
+        Self::Pan,
         Self::Parcel,
         Self::Paste,
         Self::Pelican,
@@ -108,6 +110,7 @@ impl ItemKind {
         Self::Shoes,
         Self::ShortSword,
         Self::ShoulderArmour,
+        Self::Sieve,
         Self::SilverCoin,
         Self::Skirt,
         Self::Slippers,

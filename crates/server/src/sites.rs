@@ -45,7 +45,7 @@ mod up_down;
 mod wild;
 
 pub(crate) use benches::{
-    BenchHere, BenchKey, bench_tools, create_bench, keep_bench, share_benches,
+    BenchHere, BenchKey, bench_tools, create_bench, keep_bench, settle_storage, share_benches,
 };
 use benches::{put_made_benches, stock_benches};
 pub(crate) use campfires::{FireTarget, fire_target, light_or_feed, sync_campfires};
@@ -125,8 +125,8 @@ pub(crate) struct Visit {
     further: u32,
     /// A building's other floors, seen from this one (`other_floors`).
     floors: Vec<OtherFloor>,
-    /// Benches whose tools the client has been sent, by cell (`benches`).
-    benches_sent: std::collections::BTreeSet<(i64, i64)>,
+    /// Benches told of, by cell, and whether a hearth was told lit (`benches`).
+    benches_sent: std::collections::BTreeMap<(i64, i64), bool>,
 }
 
 impl Visit {

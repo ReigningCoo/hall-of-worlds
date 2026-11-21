@@ -32,6 +32,7 @@ impl ItemKind {
                 }
                 _ if self.has_food_row() => self.food_def(), // `food_def.rs`
                 Self::Log | Self::Kindling | Self::Ash => self.wood_def(), // `wood_def.rs`
+                Self::Pan | Self::Bowl | Self::Sieve => self.kitchen_def(), // `kitchen_def.rs`
                 // Bags, boxes and backpacks: in `bag_def.rs`.
                 Self::Backpack
                 | Self::Bag

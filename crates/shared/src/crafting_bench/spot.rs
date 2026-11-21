@@ -7,7 +7,7 @@ use super::Craft;
 use crate::door::Side;
 use crate::dungeon::{Cell, Level};
 use crate::furniture::place::rooms::Room;
-use crate::furniture::{Furniture, Material, Piece, Wood, footprint};
+use crate::furniture::{Furniture, Material, Piece, Stone, Wood, footprint};
 use crate::rng::Seed;
 
 /// Each side a wall can be behind a bench: where the wall is from it, and
@@ -52,14 +52,17 @@ pub(super) fn spots(
             if !fits {
                 continue;
             }
-            let wood = Seed::new(hash(&[x, y, WOOD]))
-                .rng()
-                .pick_weighted(&Wood::WEIGHTS);
+            let mut rng = Seed::new(hash(&[x, y, WOOD])).rng();
+            // Hearths are of stone, other benches of wood.
+            let material = match craft.is_hearth() {
+                true => Material::Stone(rng.pick_weighted(&Stone::WEIGHTS)),
+                false => Material::Wood(rng.pick_weighted(&Wood::WEIGHTS)),
+            };
             let piece = Piece {
                 at: (x, y),
                 size: footprint(furniture, (craft.length(), 1), facing),
                 facing,
-                material: Material::Wood(wood),
+                material,
                 furniture,
             };
             found.push((hash(&[x, y, back as i64, ORDER]), piece));

@@ -12,7 +12,8 @@ impl Furniture {
             Self::Table { style } => TableStyle::STONE.contains(&style),
             Self::Chair { style, .. } => style == ChairStyle::StoneBlock,
             Self::Bench { style } => style == BenchStyle::StoneSlab,
-            Self::CraftingBench { .. } => false,
+            // Hearths are of stone, other benches of wood.
+            Self::CraftingBench { craft } => craft.is_hearth(),
         }
     }
 }

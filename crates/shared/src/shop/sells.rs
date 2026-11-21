@@ -9,13 +9,13 @@ use crate::site::BuildingKind;
 /// (`shared::produce`, by the server).
 pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
     use ItemKind::{
-        Alembic, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Braies,
-        BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Crucible, Egg, Filter, Flour, Fruit,
+        Alembic, ArmingCap, ArmingVest, Backpack, Bag, Belt, Boomerang, Boots, Bottle, Bowl,
+        Braies, BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Crucible, Egg, Filter, Flour, Fruit,
         Gauntlets, Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern,
         LinenCoif, Loincloth, Mercury, MortarAndPestle, Necklace, Neckwear, OilPress,
-        PaddedChausses, PaddedGloves, Pelican, Petticoat, Pouch, Retort, Ring, Sandals, Shawl,
-        Shirt, Shoes, Slippers, SmallBox, Socks, Sulphur, Surcoat, Sword, Tabard, Tap, Trousers,
-        Vegetable, Vessel, Wimple, Yeast,
+        PaddedChausses, PaddedGloves, Pan, Pelican, Petticoat, Pouch, Retort, Ring, Sandals, Shawl,
+        Shirt, Shoes, Sieve, Slippers, SmallBox, Socks, Sulphur, Surcoat, Sword, Tabard, Tap,
+        Trousers, Vegetable, Vessel, Wimple, Yeast,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -25,6 +25,7 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Keyring, 1),
             (Cauldron, 1),
             (Crucible, 1),
+            (Pan, 1),
         ],
         // Their bottles hold waters and oils (`bottled`); fruit and
         // vegetables are what is grown near the town (`shared::produce`).
@@ -56,6 +57,8 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Cask, 1),
             (Tap, 1),
             (Vessel, 1),
+            (Bowl, 1),
+            (Sieve, 1),
         ],
         BuildingKind::Tailor => &[
             (Shirt, 3),

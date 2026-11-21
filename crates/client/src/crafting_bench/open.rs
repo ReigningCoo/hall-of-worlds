@@ -100,18 +100,16 @@ fn open_panel(
     dom.set("bench/panel", "title", title(craft));
     dom.start_at("bench/panel", AT);
     let tools = benches.0.get(&piece.at);
-    let tools = tools.map_or(&[][..], |tools| tools.tools());
+    let tools = tools.map(super::server::shown).unwrap_or_default();
     panel.0 = Some(OpenBench {
         piece,
         panel: entity,
         holder: None,
-        grid: StockGrid::new(Benches::id_of(piece.at), COLUMNS, tools),
+        grid: StockGrid::new(Benches::id_of(piece.at), COLUMNS, &tools),
     });
 }
 
 /// A bench's panel's title, by its craft.
 pub(super) fn title(craft: Craft) -> &'static str {
-    match craft {
-        Craft::Alchemy => "Alchemy Bench",
-    }
+    craft.name()
 }

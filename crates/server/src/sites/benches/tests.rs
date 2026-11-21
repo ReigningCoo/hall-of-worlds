@@ -77,7 +77,10 @@ fn a_made_bench_is_kept_with_its_tools_and_told_once_seen() {
     let visit = test.client.visit.as_ref().unwrap();
     let (id, index) = (visit.id, visit.index);
     assert!(visit.bench_at(7, 10).is_some(), "on the level");
-    assert!(visit.benches_sent.contains(&(6, 10)), "told with its cells");
+    assert!(
+        visit.benches_sent.contains_key(&(6, 10)),
+        "told with its cells"
+    );
     let saved = &test.world.site(id).levels[&index];
     assert_eq!(saved.made_benches, vec![bench()]);
     let tools = &saved.benches[&(6, 10)];
@@ -189,7 +192,14 @@ fn a_herbalists_bench_starts_with_a_mortar_and_pestle_once() {
     };
     let has_bench = |test: &TestClient| {
         let level = &test.client.visit.as_ref().unwrap().level.level;
-        (level.furniture()).any(|piece| matches!(piece.furniture, Furniture::CraftingBench { .. }))
+        (level.furniture()).any(|piece| {
+            matches!(
+                piece.furniture,
+                Furniture::CraftingBench {
+                    craft: Craft::Alchemy
+                }
+            )
+        })
     };
     let seed = (1..50).find(|&seed| {
         test.send(&[enter(seed)]);
@@ -200,11 +210,11 @@ fn a_herbalists_bench_starts_with_a_mortar_and_pestle_once() {
     let (id, index) = (visit.id, visit.index);
     let saved = &test.world.site(id).levels[&index];
     assert!(saved.benches_stocked);
-    let mut stocked = saved.benches.values();
-    let tools = stocked.next().expect("its bench stocked");
+    let mut stocked = saved.benches.iter();
+    let (&at, tools) =
+        (stocked.find(|(_, tools)| tools.craft == Craft::Alchemy)).expect("its bench stocked");
     assert!(tools.has(ItemKind::MortarAndPestle));
     // Taken off, it isn't stocked again.
-    let at = *saved.benches.keys().next().unwrap();
     let mortar = tools.tool(ItemKind::MortarAndPestle).unwrap().id;
     let level = test.world.site_mut(id).levels.get_mut(&index).unwrap();
     level.benches.get_mut(&at).unwrap().take(mortar);

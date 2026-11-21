@@ -27,7 +27,10 @@ pub fn look_of(item: &Item) -> Option<Look> {
         | ItemKind::Filter
         | ItemKind::Pelican
         | ItemKind::OilPress
-        | ItemKind::Tap) => {
+        | ItemKind::Tap
+        | ItemKind::Pan
+        | ItemKind::Bowl
+        | ItemKind::Sieve) => {
             return Some(Look::Tool(kind));
         }
         ItemKind::Yeast => return Some(Look::Yeast),

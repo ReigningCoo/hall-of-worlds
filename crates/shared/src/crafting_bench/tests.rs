@@ -26,7 +26,7 @@ fn tool(kind: ItemKind, id: u128) -> Item {
 fn crafts_have_lengths_and_tools() {
     for craft in Craft::ALL {
         assert!((1..=3).contains(&craft.length()), "{craft:?}");
-        assert!(!craft.tools().is_empty());
+        assert_eq!(craft.tools().is_empty(), craft == Craft::Stove);
     }
     assert_eq!(Craft::Alchemy.length(), 2);
     let apparatus: Vec<_> = Apparatus::ALL.iter().filter_map(|a| a.item()).collect();
@@ -169,8 +169,9 @@ fn levels(kind: PoiKind, count: u64) -> Vec<(u64, u32, u32, SiteLevel)> {
     all
 }
 
+/// The Alchemy benches on a level (hearths are `hearth_tests.rs`').
 fn benches(level: &Level) -> Vec<Piece> {
-    let is_bench = |p: &&Piece| matches!(p.furniture, Furniture::CraftingBench { .. });
+    let is_bench = |p: &&Piece| matches!(p.furniture, Furniture::CraftingBench { craft } if !craft.is_hearth());
     level.furniture().filter(is_bench).copied().collect()
 }
 
@@ -220,7 +221,9 @@ fn herbalists_have_benches_against_walls_cutting_nothing_off() {
             let without = fill(level, start, false);
             let with = fill(level, start, true);
             let lost = without.difference(&with);
-            let bench_cells: BTreeSet<_> = found.iter().flat_map(|p| p.cells()).collect();
+            let all = level.furniture();
+            let all = all.filter(|p| matches!(p.furniture, Furniture::CraftingBench { .. }));
+            let bench_cells: BTreeSet<_> = all.flat_map(|p| p.cells()).collect();
             assert!(lost.into_iter().all(|cell| bench_cells.contains(cell)));
         }
     }
@@ -237,7 +240,7 @@ fn herbalists_have_benches_against_walls_cutting_nothing_off() {
 }
 
 #[test]
-fn benches_go_only_in_some_sites_and_are_the_same_every_time() {
+fn alchemy_benches_go_only_in_some_sites_and_are_the_same_every_time() {
     for (_, _, _, site) in levels(PoiKind::StoneCottage, 6) {
         assert!(benches(&site.level).is_empty());
     }

@@ -85,12 +85,15 @@ impl Tool {
     }
 
     /// The tool an item of this kind serves as: any knife or dagger is a
-    /// Knife, the brewing Cauldron and the alchemy Mortar & pestle are
-    /// themselves. Pans, bowls, ovens and sieves have no items yet: hearths
-    /// will hold them (cooking plan PR 8).
+    /// Knife, the Pan, Bowl, Sieve, brewing Cauldron and alchemy Mortar &
+    /// pestle are themselves. The Oven has no item: it is a lit hearth's own
+    /// (`crafting_bench::Craft::is_hearth`).
     pub fn of_item(kind: ItemKind) -> Option<Tool> {
         match kind {
             ItemKind::Knife | ItemKind::Dagger => Some(Self::Knife),
+            ItemKind::Pan => Some(Self::Pan),
+            ItemKind::Bowl => Some(Self::Bowl),
+            ItemKind::Sieve => Some(Self::Sieve),
             ItemKind::Cauldron => Some(Self::Cauldron),
             ItemKind::MortarAndPestle => Some(Self::Mortar),
             _ => None,

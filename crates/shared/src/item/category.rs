@@ -163,6 +163,9 @@ impl ItemKind {
             | Self::Filter
             | Self::Pelican
             | Self::Cauldron
+            | Self::Pan
+            | Self::Bowl
+            | Self::Sieve
             | Self::Cask
             | Self::Tap
             | Self::Vessel
