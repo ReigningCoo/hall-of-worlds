@@ -22,12 +22,11 @@ use crate::world::ClockRate;
 /// From a client to the server.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum ClientMessage {
-    /// The first message on a new connection, answered with `LoginOptions`
-    /// (the embedded server's own player, who needs no login: with
-    /// `Characters`). `makes_characters`: the client has screens for choosing
-    /// and making characters; without them the account's latest is played, or
-    /// a plain one made. `difficulty`: the player's default, for a character
-    /// with none saved (`Difficulty::for_existing`).
+    /// The first message on a new connection, answered with `LoginOptions` (the
+    /// embedded server's own player, who needs no login: with `Characters`).
+    /// `makes_characters`: the client has screens for choosing and making
+    /// characters; without them the account's latest is played, or a plain one
+    /// made. `difficulty`: the player's default, for a character with none saved.
     Hello {
         protocol: u32,
         makes_characters: bool,
@@ -286,8 +285,7 @@ pub enum ClientMessage {
     Pick { x: i64, y: i64 },
     /// Developer tools: learn or forget herbs (`DevHerbs`), answered with `Sheet`.
     DevHerbs(super::DevHerbs),
-    /// Run an Alchemy process, `count` times: answered as `UseAbility(Alchemy)`
-    /// once a run (`Landed::Alchemy`).
+    /// Runs an Alchemy process `count` times, as `UseAbility(Alchemy)` (`Landed::Alchemy`).
     Alchemy(crate::alchemy::AlchemyOrder),
     /// Set a cask fermenting: answered as `UseAbility(Ferment)` (`Landed::Fermented`).
     Ferment(crate::ferment::FermentOrder),
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Yeast(super::YeastAsk),
     /// About crafting benches (`BenchAsk`): tools on and off, or making one.
     Bench(super::BenchAsk),
+    /// Runs a cooking process `count` times, as `UseAbility(Cook)` (`Landed::Cooked`).
+    Cook(crate::cooking::CookOrder),
 }

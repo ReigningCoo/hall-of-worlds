@@ -37,6 +37,9 @@ mod collect_water;
 mod combat;
 mod connections_impl;
 mod consume;
+mod cook;
+mod cook_kitchen;
+mod cook_use;
 mod cut_kindling;
 mod delete_character;
 mod dev_alignment;
@@ -240,6 +243,8 @@ pub struct Client {
     pressing: Option<shared::potion::Pressing>,
     /// The Alchemy process being run and the runs left (`alchemy.rs`).
     alchemy: Option<shared::alchemy::AlchemyOrder>,
+    /// The cooking process being run and the runs left (`cook.rs`).
+    cooking: Option<shared::cooking::CookOrder>,
     /// What Ferment sets going while it winds up (`ferment.rs`).
     fermenting: Option<shared::ferment::FermentOrder>,
     /// Its open practice windows, by skill and by kind of foe.

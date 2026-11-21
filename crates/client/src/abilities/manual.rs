@@ -249,8 +249,13 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // the closed door beside the player.
         Ability::Kick => Some(target),
         // Asked for by their panels (`press_oil.rs`, `press_juice.rs`,
-        // `ferment/`; Alchemy's with PR 4), never queued.
-        Ability::PressOil | Ability::PressJuice | Ability::Alchemy | Ability::Ferment => None,
+        // `ferment/`; Alchemy's with PR 4; Cook's with the cooking plan's
+        // PR 10), never queued.
+        Ability::PressOil
+        | Ability::PressJuice
+        | Ability::Alchemy
+        | Ability::Ferment
+        | Ability::Cook => None,
         // On no one: the water or tree faced, or the log chosen
         // (`ask_wanted`).
         Ability::CollectWater

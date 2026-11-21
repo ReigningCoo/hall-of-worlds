@@ -42,6 +42,9 @@ pub(crate) enum Act {
     /// A cask being set fermenting (players only): the order is the client's
     /// `fermenting`.
     Ferment,
+    /// A run of a cooking process (players only): the order is the client's
+    /// `cooking`.
+    Cook,
 }
 
 /// An ability begun and not landed yet.

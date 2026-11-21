@@ -217,6 +217,7 @@ pub(crate) fn answer(
             true
         }
         ClientMessage::Alchemy(order) => super::alchemy::ask_alchemy(client, order),
+        ClientMessage::Cook(order) => super::cook::ask_cook(client, order),
         ClientMessage::Ferment(order) => super::ferment::ask_ferment(client, order),
         ClientMessage::CancelAbility => super::combat::cancel_ability(client, world),
         ClientMessage::WithdrawAbility => {

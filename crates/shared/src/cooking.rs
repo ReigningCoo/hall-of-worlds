@@ -22,11 +22,14 @@ mod generic;
 mod grid;
 mod mix;
 mod names;
+mod order;
+mod order_check;
 mod outcome;
 mod plan;
 mod poisons;
 mod process;
 mod quality;
+mod run;
 mod shape;
 mod skills;
 mod table;
@@ -44,6 +47,8 @@ pub use dishes::Dishes;
 pub use generic::{DOUGH_PERCENT, Generic};
 pub use mix::{ROLE_PERCENT, SEASONING_PERCENT};
 pub use names::food_name;
+pub use order::{CookOrder, Kitchen, MOST_REPEATS, OrderInput, OrderRefused, OrderStep};
+pub use order_check::Checked;
 pub use outcome::{Outcome, outcome};
 pub use plan::{Output, Planned, plan};
 pub use poisons::poisons;
@@ -51,6 +56,7 @@ pub use process::{
     Carried, Heat, History, MOST_COLUMNS, MOST_ROWS, Portion, Process, Refused, Step,
 };
 pub use quality::{AWAY_CAP, capped, ingredient_quality, least_quality, skill_steps};
+pub use run::{COOK_PRACTICE, drawn, heat_seconds, run_seconds, run_ticks};
 pub use shape::Shape;
 pub use skills::CookingSkills;
 pub use table::Ingredients;
@@ -64,6 +70,8 @@ pub use well_fed::{
 mod dish_tests;
 #[cfg(test)]
 mod grid_tests;
+#[cfg(test)]
+mod order_tests;
 #[cfg(test)]
 mod rules_tests;
 #[cfg(test)]

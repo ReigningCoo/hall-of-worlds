@@ -16,7 +16,7 @@ use crate::storage::{CellMasks, SiteId, VisitSave};
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod benches;
-mod campfires;
+pub(crate) mod campfires;
 mod cellar;
 mod cells;
 mod dev_area;
