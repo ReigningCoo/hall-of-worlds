@@ -77,6 +77,7 @@ pub(super) fn parts_of(
         Look::Solid(shared::item::ItemKind::Mercury) => {
             super::solids::mercury_parts(meshes, materials)
         }
+        Look::Solid(shared::item::ItemKind::Ash) => super::salt::ash_parts(meshes, materials),
         Look::Solid(_) => super::salt::salt_parts(meshes, materials),
         Look::Cask(cask) => super::cask::cask_parts(cask, meshes, materials),
         Look::Log(wood) => super::log::log_parts(wood, meshes, materials),

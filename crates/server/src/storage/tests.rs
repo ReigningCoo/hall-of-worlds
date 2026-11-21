@@ -219,6 +219,7 @@ fn saves_are_read_back() {
                 })]),
                 benches_stocked: true,
                 made_benches: Vec::new(),
+                campfires: BTreeMap::new(),
                 doors: BTreeMap::from([(
                     (6, 7),
                     shared::door::Door {

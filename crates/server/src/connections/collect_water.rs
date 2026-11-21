@@ -50,7 +50,7 @@ impl Client {
 
     /// Calls off a bottle being filled, with water or oil pressed
     /// (`press_oil.rs`), or felling or splitting wood (`fell_tree.rs`,
-    /// `cut_kindling.rs`), as moving or being harmed does: the player can act
+    /// `cut_kindling.rs`), or making a fire (`campfire.rs`), as moving or being harmed does: the player can act
     /// again at once. `false` if the client has gone.
     pub(crate) fn stop_collecting(&mut self, now: u64) -> bool {
         let Some(pending) = self.fight.pending else {
@@ -65,6 +65,7 @@ impl Client {
                 | Act::Ferment
                 | Act::FellTree { .. }
                 | Act::CutKindling(_)
+                | Act::MakeCampfire(_)
         ) || pending.lands_at <= now
         {
             return true;

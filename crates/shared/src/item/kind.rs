@@ -192,6 +192,9 @@ pub enum ItemKind {
     Headdress,
     Neckwear,
     Shawl,
+    /// What a campfire leaves when it burns out (`shared::campfire`),
+    /// counted: for nixtamal later (cooking plan).
+    Ash,
 }
 
 impl ItemKind {

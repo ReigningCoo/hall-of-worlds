@@ -31,7 +31,7 @@ impl ItemKind {
                     self.feet_def()
                 }
                 _ if self.has_food_row() => self.food_def(), // `food_def.rs`
-                Self::Log | Self::Kindling => self.wood_def(), // `wood_def.rs`
+                Self::Log | Self::Kindling | Self::Ash => self.wood_def(), // `wood_def.rs`
                 // Bags, boxes and backpacks: in `bag_def.rs`.
                 Self::Backpack
                 | Self::Bag

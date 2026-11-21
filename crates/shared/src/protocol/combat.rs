@@ -46,6 +46,9 @@ pub enum Landed {
     /// A cask was set fermenting (Ferment: `target` is `None`): ready in this
     /// many game days.
     Fermented { days: u32 },
+    /// A campfire was lit or fed (Make Campfire: `target` is `None`): it has
+    /// this many pieces of kindling left.
+    Campfire { pieces: u8 },
 }
 
 /// What one run of an Alchemy process made (`Landed::Alchemy`). The

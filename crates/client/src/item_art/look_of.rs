@@ -31,7 +31,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
             return Some(Look::Tool(kind));
         }
         ItemKind::Yeast => return Some(Look::Yeast),
-        kind @ (ItemKind::Salt | ItemKind::Sulphur | ItemKind::Mercury) => {
+        kind @ (ItemKind::Salt | ItemKind::Sulphur | ItemKind::Mercury | ItemKind::Ash) => {
             return Some(Look::Solid(kind));
         }
         kind @ (ItemKind::Bread | ItemKind::DwarvenBread | ItemKind::RawMeat) => {

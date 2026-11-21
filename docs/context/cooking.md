@@ -58,7 +58,7 @@ row 2  [Knife: onion, carrot]         → [Cauldron: minced beef, wine, milk] �
 | 4 | Shared rules I: the grid (rows, columns, joins), tools and their sub-skills, the Cooking skill, chance and step limit (a join 1.5 steps), balance, quality with history carried by intermediates, heat needs and the Rare cap away from a hearth (built) | 1 | in order |
 | 5 | Shared rules II: classifying and naming (the dish patterns table, real names when close, generic otherwise, herb and spice leeway), Well Fed, diet labels, poisons carried through (built) | 4 | in order |
 | 6 | Food items: the Dish item (form, name, tint, diet labels in the popup), intermediates with rest clocks run by warmth, eating gives Well Fed, cultures as strains on the Yeast item, ferments forming wild without one (built: `shared::food`) | 5 | in order |
-| 7 | Campfire and Ash (above) | none | independent |
+| 7 | Campfire and Ash (above) (built: `shared::campfire`) | none | independent |
 | 8 | Hearths 1 × 1, 1 × 2, 1 × 3 on crafting bench rules; lit or by kindling; ash from cooking; towns' virtual 1 × 2; storage open to all | 4, 7 | in order |
 | 9 | The server: the Cook ability, the order checked against what is carried and in reach (heat, tools, water from any source), run times, practice and sub-skills, intermediates out, storage space clocks | 6, 8 | in order |
 | 10 | The client: the Cooking panel, the alchemy panel's process row grown into rows with join steps, drop spaces, preview (name, quality, chance, Well Fed, diet labels) | 9 | in order |
@@ -70,6 +70,10 @@ Later (not in this plan): tavern stock, the forge burning food, lava, spoilage, 
 ## The culinary data (PR 1, built)
 
 `shared::cooking` (`docs/context/shared/cooking.md`): `Ingredients`, built in from `cooking/ingredients.ron`, a row per raw food keyed by source (herb, fruit, vegetable, fungus; meat, milk, egg and honey by animal; livestock parts by part), found from an item's form. Claude's choices: the research's `animal_product` (meant "from an animal but not meat") is set for meat too, so vegan is simply no animal product; flour is looked up as its grain; the research's dish lists and notes stayed out of the table (the dish patterns come with PR 5).
+
+## Campfire and Ash (PR 7, built)
+
+`shared::campfire` (`docs/context/shared/campfire.md`). Claude's choices, for the owner to tune: Make Campfire lights a fire on the ground faced (bare ground, grass, a floor or a stone or dirt road; never boards, fields, gardens, covered ground, water, furniture, trees, stairs) or feeds the fire faced, a piece of the first kindling carried at a time (5 s to light, 1 s to feed); a piece burns 5 minutes for the lightest wood to 10 for the densest, in real time by the server's clock (paused with it); a fire holds 5 unburnt; it lights 6 cells round (embers 1) and goes when it burns out, leaving one Ash (20 g, counted, no quality) a piece fed on the ground at its cell. Fires don't block, harm or spread, and can't be put out or moved. Ash is drawn as Salt's heap in grey.
 
 ## Food items (PR 6, built)
 

@@ -9,6 +9,7 @@ impl Ability {
     pub const fn tool(self) -> Option<ItemKind> {
         match self {
             Self::PressOil | Self::PressJuice => Some(ItemKind::OilPress),
+            Self::MakeCampfire => Some(ItemKind::Kindling),
             _ => None,
         }
     }

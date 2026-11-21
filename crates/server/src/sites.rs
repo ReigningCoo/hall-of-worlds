@@ -1,8 +1,7 @@
-//! Players in sites: entering them, moving about, taking stairs and leaving,
-//! and sending each player the cells of their level as they come to see
-//! them (or are about to). What a player has seen is kept with their
-//! character; each site keeps its generator version, when its levels were
-//! last visited and players' changes (`storage::SiteSave`).
+//! Players in sites: entering them, moving about, taking stairs and leaving, and sending each
+//! player the cells of their level as they come to see them (or are about to). What a player has
+//! seen is kept with their character; each site keeps its generator version, when its levels
+//! were last visited and players' changes (`storage::SiteSave`).
 
 use bevy::prelude::*;
 use shared::creature::Size;
@@ -17,6 +16,7 @@ use crate::storage::{CellMasks, SiteId, VisitSave};
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod benches;
+mod campfires;
 mod cellar;
 mod cells;
 mod dev_area;
@@ -48,6 +48,7 @@ pub(crate) use benches::{
     BenchHere, BenchKey, bench_tools, create_bench, keep_bench, share_benches,
 };
 use benches::{put_made_benches, stock_benches};
+pub(crate) use campfires::{FireTarget, fire_target, light_or_feed, sync_campfires};
 use cellar::{stock_cellar, stock_set_in_cellar};
 use cells::{
     add_masks, all_cells, beside, cells_in, keep_within, level_chunks, nearby_cells, send_cells,

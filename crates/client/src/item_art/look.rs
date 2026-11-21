@@ -123,7 +123,7 @@ pub enum Look {
     Dish(super::DishLook),
     /// A crock of yeast, the same for every one (`yeast.rs`).
     Yeast,
-    /// Salt, Sulphur or Mercury, by kind (`salt.rs`, `solids.rs`).
+    /// Salt, Sulphur, Mercury or Ash, by kind (`salt.rs`, `solids.rs`).
     Solid(shared::item::ItemKind),
     /// A cask, by its size and wood (`cask.rs`).
     Cask(shared::cask::CaskLook),

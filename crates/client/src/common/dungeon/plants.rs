@@ -1,4 +1,5 @@
-//! The plants, fungi, felled trees and trees' kinds on cells the server has sent.
+//! The plants, fungi, felled trees, trees' kinds and campfires on cells the
+//! server has sent.
 
 use shared::protocol::LevelChunk;
 
@@ -16,6 +17,7 @@ impl CurrentDungeon {
             self.level.remove_fungus(x, y);
             self.level.set_felled(x, y, None);
             self.level.set_tree_kind(x, y, None);
+            self.level.set_campfire(x, y, None);
         }
         for seen in &chunk.herbs {
             self.level.set_herb(seen.x, seen.y, seen.patch.clone());
@@ -34,6 +36,9 @@ impl CurrentDungeon {
         }
         for seen in &chunk.trees {
             self.level.set_tree_kind(seen.x, seen.y, Some(seen.kind));
+        }
+        for seen in &chunk.campfires {
+            self.level.set_campfire(seen.x, seen.y, Some(seen.pieces));
         }
     }
 }

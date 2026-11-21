@@ -153,6 +153,8 @@ pub struct LevelChunk {
     /// The kinds of the wild trees (`Cell::Tree`) on those cells, standing or
     /// felled (`dungeon::Level::tree_kind_at`).
     pub trees: Vec<SeenTree>,
+    /// The campfires burning on those cells (`dungeon::Level::campfire_at`).
+    pub campfires: Vec<SeenCampfire>,
     /// Whether these are cells the player saw on an earlier visit (sent on
     /// arriving), rather than ones they are about to see.
     pub remembered: bool,
@@ -227,6 +229,15 @@ pub struct SeenTree {
     pub x: i64,
     pub y: i64,
     pub kind: crate::tree::TreeKind,
+}
+
+/// A campfire burning on a cell, with the pieces of kindling it has left
+/// (`shared::campfire`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SeenCampfire {
+    pub x: i64,
+    pub y: i64,
+    pub pieces: u8,
 }
 
 /// A staircase as the player sees it: where it leads stays with the server.

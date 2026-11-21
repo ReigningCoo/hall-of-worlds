@@ -4,12 +4,13 @@ use super::ItemKind;
 
 impl ItemKind {
     /// Every kind, alphabetically by name.
-    pub const ALL: [Self; 124] = [
+    pub const ALL: [Self; 125] = [
         Self::Alembic,
         Self::ArmArmour,
         Self::ArmingCap,
         Self::ArmingVest,
         Self::ArmourCoat,
+        Self::Ash,
         Self::Aventail,
         Self::Axe,
         Self::Backpack,

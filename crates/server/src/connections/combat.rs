@@ -9,7 +9,7 @@ use shared::id::Id;
 use shared::protocol::{Landed, ServerMessage};
 use shared::skill::{familiarity, taught};
 
-use super::Client;
+use super::{Client, fell_tree};
 use crate::ServerWorld;
 use crate::combat::{Act, Pending, luck, ticks_for};
 use crate::entities::{MobBlow, Striker, hit_mob};
@@ -112,8 +112,9 @@ pub(super) fn start_ability(
         Ability::PressJuice => return super::press_juice::choose_juice(client, world, target),
         Ability::Alchemy => return super::alchemy::start_alchemy(client, world),
         Ability::Ferment => return super::ferment::start_ferment(client, world),
-        Ability::FellTree => return super::fell_tree::start_fell(client, world),
+        Ability::FellTree => return fell_tree::start_fell(client, world),
         Ability::CutKindling => return super::cut_kindling::start_cut(client, world, target),
+        Ability::MakeCampfire => return super::campfire::start_fire(client, world),
         _ => {}
     }
     let (Ability::Attack, Some(target)) = (ability, target) else {
@@ -169,10 +170,9 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         Act::PressJuice => return super::press_juice::land_juice(client, world),
         Act::Alchemy => return super::alchemy::land_alchemy(client, world),
         Act::Ferment => return super::ferment::land_ferment(client, world),
-        Act::FellTree { at, ticks } => {
-            return super::fell_tree::land_fell(client, world, at, ticks);
-        }
+        Act::FellTree { at, ticks } => return fell_tree::land_fell(client, world, at, ticks),
         Act::CutKindling(log) => return super::cut_kindling::land_cut(client, world, log),
+        Act::MakeCampfire(at) => return super::campfire::land_fire(client, world, at),
     };
     client.fight.attacks += 1;
     let target = pending.target;
@@ -306,6 +306,8 @@ mod alcohol_tests;
 mod alignment_tests;
 #[cfg(test)]
 mod bench_alchemy_tests;
+#[cfg(test)]
+mod campfire_tests;
 #[cfg(test)]
 mod collect_water_tests;
 #[cfg(test)]

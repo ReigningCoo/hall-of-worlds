@@ -146,6 +146,9 @@ pub struct LevelSave {
     /// Benches made with the developer tool, put on the level each time.
     #[serde(default)]
     pub made_benches: Vec<shared::furniture::Piece>,
+    /// Campfires burning, by cell as plants are (`sites::campfires`).
+    #[serde(default)]
+    pub campfires: BTreeMap<(i64, i64), shared::campfire::Campfire>,
     /// The wilderness's only: blocks whose mobs have something saved (`dead`,
     /// `records`), by `(x, y)`, with when someone was last near (seconds
     /// since 1970): they reset after nobody has been for a while.

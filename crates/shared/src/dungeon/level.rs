@@ -55,6 +55,8 @@ pub struct Level {
     /// Wild trees' kinds by cell, where the server has said (see
     /// `tree_kinds.rs`).
     pub(super) tree_kinds: BTreeMap<(i64, i64), TreeKind>,
+    /// Campfires burning, by cell: pieces of kindling left (`campfires.rs`).
+    pub(super) campfires: BTreeMap<(i64, i64), u8>,
     /// Whether its walls are natural, wider at the foot (`PoiKind::natural_walls`).
     natural_walls: bool,
 }
@@ -80,6 +82,7 @@ impl Level {
             fungi: BTreeMap::new(),
             felled: BTreeMap::new(),
             tree_kinds: BTreeMap::new(),
+            campfires: BTreeMap::new(),
             natural_walls: false,
         }
     }

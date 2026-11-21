@@ -27,13 +27,16 @@ impl Learned {
 
     /// Learns what carrying these items teaches: Collect Water on a first
     /// empty bottle (brewing plan, decision 5), Fell Tree and Cut Kindling on
-    /// first holding a one-handed axe (woodcutting plan). `true` if anything
-    /// is new.
+    /// first holding a one-handed axe (woodcutting plan), Make Campfire on
+    /// first carrying kindling (cooking plan). `true` if anything is new.
     pub fn learn_from(&mut self, carried: &Inventory) -> bool {
         let mut new = carried.empty_bottle().is_some() && self.learn(Ability::CollectWater);
         if carried.held_axe().is_some() {
             new |= self.learn(Ability::FellTree);
             new |= self.learn(Ability::CutKindling);
+        }
+        if carried.count_of(crate::item::ItemKind::Kindling) > 0 {
+            new |= self.learn(Ability::MakeCampfire);
         }
         new
     }
