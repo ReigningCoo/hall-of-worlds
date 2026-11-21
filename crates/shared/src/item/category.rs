@@ -174,6 +174,7 @@ impl ItemKind {
             | Self::Paste
             | Self::Powder
             | Self::Key
+            | Self::Recipe
             | Self::Keepsake
             | Self::Parcel
             | Self::Remains => Other,

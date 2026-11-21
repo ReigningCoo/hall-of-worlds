@@ -208,7 +208,7 @@ impl Inventory {
     }
 
     /// The stack `id`, if it is in what is carried and not worn.
-    fn cook_stack(&self, id: Id) -> Option<&Item> {
+    pub(super) fn cook_stack(&self, id: Id) -> Option<&Item> {
         let mut stacks = self.stacks_where(|_| true);
         let (stack, _) = stacks.find(|(stack, _)| stack.id == id)?;
         (!self.is_worn(id)).then_some(stack)

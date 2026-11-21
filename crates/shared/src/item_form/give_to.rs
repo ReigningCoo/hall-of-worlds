@@ -68,6 +68,11 @@ pub fn give_form_to(
             let form = crate::fungus::FungusForm::new(def, seed);
             (ItemForm::Fungus(form), Size::Medium)
         }
+        // A recipe scroll of a dish rolled from the seed (`recipe::dev_recipe`).
+        ItemKind::Recipe => {
+            let form = crate::recipe::dev_recipe(None, seed).expect("the built-in dishes");
+            (ItemForm::Recipe(form), Size::Medium)
+        }
         // Any grain's flour, rolled from the seed (`flour::dev_flour`).
         ItemKind::Flour => {
             let def = crate::flour::dev_flour(None, seed);

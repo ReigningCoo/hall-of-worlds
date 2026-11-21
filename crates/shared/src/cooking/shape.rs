@@ -16,7 +16,9 @@ pub struct Shape {
 impl Shape {
     /// The shape of an output with this history and portions, `water` the
     /// millilitres of water still in it (`plan`: water taken on from a
-    /// Cauldron to any other tool is drained). Milk always counts as liquid.
+    /// Cauldron to any other tool is drained). Milk counts as liquid unless
+    /// it went through a Sieve, which drains its whey (recipes plan PR 1:
+    /// curds and cheeses come out dry).
     pub fn of(
         history: &History,
         portions: &[Portion],
@@ -24,6 +26,7 @@ impl Shape {
         ingredients: &Ingredients,
     ) -> Self {
         let foods = Foods::of(portions, ingredients);
+        let strained = history.tools.contains(&Tool::Sieve);
         let milk: u32 = (foods.0.iter())
             .filter(|(def, _)| def.source == Source::Milk)
             .map(|(_, grams)| grams)
@@ -31,7 +34,10 @@ impl Shape {
         Self {
             tools: history.tools.clone(),
             joins: history.joins(),
-            wetness: Wetness::of(milk + water, foods.grams() + water),
+            wetness: match strained {
+                true => Wetness::of(water, foods.grams() - milk + water),
+                false => Wetness::of(milk + water, foods.grams() + water),
+            },
         }
     }
 

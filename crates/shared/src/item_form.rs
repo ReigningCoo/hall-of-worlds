@@ -132,6 +132,8 @@ pub enum ItemForm {
     Yeast(crate::yeast::YeastForm),
     /// A Dish or an intermediate (`shared::food`): what it is and holds.
     Food(Box<crate::food::FoodForm>),
+    /// A recipe scroll (`shared::recipe`): which craft and dish it teaches.
+    Recipe(crate::recipe::RecipeForm),
 }
 
 impl ItemForm {
@@ -174,6 +176,7 @@ impl ItemForm {
             Self::Vessel(vessel) => vessel.name(),
             Self::Yeast(yeast) => yeast.strain.name().to_owned(),
             Self::Food(food) => food.name(),
+            Self::Recipe(recipe) => recipe.name(),
         }
     }
 
@@ -226,7 +229,8 @@ impl ItemForm {
             | Self::Kindling(_)
             | Self::Vessel(_)
             | Self::Yeast(_)
-            | Self::Food(_) => &[],
+            | Self::Food(_)
+            | Self::Recipe(_) => &[],
         };
         settings.iter().filter_map(|setting| setting.gem.as_ref())
     }

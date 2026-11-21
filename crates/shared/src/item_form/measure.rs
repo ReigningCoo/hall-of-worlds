@@ -31,6 +31,7 @@ impl ItemForm {
             Self::Food(food) => Some(food.shape()),
             Self::Log(log) => Some(log.shape()),
             Self::Kindling(kindling) => Some(kindling.shape()),
+            Self::Recipe(recipe) => Some(recipe.shape()),
             Self::Gem(_)
             | Self::Ring(_)
             | Self::Hands(_)
@@ -79,6 +80,7 @@ impl ItemForm {
             Self::Food(food) => Some(food.grams()),
             Self::Log(log) => Some(log.grams()),
             Self::Kindling(_) => Some(crate::woodcutting::KINDLING_GRAMS),
+            Self::Recipe(_) => Some(crate::recipe::RECIPE_GRAMS),
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) | Self::Yeast(_) => None,
         }
     }
