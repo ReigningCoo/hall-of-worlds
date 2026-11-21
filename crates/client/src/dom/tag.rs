@@ -217,6 +217,7 @@ impl Tag {
             Self::Td | Self::Th => &["colspan"],
             Self::Table => &["cellspacing", "cellpadding"],
             Self::Label => &["for"],
+            Self::P => &["max-width"],
             Self::Button => &["selected", "hold"],
             Self::Input => &[
                 "type",

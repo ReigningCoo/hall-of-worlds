@@ -22,20 +22,20 @@ use shared::id::Id;
 use shared::lang::Lang;
 
 /// The popup: `name` is filled with the name in its colour once built; the
-/// rest are set as it opens.
+/// rest are set as it opens, long words wrapping at 300 pixels.
 pub(super) static ITEM_POPUP: Template = html!(
     "item_popup",
     r#"
 <form id="item_popup">
   <popup id="box" hover>
     <canvas id="name" margin-right="20"/>
-    <p id="about" hidden>.</p>
-    <p id="notes" hidden>.</p>
-    <p id="bonuses" hidden>.</p>
-    <p id="size" hidden>.</p>
-    <p id="needs" hidden>.</p>
-    <p id="unmet" class="warning" hidden>.</p>
-    <p id="keys" hidden>.</p>
+    <p id="about" max-width="300" hidden>.</p>
+    <p id="notes" max-width="300" hidden>.</p>
+    <p id="bonuses" max-width="300" hidden>.</p>
+    <p id="size" max-width="300" hidden>.</p>
+    <p id="needs" max-width="300" hidden>.</p>
+    <p id="unmet" class="warning" max-width="300" hidden>.</p>
+    <p id="keys" max-width="300" hidden>.</p>
     <img id="planet" hidden/>
     <p id="weight">.</p>
     <span id="id_row" class="columns" nowrap valign="middle" hidden>
