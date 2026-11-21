@@ -1,6 +1,6 @@
 ---
 title: Elder
-nav_order: 26
+nav_order: 32
 parent: Herbs
 grand_parent: Items
 ---

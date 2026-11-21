@@ -1,6 +1,6 @@
 ---
 title: Thyme
-nav_order: 69
+nav_order: 82
 parent: Herbs
 grand_parent: Items
 ---

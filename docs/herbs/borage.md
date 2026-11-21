@@ -1,6 +1,6 @@
 ---
 title: Borage
-nav_order: 13
+nav_order: 15
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Mung bean
-nav_order: 46
+nav_order: 47
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

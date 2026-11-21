@@ -1,6 +1,6 @@
 ---
 title: Wild rice
-nav_order: 83
+nav_order: 85
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

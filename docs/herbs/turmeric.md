@@ -1,6 +1,6 @@
 ---
 title: Turmeric
-nav_order: 70
+nav_order: 83
 parent: Herbs
 grand_parent: Items
 ---

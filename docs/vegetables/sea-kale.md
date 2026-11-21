@@ -1,6 +1,6 @@
 ---
 title: Sea kale
-nav_order: 66
+nav_order: 67
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Labrador tea
-nav_order: 42
+nav_order: 48
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Hawthorn
-nav_order: 39
+nav_order: 45
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Echinacea
-nav_order: 25
+nav_order: 31
 parent: Herbs
 grand_parent: Items
 ---

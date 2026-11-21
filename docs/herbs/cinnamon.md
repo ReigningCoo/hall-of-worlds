@@ -1,6 +1,6 @@
 ---
 title: Cinnamon
-nav_order: 18
+nav_order: 22
 parent: Herbs
 grand_parent: Items
 ---

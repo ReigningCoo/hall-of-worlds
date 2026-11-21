@@ -1,6 +1,6 @@
 ---
 title: Clove
-nav_order: 19
+nav_order: 23
 parent: Herbs
 grand_parent: Items
 ---

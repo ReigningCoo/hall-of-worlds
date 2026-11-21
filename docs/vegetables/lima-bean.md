@@ -1,6 +1,6 @@
 ---
 title: Lima bean
-nav_order: 41
+nav_order: 42
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

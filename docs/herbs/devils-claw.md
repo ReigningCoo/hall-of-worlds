@@ -1,6 +1,6 @@
 ---
 title: Devil's claw
-nav_order: 23
+nav_order: 28
 parent: Herbs
 grand_parent: Items
 ---

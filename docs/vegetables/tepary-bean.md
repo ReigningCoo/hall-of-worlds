@@ -1,6 +1,6 @@
 ---
 title: Tepary bean
-nav_order: 76
+nav_order: 78
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

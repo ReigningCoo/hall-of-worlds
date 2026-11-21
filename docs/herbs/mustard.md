@@ -1,6 +1,6 @@
 ---
 title: Mustard
-nav_order: 52
+nav_order: 59
 parent: Herbs
 grand_parent: Items
 ---

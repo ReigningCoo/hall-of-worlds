@@ -1,6 +1,6 @@
 ---
 title: Rosemary
-nav_order: 59
+nav_order: 70
 parent: Herbs
 grand_parent: Items
 ---

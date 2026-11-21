@@ -1,6 +1,6 @@
 ---
 title: Cardamom
-nav_order: 15
+nav_order: 18
 parent: Herbs
 grand_parent: Items
 ---

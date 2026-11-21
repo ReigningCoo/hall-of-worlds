@@ -1,6 +1,6 @@
 ---
 title: Vervain
-nav_order: 73
+nav_order: 86
 parent: Herbs
 grand_parent: Items
 ---

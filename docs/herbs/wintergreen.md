@@ -1,6 +1,6 @@
 ---
 title: Wintergreen
-nav_order: 79
+nav_order: 92
 parent: Herbs
 grand_parent: Items
 ---

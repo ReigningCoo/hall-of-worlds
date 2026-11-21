@@ -1,6 +1,6 @@
 ---
 title: Jerusalem artichoke
-nav_order: 34
+nav_order: 35
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

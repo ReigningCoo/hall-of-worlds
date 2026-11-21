@@ -1,6 +1,6 @@
 ---
 title: Ginseng
-nav_order: 36
+nav_order: 42
 parent: Herbs
 grand_parent: Items
 ---

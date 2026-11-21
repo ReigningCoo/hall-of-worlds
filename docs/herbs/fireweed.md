@@ -1,6 +1,6 @@
 ---
 title: Fireweed
-nav_order: 31
+nav_order: 37
 parent: Herbs
 grand_parent: Items
 ---

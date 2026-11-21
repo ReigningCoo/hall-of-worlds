@@ -5,7 +5,7 @@ Herbs for potion making: what each is, the table of them (built in, plus a serve
 ## Files
 
 - `crates/shared/src/herb.rs`: the module list and re-exports. Tests in `herb/tests.rs`; `herb/climate_tests.rs` checks every biome grows something at its hottest and coldest (its `extremes` shared with `fruit`'s test).
-- `herb/herbs.ron`: the 82 built-in herbs, generated once from the research's `final.json` (the script stayed outside the repo); edit by hand from now on. Read by `include_str!`.
+- `herb/herbs.ron`: the 95 built-in herbs: 82 generated once from the research's `final.json` (the script stayed outside the repo), and 13 kitchen herbs and spices added by hand for cooking (cooking plan PR 2: basil to poppy, last in the file); edit by hand from now on. Read by `include_str!`.
 - `herb/def.rs`: `HerbDef`, `EFFECTS` (4), `HerbDef::check`.
 - `herb/traits.rs`: `Abundance` (`quality`), `Temperature` (`suits`), `Part`.
 - `herb/growth.rs`: `Growth` (`days`), `Regrow` (`back_to`), `Early`, `STAGES`, `EARLY_STAGE`.

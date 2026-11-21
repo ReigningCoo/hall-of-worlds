@@ -1,6 +1,6 @@
 ---
 title: Yam
-nav_order: 85
+nav_order: 87
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

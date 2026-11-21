@@ -1,6 +1,6 @@
 ---
 title: Sundew
-nav_order: 67
+nav_order: 79
 parent: Herbs
 grand_parent: Items
 ---

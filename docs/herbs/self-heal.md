@@ -1,6 +1,6 @@
 ---
 title: Self-heal
-nav_order: 64
+nav_order: 75
 parent: Herbs
 grand_parent: Items
 ---

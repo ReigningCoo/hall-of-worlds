@@ -1,6 +1,6 @@
 ---
 title: Red clover
-nav_order: 57
+nav_order: 68
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Peanut
-nav_order: 52
+nav_order: 53
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Fonio
-nav_order: 31
+nav_order: 32
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

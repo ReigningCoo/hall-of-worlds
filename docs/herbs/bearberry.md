@@ -1,6 +1,6 @@
 ---
 title: Bearberry
-nav_order: 7
+nav_order: 9
 parent: Herbs
 grand_parent: Items
 ---

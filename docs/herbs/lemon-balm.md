@@ -1,6 +1,6 @@
 ---
 title: Lemon balm
-nav_order: 45
+nav_order: 51
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Lavender
-nav_order: 44
+nav_order: 50
 parent: Herbs
 grand_parent: Items
 ---

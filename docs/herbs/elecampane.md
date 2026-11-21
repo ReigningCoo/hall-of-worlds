@@ -1,6 +1,6 @@
 ---
 title: Elecampane
-nav_order: 27
+nav_order: 33
 parent: Herbs
 grand_parent: Items
 ---

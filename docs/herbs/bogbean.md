@@ -1,6 +1,6 @@
 ---
 title: Bogbean
-nav_order: 12
+nav_order: 14
 parent: Herbs
 grand_parent: Items
 ---

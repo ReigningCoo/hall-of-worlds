@@ -1,6 +1,6 @@
 ---
 title: Sweet flag
-nav_order: 68
+nav_order: 80
 parent: Herbs
 grand_parent: Items
 ---

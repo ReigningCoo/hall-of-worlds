@@ -1,6 +1,6 @@
 ---
 title: Cumin
-nav_order: 22
+nav_order: 27
 parent: Herbs
 grand_parent: Items
 ---

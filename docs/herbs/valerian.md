@@ -1,6 +1,6 @@
 ---
 title: Valerian
-nav_order: 71
+nav_order: 84
 parent: Herbs
 grand_parent: Items
 ---

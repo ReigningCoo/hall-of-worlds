@@ -1,6 +1,6 @@
 ---
 title: Potato
-nav_order: 54
+nav_order: 55
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

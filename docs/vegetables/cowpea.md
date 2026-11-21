@@ -1,6 +1,6 @@
 ---
 title: Cowpea
-nav_order: 24
+nav_order: 25
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

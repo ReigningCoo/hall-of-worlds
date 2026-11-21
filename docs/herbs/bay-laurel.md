@@ -1,6 +1,6 @@
 ---
 title: Bay laurel
-nav_order: 6
+nav_order: 8
 parent: Herbs
 grand_parent: Items
 ---

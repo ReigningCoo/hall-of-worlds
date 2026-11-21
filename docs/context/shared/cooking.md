@@ -5,7 +5,7 @@ Cooking (plan: `docs/context/cooking.md`, research: `docs/context/research-cooki
 ## Files
 
 - `crates/shared/src/cooking.rs`: the module list and re-exports. Tests in `cooking/tests.rs`.
-- `cooking/ingredients.ron`: the table, a row per raw food (468), generated once from the research and edited by hand from now on; diet flags written only when true.
+- `cooking/ingredients.ron`: the table, a row per raw food (483), generated once from the research and edited by hand from now on; diet flags written only when true.
 - `cooking/traits.rs`: `Source`, `Role`, `Usage`, `CookingNeed`, `Texture`, `Function`, `Method`, `Flavour`.
 - `cooking/def.rs`: `IngredientDef` and its `check`, `MAX_STRENGTH`.
 - `cooking/table.rs`: `Ingredients`, built in.

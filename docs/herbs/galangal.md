@@ -1,6 +1,6 @@
 ---
 title: Galangal
-nav_order: 33
+nav_order: 39
 parent: Herbs
 grand_parent: Items
 ---

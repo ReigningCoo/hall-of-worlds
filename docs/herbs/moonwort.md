@@ -1,6 +1,6 @@
 ---
 title: Moonwort
-nav_order: 49
+nav_order: 56
 parent: Herbs
 grand_parent: Items
 ---

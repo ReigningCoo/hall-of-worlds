@@ -1,6 +1,6 @@
 ---
 title: Finger millet
-nav_order: 30
+nav_order: 31
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

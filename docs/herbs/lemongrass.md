@@ -1,6 +1,6 @@
 ---
 title: Lemongrass
-nav_order: 46
+nav_order: 52
 parent: Herbs
 grand_parent: Items
 ---

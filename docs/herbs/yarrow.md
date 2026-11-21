@@ -1,6 +1,6 @@
 ---
 title: Yarrow
-nav_order: 81
+nav_order: 94
 parent: Herbs
 grand_parent: Items
 ---

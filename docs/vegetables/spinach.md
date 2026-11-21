@@ -1,6 +1,6 @@
 ---
 title: Spinach
-nav_order: 71
+nav_order: 72
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

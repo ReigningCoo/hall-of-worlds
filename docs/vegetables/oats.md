@@ -1,6 +1,6 @@
 ---
 title: Oats
-nav_order: 47
+nav_order: 48
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

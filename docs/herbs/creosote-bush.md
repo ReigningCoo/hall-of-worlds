@@ -1,6 +1,6 @@
 ---
 title: Creosote bush
-nav_order: 21
+nav_order: 26
 parent: Herbs
 grand_parent: Items
 ---

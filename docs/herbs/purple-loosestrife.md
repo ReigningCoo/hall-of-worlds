@@ -1,6 +1,6 @@
 ---
 title: Purple loosestrife
-nav_order: 55
+nav_order: 66
 parent: Herbs
 grand_parent: Items
 ---
