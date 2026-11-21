@@ -23,8 +23,7 @@ static MENU: Template = html!(
       <button id="continue">Continue</button>
       <button id="characters">Characters</button>
       <span id="online_row" class="joined">
-        <input id="online" type="checkbox" readonly label="Online"
-               width="176"/>
+        <input id="online" type="checkbox" readonly label="Online" fills/>
         <button id="server_options">
           <img src="picture:gear"/>
         </button>
