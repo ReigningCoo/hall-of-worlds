@@ -1,6 +1,6 @@
 ---
 title: Swede
-nav_order: 72
+nav_order: 73
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

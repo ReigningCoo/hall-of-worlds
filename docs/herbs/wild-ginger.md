@@ -1,6 +1,6 @@
 ---
 title: Wild ginger
-nav_order: 78
+nav_order: 91
 parent: Herbs
 grand_parent: Items
 ---

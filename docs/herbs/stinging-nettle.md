@@ -1,6 +1,6 @@
 ---
 title: Stinging nettle
-nav_order: 66
+nav_order: 78
 parent: Herbs
 grand_parent: Items
 ---

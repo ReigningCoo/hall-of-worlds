@@ -1,6 +1,6 @@
 ---
 title: Mugwort
-nav_order: 50
+nav_order: 57
 parent: Herbs
 grand_parent: Items
 ---

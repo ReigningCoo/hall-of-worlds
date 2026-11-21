@@ -1,6 +1,6 @@
 ---
 title: Devil's club
-nav_order: 24
+nav_order: 29
 parent: Herbs
 grand_parent: Items
 ---

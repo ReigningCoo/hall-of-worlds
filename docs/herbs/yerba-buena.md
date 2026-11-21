@@ -1,6 +1,6 @@
 ---
 title: Yerba buena
-nav_order: 82
+nav_order: 95
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Cucumber
-nav_order: 25
+nav_order: 26
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

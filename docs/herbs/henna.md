@@ -1,6 +1,6 @@
 ---
 title: Henna
-nav_order: 40
+nav_order: 46
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Pea
-nav_order: 51
+nav_order: 52
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

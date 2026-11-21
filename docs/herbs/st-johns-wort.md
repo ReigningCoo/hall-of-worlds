@@ -1,6 +1,6 @@
 ---
 title: St John's wort
-nav_order: 65
+nav_order: 77
 parent: Herbs
 grand_parent: Items
 ---

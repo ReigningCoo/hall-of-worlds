@@ -1,6 +1,6 @@
 ---
 title: Plantain
-nav_order: 54
+nav_order: 64
 parent: Herbs
 grand_parent: Items
 ---

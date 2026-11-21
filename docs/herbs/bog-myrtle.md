@@ -1,6 +1,6 @@
 ---
 title: Bog myrtle
-nav_order: 11
+nav_order: 13
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Ashwagandha
-nav_order: 5
+nav_order: 6
 parent: Herbs
 grand_parent: Items
 ---

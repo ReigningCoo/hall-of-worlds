@@ -1,6 +1,6 @@
 ---
 title: Wasabi
-nav_order: 74
+nav_order: 87
 parent: Herbs
 grand_parent: Items
 ---

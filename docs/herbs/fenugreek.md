@@ -1,6 +1,6 @@
 ---
 title: Fenugreek
-nav_order: 30
+nav_order: 36
 parent: Herbs
 grand_parent: Items
 ---

@@ -16,9 +16,9 @@ fn first() -> HerbDef {
 #[test]
 fn the_built_in_herbs_are_all_there_and_sound() {
     let herbs = herbs();
-    assert_eq!(herbs.len(), 82);
+    assert_eq!(herbs.len(), 95);
     let keys: BTreeSet<&str> = herbs.iter().map(|herb| herb.key.as_str()).collect();
-    assert_eq!(keys.len(), 82, "keys are unique");
+    assert_eq!(keys.len(), 95, "keys are unique");
     for herb in herbs.iter() {
         herb.check().unwrap();
         assert_eq!(herbs.get(&herb.key), Some(herb));
@@ -41,7 +41,7 @@ fn mods_add_herbs_and_replace_them_by_key_in_place() {
     let mut new = first();
     new.key = "not_a_real_herb".into();
     assert_eq!(herbs.merge(vec![changed, new]), 1);
-    assert_eq!(herbs.len(), 83);
+    assert_eq!(herbs.len(), 96);
     assert_eq!(herbs.iter().next().unwrap().name, "Rose Root");
     assert_eq!(herbs.iter().last().unwrap().key, "not_a_real_herb");
     assert!(herbs.get("not_a_real_herb").is_some());

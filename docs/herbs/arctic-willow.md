@@ -1,6 +1,6 @@
 ---
 title: Arctic willow
-nav_order: 3
+nav_order: 4
 parent: Herbs
 grand_parent: Items
 ---

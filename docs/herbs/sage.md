@@ -1,6 +1,6 @@
 ---
 title: Sage
-nav_order: 63
+nav_order: 74
 parent: Herbs
 grand_parent: Items
 ---

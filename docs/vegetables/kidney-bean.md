@@ -1,6 +1,6 @@
 ---
 title: Kidney bean
-nav_order: 36
+nav_order: 37
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

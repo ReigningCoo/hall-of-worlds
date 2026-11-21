@@ -1,6 +1,6 @@
 ---
 title: Water mint
-nav_order: 76
+nav_order: 89
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Black pepper
-nav_order: 10
+nav_order: 12
 parent: Herbs
 grand_parent: Items
 ---

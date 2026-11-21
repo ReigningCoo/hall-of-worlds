@@ -17,9 +17,9 @@ fn def(key: &str) -> &'static VegetableDef {
 #[test]
 fn the_table_has_every_vegetable_pulse_and_grain() {
     let vegetables = Vegetables::built_in();
-    assert_eq!(vegetables.len(), 85);
+    assert_eq!(vegetables.len(), 87);
     let count = |set| vegetables.iter().filter(|def| def.set == set).count();
-    assert_eq!(count(VegetableSet::Vegetable), 51);
+    assert_eq!(count(VegetableSet::Vegetable), 53);
     assert_eq!(count(VegetableSet::Pulse), 17);
     assert_eq!(count(VegetableSet::Grain), 17);
     assert_eq!(vegetables.iter().filter(|def| def.wild_only).count(), 17);

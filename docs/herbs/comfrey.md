@@ -1,6 +1,6 @@
 ---
 title: Comfrey
-nav_order: 20
+nav_order: 24
 parent: Herbs
 grand_parent: Items
 ---

@@ -1,6 +1,6 @@
 ---
 title: Quinoa
-nav_order: 59
+nav_order: 60
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

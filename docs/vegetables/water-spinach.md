@@ -1,6 +1,6 @@
 ---
 title: Water spinach
-nav_order: 80
+nav_order: 82
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

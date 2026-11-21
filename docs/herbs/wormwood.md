@@ -1,6 +1,6 @@
 ---
 title: Wormwood
-nav_order: 80
+nav_order: 93
 parent: Herbs
 grand_parent: Items
 ---

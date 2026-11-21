@@ -5,7 +5,7 @@ Vegetables, pulses and grains (owner, 2026-11-17): what each is, the table of th
 ## Files
 
 - `crates/shared/src/vegetable.rs`: the module list and re-exports. Tests in `vegetable/tests.rs`.
-- `vegetable/vegetables.ron`: the 85 rows (51 vegetables, 17 pulses, 17 grains; 17 wild only), generated once from the research's `final.json` (the script stayed outside the repo); edit by hand from now on. Read by `include_str!`.
+- `vegetable/vegetables.ron`: the 87 rows (53 vegetables, 17 pulses, 17 grains; 17 wild only): 85 generated once from the research's `final.json` (the script stayed outside the repo), courgette and sweet pepper added by hand for cooking (cooking plan PR 2); edit by hand from now on. Read by `include_str!`.
 - `vegetable/def.rs`: `VegetableDef`, `VegetableSet`, `Unit`, `check`.
 - `vegetable/look.rs`: `VegetableLook`, `MOST_COLOURS`.
 - `vegetable/traits.rs`: `Raw` (`heals`), `Abundance`, `PlantShape`, `Part`.

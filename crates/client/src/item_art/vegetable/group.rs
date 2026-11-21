@@ -188,7 +188,7 @@ impl Drawing {
             Part::Fruit => Self::Fruit(match key {
                 "pumpkin" => Fruit::Pumpkin,
                 "cucumber" => Fruit::Cucumber,
-                "aubergine" => Fruit::Aubergine,
+                "aubergine" | "courgette" => Fruit::Aubergine,
                 "bottle_gourd" => Fruit::Gourd,
                 "chayote" => Fruit::Chayote,
                 _ => Fruit::Tomato,

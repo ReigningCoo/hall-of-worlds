@@ -1,6 +1,6 @@
 ---
 title: Foxglove
-nav_order: 32
+nav_order: 38
 parent: Herbs
 grand_parent: Items
 ---

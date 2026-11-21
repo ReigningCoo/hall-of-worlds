@@ -1,6 +1,6 @@
 ---
 title: Garlic
-nav_order: 34
+nav_order: 40
 parent: Herbs
 grand_parent: Items
 ---

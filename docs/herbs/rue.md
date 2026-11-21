@@ -1,6 +1,6 @@
 ---
 title: Rue
-nav_order: 61
+nav_order: 72
 parent: Herbs
 grand_parent: Items
 ---

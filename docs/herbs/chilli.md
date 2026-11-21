@@ -1,6 +1,6 @@
 ---
 title: Chilli
-nav_order: 17
+nav_order: 20
 parent: Herbs
 grand_parent: Items
 ---

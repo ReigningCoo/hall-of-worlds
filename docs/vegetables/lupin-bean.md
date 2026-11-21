@@ -1,6 +1,6 @@
 ---
 title: Lupin bean
-nav_order: 42
+nav_order: 43
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

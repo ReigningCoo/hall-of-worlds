@@ -1,6 +1,6 @@
 ---
 title: Kale
-nav_order: 35
+nav_order: 36
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

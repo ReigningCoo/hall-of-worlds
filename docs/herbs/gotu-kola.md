@@ -1,6 +1,6 @@
 ---
 title: Gotu kola
-nav_order: 37
+nav_order: 43
 parent: Herbs
 grand_parent: Items
 ---

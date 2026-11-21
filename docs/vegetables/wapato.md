@@ -1,6 +1,6 @@
 ---
 title: Wapato
-nav_order: 79
+nav_order: 81
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

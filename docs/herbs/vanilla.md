@@ -1,6 +1,6 @@
 ---
 title: Vanilla
-nav_order: 72
+nav_order: 85
 parent: Herbs
 grand_parent: Items
 ---

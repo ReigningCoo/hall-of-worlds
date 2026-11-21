@@ -1,6 +1,6 @@
 ---
 title: Leek
-nav_order: 38
+nav_order: 39
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

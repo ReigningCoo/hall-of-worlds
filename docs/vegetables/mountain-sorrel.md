@@ -1,6 +1,6 @@
 ---
 title: Mountain sorrel
-nav_order: 45
+nav_order: 46
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

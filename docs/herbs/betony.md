@@ -1,6 +1,6 @@
 ---
 title: Betony
-nav_order: 8
+nav_order: 10
 parent: Herbs
 grand_parent: Items
 ---

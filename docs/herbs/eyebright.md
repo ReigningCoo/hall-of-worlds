@@ -1,6 +1,6 @@
 ---
 title: Eyebright
-nav_order: 28
+nav_order: 34
 parent: Herbs
 grand_parent: Items
 ---

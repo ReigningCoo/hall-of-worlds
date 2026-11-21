@@ -1,6 +1,6 @@
 ---
 title: Guarana
-nav_order: 38
+nav_order: 44
 parent: Herbs
 grand_parent: Items
 ---

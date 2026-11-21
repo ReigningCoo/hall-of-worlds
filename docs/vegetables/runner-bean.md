@@ -1,6 +1,6 @@
 ---
 title: Runner bean
-nav_order: 63
+nav_order: 64
 parent: Vegetables, pulses and grains
 grand_parent: Items
 ---

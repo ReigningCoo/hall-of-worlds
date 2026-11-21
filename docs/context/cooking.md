@@ -45,7 +45,7 @@ row 2  [Knife: onion, carrot]         â†’ [Cauldron: minced beef, wine, milk] â”
 
 ## Ingredients still to add
 
-- About 15 kitchen herbs, spices and vegetables (PR 2): basil, parsley, dill, coriander, oregano, marjoram, tarragon, chives, nutmeg, anise, caraway, sesame, poppy, courgette, sweet pepper (paprika). Some herbs may have no alchemy effects.
+- About 15 kitchen herbs, spices and vegetables (PR 2): basil, parsley, dill, coriander, oregano, marjoram, tarragon, chives, nutmeg, anise, caraway, sesame, poppy, courgette, sweet pepper (built). Claude's choices: every new herb has four effects like the rest (mild, from their kitchen and old medicinal uses; the format stays as it is), the poppy's are only its seeds' (no opium); sesame is a herb (seeds) whose main role is Nut, not flagged a nut allergen; paprika waits for ground spice items (sweet pepper is a vegetable, chilli stays a herb). Facts from Wikipedia (heights, natives, climates) and USDA-style kcal; abundance, growth and effects are game choices.
 - Milk, Egg and Honey items (PR 3), hooked to livestock production later. `RawMeat` stays generic; cuts have no items yet.
 
 ## PRs
@@ -53,7 +53,7 @@ row 2  [Knife: onion, carrot]         â†’ [Cauldron: minced beef, wine, milk] â”
 | # | PR | Needs | Order |
 | - | -- | ----- | ----- |
 | 1 | Plan, research and culinary roles: `shared::cooking`'s table of each raw food's roles, functions, cooking need, strength, max share and diet flags (built) | none | first |
-| 2 | New kitchen ingredients (above); plant looks, wiki pages regenerated | 1 | independent |
+| 2 | New kitchen ingredients (above); plant looks, wiki pages regenerated (built) | 1 | independent |
 | 3 | Milk, Egg and Honey items (per animal, counted or by the ml as fits), sold by farms' and general shops | 1 | independent |
 | 4 | Shared rules I: the grid (rows, columns, joins), tools and their sub-skills, the Cooking skill, chance and step limit (a join 1.5 steps), balance, quality with history carried by intermediates, heat needs and the Rare cap away from a hearth | 1 | in order |
 | 5 | Shared rules II: classifying and naming (the dish patterns table, real names when close, generic otherwise, herb and spice leeway), Well Fed, diet labels, poisons carried through | 4 | in order |
