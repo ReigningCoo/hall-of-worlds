@@ -20,7 +20,7 @@ The whole interface is markup: HTML's look with XML's closing rule, no CSS and n
 - `crates/client/src/dom/attrs.rs`: `Attrs` (common attributes as fields; the rest kept as written, read with `text`, `number`, `has`), `is_known`. In `attrs/`: `values.rs` (`Length`, `Align`, `VAlign`), `own.rs` (`OWN`: each element's own attributes and their values), `set.rs` (`Attrs::set`, `clear`: the one path for markup and code), `write.rs` (tests and the debug API: attributes back as markup).
 - `crates/client/src/dom/check.rs`: `check`: raw markup into `Checked` / `CheckedNode`, with ids, forms, `for` and where elements may go.
 - `crates/client/src/dom/theme.rs`: `Theme` (resource), `Look`. `theme/over_view.rs`: looks over the game's view or a dark backdrop (the loading bar, the hover box, the status text, popups).
-- `crates/client/src/dom/layout.rs`: `node_for`: an element's `Node` from its attributes, look and place in a table.
+- `crates/client/src/dom/layout.rs`: `node_for`: an element's `Node` from its attributes, look and place in a table. Its `wrap_tests.rs` runs Bevy's real layout headless.
 - `crates/client/src/dom/parts.rs`: `Document`, `DocumentOf`, `document()`, `document_in()`, `Element`, `Inert`, `Canvas`, `Solid`, `Opaque`, `OwnPointer`, `AlwaysBars`, `Round`, `Reach`, `Hovered`; private `Darkened`, `TextStyle`, `Words`, `InTable`, `Bar`, `TemplateBody`.
 - `crates/client/src/dom/build.rs`: `Builder`, `build_documents`. In `build/`: `table.rs`, `progress.rs`, `surfaces.rs` (`panel`, `dialog`, `footer`, `popup`, `scroll`), `title_row.rs` (a big dialog's title and close button), `container.rs`.
 - `crates/client/src/dom/dark.rs`: a `dark` panel's darkening (`spawn`, from `fixed_panel`) and `follow_darkenings` (shown as the panel's `hidden` says).
@@ -122,7 +122,7 @@ Markup:
 
 Layout (owner, 2026-11-11: automatic):
 
-- Block elements (`div`, `form`) stack; the rest flow in a wrapping row, never wider than what holds them. `br` and `hr` take a whole line. `nowrap` keeps a row on one line, a filling control taking what the others leave.
+- Block elements (`div`, `form`) stack; the rest flow in a wrapping row, never wider than what holds them. `br` and `hr` take a whole line. `nowrap` keeps a row on one line, a filling control taking what the others leave. A flow is laid out a hair wider than what holds it (`WRAP_SLACK`, a share: nothing while measuring), as a panel fitting what is in it is its measured size less its padding, and in floating point that can come out a rounding error short: rows that just fit (the movement pad's) then wrapped at some interface sizes. `layout/wrap_tests.rs` lays one out with Bevy's own layout at every size from 50% to 150%.
 - Spacing belongs to what holds things: stacked 8 apart, a row 4; `tight` 4, `sections` 24, `joined` touching. Nothing has a margin in the theme; `margin` is for the odd case.
 - Sizes are the theme's: a control fills what it is stacked in and is its own size in a row, at least the theme's row tall for the writing round it (`Theme::rows`), an icon button a square of that, a footer's buttons at least `footer_button` wide, a text box as tall as a dropdown (`Theme::boxes`). `width` and `height` only for what is particular to one screen.
 - `fills`: takes the room left in what it is stacked in. `align` also sets which side each line of words is against. `valign` is `top`, `middle` (a row's default), `bottom`, or `stretch` in a row.
