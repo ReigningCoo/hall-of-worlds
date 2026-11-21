@@ -14,6 +14,13 @@ const PROGRESS: f32 = 24.0;
 const PANEL_PADDING: f32 = 8.0;
 /// The least a progress bar is across.
 const PROGRESS_LEAST: f32 = 120.0;
+/// How much wider than what holds it a flow may be laid out, in percent.
+/// A panel that fits what is in it is measured as that plus its padding,
+/// then laid out as that size less its padding; in floating point the two
+/// can differ by a rounding error, and a row that just fits then wraps. A
+/// share is nothing while measuring (what holds it has no size yet), so
+/// this only widens the flow when it is laid out: far too little to see.
+const WRAP_SLACK: f32 = 0.001;
 
 /// What an element needs laying out by, beside its attributes.
 pub(super) struct Around<'a> {
@@ -180,7 +187,12 @@ fn flow_along(node: &mut Node, attrs: &Attrs, look: &Look) {
         false => FlexWrap::Wrap,
     };
     // Never wider than what holds it, so long words wrap and don't run out.
-    node.max_width = percent(100);
+    node.max_width = percent(100.0 + 2.0 * WRAP_SLACK);
+    // A hair more room than it was measured for, so what just fits doesn't
+    // wrap from rounding (`WRAP_SLACK`).
+    if node.margin.right == px(0) {
+        node.margin.right = percent(-WRAP_SLACK);
+    }
     node.column_gap = px(look.gap);
     node.justify_content = match attrs.align {
         Some(Align::Center) => JustifyContent::Center,
@@ -216,3 +228,5 @@ fn val(length: Option<Length>) -> Val {
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod wrap_tests;
