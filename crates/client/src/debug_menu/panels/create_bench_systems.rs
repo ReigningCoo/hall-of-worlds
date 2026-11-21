@@ -13,7 +13,7 @@ use super::create_bench::{
     BenchClickToPlace, BenchCreate, BenchOrder, BenchRotate, BenchTool, BenchToolList, BenchType,
     FORM, craft_name, fill_tools,
 };
-use super::create_mob_systems::can_place;
+use super::create_bench_where::why_not;
 use crate::common::{
     BenchGhost, ClickMode, CurrentDungeon, DebugTools, FurnitureClicked, GameView,
 };
@@ -41,9 +41,9 @@ pub(in crate::debug_menu) fn add_create_bench_panel(app: &mut App) {
         );
 }
 
-/// Whether Bench Mode can be used: as Mob Mode, with its own permission.
+/// Whether Bench Mode can be used: inside a site, with its permission.
 fn usable(view: &GameView, dungeon: &CurrentDungeon, tools: &DebugTools) -> bool {
-    can_place(view, dungeon, tools.may(DebugTool::CreateCraftingBench))
+    why_not(view, dungeon, tools.may(DebugTool::CreateCraftingBench)).is_none()
 }
 
 /// A tool's dropdown: "None", then each quality; its value its place.
@@ -165,8 +165,10 @@ fn keep_bench_mode_where_it_works(
 /// Create and Rotate.
 type BenchButtons = Or<(With<BenchCreate>, With<BenchRotate>)>;
 
-/// Create shows Bench Mode as on, greyed where it can't be used; Rotate is
-/// live only while it is on, with "Click to place" beside them.
+/// Create shows Bench Mode as on, greyed where it can't be used with the
+/// reason above it; Rotate is live only while it is on, with "Click to
+/// place" beside them.
+#[allow(clippy::too_many_arguments)]
 fn show_bench_mode(
     mode: Res<ClickMode>,
     view: Res<State<GameView>>,
@@ -174,9 +176,25 @@ fn show_bench_mode(
     tools: Res<DebugTools>,
     mut buttons: Query<(&mut ButtonState, Has<BenchCreate>), BenchButtons>,
     mut words: Query<&mut Visibility, With<BenchClickToPlace>>,
+    new_panel: Query<(), Added<BenchCreate>>,
+    (mut shown_why, mut dom): (Local<Option<&'static str>>, Dom),
 ) {
     let on = *mode == ClickMode::PlaceBench;
-    let works = usable(view.get(), &dungeon, &tools);
+    let why = why_not(
+        view.get(),
+        &dungeon,
+        tools.may(DebugTool::CreateCraftingBench),
+    );
+    let works = why.is_none();
+    // The reason, written while the panel is open, only when it changes or
+    // the panel opens anew.
+    let open = !buttons.is_empty();
+    if open && (*shown_why != why || !new_panel.is_empty()) {
+        *shown_why = why;
+        let id = format!("{FORM}/why_not");
+        dom.set_flag(&id, "hidden", why.is_none());
+        dom.set_text(&id, why.unwrap_or_default());
+    }
     for (mut button, create) in &mut buttons {
         let state = match (works, on, create) {
             (false, _, _) | (true, false, false) => ButtonState::Disabled,

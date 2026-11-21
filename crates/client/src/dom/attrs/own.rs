@@ -20,7 +20,7 @@ pub(super) enum Kind {
     OneOf(&'static [&'static str]),
 }
 
-pub(super) const OWN: [(&str, Kind); 42] = [
+pub(super) const OWN: [(&str, Kind); 43] = [
     ("for", Kind::Text),
     ("src", Kind::Text),
     ("alt", Kind::Text),
@@ -59,6 +59,8 @@ pub(super) const OWN: [(&str, Kind); 42] = [
     ("auto", Kind::Flag),
     ("depth", Kind::Number),
     ("max-height", Kind::Length),
+    // How wide a paragraph may grow before its words wrap.
+    ("max-width", Kind::Length),
     ("scrollbars", Kind::OneOf(&["auto", "always"])),
     // A grid of things: how big, whose places they are, and what it takes.
     ("columns", Kind::Count),

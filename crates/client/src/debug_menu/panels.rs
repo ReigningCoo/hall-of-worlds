@@ -28,6 +28,7 @@ mod bind;
 mod change_creature;
 mod create_bench;
 mod create_bench_systems;
+mod create_bench_where;
 mod create_mob;
 mod create_mob_systems;
 mod dev_area;

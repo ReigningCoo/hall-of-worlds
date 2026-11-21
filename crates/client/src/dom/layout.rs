@@ -186,8 +186,13 @@ fn flow_along(node: &mut Node, attrs: &Attrs, look: &Look) {
         true => FlexWrap::NoWrap,
         false => FlexWrap::Wrap,
     };
-    // Never wider than what holds it, so long words wrap and don't run out.
-    node.max_width = percent(100.0 + 2.0 * WRAP_SLACK);
+    // Never wider than what holds it, so long words wrap and don't run out;
+    // or than its own `max-width` (a `p`'s), so a popup sized to fit its
+    // words wraps them there.
+    node.max_width = match attrs.length("max-width") {
+        Some(most) => val(Some(most)),
+        None => percent(100.0 + 2.0 * WRAP_SLACK),
+    };
     // A hair more room than it was measured for, so what just fits doesn't
     // wrap from rounding (`WRAP_SLACK`).
     if node.margin.right == px(0) {
