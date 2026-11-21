@@ -2,7 +2,8 @@
 //! bench, a dropdown per tool it takes ("None", then each quality), and
 //! Create, a toggle for Bench Mode: a ghost of the bench follows the pointer
 //! (`dungeon_map`), right click or Rotate turns it, and a click puts it down
-//! for good (`BenchAsk::Dev`), turning Create off.
+//! for good (`BenchAsk::Dev`), turning Create off. Where it can't be used,
+//! Create is greyed and the panel says why (`create_bench_where`).
 
 use bevy::prelude::*;
 use shared::crafting_bench::Craft;
@@ -126,6 +127,7 @@ pub(super) static CREATE_CRAFTING_BENCH: Template = html!(
       <select id="type" width="120"><option>Alchemy</option></select>
     </span>
     <div id="tools" class="tight"/>
+    <p id="why_not" class="warning" max-width="320" hidden>.</p>
     <span nowrap align="right" valign="middle">
       <p id="click_to_place" class="warning">Click to place, right click to turn</p>
       <button id="rotate">Rotate</button>
