@@ -28,6 +28,7 @@ use crate::common::{
     SpotPosition, Target,
 };
 use crate::connection::ToServer;
+use crate::cooking::OpenCooking;
 use crate::inventory::{Carried, DrinkPotion, EatKind, GroundShown};
 use crate::player::Player;
 
@@ -86,7 +87,7 @@ impl Manual {
 /// (Sneak) asked for at once, as it needs no target and takes no time; one of
 /// a kind of item eaten (`inventory::EatKind`), a potion drunk
 /// (`DrinkPotion`); Press Oil's, Press Juice's or Ferment's panel opened, or
-/// the Alchemy panel (`alchemy::OpenAlchemy`).
+/// the Alchemy or Cooking panel (`alchemy::OpenAlchemy`, `cooking::OpenCooking`).
 pub(super) fn use_slots(
     mut used: MessageReader<UseSlot>,
     bar: Res<OwnBar>,
@@ -94,7 +95,7 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
-    (mut press, mut juice, mut fermenting, mut alchemy): Panels,
+    (mut press, mut juice, mut fermenting, mut alchemy, mut cooking): Panels,
 ) {
     for &UseSlot(slot) in used.read() {
         let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
@@ -132,6 +133,9 @@ pub(super) fn use_slots(
         } else if ability == Ability::Alchemy {
             // Asked for by its panel (`alchemy`), never queued.
             alchemy.write(OpenAlchemy);
+        } else if ability == Ability::Cook {
+            // And Cook by the Cooking panel (`cooking`).
+            cooking.write(OpenCooking);
         } else if ability == Ability::Ferment {
             // And Ferment's in its own (`ferment/`).
             fermenting.open = true;
@@ -161,6 +165,7 @@ type Panels<'w> = (
     ResMut<'w, JuiceChooser>,
     ResMut<'w, Fermenting>,
     MessageWriter<'w, OpenAlchemy>,
+    MessageWriter<'w, OpenCooking>,
 );
 
 /// Where the player stands and which way they face.
@@ -249,8 +254,7 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         // the closed door beside the player.
         Ability::Kick => Some(target),
         // Asked for by their panels (`press_oil.rs`, `press_juice.rs`,
-        // `ferment/`; Alchemy's with PR 4; Cook's with the cooking plan's
-        // PR 10), never queued.
+        // `ferment/`, `alchemy`, `cooking`), never queued.
         Ability::PressOil
         | Ability::PressJuice
         | Ability::Alchemy
