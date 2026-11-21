@@ -20,7 +20,7 @@ pub(super) enum Kind {
     OneOf(&'static [&'static str]),
 }
 
-pub(super) const OWN: [(&str, Kind); 43] = [
+pub(super) const OWN: [(&str, Kind); 44] = [
     ("for", Kind::Text),
     ("src", Kind::Text),
     ("alt", Kind::Text),
@@ -72,6 +72,9 @@ pub(super) const OWN: [(&str, Kind); 43] = [
     // A slot: the types it takes (`item`, `ability` or both), and its key.
     ("accepts", Kind::Text),
     ("key", Kind::Text),
+    // Which items and kinds written in the words in it are missing for this
+    // viewer, counted from 0 in the order written: their frames are red.
+    ("missing", Kind::Text),
 ];
 
 /// The name as the table has it (so it can be kept without copying), and

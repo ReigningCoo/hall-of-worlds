@@ -1,6 +1,6 @@
 # client: item_text
 
-Finding out what items written into text are (`${item:<uuid>}`, `shared::item_text`), for whatever shows them. Not how they are drawn: that is `widgets` (inline pictures, `ItemText`).
+Finding out what items written into text are (`${item:<uuid>}`, `shared::item_text`), for whatever shows them. Kinds of item (`${kind:…}`) need no asking: `widgets` draws them from a stand-in at once. Not how they are drawn: that is `widgets` (inline pictures, `ItemText`).
 
 ## Files
 

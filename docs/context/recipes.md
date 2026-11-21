@@ -16,7 +16,7 @@ Owner's decisions (2026-11-21). Recipe scrolls teach real dishes; each character
 | # | PR | Needs | Order |
 | - | -- | ----- | ----- |
 | 1 | Shared data and the book: `shared::recipe` (the scroll item, `RecipeBook` on the sheet), `cooking::Recipe` and every real dish's recipe built and checked to cook into its dish, an order written down as a recipe, the beyond-skill helper (built) | none | first |
-| 2 | Generic `${kind:…}` item tokens in text (`shared::item_text`), drawn red when the reader has none | none | independent |
+| 2 | Generic `${kind:…}` item tokens in text (`shared::item_text`), drawn red when the reader has none (built) | none | independent |
 | 3 | The server, items, art, shops and rewards: reading and removing (`ClientMessage`), own recipes remembered on cooking, the scroll's picture (a rolled scroll with a chef's hat), scrolls sold and given as quest rewards | 1 | in order |
 | 4 | The reading panel: an unrolled scroll showing the recipe's grid and its written steps, foods missing in red, the beyond-skill note | 2, 3 | in order |
 | 5 | The Recipes tab in the Cooking panel: the book listed (learnt and own told apart), Read, Make (filling the panel from what is carried, red ghosts for what is missing) and Remove | 4 | last |
@@ -25,6 +25,12 @@ Owner's decisions (2026-11-21). Recipe scrolls teach real dishes; each character
 
 - Copying a scroll, and writing one from an own recipe (paper, ink, a skill), so recipes can be traded.
 - Alchemy's recipes on the same scrolls and book.
+
+## Generic item tokens (PR 2, built)
+
+- `${kind:<kind>[:<option>…]}` in any text: a food as cooking wants it (`${kind:egg}` any egg, `${kind:vegetable:carrot}`), a cooking tool (`${kind:knife}`, `${kind:oven}`), water in a bottle (`${kind:bottle:water}`, `${kind:bottle:water:rain}`). `shared::item_text::KindToken` writes and reads them; every food and tool in the 219 dish recipes can be written (a test). Liquid foods (milk, honey, soy sauce) are foods too; water is `bottle:water`.
+- The client draws one from a stand-in item (`KindToken::stand_in`, the usual food for "any"), the Oven by its icon, and names it on hover ("Any egg").
+- Missing ones (PR 4, 5): put `missing="0 2"` on the element holding the words (`p`, `span`, `div`, `small`, `label`, `td`, `th`), counting the items and kinds written there from 0; their frames are red. Set it by id with `Dom::set`.
 
 ## Shared data and the book (PR 1, built)
 

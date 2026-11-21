@@ -11,6 +11,7 @@ use super::{RaisesKeyboard, TextBox, TextBoxChar, TextBoxLabel, TextBoxSuffix};
 use crate::widgets::item_text::{InlineHeight, spawn_inline_item};
 use crate::widgets::soft_keyboard;
 use crate::widgets::theme::HINT_TEXT;
+use shared::item_text::token_at;
 
 /// The characters a label shows, to know when to make its spans again.
 #[derive(Component, Default)]
@@ -65,10 +66,13 @@ pub(in crate::widgets) fn show_text_boxes(
                 label.world_scope(|world| {
                     let mut commands = world.commands();
                     commands.entity(id).with_children(|spans| {
+                        let mut index = 0;
                         for (place, unit) in units(&words, accepts_items).iter().enumerate() {
-                            match unit.item {
-                                Some(id) => {
-                                    spawn_inline_item(spans, id, height, TextBoxChar(place))
+                            match token_at(&words[unit.start..]).filter(|_| unit.token) {
+                                Some((token, _)) => {
+                                    let token = (&token, index);
+                                    spawn_inline_item(spans, token, height, TextBoxChar(place));
+                                    index += 1;
                                 }
                                 None => {
                                     let span = TextSpan(unit.c.to_string());

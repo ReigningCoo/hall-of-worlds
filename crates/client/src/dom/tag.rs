@@ -214,10 +214,11 @@ impl Tag {
         match self {
             Self::Img => &["src", "alt"],
             Self::Progress => &["value", "max"],
-            Self::Td | Self::Th => &["colspan"],
+            Self::Td | Self::Th => &["colspan", "missing"],
+            Self::P => &["max-width", "missing"],
+            Self::Span | Self::Div | Self::Small => &["missing"],
+            Self::Label => &["for", "missing"],
             Self::Table => &["cellspacing", "cellpadding"],
-            Self::Label => &["for"],
-            Self::P => &["max-width"],
             Self::Button => &["selected", "hold"],
             Self::Input => &[
                 "type",
