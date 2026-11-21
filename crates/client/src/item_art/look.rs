@@ -119,7 +119,8 @@ pub enum Look {
     Flour(super::FlourLook),
     /// An egg, by the animal that laid it (`egg.rs`).
     Egg(super::EggLook),
-    /// A Dish or an intermediate, a placeholder by its tint (`dish.rs`).
+    /// A Dish by its form or an intermediate by its kind, tinted by its foods
+    /// (`dish/`).
     Dish(super::DishLook),
     /// A crock of yeast, the same for every one (`yeast.rs`).
     Yeast,

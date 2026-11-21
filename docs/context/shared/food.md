@@ -12,7 +12,7 @@ Food items (cooking plan PR 6, `docs/context/cooking.md`): what cooking makes. A
 - `food/warmth.rs`: `warmth_percent`, `CARRIED_CELSIUS`.
 - `food/culture.rs`: `Culture`, `set_percent`, `turned_quality`, `culture_from`.
 - `food/make.rs`: `food_item`. `food/serving.rs`: `servings`, `SERVING_GRAMS`.
-- `food/tint.rs`: `tint`. `food/eat.rs`: `eating`, `food_poisons`. `food/give.rs`: `dev_food`.
+- `food/tint.rs`: `tint`, `accent`. `food/eat.rs`: `eating`, `food_poisons`. `food/give.rs`: `dev_food`.
 
 ## Public API
 
@@ -24,7 +24,7 @@ Food items (cooking plan PR 6, `docs/context/cooking.md`): what cooking makes. A
 - `warmth_percent(celsius)`: 0 at freezing or below, 5 a degree to 100 at 20 °C, 5 more a degree to 200 at 40 °C and above.
 - Cultures: `Culture { strain, quality }`; `set_percent` (matching 100, another strain 150, wild 200), `turned_quality` (wild a step worse, another strain as made, a matching better culture a step better); `culture_from(yoghurt)`: a Yeast item of the yoghurt strain at its quality.
 - `eating(form, quality, now, ingredients)`: Well Fed (`cooking::WellFed`), replacing any before. `food_poisons(form, fungi)`: `cooking::poisons` for the server.
-- `tint(portions, history, ingredients)`: sRGB bytes, foods' colours by main role (milk and eggs their own) by grams, 80% when a Pan or Oven browned it.
+- `tint(portions, history, ingredients)`: sRGB bytes, foods' colours by main role (milk and eggs their own) by grams, 80% when a Pan or Oven browned it. `accent(...)`: the colour with the second most grams, browned the same, `None` when all share one colour (models' pieces, PR 11).
 - `dev_food(kind, quality, seed)`: Give Item's sample, planned by the rules: dishes (fried egg, scrambled eggs, beef stew), intermediates (wheat dough, fresh noodles, warm milk, butter, a roux).
 
 ## Depends on
@@ -35,7 +35,7 @@ Food items (cooking plan PR 6, `docs/context/cooking.md`): what cooking makes. A
 
 - `item` (the kinds: Food, Dish counted with quality, Intermediate one each with quality), `item_form` (`Food`, name, shape, grams, Give Item), `bonus` (a Dish is `edible` and `may_eat`, not `is_food`: not on the action bar yet).
 - Server: `connections/eat_dish.rs` (eating), `connections/playtime.rs` (carried clocks), `ground/bags.rs`, `ground/tell.rs` (ground clocks at the land's warmth).
-- Client: `item_art/dish.rs` (placeholder pictures by tint), `item_popup/food.rs` (lines).
+- Client: `item_art/dish/` (models by form or kind, by tint and accent), `item_popup/food.rs` (lines).
 
 ## Notes
 
