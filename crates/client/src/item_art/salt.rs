@@ -1,5 +1,6 @@
 //! Salt (Alchemy plan PR 5): a small white mound of crystals, a few loose
-//! grains beside it. The same for every Salt. One cell.
+//! grains beside it. The same for every Salt. One cell. Ash (cooking plan
+//! PR 7) is the same heap in grey.
 
 use bevy::prelude::*;
 use std::f32::consts::FRAC_PI_2;
@@ -20,6 +21,25 @@ pub(super) fn salt_parts(
         reflectance: 0.4,
         ..default()
     });
+    heap_parts(white, meshes)
+}
+
+/// Ash's parts (`Look::Solid` of Ash): the same heap, soft grey and dull.
+pub(super) fn ash_parts(
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) -> Vec<Part> {
+    let grey = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.55, 0.54, 0.52),
+        perceptual_roughness: 1.0,
+        reflectance: 0.05,
+        ..default()
+    });
+    heap_parts(grey, meshes)
+}
+
+/// A heap and its loose grains, all of `white`.
+fn heap_parts(white: Handle<StandardMaterial>, meshes: &mut Assets<Mesh>) -> Vec<Part> {
     let part = |mesh, transform| Part {
         mesh,
         material: white.clone(),

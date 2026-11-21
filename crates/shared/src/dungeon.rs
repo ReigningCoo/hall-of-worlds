@@ -10,6 +10,7 @@
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod bars;
+mod campfires;
 mod cell;
 mod darkness;
 mod doors;

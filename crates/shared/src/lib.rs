@@ -13,6 +13,7 @@ pub mod blade;
 pub mod body;
 pub mod bonus;
 pub mod brewing;
+pub mod campfire;
 pub mod cask;
 pub mod celestial;
 pub mod cellar;

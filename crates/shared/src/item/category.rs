@@ -149,6 +149,7 @@ impl ItemKind {
             | Self::Flour
             | Self::Log
             | Self::Kindling
+            | Self::Ash
             | Self::Yeast
             | Self::Salt
             | Self::Sulphur

@@ -36,6 +36,9 @@ pub(crate) enum Act {
     FellTree { at: (i64, i64), ticks: u64 },
     /// A log being split into kindling (players only).
     CutKindling(shared::woodcutting::LogAt),
+    /// A campfire being lit or fed at a cell of the player's level (players
+    /// only, `connections/campfire.rs`).
+    MakeCampfire(crate::sites::FireTarget),
     /// A cask being set fermenting (players only): the order is the client's
     /// `fermenting`.
     Ferment,

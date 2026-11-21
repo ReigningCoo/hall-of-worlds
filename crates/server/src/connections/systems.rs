@@ -89,6 +89,7 @@ pub(crate) fn share_doors(mut connections: ResMut<Connections>, mut worlds: ResM
         crate::sites::share_plants(clients, world);
         crate::sites::grow_trees(clients, world);
         crate::sites::share_trees(clients, world);
+        crate::sites::sync_campfires(clients, world);
     });
 }
 

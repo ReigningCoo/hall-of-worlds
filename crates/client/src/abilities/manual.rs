@@ -6,6 +6,7 @@ use std::collections::VecDeque;
 
 use bevy::prelude::*;
 use shared::ability::{Ability, BarThing};
+use shared::campfire::can_make_fire;
 use shared::id::Id;
 use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
@@ -208,6 +209,10 @@ pub(super) fn ask_wanted(
                     None
                 }),
             Ability::CutKindling => log_aim(&carried.0, &ground.0),
+            // A fire faced to feed, or ground faced to light one on.
+            Ability::MakeCampfire => standing
+                .filter(|&(at, heading)| can_make_fire(&dungeon.level, at, heading))
+                .map(|_| None),
             _ => aim(ability, target.0, &others),
         };
         let Some(at) = aimed.filter(|_| fits) else {
@@ -248,7 +253,10 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         Ability::PressOil | Ability::PressJuice | Ability::Alchemy | Ability::Ferment => None,
         // On no one: the water or tree faced, or the log chosen
         // (`ask_wanted`).
-        Ability::CollectWater | Ability::FellTree | Ability::CutKindling => Some(None),
+        Ability::CollectWater
+        | Ability::FellTree
+        | Ability::CutKindling
+        | Ability::MakeCampfire => Some(None),
         _ => target.map(Some),
     }
 }

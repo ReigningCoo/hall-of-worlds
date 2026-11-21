@@ -62,6 +62,9 @@ pub enum Ability {
     /// A cask of juice, cordial, or water with fruit or grain set fermenting
     /// with yeast (`shared::ferment`): from Fermenting.
     Ferment,
+    /// A campfire lit on the ground faced, or the one faced fed, with a piece
+    /// of kindling (`shared::campfire`): learned on first carrying kindling.
+    MakeCampfire,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -77,7 +80,7 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 14] = [
+    pub const ALL: [Ability; 15] = [
         Self::Attack,
         Self::Heal,
         Self::Sneak,
@@ -92,6 +95,7 @@ impl Ability {
         Self::CollectWater,
         Self::FellTree,
         Self::CutKindling,
+        Self::MakeCampfire,
     ];
 
     /// What it is called.
@@ -111,6 +115,7 @@ impl Ability {
             Self::FellTree => "Fell Tree",
             Self::CutKindling => "Cut Kindling",
             Self::Ferment => "Ferment",
+            Self::MakeCampfire => "Make Campfire",
         }
     }
 
@@ -130,7 +135,8 @@ impl Ability {
             | Self::CollectWater
             | Self::FellTree
             | Self::CutKindling
-            | Self::Ferment => Use::Active,
+            | Self::Ferment
+            | Self::MakeCampfire => Use::Active,
         }
     }
 
@@ -145,6 +151,8 @@ impl Ability {
             // Woodcutting.
             Self::Trample | Self::FellTree | Self::CutKindling => &[Strength, Toughness],
             Self::Flutter => &[Agility],
+            // Fire-making, as survival.
+            Self::MakeCampfire => &[Toughness, Perception],
             // As its skill, Water.
             // Collect Water and Ferment as their skills, Water and Fermenting.
             Self::NightVision | Self::CollectWater | Self::Ferment => &[Perception],
@@ -174,6 +182,9 @@ impl Ability {
             }
             Self::FellTree => "Fells the tree you face with the one-handed axe you hold.",
             Self::CutKindling => "Splits a log into kindling with the one-handed axe you hold.",
+            Self::MakeCampfire => {
+                "Lights a campfire on the ground you face with kindling, or feeds the fire you face."
+            }
             Self::Ferment => {
                 "Sets a cask of juice, or of water with fruit or grain, fermenting with yeast."
             }

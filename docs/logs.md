@@ -21,6 +21,12 @@ Kindling is wood split into pieces of a kilogram each, keeping the wood it came 
 
 ![Oak kindling]({{ '/assets/logs/kindling.png' | relative_url }})
 
+## Campfires
+
+The first time you carry kindling, you learn **Make Campfire**. Face bare ground, grass, a stone floor or a road and use it to light a fire with a piece of kindling: it takes a few seconds, and no tinderbox. Use it again facing the fire to put another piece on.
+
+A piece burns for 5 minutes in the lightest woods, up to 10 in the densest, and a fire holds at most 5 pieces at a time. While it burns it lights the ground round it. When the last piece has burnt, the fire goes out and leaves a handful of **ash** for each piece it burnt, on the ground where it was.
+
 ## Woods
 
 Every tree gives its own wood. The table shows each wood's log, what a log weighs, how many pieces of kindling it splits into, and the trees it comes from.

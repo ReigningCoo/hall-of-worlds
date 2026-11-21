@@ -15,6 +15,7 @@ mod bench_picking;
 mod bench_tools;
 mod bolts;
 mod border;
+mod campfires;
 mod daylight;
 mod door_swing;
 mod field;
@@ -140,6 +141,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<vegetable_plants::DrawnVegetables>()
             .init_resource::<fungi::DrawnFungi>()
             .init_resource::<fixed_lights::FixedLights>()
+            .init_resource::<campfires::DrawnFires>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -192,6 +194,7 @@ impl Plugin for DungeonMapPlugin {
                         vegetable_plants::update_vegetables,
                         fungi::update_fungi,
                         bench_tools::update_bench_tools,
+                        (campfires::update_campfires, campfires::flicker_flames).chain(),
                         aim_at_herbs,
                         pick_on_arrival,
                     ),

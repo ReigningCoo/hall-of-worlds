@@ -29,6 +29,7 @@ mod answer_dev;
 mod answer_items;
 mod bench;
 mod bonuses;
+mod campfire;
 mod change_kind;
 mod characters;
 mod client;
