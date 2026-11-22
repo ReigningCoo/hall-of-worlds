@@ -47,6 +47,9 @@ pub(crate) struct Someone {
     pub(super) heading: shared::facing::Heading,
     /// Winding up a blow: a noise mobs near enough hear.
     pub(super) fighting: bool,
+    /// How far their light reaches (`Inventory::light_reach`: a lit lantern's
+    /// further), which everyone who sees them is told.
+    pub(super) light: u32,
 }
 
 pub(super) fn everyone_playing(clients: &mut [Client]) -> Vec<Someone> {
@@ -83,6 +86,7 @@ pub(super) fn everyone_playing(clients: &mut [Client]) -> Vec<Someone> {
                 scent: scent_strength(&client.inventory),
                 heading: client.heading,
                 fighting: client.winding_up(),
+                light: client.inventory.light_reach(),
             }
         })
         .collect()

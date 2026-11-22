@@ -167,12 +167,13 @@ pub enum ClientMessage {
     WearFromGround { item: Id },
     /// Throws away something from a bag in the player's reach, as `BinItem`.
     BinFromGround { item: Id },
-    /// Eats the top one of something carried or in a bag in the player's reach
-    /// (`bonus::is_food`), in turn with steps: its effect starts (`Sheet::eat`).
-    /// Answered with `Inventory` (and `GroundItems`), `Sheet` and `Vitals`.
+    /// Eats the top one of something carried or in a bag in reach (`bonus::is_food`), in turn
+    /// with steps (`Sheet::eat`). Answered with `Inventory` (`GroundItems`), `Sheet`, `Vitals`.
     Consume { item: Id },
     /// Pour a cask, vessel or bottle into another, carried or in reach (`shared::pour`): `Inventory`.
     Pour { from: Id, into: Id },
+    /// Fill a carried lantern from a bottle of oil, as `Pour` (`shared::lantern::fill`): `Inventory`.
+    FillLantern { lantern: Id, bottle: Id },
     /// Developer tools: new items of this kind for the character or `to`, made for this size
     /// (or the one getting them's own) and their fingers, answered with `Inventory`.
     DevGiveItem(DevGive),
@@ -194,9 +195,8 @@ pub enum ClientMessage {
     DevDeleteCharacter,
     /// Developer tools: jump to this point on the map (`protocol::moves`), answered with `Teleported`.
     DevTeleport { x: i64, y: i64 },
-    /// Developer tools: back to where new characters start on the world map,
-    /// from anywhere (out of a site too), answered with `OnWorldMap`. Only
-    /// an embedded server accepts it; others ignore it.
+    /// Developer tools: back to where new characters start on the world map, from anywhere,
+    /// answered with `OnWorldMap`. Only an embedded server accepts it; others ignore it.
     DevBackToStart,
     /// Developer tools: to the Hall of Worlds, before the gate leading to World
     /// Gate `gate` (from 0; none: the nearest, or another world's first) of the

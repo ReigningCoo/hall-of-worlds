@@ -66,6 +66,7 @@ mod go_to_place;
 mod heal;
 mod keys_found;
 mod kick;
+mod lantern;
 mod lightning;
 pub(crate) mod lockdown;
 mod login;
@@ -219,6 +220,8 @@ pub struct Client {
     pub(crate) seen_marks: BTreeMap<Id, Option<shared::role::RoleBadge>>,
     /// The stage of life each was told at, to tell again as it grows.
     pub(crate) seen_stages: BTreeMap<Id, shared::livestock::Stage>,
+    /// How far each one's light reached when told (`EntityLook::light`).
+    pub(crate) seen_lights: BTreeMap<Id, u32>,
     /// What the character is like.
     pub(crate) sheet: Sheet,
     /// Its action bar (`CharacterSave::action_bar`).

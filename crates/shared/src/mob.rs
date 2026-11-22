@@ -281,6 +281,9 @@ pub struct EntityLook {
     /// Its stage of life (`livestock::stage_of`), for its body: grown for
     /// players and anyone not in the livestock table.
     pub stage: crate::livestock::Stage,
+    /// How far its light reaches, in cells: a player's `Inventory::light_reach`
+    /// (`shared::lantern`); 0 for mobs, which carry none (no darkness rule yet).
+    pub light: u32,
 }
 
 /// What everyone sees of a quest boss (`quest::boss_of`, `quest::boss_tier`).

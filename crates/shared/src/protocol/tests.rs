@@ -780,6 +780,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 tier: crate::item::Quality::Rare,
             }),
             stage: crate::livestock::Stage::Juvenile,
+            light: crate::lantern::LANTERN_LIGHT,
         }),
         ServerMessage::Moves(vec![crate::protocol::Stretch {
             id: Id(uuid::Uuid::from_u128(4)),

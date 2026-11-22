@@ -1,6 +1,6 @@
 # shared: lantern
 
-The lantern's rules (owner, 2026-11-21; lantern task PR 4 of 6): the oil kept on the item, burning by playtime while held or tied to the belt, refilling from a bottle of oil, and how far a carrier's light reaches. Not the clock itself or telling viewers (the server, PR 5), nor the model, light and fuel panel (the client, PR 6). The kind is `ItemKind::Lantern` (800 g, 1 × 2, scroll shops).
+The lantern's rules (owner, 2026-11-21; lantern task PR 4 of 6): the oil kept on the item, burning by playtime while held or tied to the belt, refilling from a bottle of oil, and how far a carrier's light reaches. The server runs the clock and tells viewers (PR 5, `server.md`); the model, light and fuel panel are the client's (PR 6). The kind is `ItemKind::Lantern` (800 g, 1 × 2, scroll shops).
 
 ## Files
 
@@ -25,7 +25,8 @@ The lantern's rules (owner, 2026-11-21; lantern task PR 4 of 6): the oil kept on
 
 ## Used by
 
-- `item_form` (`ItemForm::Lantern`: name, weight, `give_form_to`). The server (PR 5) and client (PR 6) to come.
+- `item_form` (`ItemForm::Lantern`: name, weight, `give_form_to`).
+- The server (PR 5, `connections/lantern.rs`): `ClientMessage::FillLantern` through `fill`, `burn_lanterns` by playtime, `light_reach` sent as `mob::EntityLook::light`. The client (PR 6) to come.
 
 ## Notes
 
