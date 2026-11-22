@@ -28,17 +28,17 @@ pub(super) async fn came_back(logins: Logins, query: RawQuery) -> (StatusCode, H
         );
     };
     let provider = &logins.0.providers[waiting.provider];
-    let email = match (code, refused) {
+    let proved = match (code, refused) {
         (Some(code), None) => {
             let callback = &logins.0.callback;
             provider
-                .email(&logins.0.http, callback, &code, &waiting.verifier)
+                .prove(&logins.0.http, callback, &code, &waiting.verifier)
                 .await
         }
         (_, Some(refused)) => Err(format!("the provider said {refused:?}")),
         (None, None) => Err("the provider sent no code".into()),
     };
-    let answer = match &email {
+    let answer = match &proved {
         Ok(_) => page(
             StatusCode::OK,
             "You're logged in. You can close this tab and go back to the game.",
@@ -50,8 +50,8 @@ pub(super) async fn came_back(logins: Logins, query: RawQuery) -> (StatusCode, H
     };
     logins.finish(Finished {
         state: state.expect("found by it"),
-        provider: provider.settings.name.clone(),
-        email,
+        provider: provider.name.clone(),
+        proved,
     });
     answer
 }

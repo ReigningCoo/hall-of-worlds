@@ -183,6 +183,7 @@ fn older_saves_get_unique_names_once() {
         guest: false,
         created: 1,
         characters: names.iter().map(|name| summary(name)).collect(),
+        discord: None,
     };
     let (one, two) = (AccountId(new_id()), AccountId(new_id()));
     queue.save(

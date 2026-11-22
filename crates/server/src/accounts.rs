@@ -39,6 +39,9 @@ pub(crate) struct AccountSave {
     /// When it was made (seconds since 1970).
     pub created: u64,
     pub characters: Vec<CharacterSummary>,
+    /// The Discord user logged in with or linked (`discord.rs`), never logged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub discord: Option<u64>,
 }
 
 /// A login's save.
@@ -109,6 +112,7 @@ impl Accounts {
                         guest: key.is_guest(),
                         created: now(),
                         characters: Vec::new(),
+                        discord: None,
                     },
                 );
                 self.save(&id);
@@ -134,6 +138,7 @@ impl Accounts {
                     guest: true,
                     created: now(),
                     characters: Vec::new(),
+                    discord: None,
                 },
             };
             self.loaded.insert(*id, save);
@@ -278,12 +283,13 @@ pub fn new_guest_token() -> Result<GuestToken, String> {
 }
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod discord;
 mod find;
 mod login_key;
 mod names;
 mod session;
 
-pub(crate) use login_key::{EmailKey, LoginKey};
+pub(crate) use login_key::{DiscordKey, EmailKey, LoginKey};
 pub(crate) use names::NameIndex;
 #[cfg(test)]
 use session::session_hash;

@@ -10,7 +10,7 @@ use bevy::log::info;
 use ring::hmac;
 use ring::rand::{SecureRandom, SystemRandom};
 
-use crate::accounts::{EmailKey, hex};
+use crate::accounts::{DiscordKey, EmailKey, hex};
 
 /// Where the secret is kept, in the data folder.
 const SECRET_FILE: &str = "login-secret.txt";
@@ -75,5 +75,13 @@ impl LoginSecret {
         let mut key = [0; 32];
         key.copy_from_slice(tag.as_ref());
         EmailKey(key)
+    }
+
+    /// The key a Discord user id is known by.
+    pub(crate) fn discord_key(&self, user: u64) -> DiscordKey {
+        let tag = hmac::sign(&self.0, user.to_string().as_bytes());
+        let mut key = [0; 32];
+        key.copy_from_slice(tag.as_ref());
+        DiscordKey(key)
     }
 }

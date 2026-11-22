@@ -54,6 +54,13 @@ pub(super) fn providers_from(
     for name in names {
         let variable = |part: &str| format!("{PREFIX}{name}_{part}");
         let lower = name.to_lowercase();
+        if lower == shared::protocol::DISCORD {
+            warnings.push(format!(
+                "{} is taken by Discord's own login (HOW_DISCORD_CLIENT_ID), so it is left out",
+                variable("CLIENT_ID")
+            ));
+            continue;
+        }
         let known = KNOWN.iter().find(|(known, ..)| *known == lower);
         let client_secret = match secret_value(&variable("CLIENT_SECRET"), value) {
             Ok(secret) => secret,

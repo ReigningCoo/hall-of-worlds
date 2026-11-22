@@ -160,7 +160,9 @@ fn main() {
     }
     {
         let mut options = app.world_mut().resource_mut::<ServerOptions>();
-        options.guests = guests || logins.is_none();
+        // HOW_DISCORD_ONLY lets no guests in, whatever HOW_GUESTS says.
+        let discord_only = logins.as_ref().is_some_and(Logins::discord_only);
+        options.guests = (guests || logins.is_none()) && !discord_only;
     }
     if let Some(logins) = &logins {
         app.insert_resource(logins.clone());

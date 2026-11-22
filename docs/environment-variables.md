@@ -47,7 +47,7 @@ Without any of these, the server makes a self-signed certificate and keeps it in
 
 ## Accounts and logging in
 
-Players can log in through a provider's website, such as Google, if you set one up: see [Logging in with Google](hosting/#logging-in-with-google). The server never keeps anyone's email address, only a key made from it with the login secret, and logs players by their account's id.
+Players can log in through a provider's website, such as Google, or through Discord, if you set one up: see [Logging in with Google](hosting/#logging-in-with-google) and [Logging in with Discord](hosting/#logging-in-with-discord). The server never keeps anyone's email address, only a key made from it with the login secret, and logs players by their account's id.
 
 | Variable | Default | What it does |
 | -------- | ------- | ------------ |
@@ -58,8 +58,13 @@ Players can log in through a provider's website, such as Google, if you set one 
 | `HOW_OIDC_<NAME>_CLIENT_SECRET_FILE` | none | A file holding the client secret instead, such as a Docker secret. If set, it is used in place of `HOW_OIDC_<NAME>_CLIENT_SECRET`. If the file can't be read, that provider is left out. |
 | `HOW_OIDC_<NAME>_ISSUER` | Google's for `GOOGLE` | The provider's address, where its OpenID Connect settings are found (`<issuer>/.well-known/openid-configuration`). Any provider that supports OpenID Connect works. It must be `https://`, except on the server's own machine. |
 | `HOW_OIDC_<NAME>_LABEL` | `Google` for `GOOGLE`, otherwise the name | What players see the provider called. |
+| `HOW_DISCORD_CLIENT_ID` | none | The client id of your Discord application. With its secret, players can log in through Discord. |
+| `HOW_DISCORD_CLIENT_SECRET` | none | Your Discord application's client secret. Keep it to yourself. |
+| `HOW_DISCORD_CLIENT_SECRET_FILE` | none | A file holding the Discord client secret instead, such as a Docker secret. If set, it is used in place of `HOW_DISCORD_CLIENT_SECRET`. If the file can't be read, Discord logins are off. |
+| `HOW_DISCORD_INVITE` | none | An invitation link to your Discord server, such as `https://discord.gg/...`. Players see a Join our Discord button beside Log in with Discord, which opens it in their browser. It must be `https://`. |
+| `HOW_DISCORD_ONLY` | `false` | `true` lets players in only through Discord: no other provider is offered and no guests, whatever `HOW_GUESTS` says, and logins kept from another provider must log in again through Discord. If Discord isn't set up, the server doesn't start. |
 | `HOW_LOGIN_URL` | `https://` and `HOW_LETS_ENCRYPT_DOMAIN`, if that is set | The address players reach the server at, such as `https://game.example.com`. Providers send players back to `/login/callback` there. Without it, providers can't be used. |
-| `HOW_LOGIN_SECRET` | made on the first run | What email addresses are made into keys with. Servers that share players must all have the same one. Without it, the server makes one the first time and keeps it in its data folder; once kept, a different one stops the server from starting, as it would lose every account. |
+| `HOW_LOGIN_SECRET` | made on the first run | What email addresses and Discord ids are made into keys with. Servers that share players must all have the same one. Without it, the server makes one the first time and keeps it in its data folder; once kept, a different one stops the server from starting, as it would lose every account. |
 | `HOW_LOGIN_SECRET_FILE` | none | A file holding the login secret instead, such as a Docker secret. If set, it is used in place of `HOW_LOGIN_SECRET`. If the file can't be read, the server doesn't start. |
 | `HOW_STATS_SECRET` | made on the first run | The key `/_stats` asks for (see [Hosting](hosting/#stats-for-a-dashboard)). Without it, the server makes one the first time and keeps it in its data folder, in `stats-key.txt`. |
 | `HOW_STATS_SECRET_FILE` | none | A file holding the stats key instead, such as a Docker secret. If set, it is used in place of `HOW_STATS_SECRET`. If the file can't be read, the server doesn't start. |
