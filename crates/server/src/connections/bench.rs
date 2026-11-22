@@ -4,8 +4,8 @@
 //! be in reach (`sites::HeldHere::in_reach`). Anyone may put or take
 //! (owner's): tools on a bench, food in a Range's storage (cooking plan PR 8),
 //! where its clocks run on real time at the land's warmth as on the ground,
-//! casks on a rack of their size, whose clocks go by world time as on the
-//! ground. A tool of a kind already there swaps with it; anything the piece
+//! casks on a rack of their size, bottles on a wine or spirit rack (one off
+//! a stack), whose clocks go by world time as on the ground. A tool of a kind already there swaps with it; anything the piece
 //! won't take is refused with `BenchRefused`, never saying why.
 
 use bevy::prelude::*;
@@ -59,6 +59,21 @@ pub(super) fn bench_act(
 /// the piece, only left where it is.
 fn put(client: &mut Client, world: &mut ServerWorld, here: HeldHere, item: shared::id::Id) -> bool {
     client.inventory.lift_part(item);
+    // Of a stack (bottles), only one goes, one to a place.
+    let stacked = client
+        .inventory
+        .find(item)
+        .is_some_and(|found| found.count() > 1);
+    let item = match stacked {
+        true => match client
+            .inventory
+            .lift_count(item, 1, &mut crate::ids::new_id)
+        {
+            Some(one) => one,
+            None => return true,
+        },
+        false => item,
+    };
     let Some(found) = client.inventory.find(item) else {
         return true;
     };
@@ -75,8 +90,8 @@ fn put(client: &mut Client, world: &mut ServerWorld, here: HeldHere, item: share
     let Some(mut item) = client.inventory.hand_over(item) else {
         return true;
     };
-    // Food left in storage rests as on the ground, casks on a rack go by
-    // world time (tools have no clocks).
+    // Food left in storage rests as on the ground, casks and sealed bottles
+    // on a rack go by world time (tools have no clocks).
     let now = unix_now();
     item.lay_food_down(now);
     item.lay_casks_down(now);

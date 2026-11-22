@@ -206,9 +206,15 @@ impl Item {
             // Shapes differ in a stack: it keys on the liquid, and a potion's
             // on quality too (owner, 2026-11-17).
             bottle.look = 0;
+            // Time in the glass isn't shown (its quality is): a counted stack
+            // keeps its bottom's.
+            bottle.glass = Default::default();
             if !bottle.is_potion() {
                 copy.quality = None;
             }
+        }
+        if let Some(ItemForm::Vessel(vessel)) = &mut copy.form {
+            vessel.glass = Default::default();
         }
         if let Some(ItemForm::Yeast(yeast)) = &mut copy.form {
             // Each keeps its own clock and progress (owner, 2026-11-18): a

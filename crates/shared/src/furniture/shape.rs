@@ -14,7 +14,7 @@ impl Furniture {
             Self::Bench { style } => style == BenchStyle::StoneSlab,
             // Hearths are of stone, other benches of wood.
             Self::CraftingBench { craft } => craft.is_hearth(),
-            Self::CaskRack { .. } => false,
+            Self::CaskRack { .. } | Self::BottleRack { .. } => false,
         }
     }
 }
@@ -28,7 +28,8 @@ pub fn footprint(furniture: Furniture, (long, short): (u8, u8), facing: Side) ->
         Furniture::Chair { .. }
         | Furniture::Bench { .. }
         | Furniture::CraftingBench { .. }
-        | Furniture::CaskRack { .. } => matches!(facing, Side::North | Side::South),
+        | Furniture::CaskRack { .. }
+        | Furniture::BottleRack { .. } => matches!(facing, Side::North | Side::South),
     };
     if along_x {
         (long, short)
@@ -42,8 +43,8 @@ impl Piece {
     /// 2 × 3 facing east or south (east when square) along its length, a
     /// pedestal only where it fits; a chair 1 × 1; a bench 1 to 3 long and 1
     /// deep across the way it faces; a crafting bench its craft's length and 1
-    /// deep across the way it faces, of wood (a cask rack its length, of
-    /// wood); stone styles of stone and wooden ones of
+    /// deep across the way it faces, of wood (a cask, wine or spirit rack its
+    /// length, of wood); stone styles of stone and wooden ones of
     /// wood, and arms only on wooden chairs.
     pub fn is_well_made(&self) -> bool {
         let (width, height) = self.size;
@@ -62,6 +63,9 @@ impl Piece {
             Furniture::Bench { .. } => (1..=3).contains(&long) && short == 1,
             Furniture::CraftingBench { craft } => long == craft.length() && short == 1,
             Furniture::CaskRack { rack } => {
+                rack.is_well_made() && long == rack.length && short == 1
+            }
+            Furniture::BottleRack { rack } => {
                 rack.is_well_made() && long == rack.length && short == 1
             }
         };

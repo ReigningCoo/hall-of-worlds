@@ -8,14 +8,18 @@
 
 mod choices;
 mod clock;
+mod glass;
 mod order;
 mod yeasts;
 
 pub use choices::{FermentChoices, YeastStack, fermentable_cask};
 pub use clock::{CaskSettled, days_left};
+pub use glass::GlassTime;
 pub use order::{
     FERMENT_PRACTICE, FERMENTING, FermentOrder, FermentPlan, FermentRefused, ferment_ticks, plan,
 };
 
+#[cfg(test)]
+mod glass_tests;
 #[cfg(test)]
 mod tests;

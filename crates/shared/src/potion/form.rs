@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{Contents, Liquid};
+use crate::ferment::GlassTime;
 use crate::item::Item;
 use crate::item_form::ItemForm;
 
@@ -22,6 +23,8 @@ pub struct BottleForm {
     /// Stoppered since it was filled from a cask (drinks decision 15): never
     /// spoils until opened. Saves from before this (2026-11-18) load unsealed.
     pub sealed: bool,
+    /// A sealed drink's time ageing in it (`ferment::GlassTime`).
+    pub glass: GlassTime,
 }
 
 impl BottleForm {
@@ -32,6 +35,7 @@ impl BottleForm {
             liquid,
             look,
             sealed: false,
+            glass: GlassTime::default(),
         }
     }
 
@@ -87,11 +91,19 @@ impl<'de> Deserialize<'de> for BottleForm {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         if !deserializer.is_human_readable() {
             let wire = Wire::deserialize(deserializer)?;
-            return Ok(Self::new(wire.liquid, wire.look).with_seal(wire.sealed));
+            let bottle = Self::new(wire.liquid, wire.look).with_seal(wire.sealed);
+            return Ok(Self {
+                glass: wire.glass,
+                ..bottle
+            });
         }
         let saved = Saved::deserialize(deserializer)?;
         let liquid = saved.liquid.or(Some(Liquid::Potion(saved.contents)));
-        Ok(Self::new(liquid, saved.look).with_seal(saved.sealed))
+        let bottle = Self::new(liquid, saved.look).with_seal(saved.sealed);
+        Ok(Self {
+            glass: saved.glass,
+            ..bottle
+        })
     }
 }
 
@@ -102,6 +114,7 @@ struct Wire {
     liquid: Option<Liquid>,
     look: u64,
     sealed: bool,
+    glass: GlassTime,
 }
 
 /// A bottle as saved, now or before liquids.
@@ -115,6 +128,8 @@ struct Saved {
     look: u64,
     #[serde(default)]
     sealed: bool,
+    #[serde(default)]
+    glass: GlassTime,
 }
 
 impl Item {

@@ -1,4 +1,5 @@
-//! Time passing on casks (owner's decision 2: world time on the ground,
+//! Time passing on casks, and on sealed drinks in glass (`glass.rs`) by the
+//! same two clocks (owner's decision 2: world time on the ground,
 //! playtime in the pack, as yeast's clock): what is fermenting ferments, a
 //! sealed drink ages by its wood, an opened drink counts down to vinegar
 //! (with a warning in its last tenth) and opened juice or cordial ferments
@@ -189,6 +190,13 @@ impl Item {
             };
             settled = std::mem::take(&mut settled).and(cask.pass(passed));
         });
+        self.each_glass(&mut |mut glass| {
+            let passed = match glass.time.lying_since.take() {
+                Some(since) => now.saturating_sub(since),
+                None => u64::from(secs),
+            };
+            settled.seen |= glass.pass(passed, 100);
+        });
         settled
     }
 
@@ -197,6 +205,9 @@ impl Item {
     pub fn lay_casks_down(&mut self, now: u64) {
         self.each_cask(&mut |cask| {
             cask.time.lying_since.get_or_insert(now);
+        });
+        self.each_glass(&mut |glass| {
+            glass.time.lying_since.get_or_insert(now);
         });
     }
 
@@ -219,6 +230,13 @@ impl Item {
                 let done = cask.pass_ageing(passed, ageing_percent);
                 settled = std::mem::take(&mut settled).and(done);
                 cask.time.lying_since = Some(since + passed);
+            }
+        });
+        self.each_glass(&mut |mut glass| {
+            if let Some(since) = glass.time.lying_since {
+                let passed = now.saturating_sub(since) / step * step;
+                settled.seen |= glass.pass(passed, ageing_percent);
+                glass.time.lying_since = Some(since + passed);
             }
         });
         settled

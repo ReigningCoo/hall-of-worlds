@@ -5,11 +5,13 @@
 //! cell, put on and taken off through one panel and one pair of messages
 //! (`protocol::BenchAsk`). Crafting benches hold their tools
 //! (`crafting_bench::BenchTools`), cask racks their casks
-//! (`cask_rack::RackCasks`).
+//! (`cask_rack::RackCasks`), wine and spirit racks their bottles
+//! (`bottle_rack::RackBottles`).
 
 use serde::{Deserialize, Serialize};
 
 use super::Furniture;
+use crate::bottle_rack::{BottleRack, RackBottles};
 use crate::cask_rack::{CaskRack, RackCasks};
 use crate::crafting_bench::{BenchTools, Craft, NotTaken};
 use crate::id::Id;
@@ -20,6 +22,7 @@ use crate::item::Item;
 pub enum Holder {
     Bench(Craft),
     Casks(CaskRack),
+    Bottles(BottleRack),
 }
 
 impl Holder {
@@ -28,6 +31,7 @@ impl Holder {
         match furniture {
             Furniture::CraftingBench { craft } => Some(Self::Bench(craft)),
             Furniture::CaskRack { rack } => Some(Self::Casks(rack)),
+            Furniture::BottleRack { rack } => Some(Self::Bottles(rack)),
             _ => None,
         }
     }
@@ -37,6 +41,7 @@ impl Holder {
         match self {
             Self::Bench(craft) => craft.name().to_owned(),
             Self::Casks(rack) => rack.name(),
+            Self::Bottles(rack) => rack.name().to_owned(),
         }
     }
 }
@@ -46,6 +51,7 @@ impl Holder {
 pub enum Held {
     Bench(BenchTools),
     Casks(RackCasks),
+    Bottles(RackBottles),
 }
 
 impl Held {
@@ -54,6 +60,7 @@ impl Held {
         match holder {
             Holder::Bench(craft) => Self::Bench(BenchTools::new(craft)),
             Holder::Casks(rack) => Self::Casks(RackCasks::new(rack)),
+            Holder::Bottles(rack) => Self::Bottles(RackBottles::new(rack)),
         }
     }
 
@@ -62,6 +69,7 @@ impl Held {
         match self {
             Self::Bench(tools) => Holder::Bench(tools.craft),
             Self::Casks(casks) => Holder::Casks(casks.rack),
+            Self::Bottles(bottles) => Holder::Bottles(bottles.rack),
         }
     }
 
@@ -69,7 +77,7 @@ impl Held {
     pub fn bench(&self) -> Option<&BenchTools> {
         match self {
             Self::Bench(tools) => Some(tools),
-            Self::Casks(_) => None,
+            Self::Casks(_) | Self::Bottles(_) => None,
         }
     }
 
@@ -78,6 +86,7 @@ impl Held {
         match self {
             Self::Bench(tools) => Box::new(tools.items()),
             Self::Casks(casks) => Box::new(casks.items()),
+            Self::Bottles(bottles) => Box::new(bottles.items()),
         }
     }
 
@@ -88,6 +97,7 @@ impl Held {
         match self {
             Self::Bench(tools) => tools.put(item),
             Self::Casks(casks) => casks.put(item).map(|()| None),
+            Self::Bottles(bottles) => bottles.put(item).map(|()| None),
         }
     }
 
@@ -96,6 +106,7 @@ impl Held {
         match self {
             Self::Bench(tools) => tools.take(id),
             Self::Casks(casks) => casks.take(id),
+            Self::Bottles(bottles) => bottles.take(id),
         }
     }
 }

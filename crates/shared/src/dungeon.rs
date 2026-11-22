@@ -52,4 +52,6 @@ pub const WALL_END_UNITS: i64 = 4;
 const HALF_CELL: i64 = CELL_UNITS / 2;
 
 #[cfg(test)]
+mod furniture_tests;
+#[cfg(test)]
 mod tests;

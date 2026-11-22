@@ -12,7 +12,7 @@ The fermentation rules (drinks plan PR 5, `docs/context/drinks.md`, owner's deci
 - `fermentation/strength.rs`: `tolerance`, `best_tolerance`, `ferment`, `Fermented`, `Sweetness`, `KCAL_PER_PERCENT`, `LEAST_STRENGTH`, `WILD_TOLERANCE`.
 - `fermentation/time.rs`: `ferment_secs`, `base_secs`, `GAME_DAY_SECS`, `PITCH_ML`.
 - `fermentation/quality.rs`: `drink_quality`, `mean_quality` (and the step helpers ageing uses).
-- `fermentation/ageing.rs`: `aged`, `ageing_step_secs`, `ageing_cap`.
+- `fermentation/ageing.rs`: `aged`, `ageing_step_secs`, `ageing_cap`, and glass's `glass_aged`, `glass_step_secs`, `glass_cap`.
 - `fermentation/spoil.rs`: `best_before_secs`, `vinegar_share`, `notice_due`, `wild_cider`, `KEEPS_FROM`, `JUICE_TURNS_SECS`.
 
 ## Public API
@@ -23,7 +23,7 @@ The fermentation rules (drinks plan PR 5, `docs/context/drinks.md`, owner's deci
 - `ferment(mash, tolerance) -> Option<Fermented { kind, strength, left_kcal, sweetness }>`: strength kcal a litre × 10 ÷ `KCAL_PER_PERCENT` (68), capped by the tolerance; the sugar left is `Sweetness` (Dry under 40 kcal a litre, OffDry under 100, Medium under 180, Sweet); none under `LEAST_STRENGTH` (1%). `tolerance(quality)`: Poor 7%, Common 9%, +2% a step to Legendary 17%, Artifact 20%. `best_tolerance(yeasts)`: the best yeast's, `WILD_TOLERANCE` (6%) with none.
 - `ferment_secs(kind, size, ml, yeasts)`: `base_secs(kind)` (ale 24 game days, cider and perry 36, wines 90, in a Pin with one Common yeast) × size (+10% a cask size past the Pin) × the yeasts' mean quality (Poor 125%, Common 100%, −10% a step to Artifact 50%) × amount (one yeast to `PITCH_ML`, 20 L, is 100%; next to none 200%; four times or more 40%). No yeast is timed as one Poor.
 - `drink_quality(yeasts, source, wood)`: the yeasts' `mean_quality` (ranks averaged, rounded down), one step down for cordial or fruit mashed whole and for a pine cask; Poor with no yeast; never above Legendary.
-- `aged(made, kind, wood, secs)`: oak a step up each `ageing_step_secs(kind)` (ale 7 game days, cider and perry 14, wines 30) up to `ageing_cap` (ale, cider and perry 1, fruit wines 2, wine 3); cherry 1 step at half the pace; pine a step down at the same pace, 2 at most; chestnut and acacia nothing. Kept from Poor to Legendary.
+- `aged(made, kind, wood, secs)`: oak a step up each `ageing_step_secs(kind)` (ale 7 game days, cider and perry 14, wines 30) up to `ageing_cap` (ale, cider and perry 1, fruit wines 2, wine 3); cherry 1 step at half the pace; pine a step down at the same pace, 2 at most; chestnut and acacia nothing. Kept from Poor to Legendary. In glass (tavern furniture plan PR 2: sealed bottles, `ferment`'s glass clock): `glass_aged(bottled, kind, secs)`, a step up each `glass_step_secs` (twice oak's: wine 60 game days) up to `glass_cap` (oak's less one: wine 2, fruit wines 1, ale, cider and perry none); no wood's flavour.
 - `best_before_secs(strength, vinegar)`: an opened drink's keeping time, 6 game days plus a quarter of its strength in percent squared (5%: 12 days, 12%: 42, 18%: 87), none from `KEEPS_FROM` (20%); `vinegar` (thousandths, `vinegar_share(vinegar_ml, total_ml)`) takes 4 thousandths off for each, down to a tenth. `notice_due(best_before, opened_for)`: in its last tenth.
 - `wild_cider(def, ml)`: what opened juice ferments into after `JUICE_TURNS_SECS` (2 game days): wild yeast, up to 6%, always Poor (apple juice: a 5.8% cider).
 

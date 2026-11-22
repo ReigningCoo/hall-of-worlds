@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::VesselKind;
+use crate::ferment::GlassTime;
 use crate::item::Item;
 use crate::item_form::ItemForm;
 use crate::potion::Liquid;
@@ -19,6 +20,9 @@ pub struct VesselForm {
     /// Corked since it was filled from a cask: never spoils until opened
     /// (drinks decisions 13 and 15).
     pub sealed: bool,
+    /// A sealed drink's time ageing in it (`ferment::GlassTime`).
+    #[serde(default)]
+    pub glass: GlassTime,
 }
 
 impl VesselForm {
@@ -29,6 +33,7 @@ impl VesselForm {
             liquid: None,
             ml: 0,
             sealed: false,
+            glass: GlassTime::default(),
         }
     }
 
@@ -41,6 +46,7 @@ impl VesselForm {
                 liquid: Some(liquid),
                 ml,
                 sealed: false,
+                glass: GlassTime::default(),
                 ..self
             },
             _ => Self::new(self.vessel),

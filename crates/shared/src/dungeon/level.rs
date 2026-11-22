@@ -42,6 +42,10 @@ pub struct Level {
     /// `furniture.rs`).
     pub(super) furniture: BTreeMap<(i64, i64), Piece>,
     pub(super) furniture_cells: BTreeMap<(i64, i64), (i64, i64)>,
+    /// Furniture standing on other furniture (a spirit rack on a table), kept
+    /// the same way apart from what it stands on.
+    pub(super) on_top: BTreeMap<(i64, i64), Piece>,
+    pub(super) on_top_cells: BTreeMap<(i64, i64), (i64, i64)>,
     /// Herb patches by cell (see `herbs.rs`).
     pub(super) herbs: BTreeMap<(i64, i64), HerbPatch>,
     /// Fruit plants by cell (see `fruit.rs`).
@@ -76,6 +80,8 @@ impl Level {
             locked: BTreeSet::new(),
             furniture: BTreeMap::new(),
             furniture_cells: BTreeMap::new(),
+            on_top: BTreeMap::new(),
+            on_top_cells: BTreeMap::new(),
             herbs: BTreeMap::new(),
             fruit: BTreeMap::new(),
             vegetables: BTreeMap::new(),

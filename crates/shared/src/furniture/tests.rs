@@ -156,7 +156,8 @@ fn seats_match_their_rooms_tables() {
                     ),
                     Furniture::Table { .. }
                     | Furniture::CraftingBench { .. }
-                    | Furniture::CaskRack { .. } => {}
+                    | Furniture::CaskRack { .. }
+                    | Furniture::BottleRack { .. } => {}
                 }
             }
         }

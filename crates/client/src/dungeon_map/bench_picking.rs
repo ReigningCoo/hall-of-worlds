@@ -1,5 +1,6 @@
 //! A click (or tap) on a piece with places (`furniture::Holder`: a crafting
-//! bench or cask rack), or what lies on it: each is taken as a box over its
+//! bench, cask, wine or spirit rack, the last standing on a table), or what
+//! lies on it: each is taken as a box over its
 //! cells, from the ground to above its shelf's tools or its casks.
 //! `click.rs` sends `BenchClicked` for it; `hover.rs` names it.
 
@@ -25,7 +26,7 @@ pub(super) fn bench_clicked(
     ground: Ground,
 ) -> Option<Piece> {
     let floor = (ground.hit(ray)).map_or(f32::INFINITY, |(distance, _, _)| distance);
-    let (distance, piece) = (level.furniture())
+    let (distance, piece) = (level.furniture().chain(level.furniture_on_top()))
         .filter(|piece| Holder::of(piece.furniture).is_some())
         .filter(|piece| piece.cells().any(|(x, y)| seen.is_seen(x, y)))
         .filter_map(|piece| {
@@ -35,7 +36,9 @@ pub(super) fn bench_clicked(
             let (w, h) = (f32::from(piece.size.0), f32::from(piece.size.1));
             let high = low + Vec3::new(w * CELL_SIZE, 0.0, h * CELL_SIZE);
             let low = low.with_y(foot);
-            let tall = super::furniture::rack_height(piece).unwrap_or(BENCH_HEIGHT);
+            let tall = (super::furniture::rack_height(piece))
+                .or_else(|| super::furniture::bottle_rack_height(piece))
+                .unwrap_or(BENCH_HEIGHT);
             let high = high.with_y(foot + tall);
             Some((into_box(ray, low, high)?, *piece))
         })

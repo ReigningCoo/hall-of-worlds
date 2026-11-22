@@ -9,6 +9,7 @@ Ferment and vinegar (drinks plan PR 6, `docs/context/drinks.md`): applying the f
 - `ferment/yeasts.rs`: `Inventory::{usable_yeasts, use_yeasts, take_added}`.
 - `ferment/choices.rs`: `FermentChoices`, `YeastStack`, `fermentable_cask`, `Inventory::ferment_choices`.
 - `ferment/clock.rs`: `CaskSettled`, `days_left`, `CaskForm::{pass, pass_ageing, turns_in}`, `Item::{age_casks, lay_casks_down, settle_lying_casks, settle_lying_casks_ageing}`, `Inventory::age_casks`.
+- `ferment/glass.rs` (tavern furniture plan PR 2): `GlassTime`, and the glass clocks run by the same `Item` functions as casks'. Tests in `ferment/glass_tests.rs`.
 
 ## Public API
 
@@ -18,6 +19,7 @@ Ferment and vinegar (drinks plan PR 6, `docs/context/drinks.md`): applying the f
 - `Inventory::usable_yeasts(stack, count)` (qualities, top first), `use_yeasts(stack, count)` (marks them `used`, owner: used once, not used up), `take_added(stack)`.
 - `Inventory::ferment_choices()` (`FermentChoices { casks, adds, yeasts }`, carried only; `YeastStack { stack, quality, usable }`), `fermentable_cask(item)` (for casks lying in reach too).
 - `CaskForm::pass(secs) -> CaskSettled { seen, warned }`: fermenting counts down first, then a sealed drink ages (`aged` from `made`), an opened drink counts `opened_for` to `best_before_secs` and becomes `Liquid::Vinegar` of its base (warned once in its last tenth: `notice_due`), opened juice or cordial becomes a Poor drink after `JUICE_TURNS_SECS` (`WILD_TOLERANCE`; a mash too weak stays juice). `seen` when a game day passes on a clock shown, it finishes, ages a step or turns. `turns_in()`: seconds to vinegar for an opened drink. `pass_ageing(secs, percent)`: the same with a sealed drink's ageing at `percent` (casks on a rack: `cask_rack::RACK_AGEING_PERCENT`, 110), fermenting and the opened clock unchanged. `days_left(secs)`: game days rounded up.
+- Glass (owner's decision, 2026-11-22: sealed wine bottles and spirits age wherever they are, raising quality, 10% faster on a wine or spirit rack): `GlassTime { bottled, aged, lying_since }` on `VesselForm::glass` and `BottleForm::glass`; `GlassTime::pass(liquid, sealed, secs, percent)`: only a sealed `Liquid::Drink`, `aged` sped up by `percent`, the drink's quality `fermentation::glass_aged` from `bottled` (its quality when first aged there). `Item::age_casks`, `lay_casks_down` and `settle_lying_casks(_ageing)` run every bottle's and vessel's glass clock in an item (itself, stacked, inside) as they run casks', so carried bottles go by playtime, ones on the ground or furniture by world time, with no new calls in the server.
 - The two clocks (owner's decision 2), as yeast's: `Inventory::age_casks(secs, now)` by playtime; `Item::lay_casks_down(now)` stamps `CaskTime::lying_since`; `settle_lying_casks(now)` lets real time pass for casks on the ground (`settle_lying_casks_ageing(now, percent)` for casks on a rack, in whole steps of `100 / gcd(percent, 100)` seconds so ageing loses nothing to rounding); one picked up counts its time lying first.
 
 ## Depends on
@@ -26,11 +28,11 @@ Ferment and vinegar (drinks plan PR 6, `docs/context/drinks.md`): applying the f
 
 ## Used by
 
-- `cask_rack` (`RackCasks::settle`), `ability` (`Ferment`: its skill, has_tool by a usable yeast), `protocol` (`ClientMessage::Ferment`), `pour` (refusing a fermenting cask), server `connections/ferment.rs`, `connections/playtime.rs`, `ground/bags.rs`, `ground/tell.rs`, client `abilities/ferment/`, `item_popup/cask.rs`.
+- `cask_rack` (`RackCasks::settle`), `bottle_rack` (`RackBottles::settle`), `potion` and `vessel` (`GlassTime`), `ability` (`Ferment`: its skill, has_tool by a usable yeast), `protocol` (`ClientMessage::Ferment`), `pour` (refusing a fermenting cask), server `connections/ferment.rs`, `connections/playtime.rs`, `ground/bags.rs`, `ground/tell.rs`, client `abilities/ferment/`, `item_popup/cask.rs`.
 
 ## Notes
 
 - Worked out when looked at (as shops catch up their stock): carried casks as the server counts playtime, ground ones in a player's reach each tick; nobody near, nothing changes until someone comes.
-- Only casks keep clocks. A drink poured into a vessel or bottle doesn't age or turn yet; pouring cask to cask keeps the older opened clock (`pour`).
+- Casks keep the full clocks. A drink poured into a vessel or bottle doesn't turn yet, and ages only while sealed (glass); pouring cask to cask keeps the older opened clock (`pour`).
 - Ageing only while sealed and only from `made` (a drink fermented in that cask); once opened a cask is never sealed again.
 - First guesses for the owner (Claude's): the 5 s wind-up, 8 practice a cask, all of a fruit or grain stack going in, cordial turning wild like juice.

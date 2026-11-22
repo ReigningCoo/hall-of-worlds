@@ -34,7 +34,8 @@ pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
             .collect();
         visit.benches_sent = kept.into_iter().collect();
         let mut seen = Vec::new();
-        let pieces = visit.level.level.furniture();
+        let level = &visit.level.level;
+        let pieces = level.furniture().chain(level.furniture_on_top());
         for piece in pieces.filter(|p| Holder::of(p.furniture).is_some()) {
             if !sent(visit, piece.at) {
                 continue;
@@ -47,7 +48,7 @@ pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
                 Holder::Bench(craft) => {
                     craft.is_hearth() && bench_tools(world, bench.key, craft).is_lit(now)
                 }
-                Holder::Casks(_) => false,
+                Holder::Casks(_) | Holder::Bottles(_) => false,
             };
             if told != Some(lit) || changes.contains(&bench.key) {
                 seen.push((piece.at, bench));
