@@ -1,14 +1,19 @@
 //! The Abilities page: every ability the character knows, flowing in rows, Attack
-//! first. Drawn again when what they know, or can use now, changes: another
-//! body, an ability learned, a tool picked up or put down.
+//! first, each marked as on the action bar: automatic, on (a toggle, or a
+//! panel open), queued. Drawn again when what they know, can use now or are
+//! using changes: another body, an ability learned, a tool picked up or put
+//! down, a panel opened. A click or tap uses one, as on the bar (`drag.rs`).
 
 use bevy::prelude::*;
 use shared::ability::{Ability, known};
 
 use super::icons::icon_path;
+use super::manual::Manual;
+use super::marks::Marks;
+use super::own_bar::OwnBar;
 use crate::character::CharacterSheet;
 use crate::common::AbilitiesPage;
-use crate::common::BenchHere;
+use crate::common::{BenchHere, OpenPanels, Sneaking};
 use crate::dom::{AbilityGridShown, AbilityThing, KnownAbilities};
 use crate::inventory::Carried;
 use crate::widgets::{AbilityLook, Shade, attribute_colour};
@@ -20,14 +25,24 @@ const PER_ROW: u8 = 8;
 #[derive(Component)]
 pub(super) struct PageList;
 
-/// An ability on the page, which can be dragged to the action bar.
+/// An ability on the page, which can be used by a click or dragged to the
+/// action bar.
 #[derive(Component, Clone, Copy)]
 pub(super) struct PageAbility(pub Ability);
 
 /// What a page was drawn for: the abilities known, each with whether it can be
-/// used now.
+/// used now, and how they are being used.
 #[derive(Component, Clone, PartialEq, Eq)]
-pub(super) struct DrawnFor(Vec<(Ability, bool)>);
+pub(super) struct DrawnFor(Vec<(Ability, bool)>, Marks);
+
+/// How abilities are being used: the bar, what was chosen by hand, Sneak and
+/// the panels open.
+type Using<'w> = (
+    Res<'w, OwnBar>,
+    Res<'w, Manual>,
+    Res<'w, Sneaking>,
+    Res<'w, OpenPanels>,
+);
 
 /// Every ability, whether it is known and whether it can be used now.
 fn standing(
@@ -50,6 +65,7 @@ fn standing(
 pub(super) fn fill_pages(
     pages: Query<(Entity, Option<&DrawnFor>), With<AbilitiesPage>>,
     (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
+    (bar, manual, sneaking, panels): Using,
     assets: Res<AssetServer>,
     mut commands: Commands,
 ) {
@@ -59,6 +75,7 @@ pub(super) fn fill_pages(
             .filter(|(_, known, _)| *known)
             .map(|(ability, _, usable)| (ability, usable))
             .collect(),
+        Marks::now(&bar.0, &manual, *sneaking, &panels),
     );
     for (page, drawn) in &pages {
         if drawn == Some(&now) {
@@ -66,7 +83,10 @@ pub(super) fn fill_pages(
         }
         let mut page = commands.entity(page);
         page.despawn_children().insert(now.clone());
-        page.with_children(|page| spawn_contents(page, (&carried, &sheet, &here), &assets));
+        let marks = &now.1;
+        page.with_children(|page| {
+            spawn_contents(page, (&carried, &sheet, &here), marks, &assets);
+        });
     }
 }
 
@@ -99,12 +119,16 @@ pub(super) fn name_abilities(
 fn spawn_contents(
     page: &mut ChildSpawnerCommands,
     (carried, sheet, here): (&Carried, &CharacterSheet, &BenchHere),
+    marks: &Marks,
     assets: &AssetServer,
 ) {
     let known = known(carried.0.creature, &sheet.0);
-    let things = known.into_iter().map(|ability| AbilityThing {
-        thing: ability.into(),
-        look: look(ability, usable(ability, carried, sheet, here), assets),
+    let things = known.into_iter().map(|ability| {
+        let thing = AbilityThing {
+            thing: ability.into(),
+            look: look(ability, usable(ability, carried, sheet, here), assets),
+        };
+        (thing, marks.of(ability))
     });
     let shown = AbilityGridShown {
         columns: PER_ROW,

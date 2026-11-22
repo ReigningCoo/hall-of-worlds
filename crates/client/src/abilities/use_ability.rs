@@ -29,6 +29,11 @@ pub(super) const ASK_WAIT: f64 = 1.0;
 #[derive(Message, Clone, Copy, Debug)]
 pub(super) struct UseSlot(pub u8);
 
+/// An ability on the Abilities page was clicked or tapped: used as from a
+/// slot.
+#[derive(Message, Clone, Copy, Debug)]
+pub(super) struct UseListed(pub Ability);
+
 /// What the server says of the player's ability: when it lands, and when they
 /// can act again.
 pub(super) fn take_timing(

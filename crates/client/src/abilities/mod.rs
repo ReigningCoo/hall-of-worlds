@@ -18,6 +18,7 @@ mod icons;
 mod item_look;
 mod manual;
 mod mark;
+mod marks;
 mod own_bar;
 mod page;
 mod press_juice;
@@ -26,6 +27,7 @@ mod rain_here;
 mod sneak;
 mod spots;
 mod use_ability;
+mod use_slots;
 mod vitals_now;
 mod wait;
 mod woodcutting;
@@ -42,6 +44,7 @@ impl Plugin for AbilitiesPlugin {
             .init_resource::<press_juice::JuiceChooser>()
             .init_resource::<ferment::Fermenting>()
             .add_message::<use_ability::UseSlot>()
+            .add_message::<use_ability::UseListed>()
             .add_systems(
                 Startup,
                 (
@@ -78,9 +81,10 @@ impl Plugin for AbilitiesPlugin {
                     // Moving first, then what was chosen by hand, then
                     // automatic abilities if nothing else is waiting.
                     cancel::cancel_by_moving,
-                    manual::use_slots,
+                    use_slots::use_slots,
                     manual::ask_wanted,
                     use_ability::use_automatic,
+                    marks::tell_own_panels,
                     (bar::place_bar, bar::show_bar),
                     wait::show_wait,
                     (press_oil::answer_requester, press_oil::show_requester),

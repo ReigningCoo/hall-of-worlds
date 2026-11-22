@@ -13,15 +13,16 @@ use shared::item::Inventory;
 use super::drag::Aim;
 use super::item_look::{can_drink, potion_words, thing_look};
 use super::manual::Manual;
+use super::marks::Marks;
 use super::own_bar::OwnBar;
 use super::page::usable;
 use super::vitals_now::affords;
 use crate::character::CharacterSheet;
 use crate::common::BenchHere;
 use crate::common::{
-    Action, OwnVitals, Preferences, ServerTick, Sneaking, VitalsCircle, interface_area,
+    Action, OpenPanels, OwnVitals, Preferences, ServerTick, Sneaking, VitalsCircle, interface_area,
 };
-use crate::dom::{AbilitySlotShown, AbilityThing};
+use crate::dom::{AbilityMarks, AbilitySlotShown, AbilityThing};
 use crate::inventory::Carried;
 use crate::widgets::{ABILITY, UiId};
 
@@ -98,10 +99,8 @@ pub(super) struct Shown {
     aim: Option<(u8, bool)>,
     /// Too little Mana for what costs it (all cost the same so far: Heal's).
     low_mana: bool,
-    /// Queued to be used, by hand.
-    queued: Vec<Ability>,
-    /// Sneak is on: its slot is edged.
-    sneaking: bool,
+    /// How each ability is being used: automatic, on, queued.
+    marks: Marks,
     /// How many are carried of each slot's kind of item or potion (0 for the
     /// rest).
     counts: Vec<u32>,
@@ -117,7 +116,7 @@ pub(super) fn show_bar(
     bar: Res<OwnBar>,
     (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
     preferences: Res<Preferences>,
-    (aim, manual, sneaking): (Res<Aim>, Res<Manual>, Res<Sneaking>),
+    (aim, manual, sneaking, panels): (Res<Aim>, Res<Manual>, Res<Sneaking>, Res<OpenPanels>),
     (vitals, time, clock): (Res<OwnVitals>, Res<Time>, Res<ServerTick>),
     assets: Res<AssetServer>,
     mut slots: Query<(&SlotNode, &mut AbilitySlotShown)>,
@@ -135,8 +134,7 @@ pub(super) fn show_bar(
         keys,
         aim: aim.0,
         low_mana: !affords(Ability::Heal, &vitals, time.elapsed_secs_f64()),
-        queued: manual.queued.iter().copied().collect(),
-        sneaking: sneaking.0,
+        marks: Marks::now(&bar.0, &manual, *sneaking, &panels),
         counts: bar
             .0
             .slots
@@ -203,10 +201,8 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
     AbilitySlotShown {
         thing,
         key: short.clone(),
-        auto: held.is_some_and(|held| held.auto),
-        // A toggle that is on.
-        on: ability.is_some_and(|ability| ability.is_toggle()) && now.sneaking,
-        queued: ability.is_some_and(|ability| now.queued.contains(&ability)),
+        // As on the Abilities page (`marks.rs`).
+        marks: ability.map_or(AbilityMarks::default(), |ability| now.marks.of(ability)),
         // The wait to act again, over what is done when asked (eating too).
         shade: item.is_some() || ability.is_some_and(|ability| ability.is_active()),
         aim: now

@@ -51,6 +51,7 @@ mod lightning;
 mod map;
 mod map_marks;
 mod model_material;
+mod open_panels;
 mod own_ability;
 mod pointer;
 mod rivers;
@@ -124,6 +125,7 @@ pub use map::{
 };
 pub use map_marks::{MapMarks, in_cells, in_points, mark_name, near_way_round, point_at};
 pub use model_material::{ModelMaterial, model_material};
+pub use open_panels::OpenPanels;
 pub use own_ability::OwnAbility;
 pub use pointer::{
     PointerOverride, PointerPosition, PointerSystems, TouchGesture, UiPointer, in_interface,
@@ -226,6 +228,7 @@ impl Plugin for CommonPlugin {
             .init_resource::<DrawnGround>()
             .init_resource::<NearRivers>()
             .init_resource::<Sneaking>()
+            .init_resource::<OpenPanels>()
             .init_resource::<CarryLimit>()
             .init_resource::<MakingCharacter>()
             .init_resource::<CharacterRefused>()

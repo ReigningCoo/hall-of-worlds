@@ -3,7 +3,7 @@
 
 use bevy::prelude::*;
 
-use super::{AbilityCell, AbilitySlotShown, SlotPart};
+use super::{AbilityCell, AbilityMarks, AbilitySlotShown, SlotPart};
 use crate::widgets::{
     ABILITY, ALLOWED, GRID_LINE, REFUSED, TextSize, queued_stripe, set_edge, spawn_ability,
     spawn_outlined_text,
@@ -49,6 +49,21 @@ fn edge(colour: Color) -> impl Bundle {
     (node, BorderColor::from(colour))
 }
 
+/// The edges and stripes saying how an ability is being used, over the whole
+/// of `inside` (a slot, or an ability's place in a list `of`).
+pub(super) fn draw_marks(inside: &mut ChildSpawnerCommands, of: Entity, marks: AbilityMarks) {
+    if marks.auto {
+        inside.spawn(set_edge(None, UiRect::all(px(EDGE)), 0.0));
+    }
+    if marks.on {
+        inside.spawn((edge(ALLOWED), SlotPart::On(of)));
+    }
+    if marks.queued {
+        let stripes = queued_stripe(QUEUED_STRIPE, EDGE);
+        inside.spawn((stripes, SlotPart::Queued(of)));
+    }
+}
+
 fn draw(inside: &mut ChildSpawnerCommands, slot: Entity, shown: &AbilitySlotShown) {
     match &shown.thing {
         Some(thing) => {
@@ -88,16 +103,7 @@ fn draw(inside: &mut ChildSpawnerCommands, slot: Entity, shown: &AbilitySlotShow
         let shade = (SlotPart::Shade(slot), node);
         inside.spawn((shade, BackgroundColor(SHADE)));
     }
-    if shown.auto {
-        inside.spawn(set_edge(None, UiRect::all(px(EDGE)), 0.0));
-    }
-    if shown.on {
-        inside.spawn((edge(ALLOWED), SlotPart::On(slot)));
-    }
-    if shown.queued {
-        let stripes = queued_stripe(QUEUED_STRIPE, EDGE);
-        inside.spawn((stripes, SlotPart::Queued(slot)));
-    }
+    draw_marks(inside, slot, shown.marks);
     if let Some(allowed) = shown.aim {
         inside.spawn(edge(if allowed { ALLOWED } else { REFUSED }));
     }

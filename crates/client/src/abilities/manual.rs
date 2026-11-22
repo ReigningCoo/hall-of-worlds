@@ -5,31 +5,23 @@
 use std::collections::VecDeque;
 
 use bevy::prelude::*;
-use shared::ability::{Ability, BarThing};
+use shared::ability::Ability;
 use shared::campfire::can_make_fire;
 use shared::id::Id;
 use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
 use shared::spot::Spot;
 
-use super::ferment::Fermenting;
-use super::item_look::{can_drink, can_eat};
-use super::own_bar::OwnBar;
-use super::press_juice::JuiceChooser;
-use super::press_oil::PressChooser;
 use super::rain_here::WaterHere;
-use super::use_ability::{ASK_WAIT, UseSlot, ask};
+use super::use_ability::{ASK_WAIT, ask};
 use super::vitals_now::affords;
 use super::woodcutting::{log_aim, tree_to_fell};
-use crate::alchemy::OpenAlchemy;
 use crate::character::CharacterSheet;
 use crate::common::{
-    BenchHere, CurrentDungeon, FaceTowards, Facing, Other, OwnAbility, OwnVitals, ServerTick,
-    SpotPosition, Target,
+    CurrentDungeon, FaceTowards, Facing, Other, OwnAbility, OwnVitals, SpotPosition, Target,
 };
 use crate::connection::ToServer;
-use crate::cooking::OpenCooking;
-use crate::inventory::{Carried, DrinkPotion, EatKind, GroundShown};
+use crate::inventory::{Carried, GroundShown};
 use crate::player::Player;
 
 /// The abilities the player chose by hand, from pressing them until the last
@@ -82,91 +74,6 @@ impl Manual {
         self.sent = None;
     }
 }
-
-/// A slot used: its ability queued, or taken out of the queue; a toggle
-/// (Sneak) asked for at once, as it needs no target and takes no time; one of
-/// a kind of item eaten (`inventory::EatKind`), a potion drunk
-/// (`DrinkPotion`); Press Oil's, Press Juice's or Ferment's panel opened, or
-/// the Alchemy or Cooking panel (`alchemy::OpenAlchemy`, `cooking::OpenCooking`).
-pub(super) fn use_slots(
-    mut used: MessageReader<UseSlot>,
-    bar: Res<OwnBar>,
-    (carried, sheet, here, clock, time): Standing,
-    mut manual: ResMut<Manual>,
-    mut to_server: MessageWriter<ToServer>,
-    (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
-    (mut press, mut juice, mut fermenting, mut alchemy, mut cooking): Panels,
-) {
-    for &UseSlot(slot) in used.read() {
-        let Some(held) = bar.0.slots.get(usize::from(slot)).copied().flatten() else {
-            continue;
-        };
-        let ability = match held.thing {
-            BarThing::Ability(ability) => ability,
-            // Eaten at once, as on the clothes panel: never queued.
-            BarThing::Item(kind) => {
-                let count = carried.0.count_of(kind);
-                if can_eat(kind, count, carried.0.creature) {
-                    eat.write(EatKind(kind));
-                }
-                continue;
-            }
-            // Drunk at once too, unless cooling down.
-            BarThing::Potion(potion) => {
-                let count = carried.0.count_of_potion(potion);
-                let now = clock.now(time.elapsed_secs_f64());
-                if can_drink(potion, count, &sheet.0, now) {
-                    drink.write(DrinkPotion(potion));
-                }
-                continue;
-            }
-        };
-        if !ability.can_use_at(&carried.0, &sheet.0, here.tools()) {
-            continue;
-        }
-        if ability == Ability::PressOil {
-            // What to press is chosen first (`press_oil.rs`).
-            press.open = true;
-        } else if ability == Ability::PressJuice {
-            // And the fruit for Press Juice (`press_juice.rs`).
-            juice.open = true;
-        } else if ability == Ability::Alchemy {
-            // Asked for by its panel (`alchemy`), never queued.
-            alchemy.write(OpenAlchemy);
-        } else if ability == Ability::Cook {
-            // And Cook by the Cooking panel (`cooking`).
-            cooking.write(OpenCooking);
-        } else if ability == Ability::Ferment {
-            // And Ferment's in its own (`ferment/`).
-            fermenting.open = true;
-        } else if ability.is_toggle() {
-            to_server.write(ToServer(ClientMessage::UseAbility {
-                ability,
-                target: None,
-            }));
-        } else {
-            manual.press(ability);
-        }
-    }
-}
-
-/// What the character carries and knows, the bench they are at, and the time.
-type Standing<'w> = (
-    Res<'w, Carried>,
-    Res<'w, CharacterSheet>,
-    Res<'w, BenchHere>,
-    Res<'w, ServerTick>,
-    Res<'w, Time>,
-);
-
-/// The requesters and panels abilities open.
-type Panels<'w> = (
-    ResMut<'w, PressChooser>,
-    ResMut<'w, JuiceChooser>,
-    ResMut<'w, Fermenting>,
-    MessageWriter<'w, OpenAlchemy>,
-    MessageWriter<'w, OpenCooking>,
-);
 
 /// Where the player stands and which way they face.
 type PlayerFacing<'w, 's> = Query<'w, 's, (&'static SpotPosition, &'static Facing), With<Player>>;
