@@ -13,7 +13,7 @@ Vessels (drinks plan PR 2, `docs/context/drinks.md`): one item kind, `ItemKind::
 ## Public API
 
 - `VesselKind` (Tankard 500 ml, Cup 250, Goblet 200, DrinkingHorn 300, WineBottle 750, Jug 1500, Flask 500, Waterskin 2000; `ALL` smallest first): `name`, `most_ml`, `empty_grams` (200 g to 1.1 kg, first guesses), `shape` (1 × 1, the horn and wine bottle 1 × 2, jug and waterskin 2 × 2), `seals` (only the wine bottle).
-- `VesselForm { vessel, liquid, ml, sealed }` (`ItemForm::Vessel`): `new` (empty), `holding(liquid, ml)` (clamped, unsealed; none or 0 is empty), `full_of`, `sealed()` (if it seals and holds something), `is_empty`, `room`, `name` ("Tankard", "Tankard of Water"), `grams` (empty plus a gram a millilitre).
+- `VesselForm { vessel, liquid, ml, sealed, glass }` (`ItemForm::Vessel`; `glass`: a sealed drink's `ferment::GlassTime`, tavern furniture plan PR 2): `new` (empty), `holding(liquid, ml)` (clamped, unsealed, a new glass clock; none or 0 is empty), `full_of`, `sealed()` (if it seals and holds something), `is_empty`, `room`, `name` ("Tankard", "Tankard of Water"), `grams` (empty plus a gram a millilitre).
 - Drinking: `SERVING_ML` (250); `drinkable` (it holds a water, juice, cordial, fermented drink or milk: `Liquid::is_drink`), `drunk()` (the form after one serving or what is left, and the millilitres; nothing for oil), `Item::is_drinkable_vessel` (which `bonus::usable_on_self` and `may_use_on_self` accept, so letting go of one on the clothes drinks).
 - `vessel_to(rng, request)`: Give Item's and shops' vessel: which (`RollRequest::vessel`, `Field::Vessel`) rolled unless asked, empty or full of an asked liquid (milk and honey of a rolled animal, `shared::farmyard`); a potion is refused (`Field::Liquid`). `vessel_for_shop(shop)`: carpenters Tankard and Cup, leatherworkers Flask, Waterskin and Drinking Horn, jewellers Goblet, herbalists Wine Bottle and Jug (`shop::stock_request` asks for one).
 
@@ -29,3 +29,4 @@ Vessels (drinks plan PR 2, `docs/context/drinks.md`): one item kind, `ItemKind::
 
 - Not counted, so never stacks unless two look the same (both empty). Vessels have no material to choose: each kind's look is fixed.
 - Only a wine bottle seals, when filled from a cask; any pour or drink from it unseals it.
+- A sealed wine bottle of a fermented drink ages in its glass wherever it is (`ferment/glass.rs`, owner's decision 2026-11-22), 10% faster on a wine or spirit rack (`shared::bottle_rack`). Its glass clock is never shown and isn't compared for stacking.

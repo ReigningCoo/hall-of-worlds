@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{BenchStyle, ChairStyle, Material, TableStyle};
+use crate::bottle_rack::{BottleRack, BottleRackKind};
 use crate::cask_rack::CaskRack;
 use crate::crafting_bench::Craft;
 use crate::door::Side;
@@ -39,6 +40,12 @@ pub enum Furniture {
     CaskRack {
         rack: CaskRack,
     },
+    /// A wine rack (full height, 1 deep against a wall, facing away from it)
+    /// or a spirit rack (standing on a table, facing the way its bottles are
+    /// seen from): `shared::bottle_rack`.
+    BottleRack {
+        rack: BottleRack,
+    },
 }
 
 impl Furniture {
@@ -46,12 +53,25 @@ impl Furniture {
         matches!(self, Self::Table { .. })
     }
 
+    /// Whether it stands on other furniture instead of the floor: a spirit
+    /// rack on a table (later a bar counter too). Such a piece is kept on a
+    /// level apart from what it stands on (`dungeon::Level::furniture_on_top`).
+    pub fn stands_on_furniture(self) -> bool {
+        matches!(self, Self::BottleRack { rack } if rack.kind == BottleRackKind::Spirit)
+    }
+
+    /// Whether a piece standing on furniture may stand on this: a table.
+    pub fn holds_furniture(self) -> bool {
+        self.is_table()
+    }
+
     /// How much longer a move over it takes, in thousandths of open floor's.
     pub fn cost_per_mille(self) -> u32 {
         match self {
-            Self::Table { .. } | Self::CraftingBench { .. } | Self::CaskRack { .. } => {
-                TABLE_COST_PER_MILLE
-            }
+            Self::Table { .. }
+            | Self::CraftingBench { .. }
+            | Self::CaskRack { .. }
+            | Self::BottleRack { .. } => TABLE_COST_PER_MILLE,
             Self::Chair { .. } | Self::Bench { .. } => SEAT_COST_PER_MILLE,
         }
     }
@@ -71,7 +91,8 @@ pub struct Piece {
     /// away from the wall behind). A table: the way its length runs from its
     /// head, east or south (east for a square one). A crafting bench: the way
     /// its front faces, away from the wall behind it (as a seat's); its shelf
-    /// is along the opposite side. A cask rack: as a crafting bench.
+    /// is along the opposite side. A cask rack or wine rack: as a crafting
+    /// bench. A spirit rack: the way its front (lowest shelf) faces.
     pub facing: Side,
     pub material: Material,
     pub furniture: Furniture,

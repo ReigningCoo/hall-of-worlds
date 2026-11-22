@@ -20,7 +20,7 @@ mod spoil;
 mod strength;
 mod time;
 
-pub use ageing::{aged, ageing_cap, ageing_step_secs};
+pub use ageing::{aged, ageing_cap, ageing_step_secs, glass_aged, glass_cap, glass_step_secs};
 pub use base::{Base, DrinkKind};
 pub use drink::Drink;
 pub use mash::{FRUIT_SUGAR, GRAIN_SUGAR, Mash, MashSource};

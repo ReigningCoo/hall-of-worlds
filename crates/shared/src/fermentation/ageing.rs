@@ -46,3 +46,25 @@ pub fn aged(made: Quality, kind: DrinkKind, wood: Material, secs: u64) -> Qualit
     let steps = (secs / step).min(u64::from(cap.unsigned_abs())) as i32;
     stepped(made, steps * cap.signum())
 }
+
+/// How long `kind` ages sealed in glass (a wine bottle or a bottle filled from
+/// a cask) for each step of quality: twice oak's pace (Claude's first guess:
+/// wine 60 game days a step).
+pub fn glass_step_secs(kind: DrinkKind) -> u64 {
+    ageing_step_secs(kind) * 2
+}
+
+/// The most steps ageing in glass raises `kind` (owner: sealed wine and
+/// spirits age anywhere, as the neutral woods would but up, with no wood's
+/// flavour; Claude's first guess: one fewer than oak, so wine 2, fruit wines
+/// 1, ale, cider and perry none). There are no spirits yet.
+pub fn glass_cap(kind: DrinkKind) -> i32 {
+    (ageing_cap(kind, Material::Oak) - 1).max(0)
+}
+
+/// `bottled` (its quality when it went into the glass) after ageing `secs`
+/// sealed in glass, up to Legendary.
+pub fn glass_aged(bottled: Quality, kind: DrinkKind, secs: u64) -> Quality {
+    let steps = (secs / glass_step_secs(kind)).min(glass_cap(kind) as u64) as i32;
+    stepped(bottled, steps)
+}

@@ -74,7 +74,8 @@ impl Cutout {
                 level.set_room(x + ox, y + oy, first.level.room(x, y));
             }
         }
-        for piece in first.level.furniture() {
+        let pieces = first.level.furniture();
+        for piece in pieces.chain(first.level.furniture_on_top()) {
             level.place_furniture(piece.moved((ox, oy)));
         }
         let stairs = first

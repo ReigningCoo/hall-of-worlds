@@ -108,7 +108,10 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
     let frame = Frame::of(piece);
     let (_, length) = frame.size(piece);
     let depth = match piece.furniture {
-        Furniture::Table { .. } | Furniture::CraftingBench { .. } | Furniture::CaskRack { .. } => {
+        Furniture::Table { .. }
+        | Furniture::CraftingBench { .. }
+        | Furniture::CaskRack { .. }
+        | Furniture::BottleRack { .. } => {
             return None;
         }
         Furniture::Chair { .. } => chairs::DEPTH,
@@ -132,7 +135,10 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
     Some(match piece.furniture {
         Furniture::Chair { style, arms } => chairs::parts(&seat, style, arms),
         Furniture::Bench { style } => benches::parts(&seat, style),
-        Furniture::Table { .. } | Furniture::CraftingBench { .. } | Furniture::CaskRack { .. } => {
+        Furniture::Table { .. }
+        | Furniture::CraftingBench { .. }
+        | Furniture::CaskRack { .. }
+        | Furniture::BottleRack { .. } => {
             return None;
         }
     })

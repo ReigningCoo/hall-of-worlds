@@ -147,7 +147,11 @@ pub struct LevelSave {
     /// (`sites/benches`).
     #[serde(default)]
     pub racks: BTreeMap<(i64, i64), shared::cask_rack::RackCasks>,
-    /// Pieces with places (benches, cask racks) made with the developer tools
+    /// Wine and spirit racks' bottles, by the rack's cell, as cask racks'
+    /// casks.
+    #[serde(default)]
+    pub bottle_racks: BTreeMap<(i64, i64), shared::bottle_rack::RackBottles>,
+    /// Pieces with places (benches, cask, wine and spirit racks) made with the developer tools
     /// (Create Crafting Bench, Place Furniture), put on the level each time.
     #[serde(default)]
     pub made_benches: Vec<shared::furniture::Piece>,

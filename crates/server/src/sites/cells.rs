@@ -179,6 +179,15 @@ pub(super) fn level_chunks(
                 furniture.push(*piece);
             }
         }
+        // Pieces standing on furniture after what they stand on, which the
+        // client needs placed first.
+        for &(x, y) in &positions {
+            if let Some(piece) = level.furniture_on_top_at(x, y)
+                && !furniture.contains(piece)
+            {
+                furniture.push(*piece);
+            }
+        }
         let herbs = (positions.iter())
             .filter_map(|&(x, y)| {
                 let patch = level.herb_at(x, y)?.clone();

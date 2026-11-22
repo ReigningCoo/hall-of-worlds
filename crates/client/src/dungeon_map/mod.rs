@@ -37,6 +37,7 @@ mod oasis;
 mod other_floors;
 mod outlined;
 mod picking;
+mod rack_bottles;
 mod rack_casks;
 mod rain;
 mod rampart;
@@ -131,6 +132,8 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<bench_tools::ToolModels>()
             .init_resource::<rack_casks::DrawnCasks>()
             .init_resource::<rack_casks::CaskModels>()
+            .init_resource::<rack_bottles::DrawnBottles>()
+            .init_resource::<rack_bottles::BottleModels>()
             .init_resource::<Shown>()
             .init_resource::<door_swing::DoorSwings>()
             .init_resource::<OutsideLight>()
@@ -201,6 +204,7 @@ impl Plugin for DungeonMapPlugin {
                         (
                             bench_tools::update_bench_tools,
                             rack_casks::update_rack_casks,
+                            rack_bottles::update_rack_bottles,
                         ),
                         (
                             campfires::update_campfires,

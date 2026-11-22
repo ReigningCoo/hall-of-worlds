@@ -222,6 +222,11 @@ fn saves_are_read_back() {
                     let rack = shared::cask_rack::CaskRack { size, length: 1 };
                     shared::cask_rack::RackCasks::new(rack)
                 })]),
+                bottle_racks: BTreeMap::from([((7, 4), {
+                    let kind = shared::bottle_rack::BottleRackKind::Wine;
+                    let rack = shared::bottle_rack::BottleRack { kind, length: 2 };
+                    shared::bottle_rack::RackBottles::new(rack)
+                })]),
                 benches_stocked: true,
                 made_benches: Vec::new(),
                 campfires: BTreeMap::new(),

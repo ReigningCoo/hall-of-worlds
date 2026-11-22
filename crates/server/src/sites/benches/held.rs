@@ -1,8 +1,10 @@
 //! Furniture with places in general (`shared::furniture::Held`, tavern
-//! furniture plan PR 1): crafting benches' tools and cask racks' casks, kept
-//! by the piece's cell in the level's save (`LevelSave::benches`, `racks`),
+//! furniture plan PR 1): crafting benches' tools, cask racks' casks and wine
+//! and spirit racks' bottles (PR 2), kept by the piece's cell in the level's
+//! save (`LevelSave::benches`, `racks`, `bottle_racks`),
 //! put on and taken off through the same messages (`connections/bench.rs`).
 
+use shared::bottle_rack::{BottleRack, RackBottles};
 use shared::furniture::{Held, Holder, Piece};
 use shared::spot::Spot;
 
@@ -20,9 +22,13 @@ pub(crate) struct HeldHere {
 }
 
 impl Visit {
-    /// The piece with places covering `(x, y)` on the level, if any.
+    /// The piece with places covering `(x, y)` on the level, if any: one
+    /// standing on furniture there (a spirit rack on a table) first.
     pub(crate) fn held_at(&self, x: i64, y: i64) -> Option<HeldHere> {
-        let piece = *self.level.level.furniture_at(x, y)?;
+        let level = &self.level.level;
+        let on_top = level.furniture_on_top_at(x, y);
+        let holder_of = |piece: &&Piece| Holder::of(piece.furniture).is_some();
+        let piece = *on_top.filter(holder_of).or(level.furniture_at(x, y))?;
         let holder = Holder::of(piece.furniture)?;
         let key = self.plant_key(piece.at.0, piece.at.1);
         Some(HeldHere { piece, holder, key })
@@ -58,6 +64,7 @@ pub(crate) fn settle_held(
     let rack = match holder {
         Holder::Bench(craft) => return Held::Bench(settle_storage(world, key, craft, celsius)),
         Holder::Casks(rack) => rack,
+        Holder::Bottles(rack) => return settle_bottles(world, key, rack),
     };
     let (id, index, at) = key;
     let level = world.site(id).levels.get(&index);
@@ -72,6 +79,22 @@ pub(crate) fn settle_held(
     Held::Casks(casks)
 }
 
+/// What lies on the bottle rack kept at `key`, settled to now as a cask
+/// rack's (`settle_held`).
+fn settle_bottles(world: &mut ServerWorld, key: BenchKey, rack: BottleRack) -> Held {
+    let (id, index, at) = key;
+    let level = world.site(id).levels.get(&index);
+    let kept = level.and_then(|level| level.bottle_racks.get(&at));
+    let Some(mut bottles) = kept.filter(|bottles| bottles.rack == rack).cloned() else {
+        return Held::Bottles(RackBottles::new(rack));
+    };
+    if bottles.settle(unix_now()) {
+        let saved = world.site_mut(id).levels.entry(index).or_default();
+        saved.bottle_racks.insert(at, bottles.clone());
+    }
+    Held::Bottles(bottles)
+}
+
 /// Keeps what lies on the piece at `key` and has it sent to everyone who has
 /// the piece.
 pub(crate) fn keep_held(world: &mut ServerWorld, key: BenchKey, held: Held) {
@@ -80,6 +103,7 @@ pub(crate) fn keep_held(world: &mut ServerWorld, key: BenchKey, held: Held) {
     match held {
         Held::Bench(tools) => drop(saved.benches.insert(at, tools)),
         Held::Casks(casks) => drop(saved.racks.insert(at, casks)),
+        Held::Bottles(bottles) => drop(saved.bottle_racks.insert(at, bottles)),
     }
     world.bench_changes.push(key);
 }

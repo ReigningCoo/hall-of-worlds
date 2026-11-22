@@ -248,7 +248,8 @@ fn add_cutout(world: &mut ServerWorld, frame: &Frame, chunk: ChunkPos, window: &
             })
             .collect(),
     });
-    for piece in cutout.level().furniture() {
+    let pieces = cutout.level().furniture();
+    for piece in pieces.chain(cutout.level().furniture_on_top()) {
         window.level.level.place_furniture(piece.moved((turn, 0)));
     }
     super::window_plants::cutout_plants(&mut window.level.level, wild_chunk, turn);

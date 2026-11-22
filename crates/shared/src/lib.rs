@@ -12,6 +12,7 @@ pub mod armour;
 pub mod blade;
 pub mod body;
 pub mod bonus;
+pub mod bottle_rack;
 pub mod brewing;
 pub mod campfire;
 pub mod cask;

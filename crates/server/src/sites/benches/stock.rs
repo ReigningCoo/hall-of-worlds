@@ -66,7 +66,10 @@ pub(in crate::sites) fn put_made_benches(
     let Some(saved) = world.site(id).levels.get(&index) else {
         return;
     };
-    for &piece in &saved.made_benches {
+    // Pieces on the floor first, so those standing on them have somewhere to stand.
+    let (on_top, floor): (Vec<_>, Vec<_>) =
+        (saved.made_benches.iter()).partition(|piece| piece.furniture.stands_on_furniture());
+    for &piece in floor.into_iter().chain(on_top) {
         level.level.place_furniture(piece);
     }
 }

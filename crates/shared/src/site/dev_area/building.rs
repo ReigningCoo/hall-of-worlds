@@ -38,7 +38,11 @@ pub(super) fn make(area: &DevArea, kind: PoiKind) -> SiteLevel {
     });
     let mut made = with_stairs(level, at);
     // Only what is wholly inside: the rest is cut off.
-    for piece in floor.level.furniture() {
+    for piece in floor
+        .level
+        .furniture()
+        .chain(floor.level.furniture_on_top())
+    {
         if piece
             .cells()
             .all(|(x, y)| inside(x, y) && made.level.cell(x, y) == floor.level.cell(x, y))

@@ -1,7 +1,8 @@
 //! Developer tools: Place Furniture puts a piece on the player's site level by
 //! hand, replacing any it overlaps, for everyone on that level and its mobs.
 //! Not kept: the level is made afresh, as furnished, when next loaded; except
-//! pieces with places (cask racks, benches: `furniture::Holder`), kept as
+//! pieces with places (cask, wine and spirit racks, benches:
+//! `furniture::Holder`), kept as
 //! Create Crafting Bench's are, so what is put on them isn't lost.
 
 use bevy::prelude::*;
@@ -21,7 +22,7 @@ pub(crate) struct FurnitureChange {
 }
 
 /// Checks the piece (a shape furnishing could make, on the level's floor, off
-/// its stairs) and has it shared at the end of the tick. Refusals are only
+/// its stairs; one standing on furniture on a table) and has it shared at the end of the tick. Refusals are only
 /// logged. Whether the client is still welcome.
 pub(crate) fn place_furniture(client: &mut Client, world: &mut ServerWorld, piece: Piece) -> bool {
     let Some(visit) = &client.visit else {
@@ -33,18 +34,24 @@ pub(crate) fn place_furniture(client: &mut Client, world: &mut ServerWorld, piec
             && takes_furniture(site.level.cell(x, y))
             && !site.stairs.iter().any(|s| (s.x, s.y) == (x, y))
     };
-    if visit.is_wilderness() || !piece.is_well_made() || !piece.cells().all(on_floor) {
+    let on_top = piece.furniture.stands_on_furniture();
+    let stands = !on_top || site.level.can_stand_on_furniture(&piece);
+    if visit.is_wilderness() || !piece.is_well_made() || !piece.cells().all(on_floor) || !stands {
         info!("Refused placing furniture at {:?}", piece.at);
         return true;
     }
     let place = (visit.id, visit.index);
-    // Pieces made by hand that it replaces go; one with places is kept.
+    // Pieces made by hand that it replaces go (on its own layer, and those on
+    // top of a floor piece it replaces); one with places is kept.
     let saved = world
         .site_mut(visit.id)
         .levels
         .entry(visit.index)
         .or_default();
-    let overlaps = |made: &Piece| made.cells().any(|cell| piece.covers(cell));
+    let overlaps = |made: &Piece| {
+        let layer = made.furniture.stands_on_furniture() == on_top || !on_top;
+        layer && made.cells().any(|cell| piece.covers(cell))
+    };
     saved.made_benches.retain(|made| !overlaps(made));
     if Holder::of(piece.furniture).is_some() {
         saved.made_benches.push(piece);
@@ -78,7 +85,12 @@ pub(crate) fn share_furniture(clients: &mut [Client], world: &mut ServerWorld) {
         for change in mine {
             let level = &visit.level.level;
             let replaced: Vec<(i64, i64)> = (change.piece.cells())
-                .filter_map(|(x, y)| level.furniture_at(x, y))
+                .filter_map(
+                    |(x, y)| match change.piece.furniture.stands_on_furniture() {
+                        true => level.furniture_on_top_at(x, y),
+                        false => level.furniture_at(x, y),
+                    },
+                )
                 .flat_map(Piece::cells)
                 .collect();
             visit.level.level.place_furniture(change.piece);
