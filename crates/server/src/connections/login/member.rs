@@ -44,6 +44,14 @@ pub(crate) struct DiscordGate {
     pub(crate) must_link: bool,
 }
 
+impl DiscordGate {
+    /// Asks about its Discord user at the next check, not `CHECK_EVERY` after
+    /// the last (an account just handed back to Discord).
+    pub(crate) fn ask_soon(&mut self) {
+        self.asked = 0;
+    }
+}
+
 /// Lets a client into the account it logged in to (`logged_in`, then
 /// `tell_discord`), or, while Discord membership is required, asks the bot
 /// first. `false` if the client should go.

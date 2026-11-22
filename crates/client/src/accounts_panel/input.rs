@@ -68,7 +68,7 @@ fn chosen(panel: &mut Panel, name: &str, index: usize) -> Option<RoleAsk> {
     None
 }
 
-/// The buttons: Find, Apply, Save, Newer and Older.
+/// The buttons: Find, Apply, Follow Discord, Save, Newer and Older.
 fn pressed(panel: &mut Panel, name: &str) -> Option<RoleAsk> {
     Some(match name {
         "find" => RoleAsk::LookUp(panel.name.clone()),
@@ -79,6 +79,13 @@ fn pressed(panel: &mut Panel, name: &str) -> Option<RoleAsk> {
                 character: found.character,
                 role: role.id.clone(),
                 minutes: FOR.get(panel.give_for)?.1,
+                reason: panel.reason.clone(),
+            }
+        }
+        "follow" => {
+            let found = panel.found.as_ref().filter(|f| f.may_follow_discord)?;
+            RoleAsk::FollowDiscord {
+                character: found.character,
                 reason: panel.reason.clone(),
             }
         }

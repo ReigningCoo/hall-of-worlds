@@ -2,9 +2,12 @@
 //! holds no role given by hand takes the first role in `discord_roles` whose
 //! Discord role it has, or none (Player), each time it is checked. A role
 //! given by hand (or claimed) is never changed by Discord, and lets the
-//! account in without being on the Discord server; Banned still keeps it out.
+//! account in without being on the Discord server; Banned, and Player given by
+//! hand (a demotion), still need it. "Follow Discord" in the Accounts panel
+//! (`hand_to_discord`) takes a role given by hand away, for Discord to set.
 
-use shared::role::{BANNED, PLAYER, RoleId};
+use shared::protocol::RoleSource;
+use shared::role::{BANNED, PLAYER, Powers, RoleId};
 
 use super::{Actor, Change, Roles};
 use crate::accounts::AccountId;
@@ -18,11 +21,74 @@ impl Roles {
     }
 
     /// Whether a role given by hand lets this account in without being on the
-    /// Discord server: any but Banned.
+    /// Discord server: any but Banned and Player.
     pub(crate) fn in_without_discord(&self, account: AccountId) -> bool {
         let key = account.0.to_string();
         let held = self.file.accounts.get(&key);
-        held.is_some_and(|held| !held.discord && !held.role.is(BANNED))
+        let out = |role: &RoleId| role.is(BANNED) || role.is(PLAYER);
+        held.is_some_and(|held| !held.discord && !out(&held.role))
+    }
+
+    /// Where an account's role came from.
+    pub(crate) fn source(&self, account: AccountId) -> RoleSource {
+        match self.file.accounts.get(&account.0.to_string()) {
+            None => RoleSource::Unset,
+            Some(held) if held.discord => RoleSource::Discord,
+            Some(held) if held.by.is_some() => RoleSource::Hand,
+            Some(_) => RoleSource::Server,
+        }
+    }
+
+    /// Whether someone with `powers` may hand this account back to Discord:
+    /// its role wasn't Discord's, and they may give it and every role
+    /// Discord might (Player too).
+    pub(crate) fn may_hand_to_discord(&self, account: AccountId, powers: &Powers) -> bool {
+        let Some(held) = self.file.accounts.get(&account.0.to_string()) else {
+            return false;
+        };
+        let player = RoleId::new(PLAYER);
+        let discords = self.file.discord_roles.iter().map(|mapped| &mapped.role);
+        let mut involved = std::iter::once(&held.role).chain(discords).chain([&player]);
+        !held.discord && involved.all(|role| powers.grants.contains(role))
+    }
+
+    /// Takes away a role given by hand (or claimed), so the account follows
+    /// Discord again: Player until its next check. Only by someone who
+    /// `may_hand_to_discord`, never for their own account; written in the
+    /// audit log. What is wrong, if anything.
+    pub(crate) fn hand_to_discord(
+        &mut self,
+        by: AccountId,
+        powers: &Powers,
+        target: AccountId,
+        reason: &str,
+        now: u64,
+    ) -> Result<(), String> {
+        if by == target {
+            return Err("nobody can change their own role".into());
+        }
+        if !self.may_hand_to_discord(target, powers) {
+            return Err("that account's role isn't one you can hand back to Discord".into());
+        }
+        let key = target.0.to_string();
+        let reason = match reason.trim() {
+            "" => String::new(),
+            reason => format!(": {reason}"),
+        };
+        let what = format!(
+            "{} handed {key} back to Discord (was {}){reason}",
+            by.0,
+            self.holds(&key).0
+        );
+        self.change(&key, None, now, &what)?;
+        self.changed.push(target);
+        self.recheck.push(target);
+        Ok(())
+    }
+
+    /// Accounts handed back to Discord since last asked, to check at once.
+    pub(crate) fn take_recheck(&mut self) -> Vec<AccountId> {
+        std::mem::take(&mut self.recheck)
     }
 
     /// Adds a line to the Discord mapping (tests; hosts edit `roles.ron`).

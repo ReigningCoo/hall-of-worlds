@@ -79,7 +79,7 @@ pub use quest::{
     Offer, OfferState, PlanetQuests, QuestAsk, QuestDots, QuestNews, QuestRefusal, QuestState,
 };
 pub use recipe_ask::RecipeAsk;
-pub use role_ask::{FoundAccount, RoleAnswer, RoleAsk};
+pub use role_ask::{FoundAccount, RoleAnswer, RoleAsk, RoleSource};
 pub use server_message::ServerMessage;
 pub use strike::Strike;
 pub use world_chunk::{GateInfo, SeenPoi, WorldChunk, WorldInfo};
@@ -87,7 +87,7 @@ pub use yeast_ask::YeastAsk;
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 158;
+pub const PROTOCOL_VERSION: u32 = 159;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

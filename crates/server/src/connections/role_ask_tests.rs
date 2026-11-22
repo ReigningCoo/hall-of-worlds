@@ -1,6 +1,6 @@
 //! The Accounts panel's requests, and role changes reaching those playing.
 
-use shared::protocol::{ClientLink, RoleAnswer, RoleAsk, ServerMessage, local_pair};
+use shared::protocol::{ClientLink, RoleAnswer, RoleAsk, RoleSource, ServerMessage, local_pair};
 use shared::role::{ADMIN, BANNED, DEVELOPER, MODERATED, MODERATOR, PLAYER, RoleId};
 use shared::world::WorldSeed;
 
@@ -40,7 +40,7 @@ fn give(accounts: &mut Accounts, to: AccountId, role: &str) {
 }
 
 fn ask(client: &mut Client, accounts: &mut Accounts, end: &ClientLink, ask: RoleAsk) -> RoleAnswer {
-    answer_role(client, ask, accounts);
+    answer_role(client, ask, accounts, true);
     match end.receive().unwrap() {
         Some(ServerMessage::Role(answer)) => answer,
         other => panic!("{other:?}"),
@@ -171,4 +171,49 @@ fn a_change_reaches_the_player_and_a_ban_sends_them_away() {
         Some(ServerMessage::Refused(_))
     ));
     assert!(clients[0].is_gone());
+}
+
+#[test]
+fn an_admin_hands_a_role_given_by_hand_back_to_discord() {
+    let (mut accounts, player, mut client, end) = staff(ADMIN);
+    let RoleAnswer::Found(found) = ask(
+        &mut client,
+        &mut accounts,
+        &end,
+        RoleAsk::LookUp("Brin".into()),
+    ) else {
+        panic!("not found");
+    };
+    assert_eq!(found.source, RoleSource::Unset);
+    assert!(!found.discord_linked);
+    assert!(!found.may_follow_discord, "no role given by hand yet");
+    let give = RoleAsk::Give {
+        character: found.character,
+        role: RoleId::new(DEVELOPER),
+        minutes: None,
+        reason: "tools".into(),
+    };
+    let RoleAnswer::Found(given) = ask(&mut client, &mut accounts, &end, give) else {
+        panic!("not given");
+    };
+    assert_eq!(given.source, RoleSource::Hand);
+    assert!(given.may_follow_discord);
+
+    // Without Discord's roles there is nothing to follow.
+    let follow = RoleAsk::FollowDiscord {
+        character: found.character,
+        reason: "back".into(),
+    };
+    answer_role(&mut client, follow.clone(), &mut accounts, false);
+    assert!(matches!(
+        end.receive().unwrap(),
+        Some(ServerMessage::Role(RoleAnswer::Refused(_)))
+    ));
+
+    let RoleAnswer::Found(followed) = ask(&mut client, &mut accounts, &end, follow) else {
+        panic!("not handed back");
+    };
+    assert_eq!(followed.source, RoleSource::Unset);
+    assert!(followed.role.id.is(PLAYER));
+    assert!(accounts.roles.follows_discord(player));
 }

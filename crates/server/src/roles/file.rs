@@ -25,7 +25,9 @@ pub(super) struct RolesFile {
     /// (`HOW_DISCORD_SERVER_ID`). Never the Owner.
     #[serde(default)]
     pub discord_roles: Vec<DiscordRole>,
-    /// By account id (as written in the log). Players and guests are never here.
+    /// By account id (as written in the log). Guests are never here, and
+    /// players only when demoted by hand while there is a Discord mapping
+    /// (so Discord doesn't raise them again; see `set_role`).
     #[serde(default)]
     pub accounts: BTreeMap<String, HeldRole>,
 }
@@ -178,7 +180,8 @@ impl RolesFile {
         for (account, held) in &self.accounts {
             account_id(account).ok_or_else(|| format!("{account:?} isn't an account id"))?;
             let role = &held.role;
-            if self.role(role).is_none() || role.is(PLAYER) || role.is(GUEST) {
+            let player_from_discord = role.is(PLAYER) && held.discord;
+            if self.role(role).is_none() || player_from_discord || role.is(GUEST) {
                 return Err(format!(
                     "the account {account} has the role {:?}, which no account can hold",
                     role.0

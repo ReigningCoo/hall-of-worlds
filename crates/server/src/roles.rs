@@ -35,6 +35,8 @@ pub(crate) struct Roles {
     claim: Option<String>,
     /// Accounts whose role changed, for anyone playing on them (`take_changed`).
     changed: Vec<AccountId>,
+    /// Accounts handed back to Discord, to ask about now (`take_recheck`).
+    recheck: Vec<AccountId>,
 }
 
 impl Default for Roles {
@@ -45,6 +47,7 @@ impl Default for Roles {
             audit: Audit::default(),
             claim: None,
             changed: Vec::new(),
+            recheck: Vec::new(),
         }
     }
 }
@@ -86,6 +89,7 @@ impl Roles {
             disk: Some(disk),
             claim: None,
             changed: Vec::new(),
+            recheck: Vec::new(),
         })
     }
 

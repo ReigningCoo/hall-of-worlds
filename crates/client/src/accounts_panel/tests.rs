@@ -1,5 +1,7 @@
-use shared::role::{Permission, Powers};
+use shared::protocol::{CharacterId, FoundAccount, RoleSource};
+use shared::role::{Permission, Powers, RoleBadge, RoleId};
 
+use super::find::source;
 use super::markup::ACCOUNTS;
 use super::show::capitalised;
 use super::state::{FOR, Tab, tabs_for};
@@ -47,5 +49,34 @@ fn each_role_sees_the_tabs_it_may_use() {
     assert_eq!(
         tabs_for(&with(&Permission::all().collect::<Vec<_>>())),
         [Tab::Find, Tab::Roles, Tab::Audit]
+    );
+}
+
+#[test]
+fn the_role_says_where_it_came_from_and_whether_discord_is_linked() {
+    let mut found = FoundAccount {
+        character: CharacterId(shared::id::Id::for_test(1)),
+        name: "Brin".into(),
+        others: Vec::new(),
+        guest: false,
+        yours: false,
+        role: RoleBadge {
+            id: RoleId::new(shared::role::PLAYER),
+            name: "Player".into(),
+            title: None,
+        },
+        until: None,
+        reason: String::new(),
+        source: RoleSource::Discord,
+        discord_linked: true,
+        may_follow_discord: false,
+        may_give: Vec::new(),
+    };
+    assert_eq!(source(&found), "Role from Discord; Discord linked.");
+    found.source = RoleSource::Hand;
+    found.discord_linked = false;
+    assert_eq!(
+        source(&found),
+        "Role given by hand, which Discord never changes; no Discord linked."
     );
 }
