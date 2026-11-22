@@ -2,7 +2,8 @@
 //! the player's browser, or as a guest.
 //! `receive` hands the server's login messages on as `FromServer`, answered by
 //! `answer_login`; what the player chooses on `login`'s screen comes as
-//! `LoginChoice` (`choose_login`). Characters are `characters`' to answer.
+//! `LoginChoice` (`choose_login`), Link Discord's too (its answers are
+//! `discord_link.rs`'). Characters are `characters`' to answer.
 
 use bevy::prelude::*;
 use shared::protocol::{ClientMessage, Credentials, LoginMethod, ServerMessage};
@@ -145,6 +146,9 @@ pub(super) fn choose_login(
                     provider,
                     url: None,
                 };
+            }
+            (LoginChoice::LinkDiscord, Some(connection)) => {
+                connection.link.send(&ClientMessage::LinkDiscord);
             }
             (LoginChoice::Guest, Some(connection)) => {
                 *logging_in = LoggingIn::Not;

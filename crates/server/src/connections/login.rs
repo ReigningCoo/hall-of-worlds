@@ -15,6 +15,14 @@ use crate::storage::now;
 use crate::{ServerOptions, ServerWorld, ServerWorlds};
 use shared::role::{BANNED, Permission};
 
+mod link_discord;
+
+pub(super) use link_discord::link_discord;
+use link_discord::{finish_link, tell_discord};
+
+#[cfg(test)]
+mod link_discord_tests;
+
 /// Logs in with what the client sent: `false` if it should be disconnected.
 pub(super) fn log_in(
     client: &mut Client,
@@ -43,11 +51,17 @@ pub(super) fn log_in(
         }
         (Credentials::Session(token), Some(logins)) => match accounts.session(&token) {
             Ok(Some(id)) if logins.discord_only() => match accounts.discord_of(&id) {
-                Ok(Some(_)) => logged_in(client, id, "again", accounts, world, options),
+                Ok(Some(_)) => {
+                    logged_in(client, id, "again", accounts, world, options)
+                        && tell_discord(client, accounts, logins)
+                }
                 Ok(None) => failed(client, "this server only takes Discord logins just now"),
                 Err(error) => client.refuse_for_saves(&error),
             },
-            Ok(Some(id)) => logged_in(client, id, "again", accounts, world, options),
+            Ok(Some(id)) => {
+                logged_in(client, id, "again", accounts, world, options)
+                    && tell_discord(client, accounts, logins)
+            }
             Ok(None) => failed(client, "this login has run out: log in again"),
             Err(error) => client.refuse_for_saves(&error),
         },
@@ -120,9 +134,13 @@ pub(crate) fn finish_logins(
     };
     let Connections { clients, accounts } = &mut *connections;
     for finished in logins.finished() {
+        // A link is only for the client logged in to its account.
         let waiting = clients.iter_mut().find(|client| {
             !client.gone
-                && client.phase == Phase::LoggingIn
+                && match finished.link {
+                    Some(id) => client.account == Some(id),
+                    None => client.phase == Phase::LoggingIn,
+                }
                 && client.login_state.as_deref() == Some(finished.state.as_str())
         });
         // It left, or began another.
@@ -131,8 +149,9 @@ pub(crate) fn finish_logins(
         };
         client.login_state = None;
         let world = worlds.of(client.world);
-        let stay = match finished.proved {
-            Ok(proved) => {
+        let stay = match (finished.link, finished.proved) {
+            (Some(id), proved) => finish_link(client, id, proved, accounts, &logins),
+            (None, Ok(proved)) => {
                 let (key, shown) = match &proved {
                     Proved::Email(email) => {
                         (LoginKey::Email(logins.email_key(email)), email.clone())
@@ -156,11 +175,12 @@ pub(crate) fn finish_logins(
                             .link
                             .send(&ServerMessage::LoggedIn { session, email })
                             && logged_in(client, id, &how, accounts, world, &options)
+                            && tell_discord(client, accounts, &logins)
                     }
                     Err(error) => client.refuse_for_saves(&error),
                 }
             }
-            Err(reason) => {
+            (None, Err(reason)) => {
                 info!(
                     "A login through {} didn't work: {reason}",
                     finished.provider

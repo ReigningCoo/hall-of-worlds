@@ -34,6 +34,7 @@ mod characters;
 mod clock;
 mod connect;
 mod difficulty;
+mod discord_link;
 #[cfg(target_arch = "wasm32")]
 mod home;
 #[cfg(not(target_arch = "wasm32"))]
@@ -52,6 +53,7 @@ use clock::{apply_pong, run_clock, send_local_pings, stop_game_time};
 #[cfg(target_arch = "wasm32")]
 use connect::pump_socket;
 use connect::{Connecting, connect, give_up, hang_up};
+use discord_link::keep_discord_link;
 use log_in::{answer_login, choose_login, show_account};
 use log_out::{back_at_start, log_out, now_playing, start_playing};
 pub use messages::{FromServer, ServerConnection, ToServer};
@@ -90,6 +92,7 @@ impl Plugin for ConnectionPlugin {
                         .run_if(|session: Res<Session>| session.is_playing()),
                     receive.run_if(resource_exists::<ServerConnection>),
                     answer_login.run_if(resource_exists::<ServerConnection>),
+                    keep_discord_link.run_if(resource_exists::<ServerConnection>),
                     answer_characters.run_if(resource_exists::<ServerConnection>),
                     stop_game_time,
                 )

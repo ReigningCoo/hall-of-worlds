@@ -261,15 +261,16 @@ pub enum ServerMessage {
     PoiFound { kind: crate::poi::PoiKind },
     /// The answer to `Credentials::Provider`: the provider's page to log in on, in the browser.
     OpenLogin { url: String },
-    /// The player logged in on the provider's website: the token to log in
-    /// with next time (`Credentials::Session`), and the address the provider
-    /// gave, for the client to keep and show in its menus. `Characters` follows.
+    /// The player logged in on the provider's website: the token to log in with next time
+    /// (`Credentials::Session`), and the address the provider gave, for the menus. `Characters` follows.
     LoggedIn {
         session: SessionToken,
         email: EmailAddress,
     },
     /// Logging in didn't work, and why: still logging in, it may try again or another way.
     LoginFailed(String),
+    /// Whether the account logged in to has Discord linked, or can link it (`ClientMessage::LinkDiscord`).
+    DiscordLink(super::DiscordLink),
     /// Whether the player is sneaking now (`Ability::Sneak`, a toggle): after
     /// they turn it on or off, and `false` on joining, as it isn't kept.
     Sneaking(bool),

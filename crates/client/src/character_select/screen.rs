@@ -26,9 +26,14 @@ pub(super) static CHARACTER_SELECT: Template = html!(
         <scroll id="scroll" fills>
           <canvas id="grid"/>
         </scroll>
-        <span id="change_user_row" hidden>
-          <button id="change_user">Change User</button>
-        </span>
+        <div id="change_user_row" class="rows" hidden>
+          <p id="discord_failed" class="refused" hidden/>
+          <span>
+            <button id="change_user">Change User</button>
+            <button id="link_discord" hidden>Link Discord</button>
+            <p id="discord" class="medium" hidden/>
+          </span>
+        </div>
       </div>
       <div class="rows" width="380">
         <h1 id="name"/>
@@ -66,6 +71,7 @@ pub(super) enum Button {
     Delete,
     Cancel,
     ChangeUser,
+    LinkDiscord,
 }
 
 pub(super) fn spawn_screen(mut commands: Commands) {
@@ -94,6 +100,7 @@ pub(super) fn bind_screen(mut commands: Commands, new: Query<(Entity, &UiId), Ad
             "delete" => bound.insert(Button::Delete),
             "cancel" => bound.insert(Button::Cancel),
             "change_user" => bound.insert(Button::ChangeUser),
+            "link_discord" => bound.insert(Button::LinkDiscord),
             // A press outside the requester is No too.
             "asking" | "keep" => bound.insert(Answer::Keep),
             "really_delete" => bound.insert(Answer::Delete),

@@ -80,6 +80,7 @@ pub(crate) fn answer(
         ClientMessage::Login(credentials) => {
             log_in(client, credentials, world, accounts, options, logins)
         }
+        ClientMessage::LinkDiscord => super::login::link_discord(client, accounts, logins),
         ClientMessage::ChooseCharacter { id } => {
             let Some(account) = client.account.filter(|_| client.phase == Phase::Choosing) else {
                 return refuse(client, "not the time to choose a character".into());

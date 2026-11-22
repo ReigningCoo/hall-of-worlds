@@ -155,7 +155,8 @@ pub(super) fn receive(
                 | ServerMessage::Role(_)
                 | ServerMessage::OpenLogin { .. }
                 | ServerMessage::LoggedIn { .. }
-                | ServerMessage::LoginFailed(_)),
+                | ServerMessage::LoginFailed(_)
+                | ServerMessage::DiscordLink(_)),
             )) => {
                 from_server.write(FromServer(message));
             }

@@ -113,6 +113,7 @@ fn fake_routes(base: &str, verifiers: Arc<Mutex<Vec<String>>>) -> Router {
                         answer(StatusCode::OK, json!({"id": "80351110224678912", "username": "nelly"}))
                     }
                     "Bearer token-noid" => answer(StatusCode::OK, json!({"username": "nelly"})),
+                    "Bearer token-other" => answer(StatusCode::OK, json!({"id": "41771983423143937", "username": "rob"})),
                     _ => answer(StatusCode::UNAUTHORIZED, json!({})),
                 }
             }),

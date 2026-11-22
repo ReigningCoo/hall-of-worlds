@@ -22,5 +22,6 @@ The login screen and the account's corner. It only shows `common::LoggingIn` and
 
 ## Notes
 
+- Link Discord isn't here but on Character Select (`character_select/discord.rs`), where the client is connected and logged in; the startup menu isn't connected.
 - The email is shown only here, and never written to a log: `AccountEmail`'s `Debug` hides it (see CLAUDE.md's core rules).
 - `loading_screen` lets go of input and hides its bar while `LoggingIn::shows()`, as for `MakingCharacter`.

@@ -19,7 +19,7 @@ use axum::routing::get;
 use bevy::prelude::*;
 use shared::protocol::LoginMethod;
 
-use crate::accounts::{DiscordKey, EmailKey};
+use crate::accounts::{AccountId, DiscordKey, EmailKey};
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod callback;
@@ -48,6 +48,9 @@ pub(crate) struct Finished {
     pub state: String,
     /// Which provider.
     pub provider: String,
+    /// The account it links to, if it links rather than logs in
+    /// (`begin_link`): only for the client logged in to it.
+    pub link: Option<AccountId>,
     /// Who the provider vouched for, or why it didn't.
     pub proved: Result<Proved, String>,
 }
@@ -160,8 +163,32 @@ impl Logins {
     pub(crate) fn begin(&self, name: &str) -> Result<(String, String), String> {
         let found = self.0.providers.iter().position(|p| p.name == name);
         let index = found.ok_or_else(|| format!("this server doesn't log in with {name:?}"))?;
+        self.begin_at(index, None)
+    }
+
+    /// Whether this server logs in with Discord.
+    pub(crate) fn has_discord(&self) -> bool {
+        self.discord().is_some()
+    }
+
+    /// Where Discord is in the list of providers, if it is there.
+    fn discord(&self) -> Option<usize> {
+        let mut providers = self.0.providers.iter();
+        providers.position(|provider| matches!(provider.kind, Kind::Discord { .. }))
+    }
+
+    /// Starts linking Discord to this account (logged in to another way): as
+    /// `begin`, but it finishes with `Finished::link` set, used only once.
+    pub(crate) fn begin_link(&self, account: AccountId) -> Result<(String, String), String> {
+        let index = self
+            .discord()
+            .ok_or("this server doesn't log in with Discord")?;
+        self.begin_at(index, Some(account))
+    }
+
+    fn begin_at(&self, index: usize, link: Option<AccountId>) -> Result<(String, String), String> {
         let mut pending = self.0.pending.lock().expect("never poisoned");
-        let (state, challenge) = pending.begin(index)?;
+        let (state, challenge) = pending.begin(index, link)?;
         let page = self.0.providers[index].login_page(&self.0.callback, &state, &challenge);
         Ok((state, page))
     }

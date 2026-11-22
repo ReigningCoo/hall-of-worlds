@@ -29,6 +29,18 @@ pub enum LoginMethod {
 /// What `Credentials::Provider` names Discord by (`LoginMethod::Discord`).
 pub const DISCORD: &str = "discord";
 
+/// Discord and the account logged in to, told after logging in while the server
+/// logs in with Discord (never to a guest), and after a `ClientMessage::LinkDiscord`.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DiscordLink {
+    /// Not linked: Link Discord is offered.
+    CanLink,
+    /// Discord leads to this account (logged in with or linked).
+    Linked,
+    /// Linking didn't work, and why (such as that Discord account having its own).
+    Failed(String),
+}
+
 /// What a client logs in with.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Credentials {

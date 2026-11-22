@@ -64,7 +64,16 @@ pub enum LoginChoice {
     /// Connect's bin: forget the account kept for the server at this address
     /// (as Connect shows it).
     ForgetServer(String),
+    /// Character Select's Link Discord: log in on Discord's page in the
+    /// browser, so Discord also leads to the account logged in to.
+    LinkDiscord,
 }
+
+/// Whether the account logged in to has Discord linked or can link it, as the
+/// server last said (`DiscordLink`): none while it says nothing (a guest, a
+/// server without Discord, not logged in).
+#[derive(Resource, Clone, Debug, Default, PartialEq, Eq)]
+pub struct AccountDiscord(pub Option<shared::protocol::DiscordLink>);
 
 /// The email address of the account kept for the server Play goes to (or for
 /// a Discord login, "name on Discord"), for the startup menu and making a
