@@ -21,8 +21,8 @@ pub(super) static COOKING: Template = html!(
       <p id="words" class="faint" width="760"/>
       <canvas id="tools"/>
       <hr/>
-      <span nowrap valign="top">
-        <div width="520">
+      <span id="body" nowrap valign="top">
+        <div id="left" width="520">
           <p id="steps"/>
           <canvas id="grid"/>
           <p id="beyond" class="warning" width="500" hidden/>

@@ -74,3 +74,27 @@ fn quest_items_are_never_counted_or_used() {
     assert_eq!(inventory.count_of(ItemKind::Bread), 0);
     assert_eq!(inventory.stack_to_use(ItemKind::Bread), None);
 }
+
+#[test]
+fn the_best_quality_carried() {
+    use crate::item::Quality;
+    let mut inv = Inventory::default();
+    assert_eq!(inv.best_quality_of(|k| k == ItemKind::Pan), None);
+    let mut poor = Item::new(Id::for_test(1), ItemKind::Pan);
+    poor.quality = Some(Quality::Poor);
+    let mut rare = Item::new(Id::for_test(2), ItemKind::Pan);
+    rare.quality = Some(Quality::Rare);
+    inv.items.push(at(poor, 0));
+    inv.items.push(at(rare, 2));
+    inv.items
+        .push(at(Item::new(Id::for_test(3), ItemKind::Bowl), 4));
+    assert_eq!(
+        inv.best_quality_of(|k| k == ItemKind::Pan),
+        Some(Quality::Rare)
+    );
+    // None counts as Common.
+    assert_eq!(
+        inv.best_quality_of(|k| k == ItemKind::Bowl),
+        Some(Quality::Common)
+    );
+}

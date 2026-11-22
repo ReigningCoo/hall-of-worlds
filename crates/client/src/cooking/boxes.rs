@@ -10,8 +10,8 @@ use shared::item::{Item, ItemKind, Rotation};
 use crate::dom::{SlotLook, SlotShown, SlotThing, Solid};
 use crate::item_art::look_of;
 use crate::widgets::{
-    CELL, GRID_COLOUR, GRID_LINE, HoverTip, PICTURE_PIXELS_PER_CELL, REFUSED, UiId, item_picture,
-    picture_in_square,
+    CELL, GRID_COLOUR, GRID_LINE, HoverTip, PICTURE_PIXELS_PER_CELL, REFUSED, ToolEdge, UiId,
+    item_picture, picture_in_square,
 };
 
 /// Gold: an aimed place, and the third colour of the fill.
@@ -55,12 +55,12 @@ pub(super) enum Picture {
     None,
 }
 
-/// A box two cells across (`height` boxes tall): its border red when
-/// `over` (past the steps allowed, or not to hand), its tip, its picture,
-/// and whatever `inside` adds.
+/// A box two cells across (`height` boxes tall): its border (`ToolEdge`:
+/// red when not to hand or past the steps allowed, else the quality of the
+/// tool used), its tip, its picture, and whatever `inside` adds.
 pub(super) fn spawn_box(
     parent: &mut ChildSpawnerCommands,
-    (picture, over, height): (Picture, bool, f32),
+    (picture, edge, height): (Picture, ToolEdge, f32),
     tip: String,
     marks: impl Bundle,
     inside: impl FnOnce(&mut ChildSpawnerCommands),
@@ -68,12 +68,12 @@ pub(super) fn spawn_box(
     let node = Node {
         width: px(BOX),
         height: px(BOX * height),
-        border: UiRect::all(px(if over { 3.0 } else { 1.0 })),
+        border: UiRect::all(px(edge.width)),
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
         ..default()
     };
-    let border = BorderColor::from(if over { REFUSED } else { GRID_LINE });
+    let border = BorderColor::from(edge.colour);
     let mut entity = parent.spawn((node, border, BackgroundColor(GRID_COLOUR), Solid));
     entity.insert((HoverTip(tip), marks));
     entity.with_children(|within| {

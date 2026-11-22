@@ -9,7 +9,7 @@ use shared::item::{Item, ItemKind, Rotation};
 use crate::dom::{SlotLook, SlotShown, SlotThing, Solid};
 use crate::item_art::look_of;
 use crate::widgets::{
-    CELL, GRID_COLOUR, GRID_LINE, HoverTip, PICTURE_PIXELS_PER_CELL, REFUSED, UiId, item_picture,
+    CELL, GRID_COLOUR, HoverTip, PICTURE_PIXELS_PER_CELL, ToolEdge, UiId, item_picture,
     picture_in_square,
 };
 
@@ -32,11 +32,12 @@ pub(super) struct Fill(pub(super) usize);
 #[derive(Component)]
 pub(super) struct Wash;
 
-/// A box two cells across: its border red when `over` (past the steps
-/// allowed), its tip, the picture of `kind`, and whatever `inside` adds.
+/// A box two cells across: its border (`ToolEdge`: red when not carried or
+/// past the steps allowed, else the quality of the apparatus used), its tip,
+/// the picture of `kind`, and whatever `inside` adds.
 pub(super) fn spawn_box(
     parent: &mut ChildSpawnerCommands,
-    (kind, over): (Option<ItemKind>, bool),
+    (kind, edge): (Option<ItemKind>, ToolEdge),
     tip: String,
     marks: impl Bundle,
     inside: impl FnOnce(&mut ChildSpawnerCommands),
@@ -44,10 +45,10 @@ pub(super) fn spawn_box(
     let node = Node {
         width: px(BOX),
         height: px(BOX),
-        border: UiRect::all(px(if over { 3.0 } else { 1.0 })),
+        border: UiRect::all(px(edge.width)),
         ..default()
     };
-    let border = BorderColor::from(if over { REFUSED } else { GRID_LINE });
+    let border = BorderColor::from(edge.colour);
     let mut entity = parent.spawn((node, border, BackgroundColor(GRID_COLOUR), Solid));
     entity.insert((HoverTip(tip), marks));
     entity.with_children(|within| {

@@ -10,6 +10,7 @@ use super::written::{missing_in, written};
 fn all_there(recipe: &Recipe) -> Have {
     Have {
         tools: vec![true; recipe.steps.len()],
+        qualities: Vec::new(),
         inputs: (recipe.steps.iter())
             .map(|step| vec![true; step.inputs.len()])
             .collect(),

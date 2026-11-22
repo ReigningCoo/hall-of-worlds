@@ -33,7 +33,7 @@ pub(super) fn place_id(place: Place) -> (&'static str, usize) {
     }
 }
 
-/// A cell of the grid at `column` (0 the sources'), `row`, `height` rows tall.
+/// A cell of the grid at `column`, `row`, `height` rows tall.
 pub(super) fn at(column: u8, row: u8, height: u8) -> Node {
     Node {
         grid_column: GridPlacement::start(i16::from(column) + 1),

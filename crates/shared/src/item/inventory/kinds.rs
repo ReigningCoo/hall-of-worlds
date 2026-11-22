@@ -2,7 +2,7 @@
 //! are, and which stack one is taken from.
 
 use crate::id::Id;
-use crate::item::{Inventory, Item, ItemKind, Placed};
+use crate::item::{Inventory, Item, ItemKind, Placed, Quality};
 
 impl Inventory {
     /// How many of this kind are carried, in the character's own grid and in
@@ -22,6 +22,15 @@ impl Inventory {
                 .map(|(stack, _)| stack.id)
         };
         smallest(true).or_else(|| smallest(false))
+    }
+
+    /// The best quality among carried stacks whose kind passes `wanted` (one
+    /// without a quality counting as Common), if any is carried: the tool a
+    /// crafting panel shows as the one used.
+    pub fn best_quality_of(&self, wanted: impl Fn(ItemKind) -> bool) -> Option<Quality> {
+        (self.stacks_where(|top| wanted(top.kind)))
+            .map(|(stack, _)| stack.top().quality.unwrap_or(Quality::Common))
+            .max()
     }
 
     /// Every carried stack of this kind (by its top), and whether it is in the

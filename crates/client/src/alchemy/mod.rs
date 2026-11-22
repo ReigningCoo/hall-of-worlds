@@ -12,6 +12,7 @@ mod boxes;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
 mod drag;
+mod fit;
 mod markup;
 mod open;
 mod order;
@@ -61,6 +62,7 @@ impl Plugin for AlchemyPlugin {
                     side::answer_panel,
                     run::follow_run,
                     rows::draw_rows,
+                    fit::fit_side,
                     side::show_side,
                     run::show_fill,
                 )

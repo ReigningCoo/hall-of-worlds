@@ -14,8 +14,8 @@ pub(super) static ALCHEMY: Template = html!(
     <p id="words" class="faint" width="700"/>
     <canvas id="apparatus"/>
     <hr/>
-    <span nowrap valign="top">
-      <div width="480">
+    <span id="body" nowrap valign="top">
+      <div id="left" width="480">
         <p id="steps"/>
         <p id="at_bench" class="faint" hidden/>
         <canvas id="process"/>

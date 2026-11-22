@@ -16,6 +16,7 @@ mod boxes;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
 mod drag;
+mod fit;
 mod ghost_space;
 mod ghosts;
 mod grid;
@@ -82,6 +83,7 @@ impl Plugin for CookingPlugin {
                     recipes::answer_recipes,
                     run::follow_run,
                     grid::draw_grid,
+                    fit::fit_side,
                     side::show_side,
                     recipes::show_recipes,
                     run::show_fill,

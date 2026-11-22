@@ -28,6 +28,7 @@ mod queued_stripe;
 mod scale;
 mod scroll;
 mod set_edge;
+mod side_below;
 mod skill_ring;
 mod slider;
 mod soft_keyboard;
@@ -38,6 +39,7 @@ mod tabs;
 mod text_box;
 mod text_scale;
 mod theme;
+mod tool_edge;
 mod ui_id;
 mod weight;
 
@@ -81,6 +83,7 @@ pub use queued_stripe::queued_stripe;
 pub use scale::{INTERFACE_PERCENTS, TouchOnly};
 pub use scroll::{spawn_filling_scroll_area, spawn_wide_scroll_area};
 pub use set_edge::set_edge;
+pub use side_below::SideBelow;
 pub use skill_ring::{SkillRing, skill_ring};
 pub use slider::{Slider, SliderMoved, spawn_slider};
 pub use soft_keyboard::Key as SoftKey;
@@ -96,6 +99,7 @@ pub use theme::{
     WARNING_TEXT,
 };
 use theme::{RAISED_BACKGROUND, SHADED_EDGE};
+pub use tool_edge::ToolEdge;
 #[cfg(any(test, feature = "debug-api"))]
 pub use ui_id::duplicate_ids;
 pub use ui_id::{Checked, UiId};
