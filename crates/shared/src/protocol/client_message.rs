@@ -22,11 +22,10 @@ use crate::world::ClockRate;
 /// From a client to the server.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum ClientMessage {
-    /// The first message on a new connection, answered with `LoginOptions` (the
-    /// embedded server's own player, who needs no login: with `Characters`).
-    /// `makes_characters`: the client has screens for choosing and making
-    /// characters; without them the account's latest is played, or a plain one
-    /// made. `difficulty`: the player's default, for a character with none saved.
+    /// The first message on a new connection, answered with `LoginOptions` (the embedded server's
+    /// own player, who needs no login: with `Characters`). `makes_characters`: the client has
+    /// screens for choosing and making characters; without them the account's latest is played, or
+    /// a plain one made. `difficulty`: the player's default, for a character with none saved.
     Hello {
         protocol: u32,
         makes_characters: bool,
@@ -75,9 +74,8 @@ pub enum ClientMessage {
     /// Stop or restart the world's clock, answered with `Paused`. Only a server
     /// with just this player on it pauses (`Welcome`'s `can_pause`).
     SetPaused(bool),
-    /// Opens the server to other players with these settings (or closes it, with
-    /// `None`), answered with `Online`. Only the embedded server's own player
-    /// may; others are ignored.
+    /// Opens the server to other players with these settings (or closes it, with `None`), answered
+    /// with `Online`. Only the embedded server's own player may; others are ignored.
     SetOnline(Option<OnlineSettings>),
     /// Locks a networked server down (only accounts with Server Options may
     /// play; the others are sent away) or opens it again, answered with
@@ -92,9 +90,9 @@ pub enum ClientMessage {
         y: u8,
         rotation: Rotation,
     },
-    /// Puts as much of a carried stack as fits on another carried stack that looks
-    /// the same, from its top, the rest staying where it was. Answered with
-    /// `Inventory`, whether or not it could be done.
+    /// Puts as much of a carried stack as fits on another carried stack that looks the same, from
+    /// its top, the rest staying where it was. Answered with `Inventory`, whether or not it could
+    /// be done.
     StackItem { item: Id, onto: Id },
     /// Lays out a carried grid again, in one go (`Inventory::sort_grid`): what looks
     /// the same stacked, then largest first from the top left. Answered with
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Bench(super::BenchAsk),
     /// Runs a cooking process `count` times, as `UseAbility(Cook)` (`Landed::Cooked`).
     Cook(crate::cooking::CookOrder),
+    /// About the recipe book (`RecipeAsk`): reading a scroll in, taking a recipe out.
+    Recipe(super::RecipeAsk),
 }

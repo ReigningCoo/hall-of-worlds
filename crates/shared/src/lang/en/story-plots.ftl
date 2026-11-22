@@ -135,6 +135,8 @@ item-category-goods = goods
     .plural = goods
 item-category-coin = coin
     .plural = coins
+item-category-recipe = recipe
+    .plural = recipes
 
 ## Parts of creatures a "Collect" step brings back, with their plural, and how
 ## they are put together with the creature ("kobold teeth").

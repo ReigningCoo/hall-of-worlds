@@ -30,6 +30,7 @@ pub(super) fn let_go_of(
     if super::tie::let_go_on_slot(held, aim, holding, carried, out)
         || super::pour::pour_on(held, aim, holding, carried, held_stock, out)
         || super::feed::feed_on(held, aim, holding, carried, held_stock, out)
+        || super::read::read_on(held, aim, holding, carried, held_stock, out)
     {
         return;
     }

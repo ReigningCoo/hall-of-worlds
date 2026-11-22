@@ -13,7 +13,9 @@
 //! hearth leaves Ash for the heat used (`crafting_bench::hearth_ash`). Then
 //! the next run begins, until `count` runs are done or the ingredients run
 //! out. Moving or being harmed calls it off, repeats and all
-//! (`stop_collecting`).
+//! (`stop_collecting`). A run that works is remembered in the recipe book as
+//! an own recipe (`Inventory::cooking_recipe`, read before anything is used
+//! up; named as its last output was classified).
 
 use bevy::prelude::*;
 use shared::ability::Ability;
@@ -131,6 +133,8 @@ pub(super) fn land_cook(client: &mut Client, world: &mut ServerWorld) -> bool {
             handle_fungus(client, def, tick);
         }
     }
+    // Read before the run takes anything, for the recipe book.
+    let own = (client.inventory).cooking_recipe(&order, &here.storage, Ingredients::built_in());
     use_up(client, world, &order, &here);
     let mut rng = Seed::new(new_id().seed().value()).rng();
     let chance_roll = rng.range_u64(0, u64::from(CERTAIN)) as u32;
@@ -139,6 +143,9 @@ pub(super) fn land_cook(client: &mut Client, world: &mut ServerWorld) -> bool {
     let made = match outcome(planned, chance_roll, luck_roll) {
         Outcome::Failed => Cooked::Failed,
         Outcome::Made { qualities } => {
+            if let (Some(recipe), Some(last)) = (own, planned.outputs.last()) {
+                (client.sheet.book).remember_cooking(recipe, last.dish.name.clone());
+            }
             let made_at = Some(world.made_now());
             let mut items: Vec<Item> = (planned.outputs.iter().zip(qualities))
                 .map(|(output, quality)| {

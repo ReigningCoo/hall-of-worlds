@@ -12,6 +12,7 @@ about-filter = A glass funnel lined with paper: Alchemy's apparatus for filterin
 about-egg = A whole egg in its shell, kept for cooking.
 about-dish = Cooked food, a serving at a time. Eat it for Well Fed.
 about-intermediate = Part-made food, to finish later in a new row. Some change as they rest: warmth hurries them, cold slows them.
+about-recipe = A rolled scroll of a dish's recipe, to read into your recipe book. Reading it uses it up.
 about-flour = Grain stone-ground into wholemeal flour, in an open hessian sack.
 about-ointment = Herbs ground with oil. Let go of it on yourself to rub it on: it does a quarter of what a potion of it would.
 about-paste = Herbs ground dry in a mortar. It does nothing by itself: it is a start for Alchemy, mixed with an oil or a water in a retort.
@@ -248,3 +249,9 @@ key-place-in = in { $place } ({ $x }, { $y })
 key-place-at = at ({ $x }, { $y })
 key-place-hall = in the Hall of Worlds
 key-place-elsewhere = { $place }, on another planet
+
+## A recipe scroll (recipes plan PR 3): whether the reader's recipe book has
+## it, or how to read it in.
+
+recipe-known = Already in your recipe book
+recipe-drop-on-self = Drop on yourself to add it to your recipe book

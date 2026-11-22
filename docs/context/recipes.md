@@ -17,7 +17,7 @@ Owner's decisions (2026-11-21). Recipe scrolls teach real dishes; each character
 | - | -- | ----- | ----- |
 | 1 | Shared data and the book: `shared::recipe` (the scroll item, `RecipeBook` on the sheet), `cooking::Recipe` and every real dish's recipe built and checked to cook into its dish, an order written down as a recipe, the beyond-skill helper (built) | none | first |
 | 2 | Generic `${kind:…}` item tokens in text (`shared::item_text`), drawn red when the reader has none (built) | none | independent |
-| 3 | The server, items, art, shops and rewards: reading and removing (`ClientMessage`), own recipes remembered on cooking, the scroll's picture (a rolled scroll with a chef's hat), scrolls sold and given as quest rewards | 1 | in order |
+| 3 | The server, items, art, shops and rewards: reading and removing (`ClientMessage`), own recipes remembered on cooking, the scroll's picture (a rolled scroll with a chef's hat), scrolls sold and given as quest rewards (built) | 1 | in order |
 | 4 | The reading panel: an unrolled scroll showing the recipe's grid and its written steps, foods missing in red, the beyond-skill note | 2, 3 | in order |
 | 5 | The Recipes tab in the Cooking panel: the book listed (learnt and own told apart), Read, Make (filling the panel from what is carried, red ghosts for what is missing) and Remove | 4 | last |
 
@@ -41,3 +41,13 @@ Owner's decisions (2026-11-21). Recipe scrolls teach real dishes; each character
 - A real dish's recipe is built from its pattern, not written by hand: the foods it must have, its usual ones, a common food for each role it still needs (honey for sweetness, lemon-like fruit for acid, the smallest seasoning), counts nudged until it holds nothing it forbids, every role it needs and its biggest role is one of them, and water for its wetness. A dish that joins rows puts all but its last two tools in the top row and the second-last alone below, starches on top. A test cooks every recipe with Common foods and checks it comes out as its dish.
 - To make every dish reachable, the rules changed in one place: milk through a Sieve loses its whey and no longer counts as liquid (curds and cheeses come out dry). And `dishes.ron` changed where two dishes could never be told apart, or a dish could never be made: Baguette usually has salt, Sourdough rye; Butter, Ghee and Clotted Cream need Protein too (milk is mostly protein), Ghee is Dry and Clotted Cream and Panna Cotta Soupy; Labneh usually has salt; Halloumi needs Protein; Junket is Wet; Gulab Jamun and Pound Cake no longer forbid Protein (they hold milk and eggs); Poached Egg and Sticky Rice are Moist (Boiled Egg and Boiled Rice stay Dry); Crêpes are Soupy (Pancakes stay Wet); Hash Browns usually have onion; Biltong pepper and salt; Steak Tartare onion and salt; Dill Pickles garlic, Pickled Cucumbers no longer dill; Ratatouille onion and garlic; Pajeon egg; Kalguksu courgette; Pico de Gallo onion and coriander; Greek Salad cucumber and onion; Goulash onion and caraway.
 - The book keeps learnt and own recipes together, latest first; a scroll already known is refused (kept). An own recipe is the order as cooked (`Inventory::cooking_recipe`, read before the run takes anything): its foods by what they are, no qualities, and the kind of intermediate starting each row.
+
+## The server, items, art, shops and rewards (PR 3, built)
+
+Claude's choices, for the owner to tune:
+
+- A scroll is read by letting go of it on the clothes panel (as eating), carried or from the ground: `ClientMessage::Recipe(RecipeAsk::Insert)`, queued behind steps like eating. A scroll the book has is kept; its popup says "Already in your recipe book", else "Drop on yourself to add it to your recipe book". `RecipeAsk::Remove(entry)` is ready for PR 5's Remove button.
+- PR 4's hook: after reading, the server sends `ServerMessage::RecipeInserted(entry)` (after `Sheet`); until the reading panel opens on it, a notice says "Recipe for Naan added to your recipe book".
+- Every cooking run that works is remembered as an own recipe, named as its last output was classified.
+- Scroll shops sell scrolls (3 in 5 of what they make), and inns and taverns sell only scrolls (which makes them shops). A quest's item reward may be a recipe (one in six of item rewards), given on hand-in as a scroll of a dish rolled from the prize seed.
+- The picture: a parchment roll lying from bottom left to top right, tied with red ribbon, a white chef's hat standing on it (`item_art/scroll.rs`; Alchemy's angle and emblem go in `ScrollLook::style`).

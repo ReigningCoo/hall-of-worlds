@@ -13,9 +13,9 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
         Braies, BreastBand, Cap, Cask, Cauldron, Cloak, Clogs, Crucible, Egg, Filter, Flour, Fruit,
         Gauntlets, Gloves, Hat, Headcloth, Headdress, HerbPouch, Hood, Hose, Keyring, Lantern,
         LinenCoif, Loincloth, Mercury, MortarAndPestle, Necklace, Neckwear, OilPress,
-        PaddedChausses, PaddedGloves, Pan, Pelican, Petticoat, Pouch, Retort, Ring, Sandals, Shawl,
-        Shirt, Shoes, Sieve, Slippers, SmallBox, Socks, Sulphur, Surcoat, Sword, Tabard, Tap,
-        Trousers, Vegetable, Vessel, Wimple, Yeast,
+        PaddedChausses, PaddedGloves, Pan, Pelican, Petticoat, Pouch, Recipe, Retort, Ring,
+        Sandals, Shawl, Shirt, Shoes, Sieve, Slippers, SmallBox, Socks, Sulphur, Surcoat, Sword,
+        Tabard, Tap, Trousers, Vegetable, Vessel, Wimple, Yeast,
     };
     match kind {
         BuildingKind::Blacksmith => &[
@@ -115,7 +115,10 @@ pub fn sells(kind: BuildingKind) -> &'static [(ItemKind, u64)] {
             (Sulphur, 1),
             (Mercury, 1),
         ],
-        BuildingKind::ScrollShop => &[(Lantern, 1), (SmallBox, 1)],
+        // Recipe scrolls of any real dish (`shared::recipe`), rolled from the
+        // item's seed; inns and taverns keep a few from their kitchens.
+        BuildingKind::ScrollShop => &[(Recipe, 3), (Lantern, 1), (SmallBox, 1)],
+        BuildingKind::Inn | BuildingKind::Tavern => &[(Recipe, 1)],
         BuildingKind::Jeweller => &[(Ring, 2), (Necklace, 1), (Vessel, 1)],
         BuildingKind::GemCutter => &[(Ring, 1), (Necklace, 1)],
         BuildingKind::BlackMarket => &[(Sword, 1), (Ring, 1), (Necklace, 1), (Cloak, 1)],

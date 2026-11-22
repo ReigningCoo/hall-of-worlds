@@ -36,3 +36,17 @@ pub(crate) fn food_lying(client: &Client, world: &mut ServerWorld, item: Id) -> 
         .ok()
         .map(|found| found.top().clone())
 }
+
+/// Takes the top one of the stack `item` lying in the player's reach (all of
+/// it if it is alone), the rest staying in its bag.
+pub(crate) fn take_one_lying(
+    client: &Client,
+    world: &mut ServerWorld,
+    item: Id,
+) -> Result<Item, &'static str> {
+    let mut found = lying(client, world, item)?;
+    let top = found.take_top(&mut new_id);
+    let rest = top.is_some().then(|| found.clone());
+    leave_on_ground(client, world, item, rest);
+    Ok(top.unwrap_or(found))
+}

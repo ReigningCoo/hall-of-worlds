@@ -26,9 +26,8 @@ use crate::world::WorldTime;
 pub enum ServerMessage {
     /// The answer to `Hello`: the ways to log in here.
     LoginOptions { methods: Vec<LoginMethod> },
-    /// The account's characters, to choose from, delete or add to (if
-    /// `can_create`), and the difficulties a new one may have: on logging in,
-    /// and again after one is deleted.
+    /// The account's characters, to choose from, delete or add to (if `can_create`), and the
+    /// difficulties a new one may have: on logging in, and again after one is deleted.
     Characters {
         list: Vec<ListedCharacter>,
         can_create: bool,
@@ -37,9 +36,8 @@ pub enum ServerMessage {
     /// The new character asked for wasn't made, and why (its name taken...):
     /// the client goes on choosing, back on its screen with nothing lost.
     CharacterRefused(String),
-    /// The character's difficulty (`None` while there is no character yet) and
-    /// the ones the server allows: after `Welcome`, after `SetDifficulty`, and
-    /// whenever the server's change.
+    /// The character's difficulty (`None` while there is no character yet) and the ones the server
+    /// allows: after `Welcome`, after `SetDifficulty`, and whenever the server's change.
     Difficulty {
         current: Option<Difficulty>,
         allowed: Difficulties,
@@ -50,10 +48,9 @@ pub enum ServerMessage {
     /// (nothing in it or stacked on it), and never where it is; `unknown` are the
     /// ids the server has nowhere it looks (destroyed, or in nothing loaded).
     ItemsLookedUp { found: Vec<Item>, unknown: Vec<Id> },
-    /// What is in the bags on the ground within the player's reach
-    /// (`ground::in_reach`), nearest bag first, when that changes, and only
-    /// for them: where those bags are (in units) and all that is in them.
-    /// Empty once nothing is in reach.
+    /// What is in the bags on the ground within the player's reach (`ground::in_reach`), nearest
+    /// bag first, when that changes, and only for them: where those bags are (in units) and all
+    /// that is in them. Empty once nothing is in reach.
     GroundItems {
         bags: Vec<crate::spot::Spot>,
         items: Vec<Item>,
@@ -209,8 +206,7 @@ pub enum ServerMessage {
     /// Something has come into sight: a mob or another player. The map changing
     /// (`EnterLevel`, `EnterHall`, `OnWorldMap`, `Teleported`) forgets everything seen before.
     EntitySeen(EntityLook),
-    /// Everyone in sight whose way of moving changed this tick: one message
-    /// a tick at most.
+    /// Everyone in sight whose way of moving changed this tick: one message a tick at most.
     Moves(Vec<super::Stretch>),
     /// Something has gone out of sight, or away; `died` if it died, which only
     /// those who could see it are told.
@@ -297,4 +293,7 @@ pub enum ServerMessage {
     Marks(super::MarkNews),
     /// About crafting benches on the player's level (`BenchNews`).
     Bench(super::BenchNews),
+    /// A scroll was read into the character's recipe book (`ClientMessage::Recipe`):
+    /// the recipe now in it, after `Sheet`. The client opens it to read.
+    RecipeInserted(crate::recipe::Entry),
 }

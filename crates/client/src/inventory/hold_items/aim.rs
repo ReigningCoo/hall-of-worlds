@@ -30,6 +30,7 @@ pub(super) fn aim_at(
         parents,
         stacks,
         god,
+        sheet,
     } = under;
     let from_stock = holding.stock.as_ref().map(|(with, _)| *with);
     // One of our grids, and the cell of it the pointer is in.
@@ -100,6 +101,11 @@ pub(super) fn aim_at(
         if from_ground && on_bin {
             return Target::Bin;
         }
+        if from_ground && on_body && item.recipe().is_some() {
+            // One scroll is read into the recipe book (`read`).
+            let allowed = super::read::readable(&sheet.0.book, item);
+            return Target::Body { allowed };
+        }
         if from_ground && on_body && usable_on_self(item.top()) {
             // Its top one is eaten (`eat`), unless refused to the player's kind.
             let allowed = may_use_on_self(item.top(), carried.0.creature);
@@ -143,6 +149,11 @@ pub(super) fn aim_at(
         // On it already: nothing happens, whatever it is over.
         if carried.0.is_worn(held.id) {
             return Target::Nowhere;
+        }
+        if let Some((_, scroll)) = super::read::held_scroll(&carried.0, holding, held.id) {
+            // One scroll is read into the recipe book (`read`).
+            let allowed = super::read::readable(&sheet.0.book, &scroll);
+            return Target::Body { allowed };
         }
         if let Some(stack) = super::eat::carried_food(&carried.0, holding, held.id) {
             // Its top one is eaten (`eat`), unless refused to the player's kind.

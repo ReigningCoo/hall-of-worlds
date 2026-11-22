@@ -261,6 +261,7 @@ pub(crate) fn answer(
             crate::sites::create_bench(client, world, order)
         }
         ClientMessage::Bench(ask) => client.queue(Action::Bench(ask)),
+        ClientMessage::Recipe(ask) => client.queue(Action::Recipe(ask)),
         ClientMessage::DevGoToPlace(ask) => super::go_to_place::asked(client, ask, options),
         ClientMessage::DevTeleport { .. }
         | ClientMessage::DevBackToStart

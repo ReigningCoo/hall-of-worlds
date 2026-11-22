@@ -57,6 +57,9 @@ pub(super) enum Action {
     },
     /// Putting a tool on a crafting bench or taking one off (`bench.rs`).
     Bench(shared::protocol::BenchAsk),
+    /// Reading a scroll into the recipe book or taking a recipe out
+    /// (`recipe_book.rs`).
+    Recipe(shared::protocol::RecipeAsk),
 }
 
 impl super::Client {
