@@ -4,13 +4,17 @@
 
 use bevy::prelude::*;
 
-/// A provider a server logs in with (`LoginMethod::Provider`).
+/// A provider a server logs in with (`LoginMethod::Provider`, or
+/// `LoginMethod::Discord`).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LoginProvider {
     /// What the server calls it.
     pub name: String,
     /// What the player sees it called, such as "Google".
     pub label: String,
+    /// An invitation to the server's community (Discord's), for a "Join
+    /// our Discord" button by the provider's.
+    pub invite: Option<String>,
 }
 
 /// Where logging in has got to. Set by `connection`; `login` shows it.
@@ -62,8 +66,9 @@ pub enum LoginChoice {
     ForgetServer(String),
 }
 
-/// The email address of the account kept for the server Play goes to, for
-/// the startup menu and making a character to show. Never shown in game, and
+/// The email address of the account kept for the server Play goes to (or for
+/// a Discord login, "name on Discord"), for the startup menu and making a
+/// character to show. Never shown in game, and
 /// its `Debug` hides it.
 #[derive(Resource, Clone, Default, PartialEq, Eq)]
 pub struct AccountEmail(pub Option<String>);

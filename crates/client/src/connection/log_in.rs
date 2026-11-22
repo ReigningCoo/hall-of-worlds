@@ -199,6 +199,12 @@ fn providers(connecting: &Connecting) -> Vec<LoginProvider> {
         LoginMethod::Provider { name, label } if secure => Some(LoginProvider {
             name: name.clone(),
             label: label.clone(),
+            invite: None,
+        }),
+        LoginMethod::Discord { invite } if secure => Some(LoginProvider {
+            name: shared::protocol::DISCORD.into(),
+            label: "Discord".into(),
+            invite: invite.clone(),
         }),
         _ => None,
     });

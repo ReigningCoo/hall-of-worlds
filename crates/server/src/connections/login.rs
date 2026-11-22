@@ -9,7 +9,7 @@ use shared::protocol::{Credentials, EmailAddress, ServerMessage};
 use super::characters::offer_characters;
 use super::{Client, Connections, Phase};
 use crate::accounts::{AccountId, Accounts, LoginKey};
-use crate::oidc::Logins;
+use crate::oidc::{Logins, Proved};
 use crate::roles::Held;
 use crate::storage::now;
 use crate::{ServerOptions, ServerWorld, ServerWorlds};
@@ -41,7 +41,12 @@ pub(super) fn log_in(
         (Credentials::Session(_) | Credentials::Provider(_), None) => {
             failed(client, "this server doesn't take account logins just now")
         }
-        (Credentials::Session(token), Some(_)) => match accounts.session(&token) {
+        (Credentials::Session(token), Some(logins)) => match accounts.session(&token) {
+            Ok(Some(id)) if logins.discord_only() => match accounts.discord_of(&id) {
+                Ok(Some(_)) => logged_in(client, id, "again", accounts, world, options),
+                Ok(None) => failed(client, "this server only takes Discord logins just now"),
+                Err(error) => client.refuse_for_saves(&error),
+            },
             Ok(Some(id)) => logged_in(client, id, "again", accounts, world, options),
             Ok(None) => failed(client, "this login has run out: log in again"),
             Err(error) => client.refuse_for_saves(&error),
@@ -126,15 +131,26 @@ pub(crate) fn finish_logins(
         };
         client.login_state = None;
         let world = worlds.of(client.world);
-        let stay = match finished.email {
-            Ok(email) => {
-                let key = LoginKey::Email(logins.email_key(&email));
-                let made = accounts
-                    .log_in(&key)
-                    .and_then(|id| Ok((id, accounts.new_session(id)?)));
+        let stay = match finished.proved {
+            Ok(proved) => {
+                let (key, shown) = match &proved {
+                    Proved::Email(email) => {
+                        (LoginKey::Email(logins.email_key(email)), email.clone())
+                    }
+                    Proved::Discord(user) => (
+                        LoginKey::Discord(logins.discord_key(user.id)),
+                        format!("{} on Discord", user.name),
+                    ),
+                };
+                let made = accounts.log_in(&key).and_then(|id| {
+                    if let Proved::Discord(user) = &proved {
+                        accounts.note_discord(&id, user.id)?;
+                    }
+                    Ok((id, accounts.new_session(id)?))
+                });
                 match made {
                     Ok((id, session)) => {
-                        let email = EmailAddress(email);
+                        let email = EmailAddress(shown);
                         let how = format!("through {}", finished.provider);
                         client
                             .link

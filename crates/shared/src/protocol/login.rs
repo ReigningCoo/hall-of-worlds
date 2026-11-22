@@ -20,7 +20,14 @@ pub enum LoginMethod {
     /// `Credentials::Provider` naming it. `label` is what to call it, such as
     /// "Google".
     Provider { name: String, label: String },
+    /// Logging in on Discord's website (plain OAuth2), started with
+    /// `Credentials::Provider(DISCORD.into())`. `invite` is the server's
+    /// invitation to its Discord server, for a "Join our Discord" button.
+    Discord { invite: Option<String> },
 }
+
+/// What `Credentials::Provider` names Discord by (`LoginMethod::Discord`).
+pub const DISCORD: &str = "discord";
 
 /// What a client logs in with.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -85,7 +92,9 @@ impl fmt::Debug for SessionToken {
 }
 
 /// The email address a provider vouched for, sent only to its own player for
-/// showing in the menus. The server never keeps it.
+/// showing in the menus; for a Discord login, the Discord name instead
+/// ("name on Discord"), as Discord isn't asked for an address. The server
+/// never keeps either.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EmailAddress(pub String);
 

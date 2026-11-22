@@ -12,23 +12,26 @@ use crate::oidc::tests::{FakeProvider, come_back};
 use crate::{ServerOptions, ServerWorld};
 
 /// A server's connections and world, with logins through `logins`.
-struct Server {
-    connections: Option<Connections>,
+pub(super) struct Server {
+    pub(super) connections: Option<Connections>,
     world: Option<ServerWorld>,
-    logins: Option<Logins>,
+    pub(super) logins: Option<Logins>,
+    /// Whether guests are let in (`ServerOptions::guests`).
+    pub(super) guests: bool,
 }
 
 impl Server {
-    fn new(logins: Option<Logins>) -> Self {
+    pub(super) fn new(logins: Option<Logins>) -> Self {
         Self {
             connections: Some(Connections::default()),
             world: Some(ServerWorld::new(WorldSeed::new(1))),
             logins,
+            guests: true,
         }
     }
 
     /// A client, said hello, and the answer.
-    fn connect(&mut self) -> (ClientLink, Vec<ServerMessage>) {
+    pub(super) fn connect(&mut self) -> (ClientLink, Vec<ServerMessage>) {
         let (end, link) = local_pair();
         self.connections.as_mut().unwrap().add(link);
         end.send(&MAKES);
@@ -38,12 +41,12 @@ impl Server {
     }
 
     /// Finishes logins and answers messages, as a tick does.
-    fn tick(&mut self) {
+    pub(super) fn tick(&mut self) {
         let mut app = World::new();
         app.insert_resource(self.connections.take().unwrap());
         app.insert_resource(ServerWorlds::with_home(self.world.take().unwrap()));
         app.insert_resource(ServerOptions {
-            guests: true,
+            guests: self.guests,
             ..Default::default()
         });
         if let Some(logins) = &self.logins {
@@ -57,7 +60,7 @@ impl Server {
     }
 
     /// Sends a message and ticks: what is answered.
-    fn send(&mut self, end: &ClientLink, message: ClientMessage) -> Vec<ServerMessage> {
+    pub(super) fn send(&mut self, end: &ClientLink, message: ClientMessage) -> Vec<ServerMessage> {
         end.send(&message);
         self.tick();
         answers(end)

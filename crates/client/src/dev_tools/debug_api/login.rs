@@ -37,6 +37,7 @@ pub(super) fn login_screen(
     let provider = |name: &str, label: &str| LoginProvider {
         name: name.to_owned(),
         label: label.to_owned(),
+        invite: None,
     };
     let choosing = |failed: Option<&str>| LoggingIn::Choosing {
         providers: vec![provider("first", "First"), provider("second", "Second")],

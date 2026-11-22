@@ -130,6 +130,28 @@ If the provider can't be reached when the server starts, or a setting is missing
 
 Players then choose Log in with Google or Play as Guest when they join. The page opens in their own browser, and once they have logged in there they go back to the game. Their game remembers the login, so they only see that page again after 90 days without playing, or after Change User on Character Select. Logins only go over a secure connection, so a server reached through an unsecured port offers guests only.
 
+## Logging in with Discord
+
+Players can also log in with their Discord account, beside Google or instead of it.
+
+1. In the [Discord Developer Portal](https://discord.com/developers/applications), make a **New Application**.
+2. Under **OAuth2**, add `https://<your server>/login/callback` as a **redirect**, as for Google, and copy the **client id** and **client secret** (Reset Secret shows a new one).
+3. Give the server the client id and secret, and the address players reach it at:
+
+```yaml
+    environment:
+      HOW_DISCORD_CLIENT_ID: "<client id>"
+      HOW_DISCORD_CLIENT_SECRET: "<client secret>"
+      HOW_DISCORD_INVITE: "https://discord.gg/<your invite>"
+      HOW_LOGIN_URL: "https://game.example.com"
+```
+
+`HOW_DISCORD_INVITE` is optional: with it, players see a Join our Discord button beside Log in with Discord. Make the invitation one that never runs out. `HOW_DISCORD_CLIENT_SECRET_FILE` takes the secret from a file, as for Google.
+
+The server only asks Discord who the player is (the `identify` scope), never for their email address. It keeps their Discord id on their account, and a key made from it with the login secret, so the same Discord account always reaches the same game account on servers sharing that secret. In the game's menus, players see their Discord name where others see their email address.
+
+`HOW_DISCORD_ONLY: "true"` makes Discord the only way in: no other provider is offered, guests aren't let in, and anyone who logged in another way before has to log in again through Discord.
+
 ## Roles
 
 Every account has a role, which decides what it may do beyond playing. A role can only be given by someone whose own role allows it, and never to yourself.

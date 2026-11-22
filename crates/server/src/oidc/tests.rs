@@ -10,7 +10,8 @@ use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use ring::digest::{SHA256, digest};
 use serde_json::json;
 
-use super::config::{callback_from, providers_from, secure_enough};
+use super::config::{ProviderSettings, callback_from, providers_from, secure_enough};
+use super::discord::DiscordSettings;
 use super::provider::verified_email;
 use super::*;
 use crate::storage::tests::TestFolder;
@@ -19,7 +20,7 @@ use crate::storage::tests::TestFolder;
 /// it keeps the PKCE verifiers it was given.
 pub(crate) struct FakeProvider {
     pub base: String,
-    verifiers: Arc<Mutex<Vec<String>>>,
+    pub(super) verifiers: Arc<Mutex<Vec<String>>>,
 }
 
 const FAKE_SECRET: &str = "fake secret";
@@ -57,7 +58,32 @@ impl FakeProvider {
     /// Logins through this provider, hashing addresses with `secret`.
     pub(crate) fn logins(&self, secret: &str) -> Logins {
         let callback = "http://localhost:24690/login/callback".to_owned();
-        Logins::start(vec![self.settings()], callback, LoginSecret::new(secret)).unwrap()
+        let setup = Setup {
+            oidc: vec![self.settings()],
+            ..Setup::default()
+        };
+        Logins::start(setup, callback, LoginSecret::new(secret)).unwrap()
+    }
+
+    /// Discord as this fake plays it, with an invitation.
+    pub(crate) fn discord(&self) -> DiscordSettings {
+        DiscordSettings {
+            client_id: "discord id".into(),
+            client_secret: FAKE_SECRET.into(),
+            invite: Some("https://discord.example.com/invite".into()),
+            site: self.base.clone(),
+        }
+    }
+
+    /// Logins through Discord as this fake plays it, alone if `only`.
+    pub(crate) fn discord_logins(&self, secret: &str, only: bool) -> Logins {
+        let callback = "http://localhost:24690/login/callback".to_owned();
+        let setup = Setup {
+            oidc: if only { vec![] } else { vec![self.settings()] },
+            discord: Some(self.discord()),
+            discord_only: only,
+        };
+        Logins::start(setup, callback, LoginSecret::new(secret)).unwrap()
     }
 }
 
@@ -74,36 +100,27 @@ fn fake_routes(base: &str, verifiers: Arc<Mutex<Vec<String>>>) -> Router {
             "/.well-known/openid-configuration",
             get(move || async move { answer(StatusCode::OK, serde_json::from_str(&discovery).unwrap()) }),
         )
+        .route("/token", post({
+            let verifiers = verifiers.clone();
+            move |body: String| token(verifiers.clone(), body)
+        }))
+        .route("/api/oauth2/token", post(move |body: String| token(verifiers.clone(), body)))
         .route(
-            "/token",
-            post(move |body: String| async move {
-                let form: Vec<(String, String)> = url::form_urlencoded::parse(body.as_bytes())
-                    .into_owned()
-                    .collect();
-                let field = |name: &str| {
-                    form.iter()
-                        .find(|(key, _)| key == name)
-                        .map(|(_, value)| value.clone())
-                        .unwrap_or_default()
-                };
-                verifiers.lock().unwrap().push(field("code_verifier"));
-                if field("client_secret") != FAKE_SECRET
-                    || field("grant_type") != "authorization_code"
-                {
-                    return answer(StatusCode::UNAUTHORIZED, json!({"error": "invalid_client"}));
+            "/api/users/@me",
+            get(|headers: HeaderMap| async move {
+                match bearer(&headers) {
+                    "Bearer token-good" => {
+                        answer(StatusCode::OK, json!({"id": "80351110224678912", "username": "nelly"}))
+                    }
+                    "Bearer token-noid" => answer(StatusCode::OK, json!({"username": "nelly"})),
+                    _ => answer(StatusCode::UNAUTHORIZED, json!({})),
                 }
-                let token = format!("token-{}", field("code"));
-                answer(StatusCode::OK, json!({"access_token": token, "token_type": "Bearer"}))
             }),
         )
         .route(
             "/userinfo",
             get(|headers: HeaderMap| async move {
-                let token = headers
-                    .get(header::AUTHORIZATION)
-                    .and_then(|value| value.to_str().ok())
-                    .unwrap_or_default();
-                let verified = match token {
+                let verified = match bearer(&headers) {
                     "Bearer token-good" => true,
                     "Bearer token-unverified" => false,
                     _ => return answer(StatusCode::UNAUTHORIZED, json!({})),
@@ -116,11 +133,40 @@ fn fake_routes(base: &str, verifiers: Arc<Mutex<Vec<String>>>) -> Router {
         )
 }
 
+/// The authorisation header's value.
+fn bearer(headers: &HeaderMap) -> &str {
+    headers
+        .get(header::AUTHORIZATION)
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or_default()
+}
+
+type Answer = (StatusCode, [(header::HeaderName, &'static str); 1], String);
+
+/// The token endpoint: a token named for the code, given the fake's secret.
+async fn token(verifiers: Arc<Mutex<Vec<String>>>, body: String) -> Answer {
+    let form: Vec<(String, String)> = url::form_urlencoded::parse(body.as_bytes())
+        .into_owned()
+        .collect();
+    let field = |name: &str| {
+        form.iter()
+            .find(|(key, _)| key == name)
+            .map(|(_, value)| value.clone())
+            .unwrap_or_default()
+    };
+    verifiers.lock().unwrap().push(field("code_verifier"));
+    if field("client_secret") != FAKE_SECRET || field("grant_type") != "authorization_code" {
+        return answer(StatusCode::UNAUTHORIZED, json!({"error": "invalid_client"}));
+    }
+    let token = format!("token-{}", field("code"));
+    answer(
+        StatusCode::OK,
+        json!({"access_token": token, "token_type": "Bearer"}),
+    )
+}
+
 /// A JSON answer.
-fn answer(
-    status: StatusCode,
-    body: serde_json::Value,
-) -> (StatusCode, [(header::HeaderName, &'static str); 1], String) {
+fn answer(status: StatusCode, body: serde_json::Value) -> Answer {
     (
         status,
         [(header::CONTENT_TYPE, "application/json")],
@@ -136,7 +182,7 @@ pub(crate) fn come_back(logins: &Logins, url: &str, code: &str) -> StatusCode {
     come_back_with(logins, &format!("state={state}&code={code}"))
 }
 
-fn come_back_with(logins: &Logins, query: &str) -> StatusCode {
+pub(super) fn come_back_with(logins: &Logins, query: &str) -> StatusCode {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -147,7 +193,7 @@ fn come_back_with(logins: &Logins, query: &str) -> StatusCode {
         .0
 }
 
-fn variables(pairs: &[(&str, &str)]) -> Vec<(String, String)> {
+pub(super) fn variables(pairs: &[(&str, &str)]) -> Vec<(String, String)> {
     let pairs = pairs.iter();
     pairs
         .map(|(key, value)| (key.to_string(), value.to_string()))
@@ -299,7 +345,10 @@ fn a_login_goes_through_the_providers_page_and_comes_back_with_the_address() {
     assert_eq!(finished.len(), 1);
     assert_eq!(finished[0].state, state);
     assert_eq!(finished[0].provider, "fake");
-    assert_eq!(finished[0].email.as_deref(), Ok(" Someone@Example.com"));
+    let Ok(Proved::Email(email)) = &finished[0].proved else {
+        panic!("{:?}", finished[0].proved);
+    };
+    assert_eq!(email, " Someone@Example.com");
     // The PKCE verifier sent is the one the challenge was made from.
     let verifier = provider.verifiers.lock().unwrap()[0].clone();
     let challenge = URL_SAFE_NO_PAD.encode(digest(&SHA256, verifier.as_bytes()));
@@ -326,7 +375,7 @@ fn a_login_that_goes_wrong_comes_back_with_why() {
         };
         assert_eq!(status, StatusCode::BAD_REQUEST);
         let finished = logins.finished();
-        assert!(finished[0].email.is_err(), "{code}");
+        assert!(finished[0].proved.is_err(), "{code}");
     }
     assert_eq!(
         come_back_with(&logins, "state=made-up&code=good"),
@@ -350,7 +399,11 @@ fn a_provider_that_cant_be_reached_is_left_out() {
         ..FakeProvider::start().settings()
     };
     let callback = "http://localhost/login/callback".to_owned();
-    assert!(Logins::start(vec![settings], callback, LoginSecret::new("s")).is_none());
+    let setup = Setup {
+        oidc: vec![settings],
+        ..Setup::default()
+    };
+    assert!(Logins::start(setup, callback, LoginSecret::new("s")).is_none());
 }
 
 #[test]

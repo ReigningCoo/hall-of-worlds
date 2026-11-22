@@ -1,5 +1,6 @@
 //! The login screen, as markup: how to log in to this server (a button for
-//! each provider, Play as Guest if it takes guests, Cancel), then while the
+//! each provider, Join our Discord if the server gives its Discord's
+//! invitation, Play as Guest if it takes guests, Cancel), then while the
 //! player logs in on the provider's page in their browser (Open Again, Back).
 
 use bevy::prelude::*;
@@ -22,6 +23,7 @@ static LOGIN: Template = html!(
       <p id="failed" class="refused" hidden/>
       <div id="buttons">
         <div id="providers" hidden/>
+        <button id="invite" hidden>Join our Discord</button>
         <button id="guest" hidden>Play as Guest</button>
         <button id="cancel" hidden>Cancel</button>
         <button id="open_again" hidden>Open Again</button>
@@ -84,6 +86,16 @@ fn asked(logging_in: &LoggingIn) -> Option<(String, bool, Vec<String>, Vec<&'sta
     }
 }
 
+/// The invitation to the server's Discord, while choosing how to log in.
+fn invite(logging_in: &LoggingIn) -> Option<&str> {
+    let LoggingIn::Choosing { providers, .. } = logging_in else {
+        return None;
+    };
+    providers
+        .iter()
+        .find_map(|provider| provider.invite.as_deref())
+}
+
 /// Shows the screen while there is something to ask, set for it.
 pub(super) fn show_screen(logging_in: Res<LoggingIn>, mut dom: Dom) {
     if !logging_in.is_changed() {
@@ -107,6 +119,7 @@ pub(super) fn show_screen(logging_in: Res<LoggingIn>, mut dom: Dom) {
         dom.copy_template("login/provider", "login/providers", at);
         dom.set_text(&format!("login/provider.{at}"), label.clone());
     }
+    dom.set_flag("login/invite", "hidden", invite(&logging_in).is_none());
     for name in FIXED {
         dom.set_flag(&format!("login/{name}"), "hidden", !shown.contains(&name));
         dom.clear(&format!("login/{name}"), "class");
@@ -143,11 +156,13 @@ fn choice_of(id: &UiId, logging_in: &LoggingIn) -> Option<Result<LoginChoice, St
         ("cancel", _) => Some(Ok(LoginChoice::Cancel)),
         ("back", _) => Some(Ok(LoginChoice::Back)),
         ("open_again", LoggingIn::InBrowser { url: Some(url), .. }) => Some(Err(url.clone())),
+        ("invite", _) => invite(logging_in).map(|url| Err(url.to_owned())),
         _ => None,
     }
 }
 
-/// Does what the button pressed says: a choice, or the login page again.
+/// Does what the button pressed says: a choice, or a page to open (the login
+/// page again, or the Discord invitation).
 pub(super) fn press_buttons(
     mut pressed: MessageReader<ButtonPressed>,
     ids: Query<&UiId>,
@@ -164,7 +179,7 @@ pub(super) fn press_buttons(
             }
             Some(Err(url)) => {
                 if let Err(reason) = open_in_browser(&url) {
-                    warn!("Can't open the login page: {reason}");
+                    warn!("Can't open the page: {reason}");
                 }
             }
             None => {}

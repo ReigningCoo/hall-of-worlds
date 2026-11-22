@@ -304,6 +304,8 @@ mod dev_skills_tests;
 #[cfg(test)]
 mod difficulty_tests;
 #[cfg(test)]
+mod discord_login_tests;
+#[cfg(test)]
 mod fruit_tests;
 #[cfg(test)]
 mod fungus_tests;

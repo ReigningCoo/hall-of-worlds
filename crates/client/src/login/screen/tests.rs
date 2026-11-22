@@ -5,6 +5,7 @@ fn provider(name: &str, label: &str) -> LoginProvider {
     LoginProvider {
         name: name.into(),
         label: label.into(),
+        invite: None,
     }
 }
 
@@ -61,4 +62,32 @@ fn a_failure_is_said_and_the_browser_step_offers_the_page_again() {
     assert_eq!(choice_of(&again, &open), Some(Err(url)));
     assert_eq!(choice_of(&again, &waiting), None);
     assert_eq!(asked(&LoggingIn::Not), None);
+}
+
+#[test]
+fn a_discord_invitation_is_offered_while_choosing_and_opened_when_pressed() {
+    let mut discord = provider("discord", "Discord");
+    discord.invite = Some("https://discord.example.com".into());
+    let choosing = LoggingIn::Choosing {
+        providers: vec![provider("google", "Google"), discord.clone()],
+        guests: false,
+        failed: None,
+    };
+    assert_eq!(invite(&choosing), Some("https://discord.example.com"));
+    let button = UiId::new("login", "invite");
+    let opened = Err("https://discord.example.com".to_owned());
+    assert_eq!(choice_of(&button, &choosing), Some(opened));
+    // Not once the player is logging in, nor without an invitation.
+    let in_browser = LoggingIn::InBrowser {
+        provider: discord,
+        url: None,
+    };
+    assert_eq!(invite(&in_browser), None);
+    assert_eq!(choice_of(&button, &in_browser), None);
+    let plain = LoggingIn::Choosing {
+        providers: vec![provider("google", "Google")],
+        guests: true,
+        failed: None,
+    };
+    assert_eq!(invite(&plain), None);
 }
