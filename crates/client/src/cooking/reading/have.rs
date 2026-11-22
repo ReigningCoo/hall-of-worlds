@@ -5,16 +5,19 @@
 //! in the grid and in the written steps.
 
 use shared::cooking::{Ingredients, Recipe, RecipeInput, Wanted};
-use shared::item::Inventory;
+use shared::item::{Inventory, Quality};
 use shared::item_text::KindToken;
 
 use super::super::kitchen::KitchenNow;
+use crate::widgets::ToolEdge;
 
 /// Whether each part of a recipe is to hand.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub(super) struct Have {
     /// Per step, in the recipe's order: its tool.
     pub(super) tools: Vec<bool>,
+    /// Per step: the quality of the tool it would use, for its outline.
+    pub(super) qualities: Vec<Option<Quality>>,
     /// Per step, per input.
     pub(super) inputs: Vec<Vec<bool>>,
     /// Per row: its intermediate, or nothing asked.
@@ -37,6 +40,9 @@ impl Have {
             tools: (recipe.steps.iter())
                 .map(|step| carried.has_cooking_tool(step.tool, kitchen.kitchen()))
                 .collect(),
+            qualities: (recipe.steps.iter())
+                .map(|step| kitchen.used_quality(step.tool, carried))
+                .collect(),
             inputs: (recipe.steps.iter())
                 .map(|step| step.inputs.iter().map(input_there).collect())
                 .collect(),
@@ -51,6 +57,16 @@ impl Have {
     /// Whether this step's tool is to hand.
     pub(super) fn tool(&self, step: usize) -> bool {
         self.tools.get(step).copied().unwrap_or(true)
+    }
+
+    /// The outline of this step's tool: red when not to hand, else the
+    /// quality of the one used.
+    pub(super) fn tool_edge(&self, step: usize) -> ToolEdge {
+        if !self.tool(step) {
+            return ToolEdge::MISSING;
+        }
+        let quality = self.qualities.get(step).copied().flatten();
+        ToolEdge::of(Some(quality.unwrap_or(Quality::Common)))
     }
 
     /// Whether this step's input is to hand.

@@ -107,11 +107,15 @@ impl Bench {
         self.made = None;
     }
 
-    /// Takes the step at `at` out, with what was put in it.
+    /// Takes the step at `at` out, with what was put in it; the source goes
+    /// with the last step, as it is shown among the first step's spaces.
     pub(super) fn remove(&mut self, at: usize) {
         if at < self.steps.len() {
             self.steps.remove(at);
             self.made = None;
+        }
+        if self.steps.is_empty() {
+            self.source = None;
         }
     }
 

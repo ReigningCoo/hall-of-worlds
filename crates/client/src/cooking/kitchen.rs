@@ -7,9 +7,9 @@
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use shared::campfire::campfire_faced;
-use shared::cooking::{Heat, Kitchen};
+use shared::cooking::{Heat, Kitchen, Tool};
 use shared::crafting_bench::{town_hearth, town_tools};
-use shared::item::{Item, ItemKind};
+use shared::item::{Inventory, Item, ItemKind, Quality};
 use shared::potion::water_faced;
 
 use crate::common::{BenchHere, Benches, CurrentDungeon, Facing, GameView, SpotPosition};
@@ -21,6 +21,8 @@ pub(super) struct KitchenNow {
     pub(super) heat: Heat,
     pub(super) oven: bool,
     pub(super) tools: Vec<ItemKind>,
+    /// The hearth's tools' qualities, by kind (a town's are Common).
+    pub(super) qualities: Vec<(ItemKind, Quality)>,
     pub(super) storage: Vec<Item>,
     pub(super) water_faced: bool,
     /// The hearth worked at (its piece's north-west cell), sent with the
@@ -51,6 +53,21 @@ impl KitchenNow {
             storage: &self.storage,
             water_faced: self.water_faced,
         }
+    }
+
+    /// The quality of the `tool` a step would use, for its outline: the
+    /// kitchen's first (the Oven, a town's tools Common), else the best
+    /// carried; `None` when it isn't to hand (as `has_cooking_tool`).
+    pub(super) fn used_quality(&self, tool: Tool, carried: &Inventory) -> Option<Quality> {
+        if tool == Tool::Oven {
+            return self.oven.then_some(Quality::Common);
+        }
+        let serves = |kind: ItemKind| Tool::of_item(kind) == Some(tool);
+        if self.tools.iter().any(|&kind| serves(kind)) {
+            let here = self.qualities.iter().filter(|(kind, _)| serves(*kind));
+            return Some(here.map(|(_, q)| *q).max().unwrap_or(Quality::Common));
+        }
+        carried.best_quality_of(serves)
     }
 
     /// Whether `id` lies in the hearth's storage.
@@ -108,6 +125,8 @@ impl KitchenHere<'_, '_> {
             now.heat = if lit { Heat::Hearth } else { Heat::Cold };
             now.oven = lit;
             now.tools = tools.tools().iter().map(|tool| tool.kind).collect();
+            let quality = |tool: &Item| tool.quality.unwrap_or(Quality::Common);
+            now.qualities = tools.tools().iter().map(|t| (t.kind, quality(t))).collect();
             now.storage = tools.storage().to_vec();
             now.bench = Some(cell);
             now.place = if lit {

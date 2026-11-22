@@ -131,6 +131,24 @@ impl Bench {
         covering.map(|s| s.column + 1).max().unwrap_or(0)
     }
 
+    /// The row's first step (the least column covering it): its source is
+    /// shown with that step's spaces.
+    pub(super) fn first_in_row(&self, row: u8) -> Option<usize> {
+        (self.steps.iter().enumerate())
+            .filter(|(_, s)| s.covers(s.column, row))
+            .min_by_key(|(_, s)| s.column)
+            .map(|(at, _)| at)
+    }
+
+    /// Forgets the source of a row left without steps, as it shows nowhere.
+    fn forget_stepless_sources(&mut self) {
+        for row in 0..ROWS as u8 {
+            if self.first_in_row(row).is_none() {
+                self.sources[usize::from(row)] = None;
+            }
+        }
+    }
+
     /// The columns to show: one past the last used, at least 3.
     pub(super) fn columns_shown(&self) -> u8 {
         let used = self.steps.iter().map(|s| s.column + 1).max().unwrap_or(0);
@@ -166,6 +184,7 @@ impl Bench {
         let step = &mut self.steps[at];
         (step.column, step.row) = (column, row);
         self.made = None;
+        self.forget_stepless_sources();
         true
     }
 
@@ -175,6 +194,7 @@ impl Bench {
             self.steps.remove(at);
             self.made = None;
         }
+        self.forget_stepless_sources();
     }
 
     /// Makes step `at` join both rows if the place above or below it is
@@ -196,6 +216,7 @@ impl Bench {
         let step = &mut self.steps[at];
         (step.row, step.height) = (new_row, height);
         self.made = None;
+        self.forget_stepless_sources();
         true
     }
 

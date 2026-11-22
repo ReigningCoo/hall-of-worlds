@@ -1,8 +1,10 @@
 //! Drawing the panel into its canvases: along the top, every tool
-//! (`ToolNode`, red when not to hand); under it, the grid: each row's source
-//! space, then its places, each an empty place (`PlaceNode`) or a step's box
-//! (`StepNode`, a join two rows tall) with its drop spaces under it
-//! (`SpaceNode`); and the culture's space. Drawn again whenever the process,
+//! (`ToolNode`, outlined red when not to hand, else in the quality of the
+//! one used: the kitchen's first, else the best carried); under it, the
+//! grid of places, each an empty place (`PlaceNode`) or a step's box
+//! (`StepNode`, a join two rows tall, outlined as its tool) with its drop
+//! spaces under it (`SpaceNode`; a row's first step's start with the row's
+//! source); and the culture's space. Drawn again whenever the process,
 //! what is carried, the skills, the kitchen or a drag's aim changes.
 
 use bevy::prelude::*;
@@ -21,7 +23,7 @@ use super::spaces::{ML_STEP, Place, SpaceIcons, in_place, places, tip};
 use crate::character::CharacterSheet;
 use crate::dom::Solid;
 use crate::inventory::Carried;
-use crate::widgets::HoverTip;
+use crate::widgets::{HoverTip, ToolEdge};
 
 /// The top row's canvas.
 #[derive(Component)]
@@ -135,7 +137,8 @@ impl Draw<'_> {
                     false => format!("{} (not to hand)", tool.name()),
                 };
                 let marks = (ToolNode(tool), id("tool", tool.index()));
-                spawn_box(row, (self.picture(tool), !to_hand, 1.0), tip, marks, |_| {});
+                let edge = ToolEdge::of(self.kitchen.used_quality(tool, self.carried));
+                spawn_box(row, (self.picture(tool), edge, 1.0), tip, marks, |_| {});
             }
         });
     }
@@ -148,12 +151,12 @@ impl Draw<'_> {
         }
     }
 
-    /// The grid: sources, then the places of each row.
+    /// The grid: the places of each row.
     fn grid(&self, parent: &mut ChildSpawnerCommands, allowed: usize) {
         let columns = self.bench.columns_shown();
         let node = Node {
             display: Display::Grid,
-            grid_template_columns: RepeatedGridTrack::auto(u16::from(columns) + 1),
+            grid_template_columns: RepeatedGridTrack::auto(u16::from(columns)),
             grid_template_rows: RepeatedGridTrack::auto(ROWS as u16),
             column_gap: px(8),
             row_gap: px(8),
@@ -165,9 +168,6 @@ impl Draw<'_> {
         let order = self.bench.in_order();
         parent.spawn(node).with_children(|grid| {
             for row in 0..ROWS as u8 {
-                grid.spawn(at(0, row, 1)).with_children(|cell| {
-                    self.space(cell, Place::Source(row));
-                });
                 for column in 0..columns {
                     match self.bench.step_at(column, row) {
                         Some(step) if self.bench.steps[step].row == row => {
@@ -179,7 +179,7 @@ impl Draw<'_> {
                         None => {
                             let aimed =
                                 self.aim.place.filter(|p| p.0 == (column, row)).map(|p| p.1);
-                            grid.spawn(at(column + 1, row, 1)).with_children(|cell| {
+                            grid.spawn(at(column, row, 1)).with_children(|cell| {
                                 let marks = (
                                     PlaceNode(column, row),
                                     id("place", usize::from(column) * 10 + usize::from(row)),
@@ -204,19 +204,34 @@ impl Draw<'_> {
             (false, true) => format!("{name}, joining both rows: click or tap to split"),
             (false, false) => format!("{name}: click or tap to join both rows"),
         };
+        let tip = match self.kitchen.used_quality(station.tool, self.carried) {
+            None => format!("{tip} (not to hand)"),
+            Some(_) => tip,
+        };
         let picture = if dragged {
             Picture::None
         } else {
             self.picture(station.tool)
         };
-        let column = at(station.column + 1, station.row, station.height);
+        let column = at(station.column, station.row, station.height);
         grid.spawn(column).with_children(|column| {
             let height = if join { 2.0 } else { 1.0 };
             let marks = (StepNode(step), id("step", step));
-            spawn_box(column, (picture, over, height), tip, marks, |inside| {
+            let edge = match over {
+                true => ToolEdge::MISSING,
+                false => ToolEdge::of(self.kitchen.used_quality(station.tool, self.carried)),
+            };
+            spawn_box(column, (picture, edge, height), tip, marks, |inside| {
                 spawn_running(inside, step)
             });
             column.spawn(spaces_node()).with_children(|spaces| {
+                // The intermediate a row starts from goes in with its first
+                // step's (a join's, both rows').
+                for row in 0..ROWS as u8 {
+                    if self.bench.first_in_row(row) == Some(step) {
+                        self.space(spaces, Place::Source(row));
+                    }
+                }
                 let ghosts = station.ghosts(self.carried).len();
                 for place in places(step, station, self.kitchen.water_faced, ghosts) {
                     self.space(spaces, place);

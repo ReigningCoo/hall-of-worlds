@@ -85,7 +85,7 @@ Whole numbers throughout (doses kept in hundredths, rounded once at the end), so
 
 ## The panel (PR 4, built)
 
-Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving panel (not a dialog), opening the Character panel beside it to drag from; a click or tap on an apparatus adds it at the end, and on a filled space empties it; a step dragged off the row is taken out; a source space before the first step; herb spaces grow to 8; apparatus known but not carried still shown; Start becomes Stop while running; the fill shares each run's time between the steps by their own times; the product's colour is its strongest dose's row's; what a run made shows in the box after the last step.
+Client `alchemy` (`docs/context/client/alchemy.md`). Claude's choices: a moving panel (not a dialog), opening the Character panel beside it to drag from; a click or tap on an apparatus adds it at the end, and on a filled space empties it; a step dragged off the row is taken out; a source space (since 2026-11-22, by the owner, among the first step's spaces); herb spaces grow to 8; apparatus known but not carried still shown; Start becomes Stop while running; the fill shares each run's time between the steps by their own times; the product's colour is its strongest dose's row's; what a run made shows in the box after the last step.
 
 ## The Alembic (PR 5, built)
 

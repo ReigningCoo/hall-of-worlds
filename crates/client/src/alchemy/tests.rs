@@ -84,3 +84,22 @@ fn colour_runs_black_white_gold_product() {
     assert!(white.red > 0.99 && white.blue > 0.99);
     assert_eq!(stage_colour(1.0, product).to_srgba(), product.to_srgba());
 }
+
+#[test]
+fn the_source_goes_with_the_last_step() {
+    let mut bench = Bench::default();
+    bench.insert(0, Apparatus::Retort);
+    bench.insert(1, Apparatus::Crucible);
+    bench.source = Some(Id::stand_in(7));
+    bench.remove(0);
+    assert_eq!(bench.source, Some(Id::stand_in(7)));
+    bench.remove(0);
+    assert_eq!(bench.source, None);
+}
+
+#[test]
+fn the_side_drops_below_a_wide_process() {
+    use super::fit::process_width;
+    assert!(process_width(5) <= 480.0);
+    assert!(process_width(6) > 480.0);
+}
