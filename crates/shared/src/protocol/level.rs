@@ -134,6 +134,9 @@ pub struct LevelChunk {
     /// The furniture covering any of those cells (all of each piece, so a
     /// piece may come in more than one chunk).
     pub furniture: Vec<Piece>,
+    /// The decor sent with any of those cells (`dungeon::Level::decor_at`),
+    /// all of each, so a piece may come in more than one chunk.
+    pub decor: Vec<crate::decor::Decor>,
     /// The herb patches on those cells: the client works out how grown each
     /// is by the clock (`HerbPatch::stage`).
     pub herbs: Vec<SeenHerb>,

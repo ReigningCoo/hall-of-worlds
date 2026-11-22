@@ -208,6 +208,9 @@ impl CurrentDungeon {
             // Its move costs then match the server's.
             self.level.place_furniture(*piece);
         }
+        for decor in &chunk.decor {
+            self.level.place_decor(*decor);
+        }
         self.add_plants(chunk);
         for stairs in &chunk.stairs {
             if !self.stairs.contains(stairs) {

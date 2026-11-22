@@ -49,7 +49,7 @@ fn at_a_fireplace() -> TestClient {
             fireplace: Fireplace { length: 2 },
         },
     };
-    test.send(&[ClientMessage::DevFurniture(DevFurniture { piece })]);
+    test.send(&[ClientMessage::DevFurniture(DevFurniture::Piece(piece))]);
     test.send(&[
         ClientMessage::DevTeleport { x: 6, y: 11 },
         ClientMessage::Face(Heading::NORTH),

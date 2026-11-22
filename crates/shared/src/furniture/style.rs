@@ -46,6 +46,10 @@ pub enum BenchStyle {
     LongStool,
     /// Stone: a slab on blocks.
     StoneSlab,
+    /// A high-backed settle (tavern furniture plan PR 5): a seat boxed in by
+    /// solid ends, its back as tall as a person sitting, the walls of a
+    /// booth. Never among a table's benches, so furnishing never makes one.
+    Settle,
 }
 
 impl TableStyle {
@@ -104,10 +108,11 @@ impl ChairStyle {
 }
 
 impl BenchStyle {
-    pub const ALL: [Self; 4] = [
+    pub const ALL: [Self; 5] = [
         Self::SplayedPlank,
         Self::BoardEnded,
         Self::LongStool,
         Self::StoneSlab,
+        Self::Settle,
     ];
 }

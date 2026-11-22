@@ -53,7 +53,7 @@ use cells::{
     add_masks, all_cells, beside, cells_in, keep_within, level_chunks, nearby_cells, send_cells,
 };
 pub(super) use dev_area::generate_area;
-pub(crate) use dev_furniture::{FurnitureChange, place_furniture, share_furniture};
+pub(crate) use dev_furniture::{FurnitureChange, place_decor, place_furniture, share_furniture};
 pub(crate) use dev_place::{dev_wilderness, land_near};
 pub(crate) use doors::{
     DoorChange, Standing, door_act, door_to_kick, kick_door, mob_opened, share_doors,

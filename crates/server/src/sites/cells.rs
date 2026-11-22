@@ -144,6 +144,7 @@ pub(super) fn level_chunks(
             stairs: Vec::new(),
             doors: Vec::new(),
             furniture: Vec::new(),
+            decor: Vec::new(),
             herbs: Vec::new(),
             fruit: Vec::new(),
             vegetables: Vec::new(),
@@ -186,6 +187,14 @@ pub(super) fn level_chunks(
                 && !furniture.contains(piece)
             {
                 furniture.push(*piece);
+            }
+        }
+        let mut decor = Vec::new();
+        for &(x, y) in &positions {
+            for piece in level.decor_at(x, y) {
+                if !decor.contains(piece) {
+                    decor.push(*piece);
+                }
             }
         }
         let herbs = (positions.iter())
@@ -241,6 +250,7 @@ pub(super) fn level_chunks(
             stairs,
             doors,
             furniture,
+            decor,
             herbs,
             fruit,
             vegetables,

@@ -85,19 +85,19 @@ fn a_spirit_rack_stands_on_a_table_and_takes_one_bottle_of_a_stack() {
         seed: 3,
     })]);
     // Nothing to stand on: refused.
-    test.send(&[ClientMessage::DevFurniture(DevFurniture {
-        piece: spirit_rack(),
-    })]);
+    test.send(&[ClientMessage::DevFurniture(DevFurniture::Piece(
+        spirit_rack(),
+    ))]);
     share(&mut test);
     let visit = test.client.visit.as_ref().unwrap();
     let (id, index) = (visit.id, visit.index);
     assert!(visit.level.level.furniture_on_top_at(6, 10).is_none());
 
-    test.send(&[ClientMessage::DevFurniture(DevFurniture { piece: table() })]);
+    test.send(&[ClientMessage::DevFurniture(DevFurniture::Piece(table()))]);
     share(&mut test);
-    test.send(&[ClientMessage::DevFurniture(DevFurniture {
-        piece: spirit_rack(),
-    })]);
+    test.send(&[ClientMessage::DevFurniture(DevFurniture::Piece(
+        spirit_rack(),
+    ))]);
     let told = share(&mut test);
     assert_eq!(bottles_told(&told), vec![0]);
     let visit = test.client.visit.as_ref().unwrap();

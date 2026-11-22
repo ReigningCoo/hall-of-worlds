@@ -28,6 +28,7 @@ pub mod cooking;
 pub mod crafting_bench;
 pub mod creature;
 pub mod debug_report;
+pub mod decor;
 pub mod difficulty;
 pub mod door;
 pub mod dungeon;

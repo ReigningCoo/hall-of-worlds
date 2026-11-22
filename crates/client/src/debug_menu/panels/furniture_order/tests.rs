@@ -62,6 +62,7 @@ fn chairs_come_without_then_with_arms_and_stone_ones_and_bar_stools_without() {
 
 #[test]
 fn every_kind_size_facing_and_material_makes_well_made_pieces() {
+    // Decor is checked where it goes, by the server (`Decor::fits`).
     let materials = [
         None,
         Some(Material::Wood(Wood::Oak)),
@@ -79,8 +80,12 @@ fn every_kind_size_facing_and_material_makes_well_made_pieces() {
                         ..FurnitureOrder::default()
                     };
                     for roll in 0..12 {
-                        let piece = order.click((1, 1), roll);
-                        assert!(piece.is_well_made(), "{piece:?}");
+                        let level = shared::dungeon::Level::test_room();
+                        let Some(super::Order::Pieces(pieces)) = order.order((1, 1), roll, &level)
+                        else {
+                            continue;
+                        };
+                        assert!(pieces.iter().all(|p| p.is_well_made()), "{pieces:?}");
                     }
                 }
             }
@@ -111,4 +116,64 @@ fn cask_racks_cycle_through_the_sizes_made_at_their_length_and_are_wooden() {
         assert!(piece.is_well_made(), "{piece:?}");
         assert_eq!(piece.size, (2, 1));
     }
+}
+
+#[test]
+fn hangings_go_on_the_wall_clicked_or_the_wall_behind_the_floor_clicked() {
+    use shared::decor::{Decor, Hanging};
+    use shared::dungeon::Level;
+
+    use super::Order;
+
+    // Floor from (-7, -3) to (7, 3), walls round it.
+    let level = Level::test_room();
+    let mut order = FurnitureOrder {
+        kind: Kind::WallDecoration,
+        size: 0,
+        facing: Side::South,
+        ..FurnitureOrder::default()
+    };
+    let hung = |order: &mut FurnitureOrder, cell| match order.order(cell, 0, &level) {
+        Some(Order::Decor(Decor::Wall { wall, face, .. })) => Some((wall, face)),
+        _ => None,
+    };
+    // The north wall, from it or from the floor in front of it.
+    assert_eq!(hung(&mut order, (0, -4)), Some(((0, -4), Side::South)));
+    assert_eq!(hung(&mut order, (0, -3)), Some(((0, -4), Side::South)));
+    // Facing south with no wall behind: any wall beside.
+    assert_eq!(hung(&mut order, (-7, 0)), Some(((-8, 0), Side::East)));
+    assert_eq!(hung(&mut order, (4, 0)), None, "no wall near");
+    // Clicking again goes through every hanging.
+    let mut seen = Vec::new();
+    for _ in 0..Hanging::ALL.len() {
+        if let Some(Order::Decor(Decor::Wall { hanging, .. })) = order.order((5, -3), 0, &level) {
+            seen.push(hanging);
+        }
+    }
+    seen.sort();
+    assert_eq!(seen, Hanging::ALL);
+}
+
+#[test]
+fn a_booth_is_three_well_made_pieces_of_wood() {
+    use shared::dungeon::Level;
+
+    use super::Order;
+
+    let mut order = FurnitureOrder {
+        kind: Kind::Booth,
+        size: 4,
+        facing: Side::North,
+        material: Some(Material::Stone(Stone::Marble)),
+        ..FurnitureOrder::default()
+    };
+    let Some(Order::Pieces(pieces)) = order.order((0, 0), 3, &Level::test_room()) else {
+        panic!("no booth");
+    };
+    assert_eq!(pieces.len(), 3);
+    assert!(
+        pieces
+            .iter()
+            .all(|piece| piece.is_well_made() && !piece.material.is_stone())
+    );
 }

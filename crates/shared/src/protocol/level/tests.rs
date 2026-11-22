@@ -35,6 +35,7 @@ fn cells_come_back_where_they_were() {
         stairs: Vec::new(),
         doors: Vec::new(),
         furniture: Vec::new(),
+        decor: Vec::new(),
         herbs: Vec::new(),
         fruit: Vec::new(),
         vegetables: Vec::new(),

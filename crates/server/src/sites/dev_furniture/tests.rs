@@ -1,6 +1,7 @@
+use shared::decor::{Decor, Hanging};
 use shared::door::Side;
 use shared::furniture::{ChairStyle, Furniture, Material, Piece, TableStyle, Wood};
-use shared::protocol::{ClientMessage, DevFurniture};
+use shared::protocol::{ClientMessage, DevFurniture, ServerMessage};
 use shared::site::{DevArea, DevLayout, DevMobs};
 
 use crate::connections::tests::TestClient;
@@ -31,7 +32,7 @@ fn table(at: (i64, i64)) -> Piece {
 
 /// Places `piece` and shares it, as the tick would.
 fn place(test: &mut TestClient, piece: Piece) {
-    test.send(&[ClientMessage::DevFurniture(DevFurniture { piece })]);
+    test.send(&[ClientMessage::DevFurniture(DevFurniture::Piece(piece))]);
     super::share_furniture(std::slice::from_mut(&mut test.client), &mut test.world);
 }
 
@@ -80,4 +81,39 @@ fn badly_made_pieces_and_pieces_off_the_floor_are_refused() {
     }
     let after: Vec<Piece> = level(&test).furniture().copied().collect();
     assert_eq!(after, before);
+}
+
+/// Places `decor` and shares it, as the tick would.
+fn place_decor(test: &mut TestClient, decor: Decor) {
+    test.send(&[ClientMessage::DevFurniture(DevFurniture::Decor(decor))]);
+    super::share_furniture(std::slice::from_mut(&mut test.client), &mut test.world);
+}
+
+#[test]
+fn decor_goes_on_the_level_where_it_fits_and_is_sent_with_its_cells() {
+    let mut test = in_an_area();
+    // The area's west wall is at x -1, its floor from x 0.
+    let wall = (-1, 8);
+    let fits = |test: &TestClient, decor: &Decor| decor.fits(level(test));
+    let hung = Decor::Wall {
+        wall,
+        face: Side::East,
+        hanging: Hanging::Sconce,
+    };
+    assert!(fits(&test, &hung), "{:?}", level(&test).cell(-1, 8));
+    place_decor(&mut test, hung);
+    assert_eq!(level(&test).decor().collect::<Vec<_>>(), [&hung]);
+    // Sent again with its cells.
+    let sent = test.send(&[]).into_iter().any(|message| {
+        matches!(message, ServerMessage::LevelCells(chunk) if chunk.decor.contains(&hung))
+    });
+    assert!(sent);
+    // Facing into the wall: refused.
+    let backwards = Decor::Wall {
+        wall,
+        face: Side::West,
+        hanging: Hanging::Shield,
+    };
+    place_decor(&mut test, backwards);
+    assert_eq!(level(&test).decor().count(), 1);
 }

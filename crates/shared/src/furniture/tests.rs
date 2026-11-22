@@ -159,7 +159,8 @@ fn seats_match_their_rooms_tables() {
                     | Furniture::CaskRack { .. }
                     | Furniture::BottleRack { .. }
                     | Furniture::BarCounter { .. }
-                    | Furniture::Fireplace { .. } => {}
+                    | Furniture::Fireplace { .. }
+                    | Furniture::Candles { .. } => {}
                 }
             }
         }

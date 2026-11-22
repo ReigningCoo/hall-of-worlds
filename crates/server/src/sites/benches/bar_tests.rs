@@ -99,7 +99,7 @@ fn tavern() -> TestClient {
         seed: 3,
     })]);
     for piece in [bar(), rack()] {
-        test.send(&[ClientMessage::DevFurniture(DevFurniture { piece })]);
+        test.send(&[ClientMessage::DevFurniture(DevFurniture::Piece(piece))]);
     }
     share(&mut test);
     test.send(&[

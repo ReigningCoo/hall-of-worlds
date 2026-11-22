@@ -71,7 +71,7 @@ fn a_placed_rack_is_kept_and_takes_casks_of_its_size_only() {
         mobs: DevMobs::None,
         seed: 3,
     })]);
-    test.send(&[ClientMessage::DevFurniture(DevFurniture { piece: rack() })]);
+    test.send(&[ClientMessage::DevFurniture(DevFurniture::Piece(rack()))]);
     let told = share(&mut test);
     assert_eq!(
         casks_told(&told),

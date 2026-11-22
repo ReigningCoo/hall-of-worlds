@@ -14,7 +14,8 @@
 //! panel, joining into runs, with shelves for vessels (`bar_counter.rs`);
 //! what stands on one stands that much higher than on a table. Fireplaces
 //! are stone, a chimney breast over the fire, with fire tools and a log
-//! basket (`fireplace.rs`).
+//! basket (`fireplace.rs`). Settles are benches boxed in, with a tall back
+//! (`settle.rs`).
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod atlas;
@@ -31,6 +32,7 @@ mod frame;
 mod hearth;
 mod part;
 mod seats;
+mod settle;
 mod stone_tables;
 mod tables;
 mod wooden_tables;
@@ -49,7 +51,7 @@ pub(super) use fireplace::basket_spot;
 pub(super) use hearth::firebox;
 
 /// How high a table's top is, and how thick.
-const TABLE_TOP: f32 = CELL_SIZE * 0.39;
+pub(super) const TABLE_TOP: f32 = CELL_SIZE * 0.39;
 const TOP_THICKNESS: f32 = CELL_SIZE * 0.05;
 /// How far a table's top stands in from the edges of its cells.
 const INSET: f32 = CELL_SIZE * 0.07;
@@ -78,7 +80,15 @@ fn build_piece(
         .or_else(|| cask_rack::parts(piece))
         .or_else(|| bottle_rack::parts(piece))
         .or_else(|| bar_counter::parts(scene.level, piece))
-        .or_else(|| fireplace::parts(piece));
+        .or_else(|| fireplace::parts(piece))
+        // Candles are drawn with decor, flames and all (`decor`).
+        .or_else(|| {
+            let candles = matches!(
+                piece.furniture,
+                shared::furniture::Furniture::Candles { .. }
+            );
+            candles.then(Vec::new)
+        });
     let parts = match parts {
         Some(parts) if piece.furniture.stands_on_furniture() => {
             // As much higher as what it stands on is than a table.
