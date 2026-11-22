@@ -7,7 +7,8 @@
 //! (`crafting_bench::BenchTools`), cask racks their casks
 //! (`cask_rack::RackCasks`), wine and spirit racks their bottles
 //! (`bottle_rack::RackBottles`), bar counters their drinking vessels
-//! (`bar::BarVessels`).
+//! (`bar::BarVessels`), fireplaces their log basket's kindling and their fire
+//! (`fireplace::Fireside`).
 
 use serde::{Deserialize, Serialize};
 
@@ -16,6 +17,7 @@ use crate::bar::{BarCounter, BarVessels};
 use crate::bottle_rack::{BottleRack, RackBottles};
 use crate::cask_rack::{CaskRack, RackCasks};
 use crate::crafting_bench::{BenchTools, Craft, NotTaken};
+use crate::fireplace::{Fireplace, Fireside};
 use crate::id::Id;
 use crate::item::Item;
 
@@ -26,6 +28,7 @@ pub enum Holder {
     Casks(CaskRack),
     Bottles(BottleRack),
     Bar(BarCounter),
+    Fire(Fireplace),
 }
 
 impl Holder {
@@ -37,6 +40,7 @@ impl Holder {
             Furniture::BottleRack { rack } => Some(Self::Bottles(rack)),
             // A flap holds nothing.
             Furniture::BarCounter { counter } if counter.is_counter() => Some(Self::Bar(counter)),
+            Furniture::Fireplace { fireplace } => Some(Self::Fire(fireplace)),
             _ => None,
         }
     }
@@ -48,14 +52,25 @@ impl Holder {
             Self::Casks(rack) => rack.name(),
             Self::Bottles(rack) => rack.name().to_owned(),
             Self::Bar(counter) => counter.name().to_owned(),
+            Self::Fire(fireplace) => fireplace.name().to_owned(),
+        }
+    }
+
+    /// How many of a stack one of its places takes at once: a log basket's
+    /// place a stack of kindling (`fireplace::KINDLING_PER_PLACE`), any other
+    /// place one thing (one bottle of a stack).
+    pub fn per_place(self) -> u32 {
+        match self {
+            Self::Fire(_) => crate::fireplace::KINDLING_PER_PLACE,
+            Self::Bench(_) | Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) => 1,
         }
     }
 
     /// Whether a bar in its room pours from what lies on it (owner's): cask
     /// racks, cradles and Tun stands, wine and spirit racks, bar counters;
-    /// never a crafting bench.
+    /// never a crafting bench nor a fireplace.
     pub fn is_drink_storage(self) -> bool {
-        !matches!(self, Self::Bench(_))
+        !matches!(self, Self::Bench(_) | Self::Fire(_))
     }
 }
 
@@ -66,6 +81,7 @@ pub enum Held {
     Casks(RackCasks),
     Bottles(RackBottles),
     Bar(BarVessels),
+    Fire(Fireside),
 }
 
 impl Held {
@@ -76,6 +92,7 @@ impl Held {
             Holder::Casks(rack) => Self::Casks(RackCasks::new(rack)),
             Holder::Bottles(rack) => Self::Bottles(RackBottles::new(rack)),
             Holder::Bar(counter) => Self::Bar(BarVessels::new(counter)),
+            Holder::Fire(fireplace) => Self::Fire(Fireside::new(fireplace)),
         }
     }
 
@@ -86,6 +103,7 @@ impl Held {
             Self::Casks(casks) => Holder::Casks(casks.rack),
             Self::Bottles(bottles) => Holder::Bottles(bottles.rack),
             Self::Bar(vessels) => Holder::Bar(vessels.counter),
+            Self::Fire(fireside) => Holder::Fire(fireside.fireplace),
         }
     }
 
@@ -93,7 +111,17 @@ impl Held {
     pub fn bench(&self) -> Option<&BenchTools> {
         match self {
             Self::Bench(tools) => Some(tools),
-            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) => None,
+            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) | Self::Fire(_) => None,
+        }
+    }
+
+    /// Whether it burns at `now` (server seconds): a hearth or fireplace lit
+    /// (`BenchTools::is_lit`, `Fireside::is_lit`); nothing else ever is.
+    pub fn is_lit(&self, now: u64) -> bool {
+        match self {
+            Self::Bench(tools) => tools.is_lit(now),
+            Self::Fire(fireside) => fireside.is_lit(now),
+            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) => false,
         }
     }
 
@@ -104,6 +132,7 @@ impl Held {
             Self::Casks(casks) => Box::new(casks.items()),
             Self::Bottles(bottles) => Box::new(bottles.items()),
             Self::Bar(vessels) => Box::new(vessels.items()),
+            Self::Fire(fireside) => Box::new(fireside.items()),
         }
     }
 
@@ -116,6 +145,7 @@ impl Held {
             Self::Casks(casks) => casks.put(item).map(|()| None),
             Self::Bottles(bottles) => bottles.put(item).map(|()| None),
             Self::Bar(vessels) => vessels.put(item).map(|()| None),
+            Self::Fire(fireside) => fireside.put(item).map(|()| None),
         }
     }
 
@@ -126,6 +156,7 @@ impl Held {
             Self::Casks(casks) => casks.take(id),
             Self::Bottles(bottles) => bottles.take(id),
             Self::Bar(vessels) => vessels.take(id),
+            Self::Fire(fireside) => fireside.take(id),
         }
     }
 
@@ -133,7 +164,7 @@ impl Held {
     /// pouring from it at a bar. Whether it was there (never on a bench).
     pub fn replace(&mut self, item: Item) -> bool {
         match self {
-            Self::Bench(_) => false,
+            Self::Bench(_) | Self::Fire(_) => false,
             Self::Casks(casks) => casks.replace(item),
             Self::Bottles(bottles) => bottles.replace(item),
             Self::Bar(vessels) => vessels.replace(item),

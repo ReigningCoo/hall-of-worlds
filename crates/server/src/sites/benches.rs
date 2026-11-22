@@ -22,7 +22,7 @@ mod share;
 mod stock;
 
 pub(crate) use dev::create_bench;
-pub(crate) use held::{HeldHere, keep_held, settle_held};
+pub(crate) use held::{HeldHere, fireside, keep_held, settle_held};
 pub(crate) use share::share_benches;
 pub(super) use stock::{put_made_benches, stock_benches};
 

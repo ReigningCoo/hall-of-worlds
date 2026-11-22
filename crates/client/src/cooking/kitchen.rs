@@ -1,6 +1,7 @@
 //! Where the player is cooking, found the way the server finds it
 //! (`connections/cook_kitchen.rs`): facing a hearth told to be lit, its
-//! heat, Oven, tools and storage (one not lit: its tools, no heat); else, in
+//! heat, Oven, tools and storage (one not lit: its tools, no heat); else a
+//! fireplace faced (a hearth's heat while lit, no Oven, no tools); else, in
 //! a town, the town's virtual hearth; else, facing a campfire, Fire; else no
 //! heat. Water faced counts anywhere.
 
@@ -9,6 +10,7 @@ use bevy::prelude::*;
 use shared::campfire::campfire_faced;
 use shared::cooking::{Heat, Kitchen, Tool};
 use shared::crafting_bench::{town_hearth, town_tools};
+use shared::fireplace::fireplace_faced;
 use shared::item::{Inventory, Item, ItemKind, Quality};
 use shared::potion::water_faced;
 
@@ -41,6 +43,8 @@ pub(super) enum Place {
     ColdHearth,
     Town,
     Campfire,
+    Fireplace,
+    ColdFireplace,
 }
 
 impl KitchenNow {
@@ -133,6 +137,18 @@ impl KitchenHere<'_, '_> {
                 Place::Hearth
             } else {
                 Place::ColdHearth
+            };
+            return now;
+        }
+        if let Some(piece) = fireplace_faced(level, at.0, facing.0) {
+            // A steady heat, but no Oven nor tools of its own (owner's).
+            let lit = self.benches.1.contains(&piece.at);
+            now.heat = if lit { Heat::Hearth } else { Heat::Cold };
+            now.bench = Some(piece.at);
+            now.place = if lit {
+                Place::Fireplace
+            } else {
+                Place::ColdFireplace
             };
             return now;
         }

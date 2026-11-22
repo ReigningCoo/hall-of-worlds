@@ -147,7 +147,8 @@ pub enum Heat {
     Cold,
     /// A campfire (or other makeshift heat): every step, capped at Rare.
     Fire,
-    /// A proper hearth (towns' too): every step, no cap.
+    /// A proper hearth (towns' too, and a lit fireplace's): every step, no
+    /// cap.
     Hearth,
 }
 

@@ -65,6 +65,7 @@ use crate::player::PlayerSystems;
 use crate::view3d::{TOKEN_DIAMETER, View3dSystems};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod basket_logs;
 mod click;
 mod face_point;
 mod flowing;
@@ -150,6 +151,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<fixed_lights::FixedLights>()
             .init_resource::<campfires::DrawnFires>()
             .init_resource::<hearth_fires::DrawnHearthFires>()
+            .init_resource::<basket_logs::DrawnBasketLogs>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -205,6 +207,7 @@ impl Plugin for DungeonMapPlugin {
                             bench_tools::update_bench_tools,
                             rack_casks::update_rack_casks,
                             rack_bottles::update_rack_bottles,
+                            basket_logs::update_basket_logs,
                         ),
                         (
                             campfires::update_campfires,
