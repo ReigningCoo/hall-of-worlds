@@ -242,7 +242,7 @@ impl Tag {
             Self::Select => &["value", "searchable"],
             Self::Option => &["value", "selected", "label", "src"],
             Self::ToggleRow | Self::TabBar | Self::ColourPicker | Self::KeyBox => &["value"],
-            Self::Panel => &["moveable", "grip", "dark", "depth"],
+            Self::Panel => &["moveable", "grip", "dark", "rolled", "depth"],
             Self::Dialog => &["modal", "depth", "closable"],
             Self::Popup => &["hover", "depth"],
             Self::Scroll => &["max-height", "auto", "scrollbars"],

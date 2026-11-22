@@ -12,9 +12,9 @@ use crate::dom::check::{Checked, CheckedNode};
 use crate::dom::parts::{AlwaysBars, Control, ControlOf, Darkened, SurfaceOf};
 use crate::dom::tag::Tag;
 use crate::widgets::{
-    AutoScroll, PanelPlace, UiId, panel, panel_title, spawn_dialog, spawn_filling_scroll_area,
-    spawn_fullscreen_layer, spawn_grip_panel, spawn_moveable_panel, spawn_sized_layer,
-    spawn_wide_scroll_area,
+    AutoScroll, PanelPlace, UiId, panel, panel_title, roll_ends, spawn_dialog,
+    spawn_filling_scroll_area, spawn_fullscreen_layer, spawn_grip_panel, spawn_moveable_panel,
+    spawn_sized_layer, spawn_wide_scroll_area,
 };
 
 /// Where a moving panel starts, from its corner, with no place given.
@@ -77,6 +77,9 @@ impl Builder<'_, '_, '_> {
                     _ => Vec2::splat(START),
                 };
                 let (root, content) = spawn_moveable_panel(self.commands, title, at);
+                if attrs.has("rolled") {
+                    roll_ends(self.commands, root);
+                }
                 (root, content, None)
             }
             Tag::Dialog if attrs.has("modal") => {

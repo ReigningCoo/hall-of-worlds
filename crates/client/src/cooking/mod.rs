@@ -19,6 +19,7 @@ mod kitchen;
 mod markup;
 mod open;
 mod order;
+mod reading;
 mod run;
 mod side;
 mod spaces;
@@ -34,6 +35,12 @@ use crate::dom::{DomInput, HoldObjects};
 #[derive(Message, Clone, Copy, Debug, Default)]
 pub struct OpenCooking;
 
+/// Opens the recipe reading panel on this recipe from the book (or shows it
+/// there if the panel is open): the Recipes tab's Read (recipes plan PR 5).
+/// Reading a scroll into the book opens it by itself.
+#[derive(Message, Clone, Debug)]
+pub struct ReadRecipe(pub shared::recipe::Entry);
+
 pub struct CookingPlugin;
 
 impl Plugin for CookingPlugin {
@@ -44,6 +51,7 @@ impl Plugin for CookingPlugin {
             .init_resource::<kitchen::Kitchens>()
             .init_resource::<spaces::SpaceIcons>()
             .add_message::<OpenCooking>()
+            .add_message::<ReadRecipe>()
             .add_systems(
                 PreUpdate,
                 (
@@ -70,6 +78,7 @@ impl Plugin for CookingPlugin {
                 )
                     .chain(),
             );
+        reading::add(app);
         #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
         debug_api::add(app);
     }

@@ -183,3 +183,5 @@ lorc/powder
 lorc/drop
 delapouite/bread
 delapouite/chicken-oven
+# Recipe reading panel (cooking/reading/markup.rs)
+lorc/quill-ink

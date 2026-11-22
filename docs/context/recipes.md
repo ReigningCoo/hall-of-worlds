@@ -18,7 +18,7 @@ Owner's decisions (2026-11-21). Recipe scrolls teach real dishes; each character
 | 1 | Shared data and the book: `shared::recipe` (the scroll item, `RecipeBook` on the sheet), `cooking::Recipe` and every real dish's recipe built and checked to cook into its dish, an order written down as a recipe, the beyond-skill helper (built) | none | first |
 | 2 | Generic `${kind:…}` item tokens in text (`shared::item_text`), drawn red when the reader has none (built) | none | independent |
 | 3 | The server, items, art, shops and rewards: reading and removing (`ClientMessage`), own recipes remembered on cooking, the scroll's picture (a rolled scroll with a chef's hat), scrolls sold and given as quest rewards (built) | 1 | in order |
-| 4 | The reading panel: an unrolled scroll showing the recipe's grid and its written steps, foods missing in red, the beyond-skill note | 2, 3 | in order |
+| 4 | The reading panel: an unrolled scroll showing the recipe's grid and its written steps, foods missing in red, the beyond-skill note (built) | 2, 3 | in order |
 | 5 | The Recipes tab in the Cooking panel: the book listed (learnt and own told apart), Read, Make (filling the panel from what is carried, red ghosts for what is missing) and Remove | 4 | last |
 
 ## Later (not in this plan)
@@ -51,3 +51,15 @@ Claude's choices, for the owner to tune:
 - Every cooking run that works is remembered as an own recipe, named as its last output was classified.
 - Scroll shops sell scrolls (3 in 5 of what they make), and inns and taverns sell only scrolls (which makes them shops). A quest's item reward may be a recipe (one in six of item rewards), given on hand-in as a scroll of a dish rolled from the prize seed.
 - The picture: a parchment roll lying from bottom left to top right, tied with red ribbon, a white chef's hat standing on it (`item_art/scroll.rs`; Alchemy's angle and emblem go in `ScrollLook::style`).
+
+## The reading panel (PR 4, built)
+
+In `client/cooking` (`reading/`, `docs/context/client/cooking.md`), as the Cooking panel's grid is drawn there. Claude's choices, for the owner to tune:
+
+- Opened on reading a scroll (`RecipeInserted`, in place of the old notice) and by `cooking::ReadRecipe(entry)` (PR 5's Read). A moving panel drawn as an unrolled scroll (`dom`'s `panel rolled`: a shaded roll with wooden knobs across its top and bottom, the top one moving it), titled with the dish.
+- A real dish says where it is from ("A dish from Indian cooking"); an own recipe shows a quill and "Your recipe" in blue-black ink instead.
+- The grid as the Cooking panel's, read only: tool boxes (a join two rows tall), each input the kind's usual item with its count (liquids and water in 100 ml, as the Cooking panel counts them), a row's intermediate as its source space. Hover tips name every food an input may be ("Carrot or Parsnip").
+- The steps written out from `recipe.ftl`, numbered in the order they are worked (column by column, the top row first): "1. Take 2 [carrot], and cut it with a [knife].", "2. Take what you have so far, add 200 ml of [water], and fry it in a [pan].", joins "Bring both rows together, …", a row from an intermediate "Take your dough, …"; then "That makes Naan."
+- Red, in the grid and the words: an input not carried in enough (any of its foods; water faced counts as water), a tool neither carried nor in the kitchen (`has_cooking_tool`, the Oven only at a lit hearth or in a town), a row's intermediate neither carried nor in the hearth's storage.
+- Beyond skill: "2 steps beyond your Cooking skill: a 25% chance." in red under the grid.
+- A grain is counted as a sack of its flour (PR 1) but drawn as its sheaf, the `${kind:vegetable:wheat}` stand-in (PR 2).

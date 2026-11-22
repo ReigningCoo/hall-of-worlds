@@ -31,6 +31,7 @@ mod process;
 mod quality;
 mod recipe;
 mod recipe_build;
+mod recipe_have;
 mod recipe_layout;
 mod recipe_order;
 mod recipe_tune;
@@ -81,6 +82,8 @@ mod dish_tests;
 mod grid_tests;
 #[cfg(test)]
 mod order_tests;
+#[cfg(test)]
+mod recipe_have_tests;
 #[cfg(test)]
 mod recipe_tests;
 #[cfg(test)]

@@ -4,10 +4,12 @@
 // Split into files (`cargo xtask lint` keeps files small).
 mod drag;
 mod place;
+mod rolled;
 mod spawn;
 
 pub(super) use drag::{Dragging, take_presses};
 pub(super) use place::place_panels;
+pub use rolled::roll_ends;
 pub(super) use spawn::PanelPart;
 pub use spawn::{MoveablePanel, PanelTitleOf};
 pub use spawn::{PanelMoved, PanelPlace, spawn_grip_panel, spawn_moveable_panel};

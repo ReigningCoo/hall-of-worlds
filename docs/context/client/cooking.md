@@ -1,6 +1,6 @@
 # client: cooking
 
-The Cooking panel (cooking plan PR 10, `docs/context/cooking.md`), grown from the Alchemy panel (`client/alchemy.md`): opened by the Cook ability, a moving panel where the player places kitchen tools in a grid of two rows (a step can join both), puts carried food, water, milk and honey into each step's drop spaces (and an intermediate at the start of a row, a culture for what ferments), sees what one run makes at the kitchen they are at, and starts it. Every figure comes from `shared::cooking` (`Inventory::check_cooking`, `plan`), the server's own rules. Native and web.
+The Cooking panel (cooking plan PR 10, `docs/context/cooking.md`), grown from the Alchemy panel (`client/alchemy.md`): opened by the Cook ability, a moving panel where the player places kitchen tools in a grid of two rows (a step can join both), puts carried food, water, milk and honey into each step's drop spaces (and an intermediate at the start of a row, a culture for what ferments), sees what one run makes at the kitchen they are at, and starts it. Also the recipe reading panel (recipes plan PR 4, `docs/context/recipes.md`): one recipe from the book on an unrolled scroll. Every figure comes from `shared::cooking` (`Inventory::check_cooking`, `plan`), the server's own rules. Native and web.
 
 ## Files
 
@@ -18,15 +18,17 @@ The Cooking panel (cooking plan PR 10, `docs/context/cooking.md`), grown from th
 - `words.rs`: `output_item` (`food::food_item` at a quality), `is_intermediate`, `output_name`, `output_lines` (diet labels; Well Fed's minutes, restoring and bonuses through `common::bonus_line`), `output_colour` (`food::tint`), `chance_words`, `kitchen_words`, `refused_words`.
 - `run.rs`: `follow_run` (`AbilityStarted` and `AbilityLanded` of Cook: `Landed::Cooked` shows what was made), `show_fill` (wash, and the fill along the steps in the order they run by each step's seconds), `stage_colour`.
 - `debug_api.rs` (debug API only): `client.cooking`.
+- `reading/` (the reading panel): `mod.rs` (`add`: its systems, after `keep_kitchen`); `open.rs` (`Reading`: the document and the `recipe::Entry` on it; `open_reading` on `ReadRecipe` or `ServerMessage::RecipeInserted`, raising it if open; `bind_reading`; `notice_closed`); `markup.rs` (`READING`: form `recipe`, a `panel moveable rolled` titled with the dish, `cuisine`, `own` (a quill and `own_words` in `hand` ink), the canvas `grid`, `beyond`, `steps` of copies of the template `step`, `makes`); `entry.rs` (`Shown::of`: the recipe, dish name and cuisine of an entry, a real dish's from `cooking::dish_recipe`, an own one's as remembered); `have.rs` (`Have`: each step's tool (`has_cooking_tool` at `Kitchens`), each input (`Inventory::has_recipe_input`, water faced counting), each row's intermediate (`has_intermediate` or the hearth's storage); `input_token`, `foods_named`); `draw.rs` (`RecipeGrid`, `draw_recipe`: the grid read only from `boxes`' `spawn_box` and `space_shown`, each input the kind's stand-in item with its count (liquids in 100 ml), red when not to hand); `written.rs` (`written`: `Line`s from `recipe.ftl` by column then row, `missing_in`, `render`); `show.rs` (`show_reading`: everything again when the entry, what is carried, the sheet or the kitchen change; the beyond-skill note from `steps_beyond` and `chance`); `debug_api.rs` (`client.read_recipe`).
 
 ## Public API
 
 - `CookingPlugin`.
 - `OpenCooking` (message): opens the panel, or closes it if open (`abilities`, on using Cook).
+- `ReadRecipe(recipe::Entry)` (message): opens the reading panel on that recipe, or shows it there if open (the Recipes tab, recipes plan PR 5). Reading a scroll opens it by itself (`RecipeInserted`).
 
 ## Depends on
 
-- `inventory` (`Carried`, `OpenCharacter`), `character` (`CharacterSheet`), `player` (`Player`), `common` (`BenchHere`, `Benches`, `CurrentDungeon`, `Facing`, `GameView`, `SpotPosition`, `OwnAbility`, `Session`, `Wording`, `bonus_line`, `UiPointer`, `TouchGesture`, `PointerSystems`), `connection` (`ToServer`, `FromServer`), `dom` (`Dom`, `UiEvent`, `SlotShown`, `HeldObject`, `Dropped`, `Finder`, `AbilityThing`, `DomInput`, `HoldObjects`), `widgets` (`AbilityLook`, `HoverTip`, `UiId`, `item_picture`, `logical_rect`), `item_art` (`look_of`), `shared::cooking`, `shared::food`, `shared::campfire`, `shared::crafting_bench`, `shared::potion`, `shared::pour`.
+- `inventory` (`Carried`, `OpenCharacter`), `character` (`CharacterSheet`), `player` (`Player`), `common` (`BenchHere`, `Benches`, `CurrentDungeon`, `Facing`, `GameView`, `SpotPosition`, `OwnAbility`, `Session`, `Wording`, `bonus_line`, `UiPointer`, `TouchGesture`, `PointerSystems`), `connection` (`ToServer`, `FromServer`: `RecipeInserted`), `common::Wording` (`recipe.ftl`), `dom` (`Dom`, `UiEvent`, `SlotShown`, `HeldObject`, `Dropped`, `Finder`, `AbilityThing`, `DomInput`, `HoldObjects`), `widgets` (`AbilityLook`, `HoverTip`, `UiId`, `item_picture`, `logical_rect`), `item_art` (`look_of`), `shared::cooking`, `shared::food`, `shared::campfire`, `shared::crafting_bench`, `shared::potion`, `shared::pour`, `shared::recipe` (`Entry`), `shared::item_text` (`KindToken`), `shared::lang`.
 
 ## Used by
 

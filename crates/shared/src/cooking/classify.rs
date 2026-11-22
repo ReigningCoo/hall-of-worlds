@@ -32,18 +32,25 @@ pub struct Dish {
     pub form: DishForm,
 }
 
-impl Dish {
-    /// Its name in English.
+impl DishName {
+    /// It in English.
     pub fn name(&self, dishes: &Dishes) -> String {
-        match &self.name {
-            DishName::Real(key) => dishes
+        match self {
+            Self::Real(key) => dishes
                 .get(key)
                 .map_or_else(|| key.clone(), |d| d.name.clone()),
-            DishName::Generic { kind, foods } => {
+            Self::Generic { kind, foods } => {
                 let names: Vec<String> = foods.iter().map(|(s, k)| food_name(*s, k)).collect();
                 kind.name(&names)
             }
         }
+    }
+}
+
+impl Dish {
+    /// Its name in English.
+    pub fn name(&self, dishes: &Dishes) -> String {
+        self.name.name(dishes)
     }
 
     /// What it wants, for balance: a real dish's roles and foods, a generic
