@@ -1,6 +1,6 @@
 //! What the screen's presses do: a cell chooses its character (or "+" goes on to
 //! making one), Play plays the chosen one, Delete asks first, Cancel goes back
-//! to the startup menu, and Change User logs in again.
+//! to the startup menu, Change User logs in again, and Link Discord links it.
 
 use bevy::prelude::*;
 
@@ -56,6 +56,9 @@ pub(super) fn press_buttons(
             }
             (Ok(Button::ChangeUser), _) => {
                 login.write(LoginChoice::ChangeUser);
+            }
+            (Ok(Button::LinkDiscord), _) => {
+                login.write(LoginChoice::LinkDiscord);
             }
             _ => {}
         }

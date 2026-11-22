@@ -39,6 +39,10 @@ pub(super) async fn came_back(logins: Logins, query: RawQuery) -> (StatusCode, H
         (None, None) => Err("the provider sent no code".into()),
     };
     let answer = match &proved {
+        Ok(_) if waiting.link.is_some() => page(
+            StatusCode::OK,
+            "Discord said yes. You can close this tab and go back to the game,              which says whether it is linked.",
+        ),
         Ok(_) => page(
             StatusCode::OK,
             "You're logged in. You can close this tab and go back to the game.",
@@ -51,6 +55,7 @@ pub(super) async fn came_back(logins: Logins, query: RawQuery) -> (StatusCode, H
     logins.finish(Finished {
         state: state.expect("found by it"),
         provider: provider.name.clone(),
+        link: waiting.link,
         proved,
     });
     answer

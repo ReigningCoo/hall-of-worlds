@@ -9,6 +9,8 @@ use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use ring::digest::{SHA256, digest};
 use ring::rand::{SecureRandom, SystemRandom};
 
+use crate::accounts::AccountId;
+
 /// How long a player has to log in on the provider's website.
 pub(super) const LOGIN_WITHIN: Duration = Duration::from_secs(10 * 60);
 
@@ -18,6 +20,8 @@ pub(super) struct Waiting {
     pub provider: usize,
     /// The PKCE secret its challenge was made from, which only this server has.
     pub verifier: String,
+    /// The account it links to, if it links rather than logs in (Link Discord).
+    pub link: Option<AccountId>,
     began: Instant,
 }
 
@@ -26,9 +30,14 @@ pub(super) struct Waiting {
 pub(super) struct Pending(HashMap<String, Waiting>);
 
 impl Pending {
-    /// Starts a login at `provider`: its state and PKCE challenge. Ones that
-    /// ran out are forgotten. An error if secure randomness fails.
-    pub(super) fn begin(&mut self, provider: usize) -> Result<(String, String), String> {
+    /// Starts a login at `provider` (linking it to `link`, if any): its state
+    /// and PKCE challenge. Ones that ran out are forgotten. An error if secure
+    /// randomness fails.
+    pub(super) fn begin(
+        &mut self,
+        provider: usize,
+        link: Option<AccountId>,
+    ) -> Result<(String, String), String> {
         let now = Instant::now();
         self.0
             .retain(|_, waiting| now.duration_since(waiting.began) < LOGIN_WITHIN);
@@ -40,6 +49,7 @@ impl Pending {
             Waiting {
                 provider,
                 verifier,
+                link,
                 began: now,
             },
         );

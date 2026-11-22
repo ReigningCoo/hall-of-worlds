@@ -150,7 +150,9 @@ Players can also log in with their Discord account, beside Google or instead of 
 
 The server only asks Discord who the player is (the `identify` scope), never for their email address. It keeps their Discord id on their account, and a key made from it with the login secret, so the same Discord account always reaches the same game account on servers sharing that secret. In the game's menus, players see their Discord name where others see their email address.
 
-`HOW_DISCORD_ONLY: "true"` makes Discord the only way in: no other provider is offered, guests aren't let in, and anyone who logged in another way before has to log in again through Discord.
+Players who logged in another way (with Google, say) can press **Link Discord** on their Characters screen and log in with Discord there. After that, either login opens the same account and characters. Linking is refused if that Discord account already has a game account of its own on the server: accounts aren't merged.
+
+`HOW_DISCORD_ONLY: "true"` makes Discord the only way in: no other provider is offered, guests aren't let in, and anyone who logged in another way before has to log in again through Discord. Players who linked Discord keep their accounts, so once your players have linked, you can turn Google (or any other provider) off without anyone losing their characters.
 
 ## Roles
 

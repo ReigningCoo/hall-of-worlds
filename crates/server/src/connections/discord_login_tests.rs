@@ -1,6 +1,6 @@
 use shared::protocol::{
-    ClientLink, ClientMessage, Credentials, DISCORD, EmailAddress, GuestToken, LoginMethod,
-    ServerMessage,
+    ClientLink, ClientMessage, Credentials, DISCORD, DiscordLink, EmailAddress, GuestToken,
+    LoginMethod, ServerMessage,
 };
 
 use super::login_tests::Server;
@@ -44,6 +44,7 @@ fn a_player_logs_in_through_discord_and_the_account_keeps_their_discord_id() {
     let [
         ServerMessage::LoggedIn { session, email },
         ServerMessage::Characters { .. },
+        ServerMessage::DiscordLink(DiscordLink::Linked),
     ] = &told[..]
     else {
         panic!("{told:?}");
@@ -58,7 +59,7 @@ fn a_player_logs_in_through_discord_and_the_account_keeps_their_discord_id() {
     let (again, _) = server.connect();
     let told = server.send(&again, ClientMessage::Login(Credentials::Session(*session)));
     assert!(
-        matches!(told[..], [ServerMessage::Characters { .. }]),
+        matches!(told[..], [ServerMessage::Characters { .. }, _]),
         "{told:?}"
     );
     assert_eq!(account(&server, 1), id);
@@ -89,7 +90,7 @@ fn a_discord_login_that_goes_wrong_can_be_tried_again() {
     );
     let told = through_discord(&mut server, &end, "good");
     assert!(
-        matches!(told[..], [ServerMessage::LoggedIn { .. }, _]),
+        matches!(told[..], [ServerMessage::LoggedIn { .. }, ..]),
         "{told:?}"
     );
 }
@@ -124,7 +125,7 @@ fn discord_only_lets_in_no_guests_and_no_session_without_discord() {
     // Discord's own get in.
     let told = through_discord(&mut server, &end, "good");
     assert!(
-        matches!(told[..], [ServerMessage::LoggedIn { .. }, _]),
+        matches!(told[..], [ServerMessage::LoggedIn { .. }, ..]),
         "{told:?}"
     );
 }

@@ -1,6 +1,6 @@
 # client: character_select
 
-The Character Select screen: the account's characters in a grid on the left, each standing to the same scale with their name and when they were last played, the latest first, and a "+" to make another while the server allows; the chosen one described on the right (as the Character tab would, from their save) with when they were made, and Play, a red Delete (after a requester) and Cancel; Change User at the bottom left while logged in to an account (`common::AccountEmail`), sending `common::LoginChoice::ChangeUser`. It only shows `common::CharacterSelect` and sends `common::CharacterChoice`; `connection` talks to the server. Making a character is `character_create`'s. Native and web.
+The Character Select screen: the account's characters in a grid on the left, each standing to the same scale with their name and when they were last played, the latest first, and a "+" to make another while the server allows; the chosen one described on the right (as the Character tab would, from their save) with when they were made, and Play, a red Delete (after a requester) and Cancel; Change User at the bottom left while logged in to an account (`common::AccountEmail`), sending `common::LoginChoice::ChangeUser`, with Link Discord beside it while the server says the account can link it (`common::AccountDiscord`), sending `LoginChoice::LinkDiscord`, then "Discord linked". It only shows `common::CharacterSelect` and sends `common::CharacterChoice`; `connection` talks to the server. Making a character is `character_create`'s. Native and web.
 
 ## Files
 
@@ -10,6 +10,7 @@ The Character Select screen: the account's characters in a grid on the left, eac
 - `chosen.rs`: `Chosen` (resource: the character chosen, and whether Delete is being asked about), `keep_chosen` (on a new list: the same one if still there, or else the latest).
 - `info.rs`: `show_info` (name, `character::describe_listed` (its first line the gender beside the kind), "Created ...", set with `Dom::set_text`; Play and Delete disabled with nothing chosen; "No characters yet" when there are none).
 - `change_user.rs`: `show_change_user`: its row, under the grid, is `hidden` unless `AccountEmail` is kept (never for a guest or single player).
+- `discord.rs`: `show_discord` (Link Discord shown for `CanLink` or `Failed`; "Log in with Discord in your browser to link it." while `Linking` waits on the server; "Discord linked"; why it failed in red above the row), `Linking` (resource: pressed, not answered yet). Tests.
 - `presses.rs`: `press_buttons` (a cell chooses its character, "+" sends `CharacterChoice::New`, Play `Play(id)`, Delete opens the requester, Cancel `Cancel`, Change User `LoginChoice::ChangeUser`; while the requester is up, only its answers count).
 - `requester.rs`: `Answer`, and `show_requester`: "Delete <name>? This can't be undone.", the `asking` dialog with a red Delete (`CharacterChoice::Delete(id)`) and Cancel; a press outside it is Cancel.
 
@@ -28,6 +29,6 @@ The Character Select screen: the account's characters in a grid on the left, eac
 ## Notes
 
 - Every login reaches it, guests and single player too (only Continue goes straight in). A guest's server offers no "+" while they have their one character, and offers it again once it is deleted.
-- Widget ids: `character_select/character.<n>` (in the grid's order, latest first), `/new`, `/play`, `/delete`, `/cancel`, `/change_user`, and the requester's `/really_delete` and `/keep`.
+- Widget ids: `character_select/character.<n>` (in the grid's order, latest first), `/new`, `/play`, `/delete`, `/cancel`, `/change_user`, `/link_discord`, `/discord`, `/discord_failed`, and the requester's `/really_delete` and `/keep`.
 - Pictures are to one scale: `item_art`'s portrait draws every kind with its frame at its usual height (`Frame::usual_height`), the tallest playable kind filling 85% of the picture's height, feet on the floor.
 - Health and Mana aren't shown: their most is worked out on joining, from playtime the client isn't told. Speed isn't either, as it goes by what is carried.

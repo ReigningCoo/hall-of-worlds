@@ -116,7 +116,7 @@ pub use items::{
 pub use kind_words::kinds_words;
 pub use lightning::{BoltStruck, Lightning, LightningStrike};
 pub use local_time::local_date_time;
-pub use login::{AccountEmail, LoggingIn, LoginChoice, LoginProvider};
+pub use login::{AccountDiscord, AccountEmail, LoggingIn, LoginChoice, LoginProvider};
 #[cfg(not(target_arch = "wasm32"))]
 pub use map::in_map_measure;
 pub use map::{
@@ -238,6 +238,7 @@ impl Plugin for CommonPlugin {
             .add_message::<CharacterChoice>()
             .init_resource::<LoggingIn>()
             .init_resource::<AccountEmail>()
+            .init_resource::<AccountDiscord>()
             .add_message::<LoginChoice>()
             .init_resource::<MakesCharacters>()
             .init_resource::<DetectMonsters>()

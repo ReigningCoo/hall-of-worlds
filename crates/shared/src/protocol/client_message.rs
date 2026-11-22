@@ -24,8 +24,8 @@ use crate::world::ClockRate;
 pub enum ClientMessage {
     /// The first message on a new connection, answered with `LoginOptions` (the embedded server's
     /// own player, who needs no login: with `Characters`). `makes_characters`: the client has
-    /// screens for choosing and making characters; without them the account's latest is played, or
-    /// a plain one made. `difficulty`: the player's default, for a character with none saved.
+    /// screens for choosing and making characters (else the account's latest is played, or a plain
+    /// one made). `difficulty`: the player's default, for a character with none saved.
     Hello {
         protocol: u32,
         makes_characters: bool,
@@ -33,10 +33,11 @@ pub enum ClientMessage {
     },
     /// Logs in, once `LoginOptions` has arrived, answered with `Characters`.
     Login(Credentials),
+    /// Links Discord to the account logged in to (`DiscordLink`): answered with `OpenLogin`.
+    LinkDiscord,
     /// Plays this character of the account's, answered with `Welcome`.
     ChooseCharacter { id: CharacterId },
-    /// Deletes this character of the account's, save and all, while choosing:
-    /// answered with `Characters` again.
+    /// Deletes one of the account's characters (save and all) while choosing: `Characters` again.
     DeleteCharacter { id: CharacterId },
     /// About roles: what the character is shown as, and the Accounts panel's.
     Role(super::RoleAsk),
@@ -50,8 +51,7 @@ pub enum ClientMessage {
     /// the embedded server's own player, and not while `HOW_DIFFICULTIES` sets
     /// them. Everyone on one no longer allowed is moved to the nearest.
     SetDifficulties(Difficulties),
-    /// Asks the server's clock, now and then. `sent` is the client's own time,
-    /// handed back in `Pong` so it can tell how long the round trip took.
+    /// Asks the server's clock now and then; `sent` (the client's time) comes back in `Pong`.
     Ping { sent: f64 },
     /// A step on the world map: checked, taken, then (once a tick)
     /// `Position`. `map` counts the maps since `Welcome` (a step meant for the

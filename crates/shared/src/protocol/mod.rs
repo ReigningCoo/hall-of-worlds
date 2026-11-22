@@ -21,8 +21,8 @@ pub use level::{
 };
 pub use link::{ClientLink, Link, LinkError, ServerLink, Wire, local_pair, wired};
 pub use login::{
-    CharacterId, Credentials, DISCORD, EmailAddress, GuestToken, LoginMethod, NewCharacter,
-    SessionToken,
+    CharacterId, Credentials, DISCORD, DiscordLink, EmailAddress, GuestToken, LoginMethod,
+    NewCharacter, SessionToken,
 };
 pub use online::{OnlineSettings, OnlineState, RouterPort};
 pub use version::{GAME_NAME, ServerVersion, VERSION_PATH};

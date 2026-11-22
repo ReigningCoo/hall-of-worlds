@@ -86,40 +86,19 @@ impl Accounts {
     /// The account this login belongs to: made now if it is the first time. An
     /// error if saves can't be reached: making another account would lose theirs.
     pub(crate) fn log_in(&mut self, key: &LoginKey) -> Result<AccountId, String> {
-        let hash = key.hash();
-        if let Some(id) = self.logins.get(&hash) {
-            return Ok(*id);
+        if let Some(id) = self.login_of(key)? {
+            return Ok(id);
         }
-        let login = SaveKey::Login(hash.clone());
-        let saved = match &self.queue {
-            Some(queue) => queue.load(&login)?,
-            None => None,
+        let id = key.account_id().unwrap_or_else(|| AccountId(new_id()));
+        self.add_login(key, id);
+        let account = AccountSave {
+            guest: key.is_guest(),
+            created: now(),
+            characters: Vec::new(),
+            discord: None,
         };
-        let id = match saved {
-            Some(Save::Login(login)) => login.account,
-            _ => {
-                let id = key.account_id().unwrap_or_else(|| AccountId(new_id()));
-                if let Some(queue) = &self.queue {
-                    let save = LoginSave {
-                        account: id,
-                        expires: None,
-                    };
-                    queue.save(login, Save::Login(save));
-                }
-                self.loaded.insert(
-                    id,
-                    AccountSave {
-                        guest: key.is_guest(),
-                        created: now(),
-                        characters: Vec::new(),
-                        discord: None,
-                    },
-                );
-                self.save(&id);
-                id
-            }
-        };
-        self.logins.insert(hash, id);
+        self.loaded.insert(id, account);
+        self.save(&id);
         Ok(id)
     }
 
@@ -285,6 +264,7 @@ pub fn new_guest_token() -> Result<GuestToken, String> {
 // Split into files (`cargo xtask lint` keeps files small).
 mod discord;
 mod find;
+mod link;
 mod login_key;
 mod names;
 mod session;
