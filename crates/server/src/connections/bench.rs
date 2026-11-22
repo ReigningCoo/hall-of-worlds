@@ -28,7 +28,9 @@ pub(super) fn bench_act(
     world: &mut ServerWorld,
     ask: BenchAsk,
 ) -> (bool, u32) {
-    let (BenchAsk::Put { bench, .. } | BenchAsk::Take { bench, .. }) = ask else {
+    let (BenchAsk::Put { bench, .. } | BenchAsk::Take { bench, .. } | BenchAsk::Pour { bench, .. }) =
+        ask
+    else {
         return (true, 0);
     };
     let Some(visit) = &client.visit else {
@@ -43,6 +45,10 @@ pub(super) fn bench_act(
         return (client.send_inventory(), 0);
     }
     let refused = match ask {
+        BenchAsk::Pour { from, into, .. } => {
+            let cost = super::bar_pour::pour_at_bar(client, world, here, (from, into));
+            return (client.send_inventory(), cost);
+        }
         BenchAsk::Put { item, .. } => !put(client, world, here, item),
         BenchAsk::Dev(_) => false,
         BenchAsk::Take { item, .. } => {

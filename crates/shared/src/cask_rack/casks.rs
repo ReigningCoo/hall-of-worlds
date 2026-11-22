@@ -69,6 +69,17 @@ impl RackCasks {
         place.take()
     }
 
+    /// Puts `item` back in the place of the one with its id (poured from at
+    /// a bar). Whether it was there.
+    pub fn replace(&mut self, item: Item) -> bool {
+        let mut places = self.places.iter_mut().flatten();
+        let Some(place) = places.find(|place| place.id == item.id) else {
+            return false;
+        };
+        *place = item;
+        true
+    }
+
     /// Lets the real time pass until `now` (seconds since 1970) on its casks
     /// (laid down when put on, `Item::lay_casks_down`), sealed drinks ageing
     /// `RACK_AGEING_PERCENT` as fast. Whether anything a player sees changed.

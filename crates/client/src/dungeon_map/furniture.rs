@@ -10,10 +10,13 @@
 //! stove with a hood, and a counter (`hearth.rs`). Cask racks are rails,
 //! saddles or a stand under their casks (`cask_rack.rs`). Wine racks are a
 //! diamond lattice against a wall, spirit racks three steps standing on the
-//! table under them (`bottle_rack.rs`).
+//! table under them (`bottle_rack.rs`). Bar counters are a top over a front
+//! panel, joining into runs, with shelves for vessels (`bar_counter.rs`);
+//! what stands on one stands that much higher than on a table.
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod atlas;
+mod bar_counter;
 mod benches;
 mod bottle_rack;
 mod cask_rack;
@@ -35,6 +38,7 @@ use part::{Grain, Part};
 use super::CELL_SIZE;
 use super::walls::{Layers, Scene};
 
+pub(super) use bar_counter::{bar_height, bar_vessel_spot, lift_on};
 pub(super) use bottle_rack::{TALLEST as TALLEST_BOTTLE, bottle_rack_height, bottle_spot};
 pub(super) use cask_rack::{cask_scale, cask_spot, rack_height};
 pub(super) use crafting_bench::{ghost_boxes, tool_spot};
@@ -68,8 +72,21 @@ fn build_piece(
     let parts = tables::parts(piece)
         .or_else(|| crafting_bench::parts(piece))
         .or_else(|| cask_rack::parts(piece))
-        .or_else(|| bottle_rack::parts(piece));
+        .or_else(|| bottle_rack::parts(piece))
+        .or_else(|| bar_counter::parts(scene.level, piece));
     let parts = match parts {
+        Some(parts) if piece.furniture.stands_on_furniture() => {
+            // As much higher as what it stands on is than a table.
+            let under = scene.level.furniture_at(piece.at.0, piece.at.1);
+            let lift = Vec3::Y * under.map_or(0.0, lift_on);
+            (parts.into_iter())
+                .map(|part| part::Part {
+                    low: part.low + lift,
+                    high: part.high + lift,
+                    ..part
+                })
+                .collect()
+        }
         Some(parts) => parts,
         None => {
             let under_table = seats::faces_table(scene.level, piece);

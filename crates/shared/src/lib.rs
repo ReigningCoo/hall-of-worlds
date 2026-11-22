@@ -9,6 +9,7 @@ pub mod alchemy;
 pub mod alcohol;
 pub mod alignment;
 pub mod armour;
+pub mod bar;
 pub mod blade;
 pub mod body;
 pub mod bonus;

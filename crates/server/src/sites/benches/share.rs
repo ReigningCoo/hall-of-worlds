@@ -48,7 +48,7 @@ pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
                 Holder::Bench(craft) => {
                     craft.is_hearth() && bench_tools(world, bench.key, craft).is_lit(now)
                 }
-                Holder::Casks(_) | Holder::Bottles(_) => false,
+                Holder::Casks(_) | Holder::Bottles(_) | Holder::Bar(_) => false,
             };
             if told != Some(lit) || changes.contains(&bench.key) {
                 seen.push((piece.at, bench));

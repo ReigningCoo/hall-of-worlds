@@ -6,11 +6,13 @@
 //! (`protocol::BenchAsk`). Crafting benches hold their tools
 //! (`crafting_bench::BenchTools`), cask racks their casks
 //! (`cask_rack::RackCasks`), wine and spirit racks their bottles
-//! (`bottle_rack::RackBottles`).
+//! (`bottle_rack::RackBottles`), bar counters their drinking vessels
+//! (`bar::BarVessels`).
 
 use serde::{Deserialize, Serialize};
 
 use super::Furniture;
+use crate::bar::{BarCounter, BarVessels};
 use crate::bottle_rack::{BottleRack, RackBottles};
 use crate::cask_rack::{CaskRack, RackCasks};
 use crate::crafting_bench::{BenchTools, Craft, NotTaken};
@@ -23,6 +25,7 @@ pub enum Holder {
     Bench(Craft),
     Casks(CaskRack),
     Bottles(BottleRack),
+    Bar(BarCounter),
 }
 
 impl Holder {
@@ -32,6 +35,8 @@ impl Holder {
             Furniture::CraftingBench { craft } => Some(Self::Bench(craft)),
             Furniture::CaskRack { rack } => Some(Self::Casks(rack)),
             Furniture::BottleRack { rack } => Some(Self::Bottles(rack)),
+            // A flap holds nothing.
+            Furniture::BarCounter { counter } if counter.is_counter() => Some(Self::Bar(counter)),
             _ => None,
         }
     }
@@ -42,7 +47,15 @@ impl Holder {
             Self::Bench(craft) => craft.name().to_owned(),
             Self::Casks(rack) => rack.name(),
             Self::Bottles(rack) => rack.name().to_owned(),
+            Self::Bar(counter) => counter.name().to_owned(),
         }
+    }
+
+    /// Whether a bar in its room pours from what lies on it (owner's): cask
+    /// racks, cradles and Tun stands, wine and spirit racks, bar counters;
+    /// never a crafting bench.
+    pub fn is_drink_storage(self) -> bool {
+        !matches!(self, Self::Bench(_))
     }
 }
 
@@ -52,6 +65,7 @@ pub enum Held {
     Bench(BenchTools),
     Casks(RackCasks),
     Bottles(RackBottles),
+    Bar(BarVessels),
 }
 
 impl Held {
@@ -61,6 +75,7 @@ impl Held {
             Holder::Bench(craft) => Self::Bench(BenchTools::new(craft)),
             Holder::Casks(rack) => Self::Casks(RackCasks::new(rack)),
             Holder::Bottles(rack) => Self::Bottles(RackBottles::new(rack)),
+            Holder::Bar(counter) => Self::Bar(BarVessels::new(counter)),
         }
     }
 
@@ -70,6 +85,7 @@ impl Held {
             Self::Bench(tools) => Holder::Bench(tools.craft),
             Self::Casks(casks) => Holder::Casks(casks.rack),
             Self::Bottles(bottles) => Holder::Bottles(bottles.rack),
+            Self::Bar(vessels) => Holder::Bar(vessels.counter),
         }
     }
 
@@ -77,7 +93,7 @@ impl Held {
     pub fn bench(&self) -> Option<&BenchTools> {
         match self {
             Self::Bench(tools) => Some(tools),
-            Self::Casks(_) | Self::Bottles(_) => None,
+            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) => None,
         }
     }
 
@@ -87,6 +103,7 @@ impl Held {
             Self::Bench(tools) => Box::new(tools.items()),
             Self::Casks(casks) => Box::new(casks.items()),
             Self::Bottles(bottles) => Box::new(bottles.items()),
+            Self::Bar(vessels) => Box::new(vessels.items()),
         }
     }
 
@@ -98,6 +115,7 @@ impl Held {
             Self::Bench(tools) => tools.put(item),
             Self::Casks(casks) => casks.put(item).map(|()| None),
             Self::Bottles(bottles) => bottles.put(item).map(|()| None),
+            Self::Bar(vessels) => vessels.put(item).map(|()| None),
         }
     }
 
@@ -107,6 +125,18 @@ impl Held {
             Self::Bench(tools) => tools.take(id),
             Self::Casks(casks) => casks.take(id),
             Self::Bottles(bottles) => bottles.take(id),
+            Self::Bar(vessels) => vessels.take(id),
+        }
+    }
+
+    /// Puts `item` back in the place of the one with its id, changed by
+    /// pouring from it at a bar. Whether it was there (never on a bench).
+    pub fn replace(&mut self, item: Item) -> bool {
+        match self {
+            Self::Bench(_) => false,
+            Self::Casks(casks) => casks.replace(item),
+            Self::Bottles(bottles) => bottles.replace(item),
+            Self::Bar(vessels) => vessels.replace(item),
         }
     }
 }

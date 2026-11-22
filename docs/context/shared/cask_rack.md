@@ -12,7 +12,7 @@ Cask racks (tavern furniture plan PR 1, owner's design, 2026-11-22): furniture w
 
 - `CaskRack { size, length }` (serde, `Copy`, `Hash`: in `furniture::Furniture::CaskRack { rack }`): `lengths(size)` (1 to 3 cells, a Tun's 2), `all()` (every size at every length), `kind()`, `is_well_made()`, `name()` ("Pin Rack", "Hogshead Cradle", "Tun Stand"), `places()` (each cask's `RackPlace { along, layer }`: its middle in quarters of a cell along the piece from its start, its layer from 0; the bottom row first, as filled), `capacity()`.
 - `RackKind::{Rack { layers }, Cradle, Stand}`, `RackKind::of(size)` (owner's): Pin and Firkin racks 3 layers, Kilderkin 2, casks in a pyramid (2 a cell on the bottom, each row above in the grooves, one fewer): 1 × 1 holds 3, 1 × 2 holds 9 or 7, 1 × 3 15 or 11; Barrel, Hogshead, Puncheon and Butt a cradle a cell; a Tun only on its stand, 2 long, lying along the wall with its tap to the room.
-- `RackCasks { rack, .. }` (serde): a place per cask, each empty or a cask. `new(rack)`, `places()`, `items()`, `takes(item)` (a cask of its size while a place is free), `put(item) -> Result<(), crafting_bench::NotTaken>` (the lowest free place; never a swap, never why), `take(id)`, `settle(now)` (casks' clocks by world time, sealed ones ageing at `RACK_AGEING_PERCENT`; whether anything seen changed).
+- `RackCasks { rack, .. }` (serde): a place per cask, each empty or a cask. `new(rack)`, `places()`, `items()`, `takes(item)` (a cask of its size while a place is free), `put(item) -> Result<(), crafting_bench::NotTaken>` (the lowest free place; never a swap, never why), `take(id)`, `replace(item)` (put back after pouring at a bar), `settle(now)` (casks' clocks by world time, sealed ones ageing at `RACK_AGEING_PERCENT`; whether anything seen changed).
 - `RACK_AGEING_PERCENT` (110, owner's 10% faster): only a sealed drink's ageing (`ferment`'s `CaskForm::pass_ageing`); fermenting and the opened clock to vinegar go as on the ground.
 
 ## Depends on
@@ -28,4 +28,5 @@ Cask racks (tavern furniture plan PR 1, owner's design, 2026-11-22): furniture w
 - Casks on a rack go by the ground's world-time clock: laid down when put on (`Item::lay_casks_down`), settled whenever told or taken, the last few seconds (under a 10 s step) counted as on the ground when taken off (`Item::age_casks`).
 - Settled in whole 10 s steps at 110% so ageing loses nothing to rounding however often it is settled.
 - Sizes, counts and how big casks are drawn are Claude's first guesses for the owner to tune; a cell is taken as about a metre.
+- A bar (`shared::bar`) in the same room pours from what lies on it; a Tun only on its stand.
 - Not placed in sites yet (tavern furniture plan PR 8); only by Place Furniture, which keeps a piece with places (server `made_benches`).

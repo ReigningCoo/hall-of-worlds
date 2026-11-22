@@ -1,6 +1,7 @@
 //! Chairs by style: stools (three or four legs), back-stools (a low back),
 //! ladder-backs (crossbars), panel-backs (a solid back), X-frames (crossed
-//! legs) and stone blocks (perhaps with a back); wooden ones may have arms.
+//! legs), stone blocks (perhaps with a back) and tall bar stools with a foot
+//! ring; wooden ones but bar stools may have arms.
 
 use shared::furniture::ChairStyle;
 
@@ -17,6 +18,9 @@ const LEG: f32 = CELL_SIZE * 0.045;
 /// How high arms are, and a tall back.
 const ARM_TOP: f32 = CELL_SIZE * 0.35;
 const BACK_TOP: f32 = CELL_SIZE * 0.56;
+/// How high a bar stool's seat is: a little under the counter's top
+/// (`bar_counter::BAR_TOP`, 0.55 of a cell).
+const BAR_STOOL_TOP: f32 = CELL_SIZE * 0.38;
 
 /// A chair's parts in the seat's terms.
 pub(super) fn parts(seat: &Seat, style: ChairStyle, arms: bool) -> Vec<Part> {
@@ -28,6 +32,7 @@ pub(super) fn parts(seat: &Seat, style: ChairStyle, arms: bool) -> Vec<Part> {
         ChairStyle::PanelBack => chair.with_back(BACK_TOP, Back::Panel),
         ChairStyle::XFrame => chair.x_frame(),
         ChairStyle::StoneBlock => return chair.stone_block(),
+        ChairStyle::BarStool => return chair.bar_stool(),
     };
     if arms {
         parts.extend(chair.arms());
@@ -168,6 +173,34 @@ impl<'a> Chair<'a> {
                     Grain::Along,
                     8,
                 ));
+            }
+        }
+        parts
+    }
+
+    /// A tall stool for a bar counter: a seat on four legs, with a ring of rails low down for the feet and another under the seat.
+    fn bar_stool(&self) -> Vec<Part> {
+        let top = BAR_STOOL_TOP - BOARD;
+        let mut parts = vec![self.part(
+            (0.0, top, self.left),
+            (DEPTH, BAR_STOOL_TOP, self.right),
+            Grain::Across,
+            1,
+        )];
+        for back in [true, false] {
+            for left in [true, false] {
+                parts.push(self.leg(back, left, top));
+            }
+        }
+        let rail = CELL_SIZE * 0.02;
+        for (n, y) in [(3, CELL_SIZE * 0.12), (5, top - CELL_SIZE * 0.06)] {
+            let (a, b) = (LEG, DEPTH - LEG);
+            let (l, r) = (self.left + LEG, self.right - LEG);
+            for u in [l - rail, r] {
+                parts.push(self.part((a, y, u), (b, y + rail, u + rail), Grain::Across, n));
+            }
+            for f in [a - rail, b] {
+                parts.push(self.part((f, y, l), (f + rail, y + rail, r), Grain::Along, n + 1));
             }
         }
         parts

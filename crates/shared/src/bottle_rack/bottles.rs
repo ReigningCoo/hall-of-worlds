@@ -89,6 +89,17 @@ impl RackBottles {
         place.take()
     }
 
+    /// Puts `item` back in the place of the one with its id (poured from at
+    /// a bar). Whether it was there.
+    pub fn replace(&mut self, item: Item) -> bool {
+        let mut places = self.places.iter_mut().flatten();
+        let Some(place) = places.find(|place| place.id == item.id) else {
+            return false;
+        };
+        *place = item;
+        true
+    }
+
     /// Lets the real time pass until `now` (seconds since 1970) on its bottles
     /// (laid down when put on), sealed drinks ageing `RACK_AGEING_PERCENT` as
     /// fast (owner: 10% faster on a wine or spirit rack). Whether anything a

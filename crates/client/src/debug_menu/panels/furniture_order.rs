@@ -2,10 +2,12 @@
 //! alone): the panel's choices, and the piece a click makes. Clicking the same
 //! cell again with the same choices gives the next variation (every style of
 //! the kind that fits, chairs without and then with arms, a cask rack's every
-//! cask size made at that length), wrapping round; a
+//! cask size made at that length, a bar counter single, double, then a flap
+//! at length 1), wrapping round; a
 //! click elsewhere starts a new piece in the variation the last one ended on.
 
 use bevy::prelude::*;
+use shared::bar::BarCounter;
 use shared::bottle_rack::{BottleRack, BottleRackKind};
 use shared::cask_rack::CaskRack;
 use shared::door::Side;
@@ -26,16 +28,20 @@ pub(super) enum Kind {
     /// A spirit rack, of wood, only on a table (the server refuses it
     /// elsewhere).
     SpiritRack,
+    /// A bar counter (single or double) or its flap (`shared::bar`), of
+    /// wood.
+    BarCounter,
 }
 
 impl Kind {
-    pub(super) const ALL: [Self; 6] = [
+    pub(super) const ALL: [Self; 7] = [
         Self::Table,
         Self::Chair,
         Self::Bench,
         Self::CaskRack,
         Self::WineRack,
         Self::SpiritRack,
+        Self::BarCounter,
     ];
 
     pub(super) fn name(self) -> &'static str {
@@ -46,6 +52,7 @@ impl Kind {
             Self::CaskRack => "Cask Rack",
             Self::WineRack => "Wine Rack",
             Self::SpiritRack => "Spirit Rack",
+            Self::BarCounter => "Bar Counter",
         }
     }
 
@@ -54,7 +61,7 @@ impl Kind {
         match self {
             Self::Table => &[(1, 1), (2, 1), (3, 1), (2, 2), (3, 2)],
             Self::Chair => &[(1, 1)],
-            Self::Bench | Self::CaskRack | Self::WineRack | Self::SpiritRack => {
+            Self::Bench | Self::CaskRack | Self::WineRack | Self::SpiritRack | Self::BarCounter => {
                 &[(1, 1), (2, 1), (3, 1)]
             }
         }
@@ -63,7 +70,9 @@ impl Kind {
     /// A size as the dropdown says it: short side first, as "2 × 3".
     pub(super) fn size_name(self, (long, short): (u8, u8)) -> String {
         match self {
-            Self::Bench | Self::CaskRack | Self::WineRack | Self::SpiritRack => long.to_string(),
+            Self::Bench | Self::CaskRack | Self::WineRack | Self::SpiritRack | Self::BarCounter => {
+                long.to_string()
+            }
             _ => format!("{short} × {long}"),
         }
     }
@@ -79,7 +88,7 @@ impl Kind {
                 .collect(),
             Self::Chair => (ChairStyle::ALL.into_iter())
                 .flat_map(|style| [false, true].map(|arms| Furniture::Chair { style, arms }))
-                .filter(|&chair| !(chair_arms(chair) && chair.is_stone()))
+                .filter(|&chair| !(chair_arms(chair) && (chair.is_stone() || bar_stool(chair))))
                 .collect(),
             Self::Bench => (BenchStyle::ALL.into_iter())
                 .map(|style| Furniture::Bench { style })
@@ -99,6 +108,10 @@ impl Kind {
                 };
                 vec![Furniture::BottleRack { rack }]
             }
+            Self::BarCounter => (BarCounter::all().into_iter())
+                .filter(|counter| counter.length == size.0)
+                .map(|counter| Furniture::BarCounter { counter })
+                .collect(),
         };
         let fits = |piece: &Furniture| material.is_none_or(|m| m.is_stone() == piece.is_stone());
         let fitting: Vec<Furniture> = all.iter().copied().filter(fits).collect();
@@ -108,6 +121,16 @@ impl Kind {
 
 fn chair_arms(furniture: Furniture) -> bool {
     matches!(furniture, Furniture::Chair { arms: true, .. })
+}
+
+fn bar_stool(furniture: Furniture) -> bool {
+    matches!(
+        furniture,
+        Furniture::Chair {
+            style: ChairStyle::BarStool,
+            ..
+        }
+    )
 }
 
 /// The panel's choices: kind, size, facing and material.
@@ -159,9 +182,12 @@ impl FurnitureOrder {
                 Side::South
             }
             Kind::Table => Side::East,
-            Kind::Chair | Kind::Bench | Kind::CaskRack | Kind::WineRack | Kind::SpiritRack => {
-                self.facing
-            }
+            Kind::Chair
+            | Kind::Bench
+            | Kind::CaskRack
+            | Kind::WineRack
+            | Kind::SpiritRack
+            | Kind::BarCounter => self.facing,
         };
         let chosen = self
             .material
