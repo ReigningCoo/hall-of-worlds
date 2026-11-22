@@ -1,4 +1,5 @@
 use shared::id::Id;
+use shared::protocol::RoleSource;
 use shared::role::*;
 use uuid::Uuid;
 
@@ -116,4 +117,70 @@ fn the_mapping_and_discords_roles_are_kept_in_roles_ron() {
     let read: RolesFile = ron::from_str(&older).unwrap();
     assert!(read.discord_roles.is_empty());
     assert!(read.accounts.values().all(|held| !held.discord));
+}
+
+fn powers(roles: &Roles, of: &str) -> Powers {
+    roles.role(&RoleId::new(of), None, String::new()).powers
+}
+
+#[test]
+fn player_given_by_hand_is_a_demotion_discord_never_undoes() {
+    let mut roles = mapped(&[(2, MODERATOR)]);
+    roles.follow_discord(account(1), Some(&[2]), 10).unwrap();
+    assert!(role(&mut roles, account(1)).is(MODERATOR));
+    by_hand(&mut roles, account(1), PLAYER);
+    assert!(role(&mut roles, account(1)).is(PLAYER));
+    assert!(!roles.follows_discord(account(1)));
+    roles.follow_discord(account(1), Some(&[2]), 10).unwrap();
+    assert!(role(&mut roles, account(1)).is(PLAYER));
+    // It still needs to be on the Discord server to play.
+    assert!(!roles.in_without_discord(account(1)));
+    assert_eq!(roles.source(account(1)), RoleSource::Server);
+
+    // With no mapping Discord can only give Player, so nothing is kept.
+    let mut unmapped = Roles::default();
+    by_hand(&mut unmapped, account(1), MODERATOR);
+    by_hand(&mut unmapped, account(1), PLAYER);
+    assert_eq!(unmapped.source(account(1)), RoleSource::Unset);
+}
+
+#[test]
+fn follow_discord_hands_a_role_given_by_hand_back_to_discord() {
+    let mut roles = mapped(&[(2, MODERATOR)]);
+    let admin = powers(&roles, ADMIN);
+    let staff = account(9);
+    let change = Change {
+        to: &RoleId::new(DEVELOPER),
+        until: None,
+        reason: "",
+    };
+    let by = Actor::Account(staff, &admin);
+    roles.set_role(by, account(1), false, change, 10).unwrap();
+    assert_eq!(roles.source(account(1)), RoleSource::Hand);
+
+    // A moderator can't give Developer or Moderator, so can't hand it back.
+    let moderator = powers(&roles, MODERATOR);
+    assert!(!roles.may_hand_to_discord(account(1), &moderator));
+    let refused = roles.hand_to_discord(staff, &moderator, account(1), "", 20);
+    assert!(refused.is_err());
+    // Nor anyone their own.
+    assert!(roles.hand_to_discord(staff, &admin, staff, "", 20).is_err());
+
+    assert!(roles.may_hand_to_discord(account(1), &admin));
+    roles
+        .hand_to_discord(staff, &admin, account(1), "back to Discord", 20)
+        .unwrap();
+    assert!(roles.follows_discord(account(1)));
+    assert_eq!(roles.source(account(1)), RoleSource::Unset);
+    assert_eq!(roles.take_recheck(), vec![account(1)]);
+    let line = roles.audit_lines().last().unwrap();
+    assert!(line.contains("handed"), "{line}");
+    assert!(line.contains("back to Discord (was developer): back to Discord"));
+    roles.follow_discord(account(1), Some(&[2]), 30).unwrap();
+    assert!(role(&mut roles, account(1)).is(MODERATOR));
+    assert_eq!(roles.source(account(1)), RoleSource::Discord);
+
+    // Nothing to hand back once Discord's.
+    assert!(!roles.may_hand_to_discord(account(1), &admin));
+    assert!(!roles.may_hand_to_discord(account(5), &admin));
 }

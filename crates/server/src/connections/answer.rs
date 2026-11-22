@@ -134,7 +134,10 @@ pub(crate) fn answer(
             client.waiting.push_back(Action::Up);
             true
         }
-        ClientMessage::Role(ask) => super::role_ask::answer_role(client, ask, accounts),
+        ClientMessage::Role(ask) => {
+            let discord = logins.is_some_and(Logins::requires_member);
+            super::role_ask::answer_role(client, ask, accounts, discord)
+        }
         ClientMessage::OpenTrade { with } => {
             client.waiting.push_back(Action::OpenTrade { with });
             true

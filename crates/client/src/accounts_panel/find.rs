@@ -1,7 +1,9 @@
 //! The Find page: a character's name to look up, then their account's role,
-//! and, if the player may change it, a role to give, for how long and why.
+//! where it came from and whether Discord is linked, and, if the player may
+//! change it, a role to give, for how long and why, or Follow Discord to hand
+//! it back to the server's Discord.
 
-use shared::protocol::FoundAccount;
+use shared::protocol::{FoundAccount, RoleSource};
 
 use super::show::numbered;
 use super::state::Panel;
@@ -18,6 +20,8 @@ pub(super) fn show_find(panel: &mut Panel, dom: &mut Dom) {
         let others = format!("Also plays {}.", found.others.join(", "));
         dom.set_text("accounts/others", others);
     }
+    dom.set_text("accounts/source", source(found));
+    dom.set_flag("accounts/follow", "hidden", !found.may_follow_discord);
     let may_give = !found.may_give.is_empty();
     dom.set_flag("accounts/cannot", "hidden", may_give);
     dom.set_flag("accounts/give", "hidden", !may_give);
@@ -43,6 +47,21 @@ pub(super) fn about(found: &FoundAccount) -> String {
         about += &format!(" ({})", found.reason);
     }
     about
+}
+
+/// Where the account's role came from, and whether it has Discord linked.
+pub(super) fn source(found: &FoundAccount) -> String {
+    let from = match found.source {
+        RoleSource::Unset => "No role given",
+        RoleSource::Discord => "Role from Discord",
+        RoleSource::Hand => "Role given by hand, which Discord never changes",
+        RoleSource::Server => "Role claimed or set in roles.ron, which Discord never changes",
+    };
+    let linked = match found.discord_linked {
+        true => "Discord linked",
+        false => "no Discord linked",
+    };
+    format!("{from}; {linked}.")
 }
 
 /// Why this account's role can't be changed by the player.

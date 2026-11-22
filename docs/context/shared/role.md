@@ -21,5 +21,6 @@ All of the above. `protocol::ServerMessage::Welcome` carries a `RoleBadge`, `Pow
 ## Notes
 
 - One role per account. Developer and Moderator don't overlap: roles are rows of permissions, not a ladder.
+- Where an account's role came from is `protocol::RoleSource` (none, Discord, by hand, the server's own); a hand-given Player is kept as a demotion Discord can't undo (the server's `roles`).
 - `grants` are the roles an account may give, and so the roles of the accounts it may act on (Player in it means taking a role away). `appears_as` is the roles a character may be shown as to others (Settings, Gameplay, Shown As).
 - One permission per debug tool (owner, 2026-11-09, for security): `role/debug_tool.rs`' `DebugTool` (each debug menu entry (Place Furniture is `PlaceFurniture`, Create Crafting Bench `CreateCraftingBench`), Examine Mob's Kill and Destroy, Debug Info's Load (`LoadDebugString`: Owners, Admins and Developers by default), and `Other` for what only the debug API and starting variables use; `ALL`), `admin_only` (World Time, Freeze Mobs: Owners and Admins only, and not given by `HOW_DEBUG_TOOLS`), `for_moderators` (what Moderators have by default; Developers have all but the Admin-only ones). `protocol::ClientMessage::dev_tool` says which a message needs. In `roles.ron` they read `Debug(GiveItem): true`.

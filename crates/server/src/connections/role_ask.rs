@@ -1,10 +1,11 @@
 //! Answering `ClientMessage::Role`: what the character is shown as, and the
-//! Accounts panel's finding, giving, renaming and reading the audit log, each
-//! checked against the asker's role. Then (`refresh_roles`) anyone playing on
-//! an account whose role changed is told, or sent away if banned.
+//! Accounts panel's finding, giving, handing back to Discord, renaming and
+//! reading the audit log, each checked against the asker's role. Then
+//! (`refresh_roles`) anyone playing on an account whose role changed is told,
+//! or sent away if banned, and one handed back to Discord is checked at once.
 
 use bevy::log::info;
-use shared::protocol::{CharacterId, FoundAccount, RoleAnswer, RoleAsk, ServerMessage};
+use shared::protocol::{CharacterId, FoundAccount, RoleAnswer, RoleAsk, RoleSource, ServerMessage};
 use shared::role::{BANNED, Permission, RoleId};
 
 use super::Client;
@@ -13,8 +14,14 @@ use crate::accounts::{AccountId, Accounts};
 use crate::roles::{Actor, Change};
 use crate::storage::now;
 
-/// Answers one; `false` if the client has gone.
-pub(super) fn answer_role(client: &mut Client, ask: RoleAsk, accounts: &mut Accounts) -> bool {
+/// Answers one; `false` if the client has gone. `discord`: the server checks
+/// its Discord's roles (`Logins::requires_member`).
+pub(super) fn answer_role(
+    client: &mut Client,
+    ask: RoleAsk,
+    accounts: &mut Accounts,
+    discord: bool,
+) -> bool {
     let answer = match ask {
         RoleAsk::ShowAs(id) => {
             if !client.show_as(id) {
@@ -22,13 +29,18 @@ pub(super) fn answer_role(client: &mut Client, ask: RoleAsk, accounts: &mut Acco
             }
             Ok(RoleAnswer::Shown(client.shown()))
         }
-        RoleAsk::LookUp(name) if client.may(Permission::LookUp) => look_up(client, &name, accounts),
+        RoleAsk::LookUp(name) if client.may(Permission::LookUp) => {
+            look_up(client, &name, accounts, discord)
+        }
         RoleAsk::Give {
             character,
             role,
             minutes,
             reason,
-        } => give(client, character, role, minutes, reason, accounts),
+        } => give(client, character, role, minutes, reason, accounts, discord),
+        RoleAsk::FollowDiscord { character, reason } if discord => {
+            follow_discord(client, character, &reason, accounts)
+        }
         RoleAsk::Audit { skip } if client.may(Permission::ReadAudit) => accounts
             .roles
             .audit_page(skip as usize)
@@ -51,11 +63,16 @@ pub(super) fn answer_role(client: &mut Client, ask: RoleAsk, accounts: &mut Acco
     client.link.send(&ServerMessage::Role(answer))
 }
 
-fn look_up(client: &Client, name: &str, accounts: &mut Accounts) -> Result<RoleAnswer, String> {
+fn look_up(
+    client: &Client,
+    name: &str,
+    accounts: &mut Accounts,
+    discord: bool,
+) -> Result<RoleAnswer, String> {
     let Some((character, account)) = accounts.find_character(name)? else {
         return Err(format!("nobody here is called {}", name.trim()));
     };
-    found(client, character, account, accounts).map(RoleAnswer::Found)
+    found(client, character, account, accounts, discord).map(RoleAnswer::Found)
 }
 
 /// What the panel shows of a character's account.
@@ -64,6 +81,7 @@ fn found(
     character: CharacterId,
     account: AccountId,
     accounts: &mut Accounts,
+    discord: bool,
 ) -> Result<FoundAccount, String> {
     let save = accounts.account(&account)?.clone();
     let yours = client.account == Some(account);
@@ -83,6 +101,8 @@ fn found(
             .collect(),
         false => Vec::new(),
     };
+    let may_follow_discord =
+        discord && !yours && !save.guest && accounts.roles.may_hand_to_discord(account, &powers);
     let name = |c: &shared::protocol::CharacterSummary| c.name.clone();
     Ok(FoundAccount {
         character,
@@ -103,6 +123,12 @@ fn found(
         role: held.badge,
         until: held.until.map(crate::roles::log_stamp),
         reason: held.reason,
+        source: match save.guest {
+            true => RoleSource::Unset,
+            false => accounts.roles.source(account),
+        },
+        discord_linked: save.discord.is_some(),
+        may_follow_discord,
         may_give,
     })
 }
@@ -114,6 +140,7 @@ fn give(
     minutes: Option<u32>,
     reason: String,
     accounts: &mut Accounts,
+    discord: bool,
 ) -> Result<RoleAnswer, String> {
     let Some(actor) = client.account else {
         return Err("not logged in".into());
@@ -132,7 +159,27 @@ fn give(
     accounts
         .roles
         .set_role(Actor::Account(actor, &powers), target, guest, change, time)?;
-    found(client, character, target, accounts).map(RoleAnswer::Found)
+    found(client, character, target, accounts, discord).map(RoleAnswer::Found)
+}
+
+/// Hands a character's account back to the server's Discord.
+fn follow_discord(
+    client: &Client,
+    character: CharacterId,
+    reason: &str,
+    accounts: &mut Accounts,
+) -> Result<RoleAnswer, String> {
+    let Some(actor) = client.account else {
+        return Err("not logged in".into());
+    };
+    let Some(target) = accounts.owner_of(&character)? else {
+        return Err("that character has gone".into());
+    };
+    let powers = client.powers();
+    accounts
+        .roles
+        .hand_to_discord(actor, &powers, target, reason, now())?;
+    found(client, character, target, accounts, true).map(RoleAnswer::Found)
 }
 
 /// After every client's messages: anyone playing on an account whose role
@@ -143,6 +190,10 @@ pub(super) fn refresh_roles(
     accounts: &mut Accounts,
     worlds: &mut ServerWorlds,
 ) {
+    for account in accounts.roles.take_recheck() {
+        let playing = clients.iter_mut().filter(|c| c.account == Some(account));
+        playing.for_each(|client| client.discord.ask_soon());
+    }
     for account in accounts.roles.take_changed() {
         for client in clients
             .iter_mut()

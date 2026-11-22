@@ -223,7 +223,9 @@ fn a_broken_file_stops_the_server_and_is_left_alone() {
         "not a roles file",
         r#"(format: 1, roles: [(id: "Bad Id", name: "x")])"#,
         r#"(format: 1, roles: [], accounts: {"nobody": (role: "admin", since: 0)})"#,
-        r#"(format: 1, roles: [], accounts: {"00000000-0000-0000-0000-000000000007": (role: "player", since: 0)})"#,
+        r#"(format: 1, roles: [], accounts: {"00000000-0000-0000-0000-000000000007": (role: "guest", since: 0)})"#,
+        // Player only by hand: Discord gives it by holding none.
+        r#"(format: 1, roles: [], accounts: {"00000000-0000-0000-0000-000000000007": (role: "player", since: 0, discord: true)})"#,
         r#"(format: 1, roles: [(id: "x", name: "X", grants: ["owner"])])"#,
     ];
     for text in broken {

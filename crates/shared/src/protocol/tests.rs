@@ -57,6 +57,10 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ClientMessage::Role(super::RoleAsk::ShowAs(crate::role::RoleId::new(
             crate::role::PLAYER,
         ))),
+        ClientMessage::Role(super::RoleAsk::FollowDiscord {
+            character: CharacterId(crate::id::Id::for_test(3)),
+            reason: "back to Discord".into(),
+        }),
         ClientMessage::Role(super::RoleAsk::Give {
             character: CharacterId(crate::id::Id::for_test(3)),
             role: crate::role::RoleId::new(crate::role::BANNED),
@@ -381,6 +385,9 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             },
             until: Some("2026-11-10 10:00:00 UTC".into()),
             reason: "spam".into(),
+            source: super::RoleSource::Hand,
+            discord_linked: true,
+            may_follow_discord: false,
             may_give: Vec::new(),
         })),
         ServerMessage::ForgetWorldMap,

@@ -25,6 +25,7 @@ pub(super) static ACCOUNTS: Template = html!(
       <div id="found" hidden>
         <p id="about"/>
         <p id="others" hidden/>
+        <p id="source"/>
         <p id="cannot" hidden/>
         <div id="give" hidden>
           <span class="columns" nowrap>
@@ -47,8 +48,9 @@ pub(super) static ACCOUNTS: Template = html!(
             <label for="reason" width="110">Why</label>
             <input id="reason" type="text" width="340"/>
           </span>
-          <span>
+          <span class="columns">
             <button id="apply" class="main" width="110">Apply</button>
+            <button id="follow" width="170" hidden>Follow Discord</button>
           </span>
         </div>
       </div>

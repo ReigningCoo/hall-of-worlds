@@ -214,7 +214,9 @@ Every account has a role, which decides what it may do beyond playing. A role ca
     ],
 ```
 
-The Owner can't be given this way. Each change is written to `audit.log` as given by Discord. A role given by hand (in the game or in the file) is never changed by Discord, and lets its player in even if they leave your Discord server, unless it is Banned.
+The Owner can't be given this way. Each change is written to `audit.log` as given by Discord. A role given by hand (in the game or in the file) is never changed by Discord, and lets its player in even if they leave your Discord server, unless it is Banned. Giving someone Player by hand is a demotion Discord won't undo either, though they still need to be on your Discord server to play.
+
+The Accounts panel's Find page says where a player's role came from (Discord, by hand, or claimed or set in the file) and whether they have Discord linked. **Follow Discord** there takes a role given by hand away, so their Discord roles set it again at the next check (straight away if they are playing); it is only offered to those who may give both that role and every role in `discord_roles`, and is written to `audit.log`.
 
 If the file can't be read, the server won't start, so nothing is lost. Each change the server makes keeps the previous file in `roles-backups/` (the last 10). Every role given, taken or run out is written to `audit.log`, and so is every use of a debug menu tool by anyone but a native client's own player, by account and character id (just looking, such as Examine Mob's details, is left out).
 

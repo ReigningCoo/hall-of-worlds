@@ -81,7 +81,11 @@ impl Roles {
                 format!(": {}", change.reason)
             },
         );
-        let held = (!to.is(PLAYER)).then(|| HeldRole {
+        // Player is no role held, unless given by hand while Discord could
+        // raise the account: then it stays, a demotion Discord can't undo
+        // (until "Follow Discord", `hand_to_discord`).
+        let keep_player = !from_discord && !self.file.discord_roles.is_empty();
+        let held = (!to.is(PLAYER) || keep_player).then(|| HeldRole {
             role: to.clone(),
             since: now,
             until: change.until,
