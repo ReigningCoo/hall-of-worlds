@@ -92,6 +92,7 @@ mod role_ask;
 mod rub_ointment;
 mod send_sheet;
 mod stack_parts;
+mod starting_kit;
 mod strength_room;
 mod stumble;
 mod systems;

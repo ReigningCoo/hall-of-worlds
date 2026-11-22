@@ -30,7 +30,7 @@ pub const LIGHT_SECONDS: u64 = 5;
 /// Feeding a fire a piece of kindling: seconds (Claude's choice).
 pub const FEED_SECONDS: u64 = 1;
 
-/// How far a lit fire's light reaches, in cells (as a carried light's).
+/// How far a lit fire's light reaches, in cells (as an unlit carrier's used to).
 pub const LIGHT_CELLS: u32 = 6;
 
 /// `LIGHT_SECONDS` in action ticks.

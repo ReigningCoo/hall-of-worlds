@@ -1829,3 +1829,7 @@ Recipes plan PR 1 (owner: a scroll for every real dish). Each real dish's recipe
 ## 2026-11-22: Lanterns burn oil kept on the item, held or tied to the belt
 
 Lantern task PR 4 of 6 (owner: 200 ml of any oil, 100 ml an hour of playtime, burning and lighting 10 cells only while held or tied to a belt, one on the belt). The fuel is an `ItemForm::Lantern` in whole millilitres plus seconds into the next, so the server's playtime ticks burn it as yeast's clock runs (`shared::lantern`). Tying something that is no bag to a bag slot is a new `ItemDef::belt_tool` flag rather than giving the lantern an empty container: it reuses the slot rules (one of a kind, as holders; no cells added) without a lantern ever looking like a bag. Open flames (candles, torches) never get it: held only (owner).
+
+## 2026-11-22: No light without a lantern; new characters start with one
+
+Lantern task PR 7 (owner: "add a fuelled lantern and 2 bottles of oil to all new characters, and remove the default light"). `dungeon::CARRIED_LIGHT` is 0 rather than removed, so `Inventory::light_reach` and `EntityLook::light` keep one meaning (0 is no light; the client then lights nothing, not even the carrier's own cell, and sets no point light). Darkvision counts from 0 too (owner), 2 a step plus 1 a quality over Poor. The kit (a full lantern, two bottles of Neutral Oil) goes only to characters made from now on (owner): it is given alongside the first clothes, before `Inventory::outfitted` is set, so older characters, already outfitted, never get it and no new flag is needed.

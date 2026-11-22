@@ -76,6 +76,10 @@ impl LightGrid {
     /// same rule as sight, from `shared`); it fades slowly at first, then
     /// faster, to nothing just beyond the radius.
     pub fn add_light(&mut self, level: &Level, (x, y): (i64, i64), radius: u32, colour: Vec3) {
+        if radius == 0 {
+            // No light at all (a player without a lit lantern).
+            return;
+        }
         for ((cx, cy), strength) in reach(level, (x, y), radius) {
             if let Some(i) = self.index(cx, cy) {
                 self.light[i] = brighter(self.light[i], colour * strength);

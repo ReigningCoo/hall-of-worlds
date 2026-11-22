@@ -1,4 +1,4 @@
-//! A new character's first sheet and clothes, and welcoming a character into the world.
+//! A new character's first sheet, clothes and kit, and welcoming a character into the world.
 
 use shared::creature::CreatureKind;
 use shared::gender::Gender;
@@ -137,6 +137,14 @@ pub(super) fn welcome(
             client.sheet = start_sheet(sheet, client.starting_as.take(), &mut client.inventory);
             // Skills from before rust count as used now.
             client.sheet.skills.settle(played);
+            if !client.inventory.outfitted {
+                // New characters only: those made before it never get it.
+                super::starting_kit::give_lantern_and_oil(
+                    &mut client.inventory,
+                    world.made_now(),
+                    world.stacks,
+                );
+            }
             give_first_clothes(&mut client.inventory, world.made_now());
             client.speed = client.sheet.speed(&client.inventory);
             client.start_wearing(world.action_clock.ticks());

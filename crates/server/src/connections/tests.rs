@@ -57,7 +57,9 @@ impl TestClient {
         Self::of(ServerWorld::new(WorldSeed::new(1)))
     }
 
-    /// A client of `world`, welcomed (its answer to `Hello` is read).
+    /// A client of `world`, welcomed (its answer to `Hello` is read). What a
+    /// new character is given to carry (`starting_kit`) is taken away again,
+    /// so tests start with nothing but clothes; `welcome` still shows it.
     pub fn of(world: ServerWorld) -> Self {
         let (end, server_link) = local_pair();
         let mut test = Self {
@@ -72,6 +74,7 @@ impl TestClient {
             next_step: 0,
         };
         test.welcome = test.send(&[HELLO]);
+        test.client.inventory.items.clear();
         test
     }
 
@@ -292,7 +295,13 @@ fn inventory(answers: &[ServerMessage]) -> Inventory {
 #[test]
 fn a_character_is_told_what_they_carry_on_joining() {
     let first = inventory(&TestClient::new().welcome);
-    assert!(first.items.is_empty());
+    // A lantern and a stack of two bottles of oil (`starting_kit`).
+    let carried: Vec<_> = first.items.iter().map(|placed| &placed.item).collect();
+    let kinds: Vec<_> = carried
+        .iter()
+        .map(|item| (item.kind, item.count()))
+        .collect();
+    assert_eq!(kinds, [(ItemKind::Lantern, 1), (ItemKind::Bottle, 2)]);
     let kinds: Vec<_> = first.worn.iter().map(|item| item.kind).collect();
     assert_eq!(
         kinds,

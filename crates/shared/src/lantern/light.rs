@@ -1,5 +1,5 @@
 //! How far a carrier's light reaches (owner): a lit lantern, held or tied,
-//! lights 10 cells instead of the 6 everyone carries.
+//! lights 10 cells; without one there is no light at all.
 
 use crate::dungeon::CARRIED_LIGHT;
 use crate::item::Inventory;

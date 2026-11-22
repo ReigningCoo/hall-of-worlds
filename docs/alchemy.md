@@ -97,7 +97,7 @@ A Retort's solid space takes one of these, used up each run:
 
 ### Darkvision
 
-A Darkvision potion lets you see in the dark further than your own light reaches: the dark round you shows dimly, without colour, as far as walls let you see. How far depends on how strong the Darkvision is (2 cells a step) and on the potion's quality (a cell for each quality above Poor), starting from your light's 6 cells, up to 24. A Common potion of 4 steps sees 15 cells. It lasts as long as other potions of its quality. You learn what a Darkvision potion holds by learning Perception on the herbs that made it.
+A Darkvision potion lets you see in the dark: the dark round you shows dimly, without colour, as far as walls let you see. How far depends on how strong the Darkvision is (2 cells a step) and on the potion's quality (a cell for each quality above Poor), up to 24. A Common potion of 4 steps sees 9 cells; a lit lantern's light reaches further than a weak potion. It lasts as long as other potions of its quality. You learn what a Darkvision potion holds by learning Perception on the herbs that made it.
 
 ### Pure alcohol
 
