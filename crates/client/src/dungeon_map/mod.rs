@@ -17,6 +17,7 @@ mod bolts;
 mod border;
 mod campfires;
 mod daylight;
+mod decor;
 mod door_swing;
 mod field;
 mod fixed_lights;
@@ -135,6 +136,8 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<rack_casks::CaskModels>()
             .init_resource::<rack_bottles::DrawnBottles>()
             .init_resource::<rack_bottles::BottleModels>()
+            .init_resource::<decor::DrawnDecor>()
+            .init_resource::<decor::DecorModels>()
             .init_resource::<Shown>()
             .init_resource::<door_swing::DoorSwings>()
             .init_resource::<OutsideLight>()
@@ -208,6 +211,7 @@ impl Plugin for DungeonMapPlugin {
                             rack_casks::update_rack_casks,
                             rack_bottles::update_rack_bottles,
                             basket_logs::update_basket_logs,
+                            decor::update_decor,
                         ),
                         (
                             campfires::update_campfires,

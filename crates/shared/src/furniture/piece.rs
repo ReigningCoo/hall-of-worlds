@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{BenchStyle, ChairStyle, Material, TableStyle};
+use super::{BenchStyle, Candles, ChairStyle, Material, TableStyle};
 use crate::bar::BarCounter;
 use crate::bottle_rack::{BottleRack, BottleRackKind};
 use crate::cask_rack::CaskRack;
@@ -58,6 +58,12 @@ pub enum Furniture {
     Fireplace {
         fireplace: Fireplace,
     },
+    /// Candles standing on a table or bar counter (tavern furniture plan PR
+    /// 5), 1 × 1, of wood, always lit: a fixed light
+    /// (`decor::CANDLE_LIGHT_CELLS`).
+    Candles {
+        candles: Candles,
+    },
 }
 
 impl Furniture {
@@ -66,10 +72,14 @@ impl Furniture {
     }
 
     /// Whether it stands on other furniture instead of the floor: a spirit
-    /// rack on a table or a bar counter. Such a piece is kept on a
+    /// rack or candles on a table or a bar counter. Such a piece is kept on a
     /// level apart from what it stands on (`dungeon::Level::furniture_on_top`).
     pub fn stands_on_furniture(self) -> bool {
-        matches!(self, Self::BottleRack { rack } if rack.kind == BottleRackKind::Spirit)
+        match self {
+            Self::BottleRack { rack } => rack.kind == BottleRackKind::Spirit,
+            Self::Candles { .. } => true,
+            _ => false,
+        }
     }
 
     /// Whether a piece standing on furniture may stand on this: a table or
@@ -88,7 +98,8 @@ impl Furniture {
             | Self::CraftingBench { .. }
             | Self::CaskRack { .. }
             | Self::BottleRack { .. }
-            | Self::Fireplace { .. } => TABLE_COST_PER_MILLE,
+            | Self::Fireplace { .. }
+            | Self::Candles { .. } => TABLE_COST_PER_MILLE,
             // A counter as a table's; its flap lifts, as open floor.
             Self::BarCounter { counter } if counter.is_counter() => TABLE_COST_PER_MILLE,
             Self::BarCounter { .. } => 1000,
@@ -112,7 +123,8 @@ pub struct Piece {
     /// head, east or south (east for a square one). A crafting bench: the way
     /// its front faces, away from the wall behind it (as a seat's); its shelf
     /// is along the opposite side. A cask rack or wine rack: as a crafting
-    /// bench. A spirit rack: the way its front (lowest shelf) faces. A bar
+    /// bench. A spirit rack: the way its front (lowest shelf) faces. Candles:
+    /// the way a pair stands side by side across. A bar
     /// counter: the side drinkers stand on, the barkeep behind it. A
     /// fireplace: as a crafting bench, its hearth stone to the front.
     pub facing: Side,

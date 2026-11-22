@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 use shared::item_form::ItemOrder;
-use shared::protocol::ClientMessage;
+use shared::protocol::{ClientMessage, DevFurniture};
 
 use super::Client;
 use super::give_items::{Batch, give_items};
@@ -57,7 +57,12 @@ pub(super) fn answer_dev(
         ClientMessage::DevGenerateArea(area) => sites::generate_area(client, world, area),
         ClientMessage::DevMobs(tool) => crate::entities::dev_mobs(client, world, tool),
         ClientMessage::DevSetCell { x, y, cell } => sites::set_cell(client, world, x, y, cell),
-        ClientMessage::DevFurniture(order) => sites::place_furniture(client, world, order.piece),
+        ClientMessage::DevFurniture(DevFurniture::Piece(piece)) => {
+            sites::place_furniture(client, world, piece)
+        }
+        ClientMessage::DevFurniture(DevFurniture::Decor(decor)) => {
+            sites::place_decor(client, world, decor)
+        }
         ClientMessage::DevRevealPois => world_map::reveal_pois(client, world),
         ClientMessage::DevRevealMap => sites::reveal_level(client, world),
         ClientMessage::DevForgetMap => match client.visit {

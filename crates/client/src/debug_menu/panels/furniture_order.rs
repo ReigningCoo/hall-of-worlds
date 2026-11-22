@@ -3,8 +3,10 @@
 //! cell again with the same choices gives the next variation (every style of
 //! the kind that fits (a fireplace has one, of stone), chairs without and then with arms, a cask rack's every
 //! cask size made at that length, a bar counter single, double, then a flap
-//! at length 1), wrapping round; a
+//! at length 1, candles each way they stand), wrapping round; a
 //! click elsewhere starts a new piece in the variation the last one ended on.
+//! Booths, wall decorations, chandeliers and rugs are put down by
+//! `decor.rs`.
 
 use bevy::prelude::*;
 use shared::bar::BarCounter;
@@ -13,8 +15,12 @@ use shared::cask_rack::CaskRack;
 use shared::door::Side;
 use shared::fireplace::Fireplace;
 use shared::furniture::{
-    BenchStyle, ChairStyle, Furniture, Material, Piece, TableStyle, footprint,
+    BenchStyle, Candles, ChairStyle, Furniture, Material, Piece, TableStyle, footprint,
 };
+
+mod decor;
+
+pub(super) use decor::Order;
 
 /// Which kind of piece.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -34,10 +40,20 @@ pub(super) enum Kind {
     BarCounter,
     /// A fireplace against a wall (`shared::fireplace`), of stone.
     Fireplace,
+    /// Candles, only on a table or bar counter (`furniture::Candles`).
+    Candles,
+    /// Two settles facing across a table (`furniture::booth`), of wood.
+    Booth,
+    /// Something hanging on a wall's face (`shared::decor::Hanging`).
+    WallDecoration,
+    /// A chandelier over the cell (`shared::decor::ChandelierStyle`).
+    Chandelier,
+    /// A rug on the floor (`shared::decor::Rug`).
+    Rug,
 }
 
 impl Kind {
-    pub(super) const ALL: [Self; 8] = [
+    pub(super) const ALL: [Self; 13] = [
         Self::Table,
         Self::Chair,
         Self::Bench,
@@ -46,6 +62,11 @@ impl Kind {
         Self::SpiritRack,
         Self::BarCounter,
         Self::Fireplace,
+        Self::Candles,
+        Self::Booth,
+        Self::WallDecoration,
+        Self::Chandelier,
+        Self::Rug,
     ];
 
     pub(super) fn name(self) -> &'static str {
@@ -58,14 +79,20 @@ impl Kind {
             Self::SpiritRack => "Spirit Rack",
             Self::BarCounter => "Bar Counter",
             Self::Fireplace => "Fireplace",
+            Self::Candles => "Candles",
+            Self::Booth => "Booth",
+            Self::WallDecoration => "Wall Decoration",
+            Self::Chandelier => "Chandelier",
+            Self::Rug => "Rug",
         }
     }
 
     /// The sizes it comes in, long side by short.
     pub(super) fn sizes(self) -> &'static [(u8, u8)] {
         match self {
-            Self::Table => &[(1, 1), (2, 1), (3, 1), (2, 2), (3, 2)],
-            Self::Chair => &[(1, 1)],
+            Self::Table | Self::Booth => &[(1, 1), (2, 1), (3, 1), (2, 2), (3, 2)],
+            Self::Chair | Self::Candles | Self::WallDecoration | Self::Chandelier => &[(1, 1)],
+            Self::Rug => &[(1, 1), (2, 1), (3, 2), (4, 3), (4, 4)],
             Self::Bench
             | Self::CaskRack
             | Self::WineRack
@@ -126,6 +153,11 @@ impl Kind {
             Self::Fireplace => vec![Furniture::Fireplace {
                 fireplace: Fireplace { length: size.0 },
             }],
+            Self::Candles => (Candles::ALL.into_iter())
+                .map(|candles| Furniture::Candles { candles })
+                .collect(),
+            // Put down by `decor.rs`, not as one piece.
+            Self::Booth | Self::WallDecoration | Self::Chandelier | Self::Rug => Vec::new(),
         };
         let fits = |piece: &Furniture| material.is_none_or(|m| m.is_stone() == piece.is_stone());
         let fitting: Vec<Furniture> = all.iter().copied().filter(fits).collect();
@@ -179,17 +211,23 @@ impl Default for FurnitureOrder {
 }
 
 impl FurnitureOrder {
+    /// The variation (of `count`) a click on `cell` puts down: the next one
+    /// on clicking the same cell with the same choices.
+    fn vary(&mut self, cell: (i64, i64), count: usize) -> usize {
+        let choices = (self.kind, self.size, self.facing, self.material);
+        let again = self.last == Some((cell, choices));
+        self.variation = (self.variation + usize::from(again)) % count.max(1);
+        self.last = Some((cell, choices));
+        self.variation
+    }
+
     /// The piece a click on `cell` puts down (its north-west cell), `roll`
     /// choosing a Random material.
     pub(super) fn click(&mut self, cell: (i64, i64), roll: u64) -> Piece {
         let sizes = self.kind.sizes();
         let (long, short) = sizes[self.size.min(sizes.len() - 1)];
-        let choices = (self.kind, self.size, self.facing, self.material);
-        let again = self.last == Some((cell, choices));
         let variations = self.kind.variations((long, short), self.material);
-        self.variation = (self.variation + usize::from(again)) % variations.len();
-        self.last = Some((cell, choices));
-        let furniture = variations[self.variation];
+        let furniture = variations[self.vary(cell, variations.len())];
         let facing = match self.kind {
             // A table runs east–west or north–south, east when square.
             Kind::Table if long > short && matches!(self.facing, Side::North | Side::South) => {
@@ -202,7 +240,12 @@ impl FurnitureOrder {
             | Kind::WineRack
             | Kind::SpiritRack
             | Kind::BarCounter
-            | Kind::Fireplace => self.facing,
+            | Kind::Fireplace
+            | Kind::Candles
+            | Kind::Booth
+            | Kind::WallDecoration
+            | Kind::Chandelier
+            | Kind::Rug => self.facing,
         };
         let chosen = self
             .material

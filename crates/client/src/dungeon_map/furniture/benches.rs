@@ -1,6 +1,7 @@
 //! Benches by style, 1 to 3 cells long and never with arms: a plank on
 //! splayed legs, a seat between solid end boards, a long stool with rails
-//! between its legs, and a stone slab on blocks.
+//! between its legs, a stone slab on blocks, and a high-backed settle (its
+//! own file, `settle.rs`).
 
 use shared::furniture::BenchStyle;
 
@@ -23,6 +24,7 @@ pub(super) fn parts(seat: &Seat, style: BenchStyle) -> Vec<Part> {
         BenchStyle::BoardEnded => board_ended(seat),
         BenchStyle::LongStool => long_stool(seat),
         BenchStyle::StoneSlab => stone_slab(seat),
+        BenchStyle::Settle => super::settle::parts(seat),
     }
 }
 

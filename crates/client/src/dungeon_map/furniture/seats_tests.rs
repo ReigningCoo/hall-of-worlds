@@ -44,7 +44,7 @@ fn every_seat() -> Vec<(Furniture, u8)> {
 }
 
 /// Every seat, every way round, stays inside its cells (reaching under a
-/// table only forwards, by `OVERHANG`) and below a table's top.
+/// table only forwards, by `OVERHANG`) and low (a settle's back taller).
 #[test]
 fn seats_stay_inside_their_cells() {
     for (furniture, long) in every_seat() {
@@ -58,6 +58,12 @@ fn seats_stay_inside_their_cells() {
                     (true, true) => (0.0, depth + OVERHANG),
                     (true, false) => (-OVERHANG, depth),
                 };
+                // A settle's back stands as tall as someone sitting.
+                let settle = furniture
+                    == Furniture::Bench {
+                        style: BenchStyle::Settle,
+                    };
+                let tallest = CELL_SIZE * if settle { 0.8 } else { 0.6 };
                 let parts = seats::parts(&piece, under_table).expect("a seat has parts");
                 assert!(!parts.is_empty());
                 for part in parts {
@@ -66,7 +72,7 @@ fn seats_stay_inside_their_cells() {
                         assert!(
                             (low - 0.001..=high + 0.001).contains(&point.x)
                                 && (0.0..=length).contains(&point.z)
-                                && (0.0..=CELL_SIZE * 0.6).contains(&point.y),
+                                && (0.0..=tallest).contains(&point.y),
                             "{furniture:?} {long} {facing:?} {under_table}: {point}"
                         );
                     }

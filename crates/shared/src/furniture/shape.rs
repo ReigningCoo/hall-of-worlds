@@ -14,7 +14,10 @@ impl Furniture {
             Self::Bench { style } => style == BenchStyle::StoneSlab,
             // Hearths are of stone, other benches of wood.
             Self::CraftingBench { craft } => craft.is_hearth(),
-            Self::CaskRack { .. } | Self::BottleRack { .. } | Self::BarCounter { .. } => false,
+            Self::CaskRack { .. }
+            | Self::BottleRack { .. }
+            | Self::BarCounter { .. }
+            | Self::Candles { .. } => false,
             Self::Fireplace { .. } => true,
         }
     }
@@ -32,7 +35,8 @@ pub fn footprint(furniture: Furniture, (long, short): (u8, u8), facing: Side) ->
         | Furniture::CaskRack { .. }
         | Furniture::BottleRack { .. }
         | Furniture::BarCounter { .. }
-        | Furniture::Fireplace { .. } => matches!(facing, Side::North | Side::South),
+        | Furniture::Fireplace { .. }
+        | Furniture::Candles { .. } => matches!(facing, Side::North | Side::South),
     };
     if along_x {
         (long, short)
@@ -47,7 +51,8 @@ impl Piece {
     /// pedestal only where it fits; a chair 1 × 1; a bench 1 to 3 long and 1
     /// deep across the way it faces; a crafting bench its craft's length and 1
     /// deep across the way it faces, of wood (a cask, wine or spirit rack or a
-    /// bar counter its length, of wood; a fireplace its length, of stone); stone styles of stone and wooden
+    /// bar counter its length, of wood; a fireplace its length, of stone;
+    /// candles 1 × 1, of wood); stone styles of stone and wooden
     /// ones of wood, and arms only on wooden chairs, never a bar stool.
     pub fn is_well_made(&self) -> bool {
         let (width, height) = self.size;
@@ -79,6 +84,7 @@ impl Piece {
             Furniture::Fireplace { fireplace } => {
                 fireplace.is_well_made() && long == fireplace.length && short == 1
             }
+            Furniture::Candles { .. } => long == 1,
         };
         sized
             && footprint(self.furniture, (long, short), self.facing) == self.size

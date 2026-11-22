@@ -114,7 +114,8 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
         | Furniture::CaskRack { .. }
         | Furniture::BottleRack { .. }
         | Furniture::BarCounter { .. }
-        | Furniture::Fireplace { .. } => {
+        | Furniture::Fireplace { .. }
+        | Furniture::Candles { .. } => {
             return None;
         }
         Furniture::Chair { .. } => chairs::DEPTH,
@@ -143,7 +144,8 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
         | Furniture::CaskRack { .. }
         | Furniture::BottleRack { .. }
         | Furniture::BarCounter { .. }
-        | Furniture::Fireplace { .. } => {
+        | Furniture::Fireplace { .. }
+        | Furniture::Candles { .. } => {
             return None;
         }
     })

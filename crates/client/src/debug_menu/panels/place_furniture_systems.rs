@@ -7,7 +7,7 @@ use shared::protocol::{ClientMessage, DevFurniture};
 use shared::role::DebugTool;
 
 use super::create_mob_systems::can_place;
-use super::furniture_order::{FurnitureOrder, Kind};
+use super::furniture_order::{FurnitureOrder, Kind, Order};
 use super::place_furniture::{FACINGS, FORM};
 use super::{FurnitureChoice, FurnitureClickToPlace, FurniturePlace, OpenPanels, new_seed};
 use crate::common::{ClickMode, CurrentDungeon, DebugTools, FurnitureClicked, GameView};
@@ -153,10 +153,11 @@ fn show_furniture_mode(
     }
 }
 
-/// A cell clicked in Furniture Mode: the piece for it, to the server.
+/// A cell clicked in Furniture Mode: the pieces or decor for it, to the
+/// server.
 fn place_furniture(
     mut clicked: MessageReader<FurnitureClicked>,
-    mode: Res<ClickMode>,
+    (mode, dungeon): (Res<ClickMode>, Res<CurrentDungeon>),
     mut order: ResMut<FurnitureOrder>,
     mut rolls: Local<i64>,
     time: Res<Time<Real>>,
@@ -168,8 +169,17 @@ fn place_furniture(
         }
         *rolls += 1;
         let roll = new_seed(time.elapsed().as_nanos() as u64, *rolls);
-        let piece = order.click((x, y), roll);
-        let message = ClientMessage::DevFurniture(DevFurniture { piece });
-        to_server.write(ToServer(message));
+        let messages = match order.order((x, y), roll, &dungeon.level) {
+            Some(Order::Pieces(pieces)) => (pieces.into_iter())
+                .map(|piece| ClientMessage::DevFurniture(DevFurniture::Piece(piece)))
+                .collect(),
+            Some(Order::Decor(decor)) => {
+                vec![ClientMessage::DevFurniture(DevFurniture::Decor(decor))]
+            }
+            None => Vec::new(),
+        };
+        for message in messages {
+            to_server.write(ToServer(message));
+        }
     }
 }

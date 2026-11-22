@@ -1,11 +1,13 @@
 //! Developer tools: Place Furniture puts a piece on the player's site level by
 //! hand, replacing any it overlaps, for everyone on that level and its mobs.
-//! Not kept: the level is made afresh, as furnished, when next loaded; except
-//! pieces with places (cask, wine and spirit racks, benches:
+//! Decor (`shared::decor`) too, by `place_decor`, replacing what was in its
+//! place. Not kept: the level is made afresh, as furnished, when next loaded;
+//! except pieces with places (cask, wine and spirit racks, benches:
 //! `furniture::Holder`), kept as
 //! Create Crafting Bench's are, so what is put on them isn't lost.
 
 use bevy::prelude::*;
+use shared::decor::Decor;
 use shared::furniture::{Holder, Piece, takes_furniture};
 
 use super::doors::changed_at;
@@ -14,11 +16,27 @@ use crate::ServerWorld;
 use crate::connections::Client;
 use crate::storage::SiteId;
 
-/// A piece put down by hand on a site level, for `share_furniture`.
+/// A piece or decor put down by hand on a site level, for `share_furniture`.
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct FurnitureChange {
     pub(crate) place: (SiteId, u32),
-    pub(crate) piece: Piece,
+    what: Placed,
+}
+
+/// What was put down.
+#[derive(Clone, Copy, Debug)]
+enum Placed {
+    Piece(Piece),
+    Decor(Decor),
+}
+
+impl FurnitureChange {
+    pub(crate) fn piece(place: (SiteId, u32), piece: Piece) -> Self {
+        Self {
+            place,
+            what: Placed::Piece(piece),
+        }
+    }
 }
 
 /// Checks the piece (a shape furnishing could make, on the level's floor, off
@@ -58,7 +76,29 @@ pub(crate) fn place_furniture(client: &mut Client, world: &mut ServerWorld, piec
     }
     world
         .furniture_changes
-        .push(FurnitureChange { place, piece });
+        .push(FurnitureChange::piece(place, piece));
+    true
+}
+
+/// Checks the decor fits the level (`Decor::fits`), off its stairs, and has
+/// it shared at the end of the tick. Refusals are only logged. Whether the
+/// client is still welcome.
+pub(crate) fn place_decor(client: &mut Client, world: &mut ServerWorld, decor: Decor) -> bool {
+    let Some(visit) = &client.visit else {
+        return true;
+    };
+    let site = &visit.level;
+    let on_stairs =
+        (decor.cells().into_iter()).any(|cell| site.stairs.iter().any(|s| (s.x, s.y) == cell));
+    if visit.is_wilderness() || on_stairs || !decor.fits(&site.level) {
+        info!("Refused placing decor at {:?}", decor.slot());
+        return true;
+    }
+    let place = (visit.id, visit.index);
+    world.furniture_changes.push(FurnitureChange {
+        place,
+        what: Placed::Decor(decor),
+    });
     true
 }
 
@@ -68,8 +108,10 @@ pub(crate) fn place_furniture(client: &mut Client, world: &mut ServerWorld, piec
 pub(crate) fn share_furniture(clients: &mut [Client], world: &mut ServerWorld) {
     let changes = std::mem::take(&mut world.furniture_changes);
     for change in &changes {
-        if let Some(population) = world.populations.0.get_mut(&change.place) {
-            population.place_furniture(change.piece);
+        if let Placed::Piece(piece) = change.what
+            && let Some(population) = world.populations.0.get_mut(&change.place)
+        {
+            population.place_furniture(piece);
         }
     }
     for client in clients.iter_mut() {
@@ -83,18 +125,29 @@ pub(crate) fn share_furniture(clients: &mut [Client], world: &mut ServerWorld) {
             .filter(|change| change.place == here && !wild);
         let mut any = false;
         for change in mine {
+            let piece = match change.what {
+                Placed::Piece(piece) => piece,
+                Placed::Decor(decor) => {
+                    // The client replaces what it replaces as the server
+                    // does (`Level::place_decor`).
+                    visit.level.level.place_decor(decor);
+                    for (x, y) in decor.cells() {
+                        changed_at(visit, x, y);
+                    }
+                    any = true;
+                    continue;
+                }
+            };
             let level = &visit.level.level;
-            let replaced: Vec<(i64, i64)> = (change.piece.cells())
-                .filter_map(
-                    |(x, y)| match change.piece.furniture.stands_on_furniture() {
-                        true => level.furniture_on_top_at(x, y),
-                        false => level.furniture_at(x, y),
-                    },
-                )
+            let replaced: Vec<(i64, i64)> = (piece.cells())
+                .filter_map(|(x, y)| match piece.furniture.stands_on_furniture() {
+                    true => level.furniture_on_top_at(x, y),
+                    false => level.furniture_at(x, y),
+                })
                 .flat_map(Piece::cells)
                 .collect();
-            visit.level.level.place_furniture(change.piece);
-            for (x, y) in change.piece.cells().chain(replaced) {
+            visit.level.level.place_furniture(piece);
+            for (x, y) in piece.cells().chain(replaced) {
                 changed_at(visit, x, y);
             }
             any = true;

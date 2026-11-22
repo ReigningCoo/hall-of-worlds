@@ -262,17 +262,23 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             still: true,
             seed: 12,
         })),
-        ClientMessage::DevFurniture(super::DevFurniture {
-            piece: crate::furniture::Piece {
-                at: (3, -2),
-                size: (1, 2),
-                facing: crate::door::Side::West,
-                material: crate::furniture::Material::Wood(crate::furniture::Wood::Elm),
-                furniture: crate::furniture::Furniture::Bench {
-                    style: crate::furniture::BenchStyle::BoardEnded,
-                },
+        ClientMessage::DevFurniture(super::DevFurniture::Piece(crate::furniture::Piece {
+            at: (3, -2),
+            size: (1, 2),
+            facing: crate::door::Side::West,
+            material: crate::furniture::Material::Wood(crate::furniture::Wood::Elm),
+            furniture: crate::furniture::Furniture::Bench {
+                style: crate::furniture::BenchStyle::BoardEnded,
             },
-        }),
+        })),
+        ClientMessage::DevFurniture(super::DevFurniture::Decor(crate::decor::Decor::Rug {
+            at: (2, -1),
+            size: (3, 2),
+            rug: crate::decor::Rug {
+                pattern: crate::decor::RugPattern::Medallion,
+                colour: crate::decor::RugColour::Indigo,
+            },
+        })),
         ClientMessage::DevGoToPlace(super::DevGoToPlace {
             place: crate::debug_report::Where::Site {
                 seed: crate::rng::Seed::new(5),
@@ -553,6 +559,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                 stairs: Vec::new(),
                 doors: Vec::new(),
                 furniture: Vec::new(),
+                decor: Vec::new(),
                 herbs: Vec::new(),
                 fruit: Vec::new(),
                 vegetables: Vec::new(),
@@ -639,6 +646,11 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
                     style: crate::furniture::ChairStyle::LadderBack,
                     arms: true,
                 },
+            }],
+            decor: vec![crate::decor::Decor::Wall {
+                wall: (-6, 14),
+                face: crate::door::Side::South,
+                hanging: crate::decor::Hanging::Sconce,
             }],
             herbs: vec![super::SeenHerb {
                 x: -6,

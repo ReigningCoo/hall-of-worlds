@@ -1,5 +1,5 @@
 //! Fixed lights: lights that stay where they are on a level (glowing fungus
-//! patches and lava's rims), worked out once into a glow grid and kept until
+//! patches, lava's rims and candles: sconces, chandeliers, table candles), worked out once into a glow grid and kept until
 //! the level or the hour changes, then added to the light in `update_meshes`
 //! as town windows' glow is. Only the floor the player is on.
 
@@ -11,6 +11,7 @@ use shared::dungeon::Level;
 use super::mesh::{LightGrid, reach};
 use crate::common::{CurrentDungeon, ServerClock};
 
+mod candles;
 mod fungi;
 mod lava;
 
@@ -47,6 +48,7 @@ pub(super) fn update_fixed_lights(
     }
     let mut lights = fungi::fungus_lights(&dungeon.level, now);
     lights.extend(lava::lava_lights(&dungeon.level));
+    lights.extend(candles::candle_lights(&dungeon.level));
     let glow = (!lights.is_empty()).then(|| glow_grid(&dungeon.level, &lights));
     if fixed.glow.is_none() && glow.is_none() {
         // Nothing to light: no change for `update_meshes` to see.

@@ -3,6 +3,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::{Cell, WallBar, WallShape, bars_of};
+use crate::decor::{Decor, DecorSlot};
 use crate::door::Swing;
 use crate::fruit::FruitPlant;
 use crate::fungus::FungusPatch;
@@ -46,6 +47,10 @@ pub struct Level {
     /// the same way apart from what it stands on.
     pub(super) on_top: BTreeMap<(i64, i64), Piece>,
     pub(super) on_top_cells: BTreeMap<(i64, i64), (i64, i64)>,
+    /// Decor by where it goes, and the north-west cell of the rug on each
+    /// cell (see `decor.rs`).
+    pub(super) decor: BTreeMap<DecorSlot, Decor>,
+    pub(super) rug_cells: BTreeMap<(i64, i64), (i64, i64)>,
     /// Herb patches by cell (see `herbs.rs`).
     pub(super) herbs: BTreeMap<(i64, i64), HerbPatch>,
     /// Fruit plants by cell (see `fruit.rs`).
@@ -82,6 +87,8 @@ impl Level {
             furniture_cells: BTreeMap::new(),
             on_top: BTreeMap::new(),
             on_top_cells: BTreeMap::new(),
+            decor: BTreeMap::new(),
+            rug_cells: BTreeMap::new(),
             herbs: BTreeMap::new(),
             fruit: BTreeMap::new(),
             vegetables: BTreeMap::new(),

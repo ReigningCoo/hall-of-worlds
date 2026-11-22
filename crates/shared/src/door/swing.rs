@@ -22,7 +22,7 @@ impl Swing {
 /// One side of a wall, by the compass. A door in a wall running east-west
 /// opens to the north or south; one in a wall running north-south, to the
 /// east or west.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum Side {
     North,
     East,

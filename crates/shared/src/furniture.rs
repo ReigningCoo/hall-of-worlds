@@ -1,5 +1,6 @@
 //! Furniture in sites' rooms: tables, chairs and benches of wood or stone,
-//! and furniture with places (`places.rs`: crafting benches, cask racks).
+//! and furniture with places (`places.rs`: crafting benches, cask racks),
+//! candles on tables and booths of settles (`booth.rs`).
 //!
 //! Pieces are kept on `dungeon::Level` (as doors are) and sent with its cells.
 //! They never block: crossing a table takes `TABLE_COST_PER_MILLE` of the time,
@@ -9,6 +10,8 @@
 //! so generators and their versions are untouched.
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod booth;
+mod candles;
 mod free;
 mod material;
 mod piece;
@@ -17,6 +20,8 @@ mod places;
 mod shape;
 mod style;
 
+pub use booth::booth;
+pub use candles::Candles;
 pub use free::{free_for_bench, takes_furniture};
 pub use material::{Material, Stone, Wood};
 pub use piece::{Furniture, Piece, SEAT_COST_PER_MILLE, TABLE_COST_PER_MILLE};

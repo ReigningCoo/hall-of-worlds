@@ -50,6 +50,6 @@ pub(crate) fn create_bench(client: &mut Client, world: &mut ServerWorld, order: 
     let place = (id, index);
     world
         .furniture_changes
-        .push(FurnitureChange { place, piece });
+        .push(FurnitureChange::piece(place, piece));
     true
 }
