@@ -5,10 +5,11 @@
 //! Generated benches are given their starting tools once (`stock.rs`); a
 //! bench's tools go to a player with its cells and again whenever they change
 //! (`share.rs`); benches made with the developer tool are kept (`dev.rs`).
+//! Cask racks are kept the same way, all as furniture with places
+//! (`held.rs`, `shared::furniture::Held`).
 
 use shared::crafting_bench::{BenchTools, Craft};
 use shared::furniture::{Furniture, Piece};
-use shared::spot::Spot;
 
 use super::Visit;
 use crate::ServerWorld;
@@ -16,10 +17,12 @@ use crate::storage::SiteId;
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod dev;
+mod held;
 mod share;
 mod stock;
 
 pub(crate) use dev::create_bench;
+pub(crate) use held::{HeldHere, keep_held, settle_held};
 pub(crate) use share::share_benches;
 pub(super) use stock::{put_made_benches, stock_benches};
 
@@ -52,16 +55,6 @@ impl Visit {
     pub(crate) fn bench_faced(&self, heading: shared::facing::Heading) -> Option<BenchHere> {
         let piece = shared::crafting_bench::bench_faced(&self.level.level, self.spot(), heading)?;
         self.bench_at(piece.at.0, piece.at.1)
-    }
-}
-
-impl BenchHere {
-    /// Whether someone standing at `at` can reach it to put tools on or take
-    /// them off: any of its cells' middles within `potion::COLLECT_REACH`, as
-    /// for using it.
-    pub(crate) fn in_reach(&self, at: Spot) -> bool {
-        let reach = u128::from(shared::potion::COLLECT_REACH).pow(2);
-        (self.piece.cells()).any(|cell| at.distance_squared(Spot::middle_of(cell)) <= reach)
     }
 }
 
@@ -104,11 +97,10 @@ pub(crate) fn settle_storage(
 /// Keeps the tools on the bench at `key` and has them sent to everyone who
 /// has the bench.
 pub(crate) fn keep_bench(world: &mut ServerWorld, key: BenchKey, tools: BenchTools) {
-    let (id, index, at) = key;
-    let saved = world.site_mut(id).levels.entry(index).or_default();
-    saved.benches.insert(at, tools);
-    world.bench_changes.push(key);
+    keep_held(world, key, shared::furniture::Held::Bench(tools));
 }
 
+#[cfg(test)]
+mod rack_tests;
 #[cfg(test)]
 mod tests;

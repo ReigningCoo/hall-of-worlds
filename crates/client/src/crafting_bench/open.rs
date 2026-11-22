@@ -3,8 +3,7 @@
 //! on arriving; walking anywhere else calls that off.
 
 use bevy::prelude::*;
-use shared::crafting_bench::Craft;
-use shared::furniture::{Furniture, Piece};
+use shared::furniture::{Holder, Piece};
 use shared::spot::Spot;
 
 use super::markup::BENCH;
@@ -93,11 +92,11 @@ fn open_panel(
         }
         commands.entity(open.panel).try_despawn();
     }
-    let Furniture::CraftingBench { craft } = piece.furniture else {
+    let Some(holder) = Holder::of(piece.furniture) else {
         return;
     };
     let entity = commands.spawn(document(&BENCH)).insert(top_strip()).id();
-    dom.set("bench/panel", "title", title(craft));
+    dom.set("bench/panel", "title", &title(holder));
     dom.start_at("bench/panel", AT);
     let tools = benches.0.get(&piece.at);
     let tools = tools.map(super::server::shown).unwrap_or_default();
@@ -109,7 +108,7 @@ fn open_panel(
     });
 }
 
-/// A bench's panel's title, by its craft.
-pub(super) fn title(craft: Craft) -> &'static str {
-    craft.name()
+/// A piece's panel's title: a bench's craft, a rack's cask size.
+pub(super) fn title(holder: Holder) -> String {
+    holder.name()
 }

@@ -1,10 +1,11 @@
-//! A click (or tap) on a crafting bench, or the tools on it: each bench is
-//! taken as a box over its cells, from the ground to above its shelf's tools.
+//! A click (or tap) on a piece with places (`furniture::Holder`: a crafting
+//! bench or cask rack), or what lies on it: each is taken as a box over its
+//! cells, from the ground to above its shelf's tools or its casks.
 //! `click.rs` sends `BenchClicked` for it; `hover.rs` names it.
 
 use bevy::prelude::*;
 use shared::dungeon::{Level, Sight};
-use shared::furniture::{Furniture, Piece};
+use shared::furniture::{Holder, Piece};
 
 use super::CELL_SIZE;
 use super::ground_hit::Ground;
@@ -25,7 +26,7 @@ pub(super) fn bench_clicked(
 ) -> Option<Piece> {
     let floor = (ground.hit(ray)).map_or(f32::INFINITY, |(distance, _, _)| distance);
     let (distance, piece) = (level.furniture())
-        .filter(|piece| matches!(piece.furniture, Furniture::CraftingBench { .. }))
+        .filter(|piece| Holder::of(piece.furniture).is_some())
         .filter(|piece| piece.cells().any(|(x, y)| seen.is_seen(x, y)))
         .filter_map(|piece| {
             let foot = (piece.cells().map(|(x, y)| ground.at(x, y))).fold(f32::MIN, f32::max);
@@ -34,7 +35,8 @@ pub(super) fn bench_clicked(
             let (w, h) = (f32::from(piece.size.0), f32::from(piece.size.1));
             let high = low + Vec3::new(w * CELL_SIZE, 0.0, h * CELL_SIZE);
             let low = low.with_y(foot);
-            let high = high.with_y(foot + BENCH_HEIGHT);
+            let tall = super::furniture::rack_height(piece).unwrap_or(BENCH_HEIGHT);
+            let high = high.with_y(foot + tall);
             Some((into_box(ray, low, high)?, *piece))
         })
         .filter(|&(distance, _)| distance <= floor + CELL_SIZE * 0.1)

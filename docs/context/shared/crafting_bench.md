@@ -34,6 +34,8 @@ Crafting benches (owner's design, 2026-11-20; crafting benches plan PR 1 of 4): 
 
 ## Notes
 
+- Benches are one kind of furniture with places (tavern furniture plan PR 1, `furniture::Held::Bench`, beside cask racks): the server keeps, shares and puts things on any piece with places through the same code; `BenchTools`, its rules and its save stay as they were. `NotTaken` is the one refusal for every piece with places.
+
 - A bench is a `Piece` 1 deep and its craft's length, of wood (a hearth of stone), facing away from the wall behind it (as a seat), its shelf along the back; moves over it cost as a table's. `is_well_made` checks its size and material.
 - Hearths (cooking plan PR 8, Claude's choices for the owner to tune): the Oven is a hearth's own, not an item; a Stove holds no tools (carried ones still work); a hearth not always lit burns kindling as a campfire does (Make Campfire facing it lights or feeds it) and never leaves Ash by burning; food in a Range's storage rests in real time at the land's warmth, as on the ground; hearths go anywhere a bench could, not only on ground floors. Adding the hearth crafts after Alchemy keeps every Alchemy bench where it was.
 - Placing: only on usable room floor (furniture's `usable_cells`: not by doors, stairs or arrivals), every cell unfurnished with a plain `Wall` behind and open, unfurnished floor in front, and never cutting anything off (furniture's `Reach`). The first such spot by hash of `seed.derive("crafting bench")`; a level with none has no bench (so "at most"). Ruins keep a bench at 100 − 15 × ruin %. Placed after furniture, so no generator version, golden test or other piece moved; cellar casks (placed after) keep off it.

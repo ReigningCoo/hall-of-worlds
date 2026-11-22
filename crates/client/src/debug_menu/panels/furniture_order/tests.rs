@@ -82,3 +82,28 @@ fn every_kind_size_facing_and_material_makes_well_made_pieces() {
         }
     }
 }
+
+#[test]
+fn cask_racks_cycle_through_the_sizes_made_at_their_length_and_are_wooden() {
+    let mut order = FurnitureOrder {
+        kind: Kind::CaskRack,
+        size: 1,
+        facing: Side::South,
+        material: Some(Material::Stone(Stone::Granite)),
+        ..FurnitureOrder::default()
+    };
+    let pieces: Vec<_> = (0..9).map(|n| order.click((3, 3), n)).collect();
+    let racks: Vec<_> = (pieces.iter())
+        .map(|piece| match piece.furniture {
+            Furniture::CaskRack { rack } => rack.size,
+            other => panic!("not a rack: {other:?}"),
+        })
+        .collect();
+    // Two cells long: every size, the Tun's stand too, then round again.
+    assert_eq!(racks[..8], shared::cask::CaskSize::ALL);
+    assert_eq!(racks[8], racks[0]);
+    for piece in &pieces {
+        assert!(piece.is_well_made(), "{piece:?}");
+        assert_eq!(piece.size, (2, 1));
+    }
+}

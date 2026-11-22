@@ -1,19 +1,20 @@
-//! Telling players of benches' tools: a bench's when its cells have been
-//! sent on the visit (so unseen benches stay unknown), and again when they
-//! change, or when a hearth goes out or is lit. Food in a Range's storage is
-//! settled to now as it is told (`settle_storage`).
+//! Telling players what lies on furniture with places (benches' tools, cask
+//! racks' casks): a piece's when its cells have been sent on the visit (so
+//! unseen pieces stay unknown), and again when it changes, or when a hearth
+//! goes out or is lit. Food in a Range's storage and casks on a rack are
+//! settled to now as they are told (`settle_held`).
 
-use shared::furniture::Furniture;
+use shared::furniture::Holder;
 use shared::protocol::{BenchNews, SeenBench, ServerMessage, level_chunk};
 
-use super::{BenchKey, bench_tools, settle_storage};
+use super::{BenchKey, bench_tools, settle_held};
 use crate::ServerWorld;
 use crate::connections::Client;
 use crate::sites::campfires::fire_now;
 
-/// Every tick: sends each player the tools of every bench on their level
-/// whose cell they have been sent and haven't had its tools for, and of those
-/// that changed this tick.
+/// Every tick: sends each player what lies on every piece with places on
+/// their level whose cell they have been sent and haven't been told of, and
+/// on those that changed this tick.
 pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
     let changes: Vec<BenchKey> = std::mem::take(&mut world.bench_changes);
     let now = fire_now(world);
@@ -33,17 +34,21 @@ pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
             .collect();
         visit.benches_sent = kept.into_iter().collect();
         let mut seen = Vec::new();
-        let benches = visit.level.level.furniture();
-        for piece in benches.filter(|p| matches!(p.furniture, Furniture::CraftingBench { .. })) {
+        let pieces = visit.level.level.furniture();
+        for piece in pieces.filter(|p| Holder::of(p.furniture).is_some()) {
             if !sent(visit, piece.at) {
                 continue;
             }
-            let Some(bench) = visit.bench_at(piece.at.0, piece.at.1) else {
+            let Some(bench) = visit.held_at(piece.at.0, piece.at.1) else {
                 continue;
             };
             let told = visit.benches_sent.get(&piece.at).copied();
-            let lit =
-                bench.craft.is_hearth() && bench_tools(world, bench.key, bench.craft).is_lit(now);
+            let lit = match bench.holder {
+                Holder::Bench(craft) => {
+                    craft.is_hearth() && bench_tools(world, bench.key, craft).is_lit(now)
+                }
+                Holder::Casks(_) => false,
+            };
             if told != Some(lit) || changes.contains(&bench.key) {
                 seen.push((piece.at, bench));
             }
@@ -53,10 +58,10 @@ pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
         }
         let mut told = Vec::with_capacity(seen.len());
         for (at, bench) in seen {
-            let tools = settle_storage(world, bench.key, bench.craft, celsius);
-            let lit = tools.is_lit(now);
+            let held = settle_held(world, bench.key, bench.holder, celsius);
+            let lit = held.bench().is_some_and(|tools| tools.is_lit(now));
             visit.benches_sent.insert(at, lit);
-            told.push(SeenBench { at, tools, lit });
+            told.push(SeenBench { at, held, lit });
         }
         // Gone: noticed when its messages are next read.
         let _ = client

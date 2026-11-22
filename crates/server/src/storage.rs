@@ -25,6 +25,7 @@ mod dev_return;
 mod dungeon_stay;
 mod forget_sites;
 mod known_poi;
+mod mob_record;
 mod quest_book;
 mod roads;
 mod saves;
@@ -37,13 +38,14 @@ mod visit_save;
 
 pub use characters::Everywhere;
 pub use dungeon_stay::DungeonStay;
+pub use mob_record::{MobRecord, SavedMob};
 #[cfg(test)]
 pub use quest_book::RETAKE_AFTER;
 pub use quest_book::{Ended, EscortAt, Progress, QuestBook};
 pub use roads::RoadSave;
 pub use saves::{
-    CellMasks, CharacterSave, CharacterWorldSave, DevReturn, KnownPoi, LevelSave, MobRecord,
-    RememberedDoors, SavedMob, ServerSave, SiteId, SiteSave, VisitSave, WorldSave,
+    CellMasks, CharacterSave, CharacterWorldSave, DevReturn, KnownPoi, LevelSave, RememberedDoors,
+    ServerSave, SiteId, SiteSave, VisitSave, WorldSave,
 };
 pub use spot_map::SpotMap;
 pub use tree_save::TreeSave;

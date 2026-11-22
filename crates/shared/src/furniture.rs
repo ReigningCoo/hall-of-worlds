@@ -1,4 +1,5 @@
-//! Furniture in sites' rooms: tables, chairs and benches of wood or stone.
+//! Furniture in sites' rooms: tables, chairs and benches of wood or stone,
+//! and furniture with places (`places.rs`: crafting benches, cask racks).
 //!
 //! Pieces are kept on `dungeon::Level` (as doors are) and sent with its cells.
 //! They never block: crossing a table takes `TABLE_COST_PER_MILLE` of the time,
@@ -12,6 +13,7 @@ mod free;
 mod material;
 mod piece;
 pub(crate) mod place;
+mod places;
 mod shape;
 mod style;
 
@@ -19,6 +21,7 @@ pub use free::{free_for_bench, takes_furniture};
 pub use material::{Material, Stone, Wood};
 pub use piece::{Furniture, Piece, SEAT_COST_PER_MILLE, TABLE_COST_PER_MILLE};
 pub use place::{Setting, furnish};
+pub use places::{Held, Holder};
 pub use shape::footprint;
 pub use style::{BenchStyle, ChairStyle, TableStyle};
 

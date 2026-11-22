@@ -15,6 +15,7 @@ pub mod bonus;
 pub mod brewing;
 pub mod campfire;
 pub mod cask;
+pub mod cask_rack;
 pub mod celestial;
 pub mod cellar;
 pub mod clearance;

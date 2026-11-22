@@ -19,6 +19,6 @@ pub(super) fn keep_bench_here(
     let piece = (*view.get() == GameView::Dungeon)
         .then(|| bench_faced(&dungeon.level, at.0, facing.0))
         .flatten();
-    let now = BenchHere(piece.map(|piece| (piece, benches.0.get(&piece.at).cloned())));
+    let now = BenchHere(piece.map(|piece| (piece, benches.tools(piece.at).cloned())));
     here.set_if_neq(now);
 }

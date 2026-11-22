@@ -44,10 +44,9 @@ mod trees;
 mod up_down;
 mod wild;
 
-pub(crate) use benches::{
-    BenchHere, BenchKey, bench_tools, create_bench, keep_bench, settle_storage, share_benches,
-};
+pub(crate) use benches::{BenchKey, HeldHere, bench_tools, create_bench, keep_bench, keep_held};
 use benches::{put_made_benches, stock_benches};
+pub(crate) use benches::{settle_held, settle_storage, share_benches};
 pub(crate) use campfires::{FireTarget, fire_target, light_or_feed, sync_campfires};
 use cellar::{stock_cellar, stock_set_in_cellar};
 use cells::{

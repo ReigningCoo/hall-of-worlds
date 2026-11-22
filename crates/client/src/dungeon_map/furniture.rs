@@ -7,11 +7,13 @@
 //! level on sloping ground, their legs reaching down to it. Black outlines.
 //! Seats facing a table reach a little under its edge. Crafting benches are
 //! a table with a shelf over its back (`crafting_bench.rs`); hearths a stone
-//! stove with a hood, and a counter (`hearth.rs`).
+//! stove with a hood, and a counter (`hearth.rs`). Cask racks are rails,
+//! saddles or a stand under their casks (`cask_rack.rs`).
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod atlas;
 mod benches;
+mod cask_rack;
 mod chairs;
 mod colour;
 mod crafting_bench;
@@ -30,6 +32,7 @@ use part::{Grain, Part};
 use super::CELL_SIZE;
 use super::walls::{Layers, Scene};
 
+pub(super) use cask_rack::{cask_scale, cask_spot, rack_height};
 pub(super) use crafting_bench::{ghost_boxes, tool_spot};
 pub(super) use hearth::firebox;
 
@@ -45,7 +48,10 @@ pub(super) fn build_furniture(layers: &mut Layers, scene: &Scene, (x, y): (i64, 
         return;
     };
     let mut beyond = (Vec3::ZERO, Vec3::ZERO);
-    let parts = match tables::parts(piece).or_else(|| crafting_bench::parts(piece)) {
+    let parts = tables::parts(piece)
+        .or_else(|| crafting_bench::parts(piece))
+        .or_else(|| cask_rack::parts(piece));
+    let parts = match parts {
         Some(parts) => parts,
         None => {
             let under_table = seats::faces_table(scene.level, piece);
