@@ -164,6 +164,7 @@ pub(super) fn add_models(
             model,
             town,
         );
+        super::town_light::attach(&mut commands, view, shape.kind);
     }
 }
 

@@ -43,6 +43,7 @@ mod parts;
 mod showing;
 mod spawn;
 mod tokens;
+mod town_light;
 mod update_terrain;
 
 use click::pick_on_click;

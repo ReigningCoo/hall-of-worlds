@@ -32,6 +32,9 @@ use underground::underground;
 /// How far a model reaches from its centre.
 const REACH: f32 = 8.0;
 
+/// How far a poi's flat base reaches from its centre (its rim's outer edge).
+pub(super) const BASE_RADIUS: f32 = REACH;
+
 /// The flat base under a poi: its sides, its rim's width, and its colour,
 /// which undoes the sun's dimming of flat ground so it shows white.
 const BASE_ROUND_SIDES: usize = 32;
