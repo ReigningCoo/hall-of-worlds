@@ -4,7 +4,8 @@
 //! runs, and whether it is running.
 
 use bevy::prelude::*;
-use shared::cooking::{MOST_COLUMNS, MOST_ROWS, Planned, Tool};
+use shared::cooking::{MOST_COLUMNS, MOST_ROWS, Planned, RecipeInput, Tool};
+use shared::food::Rest;
 use shared::id::Id;
 use shared::item::Item;
 
@@ -27,6 +28,9 @@ pub(super) struct Station {
     pub(super) liquids: Vec<(Id, u32)>,
     /// Millilitres of the water faced.
     pub(super) faced: u32,
+    /// What a recipe loaded by Make asks of this step (`ghosts`): whatever
+    /// of it is not put in is drawn as a red ghost.
+    pub(super) wanted: Vec<RecipeInput>,
 }
 
 impl Station {
@@ -39,6 +43,7 @@ impl Station {
             foods: Vec::new(),
             liquids: Vec::new(),
             faced: 0,
+            wanted: Vec::new(),
         }
     }
 
@@ -66,6 +71,8 @@ pub(super) struct Bench {
     /// Each row's intermediate to start from, carried or in the hearth's
     /// storage.
     pub(super) sources: [Option<Id>; ROWS],
+    /// The kind of intermediate a recipe loaded by Make starts each row from.
+    pub(super) wanted_sources: [Option<Rest>; ROWS],
     pub(super) steps: Vec<Station>,
     /// A carried culture (a Yeast item), used where an output ferments.
     pub(super) culture: Option<Id>,
@@ -82,6 +89,7 @@ impl Default for Bench {
         Self {
             document: None,
             sources: [None; ROWS],
+            wanted_sources: [None; ROWS],
             steps: Vec::new(),
             culture: None,
             count: 1,

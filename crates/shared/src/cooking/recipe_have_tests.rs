@@ -60,3 +60,22 @@ fn water_is_counted_by_the_millilitre() {
     };
     assert!(!carried.has_recipe_input(&milk, ingredients));
 }
+
+#[test]
+fn the_stacks_an_input_takes_are_found() {
+    let ingredients = Ingredients::built_in();
+    let carried = carrying(vec![eggs(2), water_bottles(1)]);
+    let any_egg = RecipeInput::Food {
+        foods: vec![Wanted::Any(Source::Egg)],
+        count: 5,
+    };
+    let stacks = carried.recipe_stacks(&any_egg, ingredients);
+    assert_eq!(stacks.len(), 1);
+    assert_eq!(stacks[0].count(), 2);
+    assert!(any_egg.takes(stacks[0].top(), ingredients));
+    let water = RecipeInput::Water { ml: 100 };
+    assert!(!water.takes(stacks[0].top(), ingredients));
+    assert_eq!(carried.recipe_stacks(&water, ingredients).len(), 1);
+    assert_eq!(any_egg.amount(), 5);
+    assert!(water.is_liquid() && !any_egg.is_liquid());
+}

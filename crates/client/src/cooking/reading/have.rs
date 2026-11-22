@@ -68,7 +68,7 @@ impl Have {
 }
 
 /// The kind of item an input is written as: its usual food, or water.
-pub(super) fn input_token(input: &RecipeInput) -> Option<KindToken> {
+pub(in crate::cooking) fn input_token(input: &RecipeInput) -> Option<KindToken> {
     match input {
         RecipeInput::Food { foods, .. } | RecipeInput::Liquid { foods, .. } => {
             foods.first().cloned().map(KindToken::Food)
@@ -78,7 +78,7 @@ pub(super) fn input_token(input: &RecipeInput) -> Option<KindToken> {
 }
 
 /// An input's foods, by name: "Carrot", "Carrot or Parsnip".
-pub(super) fn foods_named(foods: &[Wanted]) -> String {
+pub(in crate::cooking) fn foods_named(foods: &[Wanted]) -> String {
     let names: Vec<String> = (foods.iter())
         .map(|food| KindToken::Food(food.clone()).name())
         .collect();

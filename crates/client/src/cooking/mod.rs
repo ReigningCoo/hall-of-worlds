@@ -6,13 +6,18 @@
 //! least quality (`Inventory::check_cooking`, the server's own rule) at the
 //! kitchen the player is at, with its name, chance, diet labels and Well
 //! Fed; Start sends the order (`ClientMessage::Cook`) and colour fills along
-//! the steps as each run winds up. See `docs/context/client/cooking.md`.
+//! the steps as each run winds up. Its Recipes tab lists the recipe book,
+//! with Read, Make (the recipe laid on the bench, what is missing as red
+//! ghosts) and Remove. See `docs/context/client/cooking.md`.
 
 mod bench;
+mod beyond;
 mod boxes;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
 mod drag;
+mod ghost_space;
+mod ghosts;
 mod grid;
 mod grid_nodes;
 mod kitchen;
@@ -20,6 +25,7 @@ mod markup;
 mod open;
 mod order;
 mod reading;
+mod recipes;
 mod run;
 mod side;
 mod spaces;
@@ -50,6 +56,7 @@ impl Plugin for CookingPlugin {
             .init_resource::<drag::BenchAim>()
             .init_resource::<kitchen::Kitchens>()
             .init_resource::<spaces::SpaceIcons>()
+            .init_resource::<recipes::Recipes>()
             .add_message::<OpenCooking>()
             .add_message::<ReadRecipe>()
             .add_systems(
@@ -71,9 +78,11 @@ impl Plugin for CookingPlugin {
                     open::notice_closed,
                     kitchen::keep_kitchen,
                     side::answer_panel,
+                    recipes::answer_recipes,
                     run::follow_run,
                     grid::draw_grid,
                     side::show_side,
+                    recipes::show_recipes,
                     run::show_fill,
                 )
                     .chain(),

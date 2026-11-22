@@ -69,6 +69,7 @@ fn cooking(
                 ..Station::new(step.tool, step.column, step.row)
             })
             .collect();
+        bench.wanted_sources = Default::default();
         bench.made = None;
     }
     if let Some(PutParams { space, stack }) = asked.put {
@@ -94,12 +95,17 @@ fn cooking(
                 "foods": step.foods,
                 "liquids": step.liquids,
                 "faced": step.faced,
+                "ghosts": (step.ghosts(&carried.0).iter())
+                    .map(|ghost| json!({"input": ghost.input, "missing": ghost.missing}))
+                    .collect::<Vec<Value>>(),
             })
         })
         .collect();
     Ok(json!({
         "open": bench.is_open(),
         "sources": bench.sources,
+        "wanted_sources": bench.wanted_sources.iter().map(|rest| rest.map(|r| r.name())).collect::<Vec<_>>(),
+        "missing": bench.missing_any(&carried.0),
         "steps": steps,
         "culture": bench.culture,
         "count": bench.count,

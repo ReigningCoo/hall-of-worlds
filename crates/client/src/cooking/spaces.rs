@@ -37,11 +37,20 @@ pub(super) enum Place {
     Faced(usize),
     /// The culture for an output that ferments.
     Culture,
+    /// The step's `n`th ghost: what a recipe loaded by Make still misses
+    /// there (`ghosts`).
+    Ghost(usize, usize),
 }
 
 /// The spaces a step shows: those filled and one more while there is room,
-/// and the water faced while there is water to face (or some is in).
-pub(super) fn places(step: usize, station: &Station, water_faced: bool) -> Vec<Place> {
+/// the water faced while there is water to face (or some is in), and its
+/// `ghosts`.
+pub(super) fn places(
+    step: usize,
+    station: &Station,
+    water_faced: bool,
+    ghosts: usize,
+) -> Vec<Place> {
     let foods = (station.foods.len() + 1).min(MOST_FOODS);
     let liquids = (station.liquids.len() + 1).min(MOST_LIQUIDS);
     let mut places: Vec<Place> = (0..foods).map(|n| Place::Food(step, n)).collect();
@@ -49,6 +58,7 @@ pub(super) fn places(step: usize, station: &Station, water_faced: bool) -> Vec<P
     if water_faced || station.faced > 0 {
         places.push(Place::Faced(step));
     }
+    places.extend((0..ghosts).map(|n| Place::Ghost(step, n)));
     places
 }
 
@@ -62,7 +72,7 @@ pub(super) fn in_place(bench: &Bench, place: Place) -> Option<(Id, u32)> {
             .map(|id| (id, 1)),
         Place::Food(step, n) => bench.steps.get(step)?.foods.get(n).copied(),
         Place::Liquid(step, n) => bench.steps.get(step)?.liquids.get(n).copied(),
-        Place::Faced(_) => None,
+        Place::Faced(_) | Place::Ghost(..) => None,
         Place::Culture => bench.culture.map(|id| (id, 1)),
     }
 }
@@ -96,7 +106,8 @@ pub(super) fn takes(carried: &Inventory, kitchen: &KitchenNow, place: Place, id:
     };
     let top = stack.top();
     match place {
-        Place::Source(_) | Place::Faced(_) => false,
+        // A ghost asks the bench (`Bench::ghost_takes`).
+        Place::Source(_) | Place::Faced(_) | Place::Ghost(..) => false,
         Place::Food(..) => Ingredients::built_in().of_item(top).is_some(),
         Place::Liquid(..) => cooking_liquid(top).is_some(),
         Place::Culture => top.yeast().is_some(),
@@ -126,6 +137,7 @@ pub(super) fn put(bench: &mut Bench, carried: &Inventory, place: Place, id: Opti
             }
         }
         Place::Culture => bench.culture = id,
+        Place::Ghost(..) => {}
         Place::Faced(step) => {
             if let Some(station) = bench.steps.get_mut(step) {
                 station.faced = match id {
@@ -215,7 +227,7 @@ impl SpaceIcons {
     pub(super) fn of(&self, place: Place) -> Handle<Image> {
         match place {
             Place::Source(_) => self.source.clone(),
-            Place::Food(..) => self.food.clone(),
+            Place::Food(..) | Place::Ghost(..) => self.food.clone(),
             Place::Liquid(..) => self.liquid.clone(),
             Place::Faced(_) => self.faced.clone(),
             Place::Culture => self.culture.clone(),
@@ -231,5 +243,6 @@ pub(super) fn tip(place: Place) -> &'static str {
         Place::Liquid(..) => "Water, milk or honey: 100 ml a drop",
         Place::Faced(_) => "Water from the water faced: click or tap for 100 ml more",
         Place::Culture => "A culture (yeast, yoghurt, koji) for whatever ferments",
+        Place::Ghost(..) => "Missing: drop one here, or click or tap to cook without it",
     }
 }

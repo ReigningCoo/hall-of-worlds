@@ -59,13 +59,13 @@ fn spaces_grow_as_they_fill() {
     bench.add(Tool::Cauldron);
     let kitchen = KitchenNow::default();
     assert_eq!(
-        places(0, &bench.steps[0], kitchen.water_faced),
+        places(0, &bench.steps[0], kitchen.water_faced, 0),
         [Place::Food(0, 0), Place::Liquid(0, 0)]
     );
     for n in 0..MOST_FOODS + 2 {
         bench.steps[0].foods.push((Id::stand_in(n as u64 + 1), 1));
     }
-    let shown = places(0, &bench.steps[0], true);
+    let shown = places(0, &bench.steps[0], true, 0);
     assert_eq!(shown.len(), MOST_FOODS + 2);
     assert_eq!(shown.last(), Some(&Place::Faced(0)));
     // Water faced goes up by 100 ml and back to none past the most.
