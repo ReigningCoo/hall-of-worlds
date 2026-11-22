@@ -165,7 +165,10 @@ impl ItemKind {
                     false,
                 )),
                 Self::Knife => plain("Knife", 200, Shape::rectangle(1, 2)).worn(HELD),
-                Self::Lantern => plain("Lantern", 800, Shape::rectangle(1, 2)),
+                // Held in one hand, or tied to the belt (`shared::lantern`).
+                Self::Lantern => plain("Lantern", 800, Shape::rectangle(1, 2))
+                    .worn(HELD)
+                    .belt_tool(),
                 // Alchemy's tools, apparatus and solids: in `alchemy_def.rs`.
                 Self::OilPress
                 | Self::MortarAndPestle

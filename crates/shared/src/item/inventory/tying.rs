@@ -3,7 +3,8 @@
 //! out empty. A bag comes off only if the cells it adds are empty at the end of the
 //! own grid (any cells there, not its own), and a belt only if it would leave as
 //! many slots as there are bags. A holder (owner, 2026-11-17: a keyring) is tied
-//! and untied with what is in it, and only one of each kind is tied at a time.
+//! and untied with what is in it, and only one of each kind is tied at a time;
+//! so is a belt tool (`ItemDef::belt_tool`: a lantern), which is no bag.
 
 use crate::id::Id;
 use crate::item::{Holder, Inventory, Item, ItemKind, MoveRefused, Placed, Rotation};
@@ -52,7 +53,8 @@ impl Inventory {
     pub fn tie_bag(&mut self, id: Id, slot: u8) -> Result<(), MoveRefused> {
         let item = self.find(id).ok_or(MoveRefused::NoSuchItem)?;
         let container = item.kind.def().container;
-        if !container.is_some_and(|inside| inside.on_belt) || self.is_worn(id) {
+        let tool = item.kind.def().belt_tool;
+        if !(tool || container.is_some_and(|inside| inside.on_belt)) || self.is_worn(id) {
             return Err(MoveRefused::NotForBelt);
         }
         let slot = slot as usize;
@@ -65,7 +67,8 @@ impl Inventory {
             self.bag_slots.insert(to, bag);
             return Ok(());
         }
-        let holder = container.is_some_and(|inside| inside.holder);
+        // A belt tool (a lantern) is one of a kind as a holder is.
+        let holder = tool || container.is_some_and(|inside| inside.holder);
         if (!holder && !item.contents.is_empty()) || item.count() > 1 {
             return Err(MoveRefused::NotEmpty);
         }

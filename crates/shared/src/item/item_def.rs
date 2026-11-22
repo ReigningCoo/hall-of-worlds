@@ -61,6 +61,10 @@ pub struct ItemDef {
     pub counted: bool,
     /// How long it takes to make beside other things, as a percentage.
     pub make_percent: u64,
+    /// Not a bag, but tied to a belt's bag slot by itself (a lantern,
+    /// `shared::lantern`): it adds no cells, and only one of each kind is tied
+    /// at a time, as a holder.
+    pub belt_tool: bool,
 }
 
 /// How something is worn.
@@ -91,6 +95,7 @@ pub(super) const fn plain(name: &'static str, weight: u32, shape: Shape) -> Item
         has_quality: true,
         counted: false,
         make_percent: 100,
+        belt_tool: false,
     }
 }
 
@@ -213,6 +218,14 @@ impl ItemDef {
     pub(super) const fn counted(self) -> Self {
         Self {
             counted: true,
+            ..self
+        }
+    }
+
+    /// Tied to a belt's bag slot by itself: see `ItemDef::belt_tool`.
+    pub(super) const fn belt_tool(self) -> Self {
+        Self {
+            belt_tool: true,
             ..self
         }
     }

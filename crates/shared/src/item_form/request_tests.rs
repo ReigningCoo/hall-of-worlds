@@ -71,7 +71,8 @@ fn material_of(form: &ItemForm) -> Option<Material> {
         | ItemForm::Ointment(_)
         | ItemForm::Paste(_)
         | ItemForm::Powder(_)
-        | ItemForm::Recipe(_) => {
+        | ItemForm::Recipe(_)
+        | ItemForm::Lantern(_) => {
             return None;
         }
     })

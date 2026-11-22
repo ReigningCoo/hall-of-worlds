@@ -105,6 +105,11 @@ pub fn give_form_to(
                 Size::Medium,
             )
         }
+        // Its fount empty (`shared::lantern`): oil is bought or pressed.
+        ItemKind::Lantern => (
+            ItemForm::Lantern(crate::lantern::LanternForm::default()),
+            Size::Medium,
+        ),
         // Fed just now (`shared::yeast`).
         ItemKind::Yeast => (
             ItemForm::Yeast(crate::yeast::YeastForm::default()),
