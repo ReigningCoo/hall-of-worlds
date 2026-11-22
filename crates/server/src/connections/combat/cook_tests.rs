@@ -148,6 +148,10 @@ fn a_lit_hearth_fries_an_egg_and_leaves_ash() {
     assert!(count_of(&test, ItemKind::Dish) >= 1);
     assert_eq!(count_of(&test, ItemKind::Ash), 1, "a hearth's Ash");
     assert!(practised(&test, FRYING));
+    let book: Vec<_> = test.client.sheet.book.iter().collect();
+    let [shared::recipe::Entry::Own(_)] = book[..] else {
+        panic!("the process remembered once: {book:?}");
+    };
 }
 
 #[test]

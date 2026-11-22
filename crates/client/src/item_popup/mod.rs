@@ -18,6 +18,7 @@ mod needs;
 mod ointment;
 mod open;
 mod place;
+mod recipe;
 mod show;
 mod size;
 mod words;

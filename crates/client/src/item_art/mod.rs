@@ -72,6 +72,7 @@ pub use looks::{
 pub use model::CreatureModels;
 pub use morph::{MORPH_STEPS, MorphLook, morph_look};
 pub use necklace::NecklaceLook;
+pub use scroll::ScrollLook;
 pub use tool::tool_pieces;
 pub use under::UnderLook;
 pub use vegetable::{VEGETABLE_VARIANTS, VegetableItemLook};
@@ -88,6 +89,7 @@ mod parts;
 mod pictures;
 mod samples;
 mod scale;
+mod scroll;
 mod setting_look;
 mod sheet;
 mod spawn;

@@ -50,6 +50,7 @@ mod ping;
 mod quest;
 mod quest_marks;
 mod quest_offer;
+mod recipe_ask;
 mod role_ask;
 mod server_message;
 mod strike;
@@ -76,6 +77,7 @@ pub use quest::{
     Ahead, BossMark, BossSign, DailyDone, DoneAhead, FindMark, Heard, Hint, LogEntry, Marker,
     Offer, OfferState, PlanetQuests, QuestAsk, QuestDots, QuestNews, QuestRefusal, QuestState,
 };
+pub use recipe_ask::RecipeAsk;
 pub use role_ask::{FoundAccount, RoleAnswer, RoleAsk};
 pub use server_message::ServerMessage;
 pub use strike::Strike;
@@ -84,7 +86,7 @@ pub use yeast_ask::YeastAsk;
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 156;
+pub const PROTOCOL_VERSION: u32 = 157;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

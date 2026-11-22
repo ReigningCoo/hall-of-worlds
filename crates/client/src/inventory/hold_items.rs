@@ -10,6 +10,7 @@ mod let_go;
 mod pour;
 mod press;
 mod quick;
+mod read;
 mod tie;
 
 use aim::aim_at;
@@ -65,6 +66,8 @@ pub(super) struct Under<'w, 's> {
     /// How big stacks may get.
     stacks: Res<'w, super::Stacks>,
     god: Res<'w, crate::common::GodMode>,
+    /// The character's recipe book is on it: a scroll it has isn't read.
+    sheet: Res<'w, crate::character::CharacterSheet>,
 }
 
 /// What letting go of something tells the server and the rest of the client.
@@ -88,6 +91,8 @@ pub(super) struct Outbox<'w> {
     quest_drop: ResMut<'w, super::quest_drop::QuestDrop>,
     /// What taking off each worn thing would leave of the own grid.
     strength: Res<'w, super::strength_room::StrengthRoom>,
+    /// The character's recipe book is on it (`read`).
+    sheet: Res<'w, crate::character::CharacterSheet>,
 }
 
 /// Picking up with the mouse, and keeping what is held as it should be. In

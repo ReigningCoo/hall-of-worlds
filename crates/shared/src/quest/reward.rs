@@ -14,13 +14,15 @@ const BASE: [u64; 4] = [30, 50, 80, 120];
 const HIGHER_PERCENT: u64 = 20;
 /// What a higher reward may be.
 const EXTRAS: [(Extra, u64); 3] = [(Extra::Item, 3), (Extra::Training, 2), (Extra::Favour, 1)];
-/// Items given as rewards.
-const REWARD_ITEMS: [ItemCategory; 5] = [
+/// Items given as rewards: a recipe is a scroll of a real dish
+/// (`shared::recipe`), the only one the server gives yet.
+const REWARD_ITEMS: [ItemCategory; 6] = [
     ItemCategory::Weapon,
     ItemCategory::Ring,
     ItemCategory::Tool,
     ItemCategory::Remedy,
     ItemCategory::Book,
+    ItemCategory::Recipe,
 ];
 
 #[derive(Clone, Copy)]

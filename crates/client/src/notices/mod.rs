@@ -130,6 +130,16 @@ fn show_notices(
                 ..
             } => fermenting(*days),
             ServerMessage::VinegarSoon(cask) => format!("{cask} turns to vinegar soon"),
+            // Until the reading panel opens it (recipes plan PR 4).
+            ServerMessage::RecipeInserted(shared::recipe::Entry::Learnt {
+                craft, dish, ..
+            }) => {
+                let form = shared::recipe::RecipeForm {
+                    craft: *craft,
+                    dish: dish.clone(),
+                };
+                format!("{} added to your recipe book", form.name())
+            }
             _ => continue,
         };
         dom.set_text("notices/words", words);

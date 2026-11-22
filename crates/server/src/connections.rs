@@ -84,6 +84,7 @@ mod pour;
 mod press_juice;
 mod press_moromi;
 mod press_oil;
+mod recipe_book;
 mod roads;
 mod role;
 mod role_ask;
@@ -318,6 +319,8 @@ mod look_up_tests;
 mod map_marks_tests;
 #[cfg(test)]
 mod new_character_tests;
+#[cfg(test)]
+mod recipe_book_tests;
 #[cfg(test)]
 mod role_ask_tests;
 #[cfg(test)]

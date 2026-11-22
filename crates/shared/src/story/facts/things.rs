@@ -24,6 +24,8 @@ fact! {
         Herb = "herb",
         Goods = "goods",
         Coin = "coin",
+        // A recipe scroll (`shared::recipe`): only ever a reward.
+        Recipe = "recipe",
     }
 }
 

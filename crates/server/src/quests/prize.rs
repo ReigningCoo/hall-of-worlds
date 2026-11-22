@@ -1,15 +1,17 @@
 //! The items a quest pays besides coins: the artifact line's artifact or the
 //! planet's set item (one per planet per character, for good: a character
-//! who has it gets an artifact instead), made to fit the character. What it
-//! is comes from a seed of the character and quest, so a hand-in refused for
-//! want of room offers the same prize next time (owner).
+//! who has it gets an artifact instead), made to fit the character, and
+//! recipe scrolls. What it is comes from a seed of the character and quest,
+//! so a hand-in refused for want of room offers the same prize next time
+//! (owner).
 
 use shared::id::Id;
 use shared::item::{Item, ItemKind, MadeAt, Quality};
 use shared::item_form::{ItemOrder, make_item};
 use shared::quest::{Quest, QuestId, artifact_kind, set_item_of};
+use shared::recipe::{dev_recipe, new_item};
 use shared::rng::Seed;
-use shared::story::RewardPart;
+use shared::story::{ItemCategory, RewardPart};
 
 use crate::ServerWorld;
 use crate::connections::Client;
@@ -35,8 +37,8 @@ pub(super) fn as_seen(book: &QuestBook, mut quest: Quest) -> Quest {
 }
 
 /// The items `quest` pays `client`'s character other than coins, and
-/// whether one is the planet's set item. Items, training and favours of
-/// ordinary quests aren't given yet.
+/// whether one is the planet's set item. Of ordinary quests' items only
+/// recipe scrolls are given yet; training and favours aren't.
 pub(super) fn prize_items(
     client: &Client,
     world: &ServerWorld,
@@ -59,6 +61,12 @@ pub(super) fn prize_items(
                 let (kind, quality) = set_item_of(world.seed.value());
                 items.push(made(client, kind, quality, true, seed, made_at));
                 set_item = true;
+            }
+            // A scroll of a real dish rolled from the seed (`shared::recipe`).
+            RewardPart::Item(ItemCategory::Recipe) => {
+                if let Some(form) = dev_recipe(None, seed) {
+                    items.push(new_item(form, 1, new_id(), Some(made_at)));
+                }
             }
             _ => {}
         }

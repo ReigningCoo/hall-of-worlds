@@ -34,6 +34,10 @@ pub fn look_of(item: &Item) -> Option<Look> {
             return Some(Look::Tool(kind));
         }
         ItemKind::Yeast => return Some(Look::Yeast),
+        ItemKind::Recipe => {
+            let craft = item.recipe().map(|form| form.craft).unwrap_or_default();
+            return Some(Look::Recipe(super::ScrollLook { craft }));
+        }
         kind @ (ItemKind::Salt | ItemKind::Sulphur | ItemKind::Mercury | ItemKind::Ash) => {
             return Some(Look::Solid(kind));
         }

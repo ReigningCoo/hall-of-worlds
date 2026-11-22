@@ -21,4 +21,4 @@ Recipes (plan: `docs/context/recipes.md`): recipe scrolls as items, and each cha
 
 ## Used by
 
-- `sheet` (`Sheet::book`), `item` (`ItemKind::Recipe`'s row), `item_form` (`ItemForm::Recipe`, Give Item); the server and client from recipes plan PRs 3 to 5.
+- `sheet` (`Sheet::book`), `item` (`ItemKind::Recipe`'s row), `item_form` (`ItemForm::Recipe`, Give Item); the server (`connections/recipe_book.rs`: reading and removing; `cook.rs`: own recipes; `quests/prize.rs`: reward scrolls), `shop` (scroll shops, inns and taverns), `protocol` (`RecipeAsk`, `RecipeInserted`), the client (`inventory`'s `read.rs`, `item_art`'s `scroll.rs`, `item_popup`'s `recipe.rs`, `notices`); PRs 4 and 5 to come.

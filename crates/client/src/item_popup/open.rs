@@ -134,7 +134,13 @@ pub(super) fn follow_pointed(
         attributes,
         kind: carried.0.creature,
     });
-    let (lines, runes) = key_lines(&pointed.item, &wording.0, world.map(|world| world.id));
+    let (mut lines, runes) = key_lines(&pointed.item, &wording.0, world.map(|world| world.id));
+    // A recipe scroll's: in the book already, or how to read it in.
+    lines.extend(super::recipe::recipe_line(
+        &pointed.item,
+        &sheet.0.book,
+        &wording.0,
+    ));
     let runes = runes.map(|code| {
         let name = format!("planet-runes-{code}");
         if !pictures.has(&name) {

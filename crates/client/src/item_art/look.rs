@@ -124,6 +124,8 @@ pub enum Look {
     Dish(super::DishLook),
     /// A crock of yeast, the same for every one (`yeast.rs`).
     Yeast,
+    /// A recipe scroll, by its craft: the same for every dish (`scroll.rs`).
+    Recipe(super::ScrollLook),
     /// Salt, Sulphur, Mercury or Ash, by kind (`salt.rs`, `solids.rs`).
     Solid(shared::item::ItemKind),
     /// A cask, by its size and wood (`cask.rs`).
@@ -209,6 +211,7 @@ impl Look {
             | Self::Flour(_)
             | Self::Egg(_)
             | Self::Yeast
+            | Self::Recipe(_)
             | Self::Solid(_)
             | Self::Coin(_) => (1, 1),
             Self::Bag => (3, 3),
