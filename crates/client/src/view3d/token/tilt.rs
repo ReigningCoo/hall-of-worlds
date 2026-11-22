@@ -24,11 +24,12 @@ pub struct BaseTilt {
 }
 
 impl BaseTilt {
-    /// Lying flat at `height`: on flat ground, and on the world map.
-    pub fn flat(height: f32) -> Self {
+    /// Lying on a plane at `height` whose up is `normal`: flat ground (up)
+    /// and the Hall's twisted walkway.
+    pub fn on_plane(height: f32, normal: Vec3) -> Self {
         Self {
             bottom: height,
-            normal: Vec3::Y,
+            normal,
         }
     }
 

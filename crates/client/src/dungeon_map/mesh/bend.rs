@@ -1,6 +1,9 @@
-//! The Hall of Worlds' meshes drawn bent (`common::HallBend`): every vertex
-//! moved by its column's offset once built, so each cell becomes a slight
-//! parallelogram meeting its neighbours, with no steps.
+//! The Hall of Worlds' meshes drawn bent and twisted (`common::HallBend`):
+//! every vertex turned round the middle line and moved by its column's
+//! offset once built, its normal turned with it, so each cell becomes a
+//! slight parallelogram meeting its neighbours, with no steps. The twist is
+//! the whole Hall's, so this is never redone as the player walks: the view
+//! rolls instead (`view3d`).
 
 use bevy::mesh::VertexAttributeValues;
 use bevy::prelude::*;
@@ -31,13 +34,23 @@ impl DungeonMeshes {
     }
 }
 
-/// Moves each vertex of a mesh by the bend at its column.
+/// Moves each vertex of a mesh by the bend at its column, turning its normal
+/// by the twist there.
 fn bend_mesh(mesh: &mut Mesh, bend: &HallBend) {
+    let mut columns = Vec::new();
     if let Some(VertexAttributeValues::Float32x3(places)) =
         mesh.attribute_mut(Mesh::ATTRIBUTE_POSITION)
     {
         for place in places {
+            columns.push(place[0] / CELL_SIZE);
             *place = bend.shift(Vec3::from(*place), CELL_SIZE).into();
+        }
+    }
+    if let Some(VertexAttributeValues::Float32x3(normals)) =
+        mesh.attribute_mut(Mesh::ATTRIBUTE_NORMAL)
+    {
+        for (normal, &x) in normals.iter_mut().zip(&columns) {
+            *normal = (bend.tilt(x) * Vec3::from(*normal)).into();
         }
     }
 }

@@ -9,6 +9,7 @@ use bevy::prelude::*;
 use super::{ModelAnchor, TokenAssets, TokenView};
 use crate::common::{Facing, Preferences};
 use crate::view3d::ViewCamera;
+use crate::view3d::place::ViewRoll;
 
 /// How fast a model turns towards its heading, at most: radians a second
 /// (about two turns a second, so a quick turn still reads as a turn).
@@ -20,13 +21,15 @@ pub fn turn_models(
     time: Res<Time>,
     preferences: Res<Preferences>,
     camera: Single<&Transform, (With<ViewCamera>, Without<ModelAnchor>)>,
+    roll: Res<ViewRoll>,
     views: Query<&TokenView>,
     facings: Query<&Facing>,
     mut anchors: Query<(&mut ModelAnchor, &ChildOf, &mut Transform)>,
 ) {
     let snap = preferences.graphics.reduce_motion;
     let most = TURN_SPEED * time.delta_secs();
-    let to_camera = TokenAssets::icon_rotation(camera.rotation);
+    // Anchors stand in the view's roll (the Hall's twist at the player).
+    let to_camera = TokenAssets::icon_rotation(roll.0.inverse() * camera.rotation);
     for (mut anchor, child_of, mut transform) in &mut anchors {
         let facing = views
             .get(child_of.parent())
