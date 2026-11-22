@@ -232,6 +232,12 @@ fn saves_are_read_back() {
                     let counter = shared::bar::BarCounter { kind, length: 2 };
                     shared::bar::BarVessels::new(counter)
                 })]),
+                fireplaces: BTreeMap::from([((11, 4), {
+                    let fireplace = shared::fireplace::Fireplace { length: 3 };
+                    let mut fireside = shared::fireplace::Fireside::new(fireplace);
+                    let _ = fireside.burn(100, shared::material::Material::Oak);
+                    fireside
+                })]),
                 benches_stocked: true,
                 made_benches: Vec::new(),
                 campfires: BTreeMap::new(),

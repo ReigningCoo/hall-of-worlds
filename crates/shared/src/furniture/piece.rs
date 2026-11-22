@@ -9,6 +9,7 @@ use crate::bottle_rack::{BottleRack, BottleRackKind};
 use crate::cask_rack::CaskRack;
 use crate::crafting_bench::Craft;
 use crate::door::Side;
+use crate::fireplace::Fireplace;
 
 /// How much longer a move takes over a table than over open floor, in
 /// thousandths: climbing over or ducking under it.
@@ -52,6 +53,11 @@ pub enum Furniture {
     BarCounter {
         counter: BarCounter,
     },
+    /// A stone fireplace against a wall (`shared::fireplace`), 1 deep,
+    /// facing away from the wall (its chimney breast) as a bench does.
+    Fireplace {
+        fireplace: Fireplace,
+    },
 }
 
 impl Furniture {
@@ -81,7 +87,8 @@ impl Furniture {
             Self::Table { .. }
             | Self::CraftingBench { .. }
             | Self::CaskRack { .. }
-            | Self::BottleRack { .. } => TABLE_COST_PER_MILLE,
+            | Self::BottleRack { .. }
+            | Self::Fireplace { .. } => TABLE_COST_PER_MILLE,
             // A counter as a table's; its flap lifts, as open floor.
             Self::BarCounter { counter } if counter.is_counter() => TABLE_COST_PER_MILLE,
             Self::BarCounter { .. } => 1000,
@@ -98,7 +105,7 @@ pub struct Piece {
     /// Cells east–west and north–south (a table 1 × 1 to 2 × 3 either way
     /// round, a chair 1 × 1, a bench 1 to 3 long and 1 deep, a crafting
     /// bench its craft's length and 1 deep, a cask rack, bottle rack or bar
-    /// counter its length and 1 deep).
+    /// counter its length and 1 deep, a fireplace its length and 1 deep).
     pub size: (u8, u8),
     /// A seat: the way someone sitting on it faces (towards their table, or
     /// away from the wall behind). A table: the way its length runs from its
@@ -106,7 +113,8 @@ pub struct Piece {
     /// its front faces, away from the wall behind it (as a seat's); its shelf
     /// is along the opposite side. A cask rack or wine rack: as a crafting
     /// bench. A spirit rack: the way its front (lowest shelf) faces. A bar
-    /// counter: the side drinkers stand on, the barkeep behind it.
+    /// counter: the side drinkers stand on, the barkeep behind it. A
+    /// fireplace: as a crafting bench, its hearth stone to the front.
     pub facing: Side,
     pub material: Material,
     pub furniture: Furniture,

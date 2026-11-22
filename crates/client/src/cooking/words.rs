@@ -89,6 +89,8 @@ pub(super) fn kitchen_words(kitchen: &KitchenNow) -> &'static str {
         Place::ColdHearth => {
             "At a hearth that isn't lit: its tools, but no heat. Light it with kindling."
         }
+        Place::Fireplace => "At a lit fireplace: a hearth's heat, but no Oven, and your own tools.",
+        Place::ColdFireplace => "At a fireplace that isn't lit: no heat. Light it with kindling.",
         Place::Town => "In town: the town's hearth, with its Oven and tools.",
         Place::Campfire => "By a campfire: Pan and Cauldron, no Oven; at most Rare.",
         Place::Nowhere => "No heat here: Knife, Bowl, Sieve and Mortar only; at most Rare.",

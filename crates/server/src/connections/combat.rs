@@ -321,6 +321,8 @@ mod feed_yeast_tests;
 #[cfg(test)]
 mod fell_tree_tests;
 #[cfg(test)]
+mod fireplace_tests;
+#[cfg(test)]
 mod grudge_tests;
 #[cfg(test)]
 mod heal_tests;

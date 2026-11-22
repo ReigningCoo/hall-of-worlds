@@ -12,7 +12,9 @@
 //! diamond lattice against a wall, spirit racks three steps standing on the
 //! table under them (`bottle_rack.rs`). Bar counters are a top over a front
 //! panel, joining into runs, with shelves for vessels (`bar_counter.rs`);
-//! what stands on one stands that much higher than on a table.
+//! what stands on one stands that much higher than on a table. Fireplaces
+//! are stone, a chimney breast over the fire, with fire tools and a log
+//! basket (`fireplace.rs`).
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod atlas;
@@ -24,6 +26,7 @@ mod chairs;
 mod colour;
 mod crafting_bench;
 mod draw;
+mod fireplace;
 mod frame;
 mod hearth;
 mod part;
@@ -42,6 +45,7 @@ pub(super) use bar_counter::{bar_height, bar_vessel_spot, lift_on};
 pub(super) use bottle_rack::{TALLEST as TALLEST_BOTTLE, bottle_rack_height, bottle_spot};
 pub(super) use cask_rack::{cask_scale, cask_spot, rack_height};
 pub(super) use crafting_bench::{ghost_boxes, tool_spot};
+pub(super) use fireplace::basket_spot;
 pub(super) use hearth::firebox;
 
 /// How high a table's top is, and how thick.
@@ -73,7 +77,8 @@ fn build_piece(
         .or_else(|| crafting_bench::parts(piece))
         .or_else(|| cask_rack::parts(piece))
         .or_else(|| bottle_rack::parts(piece))
-        .or_else(|| bar_counter::parts(scene.level, piece));
+        .or_else(|| bar_counter::parts(scene.level, piece))
+        .or_else(|| fireplace::parts(piece));
     let parts = match parts {
         Some(parts) if piece.furniture.stands_on_furniture() => {
             // As much higher as what it stands on is than a table.

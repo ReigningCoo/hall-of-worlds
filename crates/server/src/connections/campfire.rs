@@ -31,7 +31,7 @@ pub(super) fn start_fire(client: &mut Client, world: &mut ServerWorld) -> (bool,
         FireTarget::Feed(_) => feed_ticks(),
         FireTarget::Light(_) => light_ticks(),
         // A hearth: lighting it or feeding it are alike quick.
-        FireTarget::Hearth(_) => feed_ticks(),
+        FireTarget::Hearth(_) | FireTarget::Fireplace(_) => feed_ticks(),
     };
     let tick = world.action_clock.ticks();
     client.fight.pending = Some(Pending {

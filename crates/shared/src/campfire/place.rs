@@ -57,13 +57,14 @@ pub fn place_faced(
 }
 
 /// Whether Make Campfire has something to do for someone at `at` facing
-/// `heading`: a hearth faced to light or feed (`crafting_bench::
-/// hearth_faced`), a fire faced to feed, or ground faced to light one on
+/// `heading`: a hearth or fireplace faced to light or feed (`crafting_bench::
+/// hearth_faced`, `fireplace::fireplace_faced`), a fire faced to feed, or ground faced to light one on
 /// (the client's guess: the server also keeps fires off stairs, and knows
-/// which hearths are always lit).
+/// which hearths and fireplaces are always lit).
 pub fn can_make_fire(level: &Level, at: Spot, heading: Heading) -> bool {
     let burning = |x: i64, y: i64| level.campfire_at(x, y).is_some();
     crate::crafting_bench::hearth_faced(level, at, heading).is_some()
+        || crate::fireplace::fireplace_faced(level, at, heading).is_some()
         || campfire_faced(level, at, heading, burning).is_some()
         || place_faced(level, at, heading, |x, y| !burning(x, y)).is_some()
 }

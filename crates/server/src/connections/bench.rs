@@ -65,15 +65,17 @@ pub(super) fn bench_act(
 /// the piece, only left where it is.
 fn put(client: &mut Client, world: &mut ServerWorld, here: HeldHere, item: shared::id::Id) -> bool {
     client.inventory.lift_part(item);
-    // Of a stack (bottles), only one goes, one to a place.
+    // Of a stack (bottles), only one goes, one to a place; a log basket's
+    // place takes a stack of kindling, up to as many as it holds.
+    let per_place = here.holder.per_place();
     let stacked = client
         .inventory
         .find(item)
-        .is_some_and(|found| found.count() > 1);
+        .is_some_and(|found| found.count() > per_place);
     let item = match stacked {
         true => match client
             .inventory
-            .lift_count(item, 1, &mut crate::ids::new_id)
+            .lift_count(item, per_place, &mut crate::ids::new_id)
         {
             Some(one) => one,
             None => return true,

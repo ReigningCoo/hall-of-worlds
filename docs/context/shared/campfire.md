@@ -14,9 +14,9 @@ Campfires (cooking plan PR 7, `docs/context/cooking.md`): a real fire anyone lig
 - `burn_seconds(wood)`: how long one piece of kindling burns, in real seconds: 300 for the lightest wood (density 2) to 600 for the densest (11), in proportion; not a tree's wood as density 6.
 - `Campfire { since, burns, burnt }` (serde, saved by the server): pieces burning one after another from `since` (server seconds, real time stopped while paused), each `burns` long; `lit(now, wood)`, `ends()`, `is_lit(now)`, `pieces_left(now)` (the one burning included), `feed(now, wood) -> Result<(), FeedRefused::{Out, Full}>` (only while lit, under `MAX_KINDLING` 5 left), `settle(now)` (burnt pieces counted into `burnt`, `ends` kept), `ash()` (one Ash a piece fed).
 - `can_hold_fire(level, x, y)`: bare ground, grass, a floor or a stone or dirt road (not boards, fields, gardens, covered ground, water), with no furniture or standing tree. The server also keeps fires off stairs and other fires.
-- `campfire_faced(level, at, heading, has_fire)` / `place_faced(level, at, heading, free)`: the nearest faced cell as Collect Water's water (`facing::faced_cell`, `potion::COLLECT_REACH`, `FACING_HALF`), underfoot too. `can_make_fire(level, at, heading)`: either, or a hearth faced (`crafting_bench::hearth_faced`, cooking PR 8: Make Campfire lights or feeds a hearth's fire, which the server keeps on its `BenchTools::fire` and which leaves no Ash) (the client's guess before asking).
+- `campfire_faced(level, at, heading, has_fire)` / `place_faced(level, at, heading, free)`: the nearest faced cell as Collect Water's water (`facing::faced_cell`, `potion::COLLECT_REACH`, `FACING_HALF`), underfoot too. `can_make_fire(level, at, heading)`: either, or a hearth faced (`crafting_bench::hearth_faced`, cooking PR 8: Make Campfire lights or feeds a hearth's fire, which the server keeps on its `BenchTools::fire` and which leaves no Ash), or a fireplace faced (`fireplace::fireplace_faced`, tavern furniture plan PR 4: its `Fireside::fire`, the same) (the client's guess before asking).
 - `kindling_to_burn(carried)`: the first kindling carried (own grid top to bottom, left to right, then bags) and its wood.
-- `LIGHT_SECONDS` (5) and `FEED_SECONDS` (1): Make Campfire's wind-ups; `LIGHT_CELLS` (6): how far a lit fire's light reaches; `ASH_GRAMS` (20): one Ash item.
+- `LIGHT_SECONDS` (5) and `FEED_SECONDS` (1): Make Campfire's wind-ups; `LIGHT_CELLS` (6): how far a lit fire's light reaches (a lit hearth's or fireplace's too); `ASH_GRAMS` (20): one Ash item.
 
 ## Depends on
 
@@ -24,7 +24,7 @@ Campfires (cooking plan PR 7, `docs/context/cooking.md`): a real fire anyone lig
 
 ## Used by
 
-- `ability` (`Ability::MakeCampfire`, learned on first carrying kindling, needing kindling: `Learned::learn_from`, `Ability::tool`), `item` (`ItemKind::Ash`'s weight), `dungeon` (`Level::campfire_at`), the server (`sites/campfires`, `connections/campfire.rs`, `LevelSave::campfires`), the client (`abilities`' aim, `dungeon_map`'s `campfires.rs`).
+- `fireplace` (`Fireside::fire`, `burn`), `ability` (`Ability::MakeCampfire`, learned on first carrying kindling, needing kindling: `Learned::learn_from`, `Ability::tool`), `item` (`ItemKind::Ash`'s weight), `dungeon` (`Level::campfire_at`), the server (`sites/campfires`, `connections/campfire.rs`, `LevelSave::campfires`), the client (`abilities`' aim, `dungeon_map`'s `campfires.rs`).
 
 ## Notes
 

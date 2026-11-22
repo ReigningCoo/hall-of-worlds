@@ -81,6 +81,8 @@ Later (not in this plan): tavern stock, the forge burning food, lava, spoilage, 
 
 ## Hearths (PR 8, built)
 
+Fireplaces (tavern furniture plan PR 4, owner's decision, `shared::fireplace`) cook as a worse hearth: a lit one is a hearth's heat (`Heat::Hearth`, no Rare cap), but with no Oven and no tools of its own, lit and fed by Make Campfire; Ash from cooking as a hearth's.
+
 `shared::crafting_bench` (`docs/context/shared/crafting_bench.md`): hearths are crafting benches of the crafts Stove (1 × 1), Hearth (1 × 2) and Range (1 × 3), of stone. Claude's choices, for the owner to tune: new kitchen tool items Pan, Bowl and Sieve (cooking's tools by `cooking::Tool::of_item`; blacksmiths sell the Pan, carpenters the Bowl and Sieve); the Oven has no item, it is a lit hearth's own (for PR 9 to check); a Stove holds no tools, a Hearth and Range one each of Pan, Cauldron, Bowl, Sieve, Knife and Mortar and Pestle, starting with a Pan and Cauldron and perhaps more; a Range's storage holds 8 things (dishes and intermediates only), resting in real time at the land's warmth as on the ground; towers, castles and forts (households) have hearths always lit, huts and cottages a hearth lit and fed with kindling by Make Campfire (burning as a campfire, no Ash); one craft of hearth a site, on ⌈levels ÷ 5⌉ levels (huts mostly Stoves, cottages any, towers Hearths or Ranges, castles and forts Ranges); `hearth_ash` gives one Ash per 450 s of heat used (for PR 9); towns give a virtual Hearth (`town_hearth`, `town_tools`) that PR 9 uses. The client draws a stove with a firebox under a hood, a counter, drawers on a Range, and a small fire with light in a lit one.
 
 ## The server (PR 9, built)

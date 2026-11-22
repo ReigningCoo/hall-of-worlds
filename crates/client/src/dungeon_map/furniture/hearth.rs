@@ -26,16 +26,16 @@ const FIREBOX_BACK: f32 = 0.35;
 /// How high the hood rises.
 const HOOD_TOP: f32 = CELL_SIZE * 1.1;
 
-/// Where a hearth's piece puts things: across its depth from the back (0)
+/// Where a hearth's or fireplace's piece puts things: across its depth from the back (0)
 /// to the front (1), and along the wall from its stove.
-struct Shape {
+pub(super) struct Shape {
     frame_depth: f32,
-    length: f32,
+    pub(super) length: f32,
     back_low: bool,
 }
 
 impl Shape {
-    fn of(piece: &Piece) -> Self {
+    pub(super) fn of(piece: &Piece) -> Self {
         let table = Table::of(piece);
         Self {
             // A bench's frame runs across it (`x`) and along the wall (`z`).
@@ -46,7 +46,7 @@ impl Shape {
     }
 
     /// The frame's `x` at `t` of the way from the back to the front.
-    fn depth(&self, t: f32) -> f32 {
+    pub(super) fn depth(&self, t: f32) -> f32 {
         let inner = self.frame_depth - 2.0 * INSET;
         match self.back_low {
             true => INSET + t * inner,
@@ -56,7 +56,12 @@ impl Shape {
 
     /// A stone block from back `t0` to front `t1`, `y0` to `y1`, along
     /// `z0` to `z1`.
-    fn block(&self, (t0, t1): (f32, f32), (y0, y1): (f32, f32), (z0, z1): (f32, f32)) -> Part {
+    pub(super) fn block(
+        &self,
+        (t0, t1): (f32, f32),
+        (y0, y1): (f32, f32),
+        (z0, z1): (f32, f32),
+    ) -> Part {
         Part::block(
             Vec3::new(self.depth(t0), y0, z0),
             Vec3::new(self.depth(t1), y1, z1),
@@ -155,6 +160,9 @@ pub(super) fn tool_place(piece: &Piece, kind: ItemKind) -> Option<(Vec3, f32)> {
 /// The middle of a hearth's firebox in the world (on flat floor), where its
 /// flames stand, or `None` for anything else.
 pub(in crate::dungeon_map) fn firebox(piece: &Piece) -> Option<Vec3> {
+    if let Furniture::Fireplace { fireplace } = piece.furniture {
+        return Some(super::fireplace::fire_spot(piece, fireplace));
+    }
     let Furniture::CraftingBench { craft } = piece.furniture else {
         return None;
     };

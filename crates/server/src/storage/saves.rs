@@ -155,7 +155,12 @@ pub struct LevelSave {
     /// furniture plan PR 3).
     #[serde(default)]
     pub bars: BTreeMap<(i64, i64), shared::bar::BarVessels>,
-    /// Pieces with places (benches, cask, wine and spirit racks, bar counters) made with the developer tools
+    /// Fireplaces' log baskets and fires, by the fireplace's cell, as racks'
+    /// (tavern furniture plan PR 4).
+    #[serde(default)]
+    pub fireplaces: BTreeMap<(i64, i64), shared::fireplace::Fireside>,
+    /// Pieces with places (benches, cask, wine and spirit racks, bar
+    /// counters, fireplaces) made with the developer tools
     /// (Create Crafting Bench, Place Furniture), put on the level each time.
     #[serde(default)]
     pub made_benches: Vec<shared::furniture::Piece>,

@@ -36,6 +36,7 @@ pub mod facing;
 pub mod farmyard;
 pub mod ferment;
 pub mod fermentation;
+pub mod fireplace;
 pub mod floor_sight;
 pub mod flour;
 pub mod food;

@@ -2,11 +2,12 @@
 //! furniture plan PR 1): crafting benches' tools, cask racks' casks and wine
 //! and spirit racks' bottles (PR 2), bar counters' vessels (PR 3), kept by
 //! the piece's cell in the level's save (`LevelSave::benches`, `racks`,
-//! `bottle_racks`, `bars`),
+//! `bottle_racks`, `bars`; fireplaces' kindling and fire (PR 4) `fireplaces`),
 //! put on and taken off through the same messages (`connections/bench.rs`).
 
 use shared::bar::{BarCounter, BarVessels};
 use shared::bottle_rack::{BottleRack, RackBottles};
+use shared::fireplace::{Fireplace, Fireside};
 use shared::furniture::{Held, Holder, Piece};
 use shared::spot::Spot;
 
@@ -81,6 +82,7 @@ pub(crate) fn settle_held(
         Holder::Casks(rack) => rack,
         Holder::Bottles(rack) => return settle_bottles(world, key, rack),
         Holder::Bar(counter) => return settle_bar(world, key, counter),
+        Holder::Fire(fireplace) => return Held::Fire(fireside(world, key, fireplace)),
     };
     let (id, index, at) = key;
     let level = world.site(id).levels.get(&index);
@@ -126,6 +128,18 @@ fn settle_bar(world: &mut ServerWorld, key: BenchKey, counter: BarCounter) -> He
     Held::Bar(vessels)
 }
 
+/// What lies at the fireplace kept at `key` (its basket's kindling and its
+/// fire, which burns by the server's clock: nothing to settle), empty and
+/// unlit if nothing was ever kept there.
+pub(crate) fn fireside(world: &mut ServerWorld, key: BenchKey, fireplace: Fireplace) -> Fireside {
+    let (id, index, at) = key;
+    let level = world.site(id).levels.get(&index);
+    (level.and_then(|level| level.fireplaces.get(&at)))
+        .filter(|kept| kept.fireplace == fireplace)
+        .cloned()
+        .unwrap_or_else(|| Fireside::new(fireplace))
+}
+
 /// Keeps what lies on the piece at `key` and has it sent to everyone who has
 /// the piece.
 pub(crate) fn keep_held(world: &mut ServerWorld, key: BenchKey, held: Held) {
@@ -136,6 +150,7 @@ pub(crate) fn keep_held(world: &mut ServerWorld, key: BenchKey, held: Held) {
         Held::Casks(casks) => drop(saved.racks.insert(at, casks)),
         Held::Bottles(bottles) => drop(saved.bottle_racks.insert(at, bottles)),
         Held::Bar(vessels) => drop(saved.bars.insert(at, vessels)),
+        Held::Fire(fireside) => drop(saved.fireplaces.insert(at, fireside)),
     }
     world.bench_changes.push(key);
 }

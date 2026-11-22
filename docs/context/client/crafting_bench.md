@@ -1,6 +1,6 @@
 # client: crafting_bench
 
-Crafting benches and all furniture with places on the client (crafting benches plan PR 3, `shared::crafting_bench`; any `shared::furniture::Holder` since the tavern furniture plan PR 1, cask racks too, and wine and spirit racks since PR 2): what the server tells lies on each piece on the level, the bench the player is at now, and a piece's panel, a grid of what lies on it like a shop's stock. Clicking (or tapping) a piece walks up to it, turns to it and opens the panel. Not the models (`dungeon_map`: `furniture/crafting_bench.rs`, `bench_tools.rs`, `bench_picking.rs`), nor Alchemy at a bench (`alchemy`, `abilities`), nor sending what is let go on the grid (`inventory`).
+Crafting benches and all furniture with places on the client (crafting benches plan PR 3, `shared::crafting_bench`; any `shared::furniture::Holder` since the tavern furniture plan PR 1, cask racks too, wine and spirit racks since PR 2, bar counters since PR 3, and fireplaces' log baskets since PR 4): what the server tells lies on each piece on the level, the bench the player is at now, and a piece's panel, a grid of what lies on it like a shop's stock. Clicking (or tapping) a piece walks up to it, turns to it and opens the panel. Not the models (`dungeon_map`: `furniture/crafting_bench.rs`, `bench_tools.rs`, `bench_picking.rs`), nor Alchemy at a bench (`alchemy`, `abilities`), nor sending what is let go on the grid (`inventory`).
 
 ## Files
 
