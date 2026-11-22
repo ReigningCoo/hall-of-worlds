@@ -4,6 +4,7 @@
 //! remembered goes into a second set of meshes, drawn with sepia pictures.
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod bend;
 mod build;
 mod builder;
 mod cells;

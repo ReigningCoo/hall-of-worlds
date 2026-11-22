@@ -22,14 +22,14 @@ What every 3D view shares: the one camera (orbiting the player: turn, tilt, zoom
 - `ClickedToken(Option<Entity>)` (resource): the `common::Clickable` entity whose token the left button was just pressed on, this frame only. Views skip their ground click when it is set; `site` uses it.
 - `HoveredToken(Option<Entity>)` (resource): the entity the mouse is over whose token is `common::Clickable` or has a `common::HoverName`, every frame; `world_map` outlines it and `hover` names it. `ClickedToken` is only ever a clickable one, the nearest under the pointer even when a named one stands in front.
 - `ViewCamera` (marker on the camera), `OrbitCamera` (read or set `yaw` (0 looks north, positive moves the camera east), `pitch`, `distance`; used by `dev_tools` `HOW_DEBUG_VIEW`, `world_map`, `dungeon_map` and `hall_view`).
-- `ViewGrid` (resource, set by the current view on entering): `cell_size` (3D units per grid step), `floor` (height the camera looks at and tokens stand on) and `raised` (the dungeon view's: the level's ground has a shape, `common::DrawnGround`, and `floor_at(ground, x, y)` adds the ground's height there, `drawn_between`, so the camera keeps the player where they are on screen as the land moves under them, and tokens stand on the slope).
+- `ViewGrid` (resource, set by the current view on entering): `cell_size` (3D units per grid step), `floor` (height the camera looks at and tokens stand on) and `raised` (the dungeon view's: the level's ground has a shape, `common::DrawnGround`, and `floor_at(ground, bend, x, y)` adds the ground's height there, `drawn_between`, so the camera keeps the player where they are on screen as the land moves under them, and tokens stand on the slope). `floor_at` also adds the Hall's bend's height (`common::HallBend`), and `at(ground, bend, x, y)` is where a grid place is drawn, moved across by the bend too: the camera's target and every token go through it, so the player follows the Hall's curve and stays in the middle of the screen. Back the other way: `HallBend::unshift`, `unbend_ray`.
 - `TokenView` (`owner`, `tilt()`: how the base is turned to lie on the ground, for things laid on its top, as `target`'s reticule), `TOKEN_DIAMETER`, `TOKEN_HALF_THICKNESS`: for views that place tokens themselves (the world map rests them on the terrain) or size things to them.
 - `XrayMaterial` (`outline(colour)`, `fill(colour)`, `picture(colour, image)`; its plugin is added here) and `XRAY_WHITE`: for any model that should show through what hides it (`ground`'s bags, `dungeon_map`'s stairs and doors).
 - `TokenFlash` (component, `Default`): put on a token's owner to draw its body, model and picture solid red for `FLASH_SECONDS` (0.1 s, by the clock, seen for at least a frame), then it is taken off; adding it again starts again. `entities` puts it on anyone harmed.
 
 ## Depends on
 
-- `common` (`ViewFacing`, `ViewTurn`, `Token`, `Icon`, `TokenModel`, `ModelMaterial`, `SmoothPosition`, `Clickable`), `player` (`Player`, `PlayerSystems`).
+- `common` (`ViewFacing`, `ViewTurn`, `HallBend`, `DrawnGround`, `Token`, `Icon`, `TokenModel`, `ModelMaterial`, `SmoothPosition`, `Clickable`), `player` (`Player`, `PlayerSystems`).
 
 ## Used by
 

@@ -19,8 +19,8 @@ use super::viewers;
 use super::wild_ground::GroundTint;
 use super::{MemoryPart, SeeThroughPart, Shown, SolidPart, StairsThroughPart};
 use crate::common::{
-    CurrentDungeon, DrawnGround, LightSource, Lightning, MapPosition, OtherLevels, PlayerCone,
-    Preferences, Remembered, SharesSight, ViewStats,
+    CurrentDungeon, DrawnGround, HallBend, LightSource, Lightning, MapPosition, OtherLevels,
+    PlayerCone, Preferences, Remembered, SharesSight, ViewStats,
 };
 use crate::player::Player;
 use crate::view3d::ViewCamera;
@@ -83,7 +83,7 @@ pub(super) fn update_meshes(
         mut lines_seen,
         tint,
         lightning,
-        heights,
+        (heights, bend),
         cone,
         mut cone_seen,
     ): (
@@ -93,12 +93,12 @@ pub(super) fn update_meshes(
         Local<u64>,
         Res<GroundTint>,
         Res<Lightning>,
-        Res<DrawnGround>,
+        (Res<DrawnGround>, Res<HallBend>),
         Res<PlayerCone>,
         Local<Option<(Heading, Field)>>,
     ),
 ) {
-    let camera = camera.translation;
+    let camera = bend.unshift(camera.translation, super::CELL_SIZE);
     let graphics = &preferences.graphics;
     let settings = (graphics.brightness, graphics.remembered != Remembered::Hide);
     let facing = cone.0.map(|cone| (cone.heading, cone.field));
@@ -115,6 +115,7 @@ pub(super) fn update_meshes(
         || town_lights.is_changed()
         || tint.is_changed()
         || heights.is_changed()
+        || bend.is_changed()
         || swings.is_changed()
         || others.is_changed()
         || fixed.is_changed()
@@ -237,7 +238,7 @@ pub(super) fn update_meshes(
     let (below, above) = own_stack(dungeon.info.as_ref(), &others);
     let seen_now = (&views[..], &drawn, &remembered, &cut);
     let (stairs, wild) = (&dungeon.stairs, tint.wild(&heights));
-    let built = build_posed(
+    let mut built = build_posed(
         level,
         seen_now,
         &light,
@@ -247,6 +248,7 @@ pub(super) fn update_meshes(
         wild,
         &swings.drawn,
     );
+    built.bend(&bend);
     shown.sight = Some(sight.clone());
     dungeon.bypass_change_detection().remembered = remembered;
     (shown.solid_faces, shown.outlined) = (built.solid_faces, Some(built.outlined));
@@ -289,11 +291,9 @@ pub(super) fn update_meshes(
     }
     let ms = start.elapsed().as_secs_f32() * 1000.0;
     let place = dungeon.describe();
-    let at_door = dungeon
-        .door_facing(player.x, player.y)
-        .map_or(String::new(), |b| {
-            format!(", at the door of: {}", b.kind.name())
-        });
+    let at_door = (dungeon.door_facing(player.x, player.y)).map_or(String::new(), |b| {
+        format!(", at the door of: {}", b.kind.name())
+    });
     let outlines = lines.cost_ms;
     stats.summary =
         format!("{place}{at_door}: sight, light and meshes {ms:.2} ms, lines {outlines:.2} ms");
