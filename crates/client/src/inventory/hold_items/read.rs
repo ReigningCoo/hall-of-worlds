@@ -3,7 +3,7 @@
 //! (`eat`): `RecipeAsk::Insert`, one scroll used up at once as the server
 //! will, the rest of the stack staying where it was. A scroll the book has
 //! already is kept, and the line under the clothes says so. The server then
-//! tells `RecipeInserted`, for the reading panel (recipes plan PR 4).
+//! tells `RecipeInserted`, which opens the reading panel (`cooking`).
 
 use bevy::prelude::*;
 use shared::energy::handling_cost;

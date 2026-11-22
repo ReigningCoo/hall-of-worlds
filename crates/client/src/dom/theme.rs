@@ -2,6 +2,7 @@
 //! writing, colours and spacing. Markup never says how anything looks, so
 //! changing this changes every screen.
 
+mod ink;
 mod marks;
 mod over_view;
 
@@ -218,6 +219,7 @@ impl Theme {
         theme.set(Tag::Footer, "", footer);
         over_view::add(&mut theme);
         marks::add(&mut theme);
+        ink::add(&mut theme);
         // The frame round a grid: its rows stacked, its controls close.
         theme.set(Tag::Container, "", stacked);
         theme.set(Tag::Header, "", inline);

@@ -74,13 +74,15 @@ pub(super) struct KitchenHere<'w, 's> {
 #[derive(Resource, Clone, Debug, Default, PartialEq)]
 pub(super) struct Kitchens(pub(super) KitchenNow);
 
-/// Keeps `Kitchens` as the player moves and turns.
+/// Keeps `Kitchens` as the player moves and turns, while the Cooking panel
+/// or the reading panel is open.
 pub(super) fn keep_kitchen(
     bench: Res<super::bench::Bench>,
+    reading: Res<super::reading::Reading>,
     here: KitchenHere,
     mut kitchens: ResMut<Kitchens>,
 ) {
-    if bench.is_open() {
+    if bench.is_open() || reading.is_open() {
         kitchens.set_if_neq(Kitchens(here.now()));
     }
 }
