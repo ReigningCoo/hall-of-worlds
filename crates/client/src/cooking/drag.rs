@@ -16,12 +16,12 @@ use bevy::ui::UiGlobalTransform;
 use shared::ability::{Ability, BarThing};
 use shared::cooking::Tool;
 use shared::id::Id;
-use shared::item::Item;
+use shared::item::{Inventory, Item};
 
 use super::bench::Bench;
 use super::boxes::tool_item;
 use super::grid::{GridCanvas, PlaceNode, SpaceNode, StepNode, ToolNode};
-use super::kitchen::Kitchens;
+use super::kitchen::{KitchenNow, Kitchens};
 use super::spaces::{Place, SpaceIcons, in_place, more_faced, put, takes};
 use crate::common::{TouchGesture, UiPointer, in_interface};
 use crate::dom::{AbilityThing, Dropped, Finder, Hand, HeldObject, HeldThing, HeldWhat};
@@ -177,6 +177,9 @@ pub(super) fn press_bench(
                 bench.toggle_join(at);
             }
             Some((Spot::Space(Place::Faced(step)), _)) => more_faced(&mut bench, step),
+            Some((Spot::Space(Place::Ghost(step, n)), _)) => {
+                bench.give_up(&carried.0, (step, n));
+            }
             Some((Spot::Space(place), _)) if in_place(&bench, place).is_some() => {
                 put(&mut bench, &carried.0, place, None);
             }
@@ -218,7 +221,7 @@ pub(super) fn drop_on_bench(
         if let Some(item) = held.item()
             && let Some(Spot::Space(place)) = over
         {
-            let ok = !bench.is_running() && takes(&carried.0, &kitchens.0, place, item.id);
+            let ok = !bench.is_running() && fits(&bench, (&carried.0, &kitchens.0), place, item.id);
             now.space = Some((place, ok));
         }
     }
@@ -227,9 +230,14 @@ pub(super) fn drop_on_bench(
         if let Some(item) = drop.thing.item()
             && let Some(Spot::Space(place)) = over
             && !bench.is_running()
-            && takes(&carried.0, &kitchens.0, place, item.id)
+            && fits(&bench, (&carried.0, &kitchens.0), place, item.id)
         {
-            put(&mut bench, &carried.0, place, Some(item.id));
+            match place {
+                Place::Ghost(step, n) => {
+                    bench.drop_on_ghost(&carried.0, &kitchens.0, (step, n), item.id);
+                }
+                _ => put(&mut bench, &carried.0, place, Some(item.id)),
+            }
         }
         if drop.thing.ability().is_none() {
             continue;
@@ -262,4 +270,18 @@ pub(super) fn drop_on_bench(
         now = BenchAim::default();
     }
     aim.set_if_neq(now);
+}
+
+/// Whether the stack `id` may be dropped on this space: a ghost asks the
+/// bench what it misses (`Bench::ghost_takes`), the rest `takes`.
+fn fits(
+    bench: &Bench,
+    (carried, kitchen): (&Inventory, &KitchenNow),
+    place: Place,
+    id: Id,
+) -> bool {
+    match place {
+        Place::Ghost(step, n) => bench.ghost_takes(carried, (step, n), id),
+        _ => takes(carried, kitchen, place, id),
+    }
 }

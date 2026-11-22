@@ -19,6 +19,8 @@ mod written;
 
 use bevy::prelude::*;
 
+pub(super) use entry::Shown;
+pub(super) use have::{foods_named, input_token};
 pub(super) use open::Reading;
 
 /// The reading panel's systems, in order.

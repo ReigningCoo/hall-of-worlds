@@ -1,5 +1,7 @@
 # Recipes: plan
 
+All 5 PRs are built.
+
 Owner's decisions (2026-11-21). Recipe scrolls teach real dishes; each character keeps a recipe book of what they learnt and of what they cooked themselves. Cooking first; Alchemy's recipes come later on the same items and book. Cooking's own plan: `cooking.md`.
 
 ## Owner's decisions
@@ -19,7 +21,7 @@ Owner's decisions (2026-11-21). Recipe scrolls teach real dishes; each character
 | 2 | Generic `${kind:…}` item tokens in text (`shared::item_text`), drawn red when the reader has none (built) | none | independent |
 | 3 | The server, items, art, shops and rewards: reading and removing (`ClientMessage`), own recipes remembered on cooking, the scroll's picture (a rolled scroll with a chef's hat), scrolls sold and given as quest rewards (built) | 1 | in order |
 | 4 | The reading panel: an unrolled scroll showing the recipe's grid and its written steps, foods missing in red, the beyond-skill note (built) | 2, 3 | in order |
-| 5 | The Recipes tab in the Cooking panel: the book listed (learnt and own told apart), Read, Make (filling the panel from what is carried, red ghosts for what is missing) and Remove | 4 | last |
+| 5 | The Recipes tab in the Cooking panel: the book listed (learnt and own told apart), Read, Make (filling the panel from what is carried, red ghosts for what is missing) and Remove (built) | 4 | last |
 
 ## Later (not in this plan)
 
@@ -63,3 +65,14 @@ In `client/cooking` (`reading/`, `docs/context/client/cooking.md`), as the Cooki
 - Red, in the grid and the words: an input not carried in enough (any of its foods; water faced counts as water), a tool neither carried nor in the kitchen (`has_cooking_tool`, the Oven only at a lit hearth or in a town), a row's intermediate neither carried nor in the hearth's storage.
 - Beyond skill: "2 steps beyond your Cooking skill: a 25% chance." in red under the grid.
 - A grain is counted as a sack of its flour (PR 1) but drawn as its sheaf, the `${kind:vegetable:wheat}` stand-in (PR 2).
+
+## The Recipes tab (PR 5, built)
+
+In `client/cooking` (`recipes/`, `ghosts.rs`, `docs/context/client/cooking.md`). Claude's choices, for the owner to tune:
+
+- The Cooking panel has a tab bar, Cooking and Recipes; it always opens on Cooking.
+- Recipes lists the book, latest first: each row the dish (an own recipe's name in blue-black ink with a quill), "A dish from Indian cooking" or "Your recipe", the beyond-skill note in red, and Read, Make and Remove. An empty book says how to fill it.
+- Remove asks first ("You get its scroll back" for one read from a scroll; an own one "comes back only if you cook it again").
+- Make clears the grid and lays the recipe's steps (joins too) and rows' intermediates on it, then switches to the Cooking tab; the culture is kept. Each input is filled from matching carried stacks with the recipe's counts and millilitres (liquids in whole 100 ml), the character's own grid before bags; water from the water faced when there is some. What is still missing is a ghost in that step's spaces: the kind's usual item, faint, framed red, with how many, its tip naming every food it may be. A missing intermediate frames its row's space red. Start stays off while any ghost is left, the product's words saying so.
+- Ghosts fill themselves when what they want is picked up, take a matching stack dropped on them (as much as is missing), and a click or tap on one gives up on it (cooking without it). Foods put in by hand that match a ghost count towards it.
+- The beyond-skill note ("2 steps beyond your Cooking skill: a 25% chance.") also shows under the Cooking tab's grid whenever the process on it has more steps than the skill allows, Made or built by hand.

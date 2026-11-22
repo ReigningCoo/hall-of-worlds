@@ -21,7 +21,7 @@ pub(super) fn water_shown() -> Item {
 
 /// A space's id's name and index: `cooking/source.<row>`,
 /// `food.<step × 100 + n>`, `liquid.<step × 100 + n>`, `faced.<step>`,
-/// `culture.0`.
+/// `culture.0`, `ghost.<step × 100 + n>`.
 pub(super) fn place_id(place: Place) -> (&'static str, usize) {
     match place {
         Place::Source(row) => ("source", usize::from(row)),
@@ -29,6 +29,7 @@ pub(super) fn place_id(place: Place) -> (&'static str, usize) {
         Place::Liquid(step, n) => ("liquid", step * 100 + n),
         Place::Faced(step) => ("faced", step),
         Place::Culture => ("culture", 0),
+        Place::Ghost(step, n) => ("ghost", step * 100 + n),
     }
 }
 

@@ -14,6 +14,7 @@ use shared::item::Inventory;
 use super::bench::{Bench, ROWS};
 use super::boxes::{Picture, id, space_shown, spawn_box, spawn_place, spawn_running, tool_item};
 use super::drag::{BenchAim, Dragging};
+use super::ghost_space::{ghost_shown, source_missing_tip};
 use super::grid_nodes::{at, place_id, row_node, spaces_node, water_shown};
 use super::kitchen::{KitchenNow, Kitchens};
 use super::spaces::{ML_STEP, Place, SpaceIcons, in_place, places, tip};
@@ -80,6 +81,10 @@ pub(super) fn draw_grid(
             || bench.culture.is_some_and(|id| !there(id))
         {
             bench.keep_there(there);
+        }
+        // What a recipe loaded by Make misses, picked up since.
+        if !bench.is_running() && bench.missing_any(&carried.0) {
+            bench.top_up(&carried.0, kitchen);
         }
     }
     let changed = bench.is_changed() || carried.is_changed() || sheet.is_changed();
@@ -212,7 +217,8 @@ impl Draw<'_> {
                 spawn_running(inside, step)
             });
             column.spawn(spaces_node()).with_children(|spaces| {
-                for place in places(step, station, self.kitchen.water_faced) {
+                let ghosts = station.ghosts(self.carried).len();
+                for place in places(step, station, self.kitchen.water_faced, ghosts) {
                     self.space(spaces, place);
                 }
             });
@@ -240,9 +246,27 @@ impl Draw<'_> {
             .space
             .filter(|(on, _)| *on == place)
             .map(|(_, ok)| ok);
-        let shown = space_shown(stack, self.icons.of(place), aimed);
-        let tip = HoverTip(tip(place).to_owned());
+        let mut shown = space_shown(stack, self.icons.of(place), aimed);
+        let mut words = tip(place).to_owned();
+        if let Place::Ghost(step, n) = place
+            && let Some(ghost) =
+                ghost_shown((self.bench, self.carried), (step, n), aimed, self.icons)
+        {
+            (shown, words) = ghost;
+        }
+        if let Place::Source(row) = place
+            && let Some(missing) = source_missing_tip(self.bench, row)
+        {
+            shown.aim = aimed.or(Some(false));
+            words = missing;
+        }
         let (name, at) = place_id(place);
-        parent.spawn((shown, SpaceNode(place), tip, Solid, id(name, at)));
+        parent.spawn((
+            shown,
+            SpaceNode(place),
+            HoverTip(words),
+            Solid,
+            id(name, at),
+        ));
     }
 }

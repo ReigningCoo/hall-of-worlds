@@ -5,17 +5,17 @@ use shared::cooking::{Dishes, Recipe, dish_recipe};
 use shared::recipe::{Craft, Entry, Own};
 
 /// A recipe as the panel shows it.
-pub(super) struct Shown {
-    pub(super) recipe: Recipe,
+pub(in crate::cooking) struct Shown {
+    pub(in crate::cooking) recipe: Recipe,
     /// The dish's name: "Naan", "Fried Carrot".
-    pub(super) dish: String,
+    pub(in crate::cooking) dish: String,
     /// Where a real dish is from ("Indian"); `None` for the reader's own.
-    pub(super) cuisine: Option<String>,
+    pub(in crate::cooking) cuisine: Option<String>,
 }
 
 impl Shown {
     /// `None` for a recipe this panel can't show (Alchemy's, later).
-    pub(super) fn of(entry: &Entry) -> Option<Self> {
+    pub(in crate::cooking) fn of(entry: &Entry) -> Option<Self> {
         let dishes = Dishes::built_in();
         match entry {
             Entry::Learnt {

@@ -11,6 +11,7 @@ use shared::cooking::{CookingSkills, OrderRefused, Refused};
 use shared::protocol::ClientMessage;
 
 use super::bench::{Bench, Running};
+use super::beyond::beyond_words;
 use super::boxes::space_shown;
 use super::kitchen::Kitchens;
 use super::markup::WORDS;
@@ -22,6 +23,9 @@ use crate::common::Wording;
 use crate::connection::ToServer;
 use crate::dom::{Dom, SlotShown, UiEvent, UiValue};
 use crate::inventory::Carried;
+
+/// Instead of what the process makes, while a recipe's ghosts are left.
+const MISSING: &str = "Missing ingredients (red): pick them up or drop them on their     ghosts, or click or tap a ghost to cook without it.";
 
 /// The product's frame.
 #[derive(Component)]
@@ -47,6 +51,7 @@ pub(super) fn answer_panel(
             "start" if bench.is_running() => {
                 to_server.write(ToServer(ClientMessage::CancelAbility));
             }
+            "start" if bench.missing_any(&carried.0) => {}
             "start" => {
                 let skills = CookingSkills::of(&sheet.0.skills);
                 let Ok(checked) = bench.check(&carried.0, &kitchens.0, skills) else {
@@ -105,8 +110,11 @@ pub(super) fn show_side(
     dom.set_text("cooking/count", count.to_string());
     let checked = bench.check(&carried.0, kitchen, skills);
     let running = bench.is_running();
+    let missing = bench.missing_any(&carried.0);
     dom.set_text("cooking/start", if running { "Stop" } else { "Start" });
-    dom.set_flag("cooking/start", "disabled", !running && checked.is_err());
+    let off = checked.is_err() || missing;
+    dom.set_flag("cooking/start", "disabled", !running && off);
+    show_beyond(&mut dom, &bench, skills, &wording.0);
     for (button, off) in [
         ("cooking/fewest", count <= 1),
         ("cooking/fewer", count <= 1),
@@ -130,6 +138,11 @@ pub(super) fn show_side(
         shown.set_if_neq(new);
     }
     match &checked {
+        Ok(_) if missing => {
+            dom.set_text("cooking/product_name", MISSING);
+            dom.set_text("cooking/chance", "");
+            dom.set_text("cooking/about", "");
+        }
         Ok(checked) => {
             let outputs = &checked.planned.outputs;
             let names: Vec<String> = outputs.iter().map(output_name).collect();
@@ -146,7 +159,9 @@ pub(super) fn show_side(
         }
         Err(why) => {
             let empty = matches!(why, OrderRefused::Rules(Refused::NoSteps));
-            let words = if empty {
+            let words = if missing {
+                MISSING.to_owned()
+            } else if empty {
                 "Add a step.".to_owned()
             } else {
                 refused_words(why, kitchen.heat)
@@ -156,4 +171,12 @@ pub(super) fn show_side(
             dom.set_text("cooking/about", "");
         }
     }
+}
+
+/// Under the grid: the beyond-skill note, when the process has more steps
+/// than the Cooking skill allows.
+fn show_beyond(dom: &mut Dom, bench: &Bench, skills: CookingSkills, lang: &shared::lang::Lang) {
+    let words = beyond_words(bench.halves(), skills, lang);
+    dom.set_flag("cooking/beyond", "hidden", words.is_none());
+    dom.set_text("cooking/beyond", words.unwrap_or_default());
 }
