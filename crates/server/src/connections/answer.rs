@@ -6,7 +6,7 @@ use shared::role::Permission;
 
 use super::answer_dev::answer_dev;
 use super::answer_items::answer_items;
-use super::characters::{delete_chosen, offer_characters};
+use super::characters::{choose, delete_chosen, offer_characters};
 use super::delete_character::delete_character;
 use super::login::log_in;
 use super::new_character::{create, join_or_make};
@@ -81,22 +81,13 @@ pub(crate) fn answer(
             log_in(client, credentials, world, accounts, options, logins)
         }
         ClientMessage::LinkDiscord => super::login::link_discord(client, accounts, logins),
-        ClientMessage::ChooseCharacter { id } => {
-            let Some(account) = client.account.filter(|_| client.phase == Phase::Choosing) else {
-                return refuse(client, "not the time to choose a character".into());
-            };
-            // A client can ask for anything: only its own will do.
-            let characters = match accounts.account(&account) {
-                Ok(account) => &account.characters,
-                Err(error) => return client.refuse_for_saves(&error),
-            };
-            if !characters.iter().any(|character| character.id == id) {
-                return refuse(client, "that isn't one of this account's characters".into());
-            }
-            client.character_id = Some(id);
-            client.phase = Phase::Joining;
-            true
+        // Only once Discord is linked, while the server requires it.
+        ClientMessage::ChooseCharacter { .. } | ClientMessage::CreateCharacter(_)
+            if client.discord.must_link =>
+        {
+            refuse(client, super::login::LINK_FIRST.into())
         }
+        ClientMessage::ChooseCharacter { id } => choose(client, id, accounts),
         ClientMessage::DeleteCharacter { id } => {
             delete_chosen(client, id, accounts, world, options.difficulties)
         }

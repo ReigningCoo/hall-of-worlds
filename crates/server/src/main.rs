@@ -160,8 +160,11 @@ fn main() {
     }
     {
         let mut options = app.world_mut().resource_mut::<ServerOptions>();
-        // HOW_DISCORD_ONLY lets no guests in, whatever HOW_GUESTS says.
-        let discord_only = logins.as_ref().is_some_and(Logins::discord_only);
+        // HOW_DISCORD_ONLY and HOW_DISCORD_SERVER_ID let no guests in,
+        // whatever HOW_GUESTS says: a guest can't be on the Discord server.
+        let discord_only = logins
+            .as_ref()
+            .is_some_and(|logins| logins.discord_only() || logins.requires_member());
         options.guests = (guests || logins.is_none()) && !discord_only;
     }
     if let Some(logins) = &logins {

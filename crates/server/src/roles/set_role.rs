@@ -14,6 +14,9 @@ pub(crate) enum Actor<'a> {
     Account(AccountId, &'a Powers),
     /// The server: a claim.
     Server,
+    /// The account's roles on the server's Discord (`discord.rs`): the role
+    /// is marked as Discord's, for Discord to change again.
+    Discord,
 }
 
 /// What is asked of a role change.
@@ -43,6 +46,7 @@ impl Roles {
             return Err(format!("there is no role {:?} to give", to.0));
         }
         let from = self.holds(&key);
+        let from_discord = matches!(by, Actor::Discord);
         let by_name = match by {
             Actor::Account(actor, powers) => {
                 if actor == target {
@@ -56,14 +60,18 @@ impl Roles {
                 }
                 Some(actor.0.to_string())
             }
-            Actor::Server => None,
+            Actor::Server | Actor::Discord => None,
         };
         let until = change
             .until
             .map(|u| format!(" until {}", super::stamp::log_stamp(u)));
         let what = format!(
             "{} gave {key} {} (was {}){}{}",
-            by_name.as_deref().unwrap_or("the server"),
+            match (&by_name, from_discord) {
+                (Some(name), _) => name.as_str(),
+                (None, true) => "Discord",
+                (None, false) => "the server",
+            },
             to.0,
             from.0,
             until.unwrap_or_default(),
@@ -79,6 +87,7 @@ impl Roles {
             until: change.until,
             reason: change.reason.to_owned(),
             by: by_name,
+            discord: from_discord,
         });
         self.change(&key, held, now, &what)?;
         self.changed.push(target);

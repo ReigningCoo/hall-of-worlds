@@ -26,16 +26,20 @@ mod callback;
 mod config;
 mod discord;
 mod http;
+mod member;
+mod members;
 mod pending;
 mod provider;
 mod secret;
 mod setup;
 
 pub(crate) use discord::DiscordUser;
+pub(crate) use member::Membership;
 pub(crate) use secret::LoginSecret;
 pub(crate) use setup::Setup;
 
 use http::Http;
+use members::Members;
 use pending::{Pending, Waiting};
 use provider::{Kind, Provider};
 
@@ -87,6 +91,9 @@ struct Inner {
     /// Whether Discord is the only way in (`HOW_DISCORD_ONLY`).
     discord_only: bool,
     http: Http,
+    /// The bot checking membership of the server's Discord server, when
+    /// required (`HOW_DISCORD_SERVER_ID`).
+    members: Option<Members>,
     pending: Mutex<Pending>,
     finished: (Mutex<Sender<Finished>>, Mutex<Receiver<Finished>>),
 }
@@ -114,7 +121,12 @@ impl Logins {
             }
             ready
         });
+        let site = setup.discord.as_ref().map(|discord| discord.site.clone());
         providers.extend(setup.discord.map(Provider::discord));
+        let members = match (setup.member, site) {
+            (Some(member), Some(site)) => Some(Members::start(http.clone(), site, member)),
+            _ => None,
+        };
         if providers.is_empty() {
             return None;
         }
@@ -130,6 +142,7 @@ impl Logins {
             secret,
             discord_only: setup.discord_only,
             http,
+            members,
             pending: Mutex::default(),
             finished: (Mutex::new(sender), Mutex::new(receiver)),
         })))
@@ -139,6 +152,29 @@ impl Logins {
     /// provider and no guests, and sessions only for Discord's accounts.
     pub fn discord_only(&self) -> bool {
         self.0.discord_only
+    }
+
+    /// Whether players must be on the server's Discord server
+    /// (`HOW_DISCORD_SERVER_ID`), checked by its bot.
+    pub fn requires_member(&self) -> bool {
+        self.0.members.is_some()
+    }
+
+    /// Asks the bot whether this Discord user is on the server's Discord
+    /// server: answered by a later `member_answers`. Nothing if not required.
+    pub(crate) fn ask_member(&self, user: u64) {
+        if let Some(members) = &self.0.members {
+            members.ask(user);
+        }
+    }
+
+    /// The bot's answers since last asked, by Discord user id.
+    pub(crate) fn member_answers(&self) -> Vec<(u64, Membership)> {
+        self.0
+            .members
+            .as_ref()
+            .map(Members::answers)
+            .unwrap_or_default()
     }
 
     /// The ways to log in this offers, for `LoginOptions`.
@@ -236,5 +272,7 @@ impl Logins {
 
 #[cfg(test)]
 mod discord_tests;
+#[cfg(test)]
+mod member_tests;
 #[cfg(test)]
 pub(crate) mod tests;

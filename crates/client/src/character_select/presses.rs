@@ -6,6 +6,7 @@ use bevy::prelude::*;
 
 use super::cells::Cell;
 use super::chosen::Chosen;
+use super::discord::LinkFirst;
 use super::requester::Answer;
 use super::screen::Button;
 use crate::common::{CharacterChoice, LoginChoice};
@@ -16,7 +17,7 @@ pub(super) fn press_buttons(
     cells: Query<&Cell>,
     buttons: Query<&Button>,
     answers: Query<&Answer>,
-    mut chosen: ResMut<Chosen>,
+    (mut chosen, link_first): (ResMut<Chosen>, Res<LinkFirst>),
     mut choices: MessageWriter<CharacterChoice>,
     mut login: MessageWriter<LoginChoice>,
 ) {
@@ -40,6 +41,8 @@ pub(super) fn press_buttons(
             match *cell {
                 Cell::Character(id) if chosen.id != Some(id) => chosen.id = Some(id),
                 Cell::Character(_) => {}
+                // The server would refuse it until Discord is linked.
+                Cell::New if link_first.0 => {}
                 Cell::New => {
                     choices.write(CharacterChoice::New);
                 }
@@ -47,7 +50,7 @@ pub(super) fn press_buttons(
             continue;
         }
         match (buttons.get(entity), chosen.id) {
-            (Ok(Button::Play), Some(id)) => {
+            (Ok(Button::Play), Some(id)) if !link_first.0 => {
                 choices.write(CharacterChoice::Play(id));
             }
             (Ok(Button::Delete), Some(_)) => chosen.deleting = true,

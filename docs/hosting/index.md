@@ -154,6 +154,27 @@ Players who logged in another way (with Google, say) can press **Link Discord** 
 
 `HOW_DISCORD_ONLY: "true"` makes Discord the only way in: no other provider is offered, guests aren't let in, and anyone who logged in another way before has to log in again through Discord. Players who linked Discord keep their accounts, so once your players have linked, you can turn Google (or any other provider) off without anyone losing their characters.
 
+### Only for your Discord's members
+
+You can keep the server for the members of your Discord server, and give them roles in the game from their roles on Discord.
+
+1. In the Developer Portal, open your application's **Bot** page and copy its **token** (Reset Token shows a new one). It needs no privileged intents.
+2. Under **OAuth2**, **URL Generator**, tick **bot** (no permissions are needed), open the address it makes and add the bot to your Discord server.
+3. With **Developer Mode** on in Discord's settings (Advanced), right-click your server and **Copy Server ID**.
+4. Give the server both, beside the Discord settings above:
+
+```yaml
+    environment:
+      HOW_DISCORD_SERVER_ID: "<server id>"
+      HOW_DISCORD_BOT_TOKEN: "<bot token>"
+```
+
+`HOW_DISCORD_BOT_TOKEN_FILE` takes the token from a file instead. Then:
+
+- **Who gets in:** the bot asks Discord whether a player is on your Discord server when they log in, when a kept login is used, and every 5 minutes while they play. Anyone not on it is turned away, or sent away, and told to join it and log in again. Guests aren't let in, and players who logged in another way see **Link Discord** on their Characters screen and must link before they can play.
+- **When Discord can't be reached:** players are let in as they are, and checked again 5 minutes later. If Discord refuses the bot (a wrong token, or the bot not on that server), nobody new is let in until you put it right, and the server's log says why.
+- **Roles from Discord:** see [Roles](#roles).
+
 ## Roles
 
 Every account has a role, which decides what it may do beyond playing. A role can only be given by someone whose own role allows it, and never to yourself.
@@ -183,6 +204,17 @@ Every account has a role, which decides what it may do beyond playing. A role ca
 - rename a role, or give it a `title` that is shown instead of its name;
 - change what each role may do, turning each permission on or off. Each debug menu tool is a permission of its own, written like `Debug(GiveItem)` (Debug Info's Load is `Debug(LoadDebugString)`); a file from before they were split, with one `DebugTools` permission, is turned into them the next time the server starts;
 - add roles of your own, with an id of lower case letters, digits, `-` and `_`.
+
+**Roles from Discord:** with `HOW_DISCORD_SERVER_ID` set, `roles.ron` can also give roles by players' roles on your Discord server, in `discord_roles`: a list of Discord role ids (right-click a role in your server's settings, with Developer Mode on, and **Copy Role ID**) and the role each gives here. Each time a player is checked, they get the first in the list whose Discord role they have, or Player if none matches:
+
+```
+    discord_roles: [
+        (discord: 1111111111111111111, role: "admin"),
+        (discord: 2222222222222222222, role: "moderator"),
+    ],
+```
+
+The Owner can't be given this way. Each change is written to `audit.log` as given by Discord. A role given by hand (in the game or in the file) is never changed by Discord, and lets its player in even if they leave your Discord server, unless it is Banned.
 
 If the file can't be read, the server won't start, so nothing is lost. Each change the server makes keeps the previous file in `roles-backups/` (the last 10). Every role given, taken or run out is written to `audit.log`, and so is every use of a debug menu tool by anyone but a native client's own player, by account and character id (just looking, such as Examine Mob's details, is left out).
 

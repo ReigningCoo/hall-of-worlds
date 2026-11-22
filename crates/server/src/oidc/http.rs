@@ -73,29 +73,58 @@ impl Http {
         self.json(request).await
     }
 
+    /// GETs with this `Authorization` header: the status and the JSON
+    /// answered (`Null` if none), whatever the status. Errors don't name the
+    /// address, which may hold an id that is never logged.
+    pub(super) async fn get_status(
+        &self,
+        url: &str,
+        authorization: &str,
+    ) -> Result<(u16, Value), String> {
+        let request = Request::builder()
+            .method(Method::GET)
+            .uri(url)
+            .header(header::ACCEPT, "application/json")
+            .header(header::AUTHORIZATION, authorization)
+            .body(Full::default())
+            .map_err(|error| error.to_string())?;
+        let (status, body) = self.answer(request).await?;
+        let json = serde_json::from_slice(&body).unwrap_or(Value::Null);
+        Ok((status, json))
+    }
+
     async fn json(&self, request: Request<Full<Bytes>>) -> Result<Value, String> {
         let asked = request.uri().clone();
+        let answered = async {
+            let (status, body) = self.answer(request).await?;
+            if !(200..300).contains(&status) {
+                return Err(format!("answered {status}"));
+            }
+            serde_json::from_slice(&body)
+                .map_err(|error| format!("answered with no JSON ({error})"))
+        };
+        answered.await.map_err(|error| format!("{asked}: {error}"))
+    }
+
+    /// The status and body answered, within `ANSWER_WITHIN`.
+    async fn answer(&self, request: Request<Full<Bytes>>) -> Result<(u16, Bytes), String> {
         let answer = async {
             let response = self
                 .0
                 .request(request)
                 .await
                 .map_err(|error| error.to_string())?;
-            let status = response.status();
+            let status = response.status().as_u16();
             let body = Limited::new(response.into_body(), MOST_ANSWERED)
                 .collect()
                 .await
                 .map_err(|error| error.to_string())?
                 .to_bytes();
-            if !status.is_success() {
-                return Err(format!("answered {status}"));
-            }
-            serde_json::from_slice(&body)
-                .map_err(|error| format!("answered with no JSON ({error})"))
+            Ok((status, body))
         };
         match tokio::time::timeout(ANSWER_WITHIN, answer).await {
-            Ok(result) => result.map_err(|error| format!("{asked}: {error}")),
-            Err(_) => Err(format!("{asked}: no answer")),
+            Ok(result) => result,
+            Err(_) => Err("no answer".into()),
         }
     }
 }

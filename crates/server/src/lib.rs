@@ -192,6 +192,7 @@ impl Plugin for ServerPlugin {
                 (
                     advance_action_clock,
                     connections::finish_logins,
+                    connections::check_discord,
                     connections::handle_messages,
                     connections::lockdown::apply_lockdown,
                     connections::difficulty::apply_difficulties,

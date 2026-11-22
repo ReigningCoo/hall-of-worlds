@@ -26,6 +26,7 @@ impl Plugin for CharacterSelectPlugin {
         let open = |select: Res<CharacterSelect>| select.open;
         app.init_resource::<chosen::Chosen>()
             .init_resource::<discord::Linking>()
+            .init_resource::<discord::LinkFirst>()
             .add_systems(Startup, screen::spawn_screen)
             .add_systems(
                 Update,

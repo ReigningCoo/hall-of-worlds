@@ -11,6 +11,8 @@ fn link_discord_is_offered_until_linked_and_says_why_it_failed() {
     );
     let (offered, said, _) = shown(Some(&DiscordLink::CanLink), true);
     assert!(!offered && said.unwrap().contains("browser"));
+    let (offered, said, _) = shown(Some(&DiscordLink::MustLink), false);
+    assert!(offered && said.unwrap().contains("link Discord to play"));
     let linked = shown(Some(&DiscordLink::Linked), false);
     assert_eq!(linked, (false, Some("Discord linked".into()), None));
     let failed = shown(Some(&DiscordLink::Failed("it has its own".into())), false);

@@ -54,6 +54,7 @@ impl Server {
         }
         use bevy::ecs::system::RunSystemOnce;
         app.run_system_once(finish_logins).unwrap();
+        app.run_system_once(super::login::check_discord).unwrap();
         app.run_system_once(handle_messages).unwrap();
         self.connections = app.remove_resource::<Connections>();
         self.world = Some(app.remove_resource::<ServerWorlds>().unwrap().into_home());

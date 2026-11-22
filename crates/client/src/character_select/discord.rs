@@ -3,7 +3,8 @@
 //! leads there too, and why not in red if linking didn't work. Pressing it
 //! sends `LoginChoice::LinkDiscord` (`presses`, seen here too), and the server's page opens
 //! in the browser (`connection`); until the server answers, this says to
-//! finish there.
+//! finish there. While the server says it must be linked (`MustLink`), Play
+//! is greyed and "+" does nothing (`LinkFirst`), until it is.
 
 use bevy::prelude::*;
 use shared::protocol::DiscordLink;
@@ -15,11 +16,17 @@ use crate::dom::Dom;
 #[derive(Resource, Default)]
 pub(super) struct Linking(pub bool);
 
+/// The server is only for its Discord's members, and this account must link
+/// Discord before playing.
+#[derive(Resource, Default)]
+pub(super) struct LinkFirst(pub bool);
+
 /// Shows Link Discord, what is waiting, or that Discord is linked.
 pub(super) fn show_discord(
     discord: Res<AccountDiscord>,
     mut choices: MessageReader<LoginChoice>,
     mut linking: ResMut<Linking>,
+    mut first: ResMut<LinkFirst>,
     mut dom: Dom,
 ) {
     if choices
@@ -30,6 +37,12 @@ pub(super) fn show_discord(
     }
     if discord.is_changed() {
         linking.0 = false;
+        match discord.0 {
+            Some(DiscordLink::MustLink) => first.0 = true,
+            Some(DiscordLink::Failed(_)) => {}
+            _ => first.0 = false,
+        }
+        dom.set_flag("character_select/play", "disabled", first.0);
     } else if !linking.is_changed() {
         return;
     }
@@ -58,6 +71,10 @@ fn shown(discord: Option<&DiscordLink>, linking: bool) -> (bool, Option<String>,
             (false, Some(said.into()), None)
         }
         Some(DiscordLink::CanLink) => (true, None, None),
+        Some(DiscordLink::MustLink) => {
+            let said = "This server is for its Discord's members: link Discord to play.";
+            (true, Some(said.into()), None)
+        }
         Some(DiscordLink::Failed(reason)) => {
             let failed = format!("Linking Discord didn't work: {reason}.");
             (true, None, Some(failed))
