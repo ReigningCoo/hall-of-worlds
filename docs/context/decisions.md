@@ -1825,3 +1825,7 @@ What cooking makes is a new `shared::food` rather than more of `shared::cooking`
 ## 2026-11-21: Recipes are built from the dish table and must cook into their dish
 
 Recipes plan PR 1 (owner: a scroll for every real dish). Each real dish's recipe is built from its `dishes.ron` pattern by a small solver (`cooking::dish_recipe`) rather than written by hand, so the table stays the one source; a test cooks every recipe with Common foods and checks it classifies as its own dish, which also keeps the table free of dishes no process can reach. Making all 219 reachable changed one rule (milk through a Sieve loses its whey, so curds and cheeses come out dry) and some rows (`recipes.md` lists them). The book (`recipe::RecipeBook`) and scrolls (`ItemKind::Recipe` with a `Craft`) are craft-agnostic so Alchemy's recipes can join later.
+
+## 2026-11-22: Lanterns burn oil kept on the item, held or tied to the belt
+
+Lantern task PR 4 of 6 (owner: 200 ml of any oil, 100 ml an hour of playtime, burning and lighting 10 cells only while held or tied to a belt, one on the belt). The fuel is an `ItemForm::Lantern` in whole millilitres plus seconds into the next, so the server's playtime ticks burn it as yeast's clock runs (`shared::lantern`). Tying something that is no bag to a bag slot is a new `ItemDef::belt_tool` flag rather than giving the lantern an empty container: it reuses the slot rules (one of a kind, as holders; no cells added) without a lantern ever looking like a bag. Open flames (candles, torches) never get it: held only (owner).

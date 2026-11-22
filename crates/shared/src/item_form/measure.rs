@@ -42,7 +42,8 @@ impl ItemForm {
             | Self::Yeast(_)
             | Self::Ointment(_)
             | Self::Paste(_)
-            | Self::Powder(_) => None,
+            | Self::Powder(_)
+            | Self::Lantern(_) => None,
         }
     }
 
@@ -81,6 +82,9 @@ impl ItemForm {
             Self::Log(log) => Some(log.grams()),
             Self::Kindling(_) => Some(crate::woodcutting::KINDLING_GRAMS),
             Self::Recipe(_) => Some(crate::recipe::RECIPE_GRAMS),
+            Self::Lantern(lantern) => {
+                Some(crate::item::ItemKind::Lantern.def().weight + lantern.grams())
+            }
             Self::Gem(_) | Self::Ring(_) | Self::Key(_) | Self::Yeast(_) => None,
         }
     }

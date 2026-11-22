@@ -134,6 +134,8 @@ pub enum ItemForm {
     Food(Box<crate::food::FoodForm>),
     /// A recipe scroll (`shared::recipe`): which craft and dish it teaches.
     Recipe(crate::recipe::RecipeForm),
+    /// A lantern (`shared::lantern`): the oil in its fount.
+    Lantern(crate::lantern::LanternForm),
 }
 
 impl ItemForm {
@@ -177,6 +179,7 @@ impl ItemForm {
             Self::Yeast(yeast) => yeast.strain.name().to_owned(),
             Self::Food(food) => food.name(),
             Self::Recipe(recipe) => recipe.name(),
+            Self::Lantern(_) => "Lantern".to_owned(),
         }
     }
 
@@ -230,7 +233,8 @@ impl ItemForm {
             | Self::Vessel(_)
             | Self::Yeast(_)
             | Self::Food(_)
-            | Self::Recipe(_) => &[],
+            | Self::Recipe(_)
+            | Self::Lantern(_) => &[],
         };
         settings.iter().filter_map(|setting| setting.gem.as_ref())
     }
