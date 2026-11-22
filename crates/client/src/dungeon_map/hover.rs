@@ -2,11 +2,10 @@
 //! crafting bench or border the pointer is over, for the hover box.
 
 use bevy::prelude::*;
-use shared::crafting_bench::Craft;
 use shared::door::Swing;
 use shared::dungeon::{Cell, Level};
 use shared::fungus::Fungi;
-use shared::furniture::Furniture;
+use shared::furniture::Holder;
 use shared::lang::Lang;
 use shared::sheet::Sheet;
 use shared::site::StairsDirection;
@@ -55,8 +54,9 @@ pub(super) fn name_hovered_place(
             let now = clock.minutes.max(0.0) as u64;
             let (level, seen) = (&dungeon.level, &dungeon.remembered);
             let bench = bench_clicked(ray, level, seen, &shown.solid_faces, ground);
-            if let Some(Furniture::CraftingBench { craft }) = bench.map(|piece| piece.furniture) {
-                return Some(bench_name(craft).to_owned());
+            let holder = bench.and_then(|piece| Holder::of(piece.furniture));
+            if let Some(holder) = holder {
+                return Some(holder.name());
             }
             let plant = fruit_clicked(ray, level, seen, &shown.solid_faces, ground);
             if let Some(name) = plant.and_then(|at| super::fruit::fruit_name(level, now, at)) {
@@ -123,11 +123,6 @@ fn door_name(level: &Level, (x, y): (i64, i64)) -> Option<&'static str> {
         (_, false) => "Open door",
         (_, true) => "Open secret door",
     })
-}
-
-/// What a crafting bench is called, by its craft.
-fn bench_name(craft: Craft) -> &'static str {
-    craft.name()
 }
 
 /// What stairs are called, by the way they go.

@@ -32,14 +32,14 @@ pub(super) fn read_server(
             }
             ServerMessage::Bench(BenchNews::Tools(told)) => {
                 for seen in told {
-                    benches.0.insert(seen.at, seen.tools.clone());
+                    benches.0.insert(seen.at, seen.held.clone());
                     match seen.lit {
                         true => benches.1.insert(seen.at),
                         false => benches.1.remove(&seen.at),
                     };
                     let open = panel.0.as_mut().filter(|open| open.piece.at == seen.at);
                     if let Some(open) = open {
-                        open.grid.heard(&shown(&seen.tools));
+                        open.grid.heard(&shown(&seen.held));
                         dom.set_flag("bench/refused", "hidden", true);
                     }
                 }
@@ -58,7 +58,8 @@ pub(super) fn read_server(
     }
 }
 
-/// What a bench's panel shows: its tools, then what lies in its storage.
-pub(super) fn shown(tools: &shared::crafting_bench::BenchTools) -> Vec<shared::item::Item> {
-    tools.items().cloned().collect()
+/// What a piece's panel shows: a bench's tools, then what lies in its
+/// storage; a rack's casks.
+pub(super) fn shown(held: &shared::furniture::Held) -> Vec<shared::item::Item> {
+    held.items().cloned().collect()
 }

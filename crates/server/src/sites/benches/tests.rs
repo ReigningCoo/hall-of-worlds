@@ -68,7 +68,8 @@ fn give(test: &mut TestClient, id: u128, kind: ItemKind) {
 }
 
 fn kinds(seen: &SeenBench) -> Vec<ItemKind> {
-    seen.tools.tools().iter().map(|tool| tool.kind).collect()
+    let tools = seen.held.bench().expect("a bench");
+    tools.tools().iter().map(|tool| tool.kind).collect()
 }
 
 #[test]

@@ -1,5 +1,6 @@
-//! Crafting benches on the player's level (`shared::crafting_bench`): the
-//! tools the server last told of each, and the bench the player is at now.
+//! Furniture with places on the player's level (`shared::furniture::Held`:
+//! crafting benches, cask racks): what the server last told lies on each,
+//! and the crafting bench the player is at now.
 //! `crafting_bench` keeps both; `dungeon_map` draws the tools, `inventory`
 //! sends what is let go on a bench's panel, and `abilities` and `alchemy`
 //! work at the bench the player is at.
@@ -8,7 +9,7 @@ use std::collections::{HashMap, HashSet};
 
 use bevy::prelude::*;
 use shared::crafting_bench::BenchTools;
-use shared::furniture::Piece;
+use shared::furniture::{Held, Piece};
 use shared::id::Id;
 
 /// What tells a bench's stand-in id from others' (`Id::stand_in`): the
@@ -17,13 +18,19 @@ const BENCH_MARK: u64 = 0xBE0C << 48;
 /// Each of a bench's cell's numbers is kept in 24 bits.
 const CELL_BITS: u64 = 0xFF_FFFF;
 
-/// Each bench's tools as the server last told them, by its piece's
-/// north-west cell (`Piece::at`), and the hearths it said are lit (cooking
-/// plan PR 8). Out of sight they stay as last told.
+/// What lies on each piece with places as the server last told it (a bench's
+/// tools, a rack's casks), by its piece's north-west cell (`Piece::at`), and
+/// the hearths it said are lit (cooking plan PR 8). Out of sight they stay
+/// as last told.
 #[derive(Resource, Default, Debug, PartialEq)]
-pub struct Benches(pub HashMap<(i64, i64), BenchTools>, pub HashSet<(i64, i64)>);
+pub struct Benches(pub HashMap<(i64, i64), Held>, pub HashSet<(i64, i64)>);
 
 impl Benches {
+    /// The tools of the bench at `at`, if told and it is a bench.
+    pub fn tools(&self, at: (i64, i64)) -> Option<&BenchTools> {
+        self.0.get(&at).and_then(Held::bench)
+    }
+
     /// The bench at `at` as an id, for its panel's grid (`StockCell`,
     /// `TakesGifts`): a stand-in, never a real id, that `at_of` reads back.
     pub fn id_of(at: (i64, i64)) -> Id {

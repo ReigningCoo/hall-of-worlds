@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{BenchStyle, ChairStyle, Material, TableStyle};
+use crate::cask_rack::CaskRack;
 use crate::crafting_bench::Craft;
 use crate::door::Side;
 
@@ -33,6 +34,11 @@ pub enum Furniture {
     CraftingBench {
         craft: Craft,
     },
+    /// A rack, cradle or stand for casks of one size (`shared::cask_rack`),
+    /// 1 deep against a wall, facing away from it as a bench does.
+    CaskRack {
+        rack: CaskRack,
+    },
 }
 
 impl Furniture {
@@ -43,7 +49,9 @@ impl Furniture {
     /// How much longer a move over it takes, in thousandths of open floor's.
     pub fn cost_per_mille(self) -> u32 {
         match self {
-            Self::Table { .. } | Self::CraftingBench { .. } => TABLE_COST_PER_MILLE,
+            Self::Table { .. } | Self::CraftingBench { .. } | Self::CaskRack { .. } => {
+                TABLE_COST_PER_MILLE
+            }
             Self::Chair { .. } | Self::Bench { .. } => SEAT_COST_PER_MILLE,
         }
     }
@@ -56,13 +64,14 @@ pub struct Piece {
     pub at: (i64, i64),
     /// Cells east–west and north–south (a table 1 × 1 to 2 × 3 either way
     /// round, a chair 1 × 1, a bench 1 to 3 long and 1 deep, a crafting
-    /// bench its craft's length and 1 deep).
+    /// bench its craft's length and 1 deep, a cask rack its length and 1
+    /// deep).
     pub size: (u8, u8),
     /// A seat: the way someone sitting on it faces (towards their table, or
     /// away from the wall behind). A table: the way its length runs from its
     /// head, east or south (east for a square one). A crafting bench: the way
     /// its front faces, away from the wall behind it (as a seat's); its shelf
-    /// is along the opposite side.
+    /// is along the opposite side. A cask rack: as a crafting bench.
     pub facing: Side,
     pub material: Material,
     pub furniture: Furniture,

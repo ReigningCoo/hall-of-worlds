@@ -6,7 +6,7 @@
 use bevy::prelude::*;
 use serde::Deserialize;
 use server::debug_api::{AddDebugMethod, BrpResult, Value, json, params, refused};
-use shared::furniture::Furniture;
+use shared::furniture::Holder;
 
 use super::BenchPanel;
 use crate::common::{BenchHere, Benches, CurrentDungeon};
@@ -32,17 +32,17 @@ fn benches(
     let asked: BenchesParams = params(request)?;
     if let Some((x, y)) = asked.click {
         let piece = dungeon.level.furniture_at(x, y).copied();
-        let piece = piece.filter(|p| matches!(p.furniture, Furniture::CraftingBench { .. }));
+        let piece = piece.filter(|p| Holder::of(p.furniture).is_some());
         let piece = piece.ok_or_else(|| refused(format!("No bench at {x}, {y}")))?;
         clicked.write(BenchClicked { piece });
     }
     let list: Vec<Value> = (dungeon.level.furniture())
-        .filter(|piece| matches!(piece.furniture, Furniture::CraftingBench { .. }))
+        .filter(|piece| Holder::of(piece.furniture).is_some())
         .map(|piece| {
-            let tools = told.0.get(&piece.at);
-            let kinds: Option<Vec<String>> = tools.map(|tools| {
-                (tools.tools().iter())
-                    .map(|tool| format!("{:?}", tool.kind))
+            let held = told.0.get(&piece.at);
+            let kinds: Option<Vec<String>> = held.map(|held| {
+                (held.items())
+                    .map(|item| format!("{:?}", item.kind))
                     .collect()
             });
             json!({

@@ -7,7 +7,6 @@ use shared::dungeon::Cell;
 use shared::ground::Load;
 use shared::id::Id;
 use shared::item::{Inventory, Item};
-use shared::mob::Memory;
 use shared::poi::{ChunkPos, PoiKind};
 use shared::protocol::CharacterId;
 use shared::quest::QuestId;
@@ -17,6 +16,7 @@ use shared::spot::Spot;
 use shared::world::{ClockRate, WorldId, WorldSeed};
 use std::collections::{BTreeMap, BTreeSet};
 
+use super::mob_record::{MobRecord, SavedMob};
 use super::spot_map::SpotMap;
 
 /// Which site: a world map poi's, or a made-up one (dev tools).
@@ -143,7 +143,12 @@ pub struct LevelSave {
     /// which happens once.
     #[serde(default)]
     pub benches_stocked: bool,
-    /// Benches made with the developer tool, put on the level each time.
+    /// Cask racks' casks, by the rack's cell, as benches' tools
+    /// (`sites/benches`).
+    #[serde(default)]
+    pub racks: BTreeMap<(i64, i64), shared::cask_rack::RackCasks>,
+    /// Pieces with places (benches, cask racks) made with the developer tools
+    /// (Create Crafting Bench, Place Furniture), put on the level each time.
     #[serde(default)]
     pub made_benches: Vec<shared::furniture::Piece>,
     /// Campfires burning, by cell as plants are (`sites::campfires`).
@@ -165,26 +170,6 @@ pub struct LevelSave {
     /// (`sites::trees`). A reset never undoes it.
     #[serde(default)]
     pub trees: BTreeMap<(i64, i64), super::TreeSave>,
-}
-
-/// What a mob has come to know and own.
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct MobRecord {
-    pub memory: Memory,
-    pub carried: Vec<Item>,
-    /// What it wears and carries: rolled when it is first needed, then its own.
-    #[serde(default)]
-    pub gear: Option<Inventory>,
-}
-
-/// What a mob was doing, for carrying on after the server has been off.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SavedMob {
-    /// The cell, for older saves: `spot` is where it is.
-    pub position: (i64, i64),
-    #[serde(default)]
-    pub spot: Option<shared::spot::Spot>,
-    pub doing: crate::entities::Doing,
 }
 
 /// What players have done with a town's building.

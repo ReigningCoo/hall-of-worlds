@@ -1,9 +1,11 @@
 //! Developer tools: Place Furniture puts a piece on the player's site level by
 //! hand, replacing any it overlaps, for everyone on that level and its mobs.
-//! Not kept: the level is made afresh, as furnished, when next loaded.
+//! Not kept: the level is made afresh, as furnished, when next loaded; except
+//! pieces with places (cask racks, benches: `furniture::Holder`), kept as
+//! Create Crafting Bench's are, so what is put on them isn't lost.
 
 use bevy::prelude::*;
-use shared::furniture::{Piece, takes_furniture};
+use shared::furniture::{Holder, Piece, takes_furniture};
 
 use super::doors::changed_at;
 use super::update_sight;
@@ -36,6 +38,17 @@ pub(crate) fn place_furniture(client: &mut Client, world: &mut ServerWorld, piec
         return true;
     }
     let place = (visit.id, visit.index);
+    // Pieces made by hand that it replaces go; one with places is kept.
+    let saved = world
+        .site_mut(visit.id)
+        .levels
+        .entry(visit.index)
+        .or_default();
+    let overlaps = |made: &Piece| made.cells().any(|cell| piece.covers(cell));
+    saved.made_benches.retain(|made| !overlaps(made));
+    if Holder::of(piece.furniture).is_some() {
+        saved.made_benches.push(piece);
+    }
     world
         .furniture_changes
         .push(FurnitureChange { place, piece });

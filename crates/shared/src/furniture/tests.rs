@@ -154,7 +154,9 @@ fn seats_match_their_rooms_tables() {
                         style.benches().contains(&bench) || table.size.0.max(table.size.1) > 2,
                         "{kind:?} {style:?} {bench:?}"
                     ),
-                    Furniture::Table { .. } | Furniture::CraftingBench { .. } => {}
+                    Furniture::Table { .. }
+                    | Furniture::CraftingBench { .. }
+                    | Furniture::CaskRack { .. } => {}
                 }
             }
         }

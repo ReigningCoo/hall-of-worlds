@@ -217,6 +217,11 @@ fn saves_are_read_back() {
                     let _ = tools.put(Item::new(Id::for_test(11), mortar));
                     tools
                 })]),
+                racks: BTreeMap::from([((5, 4), {
+                    let size = shared::cask::CaskSize::Pin;
+                    let rack = shared::cask_rack::CaskRack { size, length: 1 };
+                    shared::cask_rack::RackCasks::new(rack)
+                })]),
                 benches_stocked: true,
                 made_benches: Vec::new(),
                 campfires: BTreeMap::new(),

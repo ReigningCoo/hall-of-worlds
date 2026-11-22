@@ -39,6 +39,11 @@ fn new_day(before: u64, after: u64) -> bool {
     before / GAME_DAY_SECS != after / GAME_DAY_SECS
 }
 
+/// The greatest common divisor of `a` and `b`.
+fn gcd(a: u64, b: u64) -> u64 {
+    if b == 0 { a } else { gcd(b, a % b) }
+}
+
 /// Whole game days left of `secs`, rounded up: what popups show.
 pub fn days_left(secs: u64) -> u64 {
     secs.div_ceil(GAME_DAY_SECS)
@@ -47,6 +52,13 @@ pub fn days_left(secs: u64) -> u64 {
 impl CaskForm {
     /// Lets `secs` pass on its clocks.
     pub fn pass(&mut self, secs: u64) -> CaskSettled {
+        self.pass_ageing(secs, 100)
+    }
+
+    /// Lets `secs` pass, a sealed drink ageing `ageing_percent`% as fast
+    /// (racks: `cask_rack::RACK_AGEING_PERCENT`); fermenting and an opened
+    /// drink's clock to vinegar go at the usual pace.
+    pub fn pass_ageing(&mut self, secs: u64, ageing_percent: u64) -> CaskSettled {
         let mut settled = CaskSettled::default();
         let mut secs = secs;
         if self.time.is_fermenting() {
@@ -60,7 +72,10 @@ impl CaskForm {
             return settled;
         }
         match self.liquid.clone() {
-            Some(Liquid::Drink(drink)) if !self.opened => self.age(*drink, secs, &mut settled),
+            Some(Liquid::Drink(drink)) if !self.opened => {
+                let secs = secs.saturating_mul(ageing_percent) / 100;
+                self.age(*drink, secs, &mut settled)
+            }
             Some(Liquid::Drink(drink)) => self.sour(*drink, secs, &mut settled),
             Some(Liquid::Juice(fruit) | Liquid::Cordial(fruit)) if self.opened => {
                 self.turn_wild(&fruit, secs, &mut settled)
@@ -188,12 +203,22 @@ impl Item {
     /// Casks in it lying on the ground let the real time pass until `now`,
     /// counting from then on.
     pub fn settle_lying_casks(&mut self, now: u64) -> CaskSettled {
+        self.settle_lying_casks_ageing(now, 100)
+    }
+
+    /// The same, sealed drinks ageing `ageing_percent`% as fast (casks on a
+    /// rack). Only whole steps of `100 / gcd` seconds are let pass (10 s at
+    /// 110%), so ageing never loses fractions however often it is settled;
+    /// the rest waits for the next time.
+    pub fn settle_lying_casks_ageing(&mut self, now: u64, ageing_percent: u64) -> CaskSettled {
+        let step = 100 / gcd(ageing_percent.max(1), 100);
         let mut settled = CaskSettled::default();
         self.each_cask(&mut |cask| {
             if let Some(since) = cask.time.lying_since {
-                let passed = cask.pass(now.saturating_sub(since));
-                settled = std::mem::take(&mut settled).and(passed);
-                cask.time.lying_since = Some(since.max(now));
+                let passed = now.saturating_sub(since) / step * step;
+                let done = cask.pass_ageing(passed, ageing_percent);
+                settled = std::mem::take(&mut settled).and(done);
+                cask.time.lying_since = Some(since + passed);
             }
         });
         settled

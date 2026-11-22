@@ -1,10 +1,12 @@
 //! What Place Furniture puts down (no Bevy systems, so it can be tested
 //! alone): the panel's choices, and the piece a click makes. Clicking the same
 //! cell again with the same choices gives the next variation (every style of
-//! the kind that fits, chairs without and then with arms), wrapping round; a
+//! the kind that fits, chairs without and then with arms, a cask rack's every
+//! cask size made at that length), wrapping round; a
 //! click elsewhere starts a new piece in the variation the last one ended on.
 
 use bevy::prelude::*;
+use shared::cask_rack::CaskRack;
 use shared::door::Side;
 use shared::furniture::{
     BenchStyle, ChairStyle, Furniture, Material, Piece, TableStyle, footprint,
@@ -16,16 +18,19 @@ pub(super) enum Kind {
     Table,
     Chair,
     Bench,
+    /// A cask rack, cradle or stand (`shared::cask_rack`), of wood.
+    CaskRack,
 }
 
 impl Kind {
-    pub(super) const ALL: [Self; 3] = [Self::Table, Self::Chair, Self::Bench];
+    pub(super) const ALL: [Self; 4] = [Self::Table, Self::Chair, Self::Bench, Self::CaskRack];
 
     pub(super) fn name(self) -> &'static str {
         match self {
             Self::Table => "Table",
             Self::Chair => "Chair",
             Self::Bench => "Bench",
+            Self::CaskRack => "Cask Rack",
         }
     }
 
@@ -34,20 +39,21 @@ impl Kind {
         match self {
             Self::Table => &[(1, 1), (2, 1), (3, 1), (2, 2), (3, 2)],
             Self::Chair => &[(1, 1)],
-            Self::Bench => &[(1, 1), (2, 1), (3, 1)],
+            Self::Bench | Self::CaskRack => &[(1, 1), (2, 1), (3, 1)],
         }
     }
 
     /// A size as the dropdown says it: short side first, as "2 × 3".
     pub(super) fn size_name(self, (long, short): (u8, u8)) -> String {
         match self {
-            Self::Bench => long.to_string(),
+            Self::Bench | Self::CaskRack => long.to_string(),
             _ => format!("{short} × {long}"),
         }
     }
 
     /// Every variation of a piece of this size: each style that fits, of the
-    /// material's kind (wood or stone; either for `None`, Random).
+    /// material's kind (wood or stone; either for `None`, Random), or every
+    /// one if none is of it (cask racks are only wood).
     fn variations(self, size: (u8, u8), material: Option<Material>) -> Vec<Furniture> {
         let all: Vec<Furniture> = match self {
             Self::Table => (TableStyle::ALL.into_iter())
@@ -61,9 +67,14 @@ impl Kind {
             Self::Bench => (BenchStyle::ALL.into_iter())
                 .map(|style| Furniture::Bench { style })
                 .collect(),
+            Self::CaskRack => (CaskRack::all().into_iter())
+                .filter(|rack| rack.length == size.0)
+                .map(|rack| Furniture::CaskRack { rack })
+                .collect(),
         };
         let fits = |piece: &Furniture| material.is_none_or(|m| m.is_stone() == piece.is_stone());
-        all.into_iter().filter(fits).collect()
+        let fitting: Vec<Furniture> = all.iter().copied().filter(fits).collect();
+        if fitting.is_empty() { all } else { fitting }
     }
 }
 
@@ -120,9 +131,12 @@ impl FurnitureOrder {
                 Side::South
             }
             Kind::Table => Side::East,
-            Kind::Chair | Kind::Bench => self.facing,
+            Kind::Chair | Kind::Bench | Kind::CaskRack => self.facing,
         };
-        let material = self.material.unwrap_or_else(|| {
+        let chosen = self
+            .material
+            .filter(|m| m.is_stone() == furniture.is_stone());
+        let material = chosen.unwrap_or_else(|| {
             let of_kind = Material::ALL.into_iter();
             let of_kind: Vec<Material> = of_kind
                 .filter(|m| m.is_stone() == furniture.is_stone())

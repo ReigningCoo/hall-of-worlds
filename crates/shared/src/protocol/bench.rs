@@ -1,24 +1,25 @@
-//! Crafting benches' messages (crafting benches plan PR 2): putting tools on
-//! a bench and taking them off, what the server tells of each bench's tools,
+//! Furniture with places' messages (crafting benches plan PR 2, generalised
+//! by the tavern furniture plan PR 1): putting things on a crafting bench or
+//! cask rack and taking them off, what the server tells of what lies on each,
 //! and the developer tool that makes a bench.
 
 use serde::{Deserialize, Serialize};
 
-use crate::crafting_bench::BenchTools;
-use crate::furniture::Piece;
+use crate::furniture::{Held, Piece};
 use crate::id::Id;
 use crate::item::{ItemKind, Quality};
 
-/// About a crafting bench at `bench`, any cell of it on the player's level,
-/// which must be within the player's reach (`ClientMessage::Bench`). Answered
-/// with `Inventory`, and `BenchNews::Tools` for everyone who has the bench, or
+/// About a piece with places (`furniture::Holder`: a crafting bench, a cask
+/// rack) at `bench`, any cell of it on the player's level, which must be
+/// within the player's reach (`ClientMessage::Bench`). Answered with
+/// `Inventory`, and `BenchNews::Tools` for everyone who has the piece, or
 /// `BenchNews::Refused`.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BenchAsk {
-    /// Put this carried item on it; a tool of the same kind there comes back
-    /// to the player (a swap).
+    /// Put this carried item on it; a bench's tool of the same kind there
+    /// comes back to the player (a swap).
     Put { bench: (i64, i64), item: Id },
-    /// Take this tool off it, into what is carried (or onto the ground if it
+    /// Take this tool (or cask) off it, into what is carried (or onto the ground if it
     /// won't fit).
     Take { bench: (i64, i64), item: Id },
     /// Developer tools: make a crafting bench (`DevBench`).
@@ -28,21 +29,21 @@ pub enum BenchAsk {
 /// About crafting benches (`ServerMessage::Bench`).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BenchNews {
-    /// Benches' tools on the player's level as they are now: a bench's once
-    /// its cells have been sent on a visit, and again whenever they change.
-    /// Each replaces what the client had for that bench.
+    /// What lies on pieces with places on the player's level as it is now: a
+    /// piece's once its cells have been sent on a visit, and again whenever
+    /// it changes. Each replaces what the client had for that piece.
     Tools(Vec<SeenBench>),
-    /// A bench wouldn't take what was put on it (`BenchAsk::Put`). Never why,
+    /// A piece wouldn't take what was put on it (`BenchAsk::Put`). Never why,
     /// so trying things doesn't tell which kinds a craft takes (owner's).
     Refused,
 }
 
-/// A crafting bench's tools as they are now (`BenchNews::Tools`): the
-/// bench's piece at `at` (`Piece::at`) on the player's level.
+/// What lies on a piece with places as it is now (`BenchNews::Tools`): the
+/// piece at `at` (`Piece::at`) on the player's level.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SeenBench {
     pub at: (i64, i64),
-    pub tools: BenchTools,
+    pub held: Held,
     /// Whether a hearth gives heat now (`BenchTools::is_lit` by the server's
     /// clock); `false` for other benches.
     pub lit: bool,

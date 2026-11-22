@@ -56,7 +56,10 @@ pub(super) fn update_bench_tools(
     }
     drawn.looks = Some(shown.looks);
     let mut keep = HashMap::new();
-    for (&at, tools) in &benches.0 {
+    for (&at, held) in &benches.0 {
+        let Some(tools) = held.bench() else {
+            continue;
+        };
         let Some(piece) = dungeon.level.furniture_at(at.0, at.1) else {
             continue;
         };
