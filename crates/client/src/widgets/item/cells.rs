@@ -7,6 +7,7 @@ use super::super::aura::{AuraMask, aura_glow};
 use super::super::set_edge::set_edge;
 use super::super::{ITEM_EDGE, Pressable};
 use super::count::spawn_count;
+use super::fuel::spawn_fuel;
 use super::mixed::spawn_mixed_mark;
 use super::{
     CELL, ITEM_LABEL_FONT, ItemLook, PICTURE_PIXELS_PER_CELL, at_cell, item_colour, item_edge,
@@ -37,6 +38,7 @@ pub fn spawn_item_cells<B: Bundle>(
         count,
         mixed,
         dimmed,
+        fuel,
     } = look;
     let drawn = picture.is_some();
     let pixels = shape.width.max(shape.height) as u32 * PICTURE_PIXELS_PER_CELL;
@@ -105,6 +107,7 @@ pub fn spawn_item_cells<B: Bundle>(
     }
     spawn_count(parent, count, shape, corner, item_edge_width(quality));
     spawn_mixed_mark(parent, mixed, shape, corner, item_edge_width(quality));
+    spawn_fuel(parent, fuel, shape, corner, item_edge_width(quality));
     if dimmed {
         // Last, so over all of it: the grid's colour, mostly hiding it.
         for (x, y) in shape.cells() {

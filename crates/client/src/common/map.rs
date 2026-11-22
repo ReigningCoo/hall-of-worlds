@@ -116,6 +116,10 @@ pub struct LightSource {
     pub darkvision: u32,
 }
 
+/// The warm light of a burning lantern (`shared::lantern::LANTERN_LIGHT`),
+/// the player's own and others'.
+pub const LANTERN_COLOUR: Color = Color::srgb(1.0, 0.82, 0.55);
+
 /// Shares its sight with the player in dungeons: what it can see is shown
 /// too. The player always counts; put this on allies or summoned eyes.
 #[derive(Component, Clone, Copy, Debug, Default)]

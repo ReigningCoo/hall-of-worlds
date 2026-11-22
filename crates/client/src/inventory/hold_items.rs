@@ -29,8 +29,8 @@ use super::panels::{BinNode, DropNode, GridOwner, ItemCell, OpenGrids};
 use super::split::{PickRow, Split, SplitCell};
 use super::{Carried, HeldBy, Holding};
 use crate::common::{
-    DroppedOnText, GROUND, GameView, GaveItem, HeldOverGifts, HeldOverText, HeldStock, SpentEnergy,
-    StockCell, TakesGifts, TakesItemText, TookItem, TouchGesture, UiPointer,
+    DroppedOnText, GROUND, GameView, GaveItem, HeldOverGifts, HeldOverText, HeldStock, OpenLantern,
+    SpentEnergy, StockCell, TakesGifts, TakesItemText, TookItem, TouchGesture, UiPointer,
 };
 use crate::connection::ToServer;
 use crate::dom::Dom;
@@ -117,7 +117,7 @@ pub(super) fn hold_items(
     mut dom: Dom,
     keys: Res<ButtonInput<KeyCode>>,
     mut split: ResMut<Split>,
-    (time, hit): (Res<Time<Real>>, Res<Hit>),
+    (time, hit, mut lanterns): (Res<Time<Real>>, Res<Hit>, MessageWriter<OpenLantern>),
     (mut last_press, mut was_down): (Local<Option<(shared::id::Id, f64)>>, Local<bool>),
 ) {
     let now = time.elapsed_secs_f64();
@@ -153,6 +153,7 @@ pub(super) fn hold_items(
         &mut commands,
         &mut dom,
         &mut last_press,
+        &mut lanterns,
         (now, new_press, gesture.tap, pointer.0, shift),
     );
     if done {

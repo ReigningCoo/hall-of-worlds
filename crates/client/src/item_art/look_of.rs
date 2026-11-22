@@ -28,6 +28,7 @@ pub fn look_of(item: &Item) -> Option<Look> {
         | ItemKind::Pelican
         | ItemKind::OilPress
         | ItemKind::Tap
+        | ItemKind::Lantern
         | ItemKind::Pan
         | ItemKind::Bowl
         | ItemKind::Sieve) => {

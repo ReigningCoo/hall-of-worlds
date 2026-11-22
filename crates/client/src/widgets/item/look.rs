@@ -63,6 +63,8 @@ pub struct ItemLook {
     pub mixed: bool,
     /// Faded into what is behind it, as not what is being looked for.
     pub dimmed: bool,
+    /// A lantern's fuel bar, how full (`fuel_share`).
+    pub fuel: Option<f32>,
 }
 
 impl ItemLook {
@@ -80,6 +82,7 @@ impl ItemLook {
             count,
             mixed,
             dimmed: false,
+            fuel: super::fuel::fuel_share(item),
         }
     }
 

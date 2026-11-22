@@ -111,7 +111,7 @@ pub use hover::{HoverName, HoveredInSky, HoveredOnMap, StaffMark, poi_name, word
 pub use item_text::{DroppedOnText, HeldOverText, KnownItem, KnownItems, TakesItemText};
 pub use items::{
     BandShift, GROUND, GaveItem, HeldGift, HeldOverGifts, HeldStock, HoveredBag, HoveredLoad,
-    NO_QUALITY_NAME, StockCell, TakesGifts, TookItem, quality_colour,
+    NO_QUALITY_NAME, OpenLantern, StockCell, TakesGifts, TookItem, quality_colour,
 };
 pub use kind_words::kinds_words;
 pub use lightning::{BoltStruck, Lightning, LightningStrike};
@@ -120,8 +120,8 @@ pub use login::{AccountEmail, LoggingIn, LoginChoice, LoginProvider};
 #[cfg(not(target_arch = "wasm32"))]
 pub use map::in_map_measure;
 pub use map::{
-    Clickable, LightSource, MapPosition, Portal, SharesSight, SmoothPosition, SpotPosition,
-    WorldReturn,
+    Clickable, LANTERN_COLOUR, LightSource, MapPosition, Portal, SharesSight, SmoothPosition,
+    SpotPosition, WorldReturn,
 };
 pub use map_marks::{MapMarks, in_cells, in_points, mark_name, near_way_round, point_at};
 pub use model_material::{ModelMaterial, model_material};

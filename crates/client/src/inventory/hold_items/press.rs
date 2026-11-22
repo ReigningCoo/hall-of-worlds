@@ -1,5 +1,6 @@
 //! Taking this frame's presses on items: a double click on a bag opens it (not
-//! one tied to the belt, unless it is a holder such as a keyring), two taps on anything else move it to the other side
+//! one tied to the belt, unless it is a holder such as a keyring), and on a
+//! lantern its fuel panel (`common::OpenLantern`), two taps on anything else move it to the other side
 //! (`quick`), and a press on anything else picks it up.
 
 use bevy::prelude::*;
@@ -11,7 +12,7 @@ use super::super::hold::QuickFrom;
 use super::super::panels::{ItemCell, OpenGrids};
 use super::super::split::{PickRow, Split, SplitCell, Splitting};
 use super::super::{Carried, DOUBLE_PRESS_SECONDS, Hand, HeldBy, Holding};
-use crate::common::{GROUND, StockCell};
+use crate::common::{GROUND, OpenLantern, StockCell};
 use crate::dom::Dom;
 use crate::dom::HeldObject;
 use crate::widgets::ButtonPressed;
@@ -34,6 +35,7 @@ pub(super) fn take_presses(
     commands: &mut Commands,
     dom: &mut Dom,
     last_press: &mut Option<(shared::id::Id, f64)>,
+    lanterns: &mut MessageWriter<OpenLantern>,
     (now, new_press, tapped, at_press, shift): (f64, bool, bool, Option<Vec2>, bool),
 ) -> bool {
     let clicked_held = HeldBy::of(object)
@@ -56,6 +58,17 @@ pub(super) fn take_presses(
         // A double click on a bag: the first lifted it, and it goes back.
         holding.put_back(object);
         open.open(Holder::Inside(id), &carried.0, commands, dom);
+        pressed.clear();
+        return true;
+    }
+    if let Some(id) = clicked_held.filter(|_| new_press)
+        && last_press
+            .is_some_and(|(pressed, when)| pressed == id && now - when < DOUBLE_PRESS_SECONDS)
+        && is_lantern(&carried.0, id)
+    {
+        // A double click on a lantern: back where it was, and its fuel panel.
+        holding.put_back(object);
+        lanterns.write(OpenLantern(id));
         pressed.clear();
         return true;
     }
@@ -136,6 +149,13 @@ pub(super) fn take_presses(
             // A bag tied to the belt is part of the own grid (owner, 2026-11-15),
             // but a holder (a keyring) keeps its own and opens (2026-11-17).
             && !carried.0.adds_to_grid(cell.id);
+        if again && is_lantern(&carried.0, cell.id) {
+            // Two taps (or a double click) on a lantern: its fuel panel.
+            lanterns.write(OpenLantern(cell.id));
+            split.0 = None;
+            *last_press = None;
+            continue;
+        }
         if again && tapped && !carried.0.find(cell.id).is_some_and(is_container) {
             // Two taps on anything but a bag: a quick move (owner, 2026-11-17).
             holding.quick = Some(QuickFrom::Carried(cell.id));
@@ -175,6 +195,15 @@ pub(super) fn take_presses(
 /// Whether it is a bag (or pouch): two taps open it rather than move it.
 fn is_container(item: &shared::item::Item) -> bool {
     item.kind.def().container.is_some()
+}
+
+/// Whether it is a lantern carried, not in the bin: two taps or clicks open
+/// its fuel panel.
+fn is_lantern(carried: &Inventory, id: Id) -> bool {
+    carried
+        .find(id)
+        .is_some_and(|item| item.lantern().is_some())
+        && !carried.in_bin(id)
 }
 
 /// The id of the top `count` of a carried stack, to hold. Part of a counted stack
