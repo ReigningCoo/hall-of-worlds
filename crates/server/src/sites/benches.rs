@@ -101,6 +101,8 @@ pub(crate) fn keep_bench(world: &mut ServerWorld, key: BenchKey, tools: BenchToo
 }
 
 #[cfg(test)]
+mod bar_tests;
+#[cfg(test)]
 mod bottle_rack_tests;
 #[cfg(test)]
 mod rack_tests;

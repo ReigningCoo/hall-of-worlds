@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::{BenchStyle, ChairStyle, Material, TableStyle};
+use crate::bar::BarCounter;
 use crate::bottle_rack::{BottleRack, BottleRackKind};
 use crate::cask_rack::CaskRack;
 use crate::crafting_bench::Craft;
@@ -46,6 +47,11 @@ pub enum Furniture {
     BottleRack {
         rack: BottleRack,
     },
+    /// A bar counter or its flap (`shared::bar`), 1 deep, facing the way
+    /// it is served across (towards the drinkers, the barkeep behind).
+    BarCounter {
+        counter: BarCounter,
+    },
 }
 
 impl Furniture {
@@ -54,15 +60,19 @@ impl Furniture {
     }
 
     /// Whether it stands on other furniture instead of the floor: a spirit
-    /// rack on a table (later a bar counter too). Such a piece is kept on a
+    /// rack on a table or a bar counter. Such a piece is kept on a
     /// level apart from what it stands on (`dungeon::Level::furniture_on_top`).
     pub fn stands_on_furniture(self) -> bool {
         matches!(self, Self::BottleRack { rack } if rack.kind == BottleRackKind::Spirit)
     }
 
-    /// Whether a piece standing on furniture may stand on this: a table.
+    /// Whether a piece standing on furniture may stand on this: a table or
+    /// a bar counter (not its flap).
     pub fn holds_furniture(self) -> bool {
-        self.is_table()
+        match self {
+            Self::BarCounter { counter } => counter.is_counter(),
+            _ => self.is_table(),
+        }
     }
 
     /// How much longer a move over it takes, in thousandths of open floor's.
@@ -72,6 +82,9 @@ impl Furniture {
             | Self::CraftingBench { .. }
             | Self::CaskRack { .. }
             | Self::BottleRack { .. } => TABLE_COST_PER_MILLE,
+            // A counter as a table's; its flap lifts, as open floor.
+            Self::BarCounter { counter } if counter.is_counter() => TABLE_COST_PER_MILLE,
+            Self::BarCounter { .. } => 1000,
             Self::Chair { .. } | Self::Bench { .. } => SEAT_COST_PER_MILLE,
         }
     }
@@ -84,15 +97,16 @@ pub struct Piece {
     pub at: (i64, i64),
     /// Cells east–west and north–south (a table 1 × 1 to 2 × 3 either way
     /// round, a chair 1 × 1, a bench 1 to 3 long and 1 deep, a crafting
-    /// bench its craft's length and 1 deep, a cask rack its length and 1
-    /// deep).
+    /// bench its craft's length and 1 deep, a cask rack, bottle rack or bar
+    /// counter its length and 1 deep).
     pub size: (u8, u8),
     /// A seat: the way someone sitting on it faces (towards their table, or
     /// away from the wall behind). A table: the way its length runs from its
     /// head, east or south (east for a square one). A crafting bench: the way
     /// its front faces, away from the wall behind it (as a seat's); its shelf
     /// is along the opposite side. A cask rack or wine rack: as a crafting
-    /// bench. A spirit rack: the way its front (lowest shelf) faces.
+    /// bench. A spirit rack: the way its front (lowest shelf) faces. A bar
+    /// counter: the side drinkers stand on, the barkeep behind it.
     pub facing: Side,
     pub material: Material,
     pub furniture: Furniture,

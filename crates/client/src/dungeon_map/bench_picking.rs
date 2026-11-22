@@ -1,5 +1,6 @@
 //! A click (or tap) on a piece with places (`furniture::Holder`: a crafting
-//! bench, cask, wine or spirit rack, the last standing on a table), or what
+//! bench, cask, wine or spirit rack, the last standing on a table or bar
+//! counter, or a bar counter), or what
 //! lies on it: each is taken as a box over its
 //! cells, from the ground to above its shelf's tools or its casks.
 //! `click.rs` sends `BenchClicked` for it; `hover.rs` names it.
@@ -38,7 +39,15 @@ pub(super) fn bench_clicked(
             let low = low.with_y(foot);
             let tall = (super::furniture::rack_height(piece))
                 .or_else(|| super::furniture::bottle_rack_height(piece))
+                .or_else(|| super::furniture::bar_height(piece))
                 .unwrap_or(BENCH_HEIGHT);
+            // A spirit rack on a counter stands that much higher.
+            let under = level.furniture_at(piece.at.0, piece.at.1);
+            let lifted = piece.furniture.stands_on_furniture();
+            let tall = tall
+                + under
+                    .filter(|_| lifted)
+                    .map_or(0.0, super::furniture::lift_on);
             let high = high.with_y(foot + tall);
             Some((into_box(ray, low, high)?, *piece))
         })

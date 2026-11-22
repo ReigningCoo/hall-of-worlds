@@ -30,6 +30,9 @@ pub enum ChairStyle {
     XFrame,
     /// Stone: a block to sit on.
     StoneBlock,
+    /// A tall stool with a foot ring, for along a bar counter (tavern
+    /// furniture plan PR 3); no table's chairs.
+    BarStool,
 }
 
 /// How a bench is built.
@@ -89,13 +92,14 @@ impl TableStyle {
 }
 
 impl ChairStyle {
-    pub const ALL: [Self; 6] = [
+    pub const ALL: [Self; 7] = [
         Self::Stool,
         Self::BackStool,
         Self::LadderBack,
         Self::PanelBack,
         Self::XFrame,
         Self::StoneBlock,
+        Self::BarStool,
     ];
 }
 

@@ -29,7 +29,7 @@ fn clicking_the_same_cell_cycles_through_every_variation_and_wraps() {
 }
 
 #[test]
-fn chairs_come_without_then_with_arms_and_stone_ones_without() {
+fn chairs_come_without_then_with_arms_and_stone_ones_and_bar_stools_without() {
     let mut order = FurnitureOrder {
         kind: Kind::Chair,
         size: 0,
@@ -37,7 +37,7 @@ fn chairs_come_without_then_with_arms_and_stone_ones_without() {
         material: None,
         ..FurnitureOrder::default()
     };
-    let pieces: Vec<_> = (0..11).map(|n| order.click((0, 0), n)).collect();
+    let pieces: Vec<_> = (0..12).map(|n| order.click((0, 0), n)).collect();
     assert!(pieces.iter().all(|piece| piece.is_well_made()));
     let stool = |arms| Furniture::Chair {
         style: ChairStyle::Stool,
@@ -51,6 +51,11 @@ fn chairs_come_without_then_with_arms_and_stone_ones_without() {
     };
     assert_eq!(pieces[10].furniture, stone);
     assert!(pieces[10].material.is_stone());
+    let bar_stool = Furniture::Chair {
+        style: ChairStyle::BarStool,
+        arms: false,
+    };
+    assert_eq!(pieces[11].furniture, bar_stool, "never with arms");
     // Wrapped round.
     assert_eq!(order.click((0, 0), 0).furniture, stool(false));
 }

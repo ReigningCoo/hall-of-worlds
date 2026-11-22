@@ -27,6 +27,7 @@ mod alcohol;
 mod answer;
 mod answer_dev;
 mod answer_items;
+mod bar_pour;
 mod bench;
 mod bonuses;
 mod campfire;

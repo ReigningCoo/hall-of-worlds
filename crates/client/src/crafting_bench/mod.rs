@@ -2,8 +2,9 @@
 //! the tools the server tells of each bench on the level, the bench the
 //! player is at, and a bench's panel: clicking (or tapping) one walks up to
 //! it, turns to it and opens a grid of its tools like a shop's stock, where
-//! carried tools are dropped on and picked off. The models are
-//! `dungeon_map`'s. See `docs/context/client/crafting_bench.md`.
+//! carried tools are dropped on and picked off; at a bar counter, also the
+//! drinks stored in its room, each poured into a carried vessel. The models
+//! are `dungeon_map`'s. See `docs/context/client/crafting_bench.md`.
 
 use bevy::prelude::*;
 
@@ -19,6 +20,7 @@ mod grid;
 mod here;
 mod markup;
 mod open;
+mod pour;
 mod server;
 mod state;
 
@@ -35,6 +37,7 @@ pub struct CraftingBenchPlugin;
 impl Plugin for CraftingBenchPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<BenchPanel>()
+            .init_resource::<pour::BarList>()
             .init_resource::<BenchHeading>()
             .add_systems(
                 PreUpdate,
@@ -58,6 +61,8 @@ impl Plugin for CraftingBenchPlugin {
                         grid::bind_grid,
                         grid::draw_grid,
                         grid::show_gift_aim,
+                        pour::show_drinks,
+                        pour::answer_drinks,
                     )
                         .chain()
                         .after(PlayerSystems::Travel),

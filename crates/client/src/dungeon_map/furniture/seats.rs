@@ -93,13 +93,14 @@ impl Seat {
     }
 }
 
-/// Whether a seat faces a table: one is in front of any of its cells.
+/// Whether a seat faces a table (or a bar counter): one is in front of any
+/// of its cells.
 pub(super) fn faces_table(level: &Level, piece: &Piece) -> bool {
     piece.cells().any(|cell| {
         let (x, y) = piece.facing.beside(cell);
         level
             .furniture_at(x, y)
-            .is_some_and(|other| other.furniture.is_table())
+            .is_some_and(|other| other.furniture.holds_furniture())
     })
 }
 
@@ -111,7 +112,8 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
         Furniture::Table { .. }
         | Furniture::CraftingBench { .. }
         | Furniture::CaskRack { .. }
-        | Furniture::BottleRack { .. } => {
+        | Furniture::BottleRack { .. }
+        | Furniture::BarCounter { .. } => {
             return None;
         }
         Furniture::Chair { .. } => chairs::DEPTH,
@@ -138,7 +140,8 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
         Furniture::Table { .. }
         | Furniture::CraftingBench { .. }
         | Furniture::CaskRack { .. }
-        | Furniture::BottleRack { .. } => {
+        | Furniture::BottleRack { .. }
+        | Furniture::BarCounter { .. } => {
             return None;
         }
     })

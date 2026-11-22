@@ -1,6 +1,8 @@
-//! Bottles on wine and spirit racks (tavern furniture plan PR 2): each bottle
-//! the server last told of on one (`common::Benches`) drawn in its own place
-//! (`furniture::bottle_spot`), with black outlines. Remembered like casks on
+//! Bottles on wine and spirit racks (tavern furniture plan PR 2) and vessels
+//! on bar counters (PR 3): each the server last told of on one
+//! (`common::Benches`) drawn in its own place (`furniture::bottle_spot`,
+//! `bar_vessel_spot`; a spirit rack on a counter that much higher,
+//! `lift_on`), with black outlines. Remembered like casks on
 //! racks: in sepia where the sight mask says out of sight, in colour too where
 //! it says in sight.
 
@@ -59,8 +61,10 @@ pub(super) fn update_rack_bottles(
     let mut keep = HashMap::new();
     let level = &dungeon.level;
     for (&at, held) in &benches.0 {
-        let Held::Bottles(bottles) = held else {
-            continue;
+        let places = match held {
+            Held::Bottles(bottles) => bottles.places(),
+            Held::Bar(vessels) => vessels.places(),
+            Held::Bench(_) | Held::Casks(_) => continue,
         };
         let top = level.furniture_on_top_at(at.0, at.1);
         let Some(piece) = top.or(level.furniture_at(at.0, at.1)) else {
@@ -79,12 +83,17 @@ pub(super) fn update_rack_bottles(
         let ground = (cells())
             .map(|(x, y)| heights.drawn_between(x as f32, y as f32) * CELL_SIZE)
             .fold(f32::MIN, f32::max);
-        for (index, bottle) in bottles.places().iter().enumerate() {
+        // A spirit rack on a counter stands higher than on a table.
+        let under = level
+            .furniture_at(at.0, at.1)
+            .filter(|_| piece.furniture.stands_on_furniture());
+        let ground = ground + under.map_or(0.0, super::furniture::lift_on);
+        for (index, bottle) in places.iter().enumerate() {
             let Some(look) = bottle.as_ref().and_then(RackBottleLook::of) else {
                 continue;
             };
             let half = look.size().0 / 2.0;
-            let Some((spot, turn)) = super::furniture::bottle_spot(piece, index, half) else {
+            let Some((spot, turn)) = spot(piece, index, half) else {
                 continue;
             };
             let place = spot + Vec3::Y * ground;
@@ -130,4 +139,14 @@ pub(super) fn update_rack_bottles(
         commands.entity(entity).despawn();
     }
     drawn.bottles = keep;
+}
+
+/// Where thing `index` on `piece` is and how it is turned: a rack's bottle
+/// (`furniture::bottle_spot`), or a counter's vessel standing upright, its
+/// middle `half` over its foot.
+fn spot(piece: &shared::furniture::Piece, index: usize, half: f32) -> Option<(Vec3, Quat)> {
+    super::furniture::bottle_spot(piece, index, half).or_else(|| {
+        let foot = super::furniture::bar_vessel_spot(piece, index)?;
+        Some((foot + Vec3::Y * half, Quat::IDENTITY))
+    })
 }

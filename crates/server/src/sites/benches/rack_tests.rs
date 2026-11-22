@@ -57,7 +57,7 @@ fn give_cask(test: &mut TestClient, id: u128, size: CaskSize) {
 fn casks_told(told: &[SeenBench]) -> Vec<usize> {
     let count = |seen: &SeenBench| match &seen.held {
         Held::Casks(casks) => casks.items().count(),
-        Held::Bench(_) | Held::Bottles(_) => usize::MAX,
+        _ => usize::MAX,
     };
     told.iter().map(count).collect()
 }

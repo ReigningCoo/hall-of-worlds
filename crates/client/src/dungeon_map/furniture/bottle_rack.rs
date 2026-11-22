@@ -38,7 +38,7 @@ fn row_height() -> f32 {
 
 /// A rack's frame `x` a share `t` of the way from its back (by the wall,
 /// 0) to its front (1), within `depth`.
-fn from_back(piece: &Piece, depth: f32, t: f32) -> f32 {
+pub(super) fn from_back(piece: &Piece, depth: f32, t: f32) -> f32 {
     let x = INSET + (depth - 2.0 * INSET) * t;
     match piece.facing {
         // Its frame runs east or south from the back.

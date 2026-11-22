@@ -22,6 +22,16 @@ pub enum BenchAsk {
     /// Take this tool (or cask) off it, into what is carried (or onto the ground if it
     /// won't fit).
     Take { bench: (i64, i64), item: Id },
+    /// At the bar counter at `bench`, pour `from`, a cask, vessel or bottle
+    /// lying on drink storage in the bar's room (`bar::room_storage`), into
+    /// `into`, a carried vessel, by the pour rule (`shared::pour`, a tap
+    /// carried to draw from a cask). Answered with `Inventory` and
+    /// `BenchNews::Tools` for the piece poured from; refused, only logged.
+    Pour {
+        bench: (i64, i64),
+        from: Id,
+        into: Id,
+    },
     /// Developer tools: make a crafting bench (`DevBench`).
     Dev(DevBench),
 }

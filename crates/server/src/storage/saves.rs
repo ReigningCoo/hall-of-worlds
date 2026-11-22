@@ -151,7 +151,11 @@ pub struct LevelSave {
     /// casks.
     #[serde(default)]
     pub bottle_racks: BTreeMap<(i64, i64), shared::bottle_rack::RackBottles>,
-    /// Pieces with places (benches, cask, wine and spirit racks) made with the developer tools
+    /// Bar counters' vessels, by the counter's cell, as racks' (tavern
+    /// furniture plan PR 3).
+    #[serde(default)]
+    pub bars: BTreeMap<(i64, i64), shared::bar::BarVessels>,
+    /// Pieces with places (benches, cask, wine and spirit racks, bar counters) made with the developer tools
     /// (Create Crafting Bench, Place Furniture), put on the level each time.
     #[serde(default)]
     pub made_benches: Vec<shared::furniture::Piece>,

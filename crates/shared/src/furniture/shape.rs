@@ -14,7 +14,7 @@ impl Furniture {
             Self::Bench { style } => style == BenchStyle::StoneSlab,
             // Hearths are of stone, other benches of wood.
             Self::CraftingBench { craft } => craft.is_hearth(),
-            Self::CaskRack { .. } | Self::BottleRack { .. } => false,
+            Self::CaskRack { .. } | Self::BottleRack { .. } | Self::BarCounter { .. } => false,
         }
     }
 }
@@ -29,7 +29,8 @@ pub fn footprint(furniture: Furniture, (long, short): (u8, u8), facing: Side) ->
         | Furniture::Bench { .. }
         | Furniture::CraftingBench { .. }
         | Furniture::CaskRack { .. }
-        | Furniture::BottleRack { .. } => matches!(facing, Side::North | Side::South),
+        | Furniture::BottleRack { .. }
+        | Furniture::BarCounter { .. } => matches!(facing, Side::North | Side::South),
     };
     if along_x {
         (long, short)
@@ -43,9 +44,9 @@ impl Piece {
     /// 2 × 3 facing east or south (east when square) along its length, a
     /// pedestal only where it fits; a chair 1 × 1; a bench 1 to 3 long and 1
     /// deep across the way it faces; a crafting bench its craft's length and 1
-    /// deep across the way it faces, of wood (a cask, wine or spirit rack its
-    /// length, of wood); stone styles of stone and wooden ones of
-    /// wood, and arms only on wooden chairs.
+    /// deep across the way it faces, of wood (a cask, wine or spirit rack or a
+    /// bar counter its length, of wood); stone styles of stone and wooden
+    /// ones of wood, and arms only on wooden chairs, never a bar stool.
     pub fn is_well_made(&self) -> bool {
         let (width, height) = self.size;
         let (long, short) = (width.max(height), width.min(height));
@@ -59,7 +60,9 @@ impl Piece {
                     && facing
                     && style.fits(self.size)
             }
-            Furniture::Chair { arms, .. } => long == 1 && !(arms && self.material.is_stone()),
+            Furniture::Chair { style, arms } => {
+                long == 1 && !(arms && (self.material.is_stone() || style == ChairStyle::BarStool))
+            }
             Furniture::Bench { .. } => (1..=3).contains(&long) && short == 1,
             Furniture::CraftingBench { craft } => long == craft.length() && short == 1,
             Furniture::CaskRack { rack } => {
@@ -67,6 +70,9 @@ impl Piece {
             }
             Furniture::BottleRack { rack } => {
                 rack.is_well_made() && long == rack.length && short == 1
+            }
+            Furniture::BarCounter { counter } => {
+                counter.is_well_made() && long == counter.length && short == 1
             }
         };
         sized
