@@ -45,6 +45,7 @@ mod dungeon;
 mod facing;
 mod fungus_name;
 mod graphics;
+mod hall_bend;
 mod item_text;
 mod items;
 mod lightning;
@@ -107,6 +108,7 @@ pub use graphics::{
     AntiAliasing, BRIGHTNESS_MOST, Background, FrameRate, GraphicsPrefs, IN_BROWSER, MaxResolution,
     Precipitation, Preset, RENDER_SCALES, Remembered, Shadows, ViewDistance,
 };
+pub use hall_bend::HallBend;
 pub use hover::{HoverName, HoveredInSky, HoveredOnMap, StaffMark, poi_name, words};
 pub use item_text::{DroppedOnText, HeldOverText, KnownItem, KnownItems, TakesItemText};
 pub use items::{
@@ -226,6 +228,7 @@ impl Plugin for CommonPlugin {
             .init_resource::<PlayerSize>()
             .init_resource::<WildCellHeights>()
             .init_resource::<DrawnGround>()
+            .init_resource::<HallBend>()
             .init_resource::<NearRivers>()
             .init_resource::<Sneaking>()
             .init_resource::<OpenPanels>()

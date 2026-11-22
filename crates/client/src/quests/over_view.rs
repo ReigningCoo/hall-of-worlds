@@ -9,7 +9,8 @@ use super::anchors::{
     Anchor, MarkOver, boss_anchors, door_anchors, find_anchors, gate_anchors, poi_anchors,
 };
 use super::{BossMarks, DoorMarkers, FindMarks, GateQuests, MarkLook, QuestPois};
-use crate::common::{CurrentDungeon, DrawnGround, GameView, Other, Portal};
+use crate::common::{CurrentDungeon, DrawnGround, GameView, HallBend, Other, Portal};
+use crate::dungeon_map::CELL_SIZE;
 use crate::view3d::{TokenView, ViewCamera};
 
 /// How tall a marker's sign is, in interface pixels.
@@ -25,7 +26,7 @@ pub(super) struct OverMark(MarkOver, MarkLook);
 #[allow(clippy::too_many_arguments)]
 pub(super) fn show_marks(
     view: Res<State<GameView>>,
-    (dungeon, ground): (Res<CurrentDungeon>, Res<DrawnGround>),
+    (dungeon, ground, bend): (Res<CurrentDungeon>, Res<DrawnGround>, Res<HallBend>),
     (doors, gates, pois): (Res<DoorMarkers>, Res<GateQuests>, Res<QuestPois>),
     (bosses, finds): (Res<BossMarks>, Res<FindMarks>),
     ui_scale: Res<UiScale>,
@@ -39,8 +40,12 @@ pub(super) fn show_marks(
         GameView::Dungeon => {
             let mut all = door_anchors(&dungeon, &ground, &doors);
             all.extend(gate_anchors(&dungeon, &gates));
-            all.extend(boss_anchors(&bosses, &tokens, &others));
             all.extend(find_anchors(&finds, &ground));
+            // Placed by cell, so moved with the Hall's bend; tokens already are.
+            for (_, at, _) in &mut all {
+                *at = bend.shift(*at, CELL_SIZE);
+            }
+            all.extend(boss_anchors(&bosses, &tokens, &others));
             all
         }
         GameView::WorldMap => poi_anchors(&pois, &tokens, &portals),

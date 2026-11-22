@@ -8,7 +8,8 @@ use shared::spot::Spot;
 use super::bag::size_of;
 use super::{Bags, Heading, STAR_LONG, in_cells, sparkle_scale, sparkle_up};
 use crate::common::{
-    ClickMode, DrawnGround, HoveredBag, HoveredLoad, PlayerSize, PointerPosition, SpotPosition,
+    ClickMode, DrawnGround, HallBend, HoveredBag, HoveredLoad, PlayerSize, PointerPosition,
+    SpotPosition,
 };
 use crate::dungeon_map::{CELL_SIZE, Shown};
 use crate::inventory::OpenCharacter;
@@ -22,7 +23,7 @@ pub(super) fn find_hovered(
     camera: Single<(&Camera, &GlobalTransform), With<ViewCamera>>,
     bags: Res<Bags>,
     shown: Res<Shown>,
-    heights: Res<DrawnGround>,
+    (heights, bend): (Res<DrawnGround>, Res<HallBend>),
     (mut hovered, mut load): (ResMut<HoveredBag>, ResMut<HoveredLoad>),
 ) {
     let (camera, transform) = *camera;
@@ -32,7 +33,7 @@ pub(super) fn find_hovered(
             let size = size_of(bag.load);
             let (x, y) = in_cells(at);
             let ground = heights.drawn_between(x, y) * CELL_SIZE;
-            let foot = Vec3::new(x * CELL_SIZE, ground, y * CELL_SIZE);
+            let foot = bend.shift(Vec3::new(x * CELL_SIZE, ground, y * CELL_SIZE), CELL_SIZE);
             let cell = at.cell();
             let in_sight = shown
                 .sight

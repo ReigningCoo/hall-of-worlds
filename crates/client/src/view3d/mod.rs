@@ -18,7 +18,9 @@ use bevy::prelude::*;
 use bevy::render::view::{DebandDither, Tonemapping};
 use bevy::window::PrimaryWindow;
 
-use crate::common::{DrawnGround, MapPosition, Preferences, SmoothPosition, ViewFacing, ViewTurn};
+use crate::common::{
+    DrawnGround, HallBend, MapPosition, Preferences, SmoothPosition, ViewFacing, ViewTurn,
+};
 use crate::player::{Player, PlayerSystems};
 pub use camera::OrbitCamera;
 pub use grid::ViewGrid;
@@ -159,7 +161,7 @@ fn place_camera_and_tokens(
     player: Single<(Option<&MapPosition>, &SmoothPosition), With<Player>>,
     preferences: Res<Preferences>,
     grid: Res<ViewGrid>,
-    heights: Res<DrawnGround>,
+    (heights, bend): (Res<DrawnGround>, Res<HallBend>),
     positions: Query<(Option<&MapPosition>, &SmoothPosition)>,
     (mut facing, mut turn): (ResMut<ViewFacing>, ResMut<ViewTurn>),
     time: Res<Time>,
@@ -216,7 +218,7 @@ fn place_camera_and_tokens(
     let (x, y) = shown_at(*player);
     // On raised ground the camera keeps the player's cell where it is on
     // screen, and the land moves under them.
-    let target = Vec3::new(x * size, grid.floor_at(&heights, x, y), y * size);
+    let target = grid.at(&heights, &bend, x, y);
     // Tilted up as far as a clear line to them over that land needs.
     let wanted = match grid.raised && heights.slopes() {
         true => {
@@ -249,14 +251,15 @@ fn place_camera_and_tokens(
         // Each base lies on the ground under it, tilted where it slopes.
         let tilt = match grid.raised && heights.slopes() {
             true => BaseTilt::fit(view.radius, half, |dx, dz| {
-                grid.floor_at(&heights, x + dx / size, y + dz / size)
+                grid.floor_at(&heights, &bend, x + dx / size, y + dz / size)
             }),
-            false => BaseTilt::flat(grid.floor_at(&heights, x, y)),
+            false => BaseTilt::flat(grid.floor_at(&heights, &bend, x, y)),
         };
         // The root at the base's middle; what stands on it stands on the
         // middle of its top, `up` from there.
         let up = tilt.up(half);
-        transform.translation = Vec3::new(x * size, tilt.bottom, y * size) + up;
+        let middle = grid.at(&heights, &bend, x, y).with_y(tilt.bottom);
+        transform.translation = middle + up;
         view.tilt = tilt.rotation();
         if let Ok(mut base) = bases.get_mut(view.base) {
             base.rotation = view.tilt;

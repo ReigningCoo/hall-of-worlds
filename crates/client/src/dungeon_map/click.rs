@@ -8,7 +8,7 @@ use shared::spot::Spot;
 use super::Shown;
 use super::ground_hit::Ground;
 use crate::common::{
-    ClickMode, CreateMobOrder, CurrentDungeon, DrawnGround, FurnitureClicked, HoveredBag,
+    ClickMode, CreateMobOrder, CurrentDungeon, DrawnGround, FurnitureClicked, HallBend, HoveredBag,
     MapPosition, PointerPosition,
 };
 use crate::connection::ToServer;
@@ -37,7 +37,7 @@ pub(super) fn pick_on_click(
     shown: Res<Shown>,
     bag: Res<HoveredBag>,
     order: Res<CreateMobOrder>,
-    heights: Res<DrawnGround>,
+    (heights, bend): (Res<DrawnGround>, Res<HallBend>),
     player: Single<&MapPosition, With<Player>>,
     mut travel: MessageWriter<TravelTo>,
     (mut door_clicked, mut bench_clicked): (
@@ -61,6 +61,8 @@ pub(super) fn pick_on_click(
     let Ok(ray) = camera.viewport_to_world(camera_transform, cursor) else {
         return;
     };
+    // In the Hall, into the straight walkway under the bent one drawn.
+    let ray = bend.unbend_ray(ray, super::CELL_SIZE, 0.0);
     let ground = Ground(Some(&heights));
     // Dev tools: Mob Mode puts the mob Create Mob has set up on the cell.
     if *mode == ClickMode::PlaceMob {

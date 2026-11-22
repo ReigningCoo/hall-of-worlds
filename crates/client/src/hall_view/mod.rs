@@ -3,6 +3,7 @@
 //! their openings, orange for gates the player has gone through. `GateModel`
 //! and `GateWater` are for World Gates on the world map too. See `docs/context/client/hall_view.md`.
 
+mod bend;
 mod gate;
 mod place;
 mod raise;
@@ -35,6 +36,7 @@ impl Plugin for HallViewPlugin {
                     .chain()
                     .run_if(in_state(GameView::Dungeon)),
             )
+            .add_systems(Update, bend::set_bend.before(View3dSystems::Place))
             .add_systems(OnExit(GameView::Dungeon), place::remove_gates)
             .add_systems(Update, sight::hall_reach.after(View3dSystems::Place));
     }

@@ -30,7 +30,7 @@ What the client knows of quests, all from the server (`shared::protocol::QuestNe
 
 ## Depends on
 
-- `common` (`CurrentDungeon`, `CurrentWorld`, `DrawnGround`, `EscortGait`, `GameView`, `Portal`, `QUEST_*` colours), `connection` (`FromServer`), `dungeon_map` (`CELL_SIZE`), `view3d` (`ViewCamera`, `TokenView`, `TOKEN_DIAMETER`), `shared::protocol`, `shared::quest`, `shared::hall`.
+- `common` (`CurrentDungeon`, `CurrentWorld`, `DrawnGround`, `HallBend` (markers placed by cell, over doors, gates and finds, are moved by it; those over tokens follow them), `EscortGait`, `GameView`, `Portal`, `QUEST_*` colours), `connection` (`FromServer`), `dungeon_map` (`CELL_SIZE`), `view3d` (`ViewCamera`, `TokenView`, `TOKEN_DIAMETER`), `shared::protocol`, `shared::quest`, `shared::hall`.
 
 ## Used by
 

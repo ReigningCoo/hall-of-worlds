@@ -7,14 +7,14 @@ use shared::spot::{CELL_SPAN, Spot};
 
 use super::CELL_SIZE;
 use super::ground_hit::Ground;
-use crate::common::{DrawnGround, FaceTowards, GameView, PointedAtMap};
+use crate::common::{DrawnGround, FaceTowards, GameView, HallBend, PointedAtMap};
 use crate::view3d::ViewCamera;
 
 pub(super) fn face_pointed_at(
     view: Res<State<GameView>>,
     mut pointed: MessageReader<PointedAtMap>,
     camera: Single<(&Camera, &GlobalTransform), With<ViewCamera>>,
-    heights: Res<DrawnGround>,
+    (heights, bend): (Res<DrawnGround>, Res<HallBend>),
     mut face: MessageWriter<FaceTowards>,
 ) {
     let (camera, camera_transform) = *camera;
@@ -25,6 +25,7 @@ pub(super) fn face_pointed_at(
         let Ok(ray) = camera.viewport_to_world(camera_transform, *at) else {
             continue;
         };
+        let ray = bend.unbend_ray(ray, CELL_SIZE, 0.0);
         if let Some((_, point, _)) = Ground(Some(&heights)).hit(ray) {
             let units = |world: f32| (world / CELL_SIZE * CELL_SPAN as f32).round() as i64;
             face.write(FaceTowards(Spot::new(units(point.x), units(point.z))));

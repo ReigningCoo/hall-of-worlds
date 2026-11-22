@@ -19,8 +19,8 @@ use super::picking::{door_clicked, pick};
 use super::tree_picking::{tree_clicked, tree_name};
 use crate::character::CharacterSheet;
 use crate::common::{
-    self, CurrentDungeon, DrawnGround, GameView, HerbTable, HoveredOnMap, PointerPosition,
-    ServerClock, Wording,
+    self, CurrentDungeon, DrawnGround, GameView, HallBend, HerbTable, HoveredOnMap,
+    PointerPosition, ServerClock, Wording,
 };
 use crate::view3d::ViewCamera;
 
@@ -35,7 +35,7 @@ pub(super) fn name_hovered_place(
     pointer: Res<PointerPosition>,
     camera: Single<(&Camera, &GlobalTransform), With<ViewCamera>>,
     (dungeon, shown): (Res<CurrentDungeon>, Res<Shown>),
-    (heights, wording): (Res<DrawnGround>, Res<Wording>),
+    (heights, wording, bend): (Res<DrawnGround>, Res<Wording>, Res<HallBend>),
     (table, sheet, clock): (Res<HerbTable>, Res<CharacterSheet>, Res<ServerClock>),
     mut hovered: ResMut<HoveredOnMap>,
 ) {
@@ -45,6 +45,7 @@ pub(super) fn name_hovered_place(
         .0
         .filter(|_| *view.get() == GameView::Dungeon)
         .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).ok())
+        .map(|ray| bend.unbend_ray(ray, super::CELL_SIZE, 0.0))
         .and_then(|ray| {
             let door = door_clicked(ray, &dungeon.buildings, &shown.solid_faces, ground);
             if let Some(id) = door {
