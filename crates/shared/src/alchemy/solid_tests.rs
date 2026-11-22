@@ -5,7 +5,7 @@ use super::*;
 use crate::bonus::{Bonus, Stat as BonusStat};
 use crate::brewing::Ingredient;
 use crate::brewing::drunk;
-use crate::dungeon::{CARRIED_LIGHT, MOST_DARKVISION, darkvision_reach};
+use crate::dungeon::{MOST_DARKVISION, darkvision_reach};
 use crate::herb::{HerbKnowledge, Stat};
 use crate::id::Id;
 use crate::item::{ItemKind, Quality};
@@ -192,14 +192,14 @@ fn darkvision_is_learned_through_perception() {
 fn darkvision_reaches_by_strength_and_purity() {
     assert_eq!(darkvision_reach(0, Quality::Legendary), 0);
     assert_eq!(darkvision_reach(-3, Quality::Common), 0);
-    assert_eq!(darkvision_reach(1, Quality::Poor), CARRIED_LIGHT + 2);
-    assert_eq!(darkvision_reach(4, Quality::Common), 15);
-    assert_eq!(darkvision_reach(4, Quality::Rare), 17);
+    assert_eq!(darkvision_reach(1, Quality::Poor), 2);
+    assert_eq!(darkvision_reach(4, Quality::Common), 9);
+    assert_eq!(darkvision_reach(4, Quality::Rare), 11);
     assert_eq!(darkvision_reach(40, Quality::Legendary), MOST_DARKVISION);
     let potion = Contents::new([dose(Stat::Darkvision, 4), dose(Stat::Health, -1)]);
     let effects = drunk(&potion, Quality::Common, 0).effects;
     let bonuses: Vec<Bonus> = effects.iter().flat_map(|e| e.bonuses.clone()).collect();
-    assert_eq!(bonuses, vec![Bonus::flat(BonusStat::Darkvision, 15_000)]);
+    assert_eq!(bonuses, vec![Bonus::flat(BonusStat::Darkvision, 9_000)]);
     let totals = crate::bonus::Totals::of(&bonuses);
-    assert_eq!(totals.darkvision(), 15);
+    assert_eq!(totals.darkvision(), 9);
 }

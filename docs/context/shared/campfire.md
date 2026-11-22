@@ -16,7 +16,7 @@ Campfires (cooking plan PR 7, `docs/context/cooking.md`): a real fire anyone lig
 - `can_hold_fire(level, x, y)`: bare ground, grass, a floor or a stone or dirt road (not boards, fields, gardens, covered ground, water), with no furniture or standing tree. The server also keeps fires off stairs and other fires.
 - `campfire_faced(level, at, heading, has_fire)` / `place_faced(level, at, heading, free)`: the nearest faced cell as Collect Water's water (`facing::faced_cell`, `potion::COLLECT_REACH`, `FACING_HALF`), underfoot too. `can_make_fire(level, at, heading)`: either, or a hearth faced (`crafting_bench::hearth_faced`, cooking PR 8: Make Campfire lights or feeds a hearth's fire, which the server keeps on its `BenchTools::fire` and which leaves no Ash) (the client's guess before asking).
 - `kindling_to_burn(carried)`: the first kindling carried (own grid top to bottom, left to right, then bags) and its wood.
-- `LIGHT_SECONDS` (5) and `FEED_SECONDS` (1): Make Campfire's wind-ups; `LIGHT_CELLS` (6, as a carried light): how far a lit fire's light reaches; `ASH_GRAMS` (20): one Ash item.
+- `LIGHT_SECONDS` (5) and `FEED_SECONDS` (1): Make Campfire's wind-ups; `LIGHT_CELLS` (6): how far a lit fire's light reaches; `ASH_GRAMS` (20): one Ash item.
 
 ## Depends on
 

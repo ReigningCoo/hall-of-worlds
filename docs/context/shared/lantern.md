@@ -17,7 +17,7 @@ The lantern's rules (owner, 2026-11-21; lantern task PR 4 of 6): the oil kept on
 - `LanternForm::burn(secs) -> Burnt { used, went_out }`: a millilitre each 36 s of playtime, the part second kept, nothing when dry.
 - `Inventory::burning_places()`: lanterns held in a hand (`Location::Held`) or tied to the belt (`bag_slots`), oil or not; `lantern_lit()`: one of them has oil; `burn_lanterns(secs) -> Burnt`: each of them burns its own oil. What the server calls as it counts playtime (paused offline); anywhere else (a grid, a bag, the ground) uses nothing.
 - `fill(lantern, bottle) -> Result<Filled { lantern, bottle, ml, spilt }, FillRefused>`: one full bottle of any `Liquid::Oil` poured in, as much as fits (`room`, at most `pour::BOTTLE_ML`); the bottle comes back empty with the same id and look, unsealed, nothing stacked on it; what didn't fit is spilt. Refused: `NotALantern`, `NotOil` (an empty bottle, another liquid, not a bottle), `Full`. Pure: the server takes one bottle off its stack, calls it and puts both back (`Inventory::replace_carried`, `give`).
-- `LANTERN_LIGHT` (10), `Inventory::light_reach()`: `LANTERN_LIGHT` while `lantern_lit`, else `dungeon::CARRIED_LIGHT` (6). A lit carrier is a light source for everything that can see (PR 5 sends it to viewers).
+- `LANTERN_LIGHT` (10), `Inventory::light_reach()`: `LANTERN_LIGHT` while `lantern_lit`, else `dungeon::CARRIED_LIGHT` (0: no light at all). A lit carrier is a light source for everything that can see (PR 5 sends it to viewers).
 
 ## Depends on
 
@@ -34,4 +34,4 @@ The lantern's rules (owner, 2026-11-21; lantern task PR 4 of 6): the oil kept on
 - Tied: `ItemDef::belt_tool` (in `item.md`, bag slots): tied to a bag slot by itself, adding no cells, one lantern on the belt at a time (`MoveRefused::HolderTied`; on its own slot it swaps), always lit there while it has oil. A held lantern must go to the grid before being tied (`tie_bag` refuses worn things, `NotForBelt`).
 - Open flames (owner, 2026-11-21): candles, torches and the like (not built yet) can only be held, never tied to a belt: don't give them `belt_tool`.
 - Spilling what doesn't fit (rather than refusing a part bottle) is Claude's reading of "as much as fits, the empty bottle returns": bottles are never part full.
-- Sight has no darkness rule yet (`dungeon.md`), so the reach only says how far is lit; Darkvision still counts from `CARRIED_LIGHT`.
+- Sight has no darkness rule yet (`dungeon.md`), so the reach only says how far is lit; Darkvision counts from 0 (`dungeon::darkvision_reach`). New characters start with a full lantern and two bottles of oil (the server's `starting_kit.rs`).

@@ -6,7 +6,7 @@ use super::{CELL_SIZE, DungeonScene, TOKEN_LIGHT_HEIGHT, TOKEN_LIGHT_LUMENS, Tok
 use crate::common::{DrawnGround, LightSource, SmoothPosition};
 
 /// Keeps a real point light over each `LightSource`, so tokens near it are
-/// lit like the tiles are.
+/// lit like the tiles are; none for a source giving no light (radius 0).
 pub(super) fn sync_lights(
     mut commands: Commands,
     scene: Single<Entity, With<DungeonScene>>,
@@ -15,7 +15,9 @@ pub(super) fn sync_lights(
     mut lights: Query<(Entity, &TokenLight, &mut PointLight, &mut Transform)>,
 ) {
     for (entity, token_light, mut point, mut transform) in &mut lights {
-        let Ok((_, source, position)) = sources.get(token_light.owner) else {
+        let found = sources.get(token_light.owner).ok();
+        let lit = found.filter(|(_, source, _)| source.radius > 0);
+        let Some((_, source, position)) = lit else {
             commands.entity(entity).despawn();
             continue;
         };
@@ -27,7 +29,7 @@ pub(super) fn sync_lights(
             Vec3::new(x * CELL_SIZE, ground + TOKEN_LIGHT_HEIGHT, y * CELL_SIZE);
     }
     for (owner, source, _) in &sources {
-        if lights.iter().any(|(_, light, _, _)| light.owner == owner) {
+        if source.radius == 0 || lights.iter().any(|(_, light, _, _)| light.owner == owner) {
             continue;
         }
         commands.entity(*scene).with_child((
