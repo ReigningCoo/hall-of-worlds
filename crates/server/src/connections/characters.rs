@@ -99,3 +99,26 @@ pub(super) fn delete_chosen(
 
 #[cfg(test)]
 mod tests;
+
+/// Plays one of the account's characters, as chosen. Anyone else's is
+/// refused. `false` if the client should go.
+pub(super) fn choose(client: &mut Client, id: CharacterId, accounts: &mut Accounts) -> bool {
+    let refuse = |client: &Client, reason: &str| {
+        client.link.send(&ServerMessage::Refused(reason.into()));
+        false
+    };
+    let Some(account) = client.account.filter(|_| client.phase == Phase::Choosing) else {
+        return refuse(client, "not the time to choose a character");
+    };
+    // A client can ask for anything: only its own will do.
+    let characters = match accounts.account(&account) {
+        Ok(account) => &account.characters,
+        Err(error) => return client.refuse_for_saves(&error),
+    };
+    if !characters.iter().any(|character| character.id == id) {
+        return refuse(client, "that isn't one of this account's characters");
+    }
+    client.character_id = Some(id);
+    client.phase = Phase::Joining;
+    true
+}

@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use axum::Router;
+use axum::extract::Path;
 use axum::http::{HeaderMap, StatusCode, header};
 use axum::routing::{get, post};
 use base64::Engine;
@@ -24,6 +25,11 @@ pub(crate) struct FakeProvider {
 }
 
 const FAKE_SECRET: &str = "fake secret";
+
+/// The fake's Discord server, which its bot ("bot-token") is on: Nelly (the
+/// user of code "good") with Discord roles 111 and 222, Kit (code "kit") with
+/// none; Rob (code "other") isn't on it.
+pub(crate) const FAKE_SERVER: u64 = 613425648685547541;
 
 impl FakeProvider {
     pub(crate) fn start() -> Self {
@@ -75,6 +81,37 @@ impl FakeProvider {
         }
     }
 
+    /// As `discord_logins` (with the fake OIDC provider too), and players
+    /// required on the fake's Discord server `FAKE_SERVER`, asked by its bot.
+    pub(crate) fn member_logins(&self, secret: &str) -> Logins {
+        self.member_logins_with(secret, &self.base, FAKE_SERVER, "bot-token")
+    }
+
+    /// As `member_logins`, with Discord at `site`, and this Discord server
+    /// and bot token.
+    pub(crate) fn member_logins_with(
+        &self,
+        secret: &str,
+        site: &str,
+        server: u64,
+        bot_token: &str,
+    ) -> Logins {
+        let callback = "http://localhost:24690/login/callback".to_owned();
+        let setup = Setup {
+            oidc: vec![self.settings()],
+            discord: Some(DiscordSettings {
+                site: site.into(),
+                ..self.discord()
+            }),
+            discord_only: false,
+            member: Some(super::member::MemberSettings {
+                server,
+                bot_token: bot_token.into(),
+            }),
+        };
+        Logins::start(setup, callback, LoginSecret::new(secret)).unwrap()
+    }
+
     /// Logins through Discord as this fake plays it, alone if `only`.
     pub(crate) fn discord_logins(&self, secret: &str, only: bool) -> Logins {
         let callback = "http://localhost:24690/login/callback".to_owned();
@@ -82,6 +119,7 @@ impl FakeProvider {
             oidc: if only { vec![] } else { vec![self.settings()] },
             discord: Some(self.discord()),
             discord_only: only,
+            member: None,
         };
         Logins::start(setup, callback, LoginSecret::new(secret)).unwrap()
     }
@@ -114,7 +152,24 @@ fn fake_routes(base: &str, verifiers: Arc<Mutex<Vec<String>>>) -> Router {
                     }
                     "Bearer token-noid" => answer(StatusCode::OK, json!({"username": "nelly"})),
                     "Bearer token-other" => answer(StatusCode::OK, json!({"id": "41771983423143937", "username": "rob"})),
+                    "Bearer token-kit" => answer(StatusCode::OK, json!({"id": "55555555555555555", "username": "kit"})),
                     _ => answer(StatusCode::UNAUTHORIZED, json!({})),
+                }
+            }),
+        )
+        .route(
+            "/api/v10/guilds/{server}/members/{user}",
+            get(|headers: HeaderMap, Path((server, user)): Path<(u64, String)>| async move {
+                if bearer(&headers) != "Bot bot-token" {
+                    return answer(StatusCode::UNAUTHORIZED, json!({"code": 0}));
+                }
+                if server != FAKE_SERVER {
+                    return answer(StatusCode::NOT_FOUND, json!({"code": 10004}));
+                }
+                match user.as_str() {
+                    "80351110224678912" => answer(StatusCode::OK, json!({"roles": ["111", "222"]})),
+                    "55555555555555555" => answer(StatusCode::OK, json!({"roles": []})),
+                    _ => answer(StatusCode::NOT_FOUND, json!({"code": 10007})),
                 }
             }),
         )

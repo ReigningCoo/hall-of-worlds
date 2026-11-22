@@ -20,6 +20,11 @@ pub(super) const FORMAT: u32 = 1;
 pub(super) struct RolesFile {
     pub format: u32,
     pub roles: Vec<RoleDef>,
+    /// Discord roles (by id) and the role each gives, in order: an account
+    /// following Discord gets the first whose Discord role it has
+    /// (`HOW_DISCORD_SERVER_ID`). Never the Owner.
+    #[serde(default)]
+    pub discord_roles: Vec<DiscordRole>,
     /// By account id (as written in the log). Players and guests are never here.
     #[serde(default)]
     pub accounts: BTreeMap<String, HeldRole>,
@@ -42,6 +47,13 @@ pub(super) struct RoleDef {
     pub appears_as: BTreeSet<RoleId>,
 }
 
+/// One line of the Discord mapping: its role on Discord, and the role here.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub(super) struct DiscordRole {
+    pub discord: u64,
+    pub role: RoleId,
+}
+
 /// An account's role.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub(super) struct HeldRole {
@@ -56,6 +68,14 @@ pub(super) struct HeldRole {
     /// Who gave it: nobody for the server itself (a claim) or the file.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub by: Option<String>,
+    /// Given by the account's Discord roles, so changed by them; otherwise it
+    /// was given by hand, which Discord never changes.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub discord: bool,
+}
+
+fn is_false(value: &bool) -> bool {
+    !value
 }
 
 impl RolesFile {
@@ -63,6 +83,7 @@ impl RolesFile {
         let mut file = Self {
             format: FORMAT,
             roles: Vec::new(),
+            discord_roles: Vec::new(),
             accounts: BTreeMap::new(),
         };
         file.fill_in();
@@ -145,6 +166,15 @@ impl RolesFile {
                 ));
             }
         }
+        for mapped in &self.discord_roles {
+            let role = &mapped.role;
+            if self.role(role).is_none() || role.is(OWNER) || role.is(GUEST) {
+                return Err(format!(
+                    "the Discord role {} gives {:?}, which isn't a role Discord can give",
+                    mapped.discord, role.0
+                ));
+            }
+        }
         for (account, held) in &self.accounts {
             account_id(account).ok_or_else(|| format!("{account:?} isn't an account id"))?;
             let role = &held.role;
@@ -152,6 +182,11 @@ impl RolesFile {
                 return Err(format!(
                     "the account {account} has the role {:?}, which no account can hold",
                     role.0
+                ));
+            }
+            if held.discord && role.is(OWNER) {
+                return Err(format!(
+                    "the account {account} has the Owner's role from Discord, which can't give it"
                 ));
             }
         }

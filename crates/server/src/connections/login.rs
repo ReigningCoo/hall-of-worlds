@@ -16,12 +16,18 @@ use crate::{ServerOptions, ServerWorld, ServerWorlds};
 use shared::role::{BANNED, Permission};
 
 mod link_discord;
+mod member;
 
 pub(super) use link_discord::link_discord;
 use link_discord::{finish_link, tell_discord};
+pub(crate) use member::check_discord;
+pub(super) use member::{DiscordGate, LINK_FIRST};
+use member::{check_linked, let_in};
 
 #[cfg(test)]
 mod link_discord_tests;
+#[cfg(test)]
+mod member_tests;
 
 /// Logs in with what the client sent: `false` if it should be disconnected.
 pub(super) fn log_in(
@@ -51,17 +57,11 @@ pub(super) fn log_in(
         }
         (Credentials::Session(token), Some(logins)) => match accounts.session(&token) {
             Ok(Some(id)) if logins.discord_only() => match accounts.discord_of(&id) {
-                Ok(Some(_)) => {
-                    logged_in(client, id, "again", accounts, world, options)
-                        && tell_discord(client, accounts, logins)
-                }
+                Ok(Some(_)) => let_in(client, id, "again".into(), accounts, world, options, logins),
                 Ok(None) => failed(client, "this server only takes Discord logins just now"),
                 Err(error) => client.refuse_for_saves(&error),
             },
-            Ok(Some(id)) => {
-                logged_in(client, id, "again", accounts, world, options)
-                    && tell_discord(client, accounts, logins)
-            }
+            Ok(Some(id)) => let_in(client, id, "again".into(), accounts, world, options, logins),
             Ok(None) => failed(client, "this login has run out: log in again"),
             Err(error) => client.refuse_for_saves(&error),
         },
@@ -174,8 +174,7 @@ pub(crate) fn finish_logins(
                         client
                             .link
                             .send(&ServerMessage::LoggedIn { session, email })
-                            && logged_in(client, id, &how, accounts, world, &options)
-                            && tell_discord(client, accounts, &logins)
+                            && let_in(client, id, how, accounts, world, &options, &logins)
                     }
                     Err(error) => client.refuse_for_saves(&error),
                 }

@@ -13,6 +13,7 @@ use crate::accounts::AccountId;
 mod audit;
 mod claim;
 mod defaults;
+mod discord;
 mod disk;
 mod file;
 mod panel;
@@ -215,5 +216,7 @@ impl Roles {
     }
 }
 
+#[cfg(test)]
+mod discord_tests;
 #[cfg(test)]
 mod tests;

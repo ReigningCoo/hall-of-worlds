@@ -5,7 +5,7 @@
 //! login).
 
 use bevy::prelude::*;
-use shared::protocol::{ClientMessage, ServerMessage};
+use shared::protocol::{ClientMessage, DiscordLink, ServerMessage};
 
 use super::socket::Target;
 use super::{Connecting, FromServer, ServerConnection};
@@ -39,7 +39,8 @@ fn note_played(preferences: &mut Preferences, target: &Target, any: bool) {
 /// Takes what the server offers. The first offer after connecting for Continue
 /// goes straight to the character played last; anything else (Characters or
 /// Connect, guests too, none to play, or an offer after one was deleted) shows
-/// the screen (owner, 2026-11-13).
+/// the screen (owner, 2026-11-13), as does an account that must link Discord
+/// first (`DiscordLink::MustLink`, told before the offer).
 #[allow(clippy::too_many_arguments)]
 pub(super) fn answer_characters(
     mut commands: Commands,
@@ -52,8 +53,10 @@ pub(super) fn answer_characters(
     mut making: ResMut<MakingCharacter>,
     mut refused: ResMut<CharacterRefused>,
 ) {
+    let mut link_first = false;
     for FromServer(message) in from_server.read() {
         match message {
+            ServerMessage::DiscordLink(told) => link_first = *told == DiscordLink::MustLink,
             ServerMessage::Characters {
                 list,
                 can_create,
@@ -77,7 +80,7 @@ pub(super) fn answer_characters(
                 select.can_create = *can_create;
                 let latest = select.sorted().first().map(|c| c.summary.id);
                 match latest {
-                    Some(id) if first && *play_for == PlayFor::Latest => {
+                    Some(id) if first && *play_for == PlayFor::Latest && !link_first => {
                         connection.link.send(&ClientMessage::ChooseCharacter { id });
                         select.open = false;
                     }

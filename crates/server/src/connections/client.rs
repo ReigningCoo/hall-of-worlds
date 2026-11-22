@@ -41,6 +41,7 @@ impl Client {
             going_place: None,
             account: None,
             login_state: None,
+            discord: Default::default(),
             character_id,
             name: String::new(),
             gone: false,

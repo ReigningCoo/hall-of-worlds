@@ -8,6 +8,7 @@ use bevy::prelude::*;
 
 use super::config::{self, ProviderSettings};
 use super::discord::{self, DiscordSettings};
+use super::member::{MemberSettings, member_from};
 use super::{LoginSecret, Logins};
 
 /// The ways in the environment sets up, before they are started.
@@ -17,6 +18,9 @@ pub(crate) struct Setup {
     pub discord: Option<DiscordSettings>,
     /// Only Discord, and no guests (`HOW_DISCORD_ONLY`).
     pub discord_only: bool,
+    /// Players must be on this Discord server (`HOW_DISCORD_SERVER_ID`): no
+    /// guests, and other logins linked to Discord first.
+    pub member: Option<MemberSettings>,
 }
 
 impl Setup {
@@ -29,6 +33,13 @@ impl Setup {
         warnings.extend(more);
         for warning in warnings {
             warn!("{warning}");
+        }
+        let member = member_from(variables)?;
+        if member.is_some() && discord.is_none() {
+            return Err(
+                "HOW_DISCORD_SERVER_ID is set, but Discord logins aren't set up                  (HOW_DISCORD_CLIENT_ID and HOW_DISCORD_CLIENT_SECRET)"
+                    .into(),
+            );
         }
         if discord_only {
             if discord.is_none() {
@@ -47,6 +58,7 @@ impl Setup {
             oidc,
             discord,
             discord_only,
+            member,
         })
     }
 
@@ -67,13 +79,19 @@ impl Logins {
         if setup.is_empty() {
             return Ok(None);
         }
-        let discord_only = setup.discord_only;
+        // Logins the server mustn't start without, or it would let in people
+        // it was told not to.
+        let discord_only = setup.discord_only || setup.member.is_some();
         let callback = match config::callback_from(
             env::var("HOW_LOGIN_URL").ok().as_deref(),
             env::var("HOW_LETS_ENCRYPT_DOMAIN").ok().as_deref(),
         ) {
             Ok(callback) => callback,
-            Err(problem) if discord_only => return Err(format!("{problem} (HOW_DISCORD_ONLY)")),
+            Err(problem) if discord_only => {
+                return Err(format!(
+                    "{problem} (HOW_DISCORD_ONLY or HOW_DISCORD_SERVER_ID)"
+                ));
+            }
             Err(problem) => {
                 warn!("{problem}: logins through providers are off");
                 return Ok(None);
@@ -83,7 +101,10 @@ impl Logins {
         let secret = LoginSecret::load(data, given.as_deref())?;
         let logins = Self::start(setup, callback, secret);
         if discord_only && logins.is_none() {
-            return Err("HOW_DISCORD_ONLY is true, but Discord logins can't start".into());
+            return Err(
+                "HOW_DISCORD_ONLY or HOW_DISCORD_SERVER_ID is set, but Discord logins can't start"
+                    .into(),
+            );
         }
         Ok(logins)
     }

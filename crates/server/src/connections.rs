@@ -106,6 +106,7 @@ pub(super) use answer::answer;
 pub(crate) use combat::take_mob_blows;
 pub(super) use keys_found::note_found as note_found_keys;
 pub(super) use lightning::tell_of_lightning;
+pub(crate) use login::check_discord;
 pub(super) use login::finish_logins;
 pub(crate) use messages::Sneak;
 pub(super) use messages::handle_messages;
@@ -179,6 +180,8 @@ pub struct Client {
     account: Option<AccountId>,
     /// The login it began on a provider's website, by its state (`oidc`).
     login_state: Option<String>,
+    /// Its account and the server's Discord, when membership is required.
+    discord: login::DiscordGate,
     /// Its character: given when it connected, or decided by logging in.
     pub(crate) character_id: Option<CharacterId>,
     /// Its character's name, as others see it: set on joining.

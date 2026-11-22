@@ -22,6 +22,7 @@ pub(super) fn tell_discord(client: &Client, accounts: &mut Accounts, logins: &Lo
     let told = match accounts.account(&id) {
         Ok(account) if account.guest => return true,
         Ok(account) if account.discord.is_some() => DiscordLink::Linked,
+        Ok(_) if client.discord.must_link => DiscordLink::MustLink,
         Ok(_) => DiscordLink::CanLink,
         Err(error) => return client.refuse_for_saves(&error),
     };
@@ -69,7 +70,7 @@ pub(in super::super) fn link_discord(
 /// Finishes linking Discord to `id`, the account of the client that began it,
 /// once the player is back from Discord's page. `false` if the client should go.
 pub(super) fn finish_link(
-    client: &Client,
+    client: &mut Client,
     id: AccountId,
     proved: Result<Proved, String>,
     accounts: &mut Accounts,
@@ -79,6 +80,10 @@ pub(super) fn finish_link(
         Ok(Proved::Discord(user)) => {
             let key = LoginKey::Discord(logins.discord_key(user.id));
             match link(id, user.id, &key, accounts) {
+                Ok(DiscordLink::Linked) => {
+                    super::check_linked(client, user.id, logins);
+                    DiscordLink::Linked
+                }
                 Ok(told) => told,
                 Err(error) => return client.refuse_for_saves(&error),
             }

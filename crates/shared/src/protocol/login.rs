@@ -35,6 +35,10 @@ pub const DISCORD: &str = "discord";
 pub enum DiscordLink {
     /// Not linked: Link Discord is offered.
     CanLink,
+    /// Not linked, and the server is only for its Discord server's members
+    /// (`HOW_DISCORD_SERVER_ID`): it must be linked before playing, so Link
+    /// Discord is offered and choosing or making a character isn't.
+    MustLink,
     /// Discord leads to this account (logged in with or linked).
     Linked,
     /// Linking didn't work, and why (such as that Discord account having its own).
