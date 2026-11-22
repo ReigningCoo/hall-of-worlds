@@ -152,6 +152,9 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             Action::Door(ask) => sites::door_act(client, world, ask),
             Action::Consume { item } => super::consume::consume(client, world, item),
             Action::Pour { from, into } => super::pour::pour(client, world, from, into),
+            Action::FillLantern { lantern, bottle } => {
+                super::lantern::fill_lantern(client, world, lantern, bottle)
+            }
             Action::Pick { x, y } => super::pick_fruit::pick(client, world, x, y),
             Action::Bench(ask) => super::bench::bench_act(client, world, ask),
             Action::Recipe(ask) => super::recipe_book::answer(client, world, ask),

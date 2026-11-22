@@ -256,6 +256,9 @@ pub(crate) fn answer(
         }
         ClientMessage::Consume { item } => client.queue(Action::Consume { item }),
         ClientMessage::Pour { from, into } => client.queue(Action::Pour { from, into }),
+        ClientMessage::FillLantern { lantern, bottle } => {
+            client.queue(Action::FillLantern { lantern, bottle })
+        }
         ClientMessage::Pick { x, y } => client.queue(Action::Pick { x, y }),
         ClientMessage::Bench(BenchAsk::Dev(order)) => {
             crate::sites::create_bench(client, world, order)

@@ -207,14 +207,14 @@ fn a_forgotten_site_gets_new_mobs() {
 }
 
 /// Two clients of one world, through the real tick.
-struct Two {
-    connections: crate::Connections,
+pub(super) struct Two {
+    pub(super) connections: crate::Connections,
     world: ServerWorld,
-    ends: [shared::protocol::ClientLink; 2],
+    pub(super) ends: [shared::protocol::ClientLink; 2],
 }
 
 impl Two {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         let mut connections = crate::Connections::default();
         let ends = [1, 2].map(|n| {
             let (end, link) = local_pair();
@@ -236,7 +236,7 @@ impl Two {
         two
     }
 
-    fn tick(&mut self) -> [Vec<ServerMessage>; 2] {
+    pub(super) fn tick(&mut self) -> [Vec<ServerMessage>; 2] {
         crate::connections::tests::tick_both(&mut self.connections, &mut self.world);
         [0, 1].map(|n| std::iter::from_fn(|| self.ends[n].receive().ok().flatten()).collect())
     }

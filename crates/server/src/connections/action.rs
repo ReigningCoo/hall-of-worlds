@@ -49,6 +49,11 @@ pub(super) enum Action {
         from: Id,
         into: Id,
     },
+    /// Filling a lantern from a bottle of oil (`lantern.rs`).
+    FillLantern {
+        lantern: Id,
+        bottle: Id,
+    },
     /// Harvesting the herb patch or fruit plant here (`pick_herb.rs`,
     /// `pick_fruit.rs`).
     Pick {

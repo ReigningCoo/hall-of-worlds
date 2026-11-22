@@ -40,6 +40,8 @@ mod gear;
 mod harmed_by;
 mod heal;
 mod inspect;
+#[cfg(test)]
+mod light_tests;
 mod made;
 mod moves;
 mod notice;
