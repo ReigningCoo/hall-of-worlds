@@ -2,8 +2,9 @@
 
 use bevy::prelude::*;
 
-/// The root of a drawn token. It never rotates, so children can rely on
-/// world axes; only its `base` tilts to the ground (`BaseTilt`). `owner` is
+/// The root of a drawn token. It turns only with the view's roll (the Hall's
+/// twist at the player, none elsewhere), so children stand upright in the
+/// view; only its `base` tilts to the ground (`BaseTilt`). `owner` is
 /// the entity with the `Token`.
 #[derive(Component)]
 pub struct TokenView {

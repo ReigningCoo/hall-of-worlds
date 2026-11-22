@@ -80,18 +80,79 @@ fn unshift_undoes_shift() {
 }
 
 #[test]
-fn an_unbent_ray_meets_the_straight_floor_under_the_bent_one() {
+fn an_unbent_ray_meets_the_straight_floor_under_the_drawn_one() {
     let cell = 24.0;
     let bend = HallBend::on(31_337);
-    for x in -20..20 {
-        // A place on the straight floor, drawn bent, looked at from above.
-        let place = Vec3::new(x as f32 * cell, 0.0, 12.0);
-        let drawn = bend.shift(place, cell);
-        let eye = drawn + Vec3::new(-300.0, 500.0, 900.0);
-        let ray = Ray3d::new(eye, Dir3::new(drawn - eye).unwrap());
-        let straight = bend.unbend_ray(ray, cell, 0.0);
-        let t = -straight.origin.y / straight.direction.y;
-        let hit = straight.origin + straight.direction * t;
-        assert!(hit.distance(place) < 0.01, "{place} hit at {hit}");
+    for x in -40..40 {
+        // Across the walkway and the gates' floors either side, at the edges
+        // the twist moves most.
+        for row in [-1.0, 0.0, 0.5, 1.0, 2.0, 3.0] {
+            // A place on the straight floor, drawn bent, looked at from above.
+            let place = Vec3::new(x as f32 * cell, 0.0, row * cell);
+            let drawn = bend.shift(place, cell);
+            let eye = drawn + Vec3::new(-300.0, 500.0, 900.0);
+            let ray = Ray3d::new(eye, Dir3::new(drawn - eye).unwrap());
+            let straight = bend.unbend_ray(ray, cell, 0.0);
+            let t = -straight.origin.y / straight.direction.y;
+            let hit = straight.origin + straight.direction * t;
+            assert!(hit.distance(place) < 0.01, "{place} hit at {hit}");
+        }
+    }
+}
+
+#[test]
+fn no_twist_when_off() {
+    let bend = HallBend::default();
+    assert_eq!(bend.twist(3.5), 0.0);
+    assert_eq!(bend.tilt(3.5), Quat::IDENTITY);
+}
+
+#[test]
+fn twists_at_most_a_degree_a_column() {
+    let bend = HallBend::on(-55_555);
+    let all: Vec<f32> = (-40_000..40_000)
+        .map(|q| bend.twist(q as f32 / 4.0).to_degrees())
+        .collect();
+    for pair in all.windows(5) {
+        assert!((pair[4] - pair[0]).abs() <= 1.0, "{pair:?}");
+    }
+    // Never more than 15° from wherever the player stands.
+    let most = all.iter().fold(0.0_f32, |m, a| m.max(a.abs()));
+    assert!(most <= 7.5 + 1e-4, "{most}");
+    // It does twist.
+    assert!(most > 3.0, "{most}");
+}
+
+#[test]
+fn level_under_the_player_once_rolled() {
+    let cell = 24.0;
+    let bend = HallBend::on(2_024);
+    for x in -200..200 {
+        let x = x as f32 * 0.7;
+        // The view rolls by the twist at the player's column.
+        let roll = bend.tilt(x).inverse();
+        let north = bend.shift(Vec3::new(x * cell, 0.0, 0.0), cell);
+        let south = bend.shift(Vec3::new(x * cell, 0.0, 2.0 * cell), cell);
+        let across = roll * (south - north);
+        assert!(across.y.abs() < 1e-3, "at {x}: {across}");
+        // Its up is straight up.
+        assert!((roll * bend.tilt(x) * Vec3::Y).distance(Vec3::Y) < 1e-5);
+    }
+    // While further along it is not.
+    let roll = bend.tilt(0.0).inverse();
+    let tilted = (-100..100).any(|x| (roll * bend.tilt(x as f32) * Vec3::Y).y < 0.999);
+    assert!(tilted);
+}
+
+#[test]
+fn turns_round_the_middle_line() {
+    let cell = 24.0;
+    let bend = HallBend::on(9_001);
+    for x in 0..100 {
+        let x = x as f32 * cell;
+        let middle = Vec3::new(x, 0.0, cell);
+        let moved = bend.shift(middle, cell) - middle;
+        let offset = bend.offset(x / cell) * cell;
+        assert!(moved.distance(Vec3::new(0.0, offset.y, offset.x)) < 1e-3);
     }
 }

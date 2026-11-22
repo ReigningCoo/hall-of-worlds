@@ -1,6 +1,6 @@
 //! World Gates stand on their cell's ground, raised by its height
-//! (`common::DrawnGround`; none in the Hall), and moved with the Hall's bend
-//! (`common::HallBend`).
+//! (`common::DrawnGround`; none in the Hall), and moved and turned with the Hall's
+//! bend and twist (`common::HallBend`).
 
 use bevy::prelude::*;
 
@@ -23,8 +23,11 @@ pub(super) fn raise_gates(
             let ground = heights.drawn(x, y) * CELL_SIZE;
             let straight = Vec3::new(x as f32, 0.0, y as f32) * CELL_SIZE + Vec3::Y * ground;
             let drawn = bend.shift(straight, CELL_SIZE);
-            if place.translation != drawn {
+            // Leaning with the walkway's twist, round its middle line.
+            let tilt = bend.tilt(x as f32);
+            if place.translation != drawn || place.rotation != tilt {
                 place.translation = drawn;
+                place.rotation = tilt;
             }
         }
     }
