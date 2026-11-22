@@ -30,6 +30,7 @@ mod inventory;
 mod item_art;
 mod item_popup;
 mod item_text;
+mod lantern;
 mod lightning;
 mod loading_screen;
 mod login;
@@ -150,6 +151,7 @@ fn main() {
     app.add_plugins(alchemy::AlchemyPlugin);
     app.add_plugins(cooking::CookingPlugin);
     app.add_plugins(crafting_bench::CraftingBenchPlugin);
+    app.add_plugins(lantern::LanternPlugin);
     app.add_plugins(lightning::LightningPlugin);
     app.add_plugins(step_pad::StepPadPlugin);
     app.add_plugins(notices::NoticesPlugin);

@@ -131,6 +131,14 @@ fn read_server(
                         .entity(spawned)
                         .insert(crate::common::StaffMark(mark.shown().to_owned()));
                 }
+                if look.light > shared::dungeon::CARRIED_LIGHT {
+                    // A burning lantern: others see by it too.
+                    commands.entity(spawned).insert(crate::common::LightSource {
+                        radius: look.light,
+                        colour: crate::common::LANTERN_COLOUR,
+                        darkvision: 0,
+                    });
+                }
                 if let Some(boss) = &look.boss {
                     commands
                         .entity(spawned)

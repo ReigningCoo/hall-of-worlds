@@ -4,7 +4,7 @@ use super::*;
 use crate::item_art::{CAMERA_AT, CAMERA_UP, OUTLINE_PIXELS, VIEW_WIDTH};
 
 /// Every kind drawn as a tool (`look_of`).
-const TOOLS: [ItemKind; 12] = [
+const TOOLS: [ItemKind; 13] = [
     ItemKind::Cauldron,
     ItemKind::MortarAndPestle,
     ItemKind::Retort,
@@ -17,6 +17,7 @@ const TOOLS: [ItemKind; 12] = [
     ItemKind::Pan,
     ItemKind::Bowl,
     ItemKind::Sieve,
+    ItemKind::Lantern,
 ];
 
 /// A picture's pixels a cell, as the armour pieces' tests measure their edge by.

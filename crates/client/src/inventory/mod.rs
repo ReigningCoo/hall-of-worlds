@@ -71,6 +71,7 @@ impl Plugin for InventoryPlugin {
             .add_message::<EatKind>()
             .add_message::<DrinkPotion>()
             .add_message::<GaveItem>()
+            .add_message::<crate::common::OpenLantern>()
             .add_systems(
                 Startup,
                 (

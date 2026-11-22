@@ -68,9 +68,9 @@ pub use hold_button::HoldButton;
 pub use hover_tip::{HoverTip, Pinned, PinnedTip};
 pub use item::{
     CELL, HELD_ITEM_Z, ITEM_LABEL_FONT, ItemLook, ItemName, ItemTip, ItemTooltip,
-    PICTURE_PIXELS_PER_CELL, Pointed, PointedItem, at_cell, covering, item_colour, item_edge,
-    item_edge_width, item_label, item_picture, logical_rect, picture_in_square, shown_at,
-    spawn_item_cells,
+    PICTURE_PIXELS_PER_CELL, Pointed, PointedItem, at_cell, covering, fuel_in_slot, item_colour,
+    item_edge, item_edge_width, item_label, item_picture, logical_rect, picture_in_square,
+    shown_at, spawn_item_cells,
 };
 pub use item_text::{ItemText, item_text};
 pub use key_box::{KeyBox, KeyChosen, spawn_key_box};

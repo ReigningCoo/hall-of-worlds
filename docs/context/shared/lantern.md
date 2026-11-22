@@ -26,7 +26,7 @@ The lantern's rules (owner, 2026-11-21; lantern task PR 4 of 6): the oil kept on
 ## Used by
 
 - `item_form` (`ItemForm::Lantern`: name, weight, `give_form_to`).
-- The server (PR 5, `connections/lantern.rs`): `ClientMessage::FillLantern` through `fill`, `burn_lanterns` by playtime, `light_reach` sent as `mob::EntityLook::light`. The client (PR 6) to come.
+- The server (PR 5, `connections/lantern.rs`): `ClientMessage::FillLantern` through `fill`, `burn_lanterns` by playtime, `light_reach` sent as `mob::EntityLook::light`. The client (PR 6): `widgets`' fuel bar (`seconds_left`), `lantern` (`burn_lanterns` counted down locally, `light_reach`, `fill` for the drop space's tint), `entities` (`EntityLook::light`).
 
 ## Notes
 

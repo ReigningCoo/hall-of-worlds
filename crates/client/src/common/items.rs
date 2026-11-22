@@ -42,6 +42,11 @@ pub struct HeldGift {
 #[derive(Resource, Default)]
 pub struct HeldOverGifts(pub Option<HeldGift>);
 
+/// Opens a carried lantern's fuel panel (`lantern`): a double click or double
+/// tap on it (`inventory`).
+#[derive(Message, Clone, Copy, Debug)]
+pub struct OpenLantern(pub shared::id::Id);
+
 /// It was let go there, and is on its way to them.
 #[derive(Message, Clone, Copy, Debug)]
 pub struct GaveItem(pub HeldGift);

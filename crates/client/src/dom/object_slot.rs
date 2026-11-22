@@ -16,7 +16,7 @@ use super::object_grid::ThingCell;
 use crate::item_art::{ItemPicture, look_of};
 use crate::widgets::{
     ALLOWED, Aura, AuraMask, CELL, GRID_COLOUR, GRID_LINE, ITEM_EDGE, ITEM_LABEL_FONT,
-    PICTURE_PIXELS_PER_CELL, Pressable, REFUSED, aura_glow, item_colour, item_edge,
+    PICTURE_PIXELS_PER_CELL, Pressable, REFUSED, aura_glow, fuel_in_slot, item_colour, item_edge,
     item_edge_width, item_label, item_picture, picture_in_square, set_edge,
 };
 
@@ -175,6 +175,7 @@ fn spawn_worn(inside: &mut ChildSpawnerCommands, slot: Entity, thing: &SlotThing
     if item.set {
         worn.with_child(set_edge(item.quality, UiRect::all(px(width)), width));
     }
+    worn.with_children(|inside| fuel_in_slot(inside, item, width));
     let words = (
         Text::new(text),
         ITEM_LABEL_FONT.font(),

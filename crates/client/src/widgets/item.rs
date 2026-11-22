@@ -9,6 +9,7 @@ use super::TextSize;
 // Split into files (`cargo xtask lint` keeps files small).
 mod cells;
 mod count;
+mod fuel;
 mod look;
 mod mixed;
 mod name;
@@ -16,6 +17,7 @@ mod nodes;
 mod picture;
 
 pub use cells::spawn_item_cells;
+pub use fuel::fuel_in_slot;
 pub use look::{
     ItemLook, ItemName, ItemTip, ItemTooltip, Pointed, PointedItem, item_colour, item_edge,
     item_edge_width, item_label,
