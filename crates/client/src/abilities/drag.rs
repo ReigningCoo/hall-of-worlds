@@ -5,7 +5,8 @@
 //! goes back where it was; a potion puts that potion there, brewing decision
 //! 22), and a kind of item or potion dragged from a slot onto any of the
 //! Character panel takes it off (owner, 2026-11-15). A click or tap on a
-//! slot uses it; a right-click or a finger held still on one turns its
+//! slot, or on an ability on the page, uses it (a press only becomes a drag
+//! once it moves); a right-click or a finger held still on a slot turns its
 //! automatic use on or off.
 //!
 //! The dragging itself (following the pointer or finger, being drawn, being let
@@ -20,7 +21,7 @@ use super::item_look::thing_look;
 use super::own_bar::OwnBar;
 use super::page::usable;
 use super::spots::{Spot, Spots};
-use super::use_ability::UseSlot;
+use super::use_ability::{UseListed, UseSlot};
 use crate::character::CharacterSheet;
 use crate::common::BenchHere;
 use crate::common::{TouchGesture, UiPointer, in_interface};
@@ -91,7 +92,7 @@ pub(super) fn drag_abilities(
     assets: Res<AssetServer>,
     (mut drag, mut object): (ResMut<Drag>, ResMut<HeldObject>),
     mut to_server: MessageWriter<ToServer>,
-    mut used: MessageWriter<UseSlot>,
+    (mut used, mut listed): (MessageWriter<UseSlot>, MessageWriter<UseListed>),
 ) {
     let kind = carried.0.creature;
     let known = known(kind, &sheet.0);
@@ -156,9 +157,16 @@ pub(super) fn drag_abilities(
         drag.held_still = Some(still);
         bar.change(BarChange::ToggleAuto { slot }, &known, &mut to_server);
     }
+    // A click or tap that never became a drag uses what it was on.
     if free && mouse.just_released(MouseButton::Left) {
-        if let Some((_, From::Slot(slot), _)) = drag.pressed {
-            used.write(UseSlot(slot));
+        match drag.pressed {
+            Some((_, From::Slot(slot), _)) => {
+                used.write(UseSlot(slot));
+            }
+            Some((BarThing::Ability(ability), From::Page, _)) => {
+                listed.write(UseListed(ability));
+            }
+            _ => {}
         }
         drag.pressed = None;
     }

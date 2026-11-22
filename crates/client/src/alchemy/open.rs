@@ -4,13 +4,14 @@
 //! process on it is kept for the next time.
 
 use bevy::prelude::*;
+use shared::ability::Ability;
 
 use super::OpenAlchemy;
 use super::bench::Bench;
 use super::markup::ALCHEMY;
 use super::rows::{ApparatusRow, ProcessRow};
 use super::side::ProductSlot;
-use crate::common::Session;
+use crate::common::{OpenPanels, Session};
 use crate::dom::{SlotShown, UiEvent, UiValue, document, top_strip};
 use crate::inventory::OpenCharacter;
 use crate::widgets::UiId;
@@ -67,4 +68,10 @@ pub(super) fn notice_closed(
         commands.entity(document).despawn();
         bench.document = None;
     }
+}
+
+/// Says whether the panel is open, for the ability's look on the action bar
+/// and the Abilities page.
+pub(super) fn tell_open(bench: Res<Bench>, mut panels: ResMut<OpenPanels>) {
+    OpenPanels::tell(&mut panels, Ability::Alchemy, bench.document.is_some());
 }

@@ -76,6 +76,7 @@ impl Plugin for CookingPlugin {
                     open::open_panel,
                     open::bind_panel,
                     open::notice_closed,
+                    open::tell_open,
                     kitchen::keep_kitchen,
                     side::answer_panel,
                     recipes::answer_recipes,

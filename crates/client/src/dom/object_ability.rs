@@ -16,6 +16,7 @@ use bevy::prelude::*;
 use super::Solid;
 use shared::ability::BarThing;
 pub(super) use slot::draw_ability_slots;
+use slot::draw_marks;
 
 use crate::widgets::{ABILITY, AbilityLook, spawn_ability};
 
@@ -46,13 +47,25 @@ impl KnownAbilities {
     }
 }
 
+/// How an ability is being used, drawn over it alike in a slot and in a list.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct AbilityMarks {
+    /// Used by itself: a sliding metal edge.
+    pub auto: bool,
+    /// A toggle that is on, or one whose panel is open: a steady green edge.
+    pub on: bool,
+    /// Waiting to be used: stripes chasing round inside it.
+    pub queued: bool,
+}
+
 /// A list of abilities, set by its owner. They have no shape: each takes one
-/// place, `columns` to a row. It is drawn again when this changes.
+/// place, `columns` to a row, with how it is being used. It is drawn again
+/// when this changes.
 #[derive(Component, Clone, Debug, Default, PartialEq)]
 #[require(Node, Solid)]
 pub struct AbilityGridShown {
     pub columns: u8,
-    pub things: Vec<AbilityThing>,
+    pub things: Vec<(AbilityThing, AbilityMarks)>,
 }
 
 /// What a slot for an ability shows, set by its owner. It is drawn again when
@@ -63,12 +76,8 @@ pub struct AbilitySlotShown {
     pub thing: Option<AbilityThing>,
     /// Its key's short name, over its bottom right.
     pub key: String,
-    /// Used by itself: a sliding metal edge.
-    pub auto: bool,
-    /// A toggle that is on: a steady green edge.
-    pub on: bool,
-    /// Waiting to be used: stripes chasing round inside it.
-    pub queued: bool,
+    /// How it is being used.
+    pub marks: AbilityMarks,
     /// It has a shade over it (`SlotShade`), which its owner sizes.
     pub shade: bool,
     /// Something held is over it: green if it may go here, red if not.
@@ -89,7 +98,8 @@ pub struct AbilityCell {
 /// On a part of a drawn slot its owner may want to find: the slot it is of.
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SlotPart {
-    /// The edge of a toggle that is on.
+    /// The edge of a toggle that is on, or a panel's ability whose panel is
+    /// open.
     On(Entity),
     /// The stripes of one waiting to be used.
     Queued(Entity),
@@ -114,13 +124,22 @@ pub(super) fn draw_ability_grids(
         let mut entity = commands.entity(grid);
         entity.insert(node).despawn_related::<Children>();
         entity.with_children(|list| {
-            for thing in &shown.things {
-                let frame = spawn_ability(list, thing.look.clone());
-                let cell = AbilityCell {
-                    of: grid,
-                    thing: thing.thing,
+            for (thing, marks) in &shown.things {
+                // Its place, holding it and the marks over it.
+                let place = Node {
+                    width: px(ABILITY),
+                    height: px(ABILITY),
+                    ..default()
                 };
-                list.commands().entity(frame).insert(cell);
+                list.spawn(place).with_children(|place| {
+                    let frame = spawn_ability(place, thing.look.clone());
+                    let cell = AbilityCell {
+                        of: grid,
+                        thing: thing.thing,
+                    };
+                    place.commands().entity(frame).insert(cell);
+                    draw_marks(place, grid, *marks);
+                });
             }
         });
     }

@@ -57,6 +57,7 @@ impl Plugin for AlchemyPlugin {
                     open::open_panel,
                     open::bind_panel,
                     open::notice_closed,
+                    open::tell_open,
                     side::answer_panel,
                     run::follow_run,
                     rows::draw_rows,

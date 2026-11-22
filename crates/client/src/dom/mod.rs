@@ -43,7 +43,8 @@ pub use input::Hit;
 #[cfg(test)]
 pub use input::find_now;
 pub use object_ability::{
-    AbilityCell, AbilityGridShown, AbilitySlotShown, AbilityThing, KnownAbilities, SlotPart,
+    AbilityCell, AbilityGridShown, AbilityMarks, AbilitySlotShown, AbilityThing, KnownAbilities,
+    SlotPart,
 };
 pub use object_grid::{DrawObjects, GridAim, GridBox, GridShown, GridThing, ThingCell};
 pub use object_slot::{SlotLook, SlotShown, SlotThing};

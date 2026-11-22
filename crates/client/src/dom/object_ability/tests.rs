@@ -39,7 +39,16 @@ fn a_list_draws_each_ability_as_its_own() {
     let mut app = app();
     let shown = AbilityGridShown {
         columns: 8,
-        things: vec![thing(Ability::Attack), thing(Ability::Heal)],
+        things: vec![
+            (thing(Ability::Attack), AbilityMarks::default()),
+            (
+                thing(Ability::Heal),
+                AbilityMarks {
+                    on: true,
+                    ..default()
+                },
+            ),
+        ],
     };
     let list = app.world_mut().spawn(shown).id();
     app.update();
@@ -47,6 +56,8 @@ fn a_list_draws_each_ability_as_its_own() {
     assert_eq!(drawn.len(), 2);
     assert!(drawn.iter().all(|cell| cell.of == list));
     assert!(drawn.iter().any(|cell| cell.thing == Ability::Heal.into()));
+    // Marked as a slot would be: only the one that is on.
+    assert_eq!(parts(&mut app), vec![SlotPart::On(list)]);
 }
 
 #[test]
@@ -61,8 +72,11 @@ fn a_slot_draws_its_ability_and_how_it_is_used() {
     let shown = AbilitySlotShown {
         thing: Some(thing(Ability::Attack)),
         key: "1".to_string(),
-        on: true,
-        queued: true,
+        marks: AbilityMarks {
+            on: true,
+            queued: true,
+            ..default()
+        },
         shade: true,
         ..default()
     };
