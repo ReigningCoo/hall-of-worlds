@@ -13,7 +13,7 @@ impl Client {
     /// refused change is put right. `false` if the client has gone.
     pub(super) fn change_bar(&mut self, change: BarChange) -> bool {
         let known = known(self.inventory.creature, &self.sheet);
-        match self.action_bar.apply(change, &known) {
+        match self.action_bar.apply(change, &known, &self.sheet.spellbook) {
             Ok(()) => self.unsaved = true,
             Err(why) => debug!("Refused an action bar change {change:?}: {why:?}"),
         }

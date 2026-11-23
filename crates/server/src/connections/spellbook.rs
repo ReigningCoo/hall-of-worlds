@@ -13,6 +13,9 @@ use crate::ServerWorld;
 
 /// Answers one ask about the spellbook: `false` if the client has gone.
 pub(super) fn answer(client: &mut Client, world: &ServerWorld, ask: SpellbookAsk) -> bool {
+    if let SpellbookAsk::Cast { spell, target } = ask {
+        return super::cast::ask_cast(client, spell, target);
+    }
     let skills = client.sheet.skills.clone();
     let book = &mut client.sheet.spellbook;
     let done = match &ask {
@@ -22,6 +25,7 @@ pub(super) fn answer(client: &mut Client, world: &ServerWorld, ask: SpellbookAsk
         SpellbookAsk::Rename { spell, name } => book.rename(spell, name.as_deref()),
         SpellbookAsk::Favourite { spell, favourite } => book.set_favourite(spell, *favourite),
         SpellbookAsk::Remove { spell } => book.remove(spell).map(|_| ()),
+        SpellbookAsk::Cast { .. } => return true,
     };
     match done {
         Ok(()) => client.unsaved = true,

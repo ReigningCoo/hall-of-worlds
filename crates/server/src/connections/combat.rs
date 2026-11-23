@@ -104,7 +104,7 @@ pub(super) fn start_ability(
         return (false, 0);
     }
     match ability {
-        Ability::Heal => return super::heal::start_heal(client, world, target),
+        Ability::Magic => return super::cast::start_cast(client, world, target),
         Ability::Kick => return super::kick::start_kick(client, world, target),
         Ability::CollectWater => return super::collect_water::start_collect(client, world),
         Ability::PressOil => return super::press_oil::choose_press(client, world, target),
@@ -161,7 +161,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
     client.fight.pending = None;
     let swing = match pending.act {
         Act::Strike(swing) => swing,
-        Act::Heal => return super::heal::land_heal(client, world, pending.target),
+        Act::Cast => return super::cast::land_cast(client, world),
         Act::Kick(swing) => return super::kick::land_kick(client, world, pending.target, swing),
         Act::KickDoor(at) => return super::kick::land_door_kick(client, world, at),
         Act::CollectWater => return super::collect_water::land_collect(client, world),
@@ -218,10 +218,10 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
 /// after only `CANCEL_PENALTY`. `false` if the client has gone.
 pub(super) fn cancel_ability(client: &mut Client, world: &ServerWorld) -> bool {
     let tick = world.action_clock.ticks();
-    let Some(pending) = client.fight.pending.filter(|p| p.lands_at > tick) else {
+    let Some(pending) = client.fight.pending.take_if(|p| p.lands_at > tick) else {
         return true;
     };
-    client.fight.pending = None;
+    super::cast::call_off(client, pending.act);
     client.energy.cancel(tick, client.speed, CANCEL_PENALTY);
     client.link.send(&ServerMessage::AbilityLanded {
         who: None,

@@ -49,8 +49,8 @@ fn changes_are_made_by_the_rules_and_refusals_put_right() {
         ability: Ability::NightVision,
     })]);
     assert_eq!(
-        bar(&refused).slots[0].and_then(BarSlot::ability),
-        Some(Ability::Heal)
+        bar(&refused).slots[0].map(|slot| slot.thing),
+        Some(shared::ability::BarThing::heal())
     );
     assert_eq!(bar(&refused).slots[2], attack);
 }

@@ -12,10 +12,12 @@ use shared::creature::CreatureKind;
 use shared::id::Id;
 use shared::item::{Item, ItemKind, Quality};
 use shared::item_form::ItemForm;
+use shared::lang::Lang;
 use shared::potion::{BottleForm, Liquid, PotionKey};
 use shared::sheet::Sheet;
 
 use super::page::look;
+use super::spells::spell_look;
 use crate::widgets::{AbilityLook, GRID_COLOUR};
 
 /// How a kind of item looks on the bar, with `count` carried.
@@ -85,13 +87,14 @@ pub(super) fn potion_words(potion: PotionKey) -> String {
     words.join(", ")
 }
 
-/// How an ability, a kind of item or a potion looks, with `count` carried of
-/// an item; an ability or a potion greyed unless `usable` (`page::usable`,
-/// `can_drink`).
+/// How an ability, a kind of item, a potion or a spell (from the sheet's
+/// book, worded in `lang`) looks, with `count` carried of an item; an
+/// ability, a potion or a spell greyed unless `usable` (`page::usable`,
+/// `can_drink`, `spells::can_cast`).
 pub(super) fn thing_look(
     thing: BarThing,
-    count: u32,
-    eater: CreatureKind,
+    (count, eater): (u32, CreatureKind),
+    (sheet, lang): (&Sheet, &Lang),
     usable: bool,
     assets: &AssetServer,
 ) -> AbilityLook {
@@ -99,5 +102,6 @@ pub(super) fn thing_look(
         BarThing::Ability(ability) => look(ability, usable, assets),
         BarThing::Item(kind) => item_look(kind, count, eater),
         BarThing::Potion(potion) => potion_look(potion, usable),
+        BarThing::Spell(key) => spell_look(key, sheet, lang, usable, assets),
     }
 }

@@ -134,6 +134,14 @@ impl Spellbook {
         self.find(spell).map(|index| &self.spells[index])
     }
 
+    /// The spell with this key (`SpellKey::of` its design), if in the book:
+    /// what the action bar and casting go by.
+    pub fn by_key(&self, key: super::key::SpellKey) -> Option<&BookSpell> {
+        self.spells
+            .iter()
+            .find(|kept| super::key::SpellKey::of(&kept.spell) == key)
+    }
+
     /// Every spell, favourites first, each part latest stored first.
     pub fn iter(&self) -> impl Iterator<Item = &BookSpell> {
         let favourites = self.spells.iter().filter(|kept| kept.favourite);

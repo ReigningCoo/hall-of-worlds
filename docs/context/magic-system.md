@@ -47,6 +47,7 @@ Each unlocks in this order (see Unlocks). Its tier is also its cost (see Mana co
 
 **Self**, **Friend** and **Enemy**: free, allowed only in the first step, and always together with a where. They limit what the first step can hit, and only that step: later steps hit everything as usual.
 
+- **Filters choose the first where's aim** (owner, 2026-11-23): **Self** is "do me instead", aimed at the caster whatever is targeted, and limits nothing it hits (Self + Surround is a ring round you). **Friend** and **Enemy** ask "is my target one?": the target if so, else the nearest of that side in the where's reach; none, and the spell fizzles. They still limit what the first step hits.
 - **Self + Point ×2:** you and two friends. **Friend + Point ×2:** two friends, not you.
 - **Friend + Surround → Heal:** heals only the friends round you.
 - **A missile or beam with a filter** passes through what doesn't match: Enemy + Missile flies past a friend in the way.
@@ -165,7 +166,7 @@ Wild's practice moves when saves load: Beasts to Social's Animals, Plants to Ear
 2. **The rules** (`shared::spell`): a spell's steps, wheres, filters and effects as data, checking a design (unlocks, 10 steps, filters only first and with a where), costs, automatic names, the combination table, the automatic casting rule. Needs 1 (built).
 3. **Where hits** (shared): Touch's arcs, Beam's lines, Surround's rings, Point's targets, a missile's path, filters and sides, line of sight; pure functions both sides use (`shared::spell`'s where hits, built). Needs 2.
 4. **Spellbook and the Magic ability** (shared and server): the book on the sheet, messages to store, rename, favourite and remove spells, new characters' book. Needs 2 (built).
-5. **Casting on the server:** steps a second apart, Self, Touch, Beam, Surround and Point, Heal as an effect, fizzling, Mana, practice, the inn, never to death; the Heal ability gone and bars moved onto the Heal spell, and the client's bar taking spells (by hand and automatic). Needs 3 and 4.
+5. **Casting on the server:** steps a second apart, Self, Touch, Beam, Surround and Point, Heal as an effect, fizzling, Mana, practice, the inn, never to death; the Heal ability gone and bars moved onto the Heal spell, and the client's bar taking spells (by hand and automatic). Needs 3 and 4 (built: server `connections/cast/`, `shared::spell`'s `SpellKey`, `cast.rs`, `spare.rs`, client `abilities/spells.rs`; missiles land at once until PR 6; harm to the caster and friends stopping at 1 Health is `spared_harm`, used once there is harm, PR 10).
 6. **Missiles in flight** (server, client following them); Healing Missile in new books. Needs 5.
 7. **Drawing wheres** (client): bolts, beams, rings, points, sparkles. Needs 6.
 8. **The spellbook page** (client): the list with favourites at the top, names, removing, dragging to the bar. Needs 5; any order with 7.

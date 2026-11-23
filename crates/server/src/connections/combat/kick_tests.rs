@@ -119,13 +119,35 @@ fn kicking_a_door_in_the_inn_does_nothing() {
 }
 
 #[test]
-fn attacks_are_refused_in_the_inn_and_heal_is_not() {
+fn attacks_are_refused_in_the_inn_and_spells_on_yourself_are_not() {
+    use shared::spell::{Effect, Spell, SpellKey, Step, Where, heal_spell};
     let mut test = TestClient::new();
     test.send(&[ClientMessage::DevToInn]);
     for ability in [Ability::Attack, Ability::Kick, Ability::Trample] {
         assert!(crate::sites::refuses_harm(&test.client, ability));
     }
-    assert!(!crate::sites::refuses_harm(&test.client, Ability::Heal));
-    test.send(&[use_ability(Ability::Heal)]);
+    // Anything beyond the caster is refused there.
+    let magic = shared::skill::SkillId::find("magic").unwrap();
+    let practice = shared::skill::practice_for(1);
+    test.client.sheet.skills.practise(magic, practice);
+    let touch = Spell::new(vec![
+        Step::at(Where::Touch, 1),
+        Step::effects(&[(Effect::Heal, 1)]),
+    ]);
+    let skills = test.client.sheet.skills.clone();
+    let book = &mut test.client.sheet.spellbook;
+    book.store(touch.clone(), None, Some(&skills)).unwrap();
+    let cast = |spell: &Spell| {
+        ClientMessage::Spellbook(shared::protocol::SpellbookAsk::Cast {
+            spell: SpellKey::of(spell),
+            target: None,
+        })
+    };
+    test.send(&[cast(&touch)]);
+    assert!(
+        test.client.fight.pending.is_none(),
+        "Touch → Heal is refused"
+    );
+    test.send(&[cast(&heal_spell())]);
     assert!(test.client.fight.pending.is_some(), "Heal winds up");
 }

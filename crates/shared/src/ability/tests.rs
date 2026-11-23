@@ -3,6 +3,7 @@ use crate::creature::CreatureKind;
 use crate::id::Id;
 use crate::item::{Inventory, Item, ItemKind, StackLimits};
 use crate::sheet::Sheet;
+use crate::spell::Spellbook;
 
 /// Whether a plain creature of this kind, carrying `carried`, can use it.
 fn can_use_carrying(ability: Ability, kind: CreatureKind, carried: &[ItemKind]) -> bool {
@@ -71,35 +72,34 @@ fn attack_only() -> ActionBar {
 }
 
 #[test]
-fn every_creature_knows_heal() {
-    for kind in CreatureKind::ALL {
-        assert!(usable(Ability::Heal, kind), "{kind:?}");
-    }
-    assert!(Ability::Heal.can_be_automatic());
+fn the_heal_spell_may_be_automatic_and_a_spell_not_in_the_book_may_not() {
+    assert!(BarThing::heal().can_be_automatic(&Spellbook::default()));
+    assert!(!BarThing::heal().can_be_automatic(&Spellbook::empty()));
 }
 
 #[test]
-fn a_new_bar_has_heal_then_attack() {
+fn a_new_bar_has_the_heal_spell_then_attack() {
     let bar = ActionBar::default();
-    assert_eq!(bar.slots[0], slot(Ability::Heal, false));
+    assert_eq!(bar.slots[0], Some(BarSlot::new(BarThing::heal())));
     assert_eq!(bar.slots[1], slot(Ability::Attack, false));
     assert!(bar.slots[2..].iter().all(Option::is_none));
 }
 
 #[test]
-fn an_old_bar_is_given_heal_once_in_the_first_empty_slot() {
+fn an_old_bar_is_given_the_heal_spell_once_in_the_first_empty_slot() {
     let mut bar = attack_only();
     bar.given = 0;
     bar.catch_up();
-    assert_eq!(bar.slots[1], slot(Ability::Heal, false));
+    assert_eq!(bar.slots[1], Some(BarSlot::new(BarThing::heal())));
     // Taken off, it stays off.
     bar.apply(
         BarChange::Clear { slot: 1 },
         &known_by_kind(CreatureKind::Human),
+        &Spellbook::default(),
     )
     .unwrap();
     bar.catch_up();
-    assert_eq!(bar.slot_of(Ability::Heal), None);
+    assert_eq!(bar.slot_of(BarThing::heal()), None);
     // A bar saved without `given` reads as 0.
     let old: ActionBar =
         ron::from_str("(slots: (None, None, None, None, None, None, None, None, None, None))")
@@ -121,16 +121,25 @@ fn passive_and_unknown_abilities_stay_off_the_bar() {
     assert_eq!(
         bar.apply(
             place(Ability::NightVision),
-            &known_by_kind(CreatureKind::Human)
+            &known_by_kind(CreatureKind::Human),
+            &Spellbook::default()
         ),
         Err(BarRefusal::Passive)
     );
     assert_eq!(
-        bar.apply(place(Ability::Trample), &known_by_kind(CreatureKind::Human)),
+        bar.apply(
+            place(Ability::Trample),
+            &known_by_kind(CreatureKind::Human),
+            &Spellbook::default()
+        ),
         Err(BarRefusal::Unknown)
     );
     assert_eq!(
-        bar.apply(place(Ability::Kick), &known_by_kind(kicker())),
+        bar.apply(
+            place(Ability::Kick),
+            &known_by_kind(kicker()),
+            &Spellbook::default()
+        ),
         Ok(())
     );
     assert_eq!(bar.slots[3], slot(Ability::Kick, false));
@@ -140,14 +149,19 @@ fn passive_and_unknown_abilities_stay_off_the_bar() {
 fn placing_an_ability_already_on_the_bar_moves_it_with_its_auto() {
     let mut bar = attack_only();
     let kind = CreatureKind::Human;
-    bar.apply(BarChange::ToggleAuto { slot: 0 }, &known_by_kind(kind))
-        .unwrap();
+    bar.apply(
+        BarChange::ToggleAuto { slot: 0 },
+        &known_by_kind(kind),
+        &Spellbook::default(),
+    )
+    .unwrap();
     bar.apply(
         BarChange::Place {
             slot: 4,
             ability: Ability::Attack,
         },
         &known_by_kind(kind),
+        &Spellbook::default(),
     )
     .unwrap();
     assert_eq!(bar.slots[0], None);
@@ -164,22 +178,36 @@ fn swapping_keeps_each_auto_and_clearing_forgets_it() {
             ability: Ability::Kick,
         },
         &known_by_kind(kind),
+        &Spellbook::default(),
     )
     .unwrap();
-    bar.apply(BarChange::ToggleAuto { slot: 0 }, &known_by_kind(kind))
-        .unwrap();
-    bar.apply(BarChange::Swap { a: 0, b: 1 }, &known_by_kind(kind))
-        .unwrap();
+    bar.apply(
+        BarChange::ToggleAuto { slot: 0 },
+        &known_by_kind(kind),
+        &Spellbook::default(),
+    )
+    .unwrap();
+    bar.apply(
+        BarChange::Swap { a: 0, b: 1 },
+        &known_by_kind(kind),
+        &Spellbook::default(),
+    )
+    .unwrap();
     assert_eq!(bar.slots[0], slot(Ability::Kick, false));
     assert_eq!(bar.slots[1], slot(Ability::Attack, true));
-    bar.apply(BarChange::Clear { slot: 1 }, &known_by_kind(kind))
-        .unwrap();
+    bar.apply(
+        BarChange::Clear { slot: 1 },
+        &known_by_kind(kind),
+        &Spellbook::default(),
+    )
+    .unwrap();
     bar.apply(
         BarChange::Place {
             slot: 1,
             ability: Ability::Attack,
         },
         &known_by_kind(kind),
+        &Spellbook::default(),
     )
     .unwrap();
     assert_eq!(bar.slots[1], slot(Ability::Attack, false));
@@ -195,16 +223,25 @@ fn only_some_abilities_can_be_made_automatic() {
             ability: Ability::Kick,
         },
         &known_by_kind(kind),
+        &Spellbook::default(),
     )
     .unwrap();
     assert_eq!(
-        bar.apply(BarChange::ToggleAuto { slot: 1 }, &known_by_kind(kind)),
+        bar.apply(
+            BarChange::ToggleAuto { slot: 1 },
+            &known_by_kind(kind),
+            &Spellbook::default()
+        ),
         Err(BarRefusal::NotAutomatic)
     );
     assert!(Ability::Attack.can_be_automatic());
     assert!(
-        bar.apply(BarChange::ToggleAuto { slot: 0 }, &known_by_kind(kind))
-            .is_ok()
+        bar.apply(
+            BarChange::ToggleAuto { slot: 0 },
+            &known_by_kind(kind),
+            &Spellbook::default()
+        )
+        .is_ok()
     );
 }
 
@@ -214,11 +251,19 @@ fn bad_slots_and_empty_autos_are_refused_without_change() {
     let before = bar.clone();
     let kind = CreatureKind::Human;
     assert_eq!(
-        bar.apply(BarChange::Swap { a: 0, b: 10 }, &known_by_kind(kind)),
+        bar.apply(
+            BarChange::Swap { a: 0, b: 10 },
+            &known_by_kind(kind),
+            &Spellbook::default()
+        ),
         Err(BarRefusal::NoSlot)
     );
     assert_eq!(
-        bar.apply(BarChange::ToggleAuto { slot: 5 }, &known_by_kind(kind)),
+        bar.apply(
+            BarChange::ToggleAuto { slot: 5 },
+            &known_by_kind(kind),
+            &Spellbook::default()
+        ),
         Err(BarRefusal::Empty)
     );
     assert_eq!(bar, before);

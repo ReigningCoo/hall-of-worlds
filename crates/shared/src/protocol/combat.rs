@@ -15,6 +15,10 @@ pub enum Landed {
     Fizzled,
     /// It was called off before it landed.
     Cancelled,
+    /// A spell's first step landed and its Mana was paid (`target` the
+    /// first it hit, if any); what each step does follows as its own
+    /// `AbilityLanded`s, `Healed` and the like (magic plan PR 5).
+    Cast,
     /// It gave this much Health (some of it lost if beyond the most), and the
     /// one healed has this much left, per mille.
     Healed { amount: Points, left: u16 },

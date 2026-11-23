@@ -26,6 +26,7 @@ mod press_juice;
 mod press_oil;
 mod rain_here;
 mod sneak;
+mod spells;
 mod spots;
 mod use_ability;
 mod use_slots;

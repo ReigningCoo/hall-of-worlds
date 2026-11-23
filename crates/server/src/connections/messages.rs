@@ -107,7 +107,7 @@ pub(crate) fn handle_messages(
         put_out_of_forgotten_sites(clients, i, worlds.of(world));
     }
     sites::close_empty_inns(clients, &mut worlds);
-    super::heal::heal_players(clients, &mut worlds);
+    super::cast::run_casts(clients, &mut worlds);
     super::for_others::do_for_others(clients, &mut worlds);
     answer_look_ups(clients, &mut worlds);
     crate::quests::answer_planet_logs(clients, &mut worlds);

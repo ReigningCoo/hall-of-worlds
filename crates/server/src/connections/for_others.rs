@@ -9,7 +9,6 @@ use shared::protocol::{DevSkills, ServerMessage};
 
 use super::Client;
 use super::give_items::{Batch, give_to_player};
-use super::heal::pair;
 use crate::ServerWorlds;
 
 /// What a client asked to do to another player.
@@ -69,4 +68,15 @@ fn in_sight(asker: &mut Client, other: &Client) -> bool {
 /// Asks for `what` to be done to the player `to` once messages are read.
 pub(in crate::connections) fn ask(client: &mut Client, to: Id, what: ForOther) {
     client.for_others.push((to, what));
+}
+
+/// Two different clients at once.
+pub(super) fn pair(clients: &mut [Client], i: usize, j: usize) -> (&mut Client, &mut Client) {
+    if i < j {
+        let (low, high) = clients.split_at_mut(j);
+        (&mut low[i], &mut high[0])
+    } else {
+        let (low, high) = clients.split_at_mut(i);
+        (&mut high[0], &mut low[j])
+    }
 }

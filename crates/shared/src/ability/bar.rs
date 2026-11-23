@@ -1,5 +1,5 @@
 //! The action bar: ten slots, each holding an active ability, a kind of item
-//! used from there (food), a particular potion, or nothing, kept per character. Keys 1 to 0 use them,
+//! used from there (food), a particular potion, a spell, or nothing, kept per character. Keys 1 to 0 use them,
 //! and a slot with an ability can be set to use it by itself (`auto`). The
 //! client changes it with `BarChange`s, which the server checks with the same
 //! `ActionBar::apply`.
@@ -10,6 +10,7 @@ use super::Ability;
 use super::bar_slot::{BarSlot, BarThing, usable_from_bar};
 use crate::item::ItemKind;
 use crate::potion::PotionKey;
+use crate::spell::{SpellKey, Spellbook};
 
 /// How many slots the bar has.
 pub const BAR_SLOTS: usize = 10;
@@ -26,9 +27,12 @@ pub struct ActionBar {
     pub given: u8,
 }
 
-/// Abilities new characters' bars start with, beyond Attack, in the order they
-/// were added: older bars are given each once.
-const GIVEN: [Ability; 1] = [Ability::Heal];
+/// What new characters' bars start with, beyond Attack, in the order it was
+/// added: older bars are given each once. The Heal ability first, now the
+/// Heal spell (magic plan PR 5).
+fn given() -> [BarThing; 1] {
+    [BarThing::heal()]
+}
 
 /// A change the player asks for.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,6 +53,9 @@ pub enum BarChange {
     /// was there (brewing decision 22). If it was already in another slot, it
     /// moves.
     PlacePotion { slot: u8, potion: PotionKey },
+    /// Put a spell from the spellbook in a slot, replacing what was there
+    /// (magic plan PR 5). If it was already in another slot, it moves.
+    PlaceSpell { slot: u8, spell: SpellKey },
 }
 
 /// Why a change was refused.
@@ -58,7 +65,7 @@ pub enum BarRefusal {
     NoSlot,
     /// Passive abilities can't go on the bar.
     Passive,
-    /// The creature doesn't know it.
+    /// The creature doesn't know it, or the spell isn't in its book.
     Unknown,
     /// There is nothing in the slot to make automatic.
     Empty,
@@ -69,23 +76,25 @@ pub enum BarRefusal {
     NotUsable,
 }
 
-/// A new character's: Heal in the first slot and Attack in the second, so
-/// with both automatic, healing comes first (Claude's suggestion, 2026-11-07).
+/// A new character's: the Heal spell in the first slot and Attack in the
+/// second, so with both automatic, healing comes first (Claude's suggestion,
+/// 2026-11-07).
 impl Default for ActionBar {
     fn default() -> Self {
         let mut slots = [None; BAR_SLOTS];
-        for (slot, ability) in [Ability::Heal, Ability::Attack].into_iter().enumerate() {
-            slots[slot] = Some(BarSlot::new(ability));
+        let things = [BarThing::heal(), BarThing::Ability(Ability::Attack)];
+        for (slot, thing) in things.into_iter().enumerate() {
+            slots[slot] = Some(BarSlot::new(thing));
         }
         Self {
             slots,
-            given: GIVEN.len() as u8,
+            given: given().len() as u8,
         }
     }
 }
 
 impl ActionBar {
-    /// Gives a bar saved before some of `GIVEN` were added each of those, in
+    /// Gives a bar saved before some of `given` were added each of those, in
     /// the first empty slot (none if it is full, or already there). Also
     /// clears a thing found twice, keeping the first: a bar saved with both
     /// Grind and Brew loads both as Alchemy.
@@ -101,19 +110,26 @@ impl ActionBar {
                 self.slots[slot] = None;
             }
         }
-        for &ability in GIVEN.iter().skip(usize::from(self.given)) {
+        let given = given();
+        for &thing in given.iter().skip(usize::from(self.given)) {
             let empty = self.slots.iter().position(Option::is_none);
-            if let (None, Some(slot)) = (self.slot_of(ability), empty) {
-                self.slots[slot] = Some(BarSlot::new(ability));
+            if let (None, Some(slot)) = (self.slot_of(thing), empty) {
+                self.slots[slot] = Some(BarSlot::new(thing));
             }
         }
-        self.given = GIVEN.len() as u8;
+        self.given = given.len() as u8;
     }
 
-    /// Makes the change for a creature that knows `known` (`ability::known`), or
-    /// says why not (and changes nothing). An ability it no longer knows (after
-    /// shapeshifting) stays where it is, only it can't be used.
-    pub fn apply(&mut self, change: BarChange, known: &[Ability]) -> Result<(), BarRefusal> {
+    /// Makes the change for a creature that knows `known` (`ability::known`)
+    /// and keeps `book`, or says why not (and changes nothing). An ability it
+    /// no longer knows (after shapeshifting) stays where it is, only it can't
+    /// be used; so does a spell taken out of the book.
+    pub fn apply(
+        &mut self,
+        change: BarChange,
+        known: &[Ability],
+        book: &Spellbook,
+    ) -> Result<(), BarRefusal> {
         match change {
             BarChange::Place { slot, ability } => {
                 let slot = index(slot)?;
@@ -139,6 +155,13 @@ impl ActionBar {
                 }
                 self.place(slot, BarThing::Potion(potion));
             }
+            BarChange::PlaceSpell { slot, spell } => {
+                let slot = index(slot)?;
+                if book.by_key(spell).is_none() {
+                    return Err(BarRefusal::Unknown);
+                }
+                self.place(slot, BarThing::Spell(spell));
+            }
             BarChange::Clear { slot } => self.slots[index(slot)?] = None,
             BarChange::Swap { a, b } => {
                 let (a, b) = (index(a)?, index(b)?);
@@ -146,7 +169,7 @@ impl ActionBar {
             }
             BarChange::ToggleAuto { slot } => {
                 let held = self.slots[index(slot)?].as_mut().ok_or(BarRefusal::Empty)?;
-                if !held.auto && !held.thing.can_be_automatic() {
+                if !held.auto && !held.thing.can_be_automatic(book) {
                     return Err(BarRefusal::NotAutomatic);
                 }
                 held.auto = !held.auto;
@@ -164,7 +187,7 @@ impl ActionBar {
         self.slots[slot] = Some(BarSlot { thing, auto });
     }
 
-    /// The slot holding this ability, kind of item or potion, if any.
+    /// The slot holding this ability, kind of item, potion or spell, if any.
     pub fn slot_of(&self, thing: impl Into<BarThing>) -> Option<usize> {
         let thing = thing.into();
         self.slots

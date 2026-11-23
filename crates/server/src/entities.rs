@@ -76,7 +76,7 @@ use gear::dressed;
 pub(super) use gear::{give, kill};
 use harmed_by::HarmedBy;
 pub(crate) use harmed_by::Kill;
-pub(crate) use heal::heal_mob;
+pub(crate) use heal::{heal_mob, mobs_for_spell};
 #[cfg(test)]
 pub(crate) use made::BOSS_NUMBER;
 use moves::{Taken, act, nearest_free, take_step};

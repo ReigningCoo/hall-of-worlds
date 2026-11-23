@@ -32,6 +32,8 @@ pub(super) fn run(test: &mut TestClient, ticks: u64, mobs: bool) {
         test.world.action_clock.advance(1);
         land_ability(&mut test.client, &mut test.world);
         act(&mut test.client, &mut test.world);
+        let alone = std::slice::from_mut(&mut test.client);
+        crate::connections::cast::run_due(alone, 0, &mut test.world);
         if mobs {
             crate::entities::run_mobs(std::slice::from_mut(&mut test.client), &mut test.world);
         }

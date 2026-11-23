@@ -22,17 +22,18 @@ pub enum Side {
 }
 
 impl Side {
-    /// Whether a step with these filters may hit someone on this side. No
-    /// filter hits everyone.
+    /// Whether a step with these filters may hit someone on this side:
+    /// Friend and Enemy limit it to theirs; Self limits nothing (it only aims
+    /// at the caster, `aim_first`), so no filter or Self alone hits everyone.
+    /// The caster is never a friend.
     pub const fn allowed_by(self, filters: Filters) -> bool {
-        if !filters.any() {
+        if !(filters.friend || filters.enemy) {
             return true;
         }
         match self {
-            Self::Caster => filters.caster,
+            Self::Caster | Self::Neutral => false,
             Self::Friend => filters.friend,
             Self::Enemy => filters.enemy,
-            Self::Neutral => false,
         }
     }
 

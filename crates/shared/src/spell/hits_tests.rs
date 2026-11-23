@@ -276,3 +276,51 @@ fn where_hits_goes_by_the_steps_where_and_hits_lead_on() {
     let ring = step(Where::Surround, 1, Filters::NONE);
     assert!(hit_ones(&where_hits(&level, &ring, &next, Toward::Ahead, &all)).is_empty());
 }
+
+#[test]
+fn self_aims_at_the_caster_whatever_is_targeted_and_limits_nothing() {
+    let level = Level::test_room();
+    let all = with_caster(&[
+        at(240, 0, Side::Enemy),
+        at(0, 240, Side::Friend),
+        at(1200, 0, Side::Enemy),
+    ]);
+    let origin = from_caster(&all);
+    // Self + Surround: a ring round you, the far enemy targeted or not.
+    let ring = step(Where::Surround, 1, CASTER);
+    let hits = where_hits(&level, &ring, &origin, Toward::Creature(3), &all);
+    assert_eq!(hit_ones(&hits), [1, 2]);
+}
+
+#[test]
+fn friend_and_enemy_take_the_target_if_theirs_else_the_nearest_in_reach() {
+    let level = Level::test_room();
+    let all = with_caster(&[
+        at(480, 0, Side::Friend),
+        at(0, 480, Side::Enemy),
+        at(0, -720, Side::Enemy),
+    ]);
+    let origin = from_caster(&all);
+    let missile = step(Where::Missile, 1, ENEMY);
+    // Aimed at the friend: the nearest enemy instead.
+    let hits = where_hits(&level, &missile, &origin, Toward::Creature(1), &all);
+    assert_eq!(hit_ones(&hits), [2]);
+    // Aimed at an enemy: that one.
+    let hits = where_hits(&level, &missile, &origin, Toward::Creature(3), &all);
+    assert_eq!(hit_ones(&hits), [3]);
+    // Touch with Enemy turns to the nearest one in arm's reach: none here.
+    let touch = step(Where::Touch, 1, ENEMY);
+    let hits = where_hits(&level, &touch, &origin, Toward::Ahead, &all);
+    assert!(hits.is_empty());
+    // Friend + Beam with no friend about: no hit at all (it fizzles).
+    let enemies = with_caster(&[at(480, 0, Side::Enemy)]);
+    let beam = step(Where::Beam, 1, FRIEND);
+    let hits = where_hits(
+        &level,
+        &beam,
+        &from_caster(&enemies),
+        Toward::Ahead,
+        &enemies,
+    );
+    assert!(hits.is_empty());
+}

@@ -3,7 +3,7 @@
 //!
 //! Active ones are done when asked (and can go on the action bar), toggles
 //! turned on and off there; passive ones work by themselves. Every creature
-//! knows Attack, Heal, Magic and Sneak; others come with its kind, from a skill
+//! knows Attack, Magic and Sneak; others come with its kind, from a skill
 //! (`skill.rs`) or are learned (`Learned`), and some need a tool (`tool.rs`).
 
 use serde::{Deserialize, Serialize};
@@ -33,9 +33,6 @@ pub enum Ability {
     // New abilities go at the end: messages carry one by its place in this list.
     /// Striking with what is held, or without: every creature knows it.
     Attack,
-    /// Mana turned into Health, on yourself or another (`magic`): every
-    /// creature knows it for now, as there is no way to learn spells yet.
-    Heal,
     /// Moving slowly and quietly, under the pace Sneaking is learned at
     /// (`energy::SNEAK_TICKS_PER_CELL`): a toggle every creature knows.
     Sneak,
@@ -87,9 +84,8 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 17] = [
+    pub const ALL: [Ability; 16] = [
         Self::Attack,
-        Self::Heal,
         Self::Magic,
         Self::Sneak,
         Self::Flutter,
@@ -111,7 +107,6 @@ impl Ability {
     pub const fn name(self) -> &'static str {
         match self {
             Self::Attack => "Attack",
-            Self::Heal => "Heal",
             Self::Flutter => "Flutter",
             Self::Kick => "Kick",
             Self::NightVision => "Night Vision",
@@ -143,7 +138,6 @@ impl Ability {
             Self::NightVision => Use::Passive,
             Self::Sneak => Use::Toggle,
             Self::Attack
-            | Self::Heal
             | Self::Flutter
             | Self::Kick
             | Self::Trample
@@ -178,8 +172,6 @@ impl Ability {
             // Cook as its skill, Cooking.
             Self::NightVision | Self::CollectWater | Self::Ferment | Self::Cook => &[Perception],
             Self::Sneak => &[Agility],
-            // As its skill, Healing, under Divine.
-            Self::Heal => &[Empathy],
             // As their skill, Alchemy.
             Self::PressOil | Self::PressJuice | Self::Alchemy => &[Intellect],
             // As spells' Form, which every spell uses.
@@ -191,7 +183,6 @@ impl Ability {
     pub const fn description(self) -> &'static str {
         match self {
             Self::Attack => "Strikes your target with what you hold, or without.",
-            Self::Heal => "Heals you or your allies, and tries to keep you alive if you ask.",
             Self::Flutter => "Takes to the air for a moment.",
             Self::Kick => "Kicks your target a step away, or the closed door beside you.",
             Self::NightVision => "Sees in the dark.",
@@ -216,14 +207,6 @@ impl Ability {
         }
     }
 
-    /// The Mana it spends, in whole points (`magic`).
-    pub const fn mana_cost(self) -> u32 {
-        match self {
-            Self::Heal => crate::magic::HEAL_MANA,
-            _ => 0,
-        }
-    }
-
     /// Whether it is done (or turned on and off) when asked, and so can go on
     /// the action bar.
     pub const fn is_active(self) -> bool {
@@ -237,10 +220,10 @@ impl Ability {
 
     /// Whether it may be made automatic on the action bar, to be done whenever it
     /// can be (owner, 2026-11-07): only what is safe to leave on, as it waits
-    /// until it can be done. Attack (a target, in reach, an enemy) and Heal
-    /// (on yourself, at a quarter of your Health) so far.
+    /// until it can be done. Attack (a target, in reach, an enemy) so far;
+    /// spells by their own rule (`spell::auto_cast`).
     pub const fn can_be_automatic(self) -> bool {
-        matches!(self, Self::Attack | Self::Heal)
+        matches!(self, Self::Attack)
     }
 }
 

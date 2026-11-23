@@ -75,6 +75,7 @@ impl Client {
             alchemy: None,
             cooking: None,
             fermenting: None,
+            casting: Default::default(),
             for_others: Vec::new(),
             learning: Default::default(),
             starting_as: None,

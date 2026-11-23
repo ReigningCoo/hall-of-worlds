@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use shared::ability::Ability;
+use shared::ability::{Ability, BarThing};
 use shared::id::Id;
 use shared::protocol::ClientMessage;
 
@@ -24,7 +24,7 @@ fn app(own: OwnAbility) -> App {
         .insert_resource(Target(Some(Id::for_test(1))))
         .insert_resource(own)
         .insert_resource(Manual {
-            queued: [Ability::Attack].into(),
+            queued: [BarThing::from(Ability::Attack)].into(),
             ..default()
         })
         .add_message::<ToServer>()
@@ -47,7 +47,7 @@ fn is_asked_for_at_once_when_the_player_can_act() {
     assert!(matches!(sent[..], [ClientMessage::UseAbility { .. }]));
     let manual = app.world().resource::<Manual>();
     assert!(manual.queued.is_empty());
-    assert_eq!(manual.sent, Some(Ability::Attack));
+    assert_eq!(manual.sent, Some(Ability::Attack.into()));
     assert!(manual.holds(0.0), "automatic ones wait for it");
 }
 
@@ -59,7 +59,10 @@ fn waits_while_the_player_recovers_and_is_not_lost() {
     });
     app.update();
     assert!(sent(&mut app).is_empty());
-    assert_eq!(app.world().resource::<Manual>().queued, [Ability::Attack]);
+    assert_eq!(
+        app.world().resource::<Manual>().queued,
+        [BarThing::from(Ability::Attack)]
+    );
 }
 
 #[test]
@@ -84,7 +87,7 @@ fn takes_the_place_of_one_still_waiting_on_the_server() {
 #[test]
 fn holds_automatic_ones_until_it_lands() {
     let mut manual = Manual {
-        sent: Some(Ability::Attack),
+        sent: Some(Ability::Attack.into()),
         sent_until: 1.0,
         ..default()
     };
@@ -96,15 +99,15 @@ fn holds_automatic_ones_until_it_lands() {
 }
 
 #[test]
-fn heal_without_the_mana_is_not_asked_for() {
+fn the_heal_spell_without_the_mana_is_not_asked_for() {
     let mut app = app(OwnAbility::default());
-    app.world_mut().resource_mut::<Manual>().queued = [Ability::Heal].into();
+    app.world_mut().resource_mut::<Manual>().queued = [BarThing::heal()].into();
     app.update();
     assert!(sent(&mut app).is_empty());
 }
 
 #[test]
-fn heal_by_hand_is_on_the_player_unless_the_target_is_a_friend() {
+fn the_heal_spell_by_hand_is_cast_on_the_player() {
     use crate::common::ToldVitals;
     use shared::vitals::{Points, VitalNow};
     let mut app = app(OwnAbility::default());
@@ -120,26 +123,26 @@ fn heal_by_hand_is_on_the_player_unless_the_target_is_a_friend() {
         mana: full,
         at: 0.0,
     })));
-    app.world_mut().resource_mut::<Manual>().queued = [Ability::Heal].into();
-    // The target isn't among those seen, so it isn't known to be a friend.
+    app.world_mut().resource_mut::<Manual>().queued = [BarThing::heal()].into();
     app.update();
+    let heal = shared::spell::SpellKey::of(&shared::spell::heal_spell());
     assert!(matches!(
         sent(&mut app)[..],
-        [ClientMessage::UseAbility {
-            ability: Ability::Heal,
+        [ClientMessage::Spellbook(shared::protocol::SpellbookAsk::Cast {
+            spell,
             target: None
-        }]
+        })] if spell == heal
     ));
 }
 
 #[test]
 fn presses_queue_in_order_and_a_second_press_takes_one_out() {
     let mut manual = Manual::default();
-    manual.press(Ability::Heal);
+    manual.press(BarThing::heal());
     manual.press(Ability::Attack);
-    assert_eq!(manual.queued, [Ability::Heal, Ability::Attack]);
-    manual.press(Ability::Heal);
-    assert_eq!(manual.queued, [Ability::Attack]);
+    assert_eq!(manual.queued, [BarThing::heal(), Ability::Attack.into()]);
+    manual.press(BarThing::heal());
+    assert_eq!(manual.queued, [BarThing::from(Ability::Attack)]);
     assert!(
         manual.holds(0.0),
         "automatic ones wait while any are queued"
@@ -150,7 +153,8 @@ fn presses_queue_in_order_and_a_second_press_takes_one_out() {
 fn one_that_cant_be_done_is_passed_over_for_the_next() {
     let mut app = app(OwnAbility::default());
     // Heal without the Mana, then Attack.
-    app.world_mut().resource_mut::<Manual>().queued = [Ability::Heal, Ability::Attack].into();
+    app.world_mut().resource_mut::<Manual>().queued =
+        [BarThing::heal(), Ability::Attack.into()].into();
     app.update();
     assert!(matches!(
         sent(&mut app)[..],
@@ -171,10 +175,13 @@ fn the_next_waits_for_the_last_asked_for_and_is_not_swapped_for_it() {
     });
     {
         let mut manual = app.world_mut().resource_mut::<Manual>();
-        manual.sent = Some(Ability::Heal);
+        manual.sent = Some(BarThing::heal());
         manual.sent_until = 1.0;
     }
     app.update();
     assert!(sent(&mut app).is_empty());
-    assert_eq!(app.world().resource::<Manual>().queued, [Ability::Attack]);
+    assert_eq!(
+        app.world().resource::<Manual>().queued,
+        [BarThing::from(Ability::Attack)]
+    );
 }

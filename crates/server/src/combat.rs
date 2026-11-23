@@ -14,8 +14,9 @@ use shared::vitals::{Limits, Vital, Vitals};
 pub(crate) enum Act {
     /// An attack.
     Strike(Swing),
-    /// A Heal (players only, so far).
-    Heal,
+    /// A spell's wind-up (players only): the spell is the client's
+    /// `casting` (`connections/cast.rs`).
+    Cast,
     /// A kick at a creature (`Pending::target`).
     Kick(Swing),
     /// A kick at the door at this cell of the player's level.
@@ -63,9 +64,6 @@ pub(crate) struct Pending {
 pub(crate) struct Fight {
     pub pending: Option<Pending>,
     pub attacks: u64,
-    /// A Heal that landed on another player, given once every client has
-    /// had its turn (`connections::heal_players`).
-    pub heal_out: Option<Id>,
 }
 
 /// A player's open practice windows (`shared::skill::Windows`): one per skill, and

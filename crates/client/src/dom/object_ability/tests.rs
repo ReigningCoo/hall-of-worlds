@@ -42,7 +42,7 @@ fn a_list_draws_each_ability_as_its_own() {
         things: vec![
             (thing(Ability::Attack), AbilityMarks::default()),
             (
-                thing(Ability::Heal),
+                thing(Ability::Magic),
                 AbilityMarks {
                     on: true,
                     ..default()
@@ -55,7 +55,7 @@ fn a_list_draws_each_ability_as_its_own() {
     let drawn = cells(&mut app);
     assert_eq!(drawn.len(), 2);
     assert!(drawn.iter().all(|cell| cell.of == list));
-    assert!(drawn.iter().any(|cell| cell.thing == Ability::Heal.into()));
+    assert!(drawn.iter().any(|cell| cell.thing == Ability::Magic.into()));
     // Marked as a slot would be: only the one that is on.
     assert_eq!(parts(&mut app), vec![SlotPart::On(list)]);
 }

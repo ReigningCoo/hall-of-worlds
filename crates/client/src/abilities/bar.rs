@@ -6,9 +6,11 @@
 
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use shared::ability::{Ability, ActionBar, BAR_SLOTS, BarSlot, BarThing};
+use shared::ability::{ActionBar, BAR_SLOTS, BarSlot, BarThing};
 use shared::creature::CreatureKind;
 use shared::item::Inventory;
+use shared::lang::Lang;
+use shared::sheet::Sheet;
 
 use super::drag::Aim;
 use super::item_look::{can_drink, potion_words, thing_look};
@@ -17,12 +19,12 @@ use super::marks::Marks;
 use super::own_bar::OwnBar;
 use super::page::usable;
 use super::peace::Peace;
-use super::vitals_now::affords;
+use super::spells::can_cast;
 use crate::character::CharacterSheet;
-use crate::common::BenchHere;
 use crate::common::{
     Action, OpenPanels, OwnVitals, Preferences, ServerTick, Sneaking, VitalsCircle, interface_area,
 };
+use crate::common::{BenchHere, Wording};
 use crate::dom::{AbilityMarks, AbilitySlotShown, AbilityThing};
 use crate::inventory::Carried;
 use crate::widgets::{ABILITY, UiId};
@@ -98,16 +100,17 @@ pub(super) struct Shown {
     kind: CreatureKind,
     keys: Vec<(String, String)>,
     aim: Option<(u8, bool)>,
-    /// Too little Mana for what costs it (all cost the same so far: Heal's).
-    low_mana: bool,
+    /// Each slot's spell's name, if it holds one (the book's, or automatic).
+    spells: Vec<Option<String>>,
     /// How each ability is being used: automatic, on, queued.
     marks: Marks,
     /// How many are carried of each slot's kind of item or potion (0 for the
     /// rest).
     counts: Vec<u32>,
     /// Whether each slot's ability can be used now (`page::usable`): known,
-    /// with its tool; a potion's, whether it can be drunk (`can_drink`); true
-    /// for the rest.
+    /// with its tool; a potion's, whether it can be drunk (`can_drink`); a
+    /// spell's, whether it can be cast (`spells::can_cast`: the Mana too);
+    /// true for the rest.
     usable: Vec<bool>,
 }
 
@@ -124,7 +127,7 @@ pub(super) fn show_bar(
     preferences: Res<Preferences>,
     (aim, manual, sneaking, panels): (Res<Aim>, Res<Manual>, Res<Sneaking>, Res<OpenPanels>),
     (vitals, time, clock): (Res<OwnVitals>, Res<Time>, Res<ServerTick>),
-    assets: Res<AssetServer>,
+    (assets, wording): (Res<AssetServer>, Res<Wording>),
     mut slots: Query<(&SlotNode, &mut AbilitySlotShown)>,
     mut shown: Local<Option<Shown>>,
 ) {
@@ -139,7 +142,22 @@ pub(super) fn show_bar(
         kind: carried.0.creature,
         keys,
         aim: aim.0,
-        low_mana: !affords(Ability::Heal, &vitals, time.elapsed_secs_f64()),
+        spells: (bar.0.slots.iter())
+            .map(|held| {
+                let key = held.and_then(|held| held.thing.spell())?;
+                let book = (&sheet.0, &wording.0);
+                Some(
+                    thing_look(
+                        BarThing::Spell(key),
+                        (0, carried.0.creature),
+                        book,
+                        true,
+                        &assets,
+                    )
+                    .name,
+                )
+            })
+            .collect(),
         marks: Marks::now(&bar.0, &manual, *sneaking, &panels),
         counts: bar
             .0
@@ -157,6 +175,9 @@ pub(super) fn show_bar(
                     let now = clock.now(time.elapsed_secs_f64());
                     can_drink(potion, count, &sheet.0, now)
                 }
+                Some(BarThing::Spell(key)) => {
+                    can_cast(key, &sheet.0, (&vitals, time.elapsed_secs_f64()), peace.0)
+                }
                 _ => true,
             })
             .collect(),
@@ -165,7 +186,7 @@ pub(super) fn show_bar(
         return;
     }
     for (&SlotNode(slot), mut slot_shown) in &mut slots {
-        let slot_now = slot_of(slot, &now, &assets);
+        let slot_now = slot_of(slot, &now, (&sheet.0, &wording.0), &assets);
         // (Only when it differs: the slot draws itself again when changed.)
         if *slot_shown != slot_now {
             *slot_shown = slot_now;
@@ -176,17 +197,19 @@ pub(super) fn show_bar(
 
 /// What one slot shows: its ability or kind of item, its key, and how it is
 /// used.
-fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
+fn slot_of(slot: u8, now: &Shown, book: (&Sheet, &Lang), assets: &AssetServer) -> AbilitySlotShown {
     let held = now.bar.slots[slot as usize];
     let (short, full) = &now.keys[slot as usize];
     let count = now.counts[slot as usize];
     let usable = now.usable[slot as usize];
     let thing = held.map(|held| {
-        let mut look = thing_look(held.thing, count, now.kind, usable, assets);
+        let mut look = thing_look(held.thing, (count, now.kind), book, usable, assets);
+        let spell = now.spells[slot as usize].clone().unwrap_or_default();
         let (name, description) = match held.thing {
             BarThing::Ability(ability) => (ability.name(), ability.description().to_owned()),
             BarThing::Item(kind) => (kind.def().name, String::new()),
             BarThing::Potion(potion) => ("Potion", potion_words(potion)),
+            BarThing::Spell(_) => (spell.as_str(), "A spell from your spellbook.".to_owned()),
         };
         if !full.is_empty() {
             look.name = format!(
@@ -196,23 +219,29 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
             .trim_end()
             .to_string();
         }
-        // Greyed while there isn't the Mana for it.
-        let ability = held.ability();
-        look.usable &= !now.low_mana || ability.is_none_or(|ability| ability.mana_cost() == 0);
         AbilityThing {
             thing: held.thing,
             look,
         }
     });
     let ability = held.and_then(BarSlot::ability);
-    let item = held.filter(|held| held.ability().is_none());
+    let spell = held.and_then(|held| held.thing.spell());
+    let item = held.filter(|held| held.ability().is_none() && spell.is_none());
+    let marks = match (ability, spell) {
+        (Some(ability), _) => now.marks.of(ability),
+        (_, Some(spell)) => now.marks.of(spell),
+        _ => AbilityMarks::default(),
+    };
     AbilitySlotShown {
         thing,
         key: short.clone(),
         // As on the Abilities page (`marks.rs`).
-        marks: ability.map_or(AbilityMarks::default(), |ability| now.marks.of(ability)),
-        // The wait to act again, over what is done when asked (eating too).
-        shade: item.is_some() || ability.is_some_and(|ability| ability.is_active()),
+        marks,
+        // The wait to act again, over what is done when asked (eating and
+        // casting too).
+        shade: item.is_some()
+            || spell.is_some()
+            || ability.is_some_and(|ability| ability.is_active()),
         aim: now
             .aim
             .filter(|(aimed, _)| *aimed == slot)
@@ -225,7 +254,7 @@ fn slot_of(slot: u8, now: &Shown, assets: &AssetServer) -> AbilitySlotShown {
 /// for an ability.
 pub(super) fn count_of(thing: BarThing, carried: &Inventory) -> u32 {
     match thing {
-        BarThing::Ability(_) => 0,
+        BarThing::Ability(_) | BarThing::Spell(_) => 0,
         BarThing::Item(kind) => carried.count_of(kind),
         BarThing::Potion(potion) => carried.count_of_potion(potion),
     }

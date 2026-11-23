@@ -22,9 +22,9 @@ Right-click Attack on the action bar (or hold a finger on it) to have it used by
 
 ## Healing
 
-**Heal** turns 6 Mana into Health. Use it like Attack: it heals your target if they aren't an enemy, otherwise (or with no target) it heals you. Others can be healed from up to 6 cells away, in sight. It always spends its 6 Mana, even on someone already whole; healing beyond their most is lost. At first each point of Mana gives 2 Health, rising with the Healing skill to 20 for a master.
+**Heal** is a spell from your spellbook: it turns about 5 Mana into Health, on you. It heals 12 Health at first, rising with the Healing skill to 120 for a master, and costs less Mana as Healing grows. It always spends its Mana, even when you are already whole; healing beyond your most is lost, and teaches nothing.
 
-Made automatic, Heal heals you whenever your Health is at a quarter or less and you have the Mana.
+Made automatic, Heal heals you whenever your Health is at a quarter or less and you have the Mana. Spells that only harm are cast by themselves when an enemy you have targeted is within their reach.
 
 ## Lining abilities up
 

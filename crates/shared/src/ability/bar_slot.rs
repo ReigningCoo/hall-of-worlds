@@ -1,10 +1,11 @@
 //! What one slot of the action bar holds: an ability, a kind of item that can
-//! be used from there (food, eaten), or a particular potion (drunk), and
-//! whether it is used by itself.
+//! be used from there (food, eaten), a particular potion (drunk), or a spell
+//! from the spellbook (cast), and whether it is used by itself.
 //!
 //! Saves (human-readable, RON) write a slot as `(ability: Attack, auto: false)`,
-//! as before items could go on the bar, `(item: Apple)` or `(potion: [...])`;
-//! messages (postcard) carry `BarSlot` as it is.
+//! as before items could go on the bar, `(item: Apple)`, `(potion: [...])` or
+//! `(spell: 123, auto: false)`; the Heal ability of older saves loads as the
+//! Heal spell. Messages (postcard) carry `BarSlot` as it is.
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -12,6 +13,7 @@ use super::Ability;
 use crate::bonus::is_food;
 use crate::item::ItemKind;
 use crate::potion::PotionKey;
+use crate::spell::{AutoCast, SpellKey, Spellbook, auto_cast, heal_spell};
 
 /// What a slot holds.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -23,6 +25,9 @@ pub enum BarThing {
     /// A particular potion, by its contents (brewing decision 22): the slot
     /// stands for every bottle of it carried, and using it drinks one.
     Potion(PotionKey),
+    /// A spell in the spellbook, by its design's key (magic plan PR 5): cast
+    /// when used. One no longer in the book stays, only it can't be cast.
+    Spell(SpellKey),
 }
 
 impl BarThing {
@@ -30,7 +35,7 @@ impl BarThing {
     pub fn ability(self) -> Option<Ability> {
         match self {
             Self::Ability(ability) => Some(ability),
-            Self::Item(_) | Self::Potion(_) => None,
+            _ => None,
         }
     }
 
@@ -38,7 +43,7 @@ impl BarThing {
     pub fn item(self) -> Option<ItemKind> {
         match self {
             Self::Item(kind) => Some(kind),
-            Self::Ability(_) | Self::Potion(_) => None,
+            _ => None,
         }
     }
 
@@ -46,14 +51,35 @@ impl BarThing {
     pub fn potion(self) -> Option<PotionKey> {
         match self {
             Self::Potion(potion) => Some(potion),
-            Self::Ability(_) | Self::Item(_) => None,
+            _ => None,
         }
     }
 
-    /// Whether it may be used by itself: only some abilities; items never, as
-    /// using them up by themselves would be a surprise (owner, 2026-11-15).
-    pub fn can_be_automatic(self) -> bool {
-        self.ability().is_some_and(Ability::can_be_automatic)
+    /// The spell's key, if it is one.
+    pub fn spell(self) -> Option<SpellKey> {
+        match self {
+            Self::Spell(key) => Some(key),
+            _ => None,
+        }
+    }
+
+    /// Whether it may be used by itself: some abilities, and spells in the
+    /// book whose effects say when (`spell::auto_cast`: not by hand only);
+    /// items never, as using them up by themselves would be a surprise
+    /// (owner, 2026-11-15).
+    pub fn can_be_automatic(self, book: &Spellbook) -> bool {
+        match self {
+            Self::Ability(ability) => ability.can_be_automatic(),
+            Self::Spell(key) => book
+                .by_key(key)
+                .is_some_and(|kept| auto_cast(&kept.spell) != AutoCast::ByHand),
+            Self::Item(_) | Self::Potion(_) => false,
+        }
+    }
+
+    /// The Heal spell (`spell::heal_spell`), as bars hold it.
+    pub fn heal() -> Self {
+        Self::Spell(SpellKey::of(&heal_spell()))
     }
 }
 
@@ -66,6 +92,12 @@ impl From<Ability> for BarThing {
 impl From<ItemKind> for BarThing {
     fn from(kind: ItemKind) -> Self {
         Self::Item(kind)
+    }
+}
+
+impl From<SpellKey> for BarThing {
+    fn from(spell: SpellKey) -> Self {
+        Self::Spell(spell)
     }
 }
 
@@ -127,6 +159,23 @@ enum SavedSlot {
     Potion {
         potion: PotionKey,
     },
+    Spell {
+        spell: SpellKey,
+        #[serde(default)]
+        auto: bool,
+    },
+    /// The Heal ability of saves from before spells (magic plan PR 5).
+    OldHeal {
+        ability: OldAbility,
+        #[serde(default)]
+        auto: bool,
+    },
+}
+
+/// Abilities saves may still name that are no longer abilities.
+#[derive(Serialize, Deserialize)]
+enum OldAbility {
+    Heal,
 }
 
 impl Serialize for BarSlot {
@@ -145,6 +194,10 @@ impl Serialize for BarSlot {
             },
             BarThing::Item(item) => SavedSlot::Item { item },
             BarThing::Potion(potion) => SavedSlot::Potion { potion },
+            BarThing::Spell(spell) => SavedSlot::Spell {
+                spell,
+                auto: self.auto,
+            },
         };
         saved.serialize(serializer)
     }
@@ -168,6 +221,17 @@ impl<'de> Deserialize<'de> for BarSlot {
             SavedSlot::Potion { potion } => Self {
                 thing: BarThing::Potion(potion),
                 auto: false,
+            },
+            SavedSlot::Spell { spell, auto } => Self {
+                thing: BarThing::Spell(spell),
+                auto,
+            },
+            SavedSlot::OldHeal {
+                ability: OldAbility::Heal,
+                auto,
+            } => Self {
+                thing: BarThing::heal(),
+                auto,
             },
         })
     }
