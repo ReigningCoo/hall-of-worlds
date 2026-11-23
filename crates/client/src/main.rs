@@ -44,6 +44,7 @@ mod quest_log;
 mod quests;
 mod site;
 mod skills_page;
+mod spell_design;
 mod step_pad;
 mod surface_style;
 mod system_menu;
@@ -150,6 +151,7 @@ fn main() {
     ));
     app.add_plugins(skills_page::SkillsPagePlugin);
     app.add_plugins(alchemy::AlchemyPlugin);
+    app.add_plugins(spell_design::SpellDesignPlugin);
     app.add_plugins(cooking::CookingPlugin);
     app.add_plugins(crafting_bench::CraftingBenchPlugin);
     app.add_plugins(lantern::LanternPlugin);

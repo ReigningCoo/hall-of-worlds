@@ -171,7 +171,7 @@ const ICONS: &[(&str, &str)] = &[
 ];
 
 /// Where a skill's icon is, in the assets: its own, or the nearest above it.
-pub(super) fn icon_path(id: SkillId) -> Option<String> {
+pub fn icon_path(id: SkillId) -> Option<String> {
     id.upwards().find_map(|node| {
         ICONS
             .iter()

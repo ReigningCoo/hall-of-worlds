@@ -52,7 +52,7 @@ Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spel
 
 ## Used by
 
-- `sheet` (`Sheet::spellbook`), `ability` (`BarThing::Spell`, `BarThing::can_be_automatic` by `auto_cast`), `protocol` (`SpellbookAsk`, `SpellbookAsk::Cast`), the server's `connections/spellbook.rs` and `connections/cast/` (casting, through `where_hits`), the client's `abilities` (`spells.rs`: looks, `auto_name`, `auto_cast`, its own `where_hits` to tell when an automatic harmful spell would hit); to come: the design panel (PR 9).
+- `sheet` (`Sheet::spellbook`), `ability` (`BarThing::Spell`, `BarThing::can_be_automatic` by `auto_cast`), `protocol` (`SpellbookAsk`, `SpellbookAsk::Cast`), the server's `connections/spellbook.rs` and `connections/cast/` (casting, through `where_hits`), the client's `abilities` (`spells.rs`: looks, `auto_name`, `auto_cast`, its own `where_hits` to tell when an automatic harmful spell would hit); the client's `spell_design` (the design panel: `check`, costs, `unlocked_wheres`, `auto_name`, `Spellbook::store` on a copy, `tidy_name`).
 
 ## Notes
 

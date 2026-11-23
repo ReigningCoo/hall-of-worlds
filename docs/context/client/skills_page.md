@@ -17,6 +17,7 @@ The Skills page: the Character panel's Skills tab (owner, 2026-11-07: it was a f
 
 ## Public API
 
+- `skill_icon(SkillId)`: a skill's icon path in the assets, its own or the nearest above it's (`spell_design`'s wheres and effects).
 - `SkillsPagePlugin`. It fills `common::SkillsPage`; `inventory` opens the panel on that tab by `Action::Skills` (K).
 
 ## Depends on
@@ -26,7 +27,7 @@ The Skills page: the Character panel's Skills tab (owner, 2026-11-07: it was a f
 
 ## Used by
 
-- Nothing directly; `inventory` spawns its page.
+- `inventory` spawns its page; `spell_design` (`skill_icon`).
 
 ## Notes
 

@@ -199,3 +199,6 @@ delapouite/chicken-oven
 lorc/quill-ink
 # Spells tab's favourite star (abilities/spellbook/markup.rs)
 delapouite/round-star
+# Spell design panel filters: Friend and Enemy (spell_design/piece.rs; Self is delapouite/person)
+delapouite/shaking-hands
+delapouite/angry-eyes
