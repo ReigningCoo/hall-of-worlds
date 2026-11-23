@@ -48,7 +48,7 @@ impl DebugAction {
             | Self::DrawingStates
             | Self::OtherFloors => Group::Display,
             Self::ItemPictures | Self::ShowWidgets | Self::ViewPlanet => Group::Galleries,
-            Self::TeleportMode | Self::TeleportToWorld => Group::Travel,
+            Self::TeleportMode | Self::TeleportToWorld | Self::ToTheWayInn => Group::Travel,
             Self::GodMode
             | Self::Truesight
             | Self::ChangeCreature

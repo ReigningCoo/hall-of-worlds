@@ -90,7 +90,9 @@ pub(super) fn move_taken(client: &mut Client, world: &mut ServerWorld, to: Spot)
     };
     let squeeze = landing.squeeze_per_mille().max(crowd);
     let slower = |cost: u64| cost * u64::from(squeeze) / 1000;
-    let stayed = sites::moved(client, to) && sites::follow(client, world);
+    let stayed = sites::moved(client, to)
+        && sites::follow(client, world)
+        && sites::follow_inn(client, world);
     let Some(now) = client.visit.as_ref().map(Visit::spot) else {
         // Through a World Gate: the map change is charged instead.
         return (stayed, 0);

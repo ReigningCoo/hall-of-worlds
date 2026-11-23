@@ -132,6 +132,7 @@ fn saves_are_read_back() {
         left_at: BTreeMap::from([(site, (1, (5, -6)))]),
         world_position: (-40, 7),
         hall: Some(shared::spot::Spot::middle_of((12, 3))),
+        inn_return: Some(shared::spot::Spot::middle_of((6, 0))),
         dev_return: Some(crate::storage::DevReturn {
             world_position: (8, 9),
             visit: None,

@@ -42,6 +42,7 @@ pub enum DebugAction {
     SunsAndMoons,
     TeleportMode,
     TeleportToWorld,
+    ToTheWayInn,
     Truesight,
     ViewPlanet,
     Vitals,
@@ -73,7 +74,7 @@ pub(super) struct Facts {
 impl DebugAction {
     /// Every action, in the order the menu lists them: by group (`Group`),
     /// then as the owner ordered each group.
-    pub(super) const ALL: [Self; 37] = [
+    pub(super) const ALL: [Self; 38] = [
         // Display
         Self::ShowDebugInfo,
         Self::LightningNow,
@@ -87,6 +88,7 @@ impl DebugAction {
         // Travel
         Self::TeleportMode,
         Self::TeleportToWorld,
+        Self::ToTheWayInn,
         // Character
         Self::GodMode,
         Self::Truesight,
@@ -194,7 +196,7 @@ impl DebugAction {
             // A town is known from the start, and would only come straight back.
             Self::ForgetMap => !facts.in_town,
             Self::RevealMap => facts.view == GameView::Dungeon && !facts.in_town,
-            Self::LightningNow | Self::LightningStrikeHere => {
+            Self::LightningNow | Self::LightningStrikeHere | Self::ToTheWayInn => {
                 matches!(facts.view, GameView::WorldMap | GameView::Dungeon)
             }
             _ => true,

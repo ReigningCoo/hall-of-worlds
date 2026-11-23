@@ -34,7 +34,7 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 1 → 2 → {3, 4, independent} → 5 → 6.
 
 1. **Layout** (built): `shared::inn`, both floors as levels with rooms marked, the foyer, stairs, doors (the treasury's locked), inside windows, the fixed places furniture goes (`inn::spots`); the Hall's hidden way-ins (`hall::inn_way`); golden fingerprint, print and walk-round tests.
-2. **In and out**: the Hall's edge into the foyer, leaving back to the same tile, the stairs, the client drawing it, `Where::Inn`, a "To The Way Inn" debug menu entry (and `docs/debug-menu.md`), the Hall's worn-marble hint. Needs 1.
+2. **In and out** (built): the Hall's edge into the foyer, leaving back to the same tile, the stairs, the client drawing it, `Where::Inn`, a "To The Way Inn" debug menu entry (and `docs/debug-menu.md`), the Hall's worn-marble hint. Needs 1.
 3. **Instances** of 30, no fighting, dropped items cleared. Needs 2.
 4. **Private rooms** per tier with personal copies and saved storage. Needs 2 and tavern furniture PR 7 (chests, wardrobes; built).
 5. **Furnishing** everything: tables, booths, the bar, stocked racks, three fireplaces, lights, decorations, rugs, floors, the kitchen, brewing, ageing, the treasury, the foyer. Needs tavern furniture PRs 4–7 (built).
@@ -47,3 +47,11 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 - The bar's counter, gap and storage are in the main room's `RoomId`, as a bar fills vessels only from what is stored in its own room.
 - Rooms are carved out of solid wall, so anything not carved is wall; the outside of the building is the level's edge (no void cells). Archway: a floor cell in the foyer's wall, in the foyer's room.
 - The Hall's way-ins are a rule beside `hall::tile` (`hall::inn_way`), not a `Tile` of their own: the tile stays `Void`, drawn and stepped on as before until PR 2.
+
+## Settled in PR 2 (Claude's choices)
+
+- The inn is a site (`SiteId::Inn`, `Generator::Inn`, `LevelKind::Inn`), drawn as a castle's stone (`inn::KIND`). Its save and the tile to go back to (`CharacterWorldSave::inn_return`) are kept with the world the player came into the Hall from, so each world has its own inn until PR 3's instances; players see others in the same world's inn only.
+- In: the keys (or pad) held outward on the outer half of an edge tile in front of a way in sends `UseExit` (which in the Hall means that); clicking into the void doesn't. Out: any move onto the entrance door (`inn::is_way_out`), opened first like any door; it shuts again behind whoever comes in, so holding the keys on doesn't carry them straight back out (others already inside see it shut only when they next come to the level, until instances). The Leave key does nothing there.
+- To The Way Inn (debug menu, Travel): from the Hall, back to the nearest way in; from anywhere else, beside the gate Teleport to World's Hall of Worlds would choose; already inside, where it was going to take you.
+- The worn marble: a faint, soft, warm grey patch lying on each edge tile in front of a way in, towards its edge (`hall_view::worn`). Lighting those tiles less didn't show: each corner's light is shared with its neighbours and the void.
+- Not yet (PR 3): fighting, kicking doors (the treasury's too) and dropping things are as anywhere else.

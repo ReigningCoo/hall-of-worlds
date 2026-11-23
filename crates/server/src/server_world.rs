@@ -6,7 +6,6 @@ use shared::item::StackLimits;
 use shared::movement::{WorldConditions, WorldGround};
 use shared::poi::PoiMap;
 use shared::protocol::WorldInfo;
-use shared::site::Generator;
 use shared::surface::Surface;
 use shared::world::{MINUTES_PER_HOUR, WORLD_MAP_VERSION, WorldParams, WorldSeed, WorldTime};
 use std::collections::{BTreeMap, BTreeSet};
@@ -21,6 +20,7 @@ mod find_item;
 mod forgetting;
 mod habitat;
 mod lightning;
+mod new_version;
 mod sharing;
 mod sky;
 mod time;
@@ -262,19 +262,6 @@ impl ServerWorld {
     pub(crate) fn site_mut(&mut self, id: SiteId) -> &mut SiteSave {
         self.unsaved_sites.mark(id);
         self.site(id)
-    }
-
-    /// The generator version a site is made with when first entered: its
-    /// generator's current one.
-    fn new_version(&self, id: SiteId) -> u32 {
-        let kind = match id {
-            SiteId::Poi(chunk) => self.pois.in_chunk(chunk).map(|poi| poi.kind),
-            SiteId::Dev { kind, .. } => Some(kind),
-            SiteId::Quest { .. } => Some(shared::quest::DUNGEON_KIND),
-            SiteId::Wilderness => return shared::wilderness::WILDERNESS_VERSION,
-            SiteId::DevArea(_) => return shared::site::DEV_AREA_VERSION,
-        };
-        kind.map_or(0, |kind| Generator::for_poi(kind).version())
     }
 
     /// Saves the sites that have changed.

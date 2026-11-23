@@ -43,6 +43,8 @@ impl ServerWorld {
         let land = self.habitat_of_poi(&poi);
         let mut plan = match id {
             SiteId::DevArea(area) => area.spawns(level),
+            // Nobody lives in the inn (staff later).
+            SiteId::Inn => Vec::new(),
             // A quest's own dungeon: its own creatures, enough for its count.
             SiteId::Quest { quest, .. } => match crate::quests::dungeon_of(self, quest) {
                 Some(dungeon) => dungeon.spawns(index, &level.level, &stairs),

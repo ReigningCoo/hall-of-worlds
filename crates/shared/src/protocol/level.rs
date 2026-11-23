@@ -39,6 +39,9 @@ pub enum LevelKind {
     /// player (`ServerMessage::WildernessWindow`), in its own cells, `x`
     /// wrapping at its width.
     Wilderness,
+    /// The Way Inn (`shared::inn`): a site of its own, behind no poi, drawn
+    /// as `inn::KIND`'s.
+    Inn,
 }
 
 impl LevelKind {
@@ -46,7 +49,7 @@ impl LevelKind {
     pub fn poi(self) -> Option<PoiKind> {
         match self {
             Self::Poi(kind) => Some(kind),
-            Self::Hall { .. } | Self::Wilderness => None,
+            Self::Hall { .. } | Self::Wilderness | Self::Inn => None,
         }
     }
 

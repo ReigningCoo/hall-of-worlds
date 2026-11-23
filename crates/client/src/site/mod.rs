@@ -13,6 +13,7 @@
 
 mod buttons;
 mod hall;
+mod inn_way;
 mod wilderness;
 
 use bevy::prelude::*;
@@ -40,6 +41,7 @@ impl Plugin for SitePlugin {
                         .in_set(PlayerSystems::Input)
                         .after(View3dSystems::Click),
                     buttons::down_or_up.in_set(PlayerSystems::Input),
+                    inn_way::walk_into_inn.after(PlayerSystems::Input),
                 ),
             )
             // After everything else this frame, so the view being left

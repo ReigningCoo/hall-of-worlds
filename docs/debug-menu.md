@@ -38,6 +38,7 @@ Pictures of what the game draws. They need no server.
 | ----- | ------ | ------------ |
 | Teleport Mode | Yes | Toggles clicks on the map taking you there at once, through walls in a site. A click on a place or a World Gate takes you there and in. |
 | Teleport to World | Yes | Opens a panel with a seed box (type one, press the new seed button, or leave it blank for the world you are on, or in the Hall of Worlds the one you came from), a row of gates (**Any**, or World Gates 1 to 16) and three buttons. **Go** takes you to that world: to the gate chosen, or with **Any** back where you were on its map if you have been there, otherwise at one of its World Gates. **Hall of Worlds** takes you to the Hall, a walkway hovering in the void, in front of the gate that leads to the gate chosen (with **Any**, the World Gate nearest you). **View Planet...** shows that world as a globe. Every number is a world. |
+| To The Way Inn | Yes | Takes you into The Way Inn, inside its entrance door. Walking out of that door takes you back to the Hall of Worlds: from the Hall, in front of the nearest way in; from anywhere else, beside the gate that leads to the World Gate nearest you. Not from the startup menu. |
 
 ## Character
 

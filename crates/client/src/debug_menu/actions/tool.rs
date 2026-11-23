@@ -19,7 +19,8 @@ impl DebugAction {
             Self::ShowWidgets => DebugTool::ShowWidgets,
             Self::ViewPlanet => DebugTool::ViewPlanet,
             Self::TeleportMode => DebugTool::TeleportMode,
-            Self::TeleportToWorld => DebugTool::TeleportToWorld,
+            // Travel, as Teleport to World's Hall of Worlds is.
+            Self::TeleportToWorld | Self::ToTheWayInn => DebugTool::TeleportToWorld,
             Self::GodMode => DebugTool::GodMode,
             Self::Truesight => DebugTool::Truesight,
             Self::ChangeCreature => DebugTool::ChangeCreature,

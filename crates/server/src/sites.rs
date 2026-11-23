@@ -26,6 +26,7 @@ mod doors;
 mod enter;
 mod furnishings;
 mod generator;
+mod inn;
 mod keepers;
 mod key_place;
 mod leave;
@@ -37,6 +38,7 @@ mod place_name;
 mod plants;
 mod quest_dots;
 mod quest_place;
+mod reach;
 mod remembered;
 mod shop_here;
 mod sight;
@@ -65,6 +67,7 @@ use enter::enter_site;
 pub(crate) use enter::test_enter_poi;
 pub(super) use enter::{dev_enter, enter_dungeon, enter_poi, generate, resume};
 pub(crate) use generator::{seen_poi, site_generator};
+pub(crate) use inn::{dev_to_inn, enter_from_hall, follow_inn, inn_poi, leave_inn};
 use keepers::{NewKeepers, keepers_in_window, keepers_of};
 pub(super) use keepers::{give_to_keeper, keeper_building, keeper_stock, take_from_keeper};
 pub(crate) use key_place::key_place;
@@ -270,21 +273,6 @@ impl Visit {
                 ..
             }
         )
-    }
-
-    /// Whether the site is a town, whose layout players always know.
-    fn is_town(&self) -> bool {
-        self.site().is_some_and(|site| site.kind().is_town())
-    }
-
-    /// How far can be seen, in cells: open towns and the wilderness have a
-    /// limit, or sight would be worked out across all of them.
-    fn reach(&self) -> Option<u32> {
-        let reach = match &self.place {
-            Place::Wilderness { .. } => Some(crate::wilderness::SIGHT),
-            Place::Site { .. } => self.is_town().then_some(TOWN_SIGHT),
-        };
-        reach.map(|reach| reach + self.further)
     }
 
     /// What is saved with the character.

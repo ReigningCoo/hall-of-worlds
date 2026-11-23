@@ -37,6 +37,10 @@ pub(in crate::sites) fn ensure_locks(
     let site = DoorSite { id, index, poi };
     let bounds = level.bounds();
     let doors = set_doors(world, &site, &mut level, bounds, (0, 0));
+    // The inn: its layout's locked doors (the treasury's), with no key anywhere.
+    if id == SiteId::Inn {
+        return lock_inn_doors(world, (id, index), site_level, &doors);
+    }
     // A quest's own dungeon: only its stage door, with a key of the quest's.
     if let SiteId::Quest { quest, .. } = id {
         return super::stage::lock_stage(world, (id, quest), index, site_level, &doors);
@@ -71,5 +75,29 @@ pub(in crate::sites) fn ensure_locks(
         key.form = Some(ItemForm::key(lock.id));
         let mob = *saved.mobs.entry(holder).or_insert_with(new_id);
         saved.records.entry(mob).or_default().carried.push(key);
+    }
+}
+
+/// The Way Inn's level `index`: a lock, turned, on each door its layout has
+/// locked (`Level::is_locked`: the treasury's), and no key for it anywhere.
+fn lock_inn_doors(
+    world: &mut ServerWorld,
+    (id, index): (SiteId, u32),
+    site_level: &SiteLevel,
+    doors: &super::VisitDoors,
+) {
+    let saved = world.site_mut(id).levels.entry(index).or_default();
+    for (&(x, y), door) in doors {
+        if !site_level.level.is_locked(x, y) {
+            continue;
+        }
+        let mut locked = door.door;
+        locked.lock = Some(Lock {
+            id: new_id(),
+            quality: Quality::Common,
+            locked: true,
+        });
+        locked.swing = Swing::Closed;
+        saved.doors.insert(door.key.at, locked);
     }
 }

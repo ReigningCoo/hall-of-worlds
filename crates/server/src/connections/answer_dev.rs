@@ -34,6 +34,7 @@ pub(super) fn answer_dev(
         },
         ClientMessage::DevBackToStart => world_map::back_to_start(client, world),
         ClientMessage::DevToHall { seed, gate } => hall::to_hall(client, world, seed, gate),
+        ClientMessage::DevToInn => sites::dev_to_inn(client, world),
         // Told by `tell_of_lightning`, which knows where everyone is.
         ClientMessage::DevLightning => {
             world.lightning_asked.insert(client.entity_id());

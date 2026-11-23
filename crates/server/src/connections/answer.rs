@@ -264,6 +264,7 @@ pub(crate) fn answer(
         ClientMessage::DevTeleport { .. }
         | ClientMessage::DevBackToStart
         | ClientMessage::DevToHall { .. }
+        | ClientMessage::DevToInn
         | ClientMessage::DevLightning
         | ClientMessage::DevEnterSite { .. }
         | ClientMessage::DevGenerateSite { .. }

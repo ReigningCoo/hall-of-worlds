@@ -279,3 +279,22 @@ fn inn_ways_are_void_halfway_between_gates() {
     let (s, n) = (Side::South, Side::North);
     assert_eq!(ways, [(2, n), (2, s), (6, n), (6, s)]);
 }
+
+#[test]
+fn every_way_in_is_behind_its_front() {
+    for x in -8..8 {
+        for y in LEVEL_TOP..LEVEL_TOP + LEVEL_ROWS {
+            if let Some(side) = inn_way(x, y) {
+                let front = inn_way_front(x, side);
+                assert_eq!(inn_way_behind(front.0, front.1), Some(((x, y), side)));
+            }
+            if let Some((way, side)) = inn_way_behind(x, y) {
+                assert_eq!(inn_way(way.0, way.1), Some(side));
+                assert_eq!(inn_way_front(way.0, side), (x, y));
+            }
+        }
+    }
+    // Only the edge rows' tiles halfway between gates.
+    assert!(inn_way_behind(2, 1).is_none());
+    assert!(inn_way_behind(1, 0).is_none());
+}

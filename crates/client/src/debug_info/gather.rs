@@ -113,6 +113,11 @@ impl Sources<'_, '_> {
                 at,
                 heading,
             },
+            LevelKind::Inn => Where::Inn {
+                level: info.index,
+                at,
+                heading,
+            },
             LevelKind::Poi(kind) => {
                 let MapPosition { x, y } = self.world_return.0;
                 Where::Site {

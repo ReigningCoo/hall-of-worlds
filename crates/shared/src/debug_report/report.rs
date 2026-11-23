@@ -108,6 +108,12 @@ pub enum Where {
         at: Spot,
         heading: Heading,
     },
+    /// In The Way Inn (`shared::inn`), on this floor: the same from any world.
+    Inn {
+        level: u32,
+        at: Spot,
+        heading: Heading,
+    },
 }
 
 /// The world's time when the report was written.

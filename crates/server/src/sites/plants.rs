@@ -80,6 +80,10 @@ pub(crate) fn put_plants(
     index: u32,
     level: &mut SiteLevel,
 ) {
+    // Nothing grows in The Way Inn.
+    if id == SiteId::Inn {
+        return;
+    }
     let plants = site_plants(world, (poi, site), index, level);
     for ((x, y), patch) in plants.herbs {
         level.level.set_herb(x, y, patch);

@@ -28,3 +28,19 @@ pub fn inn_way_front(x: i64, side: Side) -> (i64, i64) {
         Side::South => (x, WALKWAY_ROWS - 1),
     }
 }
+
+/// The way in that the walkway tile `(x, y)` stands in front of, if any: the
+/// tile beyond its edge, and on which side. Walking off the walkway from here
+/// goes into the inn.
+pub fn inn_way_behind(x: i64, y: i64) -> Option<((i64, i64), Side)> {
+    let side = match y {
+        0 => Side::North,
+        y if y == WALKWAY_ROWS - 1 => Side::South,
+        _ => return None,
+    };
+    let way = match side {
+        Side::North => (x, -1),
+        Side::South => (x, WALKWAY_ROWS),
+    };
+    inn_way(way.0, way.1).map(|_| (way, side))
+}

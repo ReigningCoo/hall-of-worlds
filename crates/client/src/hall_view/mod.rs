@@ -9,6 +9,7 @@ mod place;
 mod raise;
 mod sight;
 mod visited;
+mod worn;
 
 use bevy::prelude::*;
 
@@ -24,6 +25,7 @@ pub struct HallViewPlugin;
 impl Plugin for HallViewPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<place::Gates>()
+            .init_resource::<worn::Worn>()
             .init_resource::<VisitedGates>()
             .init_resource::<visited::WaterMaterials>()
             .add_systems(
@@ -36,8 +38,17 @@ impl Plugin for HallViewPlugin {
                     .chain()
                     .run_if(in_state(GameView::Dungeon)),
             )
+            .add_systems(
+                Update,
+                worn::place_worn
+                    .after(bend::set_bend)
+                    .run_if(in_state(GameView::Dungeon)),
+            )
             .add_systems(Update, bend::set_bend.before(View3dSystems::Place))
-            .add_systems(OnExit(GameView::Dungeon), place::remove_gates)
+            .add_systems(
+                OnExit(GameView::Dungeon),
+                (place::remove_gates, worn::remove_worn),
+            )
             .add_systems(Update, sight::hall_reach.after(View3dSystems::Place));
     }
 }

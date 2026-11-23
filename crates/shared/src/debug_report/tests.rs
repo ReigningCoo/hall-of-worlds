@@ -163,3 +163,17 @@ fn strings_without_a_planet_still_read() {
     let report: DebugReport = serde_json::from_value(json).unwrap();
     assert_eq!(report.planet, None);
 }
+
+#[test]
+fn a_report_in_the_inn_comes_back_the_same() {
+    let report = DebugReport {
+        place: Some(Where::Inn {
+            level: 1,
+            at: Spot::new(4920, 7080),
+            heading: Heading::NORTH,
+        }),
+        dev: None,
+        ..sample()
+    };
+    assert_eq!(decode(&encode(&report)), Ok(report));
+}
