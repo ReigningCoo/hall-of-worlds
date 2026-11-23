@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use shared::alcohol::Stage;
 use shared::bonus::{Amount, Effect, Source, Stat};
 use shared::sheet::Sheet;
-use shared::spell::{Aim, Outcome};
+use shared::spell::{Aim, CURSED, ILLUSION, Outcome, PARALYSED, POISONED, Part, STONESKIN, WARDED};
 
 /// Behind an effect that helps: a calm blue-green.
 const HELPFUL: Color = Color::srgb(0.16, 0.38, 0.40);
@@ -81,8 +81,21 @@ pub(super) fn icon_path(source: Source) -> &'static str {
             Stage::Poisoned => "icons/lorc/vomiting.png",
             Stage::Hangover => "icons/lorc/brain-freeze.png",
         },
-        Source::Spell(part) if part.reversed => "icons/lorc/snowflake-1.png",
-        Source::Spell(_) => "icons/lorc/drop.png",
+        Source::Spell(part) => spell_icon(part),
+    }
+}
+
+/// A spell's lasting effect's icon, as its skill's where it has one.
+fn spell_icon(part: Part) -> &'static str {
+    match part {
+        PARALYSED => "icons/delapouite/stone-pile.png",
+        STONESKIN => "icons/lorc/stone-block.png",
+        POISONED => "icons/lorc/poison-bottle.png",
+        CURSED => "icons/lorc/cursed-star.png",
+        ILLUSION => "icons/delapouite/invisible.png",
+        WARDED => "icons/lorc/magic-shield.png",
+        part if part.reversed => "icons/lorc/snowflake-1.png",
+        _ => "icons/lorc/drop.png",
     }
 }
 

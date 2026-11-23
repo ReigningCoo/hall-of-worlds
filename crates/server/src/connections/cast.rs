@@ -8,9 +8,12 @@
 mod conditions;
 mod creatures;
 mod effects;
+mod ending;
 mod flight;
 mod harm;
 mod heal;
+mod knock;
+mod lasting;
 mod place;
 mod run;
 mod step;

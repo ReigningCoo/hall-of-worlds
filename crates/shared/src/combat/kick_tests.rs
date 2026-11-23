@@ -16,6 +16,7 @@ fn a_kick_is_slower_than_two_punches_and_weaker_than_one() {
             main: Weapon::UNARMED,
             off: None,
         },
+        guard: Guard::NONE,
     };
     let punch = fighter.swing(0);
     let kick = fighter.kick();

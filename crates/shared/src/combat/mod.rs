@@ -5,6 +5,7 @@
 mod cost;
 mod damage;
 mod fighter;
+mod guard;
 mod kick;
 mod power;
 mod reach;
@@ -20,6 +21,7 @@ pub use damage::{
     quality_factor, roll_blow, strength_hits, through_armour, weapon_base,
 };
 pub use fighter::{Fighter, PRACTICE_PER_BLOW, Swing};
+pub use guard::Guard;
 pub use kick::{KICK_COST_PER_MILLE, KICK_FORCE_PER_MILLE, KICK_HARM_PER_MILLE, kick_skill};
 pub use power::{SKILL_FLOOR, power};
 pub use reach::{

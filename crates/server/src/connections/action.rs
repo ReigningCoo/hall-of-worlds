@@ -85,6 +85,7 @@ impl super::Client {
             self.waiting.push_back(action);
         } else {
             self.last_step = Some(number);
+            self.steps_done = number;
         }
         true
     }

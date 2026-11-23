@@ -64,7 +64,7 @@ pub fn harm_before_resisting(outcome: Outcome, count: u32, skills: Option<&Skill
 
 /// Heal's line by another effect's skill: the same Health one Heal gives at
 /// that skill's value.
-fn line_by(effect: Effect, skills: Option<&Skills>) -> Points {
+pub(super) fn line_by(effect: Effect, skills: Option<&Skills>) -> Points {
     let percent = skills.map_or(0, |skills| skill_percent(skills.value(effect.skill())));
     let ratio = RATIO_AT_FIRST + (RATIO_AT_BEST - RATIO_AT_FIRST) * percent / 100;
     let mana = u64::from(HEAL_MANA) * u64::from(PER_POINT);
@@ -84,6 +84,12 @@ pub fn spell_power(outcome: Outcome, attributes: &Attributes, skills: Option<&Sk
     sum / leans.len() as u64
 }
 
+/// The caster's power with one effect's skill: what a contest for an effect
+/// that isn't harm (Earth's paralysis, a Curse) goes by.
+pub fn effect_power(effect: Effect, attributes: &Attributes, skills: Option<&Skills>) -> u64 {
+    skill_power(effect.skill(), attributes, skills)
+}
+
 /// Power with one skill.
 fn skill_power(skill: SkillId, attributes: &Attributes, skills: Option<&Skills>) -> u64 {
     let total = skills.map_or(0, |skills| skills.total(skill));
@@ -95,6 +101,13 @@ fn skill_power(skill: SkillId, attributes: &Attributes, skills: Option<&Skills>)
 pub fn resistance(attributes: &Attributes, skills: Option<&Skills>) -> u64 {
     let total = skills.map_or(0, |skills| skills.total(warding_skill()));
     power(attributes, &[Attribute::Aura], total)
+}
+
+/// What a target resists effects of the mind with (paralysis, Calm, Fear,
+/// illusions): its Will and its Warding skill.
+pub fn will(attributes: &Attributes, skills: Option<&Skills>) -> u64 {
+    let total = skills.map_or(0, |skills| skills.total(warding_skill()));
+    power(attributes, &[Attribute::Will], total)
 }
 
 /// What gets past a target's resistance: `power ÷ (power + resistance)` of

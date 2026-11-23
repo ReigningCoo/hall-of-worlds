@@ -117,10 +117,14 @@ fn vegetable_name(tag: VegetableTag) -> &'static str {
 pub(super) fn bonus_lines(effect: &Effect, lang: &Lang) -> Vec<String> {
     let bonuses = effect.bonuses.iter().filter(|bonus| amount_of(bonus) != 0);
     let mut lines: Vec<String> = bonuses.map(|bonus| bonus_line(bonus, lang)).collect();
-    // A spell's wet or chill has no bonuses: what it does, in words.
+    // A spell's wet, chill or paralysis has no bonuses: what it does, in
+    // words.
     if let Source::Spell(part) = effect.source {
         let args = Args::new().text("part", part.key());
-        lines.push(written(lang.render("effect-spell-does", &args)));
+        let does = written(lang.render("effect-spell-does", &args));
+        if !does.is_empty() {
+            lines.push(does);
+        }
     }
     lines
 }

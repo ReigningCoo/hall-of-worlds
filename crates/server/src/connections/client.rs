@@ -90,6 +90,7 @@ impl Client {
             map: 0,
             hall_origin: 0,
             last_step: None,
+            steps_done: 0,
             looking_up: Vec::new(),
             quest_seen: Default::default(),
         }
@@ -124,6 +125,7 @@ impl Client {
     pub(crate) fn changed_map(&mut self) {
         self.map += 1;
         self.last_step = None;
+        self.steps_done = 0;
         self.waiting.clear();
         // The client forgets them too.
         self.seen_entities.clear();

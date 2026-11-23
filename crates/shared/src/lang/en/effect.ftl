@@ -24,11 +24,18 @@ effect-well-fed = Well Fed
 effect-spell = { $part ->
     [water] Wet
     [ice] Chilled
+    [earth] Paralysed
+    [stoneskin] Stoneskin
+    [poison] Poisoned
+    [curse] Cursed
+    [illusion] Illusion
+    [warding] Warded
    *[other] Spell
 }
 effect-spell-does = { $part ->
     [water] Fire does half the harm, and dries you
     [ice] A third slower
+    [earth] Held still
    *[other] {""}
 }
 effect-alcohol = { $stage ->

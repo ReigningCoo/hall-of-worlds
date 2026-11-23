@@ -88,6 +88,14 @@ impl Totals {
         (self.sum(Stat::Darkvision).flat / MILLI).clamp(0, i64::from(u32::MAX)) as u32
     }
 
+    /// A stat kept only as a percentage of whatever it changes (`Defence`,
+    /// `BlowHarm`, `HarmTaken`, `Resistance`), per mille: 1000 with none,
+    /// never below 0.
+    pub fn per_mille(&self, stat: Stat) -> u64 {
+        let percent = self.sum(stat).percent;
+        (1000 + percent / 100).max(0) as u64
+    }
+
     /// Whether there are no bonuses at all.
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()

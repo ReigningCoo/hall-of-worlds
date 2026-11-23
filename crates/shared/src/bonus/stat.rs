@@ -34,6 +34,18 @@ pub enum Stat {
     /// (a deadly fungus's poison, `fungus::poisoning`): while any lasts, all
     /// draining of that one has no floor.
     DeadlyDrain(Vital),
+    /// Only from effects, as a percentage: how well it defends against blows
+    /// (`combat::defence_power`; a spell's Illusion).
+    Defence,
+    /// Only from effects, as a percentage: the harm its own blows do (a
+    /// spell's Curse, less).
+    BlowHarm,
+    /// Only from effects, as a percentage: the harm blows do to it (a spell's
+    /// Stoneskin, less).
+    HarmTaken,
+    /// Only from effects, as a percentage: what it resists harmful magic with
+    /// (`spell::resistance`; a spell's Warding).
+    Resistance,
     // New stats go at the end: messages carry one by its place in this list.
 }
 

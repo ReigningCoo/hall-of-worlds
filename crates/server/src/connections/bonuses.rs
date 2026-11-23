@@ -3,7 +3,8 @@
 //! attributes with every bonus, which rules go by and the client is told; and
 //! effects ended by moving or being hurt.
 
-use shared::bonus::Cancel;
+use shared::bonus::{Cancel, Stat};
+use shared::combat::Guard;
 use shared::item::Item;
 use shared::protocol::ServerMessage;
 use shared::sheet::{Attributes, Sheet, Situation};
@@ -11,14 +12,30 @@ use shared::sheet::{Attributes, Sheet, Situation};
 use super::Client;
 
 /// What a player's bonuses were last worked out from, and what came of it.
-#[derive(Default)]
 pub(crate) struct Bonused {
     /// What was worn: its limits go by this until `keep_worn` sees a change.
     pub(super) wearing: Vec<Item>,
     /// The attributes with every bonus, for fighting.
     pub(super) attributes: Attributes,
+    /// What spells lying on it do to blows (`combat::Guard`).
+    pub(super) guard: Guard,
+    /// Its resistance to harmful magic per mille, from Warding
+    /// (`bonus::Stat::Resistance`).
+    pub(super) resisting: u64,
     /// What its client was last told they are.
     told: Option<Attributes>,
+}
+
+impl Default for Bonused {
+    fn default() -> Self {
+        Self {
+            wearing: Vec::new(),
+            attributes: Attributes::default(),
+            guard: Guard::NONE,
+            resisting: 1000,
+            told: None,
+        }
+    }
 }
 
 impl Client {
@@ -60,10 +77,13 @@ impl Client {
         true
     }
 
-    /// Works out its attributes with every bonus again.
+    /// Works out its attributes with every bonus again, and what spells on
+    /// it do to blows and to its resistance.
     pub(super) fn refresh_attributes(&mut self, now: u64) {
-        let attributes = self.sheet.attributes_with(&self.bonused.wearing, now);
-        self.bonused.attributes = attributes;
+        let totals = self.sheet.totals(&self.bonused.wearing, now);
+        self.bonused.attributes = totals.attributes(&self.sheet.attributes);
+        self.bonused.guard = Guard::of(&totals);
+        self.bonused.resisting = totals.per_mille(Stat::Resistance);
     }
 
     /// Tells the client its attributes with their bonuses, if they have

@@ -2,15 +2,20 @@
 //! Fire burns, dries the wet and lights fireplaces; reversed, cold burns.
 //! Water wets and puts fires out; reversed, ice chills and freezes water to
 //! walk on. Steam (fire and water) scalds, puts fires out and leaves a cloud
-//! that blocks sight (owner, 2026-11-23). Heal reversed harms. Numbers are
-//! first guesses.
+//! that blocks sight (owner, 2026-11-23). Heal reversed harms. PR 12: Air
+//! knocks back, reversed pulls in; Earth, Poison, Curse, Illusion and Warding
+//! leave lasting effects (`lasting`), and reversed (Stoneskin aside) take
+//! them away (`ending`). Numbers are first guesses.
 
 use crate::dungeon::{Cell, Level};
 
 use super::combination::{Mixture, Outcome, outcomes};
 use super::design::{Spell, Step};
 use super::effect::Effect;
+use super::ending::Ends;
 use super::harm::does_harm;
+use super::lasting::{CURSED, ILLUSION, PARALYSED, POISONED, STONESKIN, WARDED};
+use super::part::Part;
 
 /// Seconds water stays frozen, each ice.
 pub const ICE_SECONDS: u64 = 60;
@@ -36,6 +41,22 @@ pub struct Acts {
     pub freezes: bool,
     /// Leaves a cloud of steam round where it lands (`cloud_cells`).
     pub clouds: bool,
+    /// Knocks creatures away from where the where came from (`Knock::Away`,
+    /// Air) or pulls them towards it (`Knock::In`, a vacuum).
+    pub knocks: Option<Knock>,
+    /// Leaves this lasting effect on creatures (`lasting`, `poison`).
+    pub lasts: Option<Part>,
+    /// Ends these effects on creatures (`Ends`).
+    pub ends: Option<Ends>,
+}
+
+/// Which way Air moves what it lands on.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Knock {
+    /// Away from where the where came from.
+    Away,
+    /// Towards it.
+    In,
 }
 
 impl Acts {
@@ -90,6 +111,37 @@ pub fn acts(outcome: Outcome) -> Acts {
             freezes: true,
             ..none
         },
+        (Effect::Air, reversed) => Acts {
+            knocks: Some(if reversed { Knock::In } else { Knock::Away }),
+            ..none
+        },
+        _ => lasting_or_ending(part, harms),
+    }
+}
+
+/// What Earth, Poison, Curse, Illusion and Warding do, either way; anything
+/// else only harm, if it does.
+fn lasting_or_ending(part: Part, harms: bool) -> Acts {
+    let none = Acts::default();
+    let lasts = |lasting: Part| Acts {
+        lasts: Some(lasting),
+        ..none
+    };
+    let ends = |ends: Ends| Acts {
+        ends: Some(ends),
+        ..none
+    };
+    match (part.effect, part.reversed) {
+        (Effect::Earth, false) => lasts(PARALYSED),
+        (Effect::Earth, true) => lasts(STONESKIN),
+        (Effect::Poison, false) => lasts(POISONED),
+        (Effect::Poison, true) => ends(Ends::Poison),
+        (Effect::Curse, false) => lasts(CURSED),
+        (Effect::Curse, true) => ends(Ends::Curse),
+        (Effect::Illusion, false) => lasts(ILLUSION),
+        (Effect::Illusion, true) => ends(Ends::Illusion),
+        (Effect::Warding, false) => lasts(WARDED),
+        (Effect::Warding, true) => ends(Ends::Spells),
         _ => Acts { harms, ..none },
     }
 }

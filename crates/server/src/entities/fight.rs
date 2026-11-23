@@ -1,6 +1,6 @@
 //! Mobs fighting: attacking an enemy in reach, and being hit by a player.
 
-use shared::combat::{Body, Fighter, Swing, Wielded, in_reach};
+use shared::combat::{Body, Fighter, Guard, Swing, Wielded, in_reach};
 use shared::creature::CreatureKind;
 use shared::dungeon::Level;
 use shared::id::Id;
@@ -31,6 +31,8 @@ pub(crate) enum MobBlow {
         kind: CreatureKind,
         attributes: Attributes,
         wielded: Wielded,
+        /// What spells on it do to its blow (a Curse).
+        guard: Guard,
         swing: Swing,
     },
     Fizzled {
@@ -46,6 +48,7 @@ impl Mob {
             attributes: &self.attributes,
             skills: None,
             wielded: self.wielded,
+            guard: self.spells.guard(),
         }
     }
 
@@ -97,6 +100,7 @@ pub(super) fn mob_turn(
                 kind: mob.kind,
                 attributes: mob.attributes,
                 wielded: mob.wielded,
+                guard: mob.spells.guard(),
                 swing,
             }
         } else {

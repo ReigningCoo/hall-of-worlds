@@ -53,6 +53,7 @@ impl Mob {
             energy: Default::default(),
             speed: sheet.speed(carrying),
             chilled: None,
+            spells: Default::default(),
             shown: carrying.shown(),
             scent: scent_strength(carrying),
             attributes: bonuses.attributes(&spawn.attributes),
