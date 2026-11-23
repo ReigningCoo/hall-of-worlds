@@ -51,41 +51,41 @@ fn furniture_of(tier: u8) -> (Bed, &'static [Chest], Wardrobe) {
 }
 
 /// Puts each own room's furniture on upstairs' level: the bed's head against
-/// the north wall in the east corner, the chests along that wall west of it,
-/// the wardrobe against the east wall below the bed. Doors are in the west
-/// and south walls, so nothing stands in front of one.
+/// the north wall in the corner away from the door, the chests along that
+/// wall beside it, the wardrobe against the side wall below the bed. So
+/// nothing stands in front of a door (in a south or side wall).
 pub(super) fn furnish(level: &mut Level) {
     let wood = Material::Wood(Wood::Oak);
     for room in own_rooms() {
         let (bed, chests, wardrobe) = furniture_of(room.tier);
-        let (y0, x1) = (room.rect.y, room.rect.x + room.rect.width - 1);
+        let (x0, y0) = (room.rect.x, room.rect.y);
+        let x1 = x0 + room.rect.width - 1;
+        // From the far corner along the north wall, towards the door's side.
+        let door_east = room.door.0 > x1;
+        let (corner, toward, side) = match door_east {
+            true => (x0, 1, Side::West),
+            false => (x1, -1, Side::East),
+        };
+        // The west cell of something `length` long starting at `from` and
+        // running `toward`.
+        let west_of = |from: i64, length: i64| from.min(from + toward * (length - 1));
         let width = i64::from(bed.width());
-        let bed_at = (x1 - width + 1, y0);
-        let size = (Bed::LENGTH, bed.width());
-        level.place_furniture(against_wall(
-            Furniture::Bed { bed },
-            bed_at,
-            size,
-            Side::North,
-            wood,
-        ));
-        let mut east = x1 - width;
+        let bed_at = (west_of(corner, width), y0);
+        let bed_size = (Bed::LENGTH, bed.width());
+        let piece = against_wall(Furniture::Bed { bed }, bed_at, bed_size, Side::North, wood);
+        level.place_furniture(piece);
+        let mut next = corner + toward * width;
         for &chest in chests {
-            let length = chest.length();
-            let at = (east - i64::from(length) + 1, y0);
-            let piece = against_wall(
-                Furniture::Chest { chest },
-                at,
-                (length, 1),
-                Side::North,
-                wood,
-            );
+            let length = i64::from(chest.length());
+            let at = (west_of(next, length), y0);
+            let size = (chest.length(), 1);
+            let piece = against_wall(Furniture::Chest { chest }, at, size, Side::North, wood);
             level.place_furniture(piece);
-            east -= i64::from(length);
+            next += toward * length;
         }
         let size = (wardrobe.length(), 1);
-        let at = (x1, y0 + i64::from(Bed::LENGTH));
-        let piece = against_wall(Furniture::Wardrobe { wardrobe }, at, size, Side::East, wood);
+        let at = (corner, y0 + i64::from(Bed::LENGTH));
+        let piece = against_wall(Furniture::Wardrobe { wardrobe }, at, size, side, wood);
         level.place_furniture(piece);
     }
 }

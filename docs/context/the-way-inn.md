@@ -67,9 +67,11 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 
 ## Settled in PR 4 (Claude's choices)
 
-- One door a tier, as decided: the own rooms are one strip of bedrooms (between the H's legs, west of the middle, north of the crossbar), tiers 1 to 4 from the stairs, tier 1's door on the crossbar beside them. The other 24 bedrooms are locked for later (staff, guests, more tiers), and so are tiers 2 to 4's doors until they can be bought: a lock with no key, as the treasury's, the same for everyone (`inn::OPEN_TIER`). Unlocking one per character comes with buying.
+- Upstairs reworked (owner, 2026-11-23): 4 small rooms along the crossbar's north side and 3 along its south, the strips between the legs behind them, and the two far-north rooms between the legs joined into one with a single door on the east leg (`shared/inn.md`).
+- One door a tier, as decided: tier 1 is the crossbar's north room nearest the stairs on the west, tiers 2 and 3 the first two rooms behind it on the west, tier 4 the joined far-north room. The other bedrooms are locked for later (staff, guests, more tiers), and so are tiers 2 to 4's doors until they can be bought: a lock with no key, as the treasury's, the same for everyone (`inn::OPEN_TIER`). Unlocking one per character comes with buying.
 - Each own room has a bed, chests and a wardrobe placed in code (`inn::own_room`), more for larger tiers; PR 5 furnishes the rest.
 - Everyone walks the instance's level; the room is "their own" by what is kept and seen: what is in its chests and wardrobe and on its floor is kept in a site of their own (`SiteId::InnRoom`, by character), and nobody standing in an own room is shown to anyone else. So looking out shows the instance's corridor and who is in it, and looking in shows your own room, empty of others. Its door is the instance's, shared.
 - That site lives in the home world while they are in the inn and is saved with the character (`CharacterSave::inn_room`, upstairs' level save), never as a site's file: the same on every world.
+- In the Hall, a click or tap on a way in (the invisible void tile) travels to the tile in front and goes through, as walking off there does; clicks on the void elsewhere still do nothing.
 - A private room downstairs is shared by whoever is in it, so things left there are cleared like any public room's.
 

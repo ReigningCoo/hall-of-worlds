@@ -67,7 +67,7 @@ fn golden_fingerprints() {
     let prints = [fingerprint(&floor(GROUND)), fingerprint(&floor(UPSTAIRS))];
     assert_eq!(
         prints,
-        [3017963899545757124, 10763855015279406826],
+        [3017963899545757124, 5801853540422890675],
         "{prints:?}"
     );
     assert!(level(FLOORS).is_none());
