@@ -70,11 +70,13 @@ const HALL: Theme = Theme {
 };
 
 impl Theme {
-    /// The theme for a level: its poi's, or the Hall's.
+    /// The theme for a level: its poi's, the Hall's, or The Way Inn's (its
+    /// stand-in kind's).
     pub fn of_level(kind: Option<LevelKind>) -> Self {
         match kind {
             Some(LevelKind::Hall { .. }) => HALL,
             Some(LevelKind::Poi(kind)) => Self::of(Some(kind)),
+            Some(LevelKind::Inn) => Self::of(Some(shared::inn::KIND)),
             Some(LevelKind::Wilderness) | None => Self::of(None),
         }
     }

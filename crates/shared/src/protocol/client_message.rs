@@ -62,7 +62,8 @@ pub enum ClientMessage {
     /// Go into the poi in this world map chunk, if near enough (`poi::can_enter_from`):
     /// into the wilderness where it is set in, at its entrance or where last walked out.
     EnterSite { chunk: ChunkPos },
-    /// Use what is underfoot: stairs, or outside ground at the level's edge (to the world map).
+    /// Use what is underfoot: stairs, or outside ground at the level's edge (to the world map); in
+    /// the Hall, walking off its edge in front of a way into The Way Inn (`hall::inn_way_behind`).
     UseExit,
     /// Down the stairs underfoot if they go down; on the world map, explore
     /// the wilderness there (`EnterLevel`; refused in water).
@@ -179,9 +180,8 @@ pub enum ClientMessage {
     DevGiveItem(DevGive),
     /// Developer tools: be told of every mob on the level, seen or not, or not.
     DevDetectMonsters(bool),
-    /// Developer tools: truesight on or off. The client is told what is secret about
-    /// items and sees secret doors, without any being found out. Answered with
-    /// `Inventory`, and the level again if it has secret doors.
+    /// Developer tools: truesight on or off: told what is secret about items and seeing secret doors,
+    /// none found out. Answered with `Inventory`, and the level again if it has secret doors.
     DevTruesight(bool),
     /// Developer tools: god mode on or off. Mobs take no notice of the character,
     /// and it can walk through them.
@@ -198,10 +198,11 @@ pub enum ClientMessage {
     /// Developer tools: back to where new characters start on the world map, from anywhere,
     /// answered with `OnWorldMap`. Only an embedded server accepts it; others ignore it.
     DevBackToStart,
-    /// Developer tools: to the Hall of Worlds, before the gate leading to World
-    /// Gate `gate` (from 0; none: the nearest, or another world's first) of the
-    /// world with this `seed` (none: the player's own). Answered with `EnterHall`.
+    /// Developer tools: to the Hall of Worlds, before the gate leading to World Gate `gate` (from 0;
+    /// none: the nearest, or another world's first) of world `seed` (none: theirs). `EnterHall`.
     DevToHall { seed: Option<u64>, gate: Option<u8> },
+    /// Developer tools: into The Way Inn from anywhere (`sites::dev_to_inn`: where its door leads).
+    DevToInn,
     /// Developer tools: lightning near the player now, whatever the weather (a flash, a bolt near).
     DevLightning,
     /// Developer tools: into a site of any kind and seed, at any level, ruined this much (0 to 5);
@@ -214,9 +215,8 @@ pub enum ClientMessage {
     },
     /// Developer tools: change a cell of the player's level (not theirs); embedded servers only.
     DevSetCell { x: i64, y: i64, cell: Cell },
-    /// Developer tools: move the world's time to this many game minutes since
-    /// the world began, and/or have it run at another rate from now on, answered
-    /// with `WorldClock` to everyone in that world.
+    /// Developer tools: move the world's time to this many game minutes since the world began, and/or
+    /// have it run at another rate from now on, answered with `WorldClock` to everyone in that world.
     DevSetWorldClock {
         minutes: Option<f64>,
         rate: Option<ClockRate>,

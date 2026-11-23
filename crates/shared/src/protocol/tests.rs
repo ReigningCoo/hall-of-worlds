@@ -234,6 +234,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             seed: None,
             gate: None,
         },
+        ClientMessage::DevToInn,
         ClientMessage::DevLightning,
         ClientMessage::DevRevealPois,
         ClientMessage::DevRevealMap,

@@ -39,6 +39,9 @@ pub enum SiteId {
         character: CharacterId,
         quest: QuestId,
     },
+    /// The Way Inn (`shared::inn`), behind no poi: one for now, kept with the
+    /// world its players came into the Hall from.
+    Inn,
 }
 
 /// A site's file: made the first time anyone enters it.
@@ -224,6 +227,11 @@ pub struct CharacterWorldSave {
     /// having come from this world (older saves' cells read as middles).
     #[serde(default, deserialize_with = "super::spot_compat::optional_spot")]
     pub hall: Option<Spot>,
+    /// While in The Way Inn: the Hall's walkway tile (in units) they stepped
+    /// off into it from, where leaving it takes them back to. Kept here, as
+    /// `hall` is, with the world they came into the Hall from.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inn_return: Option<Spot>,
     /// The world map chunks whose poi they have seen, and what they
     /// know of it.
     pub pois: BTreeMap<ChunkPos, KnownPoi>,

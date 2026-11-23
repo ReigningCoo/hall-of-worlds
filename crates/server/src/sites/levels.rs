@@ -4,9 +4,7 @@ use bevy::prelude::*;
 use shared::dungeon::Level;
 use shared::dungeon::Sight;
 use shared::poi::Poi;
-use shared::protocol::{
-    LevelInfo, LevelKind, RememberedLevel, SeenStairs, ServerMessage, level_chunk,
-};
+use shared::protocol::{LevelInfo, RememberedLevel, SeenStairs, ServerMessage, level_chunk};
 use shared::relief::LevelGround;
 use shared::shop::sells;
 use shared::site::{Exit, Site, SiteLevel, Stairs, StairsDirection};
@@ -15,7 +13,7 @@ use shared::spot::Spot;
 use super::remembered::{mirror_of_first, send_remembered};
 use super::{
     Arrival, DoorSite, NewKeepers, Place, Visit, VisitDoors, beside, door_looks, ensure_locks,
-    floors_of, keepers_of, level_chunks, place_name_of, set_doors, update_sight,
+    floors_of, keepers_of, level_chunks, set_doors, update_sight,
 };
 use crate::ServerWorld;
 use crate::connections::Client;
@@ -178,8 +176,9 @@ pub(super) fn enter_level(
         ),
         _ => LevelGround::Flat,
     };
+    let (kind, place_name) = super::inn::kind_and_name(world, &new);
     let info = LevelInfo {
-        kind: LevelKind::Poi(site.kind()),
+        kind,
         ruined: site.is_ruined(),
         building: site.is_building(),
         index,
@@ -188,7 +187,7 @@ pub(super) fn enter_level(
         bounds: level.level.bounds(),
         arrival: position,
         entering_site,
-        place_name: place_name_of(world, &new.poi),
+        place_name,
         ground: ground.clone(),
     };
     let view = Sight::new(&level.level);

@@ -17,6 +17,7 @@ pub(super) fn site_file_name(site: SiteId) -> String {
         }
         SiteId::DevArea(area) => format!("dev_area_{:016x}.ron", area.key()),
         SiteId::Wilderness => "wilderness.ron".into(),
+        SiteId::Inn => "the_way_inn.ron".into(),
         SiteId::Quest { character, quest } => {
             let slot = match quest.slot {
                 Slot::Giver {

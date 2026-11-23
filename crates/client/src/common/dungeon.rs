@@ -271,6 +271,7 @@ impl CurrentDungeon {
             LevelKind::Poi(kind) => kind,
             LevelKind::Hall { .. } => return "Hall of Worlds".into(),
             LevelKind::Wilderness => return "Wilderness".into(),
+            LevelKind::Inn => return format!("The Way Inn, floor {}", info.index + first.0),
         };
         if kind.is_town() {
             return info.place_name.clone().unwrap_or(format!("{kind:?}"));

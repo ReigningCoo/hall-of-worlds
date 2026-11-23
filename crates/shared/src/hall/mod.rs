@@ -24,7 +24,7 @@ pub use address::GateAddress;
 pub use code::{CODE_LENGTH, GateCode, RUNES, SEPARATOR};
 pub use design::GateDesign;
 pub use glyph::{GLYPH_HEIGHT, GLYPH_WIDTH, RUNE_STROKES, SEPARATOR_STROKES, Stroke};
-pub use inn_way::{INN_WAY_OFFSET, inn_way, inn_way_front};
+pub use inn_way::{INN_WAY_OFFSET, inn_way, inn_way_behind, inn_way_front};
 pub use level::{LEVEL_ROWS, LEVEL_TOP, cell, level};
 pub use place::{GatePlace, Side};
 pub use tile::{Tile, hue, tile, wrap_x};

@@ -62,7 +62,7 @@ pub(super) fn place_gates(
             LevelKind::Wilderness => {
                 world.map_or_else(BTreeMap::new, |world| wilderness_gates(&world, info.bounds))
             }
-            LevelKind::Poi(_) => BTreeMap::new(),
+            LevelKind::Poi(_) | LevelKind::Inn => BTreeMap::new(),
         },
         None => BTreeMap::new(),
     };

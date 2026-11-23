@@ -112,6 +112,7 @@ impl PoiLook {
                 pools: super::oasis::Plan::pools(&options, seed),
             },
             Generator::DevArea(_) => unreachable!("no poi is a Dev Area"),
+            Generator::Inn => unreachable!("no poi is The Way Inn"),
         }
     }
 }

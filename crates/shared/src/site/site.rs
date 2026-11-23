@@ -3,8 +3,8 @@
 use super::building::BuildingOptions;
 use super::{
     BOXED_CAVE_VERSION, BUILDING_VERSION, CAVE_VERSION, DEV_AREA_VERSION, Exit, FARM_VERSION,
-    Generator, HERBALIST_VERSION, OASIS_VERSION, SiteLevel, Stairs, StairsStyle, TOWN_VERSION,
-    UNMILLED_TOWN_VERSION,
+    Generator, HERBALIST_VERSION, INN_VERSION, OASIS_VERSION, SiteLevel, Stairs, StairsStyle,
+    TOWN_VERSION, UNMILLED_TOWN_VERSION,
 };
 use crate::poi::PoiKind;
 use crate::rng::Seed;
@@ -29,6 +29,8 @@ pub(super) enum Plan {
     Herbalist(super::herbalist::Plan),
     Oasis(super::oasis::Plan),
     DevArea(super::dev_area::Plan),
+    /// The Way Inn (`shared::inn`), fixed: nothing to plan.
+    Inn,
 }
 
 impl Site {
@@ -92,6 +94,7 @@ impl Site {
             Generator::DevArea(area) if version == DEV_AREA_VERSION => {
                 Plan::DevArea(super::dev_area::Plan::new(&area))
             }
+            Generator::Inn if version == INN_VERSION => Plan::Inn,
             _ => return None,
         };
         Some(Self {
@@ -122,7 +125,7 @@ impl Site {
     pub fn is_building(&self) -> bool {
         matches!(
             self.plan,
-            Plan::Building(_) | Plan::Farm(_) | Plan::Herbalist(_)
+            Plan::Building(_) | Plan::Farm(_) | Plan::Herbalist(_) | Plan::Inn
         )
     }
 
@@ -157,6 +160,7 @@ impl Site {
             Plan::Town(_) | Plan::Oasis(_) | Plan::DevArea(_) => 1,
             Plan::Farm(plan) => plan.levels(),
             Plan::Herbalist(plan) => plan.house().floors(),
+            Plan::Inn => crate::inn::FLOORS,
         }
     }
 
@@ -174,8 +178,11 @@ impl Site {
             Plan::Herbalist(plan) => plan.level(index),
             Plan::Oasis(plan) => plan.level(),
             Plan::DevArea(plan) => plan.level(),
+            Plan::Inn => crate::inn::level(index).expect("checked above"),
         };
-        if !matches!(self.plan, Plan::DevArea(_)) {
+        // A Dev Area's building brings its own furniture; the inn's comes
+        // from its own fixed places (The Way Inn plan, PR 5).
+        if !matches!(self.plan, Plan::DevArea(_) | Plan::Inn) {
             crate::furniture::furnish(&mut level, self.kind, self.seed, index, self.ruin);
             let levels = self.levels();
             crate::crafting_bench::place_benches(
@@ -216,7 +223,8 @@ impl Site {
         let cellar =
             crate::cellar::cellar_level(self.kind, self.seed, self.levels(), self.has_basement());
         let dev_room = matches!(&self.plan, Plan::DevArea(plan) if !plan.may_have_cellar());
-        if cellar != Some(index) || dev_room {
+        let inn = matches!(self.plan, Plan::Inn);
+        if cellar != Some(index) || dev_room || inn {
             return Vec::new();
         }
         crate::cellar::cellar_casks(level, self.kind, self.seed, index)

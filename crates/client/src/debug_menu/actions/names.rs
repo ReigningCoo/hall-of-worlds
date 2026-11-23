@@ -40,6 +40,7 @@ impl DebugAction {
             Self::SunsAndMoons => "Suns and Moons",
             Self::TeleportMode => "Teleport Mode",
             Self::TeleportToWorld => "Teleport to World",
+            Self::ToTheWayInn => "To The Way Inn",
             Self::Truesight => "Truesight",
             Self::ViewPlanet => "View Planet",
             Self::Vitals => "Vitals",

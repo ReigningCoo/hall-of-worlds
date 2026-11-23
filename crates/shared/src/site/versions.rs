@@ -42,3 +42,7 @@ pub const OASIS_VERSION: u32 = 1 + FORGET_BEFORE;
 
 /// The Dev Area generator's version (as `BUILDING_VERSION`).
 pub const DEV_AREA_VERSION: u32 = 1 + FORGET_BEFORE;
+
+/// The Way Inn's version (`shared::inn`, as `BUILDING_VERSION`): its layout
+/// is fixed, so only a change to it on purpose bumps this.
+pub const INN_VERSION: u32 = 1 + FORGET_BEFORE;

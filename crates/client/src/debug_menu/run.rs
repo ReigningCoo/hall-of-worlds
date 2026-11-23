@@ -108,6 +108,9 @@ pub(super) fn run_actions(
             DebugAction::RevealMap => {
                 to_server.write(ToServer(ClientMessage::DevRevealMap));
             }
+            DebugAction::ToTheWayInn => {
+                to_server.write(ToServer(ClientMessage::DevToInn));
+            }
             DebugAction::ShowDebugInfo => info.0 = !info.0,
             // Made again by `panels::kept_choices`.
             DebugAction::RegenerateDevArea => {}

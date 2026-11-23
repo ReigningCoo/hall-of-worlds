@@ -17,7 +17,7 @@ pub(super) fn why_not(
     }
     let kind = dungeon.info.as_ref().map(|info| info.kind);
     match (view, kind) {
-        (GameView::Dungeon, Some(LevelKind::Poi(_))) => None,
+        (GameView::Dungeon, Some(LevelKind::Poi(_) | LevelKind::Inn)) => None,
         (GameView::Dungeon, Some(LevelKind::Wilderness)) => {
             Some("Only inside a site, not in the wilderness")
         }

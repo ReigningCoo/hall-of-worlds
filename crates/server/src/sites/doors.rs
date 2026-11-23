@@ -4,8 +4,10 @@
 //! everyone else on the level when one changes. A door in a poi's cutout in the
 //! wilderness is its site's (`Mirror`), so both see the same.
 
-use shared::door::{Door, Side, Swing, door_is_outside, gate_first_leaf, starting_door};
+use shared::door::{Door, DoorStyle, Side, Swing, door_is_outside, gate_first_leaf, starting_door};
 use shared::dungeon::{Cell, Level};
+use shared::item::Quality;
+use shared::material::Material;
 use shared::poi::Poi;
 use shared::site::Generator;
 use std::collections::BTreeMap;
@@ -81,10 +83,11 @@ pub(super) fn set_doors(
                 continue;
             }
             let at = (x - offset.0, y - offset.1);
-            let door = saved
-                .get(&at)
-                .copied()
-                .unwrap_or_else(|| first_door(poi, ruined, site.index, level, (x, y), at));
+            let door = saved.get(&at).copied().unwrap_or_else(|| match site.id {
+                // The inn's doors start as its layout has them: closed.
+                SiteId::Inn => inn_door(),
+                _ => first_door(poi, ruined, site.index, level, (x, y), at),
+            });
             level.set_swing(x, y, door.swing);
             level.set_locked(x, y, door.is_locked());
             let key = DoorKey {
@@ -96,6 +99,19 @@ pub(super) fn set_doors(
         }
     }
     doors
+}
+
+/// A door of The Way Inn as it starts: closed, plain wood (a locked one's lock
+/// is put on it once, `ensure_locks`).
+fn inn_door() -> Door {
+    Door {
+        swing: Swing::Closed,
+        quality: Quality::Common,
+        material: Material::Wood,
+        style: DoorStyle::Plain,
+        lock: None,
+        damage: 0,
+    }
 }
 
 /// How the door at `here` on `level` (the site's cell `at`) started out.

@@ -20,10 +20,12 @@
 mod builder;
 mod ground;
 mod room;
+mod site;
 pub mod spots;
 mod upstairs;
 
 pub use room::{CORNER_TIER, InnRoom, RoomKind};
+pub use site::{KIND, is_way_out, site};
 
 use crate::site::{Exit, SiteLevel, Stairs, StairsDirection};
 

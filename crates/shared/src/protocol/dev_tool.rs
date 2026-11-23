@@ -9,7 +9,9 @@ impl ClientMessage {
     pub fn dev_tool(&self) -> Option<DebugTool> {
         Some(match self {
             Self::DevTeleport { .. } => DebugTool::TeleportMode,
-            Self::DevGoToWorld { .. } | Self::DevToHall { .. } => DebugTool::TeleportToWorld,
+            Self::DevGoToWorld { .. } | Self::DevToHall { .. } | Self::DevToInn => {
+                DebugTool::TeleportToWorld
+            }
             Self::DevLightning => DebugTool::LightningStrikeHere,
             Self::DevSetCell { .. } => DebugTool::ChangeCellMode,
             Self::DevFurniture(_) => DebugTool::PlaceFurniture,

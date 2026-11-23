@@ -96,6 +96,17 @@ pub(crate) fn to_hall(
     seed: Option<u64>,
     gate: Option<u8>,
 ) -> bool {
+    let place = gate_for(client, world, seed, gate);
+    enter(client, world, Spot::middle_of(place.front()))
+}
+
+/// The gate `to_hall` puts the player in front of.
+pub(crate) fn gate_for(
+    client: &Client,
+    world: &ServerWorld,
+    seed: Option<u64>,
+    gate: Option<u8>,
+) -> GatePlace {
     let to = seed.map_or(world.seed, WorldSeed::new);
     let entrance = gate.or_else(|| {
         if to != world.seed {
@@ -106,10 +117,9 @@ pub(crate) fn to_hall(
         let at = gates.iter().position(|gate| (gate.x, gate.y) == nearest)?;
         u8::try_from(at).ok()
     });
-    let place = entrance
+    entrance
         .and_then(|entrance| GateAddress::for_world(to, entrance))
-        .map_or(GatePlace::from_number(0), GateAddress::place);
-    enter(client, world, Spot::middle_of(place.front()))
+        .map_or(GatePlace::from_number(0), GateAddress::place)
 }
 
 /// Developer tools: jumps to anywhere on the Hall's floor, given in units as

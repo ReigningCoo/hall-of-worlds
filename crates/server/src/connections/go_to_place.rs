@@ -36,8 +36,8 @@ pub(super) fn go_to_place(
 ) -> bool {
     let current = worlds.of(client.world).seed;
     let terrain = match ask.place {
-        // The Hall is the same from any world: the one they are in.
-        Where::Hall { .. } => current.terrain(),
+        // The Hall and the inn are the same from any world: the one they are in.
+        Where::Hall { .. } | Where::Inn { .. } => current.terrain(),
         Where::WorldMap { seed, .. }
         | Where::Wilderness { seed, .. }
         | Where::Site { seed, .. } => seed,
@@ -62,7 +62,8 @@ pub(super) fn go_to_place(
         Where::WorldMap { .. } => None,
         Where::Wilderness { heading, .. }
         | Where::Site { heading, .. }
-        | Where::Hall { heading, .. } => Some(heading),
+        | Where::Hall { heading, .. }
+        | Where::Inn { heading, .. } => Some(heading),
     };
     match go(client, world, ask) {
         Err(why) => refuse(client, why),
@@ -110,6 +111,17 @@ fn go(
         Where::Wilderness { at, .. } => sites::dev_wilderness(client, world, at),
         Where::Hall { origin, at, .. } => {
             hall::enter(client, world, at.offset(origin * CELL_SPAN, 0))
+        }
+        // Into the inn, then onto the floor and spot as if coming back to a
+        // save there.
+        Where::Inn { level, at, .. } => {
+            let save = VisitSave {
+                site: SiteId::Inn,
+                level,
+                position: at,
+                from_wilderness: false,
+            };
+            sites::dev_to_inn(client, world) && sites::resume(client, world, save)
         }
         Where::Site {
             x,

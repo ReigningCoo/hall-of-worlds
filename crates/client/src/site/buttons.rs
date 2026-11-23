@@ -34,7 +34,8 @@ fn can_leave_here(dungeon: &CurrentDungeon, at: &MapPosition) -> bool {
     match info.kind {
         LevelKind::Wilderness => dungeon.level.cell(at.x, at.y).is_outside(),
         LevelKind::Poi(kind) => can_leave(kind, info.index, &dungeon.level, at.x, at.y),
-        LevelKind::Hall { .. } => false,
+        // Out of the inn only by its door, which takes you out on stepping on it.
+        LevelKind::Hall { .. } | LevelKind::Inn => false,
     }
 }
 
