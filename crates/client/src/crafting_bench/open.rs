@@ -4,6 +4,7 @@
 
 use bevy::prelude::*;
 use shared::furniture::{Holder, Piece};
+use shared::protocol::LevelKind;
 use shared::spot::Spot;
 
 use super::markup::BENCH;
@@ -44,6 +45,12 @@ pub(super) fn follow_clicked_bench(
     let Some(BenchClicked { piece }) = clicks.read().last().copied() else {
         return;
     };
+    // The inn's chests and wardrobes outside players' own rooms are only to
+    // look at (the server refuses them too).
+    let inn = (dungeon.info.as_ref()).filter(|info| info.kind == LevelKind::Inn);
+    if inn.is_some_and(|info| shared::inn::look_only(info.index, &piece)) {
+        return;
+    }
     let at = player.0;
     if in_reach(at, &piece) {
         heading.0 = None;

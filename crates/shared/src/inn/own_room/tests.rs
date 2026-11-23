@@ -1,6 +1,7 @@
 use super::*;
+use crate::door::Side;
 use crate::dungeon::Cell;
-use crate::furniture::Holder;
+use crate::furniture::{Furniture, Holder};
 use crate::inn::{CORNER_TIER, GROUND, OPEN_TIER, RoomKind, level, rooms};
 
 #[test]

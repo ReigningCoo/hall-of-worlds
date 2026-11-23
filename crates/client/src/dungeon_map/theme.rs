@@ -45,6 +45,12 @@ const WOOD: Theme = Theme {
     floor: "angbandtk/dg_extra132_12_04.png",
     shape: Shape::Built,
 };
+/// The Way Inn: a castle's stone walls over plank floors.
+const INN: Theme = Theme {
+    wall: STONE.wall,
+    floor: WOOD.floor,
+    shape: Shape::Built,
+};
 const CRYPT: Theme = Theme {
     wall: "angbandtk/dg_extra132_12_00.png",
     floor: "angbandtk/dg_features32_10_00.png",
@@ -70,13 +76,13 @@ const HALL: Theme = Theme {
 };
 
 impl Theme {
-    /// The theme for a level: its poi's, the Hall's, or The Way Inn's (its
-    /// stand-in kind's).
+    /// The theme for a level: its poi's, the Hall's, or The Way Inn's (stone
+    /// walls, plank floors).
     pub fn of_level(kind: Option<LevelKind>) -> Self {
         match kind {
             Some(LevelKind::Hall { .. }) => HALL,
             Some(LevelKind::Poi(kind)) => Self::of(Some(kind)),
-            Some(LevelKind::Inn) => Self::of(Some(shared::inn::KIND)),
+            Some(LevelKind::Inn) => INN,
             Some(LevelKind::Wilderness) | None => Self::of(None),
         }
     }

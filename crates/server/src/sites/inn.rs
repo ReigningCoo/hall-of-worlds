@@ -7,7 +7,8 @@
 //! `MOST_IN_ONE` players kept by the home world (`moving.rs`); no fighting
 //! anywhere in it (`peace.rs`); things left lying in its public rooms cleared
 //! after a while (`litter.rs`); players' own rooms upstairs each their own
-//! copy (`own_room.rs`). Going in and out are asked for here and done
+//! copy (`own_room.rs`); its racks, fires, hearths and treasury stocked as
+//! each instance's floors are made, the racks refilling (`stock.rs`). Going in and out are asked for here and done
 //! once a client's messages have been read (`move_inn`), as they need every
 //! world and everyone else in the inn.
 
@@ -30,11 +31,14 @@ mod litter;
 mod moving;
 mod own_room;
 mod peace;
+mod stock;
 
 pub(crate) use litter::{Litter, clear_litter};
 pub(crate) use moving::{close_empty_inns, move_inn, out_of_inn};
 pub(crate) use own_room::{close_own_room, hidden_in_own_room, keep_own_room};
 pub(crate) use peace::refuses_harm;
+pub(in crate::sites) use stock::stock_inn;
+pub(crate) use stock::{Restocked, restock_inns};
 
 /// Where a client is with the inn.
 #[derive(Debug, Default)]

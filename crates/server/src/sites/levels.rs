@@ -45,6 +45,7 @@ pub(super) fn level_of(
     super::stock_cellar(world, (new.id, &new.poi), site, index, &level);
     super::furnishings::stock_furnishings(world, (new.id, &new.poi), site, index, &level);
     super::stock_benches(world, (new.id, &new.poi), index, &level);
+    super::inn::stock_inn(world, new.id, index, &level);
     super::put_made_benches(world, new.id, index, &mut level);
     let stairs = level
         .stairs

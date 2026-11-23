@@ -117,7 +117,9 @@ pub(crate) fn follow_quests(
 
 /// Every tick: tells everyone what has come to be on the ground under them.
 pub(crate) fn sync_ground(mut connections: ResMut<Connections>, mut worlds: ResMut<ServerWorlds>) {
-    crate::sites::clear_litter(worlds.home_mut(), std::time::Instant::now());
+    let now = std::time::Instant::now();
+    crate::sites::clear_litter(worlds.home_mut(), now);
+    crate::sites::restock_inns(worlds.home_mut(), now);
     for_each_world(&mut connections.clients, &mut worlds, ground::sync);
 }
 
