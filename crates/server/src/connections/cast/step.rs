@@ -4,26 +4,37 @@
 
 use shared::dungeon::Level;
 use shared::facing::Heading;
-use shared::spell::{Hit, Origin, Toward, WhereStep, where_hits};
+use shared::spell::{Hit, Look, Origin, Shown, Toward, WhereStep, shown, where_hits};
 
 use super::creatures::Present;
 use super::{Aimed, Cast};
 
 /// What `step` hits, as the next steps' targets (the caster facing
-/// `heading`). Only the first where goes at the caster's target.
+/// `heading`), and how it looked from each place it started, to draw. Only
+/// the first where goes at the caster's target.
 pub(super) fn where_step(
     cast: &Cast,
     step: &WhereStep,
     present: &Present,
     level: &Level,
     heading: Heading,
-) -> Vec<Aimed> {
+) -> (Vec<Aimed>, Vec<Shown>) {
     let creatures = &present.creatures;
-    origins(cast, present, heading)
-        .iter()
-        .flat_map(|(origin, toward)| where_hits(level, step, origin, *toward, creatures))
-        .map(|hit| aimed_of(&hit, present))
-        .collect()
+    let look = Look::from_step(&cast.spell, cast.next);
+    let (mut aimed, mut looks) = (Vec::new(), Vec::new());
+    for (origin, toward) in origins(cast, present, heading) {
+        let hits = where_hits(level, step, &origin, toward, creatures);
+        looks.extend(shown(
+            level,
+            (step, look),
+            &origin,
+            toward,
+            creatures,
+            &hits,
+        ));
+        aimed.extend(hits.iter().map(|hit| aimed_of(hit, present)));
+    }
+    (aimed, looks)
 }
 
 /// Where a where step starts, and what at: from the caster for the first

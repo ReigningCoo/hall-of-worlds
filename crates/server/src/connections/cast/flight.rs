@@ -10,6 +10,7 @@ use shared::dungeon::Level;
 use shared::facing::Heading;
 use shared::id::Id;
 use shared::protocol::{MissileId, MissileNews, ServerMessage};
+use shared::spell::Look;
 use shared::spell::{Path, WhereStep, launch};
 
 use super::super::Client;
@@ -57,13 +58,14 @@ pub(super) fn launch_missiles(
     tick: u64,
 ) {
     let caster = clients[i].entity_id();
+    let look = Look::from_step(&cast.spell, cast.next);
     for (path, from) in paths {
         let id = MissileId {
             caster,
             number: clients[i].casting.missiles,
         };
         clients[i].casting.missiles = clients[i].casting.missiles.wrapping_add(1);
-        tell(clients, present, MissileNews::Flying { id, path });
+        tell(clients, present, MissileNews::Flying { id, path, look });
         cast.flying.push(Flying {
             id,
             path,
@@ -114,7 +116,12 @@ pub(super) fn fly(
 
 /// Tells every player on the level.
 fn tell(clients: &mut [Client], present: &Present, news: MissileNews) {
+    tell_level(clients, present, &ServerMessage::Missile(news));
+}
+
+/// Tells every player on the level `message`.
+pub(super) fn tell_level(clients: &mut [Client], present: &Present, message: &ServerMessage) {
     for player in present.players.iter().flatten() {
-        clients[*player].link.send(&ServerMessage::Missile(news));
+        clients[*player].link.send(message);
     }
 }

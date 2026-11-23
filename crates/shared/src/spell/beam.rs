@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 
 use crate::dungeon::Level;
 use crate::facing::{Heading, TURN};
-use crate::spot::CELL_SPAN;
+use crate::spot::{CELL_SPAN, Spot};
 
 use super::filters::Filters;
 use super::hit::{Creature, Hit, Origin};
@@ -31,6 +31,31 @@ pub fn beam_headings(heading: Heading, count: u8) -> Vec<Heading> {
     ways
 }
 
+/// Each of Beam ×`count`'s ways from `origin` at `toward` and where it ends:
+/// as far as the spot aimed at (at most `BEAM_RANGE`; straight ahead that far
+/// with no spot), every beam as long, stopped by walls.
+pub(super) fn beam_ends(
+    level: &Level,
+    origin: &Origin,
+    toward: Toward,
+    count: u8,
+    creatures: &[Creature],
+) -> Vec<(Heading, Spot)> {
+    let middle = toward.heading(origin, creatures);
+    let length = toward
+        .spot(creatures)
+        .map_or(BEAM_RANGE, |spot| origin.at.distance(spot).min(BEAM_RANGE));
+    beam_headings(middle, count)
+        .into_iter()
+        .map(|way| {
+            (
+                way,
+                wall_stop(level, origin.at, ahead(origin.at, way, length)),
+            )
+        })
+        .collect()
+}
+
 /// What Beam ×`count` from `origin` at `toward` hits, nearest first, each once:
 /// as far as the spot aimed at (at most `BEAM_RANGE`; straight ahead that far
 /// with no spot), every beam as long. With nobody there, each beam's end.
@@ -42,19 +67,7 @@ pub fn beam(
     filters: Filters,
     creatures: &[Creature],
 ) -> Vec<Hit> {
-    let middle = toward.heading(origin, creatures);
-    let length = toward
-        .spot(creatures)
-        .map_or(BEAM_RANGE, |spot| origin.at.distance(spot).min(BEAM_RANGE));
-    let ends: Vec<(Heading, _)> = beam_headings(middle, count)
-        .into_iter()
-        .map(|way| {
-            (
-                way,
-                wall_stop(level, origin.at, ahead(origin.at, way, length)),
-            )
-        })
-        .collect();
+    let ends = beam_ends(level, origin, toward, count, creatures);
     // Each creature by the nearest point any beam meets it.
     let mut met: BTreeMap<usize, (u64, Heading)> = BTreeMap::new();
     for &(way, end) in &ends {

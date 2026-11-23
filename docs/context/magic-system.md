@@ -168,7 +168,7 @@ Wild's practice moves when saves load: Beasts to Social's Animals, Plants to Ear
 4. **Spellbook and the Magic ability** (shared and server): the book on the sheet, messages to store, rename, favourite and remove spells, new characters' book. Needs 2 (built).
 5. **Casting on the server:** steps a second apart, Self, Touch, Beam, Surround and Point, Heal as an effect, fizzling, Mana, practice, the inn, never to death; the Heal ability gone and bars moved onto the Heal spell, and the client's bar taking spells (by hand and automatic). Needs 3 and 4 (built: server `connections/cast/`, `shared::spell`'s `SpellKey`, `cast.rs`, `spare.rs`, client `abilities/spells.rs`; missiles land at once until PR 6; harm to the caster and friends stopping at 1 Health is `spared_harm`, used once there is harm, PR 10).
 6. **Missiles in flight** (server, client following them); Healing Missile in new books. Needs 5 (built: `shared::spell`'s `flight.rs`, server `cast/flight.rs`, `MissileNews`, client `common::Missiles` and `dungeon_map/missiles.rs`, a glowing ball until PR 7; several missiles in one step: the next step starts once the last lands).
-7. **Drawing wheres** (client): bolts, beams, rings, points, sparkles. Needs 6.
+7. **Drawing wheres** (client): bolts, beams, rings, points, sparkles. Needs 6 (built: `shared::spell`'s `Look` and `Shown`, `protocol::SpellNews`, client `dungeon_map/spell_fx/`; the debug API's `client.cast` and `client.set_skills`).
 8. **The spellbook page** (client): the list with favourites at the top, names, removing, dragging to the bar. Needs 5; any order with 7.
 9. **The design panel** (client). Needs 8.
 10. **Effects: Void, Fire, Water** (and cold, ice, steam), resisting by Aura and Warding's place in it. Needs 5.
