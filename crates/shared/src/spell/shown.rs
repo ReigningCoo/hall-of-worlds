@@ -12,7 +12,7 @@ use crate::spot::Spot;
 
 use super::aim::aim_first;
 use super::beam::beam_ends;
-use super::design::WhereStep;
+use super::design::{WherePart, WhereStep};
 use super::hit::{Creature, Hit, Origin};
 use super::look::Look;
 use super::place::Where;
@@ -40,8 +40,9 @@ pub struct Shown {
     pub look: Look,
 }
 
-/// How `step` from `origin` at `toward` looks, having hit `hits`. `None`
-/// when its filters found nobody to aim at (a fizzle: nothing to draw).
+/// How `step`'s first where from `origin` at `toward` looks, having hit
+/// `hits`. `None` when its filters found nobody to aim at (a fizzle: nothing
+/// to draw).
 pub fn shown(
     level: &Level,
     (step, look): (&WhereStep, Look),
@@ -51,21 +52,65 @@ pub fn shown(
     hits: &[Hit],
 ) -> Option<Shown> {
     let (origin, toward) = aim_first(level, step, origin, toward, creatures)?;
+    let first = WherePart {
+        place: step.place,
+        count: step.count,
+    };
+    Some(drawn(
+        level,
+        (first, look),
+        &origin,
+        toward,
+        creatures,
+        hits,
+    ))
+}
+
+/// How `step`'s merged where at `index` (1 or more) looks from `origin`, a
+/// hit of the where before it, going on ahead, having hit `hits`. `None`
+/// when there is no where at `index`.
+pub fn shown_part(
+    level: &Level,
+    (step, index, look): (&WhereStep, usize, Look),
+    origin: &Origin,
+    creatures: &[Creature],
+    hits: &[Hit],
+) -> Option<Shown> {
+    let part = step.parts().nth(index).filter(|_| index > 0)?;
+    Some(drawn(
+        level,
+        (part, look),
+        origin,
+        Toward::Ahead,
+        creatures,
+        hits,
+    ))
+}
+
+/// How one where looks from `origin` at `toward`, aimed already.
+fn drawn(
+    level: &Level,
+    (part, look): (WherePart, Look),
+    origin: &Origin,
+    toward: Toward,
+    creatures: &[Creature],
+    hits: &[Hit],
+) -> Shown {
     let body = origin.body(creatures);
     let radius = body.size.radius().unsigned_abs();
-    let reach = match step.place {
+    let reach = match part.place {
         Where::Touch => radius + arm_reach(body.size),
-        Where::Surround => surround_reach(radius, step.count),
+        Where::Surround => surround_reach(radius, part.count),
         Where::Missile | Where::Beam | Where::Point => 0,
     };
-    let ends: Vec<(Heading, Spot)> = match step.place {
-        Where::Beam => beam_ends(level, &origin, toward, step.count, creatures),
+    let ends: Vec<(Heading, Spot)> = match part.place {
+        Where::Beam => beam_ends(level, origin, toward, part.count, creatures),
         _ => Vec::new(),
     };
     let heading = ends.first().map_or(origin.heading, |(way, _)| *way);
-    Some(Shown {
-        place: step.place,
-        count: step.count,
+    Shown {
+        place: part.place,
+        count: part.count,
         from: origin.at,
         height: origin.height,
         heading,
@@ -73,5 +118,5 @@ pub fn shown(
         ends: ends.into_iter().map(|(_, end)| end).collect(),
         hits: hits.iter().map(|hit| hit.at).collect(),
         look,
-    })
+    }
 }

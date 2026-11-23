@@ -1,7 +1,7 @@
 //! A spell's automatic name, worded through `shared::lang` (`lang/en/spell.ftl`):
 //! the first effect step's first outcome, shaped by the where just before it
-//! (Heal, Healing Missile, Ball of Fire). The client renders it; the server
-//! never does.
+//! (the last of a step's merged wheres): Heal, Healing Missile, Ball of Fire.
+//! The client renders it; the server never does.
 
 use super::combination::outcomes;
 use super::design::{Spell, Step};
@@ -12,7 +12,7 @@ pub fn auto_name(spell: &Spell, lang: &Lang) -> String {
     let mut place = None;
     for step in &spell.steps {
         match step {
-            Step::Where(step) => place = Some(step.place),
+            Step::Where(step) => place = Some(step.last().place),
             Step::Effects(step) => {
                 let Some(&(outcome, _)) = outcomes(step).first() else {
                     continue;

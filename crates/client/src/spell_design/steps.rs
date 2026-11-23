@@ -35,7 +35,9 @@ const STEP_BACKGROUND: Color = Color::srgba(1.0, 1.0, 1.0, 0.18);
 /// with nothing after it, or (first) filters with no where to filter.
 pub(super) fn step_wrong(steps: &[Step], at: usize, (unlocked, filters): (usize, Filters)) -> bool {
     match &steps[at] {
-        Step::Where(step) => (step.place as usize) >= unlocked || at + 1 == steps.len(),
+        Step::Where(step) => {
+            step.parts().any(|part| part.place as usize >= unlocked) || at + 1 == steps.len()
+        }
         Step::Effects(step) => step.effects.is_empty() || (at == 0 && filters.any()),
     }
 }

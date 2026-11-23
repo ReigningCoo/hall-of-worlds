@@ -53,6 +53,7 @@ fn step(place: Where, count: u8, filters: Filters) -> WhereStep {
         place,
         count,
         filters,
+        more: Vec::new(),
     }
 }
 

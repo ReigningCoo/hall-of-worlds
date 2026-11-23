@@ -11,7 +11,7 @@ use shared::facing::Heading;
 use shared::id::Id;
 use shared::protocol::{MissileId, MissileNews, ServerMessage};
 use shared::spell::Look;
-use shared::spell::{Path, WhereStep, launch};
+use shared::spell::{Path, WhereStep, launch, launch_part};
 
 use super::super::Client;
 use super::creatures::Present;
@@ -32,9 +32,9 @@ pub(crate) struct Flying {
     along: u64,
 }
 
-/// The ways `step`'s missiles will fly, each with the creature it starts
-/// from. None (a first step's Friend or Enemy finding nobody) is a fizzle for
-/// the caller.
+/// The ways the missiles of `step`'s where now due (`Cast::part`) will fly,
+/// each with the creature it starts from. None (a first step's Friend or
+/// Enemy finding nobody) is a fizzle for the caller.
 pub(super) fn missile_paths(
     cast: &Cast,
     (step, present, level): (&WhereStep, &Present, &Level),
@@ -42,7 +42,10 @@ pub(super) fn missile_paths(
 ) -> Vec<(Path, Option<Id>)> {
     (origins(cast, present, heading).into_iter())
         .filter_map(|(origin, toward)| {
-            let path = launch(level, step, &origin, toward, &present.creatures)?;
+            let path = match cast.part {
+                0 => launch(level, step, &origin, toward, &present.creatures)?,
+                part => launch_part(level, step, part, &origin, &present.creatures)?,
+            };
             Some((path, origin.creature.map(|index| present.ids[index])))
         })
         .collect()

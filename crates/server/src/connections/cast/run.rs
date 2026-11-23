@@ -75,10 +75,15 @@ fn run_step(
                 return;
             };
             let heading = clients[i].heading;
-            if place.place != Where::Missile {
+            let Some(part) = place.parts().nth(cast.part) else {
+                return;
+            };
+            if part.place != Where::Missile {
                 let (aimed, looks) = where_step(&cast, place, present, level, heading);
                 // A first step that hits nobody fizzles: nothing to see.
-                if !first || aimed.iter().any(|aimed| aimed.creature.is_some()) {
+                let last = cast.part + 1 == place.len();
+                let hit = (aimed.iter().chain(&cast.gathered)).any(|a| a.creature.is_some());
+                if !first || !last || hit {
                     for shown in looks {
                         tell_level(
                             clients,
@@ -92,7 +97,13 @@ fn run_step(
             }
             let paths = missile_paths(&cast, (place, present, level), heading);
             if paths.is_empty() {
-                fizzle(&mut clients[i], cast.toward);
+                // A first where aimed at nobody fizzles; a merged one with
+                // nothing to start from ends its step.
+                if cast.part == 0 {
+                    fizzle(&mut clients[i], cast.toward);
+                } else {
+                    finish_where(&mut clients[i], cast, Vec::new(), tick, STEP_TICKS);
+                }
                 return;
             }
             launch_missiles(clients, i, &mut cast, (paths, present), tick);
@@ -128,9 +139,10 @@ fn run_step(
 /// Action ticks between steps (`spell::STEP_MILLIS`).
 const STEP_TICKS: u64 = STEP_MILLIS * TICKS_PER_SECOND as u64 / 1000;
 
-/// A where step has hit `aimed`: the next step's targets, due `after` ticks
-/// on. A first step that hit nobody, or without the Mana as it lands,
-/// fizzles.
+/// A where has hit `aimed`. A merged where follows from those hits on the
+/// next tick; after a step's last where, everything its wheres hit is the
+/// next step's targets, due `after` ticks on. A first step that hit nobody,
+/// or without the Mana as it lands, fizzles.
 fn finish_where(
     client: &mut Client,
     mut cast: super::Cast,
@@ -138,8 +150,25 @@ fn finish_where(
     tick: u64,
     after: u64,
 ) {
+    let Some(Step::Where(step)) = cast.spell.steps.get(cast.next) else {
+        return;
+    };
+    let wheres = step.len();
+    let form = step.parts().nth(cast.part).map(|part| part.place.skill());
+    cast.forms.extend(form);
+    cast.gathered.extend(aimed.iter().copied());
+    if cast.part + 1 < wheres && !aimed.is_empty() {
+        // The step's next where leads on from these hits.
+        cast.part += 1;
+        cast.aimed = aimed;
+        cast.due = tick;
+        client.casting.running = Some(cast);
+        return;
+    }
+    let all = std::mem::take(&mut cast.gathered);
+    cast.part = 0;
     let first = cast.next == 0;
-    if first && !aimed.iter().any(|aimed| aimed.creature.is_some()) {
+    if first && !all.iter().any(|aimed| aimed.creature.is_some()) {
         fizzle(client, cast.toward);
         return;
     }
@@ -147,10 +176,7 @@ fn finish_where(
         fizzle(client, cast.toward);
         return;
     }
-    if let Some(Step::Where(place)) = cast.spell.steps.get(cast.next) {
-        cast.forms.push(place.place.skill());
-    }
-    cast.aimed = aimed;
+    cast.aimed = all;
     next_step(client, cast, tick + after);
 }
 

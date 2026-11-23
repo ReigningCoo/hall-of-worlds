@@ -5,7 +5,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::design::{MAX_STEPS, Spell, Step};
+use super::design::{MAX_STEPS, MAX_WHERES, Spell, Step};
 use super::place::Where;
 use crate::skill::{SkillId, Skills, VALUE_SCALE};
 
@@ -24,6 +24,8 @@ pub enum DesignError {
     EmptyStep,
     /// A where or an effect stacked 0 times.
     ZeroCount,
+    /// More than `MAX_WHERES` wheres merged in one step.
+    TooManyWheres,
     /// Filters in a step other than the first.
     FilterNotFirst,
     /// A where the caster hasn't unlocked.
@@ -71,14 +73,17 @@ pub fn check(spell: &Spell, skills: Option<&Skills>) -> Result<(), DesignError> 
     for (index, step) in spell.steps.iter().enumerate() {
         match step {
             Step::Where(step) => {
-                if step.count == 0 {
+                if step.len() > MAX_WHERES {
+                    return Err(DesignError::TooManyWheres);
+                }
+                if step.parts().any(|part| part.count == 0) {
                     return Err(DesignError::ZeroCount);
                 }
                 if index > 0 && step.filters.any() {
                     return Err(DesignError::FilterNotFirst);
                 }
-                if step.place as usize >= unlocked {
-                    return Err(DesignError::Locked(step.place));
+                if let Some(part) = step.parts().find(|part| part.place as usize >= unlocked) {
+                    return Err(DesignError::Locked(part.place));
                 }
             }
             Step::Effects(step) => {

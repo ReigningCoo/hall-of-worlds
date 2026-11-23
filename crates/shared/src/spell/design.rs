@@ -25,12 +25,30 @@ pub enum Step {
     Effects(EffectStep),
 }
 
-/// One where, stacked `count` times, and (in the first step only) filters.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// At most this many wheres merged in one step (the first and `more`): a
+/// safety net, as Mana is the real limit.
+pub const MAX_WHERES: usize = 5;
+
+/// A where step: its first where, stacked `count` times, (in the first step
+/// only) filters, and any more wheres merged after it (magic plan PR 10),
+/// each leading on from what the one before hit. The effects after the step
+/// land on everything any of them hit.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct WhereStep {
     pub place: Where,
     pub count: u8,
     pub filters: Filters,
+    /// The wheres merged after the first, in order; empty for one where (and
+    /// in saves from before merging, which load as they were).
+    #[serde(default)]
+    pub more: Vec<WherePart>,
+}
+
+/// One where in a step, stacked `count` times.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct WherePart {
+    pub place: Where,
+    pub count: u8,
 }
 
 /// Effects in order, each stacked a number of times (Heal ×2 is two Heals).
@@ -63,14 +81,39 @@ impl Spell {
     }
 }
 
+impl WhereStep {
+    /// Every where in the step, the first first.
+    pub fn parts(&self) -> impl Iterator<Item = WherePart> + '_ {
+        let first = WherePart {
+            place: self.place,
+            count: self.count,
+        };
+        std::iter::once(first).chain(self.more.iter().copied())
+    }
+
+    /// How many wheres the step holds: 1 and its `more`.
+    pub fn len(&self) -> usize {
+        1 + self.more.len()
+    }
+
+    /// Never empty: a where step always has its first where.
+    pub fn is_empty(&self) -> bool {
+        false
+    }
+
+    /// The last where in the step: the one its effects follow.
+    pub fn last(&self) -> WherePart {
+        self.parts().last().unwrap_or(WherePart {
+            place: self.place,
+            count: self.count,
+        })
+    }
+}
+
 impl Step {
     /// A where step with no filters.
     pub const fn at(place: Where, count: u8) -> Self {
-        Self::Where(WhereStep {
-            place,
-            count,
-            filters: Filters::NONE,
-        })
+        Self::filtered(place, count, Filters::NONE)
     }
 
     /// A where step with filters.
@@ -79,7 +122,20 @@ impl Step {
             place,
             count,
             filters,
+            more: Vec::new(),
         })
+    }
+
+    /// A where step of several wheres merged, in order, with filters; `None`
+    /// with no wheres.
+    pub fn merged(parts: &[WherePart], filters: Filters) -> Option<Self> {
+        let (first, more) = parts.split_first()?;
+        Some(Self::Where(WhereStep {
+            place: first.place,
+            count: first.count,
+            filters,
+            more: more.to_vec(),
+        }))
     }
 
     /// An effect step of these effects and counts.
