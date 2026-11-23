@@ -102,18 +102,20 @@ pub(super) fn welcome(
             let bar = world.storage.load_action_bar(id)?;
             let difficulty = world.storage.load_difficulty(id)?;
             let shown = world.storage.load_shown_as(id)?;
+            let room = world.storage.load_inn_room(id)?;
             Ok((
                 character,
                 inventory,
                 world.storage.load_sheet(id)?,
                 gates,
-                (played, bar, difficulty, shown),
+                (played, bar, difficulty, shown, room),
             ))
         });
     // Not `Playing` yet, so nothing blank can be saved over the real character.
     match loaded {
-        Ok((character, inventory, sheet, gates, (played, bar, difficulty, shown))) => {
+        Ok((character, inventory, sheet, gates, (played, bar, difficulty, shown, room))) => {
             client.action_bar = bar;
+            client.inn.room = room;
             client.show_saved(shown);
             client.decide_difficulty(difficulty, options.difficulties);
             (client.character, client.other_worlds) = character;

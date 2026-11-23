@@ -51,8 +51,6 @@ fn things_left_in_public_rooms_are_cleared_after_a_while() {
     clear_litter(&mut test.world, nearly);
     assert!(spots.iter().all(|&at| lying(&mut test, at)));
     clear_litter(&mut test.world, start + Duration::from_secs(LITTER_SECONDS));
-    assert!(!lying(&mut test, spots[0]));
-    assert!(!lying(&mut test, spots[1]));
-    // Private rooms are their own (PR 4): left alone.
-    assert!(lying(&mut test, spots[2]));
+    // A private room downstairs is shared by whoever is in it: cleared too.
+    assert!(spots.iter().all(|&at| !lying(&mut test, at)));
 }

@@ -90,6 +90,7 @@ pub(in crate::sites) fn enter_wilderness(
         further: 0,
         floors: Vec::new(),
         benches_sent: Default::default(),
+        own_room: None,
     };
     let info = LevelInfo {
         kind: LevelKind::Wilderness,

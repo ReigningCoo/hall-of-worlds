@@ -107,17 +107,19 @@ fn settle_yeast(clients: &mut [Client], world: &mut ServerWorld) {
 
 /// Tells a client about bags: on arriving, those its character remembers; after that
 /// only what has just been seen to differ, which is all its character remembers too.
+/// In the inn, the bags in their own rooms are those of their own copy.
 fn tell_bags(client: &mut Client, world: &mut ServerWorld) {
-    let Some((id, index, _)) = standing_at(client) else {
+    let Some(visit) = client.visit.as_ref() else {
         return;
     };
-    let level = world.site(id).levels.get(&index);
-    let ground = level.map(|level| &level.ground);
-    let mut piles: Vec<(Spot, Load)> = ground
-        .into_iter()
-        .flat_map(|ground| ground.iter())
-        .map(|(&at, items)| (at, Load::of(items)))
-        .collect();
+    let (id, index) = (visit.id(), visit.index());
+    let mut piles: Vec<(Spot, Load)> = Vec::new();
+    for site in std::iter::once(id).chain(visit.own_rooms()) {
+        let level = world.site(site).levels.get(&index);
+        let ground = level.map(|level| &level.ground);
+        let lying = ground.into_iter().flat_map(|ground| ground.iter());
+        piles.extend(lying.map(|(&at, items)| (at, Load::of(items))));
+    }
     if let Some(find) = crate::quests::find_here(client, world) {
         piles.push((find.at, Load::of(std::slice::from_ref(&find.item))));
     }

@@ -64,6 +64,8 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld, in_hall: &[S
         for someone in everyone.iter().chain(in_hall) {
             let in_sight = someone.id != client.entity_id()
                 && someone.level == here
+                // Everyone in the inn's own rooms is in their own copy.
+                && !crate::sites::hidden_in_own_room(someone.level, someone.position)
                 && someone.in_hall == my_hall.is_some()
                 && match (&mut client.visit, my_hall) {
                     (Some(visit), _) => {

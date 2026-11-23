@@ -99,6 +99,7 @@ fn go_in(
     if fresh {
         world.close_inn(number);
     }
+    super::own_room::open_own_room(client, world);
     carry_knowledge(&mut client.character, id);
     let poi = inn_poi(client);
     match at {
@@ -160,6 +161,7 @@ fn close_entrance(world: &mut ServerWorld, id: SiteId) {
 /// kept, beside the Hall's first gate), in the world they came from.
 pub(crate) fn out_of_inn(client: &mut Client, worlds: &mut ServerWorlds) -> bool {
     leave(client, worlds.of(client.world));
+    super::close_own_room(client, worlds.home_mut());
     client.visit = None;
     if let Some(from) = client.inn.from.take() {
         client.world = Some(from);

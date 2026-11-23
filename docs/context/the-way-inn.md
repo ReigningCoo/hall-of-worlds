@@ -36,7 +36,7 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 1. **Layout** (built): `shared::inn`, both floors as levels with rooms marked, the foyer, stairs, doors (the treasury's locked), inside windows, the fixed places furniture goes (`inn::spots`); the Hall's hidden way-ins (`hall::inn_way`); golden fingerprint, print and walk-round tests.
 2. **In and out** (built): the Hall's edge into the foyer, leaving back to the same tile, the stairs, the client drawing it, `Where::Inn`, a "To The Way Inn" debug menu entry (and `docs/debug-menu.md`), the Hall's worn-marble hint. Needs 1.
 3. **Instances** of 30, no fighting, dropped items cleared (built). Needs 2.
-4. **Private rooms** per tier with personal copies and saved storage. Needs 2 and tavern furniture PR 7 (chests, wardrobes; built).
+4. **Private rooms** per tier with personal copies and saved storage (built). Needs 2 and tavern furniture PR 7 (chests, wardrobes; built).
 5. **Furnishing** everything: tables, booths, the bar, stocked racks, three fireplaces, lights, decorations, rugs, floors, the kitchen, brewing, ageing, the treasury, the foyer. Needs tavern furniture PRs 4–7 (built).
 6. **New characters start in the inn** (their first exit: the Hall at their home world's first gate), the note about coming back, a wiki page, context files, decisions. Last.
 
@@ -64,3 +64,12 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 - No fighting: Attack, Kick and Trample (`Ability::harms`) are refused by the server and greyed on the client in the inn; kicking doors is Kick, so the treasury's is safe too. Heal and everything else work.
 - Things lying in a public room (all but private rooms and bedrooms) are destroyed 120 real seconds after the server first sees them there, each on its own clock; a bag left empty goes. Private rooms keep theirs until PR 4 makes them each player's own.
 - Debug tools that go elsewhere (Teleport to Hall, Back to Start, sites, Teleport to World, Load) first take the player out of the inn into their own world.
+
+## Settled in PR 4 (Claude's choices)
+
+- One door a tier, as decided: the own rooms are one strip of bedrooms (between the H's legs, west of the middle, north of the crossbar), tiers 1 to 4 from the stairs, tier 1's door on the crossbar beside them. The other 24 bedrooms are locked for later (staff, guests, more tiers), and so are tiers 2 to 4's doors until they can be bought: a lock with no key, as the treasury's, the same for everyone (`inn::OPEN_TIER`). Unlocking one per character comes with buying.
+- Each own room has a bed, chests and a wardrobe placed in code (`inn::own_room`), more for larger tiers; PR 5 furnishes the rest.
+- Everyone walks the instance's level; the room is "their own" by what is kept and seen: what is in its chests and wardrobe and on its floor is kept in a site of their own (`SiteId::InnRoom`, by character), and nobody standing in an own room is shown to anyone else. So looking out shows the instance's corridor and who is in it, and looking in shows your own room, empty of others. Its door is the instance's, shared.
+- That site lives in the home world while they are in the inn and is saved with the character (`CharacterSave::inn_room`, upstairs' level save), never as a site's file: the same on every world.
+- A private room downstairs is shared by whoever is in it, so things left there are cleared like any public room's.
+

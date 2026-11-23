@@ -67,7 +67,7 @@ fn golden_fingerprints() {
     let prints = [fingerprint(&floor(GROUND)), fingerprint(&floor(UPSTAIRS))];
     assert_eq!(
         prints,
-        [3017963899545757124, 6342639684513463748],
+        [3017963899545757124, 10763855015279406826],
         "{prints:?}"
     );
     assert!(level(FLOORS).is_none());
@@ -85,8 +85,18 @@ fn everything_reached_but_the_treasury() {
         .filter(|&(x, y)| !treasury.contains(x, y) && (x, y) != TREASURY_DOOR)
         .collect();
     assert_eq!(got, expected);
+    // Upstairs: the corridors and the one own room open to everyone, its
+    // door too; the other bedrooms are locked.
     let up = floor(UPSTAIRS);
-    assert_eq!(reached(&up.level, STAIRS), walkable(&up.level));
+    let open = &own_rooms()[0];
+    assert_eq!(open.tier, OPEN_TIER);
+    let corridor = &room_of(UPSTAIRS, RoomKind::Corridor)[0];
+    let expected: BTreeSet<_> = (walkable(&up.level).into_iter())
+        .filter(|&(x, y)| {
+            corridor.contains(x, y) || open.rect.contains(x, y) || (x, y) == open.door
+        })
+        .collect();
+    assert_eq!(reached(&up.level, STAIRS), expected);
 }
 
 #[test]
@@ -201,11 +211,16 @@ fn upstairs_bedrooms_grow_away_from_the_stairs() {
     assert!(corridor.contains(STAIRS.0, STAIRS.1));
     let bedrooms: Vec<_> = rooms(UPSTAIRS)
         .into_iter()
-        .filter(|room| matches!(room.kind, RoomKind::Bedroom { .. }))
+        .filter(|room| {
+            matches!(
+                room.kind,
+                RoomKind::Bedroom { .. } | RoomKind::OwnRoom { .. }
+            )
+        })
         .collect();
     assert!(bedrooms.len() >= 24, "{}", bedrooms.len());
     let tier = |room: &InnRoom| match room.kind {
-        RoomKind::Bedroom { tier } => tier,
+        RoomKind::Bedroom { tier } | RoomKind::OwnRoom { tier } => tier,
         _ => unreachable!(),
     };
     let size = |t: u8| (bedrooms.iter().filter(move |r| tier(r) == t)).map(InnRoom::area);

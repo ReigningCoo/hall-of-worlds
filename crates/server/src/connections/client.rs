@@ -206,16 +206,21 @@ impl Client {
     /// Saves the character if anything changed (only once welcomed: before
     /// that nothing has been loaded).
     pub(super) fn save(&mut self, world: &mut ServerWorld) {
-        let Some(id) = &self.character_id else {
+        let Some(id) = self.character_id else {
             return;
         };
-        if self.phase != Phase::Playing || !self.unsaved {
+        if self.phase != Phase::Playing {
+            return;
+        }
+        // Their own rooms in the inn change in the home world (`sites::inn`).
+        sites::keep_own_room(self, world);
+        if !self.unsaved {
             return;
         }
         self.character.visit = self.visit.as_ref().map(Visit::save);
         // In the inn they are kept by the home world, but saved with their own.
         world.storage.save_character(
-            id,
+            &id,
             self.inn.from.unwrap_or(world.seed.id()),
             &self.character,
             &self.other_worlds,
@@ -227,6 +232,7 @@ impl Client {
                 action_bar: self.action_bar.clone(),
                 difficulty: self.difficulty,
                 shown_as: self.shown_to_save(),
+                inn_room: self.inn.room.clone(),
             },
         );
         self.unsaved = false;
@@ -278,6 +284,7 @@ impl Client {
         self.gone = true;
         sites::leave(self, world);
         self.save(world);
+        sites::close_own_room(self, world);
         world.save_sites();
     }
 }

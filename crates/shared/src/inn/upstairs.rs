@@ -2,11 +2,13 @@
 //! between them with the stairs in its middle) and bedrooms on every side.
 //! Each run of bedrooms (a strip) starts beside the stairs' end with the
 //! smallest and grows away from it, the last taking what is left: the
-//! largest, at the corners.
+//! largest, at the corners. One strip's bedrooms, a tier each, are players'
+//! own rooms (`OwnRoom`, `own_rooms`); the rest are locked for now.
 
 use super::builder::{Built, span};
 use super::spots::{MIDDLE_X, STAIRS};
-use super::{CORNER_TIER, DEPTH, RoomKind, WIDTH};
+use super::{CORNER_TIER, DEPTH, OPEN_TIER, RoomKind, WIDTH};
+use crate::site::Rect;
 
 /// The west leg's columns; the east leg is its mirror.
 const LEG_X: (i64, i64) = (9, 10);
@@ -14,6 +16,10 @@ const LEG_X: (i64, i64) = (9, 10);
 const CROSSBAR_Y: (i64, i64) = (28, 29);
 /// The smallest bedroom's length along its strip.
 const FIRST_LENGTH: i64 = 3;
+/// The strip (in `strips`' order) whose bedrooms are players' own rooms, a
+/// door a tier: between the legs, west of the middle, north of the crossbar,
+/// its first door beside the stairs.
+const OWN_STRIP: usize = 2;
 
 /// A run of bedrooms along a corridor, from `near` (beside the crossbar) to
 /// `far` (an outer wall), `x0..=x1` across, their doors in the wall at
@@ -39,10 +45,16 @@ pub(super) fn build() -> Built {
     ];
     built.room(RoomKind::Corridor, legs.to_vec());
     debug_assert!(legs[2].contains(STAIRS.0, STAIRS.1));
-    for strip in strips() {
-        bedrooms(&mut built, &strip);
+    for (n, strip) in strips().iter().enumerate() {
+        bedrooms(&mut built, strip, n == OWN_STRIP);
     }
     built
+}
+
+/// Players' own rooms upstairs, smallest tier first: each tier's room, its
+/// floor and its door.
+pub(super) fn own_rooms() -> Vec<(u8, Rect, (i64, i64))> {
+    strip_rooms(&strips()[OWN_STRIP])
 }
 
 /// Every strip: the outer ones west and east of the legs, north and south of
@@ -99,11 +111,13 @@ pub(super) fn lengths(mut left: i64) -> Vec<i64> {
     out
 }
 
-/// A strip's bedrooms, a wall between each, with their tiers and doors.
-fn bedrooms(built: &mut Built, strip: &Strip) {
+/// A strip's bedrooms, a wall between each, from its near end: each one's
+/// tier, floor and door.
+fn strip_rooms(strip: &Strip) -> Vec<(u8, Rect, (i64, i64))> {
     let step = (strip.far - strip.near).signum();
     let all = lengths((strip.far - strip.near).abs() + 1);
     let mut from = strip.near;
+    let mut out = Vec::new();
     for (n, &length) in all.iter().enumerate() {
         let to = from + step * (length - 1);
         let tier = if n + 1 == all.len() {
@@ -112,7 +126,6 @@ fn bedrooms(built: &mut Built, strip: &Strip) {
             n as u8 + 1
         };
         let rect = span(strip.x0, from.min(to), strip.x1, from.max(to));
-        let room = built.room(RoomKind::Bedroom { tier }, vec![rect]);
         let middle_x = match strip.x0 > MIDDLE_X {
             true => (strip.x0 + strip.x1 + 1) / 2,
             false => (strip.x0 + strip.x1) / 2,
@@ -121,8 +134,23 @@ fn bedrooms(built: &mut Built, strip: &Strip) {
             (0, Some(wall)) => (middle_x, wall),
             _ => (strip.door_x, from + step * ((length - 1) / 2)),
         };
-        built.door(door, Some(room), false);
+        out.push((tier, rect, door));
         from = to + 2 * step;
+    }
+    out
+}
+
+/// A strip's bedrooms with their doors: players' own rooms if `own` (only
+/// `OPEN_TIER`'s door unlocked, as nobody owns a larger tier yet), else
+/// plain bedrooms, locked for now.
+fn bedrooms(built: &mut Built, strip: &Strip, own: bool) {
+    for (tier, rect, door) in strip_rooms(strip) {
+        let kind = match own {
+            true => RoomKind::OwnRoom { tier },
+            false => RoomKind::Bedroom { tier },
+        };
+        let room = built.room(kind, vec![rect]);
+        built.door(door, Some(room), !own || tier > OPEN_TIER);
     }
 }
 

@@ -19,6 +19,8 @@ pub(super) fn site_file_name(site: SiteId) -> String {
         SiteId::Wilderness => "wilderness.ron".into(),
         SiteId::Inn => "the_way_inn.ron".into(),
         SiteId::InnInstance(n) => format!("the_way_inn_{n}.ron"),
+        // Never saved as a site: kept with the character.
+        SiteId::InnRoom(character) => format!("the_way_inn_room_{}.ron", character.0),
         SiteId::Quest { character, quest } => {
             let slot = match quest.slot {
                 Slot::Giver {

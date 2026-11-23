@@ -6,6 +6,9 @@ use crate::site::Rect;
 /// The tier of the largest bedrooms, at the corners furthest from the
 /// stairs. Tiers count up from 1 beside the stairs.
 pub const CORNER_TIER: u8 = 4;
+/// The tier of own room every character has: the smallest. Buying larger
+/// ones comes later, so their doors are locked for now.
+pub const OPEN_TIER: u8 = 1;
 
 /// What a room of the inn is for.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -29,18 +32,25 @@ pub enum RoomKind {
     /// Upstairs' corridors (an H).
     Corridor,
     /// A bedroom upstairs, by tier: 1 beside the stairs, larger further out,
-    /// `CORNER_TIER` the largest.
+    /// `CORNER_TIER` the largest. Locked for now: only `OwnRoom`s are used.
     Bedroom {
+        tier: u8,
+    },
+    /// A player's own room upstairs: one door a tier, and everyone who goes
+    /// through it has their own copy of the room at the same time, with
+    /// their own chest and wardrobe (The Way Inn plan, PR 4). Only
+    /// `OPEN_TIER`'s is unlocked for now.
+    OwnRoom {
         tier: u8,
     },
 }
 
 impl RoomKind {
-    /// Whether everyone in an instance shares it: all but private rooms and
-    /// bedrooms, which become each player's own (The Way Inn plan, PR 4).
-    /// Things left lying in these are cleared after a while.
+    /// Whether everyone in an instance shares it: all but bedrooms, players'
+    /// own rooms among them (a private room downstairs is shared by whoever
+    /// is in it). Things left lying in these are cleared after a while.
     pub fn is_public(self) -> bool {
-        !matches!(self, Self::PrivateRoom | Self::Bedroom { .. })
+        !matches!(self, Self::Bedroom { .. } | Self::OwnRoom { .. })
     }
 }
 
