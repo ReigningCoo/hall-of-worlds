@@ -91,7 +91,7 @@ pub use clock::{CropGrowthShift, GameClock, HerbGrowthShift, NIGHT_LIGHT, Server
 pub use creatures::{
     AbilitiesPage, CancelledEnergy, CarryLimit, CharacterRefused, Dressing, EscortGait,
     MakesCharacters, MakingCharacter, Other, PlayerGait, PlayerSize, PlayerSpeed, SkillsPage,
-    SpentEnergy,
+    SpellsPage, SpentEnergy,
 };
 pub use debug::{
     CreateMobOrder, DebugInfo, DebugTools, DetectMonsters, FreezeMobs, FurnitureClicked, GodMode,

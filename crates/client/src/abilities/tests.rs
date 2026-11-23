@@ -33,6 +33,24 @@ mod dropping {
     const BREAD: BarThing = BarThing::Item(ItemKind::Bread);
 
     #[test]
+    fn a_spell_from_the_spells_page_goes_on_a_slot_and_comes_back_off() {
+        let key = shared::spell::SpellKey(7);
+        let spell = BarThing::Spell(key);
+        assert_eq!(
+            drop_change(spell, From::Page, Some(Spot::Slot(2))),
+            Some(BarChange::PlaceSpell {
+                slot: 2,
+                spell: key
+            })
+        );
+        assert_eq!(
+            drop_change(spell, From::Slot(2), Some(Spot::Spell(key))),
+            Some(BarChange::Clear { slot: 2 })
+        );
+        assert_eq!(drop_change(spell, From::Page, Some(Spot::Page)), None);
+    }
+
+    #[test]
     fn from_the_page_onto_a_slot_puts_it_there() {
         assert_eq!(
             drop_change(ATTACK, From::Page, Some(Spot::Slot(3))),

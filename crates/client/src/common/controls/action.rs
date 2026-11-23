@@ -41,6 +41,8 @@ pub enum Action {
     Abilities,
     /// The Skills page.
     Skills,
+    /// The Character panel on its Spells tab (the spellbook).
+    Spellbook,
     /// The Quest Log panel.
     QuestLog,
     /// Use the action bar's slot (0 to 9, keys 1 to 0).
@@ -83,7 +85,7 @@ impl Group {
 }
 
 impl Action {
-    pub const ALL: [Self; 35] = [
+    pub const ALL: [Self; 36] = [
         Self::StepUp,
         Self::StepDown,
         Self::StepLeft,
@@ -114,6 +116,7 @@ impl Action {
         Self::Inventory,
         Self::Abilities,
         Self::Skills,
+        Self::Spellbook,
         Self::QuestLog,
         Self::FullMap,
         Self::TurnItem,
@@ -144,6 +147,7 @@ impl Action {
             Self::Inventory => "Inventory",
             Self::Abilities => "Abilities",
             Self::Skills => "Skills",
+            Self::Spellbook => "Spellbook",
             Self::QuestLog => "Quest Log",
             Self::UseSlot(slot) => BAR_NAMES[slot as usize % BAR_NAMES.len()],
             Self::FullMap => "Full Map",
@@ -176,6 +180,7 @@ impl Action {
             Self::Inventory => "inventory",
             Self::Abilities => "abilities",
             Self::Skills => "skills",
+            Self::Spellbook => "spellbook",
             Self::QuestLog => "quest_log",
             Self::UseSlot(slot) => BAR_IDS[slot as usize % BAR_IDS.len()],
             Self::FullMap => "full_map",
@@ -207,6 +212,7 @@ impl Action {
             Self::NextTarget | Self::PreviousTarget => Group::Targeting,
             Self::UseSlot(_) => Group::ActionBar,
             Self::Character | Self::Inventory | Self::Abilities | Self::Skills => Group::Interface,
+            Self::Spellbook => Group::Interface,
             Self::QuestLog | Self::FullMap | Self::TurnItem | Self::DebugMenu => Group::Interface,
             Self::FullScreen => Group::Interface,
         }
@@ -240,6 +246,7 @@ impl Action {
             Self::Inventory => [key(KeyCode::KeyI), None],
             Self::Abilities => [key(KeyCode::KeyB), None],
             Self::Skills => [key(KeyCode::KeyK), None],
+            Self::Spellbook => [key(KeyCode::KeyP), None],
             Self::QuestLog => [key(KeyCode::KeyL), None],
             Self::UseSlot(slot) => [key(BAR_KEYS[slot as usize % BAR_KEYS.len()]), None],
             Self::FullMap => [key(KeyCode::KeyM), None],

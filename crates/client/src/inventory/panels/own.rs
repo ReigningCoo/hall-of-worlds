@@ -12,11 +12,12 @@ use crate::common::{Action, GameView, Preferences};
 use crate::dom::{Dom, UiEvent, UiValue};
 use crate::widgets::{ButtonPressed, UiId};
 
-/// The keys for the Character panel's tabs (C, I, B, K).
-const TAB_KEYS: [(Action, Page); 4] = [
+/// The keys for the Character panel's tabs (C, I, B, P, K).
+const TAB_KEYS: [(Action, Page); 5] = [
     (Action::Character, Page::Character),
     (Action::Inventory, Page::Inventory),
     (Action::Abilities, Page::Abilities),
+    (Action::Spellbook, Page::Spells),
     (Action::Skills, Page::Skills),
 ];
 

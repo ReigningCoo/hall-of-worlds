@@ -1,5 +1,6 @@
 //! Moving abilities about by mouse or finger (owner's design): dragged from the
-//! Abilities page onto a slot puts it there; from one slot onto another swaps them;
+//! Abilities page onto a slot puts it there, and a spell from the Spells page
+//! the same; from one slot onto another swaps them;
 //! from a slot onto the page takes it off the bar; anywhere else nothing changes.
 //! An item dragged from a grid onto a slot puts its kind there (the item itself
 //! goes back where it was; a potion puts that potion there, brewing decision
@@ -59,6 +60,7 @@ pub(super) struct Aim(pub Option<(u8, bool)>);
 fn pick(spot: Option<Spot>, bar: &OwnBar) -> Option<(BarThing, From)> {
     match spot? {
         Spot::Listed(ability) => Some((ability.into(), From::Page)),
+        Spot::Spell(key) => Some((BarThing::Spell(key), From::Page)),
         Spot::Slot(slot) => bar.0.slots[slot as usize].map(|held| (held.thing, From::Slot(slot))),
         Spot::Page | Spot::Panel => None,
     }
@@ -70,8 +72,13 @@ pub(super) fn drop_change(thing: BarThing, from: From, spot: Option<Spot>) -> Op
         (From::Page, Spot::Slot(slot), BarThing::Ability(ability)) => {
             Some(BarChange::Place { slot, ability })
         }
+        (From::Page, Spot::Slot(slot), BarThing::Spell(spell)) => {
+            Some(BarChange::PlaceSpell { slot, spell })
+        }
         (From::Slot(a), Spot::Slot(b), _) if a != b => Some(BarChange::Swap { a, b }),
-        (From::Slot(slot), Spot::Page | Spot::Listed(_), _) => Some(BarChange::Clear { slot }),
+        (From::Slot(slot), Spot::Page | Spot::Listed(_) | Spot::Spell(_), _) => {
+            Some(BarChange::Clear { slot })
+        }
         (From::Slot(slot), Spot::Panel, BarThing::Item(_) | BarThing::Potion(_)) => {
             Some(BarChange::Clear { slot })
         }
@@ -183,8 +190,8 @@ pub(super) fn drag_abilities(
             Some((_, From::Slot(slot), _)) => {
                 used.write(UseSlot(slot));
             }
-            Some((BarThing::Ability(ability), From::Page, _)) => {
-                listed.write(UseListed(ability));
+            Some((thing, From::Page, _)) => {
+                listed.write(UseListed(thing));
             }
             _ => {}
         }
