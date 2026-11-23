@@ -14,9 +14,15 @@ pub(super) fn old_skill(name: &str) -> Option<&'static str> {
 }
 
 /// Where a node that moved now is: shields went under melee's defence (owner,
-/// 2026-11-06), so all defending practises Defence.
+/// 2026-11-06), so all defending practises Defence. Magic's Wild went (magic plan,
+/// owner 2026-11-23): Beasts to Social's Animals, Plants to Earth, Weather to Air,
+/// and Illusion from Arcane to Insight. Wild's own share is dropped with it.
 pub(super) fn moved(path: &str) -> Option<&'static str> {
     Some(match path {
+        "magic/wild/beasts" => "social/animals",
+        "magic/wild/plants" => "magic/arcane/earth",
+        "magic/wild/weather" => "magic/arcane/air",
+        "magic/arcane/illusion" => "magic/insight/illusion",
         "combat/shield" => "combat/melee/defence",
         "combat/shield/buckler" => "combat/melee/defence/buckler",
         "combat/shield/round" => "combat/melee/defence/roundshield",

@@ -159,6 +159,22 @@ fn shields_saved_before_they_moved_are_found_under_defence() {
 }
 
 #[test]
+fn wild_magic_and_illusion_saved_before_they_moved_are_found_where_they_went() {
+    let old: Skills = ron::from_str(
+        "[(\"magic/wild\", 9), (\"magic/wild/beasts\", 10), (\"magic/wild/plants\", 20), \
+         (\"magic/wild/weather\", 30), (\"magic/arcane/illusion\", 40)]",
+    )
+    .unwrap();
+    let find = |path| SkillId::find(path).unwrap();
+    assert!(SkillId::find("magic/wild").is_none());
+    assert_eq!(old.practice(find("social/animals")), 10);
+    assert_eq!(old.practice(find("magic/arcane/earth")), 20);
+    assert_eq!(old.practice(find("magic/arcane/air")), 30);
+    assert_eq!(old.practice(find("magic/insight/illusion")), 40);
+    assert_eq!(old.known().count(), 4);
+}
+
+#[test]
 fn a_hundred_percent_takes_a_million_practice() {
     let sword = SkillId::find("combat/melee/longsword/longsword").unwrap();
     let mut skills = Skills::default();
