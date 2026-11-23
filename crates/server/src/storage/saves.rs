@@ -102,6 +102,10 @@ pub struct LevelSave {
     /// which happens once.
     #[serde(default)]
     pub benches_stocked: bool,
+    /// Whether its generated racks have been stocked and its fireplaces lit,
+    /// which happens once (`sites/furnishings.rs`).
+    #[serde(default)]
+    pub furnishings_stocked: bool,
     /// Cask racks' casks, by the rack's cell, as benches' tools
     /// (`sites/benches`).
     #[serde(default)]

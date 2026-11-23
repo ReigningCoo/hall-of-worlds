@@ -13,6 +13,10 @@ mod building;
 mod layout;
 mod layouts;
 mod mobs;
+mod tavern;
+mod tavern_bedrooms;
+mod tavern_decor;
+mod tavern_furniture;
 pub(super) use layout::Plan;
 pub use layouts::DevLayout;
 
@@ -96,5 +100,7 @@ impl DevArea {
 
 #[cfg(test)]
 mod grown_tests;
+#[cfg(test)]
+mod tavern_tests;
 #[cfg(test)]
 mod tests;

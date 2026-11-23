@@ -29,4 +29,4 @@ Cask racks (tavern furniture plan PR 1, owner's design, 2026-11-22): furniture w
 - Settled in whole 10 s steps at 110% so ageing loses nothing to rounding however often it is settled.
 - Sizes, counts and how big casks are drawn are Claude's first guesses for the owner to tune; a cell is taken as about a metre.
 - A bar (`shared::bar`) in the same room pours from what lies on it; a Tun only on its stand.
-- Not placed in sites yet (tavern furniture plan PR 8); only by Place Furniture, which keeps a piece with places (server `made_benches`).
+- Placed under castles' and towers' cellar casks, one of each cask's size (a Tun's stand where the next cell along the wall is free; `shared::furnishings`, PR 8), the cask lying on it; the Tavern Dev Area's are stocked full-ish by the server (`sites/furnishings.rs`). Place Furniture keeps a piece with places (server `made_benches`).

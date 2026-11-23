@@ -111,7 +111,15 @@ fn seats_face_a_table_or_have_a_wall_behind() {
     // (A ruin may have lost the table.)
     for (kind, _, site) in furnished_levels(4).filter(|&(_, ruin, _)| ruin == 0) {
         let level = &site.level;
-        for piece in level.furniture().filter(|p| !p.furniture.is_table()) {
+        // Seats and crafting benches (beds, chests, racks and the like are
+        // `shared::furnishings`', checked there).
+        let seat = |p: &&Piece| {
+            matches!(
+                p.furniture,
+                Furniture::Chair { .. } | Furniture::Bench { .. } | Furniture::CraftingBench { .. }
+            )
+        };
+        for piece in level.furniture().filter(seat) {
             let cells: Vec<_> = piece.cells().collect();
             let at_table = cells.iter().all(|&cell| {
                 let (x, y) = faced(piece, cell);
@@ -140,8 +148,11 @@ fn seats_match_their_rooms_tables() {
             };
             for seat in level.furniture() {
                 let room = |p: &Piece| level.room(p.at.0, p.at.1);
-                let bench = matches!(seat.furniture, Furniture::CraftingBench { .. });
-                if seat.furniture.is_table() || bench || room(seat) != room(table) {
+                let is_seat = matches!(
+                    seat.furniture,
+                    Furniture::Chair { .. } | Furniture::Bench { .. }
+                );
+                if !is_seat || room(seat) != room(table) {
                     continue;
                 }
                 assert_eq!(seat.material, table.material, "{kind:?}");

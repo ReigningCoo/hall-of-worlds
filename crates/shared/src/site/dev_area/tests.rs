@@ -83,7 +83,8 @@ fn seeds_from_numbers_and_words() {
 #[test]
 fn layouts_are_named() {
     let all = DevLayout::all();
-    assert_eq!(all.len(), 3 + 9 + PoiKind::ALL.len());
+    // The plain ones, the Tavern, the biomes and the kinds.
+    assert_eq!(all.len(), 3 + 1 + 9 + PoiKind::ALL.len());
     for layout in all {
         let name = layout.name();
         assert_eq!(

@@ -12,7 +12,7 @@ Cellar casks (drinks plan PR 9, `docs/context/drinks.md`): castles and towers ma
 
 - `cellar_percent(kind)`: castles 80, stone towers 50, wooden towers 40, others 0.
 - `cellar_level(kind, seed, levels, has_basement)`: the level holding the casks, if the site has a cellar: its basement (the last level) if any, else level 0. Castles and towers have no basements, so it is their ground floor, played set into the wilderness.
-- `CellarCask { at, size, wood }`; `cellar_casks(site_level, kind, seed, index)`: 3 to 8 casks in one room, the one with three places or more hashed highest; on room floor beside a plain `Wall`, never beside a door, within a cell of stairs, where anyone arrives or under furniture, a cell apart from each other (`furniture`'s `rooms_of`, `usable_cells`). Castles' sizes Barrel to Tun, towers' Kilderkin to Butt; woods mostly oak. `Site::cellar_casks(index, level)` checks the level first.
+- `CellarCask { at, size, wood }`; `cellar_casks(site_level, kind, seed, index)`: 3 to 8 casks in one room, the one with three places or more hashed highest; on room floor beside a plain `Wall`, never beside a door, within a cell of stairs, where anyone arrives or under furniture placed before them (tables, seats, benches: `furnishings` are placed after, round them), a cell apart from each other (`furniture`'s `rooms_of`, `usable_cells`). Castles' sizes Barrel to Tun, towers' Kilderkin to Butt; woods mostly oak. `Site::cellar_casks(index, level)` checks the level first.
 - `stock(cask, rng) -> CaskForm`: 20% empty (opened), 15% vinegar (a fruit's or malt, opened, a tenth to nine tenths full), the rest drink: barley ale 35%, else a rolled fruit's (`rolled_drink`), fermented at Poor 15, Common 55, Uncommon 22, Rare 8; aged up to 120 game days in the cask's wood (`made`, `aged`, quality by `fermentation::aged`); 30% of drinks opened and partly drunk, some way towards vinegar, the rest sealed and full.
 
 ## Depends on
@@ -21,7 +21,7 @@ Cellar casks (drinks plan PR 9, `docs/context/drinks.md`): castles and towers ma
 
 ## Used by
 
-- `site` (`Site::cellar_casks`), server `sites/cellar.rs`.
+- `site` (`Site::cellar_casks`, handed to `furnishings::furnish_rooms`, which puts a rack of each cask's size under it where one fits), `furnishings` (`CellarCask`, `stock` for generated cask racks), server `sites/cellar.rs` (a cask on a rack of its size goes on that rack, kept in the site's own save, else on the ground) and `sites/furnishings.rs`.
 
 ## Notes
 

@@ -28,5 +28,5 @@ Fireplaces (tavern furniture plan PR 4, owner's design, 2026-11-22): stone furni
 
 - Cooking (owner's): a lit fireplace counts as a hearth for heat (`cooking::Heat::Hearth`, as a town's: every heat step, no Rare cap), but has no Oven and no tools of its own (carried ones work), and there is no bench bonus for cooking (`crafting_bench::BENCH_PERCENT` is Alchemy's only). Cooking at one leaves Ash as at a hearth (`crafting_bench::hearth_ash`). The order names it by a cell (`CookOrder::bench`), which the cook must face.
 - A fireplace is never drink storage for a bar (`Holder::is_drink_storage`).
-- Moves over one cost as a table's. Not placed in sites yet (tavern furniture plan PR 8, which may light households' ones for good, `always_lit`); only by Place Furniture.
+- Moves over one cost as a table's. Castles' and towers' great halls may have one (`shared::furnishings`, PR 8), always lit in a lived-in place (`furnishings::is_lit`, lit once by the server); also the Tavern Dev Area's inglenook and Place Furniture.
 - Counts, sizes and the model are Claude's first guesses for the owner to tune.

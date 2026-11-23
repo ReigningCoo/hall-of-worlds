@@ -46,6 +46,7 @@ pub mod food;
 pub mod footwear;
 pub mod fruit;
 pub mod fungus;
+pub mod furnishings;
 pub mod furniture;
 pub mod gender;
 pub mod ground;
