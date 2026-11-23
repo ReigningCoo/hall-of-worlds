@@ -1,6 +1,6 @@
 # shared: spell
 
-Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spell's steps as data, checking a design against the caster's skills, its Mana cost, Void's reversal, the combination table, when it is cast automatically, and its automatic name, and what each where step hits (PR 3). Pure rules both sides use, the spellbook (PR 4) on the sheet, casting's timing, Heal's amount, spells' keys for the action bar and the rule that spells never kill the caster or friends (PR 5), and missiles' flight (PR 6); the casting itself is the server's (`connections/cast.rs`). The Heal ability is gone: the Heal spell took its place.
+Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spell's steps as data, checking a design against the caster's skills, its Mana cost, Void's reversal, the combination table, when it is cast automatically, and its automatic name, and what each where step hits (PR 3). Pure rules both sides use, the spellbook (PR 4) on the sheet, casting's timing, Heal's amount, spells' keys for the action bar and the rule that spells never kill the caster or friends (PR 5), missiles' flight (PR 6), and how wheres look for drawing (PR 7); the casting itself is the server's (`connections/cast.rs`). The Heal ability is gone: the Heal spell took its place.
 
 ## Files
 
@@ -24,6 +24,8 @@ Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spel
 - `spell/spare.rs`: `spared_harm(harm, health, side)`: harm to the caster and friends stops at 1 Health (for the harmful effects, PRs 10 to 12).
 - `spell/aim.rs`: crate-private `aim_first`: what a first where with filters is aimed at (owner, 2026-11-23): Self the caster, whatever is targeted; Friend or Enemy the target if theirs, else the nearest of theirs in the where's reach with a clear line, or nothing (a fizzle); Surround stays round its centre.
 - `spell/flight.rs` (PR 6): `Path` (a missile's way: from, to, the ground's height, heading, length, count and filters; serde, sent in `MissileNews`), `launch(level, step, origin, toward, creatures)` (the first where's aim by `aim_first`, then the way to the spot aimed at or ahead, stopped by walls; `None` a fizzle), `Path::speed`, `millis`, `along_after(millis)`, `at(along)`, `meets((start, end), creatures, except)` (the first allowed creature whose circle that stretch enters), `hit`, `end`: the server flies missiles a stretch a tick by these, so those stepping into or out of the way are hit or missed; `missile` is the same flight all at once.
+- `spell/look.rs` (PR 7): `Look` (up to `LOOK_PARTS`, 4, distinct parts, first written first): `from_step(spell, index)` every effect after a where, `of_effects(step)` one step's; sent for clients to colour wheres by.
+- `spell/shown.rs` (PR 7): `Shown` (a where as drawn: where it started after its filters' aim, the way it faced, its reach for Touch and Surround, Beam's ends (`beam.rs`'s crate-private `beam_ends`), the spots hit, its look), `shown(level, (step, look), origin, toward, creatures, hits)`, `None` on a filtered fizzle; sent in `protocol::SpellNews`.
 - `spell/touch.rs`, `missile.rs`, `surround.rs`, `beam.rs`, `point.rs`: one where each, with its first-guess constants; `spell/hits.rs`: `where_hits(level, step, origin, toward, creatures)`, by the step's where and filters.
 
 ## Public API

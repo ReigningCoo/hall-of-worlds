@@ -55,6 +55,7 @@ mod quest_offer;
 mod recipe_ask;
 mod role_ask;
 mod server_message;
+mod spell_news;
 mod spellbook_ask;
 mod strike;
 mod tutorial;
@@ -85,6 +86,7 @@ pub use quest::{
 pub use recipe_ask::RecipeAsk;
 pub use role_ask::{FoundAccount, RoleAnswer, RoleAsk, RoleSource};
 pub use server_message::ServerMessage;
+pub use spell_news::SpellNews;
 pub use spellbook_ask::SpellbookAsk;
 pub use strike::Strike;
 pub use tutorial::Tutorial;
@@ -93,7 +95,7 @@ pub use yeast_ask::YeastAsk;
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 171;
+pub const PROTOCOL_VERSION: u32 = 172;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

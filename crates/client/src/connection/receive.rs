@@ -262,6 +262,7 @@ pub(super) fn receive(
                 | ServerMessage::RecipeInserted(_)
                 | ServerMessage::Tutorial(_)
                 | ServerMessage::Missile(_)
+                | ServerMessage::Spell(_)
                 | ServerMessage::EntityGone { .. }),
             )) => {
                 from_server.write(FromServer(message));

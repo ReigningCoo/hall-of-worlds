@@ -19,6 +19,7 @@ mod mobs;
 mod moving;
 mod panels;
 mod places;
+mod spells;
 mod state;
 mod vegetables;
 mod view;
@@ -51,6 +52,8 @@ pub(super) fn add(app: &mut App) {
         .add_debug_method("client.wear_item", wear_item)
         .add_debug_method("client.eat_item", eat::eat_item)
         .add_debug_method("client.set_creature", set_creature)
+        .add_debug_method("client.cast", spells::cast)
+        .add_debug_method("client.set_skills", spells::set_skills)
         // Moving.
         .add_debug_method("client.step", step)
         .add_debug_method("client.travel", travel)

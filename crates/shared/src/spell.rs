@@ -21,11 +21,13 @@ mod hit;
 mod hits;
 mod key;
 mod line;
+mod look;
 mod missile;
 mod name;
 mod part;
 mod place;
 mod point;
+mod shown;
 mod spare;
 mod surround;
 mod touch;
@@ -51,6 +53,7 @@ pub use flight::{Path, launch};
 pub use hit::{Creature, Hit, Origin, Side, hit_anyone};
 pub use hits::where_hits;
 pub use key::SpellKey;
+pub use look::{LOOK_PARTS, Look};
 pub use missile::{
     Flight, MISSILE_FASTER, MISSILE_RANGE, MISSILE_SPEED, flight_millis, missile, missile_speed,
 };
@@ -58,6 +61,7 @@ pub use name::auto_name;
 pub use part::{Part, parts};
 pub use place::Where;
 pub use point::{POINT_RANGE, point};
+pub use shown::{Shown, shown};
 pub use spare::spared_harm;
 pub use surround::{SURROUND_RING, SURROUND_SPOTS, surround, surround_reach};
 pub use touch::{TOUCH_HALF_ARC, TOUCH_WIDER, touch, touch_half_arc};
@@ -71,5 +75,7 @@ mod cast_tests;
 mod flight_tests;
 #[cfg(test)]
 mod hits_tests;
+#[cfg(test)]
+mod look_tests;
 #[cfg(test)]
 mod tests;

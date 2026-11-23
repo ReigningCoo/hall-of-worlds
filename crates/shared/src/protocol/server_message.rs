@@ -238,8 +238,7 @@ pub enum ServerMessage {
     /// Developer tools: what the server knows of a mob, as lines to show
     /// (`DevMobTool::Inspect`).
     DevMobInfo { mob: Id, lines: Vec<String> },
-    /// Developer tools: the character's hidden alignment, after
-    /// `ClientMessage::DevAlignment`. Never sent otherwise.
+    /// Developer tools: the hidden alignment, after `ClientMessage::DevAlignment` alone.
     DevAlignment(Alignment),
     /// Developer tools: the skills of the character (`who` none) or of another
     /// player, after `ClientMessage::DevSkills` asked or changed them.
@@ -273,8 +272,8 @@ pub enum ServerMessage {
     Sneaking(bool),
     /// A door asked to open (`DoorAsk::Open`) stays shut, `locked` if locked without its key.
     DoorRefused { x: i64, y: i64, locked: bool },
-    /// Everyone in sight who turned this tick without moving, and the way they face now
-    /// (a stretch in `Moves` turns them by itself): one message a tick at most.
+    /// Everyone in sight who turned this tick without moving (a stretch in `Moves` turns
+    /// them by itself), and the way they face now: one message a tick at most.
     Turned(Vec<(Id, crate::facing::Heading)>),
     /// About quests (`QuestNews`).
     Quest(super::QuestNews),
@@ -290,11 +289,12 @@ pub enum ServerMessage {
     Marks(super::MarkNews),
     /// About crafting benches on the player's level (`BenchNews`).
     Bench(super::BenchNews),
-    /// A scroll was read into the character's recipe book (`ClientMessage::Recipe`):
-    /// the recipe now in it, after `Sheet`. The client opens it to read.
+    /// A scroll read into the recipe book (`ClientMessage::Recipe`), after `Sheet`, to open.
     RecipeInserted(crate::recipe::Entry),
     /// A note for a new player, shown once when it is wanted (`Tutorial`).
     Tutorial(super::Tutorial),
     /// About missiles flying on the player's level (`MissileNews`).
     Missile(super::MissileNews),
+    /// Spells happening on the player's level, to draw (`SpellNews`).
+    Spell(super::SpellNews),
 }

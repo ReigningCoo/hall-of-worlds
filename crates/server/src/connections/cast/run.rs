@@ -5,16 +5,16 @@
 
 use bevy::prelude::*;
 use shared::magic::PRACTICE_PER_CAST;
-use shared::protocol::{Landed, ServerMessage};
+use shared::protocol::{Landed, ServerMessage, SpellNews};
 use shared::skill::SkillId;
-use shared::spell::{Effect, STEP_MILLIS, Step, Where, spell_cost};
+use shared::spell::{Effect, Look, STEP_MILLIS, Step, Where, spell_cost};
 use shared::vitals::Vital;
 
 use super::super::Client;
 use super::Aimed;
 use super::creatures::{Present, present};
 use super::effects::{heal_amount, heal_targets, heals_in};
-use super::flight::{fly, launch_missiles, missile_paths};
+use super::flight::{fly, launch_missiles, missile_paths, tell_level};
 use super::step::{effect_targets, where_step};
 use crate::{ServerWorld, ServerWorlds, TICKS_PER_SECOND};
 
@@ -76,7 +76,17 @@ fn run_step(
             };
             let heading = clients[i].heading;
             if place.place != Where::Missile {
-                let aimed = where_step(&cast, place, present, level, heading);
+                let (aimed, looks) = where_step(&cast, place, present, level, heading);
+                // A first step that hits nobody fizzles: nothing to see.
+                if !first || aimed.iter().any(|aimed| aimed.creature.is_some()) {
+                    for shown in looks {
+                        tell_level(
+                            clients,
+                            present,
+                            &ServerMessage::Spell(SpellNews::Where(shown)),
+                        );
+                    }
+                }
                 finish_where(&mut clients[i], cast, aimed, tick, STEP_TICKS);
                 return;
             }
@@ -96,6 +106,15 @@ fn run_step(
         return;
     }
     let targets = effect_targets(&cast, present);
+    let on = (targets.iter())
+        .map(|&index| present.creatures[index].body.at)
+        .collect();
+    let look = Look::of_effects(effects);
+    tell_level(
+        clients,
+        present,
+        &ServerMessage::Spell(SpellNews::Landed { on, look }),
+    );
     let count = heals_in(effects);
     let amount = heal_amount(&clients[i], count);
     let place = (present, cast.place);

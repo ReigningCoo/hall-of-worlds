@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::id::Id;
-use crate::spell::Path;
+use crate::spell::{Look, Path};
 use crate::spot::Spot;
 
 /// One missile: whose spell launched it, and its number among that caster's.
@@ -19,7 +19,12 @@ pub struct MissileId {
 pub enum MissileNews {
     /// Launched just now along `path` (`Path::along_after` says where it is
     /// as time goes on). It lands at its end unless it meets someone first.
-    Flying { id: MissileId, path: Path },
+    /// Drawn coloured by `look`, the effects it carries.
+    Flying {
+        id: MissileId,
+        path: Path,
+        look: Look,
+    },
     /// It landed at `at`: on someone, or at the end of its way.
     Landed { id: MissileId, at: Spot },
 }

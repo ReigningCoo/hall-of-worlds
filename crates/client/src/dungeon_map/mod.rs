@@ -34,7 +34,6 @@ mod ground_hit;
 mod holes;
 mod liquid;
 mod mesh;
-mod missiles;
 mod oasis;
 mod other_floors;
 mod outlined;
@@ -44,6 +43,7 @@ mod rack_casks;
 mod rain;
 mod rampart;
 mod sight_lines;
+mod spell_fx;
 mod stairs;
 mod theme;
 mod town;
@@ -159,7 +159,9 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<campfires::DrawnFires>()
             .init_resource::<hearth_fires::DrawnHearthFires>()
             .init_resource::<basket_logs::DrawnBasketLogs>()
-            .init_resource::<missiles::DrawnMissiles>()
+            .init_resource::<spell_fx::DrawnBolts>()
+            .init_resource::<spell_fx::FxKit>()
+            .init_resource::<spell_fx::FxQueue>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -231,7 +233,13 @@ impl Plugin for DungeonMapPlugin {
                     sync_lights,
                     rain::update,
                     bolts::strike,
-                    missiles::draw_missiles,
+                    (
+                        spell_fx::spawn_fx,
+                        spell_fx::draw_bolts,
+                        spell_fx::drift_sparkles,
+                        spell_fx::fade_fx,
+                    )
+                        .chain(),
                     border::draw_borders,
                     flowing::run_flow,
                 )
@@ -252,7 +260,7 @@ impl Plugin for DungeonMapPlugin {
                 Update,
                 (sepia_pictures, plain_pictures::plain_pictures).chain(),
             )
-            .add_systems(Update, missiles::take_missiles)
+            .add_systems(Update, spell_fx::take_news)
             .add_systems(
                 Update,
                 (hover::name_hovered_place, face_point::face_pointed_at)
