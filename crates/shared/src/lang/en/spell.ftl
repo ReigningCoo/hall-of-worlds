@@ -5,7 +5,7 @@
 spell-name-self = { $noun }
 spell-name-touch = { $adjective } Touch
 spell-name-missile = { $adjective } Missile
-spell-name-surround = Ring of { $noun }
+spell-name-surround = Ball of { $noun }
 spell-name-beam = { $adjective } Beam
 spell-name-point = { $adjective } Point
 spell-name-empty = Spell

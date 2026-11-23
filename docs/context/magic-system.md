@@ -139,7 +139,7 @@ Filters are known from the start.
 ## Spellbook, panel and action bar
 
 - **Spellbook** on the sheet, kept by the server like the recipe book (`shared::recipe`'s `RecipeBook`): each spell with a name (the player's own, or an automatic one) and a favourite mark. Favourites stay at the top of the list. 100 spells (first guess).
-- **Automatic names** from the steps, worded through `shared::lang`: Heal, Healing Missile, Ring of Fire.
+- **Automatic names** from the steps, worded through `shared::lang`: Heal, Healing Missile, Ball of Fire.
 - **Editing:** removing a spell puts its design back into the panel; adding it again stores it anew.
 - **New characters' books** start with Heal and Healing Missile, and bars holding the Heal ability hold the Heal spell instead.
 - **The design panel**, as Alchemy's and Cooking's: what can be used along the top (the wheres unlocked, the filters, the effects), dragged down into a row of steps, a where step taking filters in the first place and a count, an effect step taking effects in order with counts; reordered, dragged off; the cost, the unlocks and what is wrong shown as it is built; Save, which asks for a name or keeps the automatic one.
