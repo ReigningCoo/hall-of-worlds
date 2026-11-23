@@ -40,6 +40,10 @@ pub(super) fn bench_act(
         debug!("No furniture with places at {bench:?}");
         return (client.send_inventory(), 0);
     };
+    if visit.id().is_inn() && shared::inn::look_only(visit.index(), &here.piece) {
+        debug!("The furniture with places at {bench:?} is only to look at");
+        return (client.send_inventory(), 0);
+    }
     if !here.in_reach(visit.spot()) {
         debug!("The furniture with places at {bench:?} is out of reach");
         return (client.send_inventory(), 0);

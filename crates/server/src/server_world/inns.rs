@@ -24,6 +24,7 @@ impl ServerWorld {
         self.unsaved_sites.unmark(&id);
         self.populations.forget_site(id);
         self.litter.forget(id);
+        self.inn_restocked.forget(id);
     }
 
     /// Keeps a character's own rooms here while they are in the inn

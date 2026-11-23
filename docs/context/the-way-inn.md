@@ -37,7 +37,7 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 2. **In and out** (built): the Hall's edge into the foyer, leaving back to the same tile, the stairs, the client drawing it, `Where::Inn`, a "To The Way Inn" debug menu entry (and `docs/debug-menu.md`), the Hall's worn-marble hint. Needs 1.
 3. **Instances** of 30, no fighting, dropped items cleared (built). Needs 2.
 4. **Private rooms** per tier with personal copies and saved storage (built). Needs 2 and tavern furniture PR 7 (chests, wardrobes; built).
-5. **Furnishing** everything: tables, booths, the bar, stocked racks, three fireplaces, lights, decorations, rugs, floors, the kitchen, brewing, ageing, the treasury, the foyer. Needs tavern furniture PRs 4–7 (built).
+5. **Furnishing** everything: tables, booths, the bar, stocked racks, three fireplaces, lights, decorations, rugs, floors, the kitchen, brewing, ageing, the treasury, the foyer (built). Needs tavern furniture PRs 4–7 (built).
 6. **New characters start in the inn** (their first exit: the Hall at their home world's first gate), the note about coming back, a wiki page, context files, decisions. Last.
 
 ## Settled in PR 1 (Claude's choices)
@@ -75,3 +75,12 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 - In the Hall, a click or tap on a way in (the invisible void tile) travels to the tile in front and goes through, as walking off there does; clicks on the void elsewhere still do nothing.
 - A private room downstairs is shared by whoever is in it, so things left there are cleared like any public room's.
 
+## Settled in PR 5 (Claude's choices)
+
+- Everything is placed in code after the layout (`inn::furnish`), so the layout's golden fingerprints didn't move. The scattered tables come from a fixed seed: up to 30 groups (1 × 1 tables with two to four chairs, 2 × 1 tables with chairs or benches, 2 × 2 tables with eight chairs, games tables, standing barrels with stools), a cell clear between groups, round the stairs and along the room's edges; never a grid. Booths are two settles across a 3 × 2 table, a cell in from the main room; private rooms a 2 × 2 table with two chairs at each end (more chairs boxed the rooms in).
+- Behind the bar: two wine racks, two spirit racks on tables, two Pin racks, a Firkin and a Kilderkin rack, either side of the back fireplace; the counter wall to wall, doubled at its ends, its flap near the east end. Each front fireplace has two armchairs facing it on a rug.
+- Kitchen: a Range, a Hearth and a Stove on each side (stone), worktables; the corner for a stair down and the cells before the treasury's windows left clear. Brewing: the Alchemy bench, empty Barrel, Hogshead, Kilderkin, Firkin and Pin casks to ferment in, a worktable, sacks and crates. Ageing: two Tuns, Butts, Puncheons, Hogsheads, Firkins and two wine racks.
+- The server stocks each instance's floors as they are made (instances are never saved): racks full of sealed drink, the brewing room's casks empty, fires and hearths always lit, every hearth and the Alchemy bench with every tool at Common, the treasury's chests with gold. Every minute an instance's racks are refilled: empty places filled, drained casks and bottles swapped for full ones; drinks are free until there is trade.
+- Chests and wardrobes outside players' own rooms (the foyer's, the treasury's, locked bedrooms') are only to look at: clicking them does nothing and the server refuses them (`inn::look_only`). The foyer's "1 × 3 chest" is a chest and a small chest end to end.
+- Lights: chandeliers over the main room, the bar's gap and each back room, a sconce every sixth cell along most walls, candles on most tables, the bar, the private rooms and booths. Decorations every third cell between (by room: trophies, shields, weapons, tapestries and coat pegs out front; hams, onions and herbs in the kitchen and brewing rooms; tapestries and coat pegs in bedrooms), a notice board and coat pegs by the archway. Rugs under the private rooms' tables, before the front fires, up the foyer; runners upstairs.
+- Floors: the inn is drawn with stone walls over plank floors. Flagstones by the bar and kitchen, and an inlay, would need floors chosen per cell: left for later.

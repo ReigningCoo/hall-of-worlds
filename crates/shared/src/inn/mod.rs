@@ -13,12 +13,12 @@
 //! corridors in an H, the stairs arriving in the middle of its crossbar, and
 //! bedrooms on every side, small near the stairs and larger further out.
 //!
-//! Only the shapes for now (cells, rooms, doors, stairs) and players' own
-//! rooms' furniture (`own_room`); the fixed places the rest of the furniture
-//! will go (`spots`) are kept clear for it. See
+//! Its shapes (cells, rooms, doors, stairs), then its furniture and decor
+//! placed in code from fixed places (`spots`, `furnish`). See
 //! `docs/context/shared/inn.md` and the plan, `docs/context/the-way-inn.md`.
 
 mod builder;
+mod furnish;
 mod ground;
 mod own_room;
 mod room;
@@ -28,7 +28,7 @@ mod upstairs;
 
 pub use own_room::{OwnRoom, own_room_at, own_rooms};
 pub use room::{CORNER_TIER, InnRoom, OPEN_TIER, RoomKind};
-pub use site::{KIND, is_way_out, site};
+pub use site::{KIND, is_way_out, look_only, site};
 
 use crate::site::{Exit, SiteLevel, Stairs, StairsDirection};
 
@@ -47,9 +47,8 @@ pub const DEPTH: i64 = 50;
 
 /// Floor `index` (`GROUND` or `UPSTAIRS`) as a site's level, or `None` past
 /// the top: its cells and rooms, its doors closed (the treasury's, the
-/// bedrooms' and the own rooms' above `OPEN_TIER` locked), own rooms'
-/// furniture,
-/// the stairs between the floors, and on the ground floor where you arrive
+/// bedrooms' and the own rooms' above `OPEN_TIER` locked), its furniture
+/// and decor (`furnish`), the stairs between the floors, and on the ground floor where you arrive
 /// (inside the entrance door).
 pub fn level(index: u32) -> Option<SiteLevel> {
     let (built, stairs, entrance) = match index {
@@ -58,9 +57,7 @@ pub fn level(index: u32) -> Option<SiteLevel> {
         _ => return None,
     };
     let mut built = built;
-    if index == UPSTAIRS {
-        own_room::furnish(&mut built.level);
-    }
+    furnish::furnish(&mut built.level, index, &built.rooms);
     let to = Exit::Level(FLOORS - 1 - index);
     let (x, y) = spots::STAIRS;
     Some(SiteLevel {

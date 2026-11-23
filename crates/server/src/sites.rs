@@ -68,7 +68,8 @@ pub(crate) use enter::test_enter_poi;
 pub(super) use enter::{dev_enter, enter_dungeon, enter_poi, generate, resume};
 pub(crate) use generator::{seen_poi, site_generator};
 pub(crate) use inn::{
-    InnMove, InnState, Litter, clear_litter, close_empty_inns, move_inn, out_of_inn,
+    InnMove, InnState, Litter, Restocked, clear_litter, close_empty_inns, move_inn, out_of_inn,
+    restock_inns,
 };
 pub(crate) use inn::{close_own_room, hidden_in_own_room, keep_own_room, refuses_harm};
 pub(crate) use inn::{dev_to_inn, enter_from_hall, follow_inn, in_inn, inn_poi, leave_inn};

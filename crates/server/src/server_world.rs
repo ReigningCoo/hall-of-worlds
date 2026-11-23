@@ -75,6 +75,7 @@ pub struct ServerWorld {
     pub(crate) populations: Populations,
     /// What has been left lying in the inn's instances, and since when.
     pub(crate) litter: crate::sites::Litter,
+    pub(crate) inn_restocked: crate::sites::Restocked, // racks last refilled
     /// Mobs died since players were last told who they see (`entities::sync`).
     pub(crate) died: BTreeSet<shared::id::Id>,
     /// Creatures harmed lately, told to others who see them (`entities::sync`).
@@ -192,6 +193,7 @@ impl ServerWorld {
             unreachable_sites: BTreeSet::new(),
             populations: Populations::default(),
             litter: default(),
+            inn_restocked: default(),
             died: BTreeSet::new(),
             harmed: Vec::new(),
             kills: Vec::new(),
