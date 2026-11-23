@@ -18,9 +18,9 @@ fn designs(book: &Spellbook) -> Vec<Spell> {
 }
 
 #[test]
-fn a_new_book_holds_heal() {
+fn a_new_book_holds_heal_and_healing_missile() {
     let book = Spellbook::default();
-    assert_eq!(designs(&book), vec![heal_spell()]);
+    assert_eq!(designs(&book), vec![heal_spell(), healing_missile()]);
     assert_eq!(book.get(&heal_spell()).unwrap().name, None);
 }
 
@@ -43,7 +43,8 @@ fn stored_spells_go_first_and_never_twice() {
     let skills = Skills::default();
     book.store(spell_of(Effect::Fire), Some("Burn"), Some(&skills))
         .unwrap();
-    assert_eq!(designs(&book), vec![spell_of(Effect::Fire), heal_spell()]);
+    let order = vec![spell_of(Effect::Fire), heal_spell(), healing_missile()];
+    assert_eq!(designs(&book), order);
     assert_eq!(
         book.get(&spell_of(Effect::Fire)).unwrap().name.as_deref(),
         Some("Burn")
@@ -90,6 +91,7 @@ fn favourites_are_listed_first() {
         heal_spell(),
         spell_of(Effect::Water),
         spell_of(Effect::Fire),
+        healing_missile(),
     ];
     assert_eq!(designs(&book), order);
     book.set_favourite(&heal_spell(), false).unwrap();
@@ -119,6 +121,7 @@ fn renaming_and_removing() {
     );
     let removed = book.remove(&heal_spell()).unwrap();
     assert_eq!(removed.spell, heal_spell());
-    assert!(book.is_empty());
+    assert!(!book.knows(&heal_spell()));
+    assert_eq!(book.len(), 1);
     assert_eq!(book.remove(&heal_spell()), Err(BookRefusal::NotInBook));
 }

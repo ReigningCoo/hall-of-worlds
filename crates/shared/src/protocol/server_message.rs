@@ -269,11 +269,9 @@ pub enum ServerMessage {
     LoginFailed(String),
     /// Whether the account logged in to has Discord linked, or can link it (`ClientMessage::LinkDiscord`).
     DiscordLink(super::DiscordLink),
-    /// Whether the player is sneaking now (`Ability::Sneak`, a toggle): after
-    /// they turn it on or off, and `false` on joining, as it isn't kept.
+    /// Whether the player is sneaking now (`Ability::Sneak`, a toggle): after a change, `false` on joining.
     Sneaking(bool),
-    /// A door the player asked to open (`DoorAsk::Open`) stays shut, `locked` if
-    /// found locked without its key: click travel stops there.
+    /// A door asked to open (`DoorAsk::Open`) stays shut, `locked` if locked without its key.
     DoorRefused { x: i64, y: i64, locked: bool },
     /// Everyone in sight who turned this tick without moving, and the way they face now
     /// (a stretch in `Moves` turns them by itself): one message a tick at most.
@@ -297,4 +295,6 @@ pub enum ServerMessage {
     RecipeInserted(crate::recipe::Entry),
     /// A note for a new player, shown once when it is wanted (`Tutorial`).
     Tutorial(super::Tutorial),
+    /// About missiles flying on the player's level (`MissileNews`).
+    Missile(super::MissileNews),
 }

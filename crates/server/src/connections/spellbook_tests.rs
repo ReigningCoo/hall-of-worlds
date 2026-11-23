@@ -66,6 +66,8 @@ fn renaming_favouring_and_removing() {
     let kept = test.client.sheet.spellbook.get(&spell).unwrap();
     assert_eq!(kept.name.as_deref(), Some("Mend"));
     assert!(kept.favourite);
-    test.send(&[ask(SpellbookAsk::Remove { spell })]);
-    assert!(test.client.sheet.spellbook.is_empty());
+    test.send(&[ask(SpellbookAsk::Remove {
+        spell: spell.clone(),
+    })]);
+    assert!(!test.client.sheet.spellbook.knows(&spell));
 }

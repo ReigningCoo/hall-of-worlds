@@ -6,8 +6,8 @@ use crate::dungeon::Level;
 use crate::spot::CELL_SPAN;
 
 use super::filters::Filters;
+use super::flight::path;
 use super::hit::{Creature, Hit, Origin};
-use super::line::{ahead, entry_along, wall_stop};
 use super::toward::Toward;
 
 /// The furthest a missile flies, in units: 8 cells. First guess.
@@ -41,10 +41,12 @@ pub fn flight_millis(length: u64, count: u8) -> u64 {
     (length * 1000).div_ceil(missile_speed(count))
 }
 
-/// A missile from `origin` at `toward`: to the spot aimed at (no further than
-/// `MISSILE_RANGE`, along the same way if that is further), or straight ahead
-/// that far. It stops at the first wall and the first creature `filters`
-/// allows whose circle it meets, never its origin's.
+/// A missile from `origin` at `toward`, flown all at once: to the spot aimed
+/// at (no further than `MISSILE_RANGE`, along the same way if that is
+/// further), or straight ahead that far. It stops at the first wall and the
+/// first creature `filters` allows whose circle it meets, never its origin's.
+/// The server flies it a stretch at a time instead (`flight::Path`), so those
+/// moving meanwhile are hit or missed as they go.
 pub fn missile(
     level: &Level,
     origin: &Origin,
@@ -52,34 +54,15 @@ pub fn missile(
     filters: Filters,
     creatures: &[Creature],
 ) -> Flight {
-    let heading = toward.heading(origin, creatures);
-    let end = match toward.spot(creatures) {
-        Some(spot) if origin.at.distance(spot) <= MISSILE_RANGE => spot,
-        _ => ahead(origin.at, heading, MISSILE_RANGE),
-    };
-    let stop = wall_stop(level, origin.at, end);
-    let first = creatures
-        .iter()
-        .enumerate()
-        .filter(|(index, other)| Some(*index) != origin.creature && other.side.allowed_by(filters))
-        .filter_map(|(index, other)| {
-            let radius = other.body.size.radius().unsigned_abs();
-            entry_along(origin.at, stop, other.body.at, radius).map(|along| (along, index))
-        })
-        .min();
-    match first {
+    let path = path(level, origin, toward, 1, filters, creatures);
+    match path.meets((0, path.length), creatures, origin.creature) {
         Some((along, index)) => Flight {
-            hit: Hit::on(creatures, index, origin.at, heading),
+            hit: path.hit(creatures, index),
             length: along,
         },
         None => Flight {
-            hit: Hit {
-                creature: None,
-                at: stop,
-                height: origin.height,
-                heading,
-            },
-            length: origin.at.distance(stop),
+            hit: path.end(),
+            length: path.length,
         },
     }
 }

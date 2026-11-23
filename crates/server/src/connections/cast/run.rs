@@ -1,21 +1,25 @@
 //! Once every client has had its turn: each spell's step that is due
-//! resolves, then the next is due a second later (`spell::STEP_MILLIS`).
-//! The first step lands as the Mana is paid, or fizzles.
+//! resolves, then the next is due a second later (`spell::STEP_MILLIS`), or,
+//! after a missile step, as soon as its missiles have landed. The first step
+//! lands as the Mana is paid, or fizzles.
 
 use bevy::prelude::*;
 use shared::magic::PRACTICE_PER_CAST;
 use shared::protocol::{Landed, ServerMessage};
 use shared::skill::SkillId;
-use shared::spell::{Effect, STEP_MILLIS, Step, spell_cost};
+use shared::spell::{Effect, STEP_MILLIS, Step, Where, spell_cost};
 use shared::vitals::Vital;
 
 use super::super::Client;
-use super::creatures::present;
+use super::Aimed;
+use super::creatures::{Present, present};
 use super::effects::{heal_amount, heal_targets, heals_in};
+use super::flight::{fly, launch_missiles, missile_paths};
 use super::step::{effect_targets, where_step};
 use crate::{ServerWorld, ServerWorlds, TICKS_PER_SECOND};
 
-/// Resolves every step that is due, for every client.
+/// Resolves every step that is due, and flies every missile on, for every
+/// client.
 pub(in crate::connections) fn run_casts(clients: &mut [Client], worlds: &mut ServerWorlds) {
     for i in 0..clients.len() {
         let world = worlds.of(clients[i].world);
@@ -23,61 +27,120 @@ pub(in crate::connections) fn run_casts(clients: &mut [Client], worlds: &mut Ser
     }
 }
 
-/// Resolves client `i`'s step if it is due on `world`, its world.
+/// Resolves client `i`'s step if it is due on `world`, its world, or flies
+/// its missiles on.
 pub(in crate::connections) fn run_due(clients: &mut [Client], i: usize, world: &mut ServerWorld) {
     let tick = world.action_clock.ticks();
-    let due = (clients[i].casting.running.as_ref()).is_some_and(|cast| cast.due <= tick);
-    if due && !clients[i].gone {
-        run_step(clients, i, world);
+    let Some(cast) = clients[i].casting.running.as_ref() else {
+        return;
+    };
+    let flying = !cast.flying.is_empty();
+    if clients[i].gone || !(flying || cast.due <= tick) {
+        return;
     }
-}
-
-/// Resolves client `i`'s next step, ending the spell after its last, when it
-/// fizzles, or when the caster has left its level.
-fn run_step(clients: &mut [Client], i: usize, world: &mut ServerWorld) {
     let Some(mut cast) = clients[i].casting.running.take() else {
         return;
     };
-    let tick = world.action_clock.ticks();
     let Some(present) = present(clients, i, world, cast.place) else {
         debug!("A spell stopped: its caster left the level");
         return;
     };
+    if flying {
+        if let Some(aimed) = fly(clients, &mut cast, &present, tick) {
+            // The next step starts as the last missile lands.
+            finish_where(&mut clients[i], cast, aimed, tick, 0);
+        } else {
+            clients[i].casting.running = Some(cast);
+        }
+        return;
+    }
+    run_step(clients, i, world, cast, &present);
+}
+
+/// Resolves client `i`'s next step, ending the spell after its last or when
+/// it fizzles.
+fn run_step(
+    clients: &mut [Client],
+    i: usize,
+    world: &mut ServerWorld,
+    mut cast: super::Cast,
+    present: &Present,
+) {
+    let tick = world.action_clock.ticks();
     let first = cast.next == 0;
     let step = cast.spell.steps[cast.next].clone();
-    let targets = match &step {
+    let effects = match &step {
         Step::Where(place) => {
             let Some(level) = clients[i].visit.as_ref().map(|visit| visit.cells()) else {
                 return;
             };
-            let aimed = where_step(&cast, place, &present, level, clients[i].heading);
-            if first && !aimed.iter().any(|aimed| aimed.creature.is_some()) {
+            let heading = clients[i].heading;
+            if place.place != Where::Missile {
+                let aimed = where_step(&cast, place, present, level, heading);
+                finish_where(&mut clients[i], cast, aimed, tick, STEP_TICKS);
+                return;
+            }
+            let paths = missile_paths(&cast, (place, present, level), heading);
+            if paths.is_empty() {
                 fizzle(&mut clients[i], cast.toward);
                 return;
             }
-            cast.forms.push(place.place.skill());
-            cast.aimed = aimed;
-            None
+            launch_missiles(clients, i, &mut cast, (paths, present), tick);
+            clients[i].casting.running = Some(cast);
+            return;
         }
-        Step::Effects(_) => Some(effect_targets(&cast, &present)),
+        Step::Effects(effects) => effects,
     };
     if first && !pay(&mut clients[i], &cast, tick) {
         fizzle(&mut clients[i], cast.toward);
         return;
     }
-    if let (Step::Effects(effects), Some(targets)) = (&step, targets) {
-        let count = heals_in(effects);
-        let amount = heal_amount(&clients[i], count);
-        let place = (&present, cast.place);
-        if count > 0 && heal_targets(clients, i, world, place, &targets, amount) {
-            let skills = cast.forms.iter().copied().chain([Effect::Heal.skill()]);
-            practise(&mut clients[i], skills, tick);
-        }
+    let targets = effect_targets(&cast, present);
+    let count = heals_in(effects);
+    let amount = heal_amount(&clients[i], count);
+    let place = (present, cast.place);
+    if count > 0 && heal_targets(clients, i, world, place, &targets, amount) {
+        let skills = cast.forms.iter().copied().chain([Effect::Heal.skill()]);
+        practise(&mut clients[i], skills, tick);
     }
+    next_step(&mut clients[i], cast, tick + STEP_TICKS);
+}
+
+/// Action ticks between steps (`spell::STEP_MILLIS`).
+const STEP_TICKS: u64 = STEP_MILLIS * TICKS_PER_SECOND as u64 / 1000;
+
+/// A where step has hit `aimed`: the next step's targets, due `after` ticks
+/// on. A first step that hit nobody, or without the Mana as it lands,
+/// fizzles.
+fn finish_where(
+    client: &mut Client,
+    mut cast: super::Cast,
+    aimed: Vec<Aimed>,
+    tick: u64,
+    after: u64,
+) {
+    let first = cast.next == 0;
+    if first && !aimed.iter().any(|aimed| aimed.creature.is_some()) {
+        fizzle(client, cast.toward);
+        return;
+    }
+    if first && !pay(client, &cast, tick) {
+        fizzle(client, cast.toward);
+        return;
+    }
+    if let Some(Step::Where(place)) = cast.spell.steps.get(cast.next) {
+        cast.forms.push(place.place.skill());
+    }
+    cast.aimed = aimed;
+    next_step(client, cast, tick + after);
+}
+
+/// On to the next step, due at `due`, if there is one.
+fn next_step(client: &mut Client, mut cast: super::Cast, due: u64) {
     cast.next += 1;
     if cast.next < cast.spell.steps.len() {
-        cast.due = tick + STEP_MILLIS * TICKS_PER_SECOND as u64 / 1000;
-        clients[i].casting.running = Some(cast);
+        cast.due = due;
+        client.casting.running = Some(cast);
     }
 }
 

@@ -19,7 +19,18 @@ pub(super) fn where_step(
     heading: Heading,
 ) -> Vec<Aimed> {
     let creatures = &present.creatures;
-    let origins: Vec<(Origin, Toward)> = if cast.aimed.is_empty() {
+    origins(cast, present, heading)
+        .iter()
+        .flat_map(|(origin, toward)| where_hits(level, step, origin, *toward, creatures))
+        .map(|hit| aimed_of(&hit, present))
+        .collect()
+}
+
+/// Where a where step starts, and what at: from the caster for the first
+/// (at their target), else from each thing the last where hit, going on.
+pub(super) fn origins(cast: &Cast, present: &Present, heading: Heading) -> Vec<(Origin, Toward)> {
+    let creatures = &present.creatures;
+    if cast.aimed.is_empty() {
         let toward = (cast.next == 0)
             .then_some(cast.toward)
             .flatten()
@@ -30,12 +41,7 @@ pub(super) fn where_step(
         (cast.aimed.iter())
             .map(|aimed| (origin_of(aimed, present), Toward::Ahead))
             .collect()
-    };
-    origins
-        .iter()
-        .flat_map(|(origin, toward)| where_hits(level, step, origin, *toward, creatures))
-        .map(|hit| aimed_of(&hit, present))
-        .collect()
+    }
 }
 
 /// Whom an effect step lands on, by their place in `present`: the creatures
@@ -68,7 +74,7 @@ fn origin_of(aimed: &Aimed, present: &Present) -> Origin {
 }
 
 /// A hit kept by id.
-fn aimed_of(hit: &Hit, present: &Present) -> Aimed {
+pub(super) fn aimed_of(hit: &Hit, present: &Present) -> Aimed {
     Aimed {
         creature: hit.creature.map(|index| present.ids[index]),
         at: hit.at,
