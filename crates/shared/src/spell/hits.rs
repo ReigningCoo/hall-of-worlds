@@ -3,6 +3,7 @@
 
 use crate::dungeon::Level;
 
+use super::aim::aim_first;
 use super::beam::beam;
 use super::design::WhereStep;
 use super::hit::{Creature, Hit, Origin};
@@ -14,8 +15,10 @@ use super::touch::touch;
 use super::toward::Toward;
 
 /// What `step` hits from `origin` at `toward`, among `creatures` (the caster's
-/// side marked `Side::Caster`). The step's own filters limit it, so a first
-/// step's limit only that step (`check` keeps filters to the first). Each hit
+/// side marked `Side::Caster`). The step's own filters choose its aim
+/// (`aim_first`: Self the caster, Friend or Enemy the target if theirs, else
+/// the nearest of theirs in reach) and Friend and Enemy limit what it hits,
+/// only that step's (`check` keeps filters to the first). Each hit
 /// is the next step's origin (`Hit::origin`); a step that met nobody gives
 /// the spots it reached instead (none for Point), which `hit_anyone` tells
 /// apart. A missile's flight time is `missile`'s.
@@ -27,6 +30,12 @@ pub fn where_hits(
     creatures: &[Creature],
 ) -> Vec<Hit> {
     let (count, filters) = (step.count, step.filters);
+    // Filters choose the first where's aim (`aim_first`); nobody of theirs
+    // in reach is no hit at all.
+    let Some((origin, toward)) = aim_first(level, step, origin, toward, creatures) else {
+        return Vec::new();
+    };
+    let origin = &origin;
     match step.place {
         Where::Touch => touch(level, origin, count, filters, creatures),
         Where::Missile => vec![missile(level, origin, toward, filters, creatures).hit],

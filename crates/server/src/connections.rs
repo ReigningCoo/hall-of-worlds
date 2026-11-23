@@ -31,6 +31,7 @@ mod bar_pour;
 mod bench;
 mod bonuses;
 mod campfire;
+mod cast;
 mod change_kind;
 mod characters;
 mod client;
@@ -64,7 +65,6 @@ mod fungus_harm;
 mod give;
 mod give_items;
 mod go_to_place;
-mod heal;
 mod keys_found;
 mod kick;
 mod lantern;
@@ -251,8 +251,7 @@ pub struct Client {
     waiting: VecDeque<Action>,
     /// The ability it is winding up, and its attacks so far.
     fight: crate::combat::Fight,
-    /// What Press Oil (`press_oil.rs`) or Press Juice (a fruit,
-    /// `press_juice.rs`) presses while it goes on.
+    /// What Press Oil or Press Juice (a fruit) presses while it goes on.
     pressing: Option<shared::potion::Pressing>,
     /// The Alchemy process being run and the runs left (`alchemy.rs`).
     alchemy: Option<shared::alchemy::AlchemyOrder>,
@@ -260,6 +259,8 @@ pub struct Client {
     cooking: Option<shared::cooking::CookOrder>,
     /// What Ferment sets going while it winds up (`ferment.rs`).
     fermenting: Option<shared::ferment::FermentOrder>,
+    /// The spell asked for, and the one under way (`cast.rs`).
+    casting: cast::Casting,
     /// Its open practice windows, by skill and by kind of foe.
     learning: crate::combat::Learning,
     /// What a character being made here asked to be, for when they first join.
@@ -284,8 +285,7 @@ pub struct Client {
     /// Every poi is shown, whether known or not: from the start while
     /// `ALL_POIS_KNOWN`, otherwise by developer tools.
     pub(crate) reveal_pois: bool,
-    /// How many maps the player has been put on since `Welcome` (see
-    /// `ClientMessage::Step`).
+    /// How many maps the player has been put on since `Welcome` (`Step`).
     map: u32,
     /// The last step dealt with this tick, to send `Position` for.
     last_step: Option<u32>,

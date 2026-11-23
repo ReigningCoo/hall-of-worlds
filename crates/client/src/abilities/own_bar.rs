@@ -24,14 +24,15 @@ pub(super) fn take_bar(mut from_server: MessageReader<FromServer>, mut bar: ResM
 
 impl OwnBar {
     /// Makes the change here and asks the server for it, if the rules allow it for
-    /// a character knowing `known` (`ability::known`).
+    /// a character knowing `known` (`ability::known`) with this sheet (its
+    /// spellbook).
     pub(super) fn change(
         &mut self,
         change: BarChange,
-        known: &[Ability],
+        (known, sheet): (&[Ability], &shared::sheet::Sheet),
         to_server: &mut MessageWriter<ToServer>,
     ) {
-        match self.0.apply(change, known) {
+        match self.0.apply(change, known, &sheet.spellbook) {
             Ok(()) => {
                 to_server.write(ToServer(ClientMessage::ActionBar(change)));
             }

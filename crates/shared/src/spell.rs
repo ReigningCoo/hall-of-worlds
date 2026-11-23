@@ -5,9 +5,11 @@
 //! step hits, and the spellbook. See
 //! `docs/context/shared/spell.md`.
 
+mod aim;
 mod auto_cast;
 mod beam;
 mod book;
+mod cast;
 mod check;
 mod combination;
 mod cost;
@@ -16,12 +18,14 @@ mod effect;
 mod filters;
 mod hit;
 mod hits;
+mod key;
 mod line;
 mod missile;
 mod name;
 mod part;
 mod place;
 mod point;
+mod spare;
 mod surround;
 mod touch;
 mod toward;
@@ -31,6 +35,7 @@ pub use beam::{BEAM_RANGE, BEAM_SPREAD, beam, beam_headings};
 pub use book::{
     BookRefusal, BookSpell, LONGEST_NAME, MOST_SPELLS, Spellbook, heal_spell, tidy_name,
 };
+pub use cast::{CAST_COST, CAST_WIND_UP, STEP_MILLIS, heal_restores};
 pub use check::{DesignError, check, is_unlocked, unlocked_wheres};
 pub use combination::{COMBINATIONS, Combination, Mixture, Outcome, outcomes};
 pub use cost::{
@@ -42,6 +47,7 @@ pub use effect::Effect;
 pub use filters::Filters;
 pub use hit::{Creature, Hit, Origin, Side, hit_anyone};
 pub use hits::where_hits;
+pub use key::SpellKey;
 pub use missile::{
     Flight, MISSILE_FASTER, MISSILE_RANGE, MISSILE_SPEED, flight_millis, missile, missile_speed,
 };
@@ -49,12 +55,15 @@ pub use name::auto_name;
 pub use part::{Part, parts};
 pub use place::Where;
 pub use point::{POINT_RANGE, point};
+pub use spare::spared_harm;
 pub use surround::{SURROUND_RING, SURROUND_SPOTS, surround, surround_reach};
 pub use touch::{TOUCH_HALF_ARC, TOUCH_WIDER, touch, touch_half_arc};
 pub use toward::Toward;
 
 #[cfg(test)]
 mod book_tests;
+#[cfg(test)]
+mod cast_tests;
 #[cfg(test)]
 mod hits_tests;
 #[cfg(test)]

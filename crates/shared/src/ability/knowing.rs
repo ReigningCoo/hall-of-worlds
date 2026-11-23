@@ -6,15 +6,10 @@ use crate::item::Inventory;
 use crate::sheet::Sheet;
 
 /// What every creature knows, whatever its kind.
-const EVERYONE_KNOWS: [Ability; 4] = [
-    Ability::Attack,
-    Ability::Heal,
-    Ability::Magic,
-    Ability::Sneak,
-];
+const EVERYONE_KNOWS: [Ability; 3] = [Ability::Attack, Ability::Magic, Ability::Sneak];
 
 /// The abilities a creature in a body of kind `kind` knows by that body alone,
-/// in `Ability::ALL`'s order: Attack, Heal, Magic, Sneak, and its kind's own.
+/// in `Ability::ALL`'s order: Attack, Magic, Sneak, and its kind's own.
 /// Shapeshifted, the form's.
 pub fn known_by_kind(kind: CreatureKind) -> Vec<Ability> {
     Ability::ALL

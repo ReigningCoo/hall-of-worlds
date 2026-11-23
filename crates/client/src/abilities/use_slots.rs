@@ -66,6 +66,12 @@ pub(super) fn use_slots(
                 }
                 continue;
             }
+            // Queued by hand like an ability (`manual.rs`), which checks it
+            // can be cast when its turn comes.
+            BarThing::Spell(_) => {
+                manual.press(thing);
+                continue;
+            }
         };
         // An open panel closes, whatever has changed since.
         let can = ability.can_use_at(&carried.0, &sheet.0, here.tools()) && !peace.refuses(ability);

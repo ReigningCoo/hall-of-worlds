@@ -1,6 +1,6 @@
 # shared: magic
 
-Spells: abilities that spend Mana. Heal so far: Mana turned into Health, on yourself or another, more for each point the better the caster's Healing skill. The rules both sides go by; casting it is the server's (`server/server.md`), choosing whom and when the client's (`client/abilities.md`). Plan: `docs/context/abilities-skills.md`.
+Heal's numbers, kept for the Heal effect of designed spells (`shared::spell`, magic plan PR 5: the Heal ability is gone): how much Health one Heal gives by the Healing skill, and when an automatic heal is due. `HEAL_MANA`, `HEAL_RANGE` and `heal_reaches` are left from the ability, unused by casting (a spell's Mana is `spell_cost`, its reach its wheres'). Plan: `docs/context/magic-system.md`.
 
 ## Files
 
@@ -21,7 +21,7 @@ Spells: abilities that spend Mana. Heal so far: Mana turned into Health, on your
 
 ## Used by
 
-- `ability` (`Ability::mana_cost`), server `connections/heal.rs`, client `abilities` (`vitals_now.rs`).
+- `spell` (`heal_restores`, `CAST_COST`), server `connections/fungus_harm.rs` (`heal_skill`) and `connections/cast/`, client `abilities` (`vitals_now.rs`).
 
 ## Notes
 

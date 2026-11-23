@@ -3,7 +3,7 @@
 //! such as Sneak, or a panel's ability while its panel is open), queued to be
 //! used by hand.
 
-use shared::ability::{Ability, ActionBar};
+use shared::ability::{Ability, ActionBar, BarThing};
 
 use bevy::prelude::*;
 
@@ -17,9 +17,9 @@ use crate::dom::AbilityMarks;
 /// The abilities in each state now, compared to know when to draw again.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(super) struct Marks {
-    auto: Vec<Ability>,
+    auto: Vec<BarThing>,
     on: Vec<Ability>,
-    queued: Vec<Ability>,
+    queued: Vec<BarThing>,
 }
 
 impl Marks {
@@ -33,7 +33,7 @@ impl Marks {
     ) -> Self {
         let auto = (bar.slots.iter().flatten())
             .filter(|held| held.auto)
-            .filter_map(|held| held.ability())
+            .map(|held| held.thing)
             .collect();
         let on = Ability::ALL
             .into_iter()
@@ -46,12 +46,15 @@ impl Marks {
         }
     }
 
-    /// How this ability is being used.
-    pub(super) fn of(&self, ability: Ability) -> AbilityMarks {
+    /// How this ability or spell is being used.
+    pub(super) fn of(&self, thing: impl Into<BarThing>) -> AbilityMarks {
+        let thing = thing.into();
         AbilityMarks {
-            auto: self.auto.contains(&ability),
-            on: self.on.contains(&ability),
-            queued: self.queued.contains(&ability),
+            auto: self.auto.contains(&thing),
+            on: thing
+                .ability()
+                .is_some_and(|ability| self.on.contains(&ability)),
+            queued: self.queued.contains(&thing),
         }
     }
 }

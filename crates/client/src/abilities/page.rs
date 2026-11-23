@@ -186,7 +186,6 @@ pub(super) fn look(ability: Ability, usable: bool, assets: &AssetServer) -> Abil
 pub(super) fn ability_id(ability: Ability) -> &'static str {
     match ability {
         Ability::Attack => "attack",
-        Ability::Heal => "heal",
         Ability::Flutter => "flutter",
         Ability::Kick => "kick",
         Ability::NightVision => "night_vision",

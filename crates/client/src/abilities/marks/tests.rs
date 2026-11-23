@@ -15,7 +15,7 @@ fn the_bar_and_the_page_share_how_each_ability_is_used() {
         auto: true,
     });
     let mut manual = Manual::default();
-    manual.press(Ability::Heal);
+    manual.press(BarThing::heal());
     let mut world = World::new();
     world.init_resource::<OpenPanels>();
     world
@@ -32,7 +32,7 @@ fn the_bar_and_the_page_share_how_each_ability_is_used() {
             ..default()
         }
     );
-    assert!(marks.of(Ability::Heal).queued);
+    assert!(marks.of(BarThing::heal()).queued);
     // A toggle that is on, and a panel open.
     assert!(marks.of(Ability::Sneak).on);
     assert!(marks.of(Ability::Alchemy).on);

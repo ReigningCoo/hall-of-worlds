@@ -21,10 +21,11 @@ use super::item_look::thing_look;
 use super::own_bar::OwnBar;
 use super::page::usable;
 use super::peace::Peace;
+use super::spells::can_cast;
 use super::spots::{Spot, Spots};
 use super::use_ability::{UseListed, UseSlot};
 use crate::character::CharacterSheet;
-use crate::common::BenchHere;
+use crate::common::{BenchHere, OwnVitals, Wording};
 use crate::common::{TouchGesture, UiPointer, in_interface};
 use crate::connection::ToServer;
 use crate::dom::{AbilityThing, Dropped, Hand, HeldObject, HeldThing, HeldWhat};
@@ -95,7 +96,7 @@ pub(super) fn drag_abilities(
         Res<BenchHere>,
         Res<Peace>,
     ),
-    assets: Res<AssetServer>,
+    (assets, wording, vitals, time): (Res<AssetServer>, Res<Wording>, Res<OwnVitals>, Res<Time>),
     (mut drag, mut object): (ResMut<Drag>, ResMut<HeldObject>),
     mut to_server: MessageWriter<ToServer>,
     (mut used, mut listed): (MessageWriter<UseSlot>, MessageWriter<UseListed>),
@@ -110,7 +111,11 @@ pub(super) fn drag_abilities(
         && let Some(Spot::Slot(slot)) = spot
     {
         mouse.clear_just_pressed(MouseButton::Right);
-        bar.change(BarChange::ToggleAuto { slot }, &known, &mut to_server);
+        bar.change(
+            BarChange::ToggleAuto { slot },
+            (&known, &sheet.0),
+            &mut to_server,
+        );
     }
     if mouse.just_pressed(MouseButton::Left)
         && free
@@ -125,10 +130,15 @@ pub(super) fn drag_abilities(
             BarThing::Ability(ability) => usable(ability, &carried, &sheet, (&here, *peace)),
             BarThing::Potion(_) => count > 0,
             BarThing::Item(_) => true,
+            BarThing::Spell(key) => {
+                let now = time.elapsed_secs_f64();
+                can_cast(key, &sheet.0, (&vitals, now), peace.0)
+            }
         };
+        let book = (&sheet.0, &wording.0);
         let thing = AbilityThing {
             thing,
-            look: thing_look(thing, count, kind, usable, &assets),
+            look: thing_look(thing, (count, kind), book, usable, &assets),
         };
         let what = HeldWhat::Ability(thing);
         // (No place and time picked up: letting the button go drops it.)
@@ -161,7 +171,11 @@ pub(super) fn drag_abilities(
         && let Some(Spot::Slot(slot)) = spots.at(still)
     {
         drag.held_still = Some(still);
-        bar.change(BarChange::ToggleAuto { slot }, &known, &mut to_server);
+        bar.change(
+            BarChange::ToggleAuto { slot },
+            (&known, &sheet.0),
+            &mut to_server,
+        );
     }
     // A click or tap that never became a drag uses what it was on.
     if free && mouse.just_released(MouseButton::Left) {
@@ -196,7 +210,10 @@ pub(super) fn drop_abilities(
         .thing()
         .and_then(|held| held_change(held, drag.from, over));
     let aimed = change.and_then(|change| match over {
-        Some(Spot::Slot(slot)) => Some((slot, bar.0.clone().apply(change, &known).is_ok())),
+        Some(Spot::Slot(slot)) => {
+            let allowed = bar.0.clone().apply(change, &known, &sheet.0.spellbook);
+            Some((slot, allowed.is_ok()))
+        }
         _ => None,
     });
     aim.set_if_neq(Aim(aimed));
@@ -204,7 +221,7 @@ pub(super) fn drop_abilities(
         let from = drag.from.take();
         let over = drop.over.front.and_then(|front| spots.of(front));
         if let Some(change) = held_change(&drop.thing, from, over) {
-            bar.change(change, &known, &mut to_server);
+            bar.change(change, (&known, &sheet.0), &mut to_server);
         }
     }
     if object.thing().and_then(HeldThing::ability).is_none() {

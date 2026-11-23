@@ -3,7 +3,7 @@
 //! server's timing of the player's own.
 
 use bevy::prelude::*;
-use shared::ability::{Ability, BAR_SLOTS};
+use shared::ability::{Ability, BAR_SLOTS, BarThing};
 use shared::combat::{Body, CANCEL_PENALTY, Wielded, in_reach};
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::protocol::{ClientMessage, Landed, ServerMessage};
@@ -11,11 +11,11 @@ use shared::sheet::Feeling;
 
 use super::manual::Manual;
 use super::own_bar::OwnBar;
-use super::vitals_now::{affords, wants_healing};
+use super::spells::{Standing, ask_cast, auto_aim, can_cast, spell_of};
 use crate::character::CharacterSheet;
 use crate::common::{
-    CurrentDungeon, DrawnGround, GameView, Other, OwnAbility, OwnVitals, PlayerSize, PlayerSpeed,
-    SpentEnergy, SpotPosition, Target,
+    CurrentDungeon, DrawnGround, Facing, GameView, Other, OwnAbility, OwnVitals, PlayerSize,
+    PlayerSpeed, SpentEnergy, SpotPosition, Target,
 };
 use crate::connection::{FromServer, ToServer};
 use crate::inventory::Carried;
@@ -92,11 +92,16 @@ pub(super) fn ask(
     to_server.write(ToServer(ClientMessage::UseAbility { ability, target }));
 }
 
-/// Automatic abilities, done whenever they can be, taking turns in the bar's
-/// order: the first whose time has come is asked for (owner, 2026-11-07).
-/// Attack with an enemy targeted, in sight and in reach; Heal on the player at
-/// a quarter of their Health, with the Mana. Never while the player is moving
-/// or an ability they chose by hand is waiting or winding up: those come first.
+/// Where the player stands and which way they face.
+type PlayerAt<'w, 's> = Single<'w, 's, (&'static SpotPosition, &'static Facing), With<Player>>;
+
+/// Automatic abilities and spells, done whenever they can be, taking turns in
+/// the bar's order: the first whose time has come is asked for (owner,
+/// 2026-11-07). Attack with an enemy targeted, in sight and in reach; a
+/// spell by its effects (`spells::auto_aim`: a heal on the player at a
+/// quarter of their Health, a harmful one when its first step would hit the
+/// enemy targeted), with the Mana. Never while the player is moving or
+/// something they chose by hand is waiting or winding up: those come first.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn use_automatic(
     view: Res<State<GameView>>,
@@ -105,7 +110,7 @@ pub(super) fn use_automatic(
     target: Res<Target>,
     (dungeon, ground): (Res<CurrentDungeon>, Res<DrawnGround>),
     (time, vitals): (Res<Time>, Res<OwnVitals>),
-    (player, size): (Single<&SpotPosition, With<Player>>, Res<PlayerSize>),
+    (player, size): (PlayerAt, Res<PlayerSize>),
     others: Query<(&Other, &SpotPosition)>,
     (moving, manual, peace): (Res<PlayerMoving>, Res<Manual>, Res<super::peace::Peace>),
     mut own: ResMut<OwnAbility>,
@@ -119,38 +124,46 @@ pub(super) fn use_automatic(
     {
         return;
     }
-    let automatic = bar.0.slots[..BAR_SLOTS]
-        .iter()
-        .flatten()
+    let relief = ground.relief.as_ref();
+    let (at, facing) = *player;
+    let me = Body::on(relief, at.0, size.0);
+    let enemy = target.0.and_then(|id| {
+        others
+            .iter()
+            .find(|(other, _)| other.id == id && other.feeling == Feeling::Unfriendly)
+            .map(|(other, at)| (other.id, Body::on(relief, at.0, other.kind.def().size)))
+    });
+    let standing = Standing {
+        level: &dungeon.level,
+        me,
+        heading: facing.0,
+        enemy,
+    };
+    let automatic = (bar.0.slots[..BAR_SLOTS].iter().flatten())
         .filter(|slot| slot.auto)
-        .filter_map(|slot| slot.ability())
-        .filter(|ability| ability.can_use(&carried.0, &sheet.0))
-        .filter(|ability| !peace.refuses(*ability))
-        .filter(|ability| affords(*ability, &vitals, now));
-    for ability in automatic {
-        let at = match ability {
-            Ability::Attack => {
+        .map(|slot| slot.thing);
+    for thing in automatic {
+        match thing {
+            BarThing::Ability(Ability::Attack)
+                if Ability::Attack.can_use(&carried.0, &sheet.0)
+                    && !peace.refuses(Ability::Attack) =>
+            {
                 let reach = Wielded::of(&carried.0).main.reach();
-                let relief = ground.relief.as_ref();
-                let me = Body::on(relief, player.0, size.0);
-                let enemy = target.0.and_then(|id| {
-                    others
-                        .iter()
-                        .find(|(other, _)| other.id == id && other.feeling == Feeling::Unfriendly)
-                });
-                enemy
-                    .filter(|(other, at)| {
-                        let them = Body::on(relief, at.0, other.kind.def().size);
-                        in_reach(&dungeon.level, &me, reach, &them)
-                    })
-                    .map(|(other, _)| Some(other.id))
+                let reached = enemy.filter(|(_, them)| in_reach(&dungeon.level, &me, reach, them));
+                if let Some((id, _)) = reached {
+                    ask(Ability::Attack, Some(id), now, &mut own, &mut to_server);
+                    return;
+                }
             }
-            Ability::Heal => wants_healing(&vitals, now).then_some(None),
-            _ => None,
-        };
-        if let Some(at) = at {
-            ask(ability, at, now, &mut own, &mut to_server);
-            return;
+            BarThing::Spell(key) if can_cast(key, &sheet.0, (&vitals, now), peace.0) => {
+                let aimed = spell_of(key, &sheet.0)
+                    .and_then(|spell| auto_aim(spell, (&vitals, now), &standing));
+                if let Some(at) = aimed {
+                    ask_cast(key, at, now, &mut own, &mut to_server);
+                    return;
+                }
+            }
+            _ => {}
         }
     }
 }

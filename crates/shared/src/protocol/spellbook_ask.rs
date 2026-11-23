@@ -18,4 +18,12 @@ pub enum SpellbookAsk {
     Favourite { spell: Spell, favourite: bool },
     /// Take a spell out of the book.
     Remove { spell: Spell },
+    /// Cast a spell in the book (magic plan PR 5) at a creature, or with no
+    /// `target` at the caster or ahead. Not at once, unlike the rest: queued
+    /// as `UseAbility(Magic)`, answered with `AbilityStarted` or nothing, its
+    /// steps landing as `AbilityLanded`s.
+    Cast {
+        spell: crate::spell::SpellKey,
+        target: Option<crate::id::Id>,
+    },
 }
