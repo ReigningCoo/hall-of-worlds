@@ -1,10 +1,11 @@
 //! A spell's Mana cost, in thousandths of a point as Mana is kept (magic plan,
 //! Mana cost). An effect costs 5 less ∛(its skill %), never below 1; an effect
-//! step its effects added up, +1 for each after the first; a where step tier ×
-//! count, +1 for each extra, less up to 50% by its Form skill, never below 1;
+//! step its effects added up, +1 for each after the first; a where tier ×
+//! count, +1 for each extra, less up to 50% by its Form skill, never below 1,
+//! and a step of several wheres merged their costs multiplied (PR 10);
 //! filters are free; the spell its steps multiplied together.
 
-use super::design::{EffectStep, Spell, Step, WhereStep};
+use super::design::{EffectStep, Spell, Step, WherePart, WhereStep};
 use super::effect::Effect;
 use crate::skill::{SkillId, Skills};
 use crate::vitals::{PER_POINT, Points};
@@ -55,13 +56,24 @@ pub fn effect_step_cost(step: &EffectStep, skills: Option<&Skills>) -> u64 {
     total + units.saturating_sub(1) * LEAST
 }
 
-/// A where step: tier × count, plus a point for each extra, less up to half
-/// by its Form skill, never below 1. Filters are free.
-pub fn where_step_cost(step: &WhereStep, skills: Option<&Skills>) -> u64 {
-    let count = u64::from(step.count);
-    let base = (u64::from(step.place.tier()) * count + count.saturating_sub(1)) * LEAST;
-    let saving = FORM_SAVING * hundredths(skills, step.place.skill()) / 10_000;
+/// One where in a step: tier × count, plus a point for each extra, less up to
+/// half by its Form skill, never below 1.
+pub fn where_part_cost(part: WherePart, skills: Option<&Skills>) -> u64 {
+    let count = u64::from(part.count);
+    let base = (u64::from(part.place.tier()) * count + count.saturating_sub(1)) * LEAST;
+    let saving = FORM_SAVING * hundredths(skills, part.place.skill()) / 10_000;
     (base * (1000 - saving) / 1000).max(LEAST)
+}
+
+/// A where step: its wheres' costs (`where_part_cost`) multiplied together,
+/// as the steps themselves are. Filters are free.
+pub fn where_step_cost(step: &WhereStep, skills: Option<&Skills>) -> u64 {
+    let mut total = u128::from(LEAST);
+    for part in step.parts() {
+        total = total * u128::from(where_part_cost(part, skills)) / u128::from(LEAST);
+        total = total.min(u128::from(u32::MAX));
+    }
+    total as u64
 }
 
 /// One step's cost, in thousandths.

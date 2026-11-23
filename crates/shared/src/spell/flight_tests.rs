@@ -24,6 +24,7 @@ fn missile_step(count: u8, filters: Filters) -> WhereStep {
         place: Where::Missile,
         count,
         filters,
+        more: Vec::new(),
     }
 }
 

@@ -39,5 +39,6 @@ pub(super) static SPELL_DESIGN: Template = html!(
 /// The words along the top.
 pub(super) const WORDS: &str = "Click a where, filter or effect, or drag it down, to add it \
     to the spell. A step holds wheres or effects, never both; filters go on a first where. \
-    To use one more than once, add it again. Drag steps, wheres and effects to move them, \
+    To use one more than once, add it again. Drag a where onto a where step to merge it, \
+    leading on from the one above. Drag steps, wheres and effects to move them, \
     or off the row to take them out.";

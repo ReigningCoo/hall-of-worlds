@@ -10,7 +10,7 @@ Today's Heal becomes two spells: **Heal** (a Heal step alone, on yourself) and *
 
 - **Up to 10 steps** (a safety net against recursion; total Mana is the real limit).
 - **A step** is either:
-  - **a where step:** one where with a count (Missile ×2), plus, in the first step only, filters (below); or
+  - **a where step:** one or more wheres in order, each with a count (Missile ×2, or Missile then Surround merged), plus, in the first step only, filters (below); or
   - **an effect step:** one or more effects with counts, read in order (so Void knows what comes after it).
 - **A spell with no where before its first effect step** happens on the caster.
 - **Steps resolve one at a time, about a second apart.** A missile's flight is its own delay: the next step starts when it lands.
@@ -41,6 +41,7 @@ Each unlocks in this order (see Unlocks). Its tier is also its cost (see Mana co
 | Point | 5 | Exactly the target, instantly, nothing in between; needs a clear line of sight | One more creature each: the nearest on the same side (friend or enemy) as the first |
 
 - Only within the same where step does a count stack; the same where in two steps, with or without an effect between them, is two hops.
+- **Merged wheres** (owner, 2026-11-23; PR 10): different wheres in one step each lead on from what the one before hit, and the effects land on everything any of them hit: Missile + Surround → Fire burns the target and the ring round it; Touch + Missile → Fire what is touched and what the missile hits; Surround + Missile → Fire the creatures round you and what the 8 missiles hit. Separate steps (Missile → Surround → Fire) stay as they were: only the last step's hits take the effects, a second apart. Only the first where of the first step uses the caster's target; at most 5 wheres in a step.
 - Hits need a clear line from where the where starts (as sight does), so nothing reaches through walls.
 
 ## Filters
@@ -94,7 +95,8 @@ All in thousandths of a point, as Mana is kept.
 
 - **An effect** costs 5, less the cube root of its skill's percentage, never below 1: 5 at 0%, 3 at 8%, 2 at 27%, 1 from 64%.
 - **An effect step** costs its effects added up, plus 1 for each effect after the first: Heal 5, Heal ×2 11.
-- **A where step** costs its tier × its count, plus 1 for each extra. Its Form skill takes off up to 50%. It never costs less than 1, so Touch → Heal is never cheaper than Heal.
+- **A where** costs its tier × its count, plus 1 for each extra. Its Form skill takes off up to 50%. It never costs less than 1, so Touch → Heal is never cheaper than Heal.
+- **A where step** costs its wheres multiplied together, as the steps are (Claude's choice in PR 10, for the owner to check): Missile + Surround 2 × 3 = 6.
 - **The spell** costs its steps multiplied together, paid all at once when the first step lands:
 
 | Spell | Cost at 0% skill |
@@ -166,14 +168,15 @@ Wild's practice moves when saves load: Beasts to Social's Animals, Plants to Ear
 2. **The rules** (`shared::spell`): a spell's steps, wheres, filters and effects as data, checking a design (unlocks, 10 steps, filters only first and with a where), costs, automatic names, the combination table, the automatic casting rule. Needs 1 (built).
 3. **Where hits** (shared): Touch's arcs, Beam's lines, Surround's rings, Point's targets, a missile's path, filters and sides, line of sight; pure functions both sides use (`shared::spell`'s where hits, built). Needs 2.
 4. **Spellbook and the Magic ability** (shared and server): the book on the sheet, messages to store, rename, favourite and remove spells, new characters' book. Needs 2 (built).
-5. **Casting on the server:** steps a second apart, Self, Touch, Beam, Surround and Point, Heal as an effect, fizzling, Mana, practice, the inn, never to death; the Heal ability gone and bars moved onto the Heal spell, and the client's bar taking spells (by hand and automatic). Needs 3 and 4 (built: server `connections/cast/`, `shared::spell`'s `SpellKey`, `cast.rs`, `spare.rs`, client `abilities/spells.rs`; missiles land at once until PR 6; harm to the caster and friends stopping at 1 Health is `spared_harm`, used once there is harm, PR 10).
+5. **Casting on the server:** steps a second apart, Self, Touch, Beam, Surround and Point, Heal as an effect, fizzling, Mana, practice, the inn, never to death; the Heal ability gone and bars moved onto the Heal spell, and the client's bar taking spells (by hand and automatic). Needs 3 and 4 (built: server `connections/cast/`, `shared::spell`'s `SpellKey`, `cast.rs`, `spare.rs`, client `abilities/spells.rs`; missiles land at once until PR 6; harm to the caster and friends stopping at 1 Health is `spared_harm`, used once there is harm, PR 11).
 6. **Missiles in flight** (server, client following them); Healing Missile in new books. Needs 5 (built: `shared::spell`'s `flight.rs`, server `cast/flight.rs`, `MissileNews`, client `common::Missiles` and `dungeon_map/missiles.rs`, a glowing ball until PR 7; several missiles in one step: the next step starts once the last lands).
 7. **Drawing wheres** (client): bolts, beams, rings, points, sparkles. Needs 6 (built: `shared::spell`'s `Look` and `Shown`, `protocol::SpellNews`, client `dungeon_map/spell_fx/`; the debug API's `client.cast` and `client.set_skills`).
 8. **The spellbook page** (client): the list with favourites at the top, names, removing, dragging to the bar. Needs 5; any order with 7 (built: the Character panel's Spells tab, P, `abilities/spellbook/`; Remove asks first; since PR 9 the design goes back to the design panel).
 9. **The design panel** (client). Needs 8 (built: client `spell_design/`, opened by Magic; Remove on the Spells tab puts the design back there, `EditSpell`).
-10. **Effects: Void, Fire, Water** (and cold, ice, steam), resisting by Aura and Warding's place in it. Needs 5.
-11. **Effects: Air, Earth, Poison, Curse, Illusion, Warding.** Needs 10.
-12. **Effects: Identify, Teleport, Light, Haste, Calm, Blessing, Levitate, Mana**, and a players' wiki page on magic. Needs 10; any order with 11.
+10. **Merged wheres** in one step (added after PR 9). Needs 9 (built: `WhereStep::more`, `part_hits`, `step_hits`, `launch_part`, `shown_part`; the server's casting a where at a time within a step; the panel merging a where dragged onto a where step).
+11. **Effects: Void, Fire, Water** (and cold, ice, steam), resisting by Aura and Warding's place in it. Needs 5.
+12. **Effects: Air, Earth, Poison, Curse, Illusion, Warding.** Needs 11.
+13. **Effects: Identify, Teleport, Light, Haste, Calm, Blessing, Levitate, Mana**, and a players' wiki page on magic. Needs 11; any order with 12.
 
 ## Left for later
 

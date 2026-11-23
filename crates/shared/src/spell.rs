@@ -44,14 +44,14 @@ pub use check::{DesignError, check, is_unlocked, unlocked_wheres};
 pub use combination::{COMBINATIONS, Combination, Mixture, Outcome, outcomes};
 pub use cost::{
     EFFECT_BASE, FORM_SAVING, LEAST, effect_cost, effect_step_cost, spell_cost, step_cost,
-    where_step_cost,
+    where_part_cost, where_step_cost,
 };
-pub use design::{EffectStep, MAX_STEPS, Spell, Step, WhereStep};
+pub use design::{EffectStep, MAX_STEPS, MAX_WHERES, Spell, Step, WherePart, WhereStep};
 pub use effect::Effect;
 pub use filters::Filters;
-pub use flight::{Path, launch};
+pub use flight::{Path, launch, launch_part};
 pub use hit::{Creature, Hit, Origin, Side, hit_anyone};
-pub use hits::where_hits;
+pub use hits::{part_hits, step_hits, where_hits};
 pub use key::SpellKey;
 pub use look::{LOOK_PARTS, Look};
 pub use missile::{
@@ -61,7 +61,7 @@ pub use name::auto_name;
 pub use part::{Part, parts};
 pub use place::Where;
 pub use point::{POINT_RANGE, point};
-pub use shown::{Shown, shown};
+pub use shown::{Shown, shown, shown_part};
 pub use spare::spared_harm;
 pub use surround::{SURROUND_RING, SURROUND_SPOTS, surround, surround_reach};
 pub use touch::{TOUCH_HALF_ARC, TOUCH_WIDER, touch, touch_half_arc};
@@ -77,5 +77,7 @@ mod flight_tests;
 mod hits_tests;
 #[cfg(test)]
 mod look_tests;
+#[cfg(test)]
+mod merged_tests;
 #[cfg(test)]
 mod tests;

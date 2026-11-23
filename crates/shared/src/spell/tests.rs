@@ -76,6 +76,7 @@ fn form_takes_off_up_to_half_never_below_one() {
         place: Where::Point,
         count: 3,
         filters: Filters::NONE,
+        more: Vec::new(),
     };
     assert_eq!(where_step_cost(&step, Some(&skills)), 8500);
     let skills = skills_at("magic/form/touch", 100);

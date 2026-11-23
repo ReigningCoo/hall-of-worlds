@@ -18,6 +18,10 @@ pub(super) fn problem_words(error: DesignError) -> String {
         DesignError::WhereAtEnd => "The last step is a where: add an effect after it.".to_owned(),
         DesignError::EmptyStep => "A step holds no effects.".to_owned(),
         DesignError::ZeroCount => "A where or an effect is stacked no times.".to_owned(),
+        DesignError::TooManyWheres => format!(
+            "A step merges at most {} wheres.",
+            shared::spell::MAX_WHERES
+        ),
         DesignError::FilterNotFirst => "Filters work only in the first step.".to_owned(),
         DesignError::Locked(place) => format!("{} isn't unlocked yet.", where_name(place)),
     }

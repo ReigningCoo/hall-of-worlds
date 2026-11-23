@@ -48,12 +48,19 @@ struct Cast {
     spell: Spell,
     /// The step to resolve next, at action tick `due`.
     next: usize,
+    /// Which of that where step's merged wheres is next (0 the first).
+    part: usize,
+    /// What that where step's wheres so far have hit: the next step's
+    /// targets once its last where is done.
+    gathered: Vec<Aimed>,
     due: u64,
     /// The level it is cast on: it stops if the caster leaves.
     place: (SiteId, u32),
     /// The caster's target, for the first where only.
     toward: Option<Id>,
-    /// What the last where hit: the next steps' targets. Empty: the caster.
+    /// What the last where step hit (or, within a step, the where before):
+    /// where the next where starts, and the effects' targets. Empty: the
+    /// caster.
     aimed: Vec<Aimed>,
     /// The Form skills of the wheres so far, practised when an effect they
     /// carried does something.
@@ -148,6 +155,8 @@ pub(super) fn start_cast(
         forms: Vec::new(),
         flying: Vec::new(),
         landed: Vec::new(),
+        part: 0,
+        gathered: Vec::new(),
     });
     let stayed = client.link.send(&ServerMessage::AbilityStarted {
         who: None,

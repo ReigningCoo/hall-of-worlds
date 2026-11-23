@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use shared::spell::{BookSpell, Filters, MAX_STEPS, Spell, Step};
 
 use super::piece::FilterKind;
-use super::units::{Unit, filters_of, step_of, units, with};
+use super::units::{Unit, click_joins, filters_of, step_of, units, with};
 
 /// The design on the panel.
 #[derive(Resource, Debug, Default)]
@@ -94,18 +94,20 @@ impl Draft {
     }
 
     /// One more where or effect at the end of the step at `at`, if it takes
-    /// it (the same where again; any effect in an effect step).
+    /// it (any where in a where step, merged after the rest; any effect in an
+    /// effect step).
     pub(super) fn add_to(&mut self, at: usize, unit: Unit) {
         if let Some(step) = self.steps.get(at).and_then(|step| with(step, unit)) {
             self.steps[at] = step;
         }
     }
 
-    /// A where or effect clicked: added to the last step if it takes it, else
-    /// in a new step at the end.
+    /// A where or effect clicked: added to the last step if it takes it (the
+    /// same where again, an effect to effects), else in a new step at the end.
     pub(super) fn append(&mut self, unit: Unit) {
+        let joins = |last: usize| click_joins(&self.steps[last], unit) && self.takes(last, unit);
         match self.steps.len().checked_sub(1) {
-            Some(last) if self.takes(last, unit) => self.add_to(last, unit),
+            Some(last) if joins(last) => self.add_to(last, unit),
             _ => self.add_step(self.steps.len(), unit),
         }
     }

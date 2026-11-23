@@ -1,4 +1,4 @@
-use shared::spell::{Effect, Filters, Step, Where};
+use shared::spell::{Effect, Filters, Step, Where, WherePart};
 
 use super::draft::{Draft, Goes};
 use super::markup::SPELL_DESIGN;
@@ -145,4 +145,45 @@ fn no_more_than_ten_steps() {
         draft.append(Unit::Where(place));
     }
     assert_eq!(draft.steps.len(), shared::spell::MAX_STEPS);
+}
+
+#[test]
+fn a_where_dragged_onto_a_where_step_merges_after_the_rest() {
+    let mut draft = Draft::default();
+    draft.append(Unit::Where(Where::Missile));
+    draft.append(Unit::Where(Where::Surround));
+    draft.append(Unit::Effect(Effect::Fire));
+    // Clicks keep separate steps; Surround dragged onto Missile merges.
+    assert_eq!(draft.steps.len(), 3);
+    draft.move_unit((1, 0), Goes::Step(0));
+    let parts = [
+        WherePart {
+            place: Where::Missile,
+            count: 1,
+        },
+        WherePart {
+            place: Where::Surround,
+            count: 1,
+        },
+    ];
+    let merged = Step::merged(&parts, Filters::NONE).unwrap();
+    assert_eq!(
+        draft.steps,
+        vec![merged, Step::effects(&[(Effect::Fire, 1)])]
+    );
+    // A click of the last where again stacks it; another kind starts a step.
+    draft.add_step(1, Unit::Where(Where::Touch));
+    draft.move_unit((1, 0), Goes::Step(0));
+    draft.add_to(0, Unit::Where(Where::Touch));
+    let Step::Where(step) = &draft.steps[0] else {
+        panic!("a where step");
+    };
+    assert_eq!(step.last().count, 2);
+    assert_eq!(step.len(), 3);
+    // Taken out again one at a time, the rest close up.
+    assert_eq!(draft.remove_unit(0, 1), Some(Unit::Where(Where::Surround)));
+    let Step::Where(step) = &draft.steps[0] else {
+        panic!("a where step");
+    };
+    assert_eq!((step.len(), step.last().place), (2, Where::Touch));
 }

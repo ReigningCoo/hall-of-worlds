@@ -14,8 +14,10 @@ use super::aim::aim_first;
 use super::design::WhereStep;
 use super::filters::Filters;
 use super::hit::{Creature, Hit, Origin};
+use super::hits::later_filters;
 use super::line::{ahead, entry_along, wall_stop};
 use super::missile::{MISSILE_RANGE, flight_millis, missile_speed};
+use super::place::Where;
 use super::toward::Toward;
 
 /// A missile's way: from where it was launched to where it stops if it meets
@@ -56,6 +58,23 @@ pub fn launch(
         step.filters,
         creatures,
     ))
+}
+
+/// A missile of `step`'s merged where at `index` (1 or more), from
+/// `origin`, a hit of the where before it, going on ahead; filtered as
+/// `part_hits` is, never aimed. `None` when that where isn't a missile.
+pub fn launch_part(
+    level: &Level,
+    step: &WhereStep,
+    index: usize,
+    origin: &Origin,
+    creatures: &[Creature],
+) -> Option<Path> {
+    let part = step.parts().nth(index).filter(|_| index > 0)?;
+    (part.place == Where::Missile).then(|| {
+        let filters = later_filters(step.filters);
+        path(level, origin, Toward::Ahead, part.count, filters, creatures)
+    })
 }
 
 /// `launch` without the aim: the way itself.

@@ -4,14 +4,18 @@
 
 use shared::dungeon::Level;
 use shared::facing::Heading;
-use shared::spell::{Hit, Look, Origin, Shown, Toward, WhereStep, shown, where_hits};
+use shared::spell::{
+    Hit, Look, Origin, Shown, Toward, WhereStep, part_hits, shown, shown_part, where_hits,
+};
 
 use super::creatures::Present;
 use super::{Aimed, Cast};
 
-/// What `step` hits, as the next steps' targets (the caster facing
-/// `heading`), and how it looked from each place it started, to draw. Only
-/// the first where goes at the caster's target.
+/// What `step`'s where now due (`Cast::part`) hits, as what comes next
+/// starts from (the caster facing `heading`), and how it looked from each
+/// place it started, to draw. Only the first where of the first step goes
+/// at the caster's target; a merged where goes on from each hit of the one
+/// before.
 pub(super) fn where_step(
     cast: &Cast,
     step: &WhereStep,
@@ -22,7 +26,15 @@ pub(super) fn where_step(
     let creatures = &present.creatures;
     let look = Look::from_step(&cast.spell, cast.next);
     let (mut aimed, mut looks) = (Vec::new(), Vec::new());
+    let part = cast.part;
     for (origin, toward) in origins(cast, present, heading) {
+        if part > 0 {
+            let hits = part_hits(level, step, part, &origin, creatures);
+            let at = (step, part, look);
+            looks.extend(shown_part(level, at, &origin, creatures, &hits));
+            aimed.extend(hits.iter().map(|hit| aimed_of(hit, present)));
+            continue;
+        }
         let hits = where_hits(level, step, &origin, toward, creatures);
         looks.extend(shown(
             level,

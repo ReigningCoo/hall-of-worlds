@@ -68,6 +68,7 @@ fn shown_beams_end_at_their_reach_and_rings_round_the_caster() {
         place: Where::Beam,
         count: 2,
         filters: Filters::NONE,
+        more: Vec::new(),
     };
     let hits = where_hits(&level, &beam, &origin, Toward::Ahead, &creatures);
     let look = Look::default();
@@ -87,7 +88,7 @@ fn shown_beams_end_at_their_reach_and_rings_round_the_caster() {
 
     let ring = WhereStep {
         place: Where::Surround,
-        ..beam
+        ..beam.clone()
     };
     let shown = shown_of(&level, &ring, &origin, &creatures);
     assert!(shown.ends.is_empty());
