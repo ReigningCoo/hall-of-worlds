@@ -164,7 +164,7 @@ Wild's practice moves when saves load: Beasts to Social's Animals, Plants to Ear
 1. **Skill tree:** Form and Insight, the new leaves, Wild gone with its practice moved; this plan, the decision and the context table. Shared only (built).
 2. **The rules** (`shared::spell`): a spell's steps, wheres, filters and effects as data, checking a design (unlocks, 10 steps, filters only first and with a where), costs, automatic names, the combination table, the automatic casting rule. Needs 1 (built).
 3. **Where hits** (shared): Touch's arcs, Beam's lines, Surround's rings, Point's targets, a missile's path, filters and sides, line of sight; pure functions both sides use (`shared::spell`'s where hits, built). Needs 2.
-4. **Spellbook and the Magic ability** (shared and server): the book on the sheet, messages to store, rename, favourite and remove spells, new characters' book. Needs 2.
+4. **Spellbook and the Magic ability** (shared and server): the book on the sheet, messages to store, rename, favourite and remove spells, new characters' book. Needs 2 (built).
 5. **Casting on the server:** steps a second apart, Self, Touch, Beam, Surround and Point, Heal as an effect, fizzling, Mana, practice, the inn, never to death; the Heal ability gone and bars moved onto the Heal spell, and the client's bar taking spells (by hand and automatic). Needs 3 and 4.
 6. **Missiles in flight** (server, client following them); Healing Missile in new books. Needs 5.
 7. **Drawing wheres** (client): bolts, beams, rings, points, sparkles. Needs 6.

@@ -215,6 +215,10 @@ pub struct Sheet {
     /// in older saves.
     #[serde(default)]
     pub fungi: crate::fungus::FungusKnowledge,
+    /// The spells it has designed (`spell::Spellbook`): Heal alone in older
+    /// saves, as in a new character's.
+    #[serde(default)]
+    pub spellbook: crate::spell::Spellbook,
 }
 
 impl Default for Sheet {
@@ -251,6 +255,7 @@ impl Sheet {
             alcohol: Default::default(),
             later: Default::default(),
             fungi: Default::default(),
+            spellbook: Default::default(),
         }
     }
 
