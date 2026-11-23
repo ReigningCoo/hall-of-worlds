@@ -15,7 +15,7 @@ use super::Aimed;
 use super::creatures::{Present, present};
 use super::effects::{Landing, land};
 use super::flight::{fly, launch_missiles, missile_paths, tell_level};
-use super::step::{effect_targets, landing_cells, where_step};
+use super::step::{away_headings, effect_targets, landing_cells, where_step};
 use crate::{ServerWorld, ServerWorlds, TICKS_PER_SECOND};
 
 /// Resolves every step that is due, and flies every missile on, for every
@@ -135,6 +135,7 @@ fn run_step(
         place: cast.place,
         index,
         tick,
+        away: away_headings(&cast, present, &targets, clients[i].heading),
     };
     let cells = landing_cells(&cast, present);
     let skills = land(clients, i, world, &at, effects, (&targets, &cells));

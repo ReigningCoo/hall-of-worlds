@@ -23,6 +23,8 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
         return;
     }
     let tick = world.action_clock.ticks();
+    // Spells' poison harms before anyone acts.
+    super::poison_mobs(world, tick);
     let everyone = everyone_playing(clients);
     let mut crossings = Vec::new();
     let mut blows: Vec<MobBlow> = Vec::new();

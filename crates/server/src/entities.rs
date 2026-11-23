@@ -55,6 +55,7 @@ mod remake_for_tests;
 mod run;
 mod scent;
 mod shove;
+mod spells;
 mod suited;
 mod sync;
 mod target;
@@ -88,7 +89,9 @@ use notice::{Maps, Someone, Spot, cells_apart, everyone_playing, notice};
 pub(super) use run::run_mobs;
 use run::world_gap;
 pub(crate) use scent::Scents;
-pub(crate) use shove::{shove, shoved_to};
+pub(crate) use shove::{knock_mob, shove, shoved_to};
+use spells::MobSpells;
+pub(crate) use spells::{end_mob_spells, lay_on_mob, poison_mobs};
 pub(super) use sync::{in_hall, sync};
 pub(crate) use watching::watched_warily;
 pub(crate) use wild::{WildAreas, keep_wild_areas};
@@ -188,6 +191,8 @@ pub(crate) struct Mob {
     speed: u32,
     /// Chilled by a spell: until when, and its own speed (`chill.rs`).
     chilled: Option<(u64, u32)>,
+    /// Spells' effects lying on it (`spells.rs`). Not saved.
+    spells: MobSpells,
     /// What can be seen of what it wears, from when it was made: mobs don't change
     /// clothes.
     shown: Vec<WornLook>,

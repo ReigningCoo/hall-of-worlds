@@ -82,6 +82,25 @@ pub(super) fn effect_targets(cast: &Cast, present: &Present) -> Vec<usize> {
     targets
 }
 
+/// For each target (by its place in `present`), the way away from where the
+/// last where came from, as it hit them; the caster's own `heading` for one
+/// the spell is on without a where.
+pub(super) fn away_headings(
+    cast: &Cast,
+    present: &Present,
+    targets: &[usize],
+    heading: Heading,
+) -> Vec<Heading> {
+    (targets.iter())
+        .map(|&index| {
+            let id = present.ids[index];
+            (cast.aimed.iter())
+                .find(|aimed| aimed.creature == Some(id))
+                .map_or(heading, |aimed| aimed.heading)
+        })
+        .collect()
+}
+
 /// The cells an effect step lands on: every spot the last where hit,
 /// creature or not, or the caster's own cell.
 pub(super) fn landing_cells(cast: &Cast, present: &Present) -> Vec<(i64, i64)> {

@@ -18,8 +18,10 @@ pub(crate) struct SpellMob {
     pub body: Body,
     pub enemy: bool,
     /// What it resists harmful magic with (`spell::resistance`): its Aura,
-    /// with no skills.
+    /// with no skills, more under a Warding spell.
     pub resistance: u64,
+    /// What it resists paralysis and illusions with (`spell::will`).
+    pub will: u64,
 }
 
 /// Every mob on this site level (`Visit::population`) as a player of `kind`
@@ -40,7 +42,9 @@ pub(crate) fn mobs_for_spell(
             id: one.id,
             body: Body::on(relief, one.spot, one.size()),
             enemy: one.feeling_shown(kind, Some(&character)) == Feeling::Unfriendly,
-            resistance: shared::spell::resistance(&one.attributes, None),
+            resistance: shared::spell::resistance(&one.attributes, None) * one.spells.resisting()
+                / 1000,
+            will: shared::spell::will(&one.attributes, None) * one.spells.resisting() / 1000,
         })
         .collect()
 }

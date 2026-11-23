@@ -128,6 +128,7 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
         let (stayed, cost) = match action {
             Action::Step { number, step } => {
                 client.last_step = Some(number);
+                client.steps_done = number;
                 let step = client.stumbled_step(number, step);
                 let taken = step_taken(client, world, step);
                 client.moved_from(from, map);
@@ -136,6 +137,7 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             }
             Action::Move { number, to } => {
                 client.last_step = Some(number);
+                client.steps_done = number;
                 let taken = match client.stumbled_move(number, to) {
                     Some(to) => move_taken(client, world, to),
                     // Stumbled on the spot.

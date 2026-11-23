@@ -1,10 +1,15 @@
-//! Shoving a mob half a cell (a kick, `connections::kick`).
+//! Shoving a mob half a cell (a kick, `connections::kick`), and knocking one
+//! back or pulling it in (a spell's Air, `spell::knocked_to`).
 
 use shared::clearance::{Crowding, Other, check_segment, crowded_at};
 use shared::id::Id;
 use shared::movement::mob_can_stand;
 use shared::spot::{HALF_SPAN, Spot};
 
+use shared::facing::Heading;
+use shared::spell::knocked_to;
+
+use super::{Mob, Population};
 use crate::ServerWorld;
 use crate::storage::SiteId;
 
@@ -29,10 +34,18 @@ pub(crate) fn shoved_to(
         .spot
         .offset(dx * HALF_SPAN / apart, dy * HALF_SPAN / apart);
     let level = population.level();
+    check_segment(level, mob.size(), mob.spot, to)?;
+    fits(population, mob, to)
+}
+
+/// Whether mob `mob` can stand at `to` on `population`'s level: footing,
+/// and not on another mob.
+fn fits(population: &Population, mob: &Mob, to: Spot) -> Option<Spot> {
     let (x, y) = to.cell();
-    if !mob_can_stand(level, x, y) || check_segment(level, mob.size(), mob.spot, to).is_none() {
+    if !mob_can_stand(population.level(), x, y) {
         return None;
     }
+    let target = mob.id;
     let mobs = population.mobs.iter().filter(|other| other.id != target);
     let others: Vec<Other> = mobs
         .map(|other| Other {
@@ -51,4 +64,28 @@ pub(crate) fn shove(world: &mut ServerWorld, place: (SiteId, u32), target: Id, t
     if let Some(mob) = mob {
         mob.place(to);
     }
+}
+
+/// Knocks mob `target` on `place` `units` going `heading`, as far as walls
+/// let it (`spell::knocked_to`), unless that is on another mob. Whether it
+/// moved.
+pub(crate) fn knock_mob(
+    world: &mut ServerWorld,
+    place: (SiteId, u32),
+    target: Id,
+    heading: Heading,
+    units: u64,
+) -> bool {
+    let Some(population) = world.populations.0.get(&place) else {
+        return false;
+    };
+    let Some(mob) = population.mobs.iter().find(|mob| mob.id == target) else {
+        return false;
+    };
+    let to = knocked_to(population.level(), mob.size(), mob.spot, heading, units);
+    if to == mob.spot || fits(population, mob, to).is_none() {
+        return false;
+    }
+    shove(world, place, target, to);
+    true
 }

@@ -19,7 +19,7 @@ use crate::connections::tests::TestClient;
 
 /// Stores `spell` in the player's book and casts it at `target`, letting
 /// ticks go by: everything the player was told.
-fn cast(
+pub(super) fn cast(
     test: &mut TestClient,
     spell: &Spell,
     target: Option<shared::id::Id>,
@@ -40,23 +40,23 @@ fn cast(
 }
 
 /// Touch unlocked (Magic at 1%).
-fn unlock_touch(test: &mut TestClient) {
+pub(super) fn unlock_touch(test: &mut TestClient) {
     let magic = SkillId::find("magic").unwrap();
     test.client.sheet.skills.practise(magic, practice_for(1));
 }
 
 /// A player in a castle with a mob beside them, Touch unlocked.
-fn magician() -> TestClient {
+pub(super) fn magician() -> TestClient {
     let (mut test, _) = beside(CreatureKind::Dwarf);
     unlock_touch(&mut test);
     test
 }
 
-fn on_self(effects: &[(Effect, u8)]) -> Spell {
+pub(super) fn on_self(effects: &[(Effect, u8)]) -> Spell {
     Spell::new(vec![Step::effects(effects)])
 }
 
-fn health(test: &TestClient) -> Points {
+pub(super) fn health(test: &TestClient) -> Points {
     let tick = test.world.action_clock.ticks();
     let limits = test.client.limits(tick);
     test.client.sheet.vitals.at(Vital::Health, limits, tick)
@@ -173,3 +173,6 @@ fn frozen_water_is_ice_until_it_thaws() {
     crate::sites::sync_spell_marks(alone, &mut test.world);
     assert_eq!(cell(&test), Cell::Water, "thawed");
 }
+
+/// Air, Earth, Poison, Curse, Illusion and Warding (magic plan PR 12).
+mod lasting;

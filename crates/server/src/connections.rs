@@ -275,20 +275,20 @@ pub struct Client {
     pub(crate) unsaved: bool,
     /// The site level the player is on, if any.
     pub(crate) visit: Option<Visit>,
-    /// In the Hall of Worlds, where the client's `x` counts from
-    /// (`ServerMessage::EnterHall`).
+    /// In the Hall of Worlds, where the client's `x` counts from (`EnterHall`).
     pub(crate) hall_origin: i64,
     /// The world map chunks it has been sent on this connection.
     pub(crate) world_chunks: BTreeSet<ChunkPos>,
     /// The roads it has been sent on this connection.
     pub(crate) sent_roads: BTreeSet<shared::road::RoadLink>,
-    /// Every poi is shown, whether known or not: from the start while
-    /// `ALL_POIS_KNOWN`, otherwise by developer tools.
+    /// Every poi shown, known or not: while `ALL_POIS_KNOWN`, or by dev tools.
     pub(crate) reveal_pois: bool,
     /// How many maps the player has been put on since `Welcome` (`Step`).
     map: u32,
     /// The last step dealt with this tick, to send `Position` for.
     last_step: Option<u32>,
+    /// The last step dealt with on this map, for Air's `Position` (0: none).
+    steps_done: u32,
     /// Items it has asked after (`LookUpItems`), answered once every client's
     /// messages this tick have been read.
     looking_up: Vec<Id>,

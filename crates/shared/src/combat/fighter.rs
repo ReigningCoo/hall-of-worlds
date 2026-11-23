@@ -8,7 +8,8 @@ use crate::skill::{SkillId, Skills};
 use crate::vitals::Points;
 
 use super::{
-    Blow, Weapon, Wielded, attack_cost, off_hand_share, power, roll_blow, skill_percent, wind_up,
+    Blow, Guard, Weapon, Wielded, attack_cost, off_hand_share, power, roll_blow, skill_percent,
+    wind_up,
 };
 
 /// How much practice each blow gives its skill: halved at each level up the
@@ -23,6 +24,8 @@ pub struct Fighter<'a> {
     pub attributes: &'a Attributes,
     pub skills: Option<&'a Skills>,
     pub wielded: Wielded,
+    /// What spells lying on it do to blows (Illusion, Curse, Stoneskin).
+    pub guard: Guard,
 }
 
 /// One attack: what it is made with and what it costs.
@@ -78,20 +81,23 @@ impl Fighter<'_> {
         power(self.attributes, leans(skill), self.total(skill))
     }
 
-    /// How good it is at defending, with what is in its main hand.
+    /// How good it is at defending, with what is in its main hand, and more
+    /// under an Illusion.
     pub fn defence_power(&self) -> u64 {
         let skill = self.wielded.main.defence_skill();
-        power(self.attributes, leans(skill), self.total(skill))
+        let power = power(self.attributes, leans(skill), self.total(skill));
+        power * self.guard.defence / 1000
     }
 
-    /// What its swing does to `defender`, with luck rolled from `rng`. Armour
-    /// counts for nothing yet.
+    /// What its swing does to `defender`, with luck rolled from `rng`, less
+    /// if it is cursed or `defender` has Stoneskin. Armour counts for nothing
+    /// yet.
     pub fn harm(&self, swing: &Swing, defender: &Fighter, rng: &mut Rng) -> Points {
         let hand = match (swing.off_hand, self.dual_percent()) {
             (true, Some(dual)) => off_hand_share(dual),
             _ => 1000,
         };
-        Blow {
+        let harm = Blow {
             weapon: swing.weapon,
             strength: self.attributes.strength,
             luck: roll_blow(rng),
@@ -100,7 +106,8 @@ impl Fighter<'_> {
             defence: defender.defence_power(),
             armour: 0,
         }
-        .harm()
+        .harm();
+        Points(self.guard.blow(defender.guard, harm.0))
     }
 
     /// The skills a blow that lands practises: the weapon's, and dual wielding's

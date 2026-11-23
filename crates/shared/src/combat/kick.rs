@@ -62,7 +62,8 @@ impl Fighter<'_> {
             2 * KICK_HARM_PER_MILLE
         };
         let harm = self.kick_blow(defender.defence_power(), rng).harm();
-        Points((u64::from(harm.0) * share / 1000) as u32)
+        let harm = self.guard.blow(defender.guard, harm.0);
+        Points((u64::from(harm) * share / 1000) as u32)
     }
 
     /// What a kick does to a thing, such as a door, in points of its toughness.

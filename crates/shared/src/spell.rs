@@ -17,12 +17,15 @@ mod condition;
 mod cost;
 mod design;
 mod effect;
+mod ending;
 mod filters;
 mod flight;
 mod harm;
 mod hit;
 mod hits;
 mod key;
+mod knock;
+mod lasting;
 mod line;
 mod look;
 mod missile;
@@ -36,7 +39,9 @@ mod surround;
 mod touch;
 mod toward;
 
-pub use acts::{Acts, ICE_SECONDS, STEAM_SECONDS, acts, acts_on_place, cloud_cells, frozen_cells};
+pub use acts::{
+    Acts, ICE_SECONDS, Knock, STEAM_SECONDS, acts, acts_on_place, cloud_cells, frozen_cells,
+};
 pub use auto_cast::{Aim, AutoCast, auto_cast};
 pub use beam::{BEAM_RANGE, BEAM_SPREAD, beam, beam_headings};
 pub use book::{
@@ -55,15 +60,22 @@ pub use cost::{
 };
 pub use design::{EffectStep, MAX_STEPS, MAX_WHERES, Spell, Step, WherePart, WhereStep};
 pub use effect::Effect;
+pub use ending::Ends;
 pub use filters::Filters;
 pub use flight::{Path, launch, launch_part};
 pub use harm::{
-    STEAM_HARM, does_harm, harm_before_resisting, harm_skills, resistance, resisted, spell_power,
-    takes_hold, warding_skill,
+    STEAM_HARM, does_harm, effect_power, harm_before_resisting, harm_skills, resistance, resisted,
+    spell_power, takes_hold, warding_skill, will,
 };
 pub use hit::{Creature, Hit, Origin, Side, hit_anyone};
 pub use hits::{part_hits, step_hits, where_hits};
 pub use key::SpellKey;
+pub use knock::{KNOCK_UNITS, MOST_KNOCK, knock_units, knocked_to};
+pub use lasting::{
+    CURSED, ILLUSION, LASTING_SECONDS, LESS_PERCENT, MORE_PERCENT, MOST_LESS_PERCENT, PARALYSED,
+    PARALYSIS_SECONDS, POISON_SECONDS, POISONED, STONESKIN, WARDED, lasting, poison,
+    poison_per_second, seconds_of,
+};
 pub use look::{LOOK_PARTS, Look};
 pub use missile::{
     Flight, MISSILE_FASTER, MISSILE_RANGE, MISSILE_SPEED, flight_millis, missile, missile_speed,
@@ -88,6 +100,8 @@ mod elements_tests;
 mod flight_tests;
 #[cfg(test)]
 mod hits_tests;
+#[cfg(test)]
+mod lasting_tests;
 #[cfg(test)]
 mod look_tests;
 #[cfg(test)]

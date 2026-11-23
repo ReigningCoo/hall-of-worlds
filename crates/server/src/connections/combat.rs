@@ -22,6 +22,7 @@ impl Client {
             attributes: &self.bonused.attributes,
             skills: Some(&self.sheet.skills),
             wielded: Wielded::of(&self.inventory),
+            guard: self.bonused.guard,
         }
     }
 
@@ -35,8 +36,7 @@ impl Client {
         visit.can_see(x, y).then_some(body)
     }
 
-    /// The player where they stand on their level, as far as reaching goes:
-    /// `None` off levels.
+    /// The player's body where they stand, for reaching: `None` off levels.
     pub(super) fn body(&self, world: &ServerWorld) -> Option<Body> {
         let visit = self.visit.as_ref()?;
         let population = world.populations.0.get(&visit.population());
@@ -44,8 +44,7 @@ impl Client {
         Some(Body::on(relief, visit.spot(), self.size()))
     }
 
-    /// Whether a swing from where the player stands reaches `target`
-    /// (`combat::in_reach`).
+    /// Whether a swing from where they stand reaches `target` (`combat::in_reach`).
     pub(super) fn reaches(&self, world: &ServerWorld, target: &Body, swing: &Swing) -> bool {
         let (Some(visit), Some(me)) = (self.visit.as_ref(), self.body(world)) else {
             return false;
@@ -214,8 +213,7 @@ pub(super) fn land_ability(client: &mut Client, world: &mut ServerWorld) -> bool
         })
 }
 
-/// Calls off the player's ability if it hasn't landed: they can act again
-/// after only `CANCEL_PENALTY`. `false` if the client has gone.
+/// Calls off an ability not yet landed, costing `CANCEL_PENALTY`. `false` if gone.
 pub(super) fn cancel_ability(client: &mut Client, world: &ServerWorld) -> bool {
     let tick = world.action_clock.ticks();
     let Some(pending) = client.fight.pending.take_if(|p| p.lands_at > tick) else {
@@ -270,6 +268,7 @@ pub(crate) fn take_mob_blows(
                 kind,
                 attributes,
                 wielded,
+                guard,
                 swing,
                 ..
             } => {
@@ -278,6 +277,7 @@ pub(crate) fn take_mob_blows(
                     attributes: &attributes,
                     skills: None,
                     wielded,
+                    guard,
                 };
                 let harm = attacker.harm(&swing, &client.fighter(), &mut luck(tick, mob, target));
                 // Less on Easy, more on Hard and Ironman.

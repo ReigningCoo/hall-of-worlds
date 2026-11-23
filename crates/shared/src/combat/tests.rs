@@ -217,6 +217,7 @@ fn a_fighter_swings_and_practises_its_own_skills() {
             main: Weapon::UNARMED,
             off: None,
         },
+        guard: Guard::NONE,
     };
     let swing = unarmed.swing(0);
     assert_eq!(swing.cost, UNARMED_COST);

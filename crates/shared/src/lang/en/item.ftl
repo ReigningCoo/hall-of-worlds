@@ -202,6 +202,10 @@ stat-most-mana = most Mana
 stat-health = Health
 stat-mana = Mana
 stat-darkvision = cells of Darkvision
+stat-defence = Defence
+stat-blow-harm = harm from your blows
+stat-harm-taken = harm from blows taken
+stat-resistance = resistance to magic
 stat-skill = { $skill }
 
 ## What wearing it asks of the wearer: an attribute at least this much

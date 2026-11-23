@@ -25,6 +25,7 @@ pub(crate) struct MobHit {
 }
 
 /// The player who harmed a mob: who, where they stand, and what they are.
+#[derive(Clone, Copy, Debug)]
 pub(crate) struct Harmer {
     pub id: Id,
     pub position: (i64, i64),

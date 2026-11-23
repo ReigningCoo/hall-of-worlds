@@ -3,7 +3,7 @@
 //! when unfriendly to the caster, otherwise neutral).
 
 use shared::id::Id;
-use shared::spell::{Creature, Side, resistance};
+use shared::spell::{Creature, Side, resistance, will};
 
 use super::super::Client;
 use crate::ServerWorld;
@@ -18,6 +18,8 @@ pub(super) struct Present {
     pub players: Vec<Option<usize>>,
     /// What each resists harmful magic with (`spell::resistance`).
     pub resistances: Vec<u64>,
+    /// What each resists paralysis and illusions with (`spell::will`).
+    pub wills: Vec<u64>,
 }
 
 impl Present {
@@ -52,6 +54,7 @@ pub(super) fn present(
         }],
         players: vec![Some(caster)],
         resistances: vec![me.resistance()],
+        wills: vec![me.will()],
     };
     for (index, other) in clients.iter().enumerate() {
         let Some(body) = other.body(world).filter(|_| index != caster && here(other)) else {
@@ -64,6 +67,7 @@ pub(super) fn present(
         });
         present.players.push(Some(index));
         present.resistances.push(other.resistance());
+        present.wills.push(other.will());
     }
     let kind = me.inventory.creature;
     for mob in mobs_for_spell(world, place, kind, me.entity_id()) {
@@ -79,14 +83,30 @@ pub(super) fn present(
         });
         present.players.push(None);
         present.resistances.push(mob.resistance);
+        present.wills.push(mob.will);
     }
     Some(present)
 }
 
 impl Client {
     /// What the player resists harmful magic with: their Aura, with every
-    /// bonus, and their Warding.
+    /// bonus, and their Warding, more under a Warding spell.
     fn resistance(&self) -> u64 {
-        resistance(&self.bonused.attributes, Some(&self.sheet.skills))
+        resistance(&self.bonused.attributes, Some(&self.sheet.skills)) * self.bonused.resisting
+            / 1000
+    }
+
+    /// What the player resists paralysis and illusions with: their Will and
+    /// their Warding, more under a Warding spell.
+    fn will(&self) -> u64 {
+        will(&self.bonused.attributes, Some(&self.sheet.skills)) * self.bonused.resisting / 1000
+    }
+}
+
+#[cfg(test)]
+impl Client {
+    /// What the player resists harmful magic with now, for tests.
+    pub(crate) fn resistance_for_test(&self) -> u64 {
+        self.resistance()
     }
 }
