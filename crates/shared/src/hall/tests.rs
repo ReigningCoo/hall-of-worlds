@@ -254,3 +254,28 @@ fn rune_glyphs_fit_and_differ() {
         shapes.push(shape);
     }
 }
+
+#[test]
+fn inn_ways_are_void_halfway_between_gates() {
+    for x in [-6, -2, 0, 1, 2, 3, 6, HALL_LENGTH - 2, HALL_LENGTH + 2] {
+        for y in LEVEL_TOP..LEVEL_TOP + LEVEL_ROWS {
+            let Some(side) = inn_way(x, y) else {
+                continue;
+            };
+            assert_eq!(tile(x, y), Tile::Void, "{x}, {y}");
+            assert_eq!(wrap_x(x) % GATE_SPACING, INN_WAY_OFFSET);
+            assert_eq!(tile(x - INN_WAY_OFFSET, y), Tile::Gate(side));
+            assert_eq!(tile(x + INN_WAY_OFFSET, y), Tile::Gate(side));
+            let (fx, fy) = inn_way_front(x, side);
+            assert_eq!((fx, (fy - y).abs()), (x, 1));
+            assert_eq!(tile(fx, fy), Tile::Walkway);
+        }
+    }
+    // One on each side between every two gates, and nowhere else.
+    let ways: Vec<_> = (0..GATE_SPACING * 2)
+        .flat_map(|x| (LEVEL_TOP..LEVEL_TOP + LEVEL_ROWS).map(move |y| (x, y)))
+        .filter_map(|(x, y)| inn_way(x, y).map(|side| (x, side)))
+        .collect();
+    let (s, n) = (Side::South, Side::North);
+    assert_eq!(ways, [(2, n), (2, s), (6, n), (6, s)]);
+}

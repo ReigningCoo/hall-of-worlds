@@ -4,11 +4,12 @@ The Hall of Worlds: a special place with fixed rules, made by no generator. A ma
 
 ## Files
 
-- `crates/shared/src/hall/mod.rs`: the constants (`HALL_LENGTH`, `WALKWAY_ROWS` 3, `GATE_SPACING` 4, `PLANET_BITS` 28, `PLANETS`), `pub use`s. In `hall/`: `tile.rs` (`Tile`, `tile`, `wrap_x`, `hue`), `place.rs` (`GatePlace`, `Side`), `address.rs` (`GateAddress`), `shuffle.rs` (the per-sixteenth multipliers, steps and offsets), `design.rs` (`GateDesign`), `code.rs` (`GateCode`, `RUNES`), `level.rs` (`cell`, `level`, `LEVEL_TOP`, `LEVEL_ROWS`), `glyph.rs` (`RUNE_STROKES`, `SEPARATOR_STROKES`, `Stroke`, `GLYPH_WIDTH`, `GLYPH_HEIGHT`).
+- `crates/shared/src/hall/mod.rs`: the constants (`HALL_LENGTH`, `WALKWAY_ROWS` 3, `GATE_SPACING` 4, `PLANET_BITS` 28, `PLANETS`), `pub use`s. In `hall/`: `tile.rs` (`Tile`, `tile`, `wrap_x`, `hue`), `place.rs` (`GatePlace`, `Side`), `address.rs` (`GateAddress`), `shuffle.rs` (the per-sixteenth multipliers, steps and offsets), `design.rs` (`GateDesign`), `code.rs` (`GateCode`, `RUNES`), `level.rs` (`cell`, `level`, `LEVEL_TOP`, `LEVEL_ROWS`), `inn_way.rs` (`inn_way`, `inn_way_front`, `INN_WAY_OFFSET`), `glyph.rs` (`RUNE_STROKES`, `SEPARATOR_STROKES`, `Stroke`, `GLYPH_WIDTH`, `GLYPH_HEIGHT`).
 
 ## Public API
 
 - `tile(x, y) -> Tile::{Walkway, Gate(Side), Void}`: rows `0..3` walkway (`WALKWAY_ROWS` 3, owner); rows -1 (north) and 3 (south) a gate's floor every 4th column, void between; void beyond. `wrap_x` brings any `x` into `0..HALL_LENGTH`. `hue(x)`: degrees, once round over the whole Hall (looks only).
+- `inn_way(x, y) -> Option<Side>`: the hidden ways into The Way Inn (`shared::inn`): the void tile in a gate's row (rows -1 and 3) halfway between two gates (`INN_WAY_OFFSET` 2 past one); still `Tile::Void` and drawn as void, a rule only until The Way Inn plan's PR 2 makes stepping into one enter the inn. `inn_way_front(x, side)`: the walkway tile beside it, where you return to on leaving.
 - `level(min_x, width)`: a stretch of the Hall as a `dungeon::Level`, rows `LEVEL_TOP` (-2) to 4 (`LEVEL_ROWS` 7: a row of void beyond each gate's), `x` unwrapped; `cell(x, y)`: walkway `Floor`, a gate's floor `WorldGate`, void `Hole`. Steps are checked on it by both sides (`movement::step_on_level`).
 - `GatePlace { column, side }`: `from_number(u32)` / `number()` (`2 × column + side`, north first: every `u32` is one gate), `at(x, y)`, `x()`, `y()`, `front()` (the walkway tile in front), `address()`, `design()`, `code()`.
 - `GateAddress`: `new(seed, entrance)` (`None` past `PLANETS` or 16), `for_world(WorldSeed, entrance)`, `from_bits` / `bits()` (`entrance << 28 | seed`), `seed()`, `entrance()` (the order `WorldGates::find` gives), `world()`, `place()`.
