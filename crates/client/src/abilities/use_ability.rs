@@ -107,7 +107,7 @@ pub(super) fn use_automatic(
     (time, vitals): (Res<Time>, Res<OwnVitals>),
     (player, size): (Single<&SpotPosition, With<Player>>, Res<PlayerSize>),
     others: Query<(&Other, &SpotPosition)>,
-    (moving, manual): (Res<PlayerMoving>, Res<Manual>),
+    (moving, manual, peace): (Res<PlayerMoving>, Res<Manual>, Res<super::peace::Peace>),
     mut own: ResMut<OwnAbility>,
     mut to_server: MessageWriter<ToServer>,
 ) {
@@ -125,6 +125,7 @@ pub(super) fn use_automatic(
         .filter(|slot| slot.auto)
         .filter_map(|slot| slot.ability())
         .filter(|ability| ability.can_use(&carried.0, &sheet.0))
+        .filter(|ability| !peace.refuses(*ability))
         .filter(|ability| affords(*ability, &vitals, now));
     for ability in automatic {
         let at = match ability {

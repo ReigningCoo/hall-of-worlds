@@ -20,6 +20,7 @@ use super::bar::count_of;
 use super::item_look::thing_look;
 use super::own_bar::OwnBar;
 use super::page::usable;
+use super::peace::Peace;
 use super::spots::{Spot, Spots};
 use super::use_ability::{UseListed, UseSlot};
 use crate::character::CharacterSheet;
@@ -88,7 +89,12 @@ pub(super) fn drag_abilities(
     ui_scale: Res<UiScale>,
     spots: Spots,
     mut bar: ResMut<OwnBar>,
-    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
+    (carried, sheet, here, peace): (
+        Res<Carried>,
+        Res<CharacterSheet>,
+        Res<BenchHere>,
+        Res<Peace>,
+    ),
     assets: Res<AssetServer>,
     (mut drag, mut object): (ResMut<Drag>, ResMut<HeldObject>),
     mut to_server: MessageWriter<ToServer>,
@@ -116,7 +122,7 @@ pub(super) fn drag_abilities(
     let mut pick_up = |thing: BarThing, from: From, by: Hand, drag: &mut Drag| {
         let count = count_of(thing, &carried.0);
         let usable = match thing {
-            BarThing::Ability(ability) => usable(ability, &carried, &sheet, &here),
+            BarThing::Ability(ability) => usable(ability, &carried, &sheet, (&here, *peace)),
             BarThing::Potion(_) => count > 0,
             BarThing::Item(_) => true,
         };

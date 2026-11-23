@@ -136,8 +136,10 @@ impl TestClient {
             }
             // A long walk in one go shouldn't fill what can wait.
             self.let_time_pass();
+            self.move_inn();
         }
         self.let_time_pass();
+        self.move_inn();
         self.client.send_position();
         crate::entities::sync(std::slice::from_mut(&mut self.client), &mut self.world, &[]);
         ground::sync(std::slice::from_mut(&mut self.client), &mut self.world);
@@ -153,6 +155,19 @@ impl TestClient {
             level: 0,
             ruin: 0,
         }]);
+    }
+
+    /// Into or out of the inn, as `handle_messages` does once a client's
+    /// messages have been read (`sites::move_inn`): this world is the home.
+    fn move_inn(&mut self) {
+        if self.client.inn.moving.is_none() {
+            return;
+        }
+        let seed = self.world.seed;
+        let world = std::mem::replace(&mut self.world, ServerWorld::new(seed));
+        let mut worlds = ServerWorlds::with_home(world);
+        crate::sites::move_inn(std::slice::from_mut(&mut self.client), 0, &mut worlds);
+        self.world = worlds.into_home();
     }
 
     fn let_time_pass(&mut self) {

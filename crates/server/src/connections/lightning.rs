@@ -99,7 +99,7 @@ pub(super) fn tell(clients: &mut [Client], world: &mut ServerWorld, salt: i64, n
 /// Whether a client is playing somewhere with weather.
 fn under_sky(client: &Client) -> bool {
     let in_hall = client.visit.is_none() && client.character.hall.is_some();
-    client.phase == Phase::Playing && !in_hall
+    client.phase == Phase::Playing && !in_hall && !crate::sites::in_inn(client)
 }
 
 /// Where a client is in wilderness cells, and how far a bolt keeps from

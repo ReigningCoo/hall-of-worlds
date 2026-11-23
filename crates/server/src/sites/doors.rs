@@ -85,7 +85,7 @@ pub(super) fn set_doors(
             let at = (x - offset.0, y - offset.1);
             let door = saved.get(&at).copied().unwrap_or_else(|| match site.id {
                 // The inn's doors start as its layout has them: closed.
-                SiteId::Inn => inn_door(),
+                SiteId::Inn | SiteId::InnInstance(_) => inn_door(),
                 _ => first_door(poi, ruined, site.index, level, (x, y), at),
             });
             level.set_swing(x, y, door.swing);

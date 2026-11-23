@@ -125,6 +125,13 @@ impl Ability {
         }
     }
 
+    /// Whether it harms someone (or a door): Attack, Kick and Trample. None
+    /// of these can be used in The Way Inn (`shared::inn`), where nothing
+    /// may harm anyone.
+    pub const fn harms(self) -> bool {
+        matches!(self, Self::Attack | Self::Kick | Self::Trample)
+    }
+
     /// Whether it is done when asked or works by itself.
     pub const fn use_kind(self) -> Use {
         match self {

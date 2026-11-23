@@ -411,3 +411,85 @@ fn dev_tools_ignore_a_world_gate_that_isnt_there() {
     app.run_system_once(handle_messages).unwrap();
     assert_eq!(answers(&end), []);
 }
+
+/// Two characters saved in different worlds, joined, then sent into the inn
+/// (Debug's To The Way Inn): the server and both ends.
+fn both_in_the_inn(folder: &TestFolder) -> (bevy::prelude::World, [ClientLink; 2]) {
+    let ids = [character(1), character(2)];
+    let mut app = server(folder, &[(ids[0], HOME), (ids[1], OTHER)]);
+    let (first, _) = join(&mut app, ids[0]);
+    let (second, _) = join(&mut app, ids[1]);
+    first.send(&ClientMessage::DevToInn);
+    second.send(&ClientMessage::DevToInn);
+    app.run_system_once(handle_messages).unwrap();
+    (app, [first, second])
+}
+
+#[test]
+fn players_from_any_world_meet_in_one_instance_of_the_inn() {
+    let folder = TestFolder::new();
+    let (mut app, [first, _second]) = both_in_the_inn(&folder);
+    let clients = &app.resource::<Connections>().clients;
+    let site = |i: usize| clients[i].visit.as_ref().map(|visit| visit.id());
+    assert_eq!(site(0), Some(crate::storage::SiteId::InnInstance(1)));
+    assert_eq!(site(1), site(0));
+    // Both kept by the home world, remembering their own.
+    assert_eq!(clients[0].world, Some(HOME.id()));
+    assert_eq!(clients[1].world, Some(HOME.id()));
+    assert_eq!(clients[1].inn.from, Some(OTHER.id()));
+    answers(&first);
+    app.run_system_once(sync_entities).unwrap();
+    let seen = |message: &ServerMessage| matches!(message, ServerMessage::EntitySeen(look) if look.id == character(2).0);
+    assert!(answers(&first).iter().any(seen));
+}
+
+#[test]
+fn leaving_the_inn_goes_back_to_their_own_world_and_it_closes_once_empty() {
+    let folder = TestFolder::new();
+    let (mut app, [first, second]) = both_in_the_inn(&folder);
+    // Saved with their own world while in the inn.
+    app.run_system_once(save_changes).unwrap();
+    let storage = app.resource::<ServerWorlds>().home().storage.clone();
+    storage.finish_writing();
+    assert_eq!(storage.character_world(&character(2)), Ok(Some(OTHER.id())));
+    for (i, end) in [&first, &second].into_iter().enumerate() {
+        let client = &mut app.resource_mut::<Connections>().clients[i];
+        client.inn.moving = Some(crate::sites::InnMove::Out);
+        answers(end);
+    }
+    app.run_system_once(handle_messages).unwrap();
+    let clients = &app.resource::<Connections>().clients;
+    assert_eq!(clients[0].world, Some(HOME.id()));
+    assert_eq!(clients[1].world, Some(OTHER.id()));
+    assert_eq!(clients[1].inn.from, None);
+    assert!(clients[1].visit.is_none());
+    assert!(clients[1].character.hall.is_some());
+    let in_hall = |message: &ServerMessage| matches!(message, ServerMessage::EnterHall { .. });
+    assert!(answers(&second).iter().any(in_hall));
+    let home = app.resource::<ServerWorlds>().home();
+    assert_eq!(home.open_inns(), Vec::<u32>::new());
+}
+
+#[test]
+fn coming_back_to_a_save_in_the_inn_puts_them_in_an_instance() {
+    let folder = TestFolder::new();
+    let (mut app, [_first, second]) = both_in_the_inn(&folder);
+    app.resource_scope(|app, mut worlds: bevy::prelude::Mut<ServerWorlds>| {
+        let client = &mut app.resource_mut::<Connections>().into_inner().clients[1];
+        client.disconnect(worlds.of(client.world));
+    });
+    drop(second);
+    app.run_system_once(handle_messages).unwrap();
+    app.resource::<ServerWorlds>()
+        .home()
+        .storage
+        .finish_writing();
+    let (_back, welcomed) = join(&mut app, character(2));
+    assert_eq!(welcomed, OTHER.id());
+    let clients = &app.resource::<Connections>().clients;
+    let client = clients.last().unwrap();
+    let site = client.visit.as_ref().map(|visit| visit.id());
+    assert_eq!(site, Some(crate::storage::SiteId::InnInstance(1)));
+    assert_eq!(client.world, Some(HOME.id()));
+    assert_eq!(client.inn.from, Some(OTHER.id()));
+}

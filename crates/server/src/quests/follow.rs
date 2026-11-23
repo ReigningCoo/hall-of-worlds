@@ -62,7 +62,9 @@ impl Seen {
 pub(crate) fn follow(clients: &mut [Client], world: &mut ServerWorld) {
     let now = unix_now();
     for client in clients.iter_mut() {
-        if client.phase != crate::connections::Phase::Playing || client.is_gone() {
+        // In the inn they are kept by the home world, whose quests aren't theirs.
+        let in_inn = client.inn.from.is_some();
+        if client.phase != crate::connections::Phase::Playing || client.is_gone() || in_inn {
             continue;
         }
         follow_one(client, world, now);

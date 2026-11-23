@@ -126,7 +126,11 @@ pub(crate) fn resume(client: &mut Client, world: &mut ServerWorld, saved: VisitS
         SiteId::Poi(chunk) => world.pois.in_chunk(chunk),
         SiteId::Dev { kind, seed, .. } => Some(dev_poi(client, kind, seed)),
         SiteId::Quest { .. } => crate::quests::dungeon_poi(world, id),
-        SiteId::Inn => Some(super::inn_poi(client)),
+        // Into an instance kept by the home world first (`inn::move_inn`).
+        SiteId::Inn | SiteId::InnInstance(_) if client.inn.from.is_none() => {
+            return super::inn::back_into_inn(client, saved);
+        }
+        SiteId::Inn | SiteId::InnInstance(_) => Some(super::inn_poi(client)),
         SiteId::Wilderness => return super::wild::enter_wilderness(client, world, saved.position),
         // Never kept: back where they came from.
         SiteId::DevArea(_) => return super::dev_area::back_from_area(client, world),
@@ -172,7 +176,7 @@ pub(super) fn make_site(world: &mut ServerWorld, poi: &Poi, id: SiteId) -> Optio
     let generator = match id {
         SiteId::Dev { ruin, .. } => Generator::for_poi(poi.kind).with_ruin(ruin),
         SiteId::DevArea(area) => Generator::DevArea(area),
-        SiteId::Inn => Generator::Inn,
+        SiteId::Inn | SiteId::InnInstance(_) => Generator::Inn,
         SiteId::Quest { quest, .. } => crate::quests::dungeon_of(world, quest)?.generator(),
         SiteId::Poi(_) | SiteId::Wilderness => super::site_generator(world, poi),
     };

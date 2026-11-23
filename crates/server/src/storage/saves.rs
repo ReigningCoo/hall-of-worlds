@@ -39,9 +39,20 @@ pub enum SiteId {
         character: CharacterId,
         quest: QuestId,
     },
-    /// The Way Inn (`shared::inn`), behind no poi: one for now, kept with the
-    /// world its players came into the Hall from.
+    /// The Way Inn (`shared::inn`) as it was kept before instances, with the
+    /// world its players came into the Hall from: only read from older saves,
+    /// where a visit to it puts them into an instance instead.
     Inn,
+    /// One of The Way Inn's instances (`sites/inn`), of at most 30 players:
+    /// kept by the home world while anyone is in it, never saved.
+    InnInstance(u32),
+}
+
+impl SiteId {
+    /// The Way Inn, an instance of it or (older saves) the one per world.
+    pub(crate) fn is_inn(self) -> bool {
+        matches!(self, Self::Inn | Self::InnInstance(_))
+    }
 }
 
 /// A site's file: made the first time anyone enters it.

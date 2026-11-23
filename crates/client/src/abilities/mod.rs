@@ -21,6 +21,7 @@ mod mark;
 mod marks;
 mod own_bar;
 mod page;
+mod peace;
 mod press_juice;
 mod press_oil;
 mod rain_here;
@@ -37,6 +38,7 @@ pub struct AbilitiesPlugin;
 impl Plugin for AbilitiesPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<own_bar::OwnBar>()
+            .init_resource::<peace::Peace>()
             .init_resource::<drag::Drag>()
             .init_resource::<drag::Aim>()
             .init_resource::<manual::Manual>()
@@ -75,6 +77,7 @@ impl Plugin for AbilitiesPlugin {
                 (
                     (page::fill_pages, page::name_abilities),
                     own_bar::take_bar,
+                    peace::keep_peace,
                     held::use_by_key,
                     use_ability::take_timing,
                     sneak::take_sneaking,

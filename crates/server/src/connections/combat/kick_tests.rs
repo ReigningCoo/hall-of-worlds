@@ -74,3 +74,58 @@ fn kicks_break_a_closed_door_open_for_good() {
     test.send(&[ClientMessage::Door(DoorAsk::CloseNear)]);
     assert!(matches!(swing(&test), Swing::Broken(_)));
 }
+
+// No fighting in The Way Inn: attacks and kicks (doors too) are refused.
+
+fn use_ability(ability: Ability) -> ClientMessage {
+    ClientMessage::UseAbility {
+        ability,
+        target: None,
+    }
+}
+
+#[test]
+fn kicking_a_door_in_the_inn_does_nothing() {
+    let mut test = TestClient::new();
+    test.send(&[ClientMessage::DevToInn]);
+    let visit = test.client.visit.as_ref().expect("in the inn");
+    let level = visit.cells();
+    // Any door that isn't locked, and the floor beside it.
+    let (door, beside) = (visit.doors_for_test().keys().copied())
+        .filter(|&(x, y)| !level.is_locked(x, y))
+        .find_map(|(x, y)| {
+            let sides = [(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y)];
+            let floor = sides
+                .into_iter()
+                .find(|&(x, y)| level.cell(x, y) == Cell::Floor);
+            floor.map(|floor| ((x, y), floor))
+        })
+        .expect("the inn has doors");
+    test.send(&[ClientMessage::DevTeleport {
+        x: beside.0,
+        y: beside.1,
+    }]);
+    test.send(&[ClientMessage::Door(DoorAsk::DevAll { open: false })]);
+    assert_eq!(crate::sites::door_to_kick(&test.client), Some(door));
+    let before = test.client.visit.as_ref().unwrap().doors_for_test()[&door].door;
+    for _ in 0..40 {
+        test.send(&[use_ability(Ability::Kick)]);
+        assert!(test.client.fight.pending.is_none(), "a kick wound up");
+        run(&mut test, 120, false);
+    }
+    let after = test.client.visit.as_ref().unwrap().doors_for_test()[&door].door;
+    assert_eq!(after, before);
+    assert_eq!(after.swing, Swing::Closed);
+}
+
+#[test]
+fn attacks_are_refused_in_the_inn_and_heal_is_not() {
+    let mut test = TestClient::new();
+    test.send(&[ClientMessage::DevToInn]);
+    for ability in [Ability::Attack, Ability::Kick, Ability::Trample] {
+        assert!(crate::sites::refuses_harm(&test.client, ability));
+    }
+    assert!(!crate::sites::refuses_harm(&test.client, Ability::Heal));
+    test.send(&[use_ability(Ability::Heal)]);
+    assert!(test.client.fight.pending.is_some(), "Heal winds up");
+}

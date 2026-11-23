@@ -12,6 +12,7 @@ use shared::protocol::ClientMessage;
 use shared::sheet::Feeling;
 use shared::spot::Spot;
 
+use super::peace::Peace;
 use super::rain_here::WaterHere;
 use super::use_ability::{ASK_WAIT, ask};
 use super::vitals_now::affords;
@@ -94,6 +95,7 @@ pub(super) fn ask_wanted(
     mut own: ResMut<OwnAbility>,
     (mut to_server, mut face): (MessageWriter<ToServer>, MessageWriter<FaceTowards>),
     (dungeon, player, water): (Res<CurrentDungeon>, PlayerFacing, WaterHere),
+    peace: Res<Peace>,
 ) {
     let now = time.elapsed_secs_f64();
     if manual.queued.is_empty() {
@@ -105,7 +107,9 @@ pub(super) fn ask_wanted(
     }
     let standing = player.single().ok().map(|(at, facing)| (at.0, facing.0));
     while let Some(ability) = manual.queued.pop_front() {
-        let fits = ability.can_use(&carried.0, &sheet.0) && affords(ability, &vitals, now);
+        let fits = ability.can_use(&carried.0, &sheet.0)
+            && affords(ability, &vitals, now)
+            && !peace.refuses(ability);
         let mut turn = None;
         let aimed = match ability {
             // Collect Water is only done facing water or in the rain, as the

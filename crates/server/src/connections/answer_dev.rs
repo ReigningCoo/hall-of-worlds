@@ -15,6 +15,13 @@ pub(super) fn answer_dev(
     message: ClientMessage,
     world: &mut ServerWorld,
 ) -> bool {
+    // Anywhere else from the inn: out of it into their own world first, then
+    // this (`after_inn`).
+    if client.inn.from.is_some() && leaves_inn(&message) {
+        client.inn.moving = Some(sites::InnMove::Out);
+        client.inn.after = Some(message);
+        return true;
+    }
     match message {
         ClientMessage::DevTeleport { x, y }
             if client.visit.is_none() && client.character.hall.is_some() =>
@@ -34,7 +41,7 @@ pub(super) fn answer_dev(
         },
         ClientMessage::DevBackToStart => world_map::back_to_start(client, world),
         ClientMessage::DevToHall { seed, gate } => hall::to_hall(client, world, seed, gate),
-        ClientMessage::DevToInn => sites::dev_to_inn(client, world),
+        ClientMessage::DevToInn => sites::dev_to_inn(client, world, None),
         // Told by `tell_of_lightning`, which knows where everyone is.
         ClientMessage::DevLightning => {
             world.lightning_asked.insert(client.entity_id());
@@ -151,4 +158,18 @@ pub(super) fn answer_dev(
         }
         _ => unreachable!("`answer` only passes dev tools here"),
     }
+}
+
+/// Whether a dev tool takes them somewhere else in their world (or forgets
+/// the site they are in), which from the inn needs them out of it first.
+fn leaves_inn(message: &ClientMessage) -> bool {
+    matches!(
+        message,
+        ClientMessage::DevBackToStart
+            | ClientMessage::DevToHall { .. }
+            | ClientMessage::DevEnterSite { .. }
+            | ClientMessage::DevGenerateSite { .. }
+            | ClientMessage::DevGenerateArea(_)
+            | ClientMessage::DevForgetMapOnServer
+    )
 }
