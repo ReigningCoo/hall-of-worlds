@@ -1,6 +1,6 @@
 //! A spell's automatic name, worded through `shared::lang` (`lang/en/spell.ftl`):
 //! the first effect step's first outcome, shaped by the where just before it
-//! (Heal, Healing Missile, Ring of Fire). The client renders it; the server
+//! (Heal, Healing Missile, Ball of Fire). The client renders it; the server
 //! never does.
 
 use super::combination::outcomes;

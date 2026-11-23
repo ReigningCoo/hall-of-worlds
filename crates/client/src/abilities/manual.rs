@@ -170,7 +170,9 @@ fn aim(ability: Ability, target: Option<Id>, others: &Query<&Other>) -> Option<O
         | Ability::PressJuice
         | Ability::Alchemy
         | Ability::Ferment
-        | Ability::Cook => None,
+        | Ability::Cook
+        // Opens the design panel (magic plan PR 9), never sent.
+        | Ability::Magic => None,
         // On no one: the water or tree faced, or the log chosen
         // (`ask_wanted`).
         Ability::CollectWater

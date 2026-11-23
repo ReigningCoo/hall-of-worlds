@@ -1,6 +1,6 @@
 # shared: spell
 
-Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spell's steps as data, checking a design against the caster's skills, its Mana cost, Void's reversal, the combination table, when it is cast automatically, and its automatic name, and what each where step hits (PR 3). Pure rules both sides use; not the spellbook (PR 4) or casting (the server, PR 5). Today's Heal ability is still `shared::magic`'s.
+Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spell's steps as data, checking a design against the caster's skills, its Mana cost, Void's reversal, the combination table, when it is cast automatically, and its automatic name, and what each where step hits (PR 3). Pure rules both sides use, and the spellbook (PR 4) on the sheet; not casting (the server, PR 5). Today's Heal ability is still `shared::magic`'s.
 
 ## Files
 
@@ -18,6 +18,7 @@ Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spel
 - `spell/hit.rs`: `Side` (Caster, Friend, Enemy, Neutral: `allowed_by(filters)`, `same_as`), `Creature { body: combat::Body, side }`, `Origin { at, height, heading, creature }` (`from_creature`), `Hit { creature, at, height, heading }` (`origin()`: the next step's), `hit_anyone`.
 - `spell/toward.rs`: `Toward` (Creature, Spot, Ahead): what a where is aimed at.
 - `spell/line.rs`: crate-private line helpers: `ahead`, `wall_stop` (halving its way to the last clear spot), `entry_along` (where a line first meets a circle).
+- `spell/book.rs`: `Spellbook` (`Sheet::spellbook`), `BookSpell { spell, name, favourite }`, `BookRefusal`, `MOST_SPELLS` (100), `LONGEST_NAME` (40), `heal_spell`, `tidy_name`.
 - `spell/touch.rs`, `missile.rs`, `surround.rs`, `beam.rs`, `point.rs`: one where each, with its first-guess constants; `spell/hits.rs`: `where_hits(level, step, origin, toward, creatures)`, by the step's where and filters.
 
 ## Public API
@@ -35,7 +36,8 @@ Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spel
   - `beam`: `beam_headings` (the middle, then one either side `BEAM_SPREAD`, 22.5°, apart a count after the first), each as long as the way to the spot aimed at (at most `BEAM_RANGE`, 8 cells), stopped by walls; everyone allowed it meets, once; nobody: each beam's end.
   - `point`: the creature aimed at if allowed and in `POINT_RANGE` (8 cells, 3D), else the nearest allowed; then the nearest to it on its side (`same_as`) up to the count. Self adds the caster ("you and") and picks the count from friends: Self + Point ×2 is you and two friends, Friend + Point ×2 two friends. Unfiltered at the caster, the caster. Nobody: no hit at all.
   - A hit faces away from its origin (the origin's heading when on the same spot); a step that met nobody gives spots instead (`hit_anyone` false), which is a first step's fizzle.
-- `auto_name`: the first effect step's first outcome, shaped by the where just before it: no where `Heal`, `Healing Missile`, `Ring of Fire`, `Chilling Touch`, `Scalding Beam`; nothing `Spell`.
+- `Spellbook` (like `recipe::RecipeBook`): spells known by their design, never twice. `Default` (a new character's, and an older save's, as `Sheet::spellbook` is `serde(default)`) holds Heal (`heal_spell`, one Heal on the caster); `empty`. `store(spell, name, skills)` (checked by `check`, then the name, then `Known`, then `Full` at 100: never dropping one; to the front), `rename(spell, name)`, `set_favourite(spell, on)`, `remove(spell) -> BookSpell` (for the design panel to hold), `knows`, `get`, `iter` (favourites first, then the rest, each latest stored first), `len`, `is_empty`. Names: `tidy_name` trims, empty is `None` (the automatic name, worded by the client with `auto_name`), more than 40 characters or control characters `BadName`. The server's `connections/spellbook.rs` answers `SpellbookAsk`.
+- `auto_name`: the first effect step's first outcome, shaped by the where just before it: no where `Heal`, `Healing Missile`, `Ball of Fire`, `Chilling Touch`, `Scalding Beam`; nothing `Spell`.
 
 ## Depends on
 
@@ -43,7 +45,7 @@ Designed spells' rules (magic plan PR 2, `docs/context/magic-system.md`): a spel
 
 ## Used by
 
-- Nothing yet: the spellbook (PR 4), the server's casting (PR 5, which also calls the where hits) and the design panel (PR 9).
+- `sheet` (`Sheet::spellbook`), `protocol` (`SpellbookAsk`), the server's `connections/spellbook.rs`; to come: the server's casting (PR 5, which also calls the where hits) and the design panel (PR 9).
 
 ## Notes
 

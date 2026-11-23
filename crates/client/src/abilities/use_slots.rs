@@ -84,6 +84,9 @@ pub(super) fn use_slots(
         } else if ability == Ability::Cook {
             // And Cook by the Cooking panel (`cooking`).
             cooking.write(OpenCooking);
+        } else if ability == Ability::Magic {
+            // Opens the spell design panel, which comes in magic plan PR 9.
+            continue;
         } else if ability == Ability::Ferment {
             // And Ferment's in its own (`ferment/`).
             fermenting.open = !fermenting.open;

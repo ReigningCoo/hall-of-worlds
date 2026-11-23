@@ -3,7 +3,7 @@
 //!
 //! Active ones are done when asked (and can go on the action bar), toggles
 //! turned on and off there; passive ones work by themselves. Every creature
-//! knows Attack, Heal and Sneak; others come with its kind, from a skill
+//! knows Attack, Heal, Magic and Sneak; others come with its kind, from a skill
 //! (`skill.rs`) or are learned (`Learned`), and some need a tool (`tool.rs`).
 
 use serde::{Deserialize, Serialize};
@@ -69,6 +69,9 @@ pub enum Ability {
     /// (`shared::cooking`): from Cooking, at a hearth, a town, a campfire or
     /// with what is carried.
     Cook,
+    /// Opens the spell design panel, where spells are made for the spellbook
+    /// (`shared::spell`, magic plan): every creature knows it.
+    Magic,
 }
 
 /// Whether an ability is done when asked, or works by itself.
@@ -84,9 +87,10 @@ pub enum Use {
 
 impl Ability {
     /// Every ability, in the order they are listed to players.
-    pub const ALL: [Ability; 16] = [
+    pub const ALL: [Ability; 17] = [
         Self::Attack,
         Self::Heal,
+        Self::Magic,
         Self::Sneak,
         Self::Flutter,
         Self::Kick,
@@ -122,6 +126,7 @@ impl Ability {
             Self::Ferment => "Ferment",
             Self::MakeCampfire => "Make Campfire",
             Self::Cook => "Cook",
+            Self::Magic => "Magic",
         }
     }
 
@@ -150,7 +155,8 @@ impl Ability {
             | Self::CutKindling
             | Self::Ferment
             | Self::MakeCampfire
-            | Self::Cook => Use::Active,
+            | Self::Cook
+            | Self::Magic => Use::Active,
         }
     }
 
@@ -176,6 +182,8 @@ impl Ability {
             Self::Heal => &[Empathy],
             // As their skill, Alchemy.
             Self::PressOil | Self::PressJuice | Self::Alchemy => &[Intellect],
+            // As spells' Form, which every spell uses.
+            Self::Magic => &[Intellect, Will],
         }
     }
 
@@ -201,6 +209,7 @@ impl Ability {
                 "Lights a campfire on the ground you face with kindling, or feeds the fire you face."
             }
             Self::Cook => "Cooks food through your tools, step by step, in rows that can join.",
+            Self::Magic => "Designs spells, step by step, for your spellbook.",
             Self::Ferment => {
                 "Sets a cask of juice, or of water with fruit or grain, fermenting with yeast."
             }

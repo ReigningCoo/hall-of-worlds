@@ -92,6 +92,7 @@ mod role;
 mod role_ask;
 mod rub_ointment;
 mod send_sheet;
+mod spellbook;
 mod stack_parts;
 mod starting_kit;
 mod strength_room;
@@ -337,6 +338,8 @@ mod recipe_book_tests;
 mod role_ask_tests;
 #[cfg(test)]
 mod shapeshift_tests;
+#[cfg(test)]
+mod spellbook_tests;
 #[cfg(test)]
 mod strength_room_tests;
 #[cfg(test)]

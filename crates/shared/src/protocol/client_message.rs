@@ -41,8 +41,7 @@ pub enum ClientMessage {
     DeleteCharacter { id: CharacterId },
     /// About roles: what the character is shown as, and the Accounts panel's.
     Role(super::RoleAsk),
-    /// Makes a new character and plays them, answered with `Welcome`. The
-    /// server checks the name and how many the account may have (a guest one).
+    /// Makes a new character and plays them (`Welcome`), checking the name and the account's count.
     CreateCharacter(NewCharacter),
     /// Changes the character's difficulty, answered with `Difficulty` either
     /// way: refused unless the server allows it, and never to or from Ironman.
@@ -108,10 +107,9 @@ pub enum ClientMessage {
         items: Vec<Id>,
         then: Box<ClientMessage>,
     },
-    /// The top `count` of a carried stack lifted out on its own: `then` is what to
-    /// do with it, as for `FromStack`. For a counted stack (coins), whose part is
-    /// new: the server gives it an id and puts that in `then` in place of the one
-    /// it names (the client's stand-in). Answered as `then` is.
+    /// The top `count` of a carried stack lifted out on its own, `then` done with it as for
+    /// `FromStack`. A counted stack's (coins') part is new: the server gives it an id, put in
+    /// `then` in place of the client's stand-in. Answered as `then` is.
     PartOfStack {
         stack: Id,
         count: u32,
@@ -297,4 +295,6 @@ pub enum ClientMessage {
     Cook(crate::cooking::CookOrder),
     /// About the recipe book (`RecipeAsk`): reading a scroll in, taking a recipe out.
     Recipe(super::RecipeAsk),
+    /// Change the spellbook (`SpellbookAsk`): answered with `Sheet`.
+    Spellbook(super::SpellbookAsk),
 }

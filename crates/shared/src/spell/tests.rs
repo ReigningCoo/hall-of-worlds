@@ -237,7 +237,7 @@ fn automatic_names() {
     );
     assert_eq!(
         name(vec![Step::at(Where::Surround, 1), fire()]),
-        "Ring of Fire"
+        "Ball of Fire"
     );
     let cold = Step::effects(&[(Effect::Void, 1), (Effect::Fire, 1)]);
     assert_eq!(

@@ -22,5 +22,6 @@ pub(super) fn icon_path(ability: Ability) -> &'static str {
         Ability::Ferment => "icons/delapouite/barrel.png",
         Ability::MakeCampfire => "icons/lorc/campfire.png",
         Ability::Cook => "icons/delapouite/cooking-pot.png",
+        Ability::Magic => "icons/lorc/magic-swirl.png",
     }
 }

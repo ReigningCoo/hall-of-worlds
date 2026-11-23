@@ -139,7 +139,7 @@ Filters are known from the start.
 ## Spellbook, panel and action bar
 
 - **Spellbook** on the sheet, kept by the server like the recipe book (`shared::recipe`'s `RecipeBook`): each spell with a name (the player's own, or an automatic one) and a favourite mark. Favourites stay at the top of the list. 100 spells (first guess).
-- **Automatic names** from the steps, worded through `shared::lang`: Heal, Healing Missile, Ring of Fire.
+- **Automatic names** from the steps, worded through `shared::lang`: Heal, Healing Missile, Ball of Fire.
 - **Editing:** removing a spell puts its design back into the panel; adding it again stores it anew.
 - **New characters' books** start with Heal and Healing Missile, and bars holding the Heal ability hold the Heal spell instead.
 - **The design panel**, as Alchemy's and Cooking's: what can be used along the top (the wheres unlocked, the filters, the effects), dragged down into a row of steps, a where step taking filters in the first place and a count, an effect step taking effects in order with counts; reordered, dragged off; the cost, the unlocks and what is wrong shown as it is built; Save, which asks for a name or keeps the automatic one.
@@ -164,7 +164,7 @@ Wild's practice moves when saves load: Beasts to Social's Animals, Plants to Ear
 1. **Skill tree:** Form and Insight, the new leaves, Wild gone with its practice moved; this plan, the decision and the context table. Shared only (built).
 2. **The rules** (`shared::spell`): a spell's steps, wheres, filters and effects as data, checking a design (unlocks, 10 steps, filters only first and with a where), costs, automatic names, the combination table, the automatic casting rule. Needs 1 (built).
 3. **Where hits** (shared): Touch's arcs, Beam's lines, Surround's rings, Point's targets, a missile's path, filters and sides, line of sight; pure functions both sides use (`shared::spell`'s where hits, built). Needs 2.
-4. **Spellbook and the Magic ability** (shared and server): the book on the sheet, messages to store, rename, favourite and remove spells, new characters' book. Needs 2.
+4. **Spellbook and the Magic ability** (shared and server): the book on the sheet, messages to store, rename, favourite and remove spells, new characters' book. Needs 2 (built).
 5. **Casting on the server:** steps a second apart, Self, Touch, Beam, Surround and Point, Heal as an effect, fizzling, Mana, practice, the inn, never to death; the Heal ability gone and bars moved onto the Heal spell, and the client's bar taking spells (by hand and automatic). Needs 3 and 4.
 6. **Missiles in flight** (server, client following them); Healing Missile in new books. Needs 5.
 7. **Drawing wheres** (client): bolts, beams, rings, points, sparkles. Needs 6.
