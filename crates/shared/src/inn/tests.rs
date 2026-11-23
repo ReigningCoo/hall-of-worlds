@@ -114,6 +114,13 @@ fn stairs_join_the_floors_on_one_cell() {
 }
 
 #[test]
+fn new_characters_start_in_the_main_room() {
+    let main = room_of(GROUND, RoomKind::Main);
+    assert!(main.iter().any(|room| room.contains(START.0, START.1)));
+    assert!(floor(GROUND).level.is_walkable(START.0, START.1));
+}
+
+#[test]
 fn rooms_are_marked_on_their_cells() {
     for index in [GROUND, UPSTAIRS] {
         let site_level = floor(index);

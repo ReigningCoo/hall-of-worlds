@@ -112,6 +112,7 @@ pub(super) fn welcome(
             ))
         });
     // Not `Playing` yet, so nothing blank can be saved over the real character.
+    let new;
     match loaded {
         Ok((character, inventory, sheet, gates, (played, bar, difficulty, shown, room))) => {
             client.action_bar = bar;
@@ -136,6 +137,8 @@ pub(super) fn welcome(
                 );
                 client.unsaved = true;
             }
+            // Made just now (not a plain one the server made for a client that makes none).
+            new = client.starting_as.is_some();
             client.sheet = start_sheet(sheet, client.starting_as.take(), &mut client.inventory);
             // Skills from before rust count as used now.
             client.sheet.skills.settle(played);
@@ -162,6 +165,8 @@ pub(super) fn welcome(
     match (client.character.visit.take(), client.character.hall) {
         (Some(visit), _) => sites::resume(client, world, visit),
         (None, Some(at)) => crate::hall::enter(client, world, at),
+        // New characters start in The Way Inn (`move_inn` takes them in).
+        (None, None) if new => sites::inn::start_in_inn(client),
         (None, None) => world_map::look_around(client, world),
     }
 }

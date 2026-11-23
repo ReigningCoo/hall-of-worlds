@@ -256,3 +256,28 @@ fn a_female_character_may_not_have_a_beard() {
     let _ = tick(connections, world);
     assert!(matches!(answers(&end)[0], ServerMessage::Welcome { .. }));
 }
+
+#[test]
+fn a_character_made_on_the_screen_starts_in_the_way_inn() {
+    let (end, connections, world) = new_guest();
+    end.send(&make("Brin", CreatureKind::Dwarf, strong()));
+    let (connections, _world) = tick(connections, world);
+    let told = answers(&end);
+    let note = ServerMessage::Tutorial(shared::protocol::Tutorial::WayInn);
+    assert!(told.contains(&note), "{told:?}");
+    assert!(crate::sites::in_inn(&connections.clients[0]));
+}
+
+#[test]
+fn a_plain_character_starts_on_the_world_map() {
+    let world = ServerWorld::new(WorldSeed::new(1));
+    let mut connections = Connections::default();
+    let (end, link) = local_pair();
+    connections.add(link);
+    end.send(&super::tests::HELLO);
+    end.send(&GUEST);
+    let (connections, _world) = tick(connections, world);
+    assert!(!crate::sites::in_inn(&connections.clients[0]));
+    let note = ServerMessage::Tutorial(shared::protocol::Tutorial::WayInn);
+    assert!(!answers(&end).contains(&note));
+}

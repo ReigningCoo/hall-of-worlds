@@ -17,6 +17,9 @@ pub const STAIRS: (i64, i64) = (MIDDLE_X, 29);
 pub const ENTRANCE: (i64, i64) = (MIDDLE_X, 49);
 /// Where you arrive, inside the entrance door.
 pub const ARRIVAL: (i64, i64) = (MIDDLE_X, 48);
+/// Where a new character starts: in the main room, just inside the archway,
+/// by the notice board.
+pub const START: (i64, i64) = (MIDDLE_X, 44);
 /// The foyer's floor, 3 × 3 inside the entrance.
 pub const FOYER: Rect = span(19, 46, 21, 48);
 /// The archway from the foyer into the main room: an opening with no door.

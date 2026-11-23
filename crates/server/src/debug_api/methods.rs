@@ -12,6 +12,7 @@ use crate::connections::{Client, save_all};
 use crate::{Connections, ServerOptions, ServerWorlds};
 
 mod alignment;
+mod inn_exit;
 mod tick;
 mod worlds;
 
@@ -29,6 +30,7 @@ pub(crate) fn add_server_methods(app: &mut App, data: Option<PathBuf>) {
     )
     .add_debug_method("server.mobs", mobs)
     .add_debug_method("server.alignment", alignment::alignment)
+    .add_debug_method("server.inn_exit", inn_exit::inn_exit)
     .add_debug_method("server.cells", cells)
     .add_debug_method("server.sites", sites)
     .add_debug_method("server.worlds", worlds::worlds)

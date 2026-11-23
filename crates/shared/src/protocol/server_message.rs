@@ -33,8 +33,7 @@ pub enum ServerMessage {
         can_create: bool,
         difficulties: Difficulties,
     },
-    /// The new character asked for wasn't made, and why (its name taken...):
-    /// the client goes on choosing, back on its screen with nothing lost.
+    /// The new character asked for wasn't made, and why: the client goes on choosing, nothing lost.
     CharacterRefused(String),
     /// The character's difficulty (`None` while there is no character yet) and the ones the server
     /// allows: after `Welcome`, after `SetDifficulty`, and whenever the server's change.
@@ -44,9 +43,8 @@ pub enum ServerMessage {
     },
     /// What someone the player is trading with has to trade.
     TradeStock { with: Id, items: Vec<Item> },
-    /// The answer to `LookUpItems`: each item as the player may know it, alone
-    /// (nothing in it or stacked on it), and never where it is; `unknown` are the
-    /// ids the server has nowhere it looks (destroyed, or in nothing loaded).
+    /// The answer to `LookUpItems`: each item as the player may know it, alone (nothing in it or
+    /// stacked on it), never where; `unknown`: ids it has nowhere it looks (destroyed, unloaded).
     ItemsLookedUp { found: Vec<Item>, unknown: Vec<Id> },
     /// What is in the bags on the ground within the player's reach (`ground::in_reach`), nearest
     /// bag first, when that changes, and only for them: where those bags are (in units) and all
@@ -297,4 +295,6 @@ pub enum ServerMessage {
     /// A scroll was read into the character's recipe book (`ClientMessage::Recipe`):
     /// the recipe now in it, after `Sheet`. The client opens it to read.
     RecipeInserted(crate::recipe::Entry),
+    /// A note for a new player, shown once when it is wanted (`Tutorial`).
+    Tutorial(super::Tutorial),
 }
