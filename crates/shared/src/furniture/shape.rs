@@ -2,7 +2,7 @@
 //! face, and stone styles of stone. The furnishing step only makes such
 //! pieces; the server checks Place Furniture's (dev tools) by the same rules.
 
-use super::{BenchStyle, ChairStyle, Furniture, Piece, TableStyle};
+use super::{Bed, BenchStyle, ChairStyle, Furniture, Piece, TableStyle};
 use crate::door::Side;
 
 impl Furniture {
@@ -21,7 +21,10 @@ impl Furniture {
             | Self::GamesTable { .. }
             | Self::Barrel { .. }
             | Self::Crates { .. }
-            | Self::Sacks { .. } => false,
+            | Self::Sacks { .. }
+            | Self::Bed { .. }
+            | Self::Chest { .. }
+            | Self::Wardrobe { .. } => false,
             Self::Fireplace { .. } => true,
         }
     }
@@ -33,6 +36,8 @@ impl Furniture {
 pub fn footprint(furniture: Furniture, (long, short): (u8, u8), facing: Side) -> (u8, u8) {
     let along_x = match furniture {
         Furniture::Table { .. } => facing == Side::East,
+        // A bed's length runs from its head to its foot.
+        Furniture::Bed { .. } => matches!(facing, Side::East | Side::West),
         Furniture::Chair { .. }
         | Furniture::Bench { .. }
         | Furniture::CraftingBench { .. }
@@ -44,7 +49,9 @@ pub fn footprint(furniture: Furniture, (long, short): (u8, u8), facing: Side) ->
         | Furniture::GamesTable { .. }
         | Furniture::Barrel { .. }
         | Furniture::Crates { .. }
-        | Furniture::Sacks { .. } => matches!(facing, Side::North | Side::South),
+        | Furniture::Sacks { .. }
+        | Furniture::Chest { .. }
+        | Furniture::Wardrobe { .. } => matches!(facing, Side::North | Side::South),
     };
     if along_x {
         (long, short)
@@ -60,8 +67,10 @@ impl Piece {
     /// deep across the way it faces; a crafting bench its craft's length and 1
     /// deep across the way it faces, of wood (a cask, wine or spirit rack or a
     /// bar counter its length, of wood; a fireplace its length, of stone;
-    /// candles, a games table, barrel, crates or sacks 1 × 1, of wood); stone styles of stone and wooden
-    /// ones of wood, and arms only on wooden chairs, never a bar stool.
+    /// candles, a games table, barrel, crates or sacks 1 × 1, of wood; a bed 2
+    /// long and its width across, a chest or wardrobe its length, of wood);
+    /// stone styles of stone and wooden ones of wood, and arms only on wooden
+    /// chairs, never a bar stool.
     pub fn is_well_made(&self) -> bool {
         let (width, height) = self.size;
         let (long, short) = (width.max(height), width.min(height));
@@ -97,6 +106,9 @@ impl Piece {
             | Furniture::Barrel { .. }
             | Furniture::Crates { .. }
             | Furniture::Sacks { .. } => long == 1,
+            Furniture::Bed { bed } => long == Bed::LENGTH && short == bed.width(),
+            Furniture::Chest { chest } => long == chest.length() && short == 1,
+            Furniture::Wardrobe { wardrobe } => long == wardrobe.length() && short == 1,
         };
         sized
             && footprint(self.furniture, (long, short), self.facing) == self.size

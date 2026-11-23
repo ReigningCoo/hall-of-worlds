@@ -238,6 +238,13 @@ fn saves_are_read_back() {
                     let _ = fireside.burn(100, shared::material::Material::Oak);
                     fireside
                 })]),
+                stores: BTreeMap::from([((13, 4), {
+                    let storage = shared::chest::Storage::Chest(shared::chest::Chest::Large);
+                    let mut stored = shared::chest::Stored::new(storage);
+                    let ring = Item::new(Id::for_test(77), shared::item::ItemKind::Ring);
+                    stored.put(ring).expect("room in a chest");
+                    stored
+                })]),
                 benches_stocked: true,
                 made_benches: Vec::new(),
                 campfires: BTreeMap::new(),

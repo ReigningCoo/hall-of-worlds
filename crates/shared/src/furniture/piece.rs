@@ -3,11 +3,12 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{Barrel, BenchStyle, Candles, ChairStyle, Crates, Material, Sacks, TableStyle};
+use super::{Barrel, Bed, BenchStyle, Candles, ChairStyle, Crates, Material, Sacks, TableStyle};
 use crate::bar::BarCounter;
 use crate::board_game::BoardGame;
 use crate::bottle_rack::{BottleRack, BottleRackKind};
 use crate::cask_rack::CaskRack;
+use crate::chest::{Chest, Wardrobe};
 use crate::crafting_bench::Craft;
 use crate::door::Side;
 use crate::fireplace::Fireplace;
@@ -84,6 +85,22 @@ pub enum Furniture {
     Sacks {
         sacks: Sacks,
     },
+    /// A wooden bed (tavern furniture plan PR 7), `Bed::LENGTH` long and its
+    /// width across, facing from its head (against a wall) to its foot; its
+    /// model smaller than its cells.
+    Bed {
+        bed: Bed,
+    },
+    /// A wooden chest (`shared::chest`), its length and 1 deep, facing the
+    /// way its lid opens towards, away from the wall.
+    Chest {
+        chest: Chest,
+    },
+    /// A wooden wardrobe (`shared::chest`), its length and 1 deep against a
+    /// wall, facing away from it.
+    Wardrobe {
+        wardrobe: Wardrobe,
+    },
 }
 
 impl Furniture {
@@ -123,7 +140,10 @@ impl Furniture {
             | Self::Candles { .. }
             | Self::GamesTable { .. }
             | Self::Barrel { .. }
-            | Self::Crates { .. } => TABLE_COST_PER_MILLE,
+            | Self::Crates { .. }
+            | Self::Bed { .. }
+            | Self::Chest { .. }
+            | Self::Wardrobe { .. } => TABLE_COST_PER_MILLE,
             // A counter as a table's; its flap lifts, as open floor.
             Self::BarCounter { counter } if counter.is_counter() => TABLE_COST_PER_MILLE,
             Self::BarCounter { .. } => 1000,
@@ -141,7 +161,8 @@ pub struct Piece {
     /// round, a chair 1 × 1, a bench 1 to 3 long and 1 deep, a crafting
     /// bench its craft's length and 1 deep, a cask rack, bottle rack or bar
     /// counter its length and 1 deep, a fireplace its length and 1 deep, a
-    /// games table, barrel, crates or sacks 1 × 1).
+    /// games table, barrel, crates or sacks 1 × 1, a bed 2 × 1 or 2 × 2, a
+    /// chest or wardrobe its length and 1 deep).
     pub size: (u8, u8),
     /// A seat: the way someone sitting on it faces (towards their table, or
     /// away from the wall behind). A table: the way its length runs from its
@@ -152,7 +173,8 @@ pub struct Piece {
     /// the way a pair stands side by side across. A bar
     /// counter: the side drinkers stand on, the barkeep behind it. A
     /// fireplace: as a crafting bench, its hearth stone to the front. A games
-    /// table: the way the light player looks across the board. A barrel,
+    /// table: the way the light player looks across the board. A bed: from
+    /// its head to its foot. A chest or wardrobe: as a crafting bench. A barrel,
     /// crates or sacks: only which way the model turns.
     pub facing: Side,
     pub material: Material,

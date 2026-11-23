@@ -84,13 +84,18 @@ fn build_piece(
         .or_else(|| bar_counter::parts(scene.level, piece))
         .or_else(|| fireplace::parts(piece))
         .or_else(|| games_table::parts(piece))
-        // Candles, barrels and sacks are drawn with decor, in their own
-        // colours (`decor`).
+        // Candles, barrels, sacks, beds, chests and wardrobes are drawn with
+        // decor, in their own colours (`decor`).
         .or_else(|| {
-            use shared::furniture::Furniture::{Barrel, Candles, Sacks};
+            use shared::furniture::Furniture::{Barrel, Bed, Candles, Chest, Sacks, Wardrobe};
             let decor = matches!(
                 piece.furniture,
-                Candles { .. } | Barrel { .. } | Sacks { .. }
+                Candles { .. }
+                    | Barrel { .. }
+                    | Sacks { .. }
+                    | Bed { .. }
+                    | Chest { .. }
+                    | Wardrobe { .. }
             );
             decor.then(Vec::new)
         });

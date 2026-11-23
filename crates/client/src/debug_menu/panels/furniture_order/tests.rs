@@ -177,3 +177,22 @@ fn a_booth_is_three_well_made_pieces_of_wood() {
             .all(|piece| piece.is_well_made() && !piece.material.is_stone())
     );
 }
+
+#[test]
+fn beds_chests_and_wardrobes_come_in_every_facing_well_made() {
+    for kind in [Kind::Bed, Kind::Chest, Kind::Wardrobe] {
+        for size in 0..kind.sizes().len() {
+            for facing in [Side::North, Side::East, Side::South, Side::West] {
+                let mut order = FurnitureOrder {
+                    kind,
+                    size,
+                    facing,
+                    material: None,
+                    ..FurnitureOrder::default()
+                };
+                let piece = order.click((2, 3), 7);
+                assert!(piece.is_well_made(), "{kind:?} {size} {facing:?} {piece:?}");
+            }
+        }
+    }
+}

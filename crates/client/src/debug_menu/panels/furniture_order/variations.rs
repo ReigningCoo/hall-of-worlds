@@ -5,9 +5,10 @@ use shared::bar::BarCounter;
 use shared::board_game::BoardGame;
 use shared::bottle_rack::{BottleRack, BottleRackKind};
 use shared::cask_rack::CaskRack;
+use shared::chest::{Chest, Wardrobe};
 use shared::fireplace::Fireplace;
 use shared::furniture::{
-    Barrel, BenchStyle, Candles, ChairStyle, Crates, Furniture, Material, Sacks, TableStyle,
+    Barrel, Bed, BenchStyle, Candles, ChairStyle, Crates, Furniture, Material, Sacks, TableStyle,
 };
 
 use super::Kind;
@@ -63,6 +64,18 @@ impl Kind {
             Self::Clutter => (Crates::ALL.into_iter())
                 .map(|crates| Furniture::Crates { crates })
                 .chain(Sacks::ALL.map(|sacks| Furniture::Sacks { sacks }))
+                .collect(),
+            Self::Bed => (Bed::ALL.into_iter())
+                .filter(|bed| bed.width() == size.1)
+                .map(|bed| Furniture::Bed { bed })
+                .collect(),
+            Self::Chest => (Chest::ALL.into_iter())
+                .filter(|chest| chest.length() == size.0)
+                .map(|chest| Furniture::Chest { chest })
+                .collect(),
+            Self::Wardrobe => (Wardrobe::ALL.into_iter())
+                .filter(|wardrobe| wardrobe.length() == size.0)
+                .map(|wardrobe| Furniture::Wardrobe { wardrobe })
                 .collect(),
             // Put down by `decor.rs`, not as one piece.
             Self::Booth | Self::WallDecoration | Self::Chandelier | Self::Rug => Vec::new(),

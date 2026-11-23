@@ -95,6 +95,7 @@ mod forced;
 mod furniture;
 mod furniture_decor;
 mod furniture_games;
+mod furniture_inn;
 mod furniture_seats;
 mod inventory;
 mod keep_drawing;

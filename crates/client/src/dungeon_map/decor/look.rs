@@ -5,16 +5,17 @@ use std::f32::consts::{FRAC_PI_2, PI};
 
 use bevy::prelude::*;
 use shared::board_game::BoardGame;
+use shared::chest::{Chest, Wardrobe};
 use shared::decor::{ChandelierStyle, Decor, Hanging, Rug};
 use shared::door::Side;
 use shared::dungeon::{CELL_UNITS, WALL_HALF_UNITS};
-use shared::furniture::{Barrel, Candles, Material, Sacks};
+use shared::furniture::{Barrel, Bed, Candles, Material, Sacks};
 use shared::rng::Seed;
 
 use super::super::CELL_SIZE;
 use super::super::furniture::material_colour;
 use super::model::Model;
-use super::{boards, candles, clutter, games, pegs, rugs, trophies};
+use super::{boards, candles, clutter, games, inn_room, pegs, rugs, trophies};
 
 /// How far a wall's face stands from the middle of its cell.
 const WALL_FACE: f32 = WALL_HALF_UNITS as f32 / CELL_UNITS as f32 * CELL_SIZE;
@@ -34,6 +35,10 @@ pub(super) enum DecorLook {
     Barrel(Barrel, Material),
     /// Sacks, and which colours.
     Sacks(Sacks, u8),
+    /// A bed of a wood, and which blanket.
+    Bed(Bed, Material, u8),
+    Chest(Chest, Material),
+    Wardrobe(Wardrobe, Material),
 }
 
 impl DecorLook {
@@ -83,6 +88,15 @@ impl DecorLook {
                 clutter::barrel(&mut model, barrel, material_colour(material));
             }
             Self::Sacks(sacks, variant) => clutter::sacks(&mut model, sacks, variant),
+            Self::Bed(bed, material, variant) => {
+                inn_room::bed(&mut model, bed, material_colour(material), variant);
+            }
+            Self::Chest(chest, material) => {
+                inn_room::chest(&mut model, chest, material_colour(material));
+            }
+            Self::Wardrobe(wardrobe, material) => {
+                inn_room::wardrobe(&mut model, wardrobe, material_colour(material));
+            }
         }
         model
     }

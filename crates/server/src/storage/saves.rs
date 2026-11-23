@@ -13,7 +13,7 @@ use shared::quest::QuestId;
 use shared::sheet::Sheet;
 use shared::site::DevArea;
 use shared::spot::Spot;
-use shared::world::{ClockRate, WorldId, WorldSeed};
+use shared::world::WorldId;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::mob_record::{MobRecord, SavedMob};
@@ -39,47 +39,6 @@ pub enum SiteId {
         character: CharacterId,
         quest: QuestId,
     },
-}
-
-/// `world.ron`.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct WorldSave {
-    /// The `SAVE_FORMAT` it was written with.
-    pub format: u32,
-    /// Secret: never sent to a client.
-    pub seed: WorldSeed,
-    /// The world map generator it was made with (`WORLD_MAP_VERSION`).
-    pub world_map_version: u32,
-    /// Its time when saved: game minutes since it began.
-    pub clock: f64,
-    /// The server's clock (`ServerSave::clock`) when `clock` was saved: the
-    /// world's time has run on since, at `rate`. `None` from before worlds went
-    /// by the server's clock, when it stopped while the server was off.
-    #[serde(default)]
-    pub server_clock: Option<f64>,
-    /// How fast its time runs against the server's clock.
-    #[serde(default)]
-    pub rate: ClockRate,
-    /// The action clock when saved, from before the server had one of its own
-    /// (`ServerSave::action_ticks`): only read if that isn't saved yet.
-    #[serde(default)]
-    pub action_ticks: u64,
-}
-
-/// `server.ron`: the server's own clocks, which every world goes by, and
-/// whether it is locked down.
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
-pub struct ServerSave {
-    /// The `SAVE_FORMAT` it was written with.
-    pub format: u32,
-    /// Real seconds the server has run, not counting pauses (`clock::ServerClock`).
-    pub clock: f64,
-    /// Ticks of action time (`clock::ActionClock`).
-    pub action_ticks: u64,
-    /// Whether only accounts with Server Options may play (lockdown), kept
-    /// across restarts.
-    #[serde(default)]
-    pub lockdown: bool,
 }
 
 /// A site's file: made the first time anyone enters it.
@@ -159,8 +118,12 @@ pub struct LevelSave {
     /// (tavern furniture plan PR 4).
     #[serde(default)]
     pub fireplaces: BTreeMap<(i64, i64), shared::fireplace::Fireside>,
+    /// Chests' and wardrobes' insides, by the piece's cell, as racks'
+    /// (tavern furniture plan PR 7).
+    #[serde(default)]
+    pub stores: BTreeMap<(i64, i64), shared::chest::Stored>,
     /// Pieces with places (benches, cask, wine and spirit racks, bar
-    /// counters, fireplaces) made with the developer tools
+    /// counters, fireplaces, chests, wardrobes) made with the developer tools
     /// (Create Crafting Bench, Place Furniture), put on the level each time.
     #[serde(default)]
     pub made_benches: Vec<shared::furniture::Piece>,
@@ -296,3 +259,4 @@ pub type RememberedDoors = BTreeMap<(i64, i64), shared::door::Swing>;
 pub use super::dev_return::DevReturn;
 pub use super::known_poi::KnownPoi;
 pub use super::visit_save::VisitSave;
+pub use super::world_save::{ServerSave, WorldSave};
