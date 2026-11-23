@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use shared::alcohol::Stage;
 use shared::bonus::{Amount, Effect, Source, Stat};
 use shared::sheet::Sheet;
+use shared::spell::{Aim, Outcome};
 
 /// Behind an effect that helps: a calm blue-green.
 const HELPFUL: Color = Color::srgb(0.16, 0.38, 0.40);
@@ -37,6 +38,9 @@ pub(super) fn timed(effects: &[Effect], now: f64) -> impl Iterator<Item = &Effec
 
 /// Whether it does harm: draining, or less of anything.
 pub(super) fn is_harmful(effect: &Effect) -> bool {
+    if let Source::Spell(part) = effect.source {
+        return Outcome::Part(part).aim() == Aim::Harmful;
+    }
     effect.bonuses.iter().any(|bonus| {
         let less = match bonus.amount {
             Amount::Flat(milli) | Amount::Percent(milli) => milli < 0,
@@ -77,6 +81,8 @@ pub(super) fn icon_path(source: Source) -> &'static str {
             Stage::Poisoned => "icons/lorc/vomiting.png",
             Stage::Hangover => "icons/lorc/brain-freeze.png",
         },
+        Source::Spell(part) if part.reversed => "icons/lorc/snowflake-1.png",
+        Source::Spell(_) => "icons/lorc/drop.png",
     }
 }
 

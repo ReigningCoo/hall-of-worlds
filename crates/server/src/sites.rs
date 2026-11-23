@@ -42,6 +42,8 @@ mod reach;
 mod remembered;
 mod shop_here;
 mod sight;
+mod spell_fires;
+mod spell_marks;
 mod trade;
 mod trees;
 mod up_down;
@@ -91,6 +93,8 @@ pub(crate) use quest_place::{QuestPlace, beside_giver, town_buildings};
 use sight::memory;
 pub(crate) use sight::update_sight;
 pub(super) use sight::{forget_level, reveal_level, truesight_changed};
+pub(crate) use spell_fires::{douse, light_by_spell};
+pub(crate) use spell_marks::{SpellMarks, sync_spell_marks};
 pub(super) use trade::open_trade;
 pub(crate) use trees::{
     TreeChange, TreeNews, grow_trees, keep_tree, saved_tree, share_trees, tree_here, tree_stage,

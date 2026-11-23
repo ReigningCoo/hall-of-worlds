@@ -60,6 +60,10 @@ Each unlocks in this order (see Unlocks). Its tier is also its cost (see Mana co
 
 Each effect has its own skill (Skill tree) and does more the better that skill. Several of the same in a step make it stronger, exactly as casting it that many times. Mixed together in one step they may make something else, from a combination table (`shared::spell`, data like Alchemy's `TRANSFORMATIONS`): fire + water = steam is the first row, the rest filled in by the owner in the effects PRs. A mixture not in the table does each effect.
 
+**Steam** (owner, 2026-11-23, PR 11): scalds and blinds: harm by the Fire and Water skills together, half again a fire's, resisted as fire is and not lessened by being wet; it puts out fires as water does, and leaves a short cloud over each spot and round it that blocks sight.
+
+**Claude's choices in PR 11**, for the owner to check: harm before resisting follows Heal's line (12 to 120 a count) by the effect's own skill; resisting works as Defence does against blows, power ÷ (power + resistance) of it getting through (equals take half), power being the caster's attributes and skill (`combat::power`) and resistance the target's Aura with their Warding skill; ice's chill, which can't be shared out, is the ratio contest itself. Wet lasts 30 s a count and halves fire's harm, which dries; the chill lasts 10 s a count, a third slower; ice keeps water frozen 60 s a count within the count's cells; steam's cloud lasts 5 s a count. Fire lights a fireplace with kindling in its basket (a piece taken from it); a campfire only exists while it burns, so Fire has none to light (Water and steam put them out), and lanterns have no unlit state yet, so spells leave them alone. A first step that hits nobody lands on its spots instead of fizzling when the spell's first effect step does something to the place (Touch → Fire at a fireplace). Mobs keep no effects, so they can't be wet; a chill only slows them. Practice: Void's skill too when a reversed effect does something; steam's Fire's and Water's.
+
 **Void** reverses every effect after it in its step; a second Void puts them back to normal. Void with nothing after it does nothing.
 
 | Effect | What it does | Reversed |
@@ -174,7 +178,7 @@ Wild's practice moves when saves load: Beasts to Social's Animals, Plants to Ear
 8. **The spellbook page** (client): the list with favourites at the top, names, removing, dragging to the bar. Needs 5; any order with 7 (built: the Character panel's Spells tab, P, `abilities/spellbook/`; Remove asks first; since PR 9 the design goes back to the design panel).
 9. **The design panel** (client). Needs 8 (built: client `spell_design/`, opened by Magic; Remove on the Spells tab puts the design back there, `EditSpell`).
 10. **Merged wheres** in one step (added after PR 9). Needs 9 (built: `WhereStep::more`, `part_hits`, `step_hits`, `launch_part`, `shown_part`; the server's casting a where at a time within a step; the panel merging a where dragged onto a where step).
-11. **Effects: Void, Fire, Water** (and cold, ice, steam), resisting by Aura and Warding's place in it. Needs 5.
+11. **Effects: Void, Fire, Water** (and cold, ice, steam), resisting by Aura and Warding's place in it. Needs 5 (built: `shared::spell`'s `harm.rs`, `acts.rs`, `condition.rs`; `dungeon::Cell::Ice` and clouds; server `cast/harm.rs`, `conditions.rs`, `place.rs`, `sites/spell_marks.rs`, `spell_fires.rs`; Heal reversed harms too).
 12. **Effects: Air, Earth, Poison, Curse, Illusion, Warding.** Needs 11.
 13. **Effects: Identify, Teleport, Light, Haste, Calm, Blessing, Levitate, Mana**, and a players' wiki page on magic. Needs 11; any order with 12.
 

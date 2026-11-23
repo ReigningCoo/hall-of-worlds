@@ -70,6 +70,9 @@ pub enum Source {
     /// Well Fed, from eating a dish (`cooking::WellFed`): its own source, so it
     /// runs alongside food and drinks, and only the latest dish's counts.
     WellFed,
+    /// A spell's effect lasting a while (magic plan PR 11: wet, chilled):
+    /// its own per part, so wetting again starts it again.
+    Spell(crate::spell::Part),
     // New sources go at the end: messages carry one by its place in this list.
 }
 

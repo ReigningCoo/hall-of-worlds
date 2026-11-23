@@ -56,12 +56,17 @@ impl Sheet {
 
     /// How much energy it gains per tick: its kind's speed, slowed by what it
     /// carries and by drink (`alcohol::Stage::speed_percent`), the two
-    /// stacking fully (owner, 2026-11-18).
+    /// stacking fully (owner, 2026-11-18), and by spells' chill
+    /// (`Sheet::spell_speed_percent`).
     pub fn speed(&self, carrying: &Inventory) -> u32 {
         let kind = carrying.creature.def().speed;
         let drink = self
             .alcohol_stage()
             .map_or(100, crate::alcohol::Stage::speed_percent);
-        (NORMAL_SPEED * kind / 100 * self.load(carrying).speed_percent() / 100 * drink / 100).max(1)
+        let spells = self.spell_speed_percent();
+        (NORMAL_SPEED * kind / 100 * self.load(carrying).speed_percent() / 100 * drink / 100
+            * spells
+            / 100)
+            .max(1)
     }
 }

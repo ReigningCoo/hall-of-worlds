@@ -1,86 +1,77 @@
-//! What an effect step does to those it lands on. Heal so far (restoring
-//! Health by the caster's Healing, `spell::heal_restores`); the other effects
-//! come with the effects PRs, and do nothing yet. Whoever is healed is told,
-//! and the caster hears of each.
+//! What an effect step does where it lands, outcome by outcome
+//! (`spell::outcomes`, Void read and mixtures made): Heal restores
+//! (`heal.rs`); fire, cold, steam and harm take Health (`harm.rs`); Water
+//! wets and ice chills (`conditions.rs`); and what they do to the cells
+//! themselves (`place.rs`). Effects of the later effects PRs do nothing yet.
 
-use shared::id::Id;
-use shared::protocol::{Landed, ServerMessage};
-use shared::spell::{Effect, EffectStep, Outcome, Part, heal_restores, outcomes};
-use shared::vitals::{Points, Vital};
+use shared::skill::SkillId;
+use shared::spell::{Effect, EffectStep, Mixture, Outcome, Part, acts, outcomes};
 
 use super::super::Client;
+use super::conditions::{chill_targets, wet_targets};
 use super::creatures::Present;
+use super::harm::harm_targets;
+use super::heal::{heal_amount, heal_targets};
+use super::place::act_on_cells;
 use crate::ServerWorld;
-use crate::combat::health_left;
-use crate::entities::heal_mob;
 use crate::storage::SiteId;
 
-/// How many Heals a step holds, not reversed (Void's reversal, direct harm,
-/// comes with the effects PRs).
-pub(super) fn heals_in(step: &EffectStep) -> u32 {
-    let heal = Outcome::Part(Part {
-        effect: Effect::Heal,
-        reversed: false,
-    });
-    (outcomes(step).into_iter())
-        .filter(|(outcome, _)| *outcome == heal)
-        .map(|(_, count)| count)
-        .sum()
+/// Where an effect step lands: who is about, the level, the caster's own
+/// level index there, and the tick.
+pub(super) struct Landing<'a> {
+    pub present: &'a Present,
+    pub place: (SiteId, u32),
+    pub index: u32,
+    pub tick: u64,
 }
 
-/// Heals each target by `amount`, telling them and the caster (client
-/// `caster`). Whether anyone gained Health.
-pub(super) fn heal_targets(
+/// Lands `step` on `targets` (by their place in `present`) and on `cells`.
+/// The effects' skills to practise: those of every outcome that changed
+/// something (Void's too, for a reversed one).
+pub(super) fn land(
     clients: &mut [Client],
     caster: usize,
     world: &mut ServerWorld,
-    (present, place): (&Present, (SiteId, u32)),
-    targets: &[usize],
-    amount: Points,
-) -> bool {
-    let tick = world.action_clock.ticks();
-    let mut changed = false;
-    for &index in targets {
-        let id = present.ids[index];
-        let healed = match present.players[index] {
-            Some(player) => Some(heal_player(&mut clients[player], amount, tick)),
-            None => heal_mob(world, place, id, amount, tick),
-        };
-        let Some((left, gained)) = healed else {
-            continue;
-        };
-        changed |= gained;
-        let target = (index != 0).then_some(id);
-        tell_healed(&mut clients[caster], target, amount, left);
+    at: &Landing,
+    step: &EffectStep,
+    (targets, cells): (&[usize], &[(i64, i64)]),
+) -> Vec<SkillId> {
+    let mut practised = Vec::new();
+    for (outcome, count) in outcomes(step) {
+        let does = acts(outcome);
+        let mut did = false;
+        if outcome == Outcome::Part(Part::plain(Effect::Heal)) {
+            let amount = heal_amount(&clients[caster], count);
+            let place = (at.present, at.place);
+            did |= heal_targets(clients, caster, world, place, targets, amount);
+        }
+        if does.harms {
+            did |= harm_targets(clients, caster, world, at, targets, (outcome, count));
+        }
+        if does.wets {
+            did |= wet_targets(clients, at, targets, count);
+        }
+        if does.chills {
+            did |= chill_targets(clients, caster, world, at, targets, count);
+        }
+        if does.on_place() {
+            did |= act_on_cells(clients, caster, world, at, cells, (does, count));
+        }
+        if did {
+            practised.extend(skills_of(outcome));
+        }
     }
-    changed
+    practised.sort_unstable();
+    practised.dedup();
+    practised
 }
 
-/// A player gains this much Health, and is told of it: how much they have
-/// now, per mille, and whether they gained any.
-fn heal_player(client: &mut Client, amount: Points, tick: u64) -> (u16, bool) {
-    let limits = client.limits(tick);
-    let before = client.sheet.vitals.at(Vital::Health, limits, tick);
-    client
-        .sheet
-        .vitals
-        .restore(Vital::Health, amount, limits, tick);
-    client.unsaved = true;
-    let gained = client.sheet.vitals.at(Vital::Health, limits, tick) > before;
-    client.send_vitals(tick);
-    (health_left(&client.sheet.vitals, limits, tick), gained)
-}
-
-/// Tells the caster their spell healed `target` (`None`: themselves).
-fn tell_healed(caster: &mut Client, target: Option<Id>, amount: Points, left: u16) {
-    caster.link.send(&ServerMessage::AbilityLanded {
-        who: None,
-        target,
-        landed: Landed::Healed { amount, left },
-    });
-}
-
-/// How much `count` Heals from this caster restore.
-pub(super) fn heal_amount(caster: &Client, count: u32) -> Points {
-    heal_restores(count, Some(&caster.sheet.skills))
+/// The skills an outcome practises: its effect's, and Void's when reversed;
+/// steam Fire's and Water's.
+fn skills_of(outcome: Outcome) -> Vec<SkillId> {
+    match outcome {
+        Outcome::Part(part) if part.reversed => vec![part.effect.skill(), Effect::Void.skill()],
+        Outcome::Part(part) => vec![part.effect.skill()],
+        Outcome::Mixture(Mixture::Steam) => vec![Effect::Fire.skill(), Effect::Water.skill()],
+    }
 }

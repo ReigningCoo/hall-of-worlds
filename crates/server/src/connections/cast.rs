@@ -5,9 +5,13 @@
 //! A first step that hits nobody fizzles, costing only the time; otherwise
 //! the Mana is paid all at once as it lands.
 
+mod conditions;
 mod creatures;
 mod effects;
 mod flight;
+mod harm;
+mod heal;
+mod place;
 mod run;
 mod step;
 

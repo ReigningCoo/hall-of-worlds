@@ -3,7 +3,7 @@
 //! when unfriendly to the caster, otherwise neutral).
 
 use shared::id::Id;
-use shared::spell::{Creature, Side};
+use shared::spell::{Creature, Side, resistance};
 
 use super::super::Client;
 use crate::ServerWorld;
@@ -16,6 +16,8 @@ pub(super) struct Present {
     pub creatures: Vec<Creature>,
     /// Which are players, by their place in `clients`.
     pub players: Vec<Option<usize>>,
+    /// What each resists harmful magic with (`spell::resistance`).
+    pub resistances: Vec<u64>,
 }
 
 impl Present {
@@ -49,6 +51,7 @@ pub(super) fn present(
             side: Side::Caster,
         }],
         players: vec![Some(caster)],
+        resistances: vec![me.resistance()],
     };
     for (index, other) in clients.iter().enumerate() {
         let Some(body) = other.body(world).filter(|_| index != caster && here(other)) else {
@@ -60,6 +63,7 @@ pub(super) fn present(
             side: Side::Friend,
         });
         present.players.push(Some(index));
+        present.resistances.push(other.resistance());
     }
     let kind = me.inventory.creature;
     for mob in mobs_for_spell(world, place, kind, me.entity_id()) {
@@ -74,6 +78,15 @@ pub(super) fn present(
             side,
         });
         present.players.push(None);
+        present.resistances.push(mob.resistance);
     }
     Some(present)
+}
+
+impl Client {
+    /// What the player resists harmful magic with: their Aura, with every
+    /// bonus, and their Warding.
+    fn resistance(&self) -> u64 {
+        resistance(&self.bonused.attributes, Some(&self.sheet.skills))
+    }
 }

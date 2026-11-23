@@ -66,6 +66,9 @@ pub struct Level {
     pub(super) tree_kinds: BTreeMap<(i64, i64), TreeKind>,
     /// Campfires burning, by cell: pieces of kindling left (`campfires.rs`).
     pub(super) campfires: BTreeMap<(i64, i64), u8>,
+    /// Clouds of steam from spells, by cell: sight passes into them but not
+    /// through (`clouds.rs`).
+    pub(super) clouds: BTreeSet<(i64, i64)>,
     /// Whether its walls are natural, wider at the foot (`PoiKind::natural_walls`).
     natural_walls: bool,
 }
@@ -96,6 +99,7 @@ impl Level {
             felled: BTreeMap::new(),
             tree_kinds: BTreeMap::new(),
             campfires: BTreeMap::new(),
+            clouds: BTreeSet::new(),
             natural_walls: false,
         }
     }

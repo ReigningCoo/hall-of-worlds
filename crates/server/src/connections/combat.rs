@@ -317,6 +317,8 @@ mod death_tests;
 #[cfg(test)]
 mod drink_tests;
 #[cfg(test)]
+mod elements_tests;
+#[cfg(test)]
 mod feed_yeast_tests;
 #[cfg(test)]
 mod fell_tree_tests;

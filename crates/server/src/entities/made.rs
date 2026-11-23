@@ -52,6 +52,7 @@ impl Mob {
             way_back: Vec::new(),
             energy: Default::default(),
             speed: sheet.speed(carrying),
+            chilled: None,
             shown: carrying.shown(),
             scent: scent_strength(carrying),
             attributes: bonuses.attributes(&spawn.attributes),

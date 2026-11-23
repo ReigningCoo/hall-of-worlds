@@ -20,6 +20,8 @@ pub(super) enum Queued {
     Landed(Vec<Spot>, Look),
     /// A missile landing.
     Struck(Spot, Look),
+    /// Clouds of steam over these cells, for this many seconds.
+    Clouds(Vec<(i64, i64)>, f32),
 }
 
 /// What is waiting to be drawn, and each flying missile's look.
@@ -54,6 +56,10 @@ pub(crate) fn take_news(
             }
             ServerMessage::Spell(SpellNews::Landed { on, look }) => {
                 queue.pending.push(Queued::Landed(on.clone(), *look));
+            }
+            ServerMessage::Spell(SpellNews::Clouds { cells, millis }) => {
+                let seconds = *millis as f32 / 1000.0;
+                queue.pending.push(Queued::Clouds(cells.clone(), seconds));
             }
             ServerMessage::Welcome { .. }
             | ServerMessage::EnterLevel { .. }

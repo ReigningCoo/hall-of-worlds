@@ -86,7 +86,6 @@ pub struct ServerWorld {
     pub(crate) door_changes: Vec<crate::sites::DoorChange>,
     /// Herb patches harvested lately, for `sites::share_plants`.
     pub(crate) plant_changes: Vec<crate::sites::PlantChange>,
-    /// Crafting benches whose tools changed this tick (`sites::share_benches`).
     pub(crate) bench_changes: Vec<crate::sites::BenchKey>,
     /// Trees chopped at, felled or grown lately, for `sites::share_trees`.
     pub(crate) tree_changes: Vec<crate::sites::TreeChange>,
@@ -95,8 +94,8 @@ pub struct ServerWorld {
     pub(crate) standing: crate::sites::Standing,
     /// Developer tools' Freeze Mobs: no mob in this world thinks or moves.
     pub(crate) mobs_frozen: bool,
-    /// How big stacks of items may get here.
-    pub(crate) stacks: StackLimits,
+    pub(crate) stacks: StackLimits, // how big stacks of items may get here
+    pub(crate) spell_marks: crate::sites::SpellMarks, // ice and steam from spells
     /// Sites forgotten since `connections::handle_messages` looked, to put others out of.
     forgotten: Forgotten,
     /// The wilderness's generator and what was made of it lately.
@@ -205,6 +204,7 @@ impl ServerWorld {
             standing: Default::default(),
             mobs_frozen: false,
             stacks: crate::stack_limits::from_environment(),
+            spell_marks: default(),
             forgotten: Forgotten::default(),
             wilderness: crate::wilderness::WildernessMaps::new(&params),
             quests: crate::quests::TownQuests::new(&params),

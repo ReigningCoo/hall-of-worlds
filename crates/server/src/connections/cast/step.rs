@@ -82,6 +82,26 @@ pub(super) fn effect_targets(cast: &Cast, present: &Present) -> Vec<usize> {
     targets
 }
 
+/// The cells an effect step lands on: every spot the last where hit,
+/// creature or not, or the caster's own cell.
+pub(super) fn landing_cells(cast: &Cast, present: &Present) -> Vec<(i64, i64)> {
+    let mut cells: Vec<(i64, i64)> = if cast.aimed.is_empty() {
+        vec![present.creatures[0].body.at.cell()]
+    } else {
+        (cast.aimed.iter())
+            .map(
+                |aimed| match aimed.creature.and_then(|id| present.index_of(id)) {
+                    Some(index) => present.creatures[index].body.at.cell(),
+                    None => aimed.at.cell(),
+                },
+            )
+            .collect()
+    };
+    cells.sort_unstable();
+    cells.dedup();
+    cells
+}
+
 /// Where a later step starts from something hit: its body where it is now,
 /// if it is still here, else the spot.
 fn origin_of(aimed: &Aimed, present: &Present) -> Origin {
