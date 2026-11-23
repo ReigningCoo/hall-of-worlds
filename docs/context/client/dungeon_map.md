@@ -55,6 +55,7 @@ The dungeon (and building) view: `shared::dungeon` cells drawn in 3D through `vi
 - `crates/client/src/dungeon_map/rain.rs`: `RainMaterial`, `RainPart`, `spawn`, `update` (every frame: `shared::weather` and sea-level temperature at `WorldReturn`, as `world_map::sky` works them out, for the shader; when `Shown` changes and the outside cells in sight differ, rebuilds the drops, `DROPS_PER_CELL` quads per cell, placed from a hash of the cell). `FALL_HEIGHT`. Shader: `assets/shaders/site_precipitation.wesl`, whose kinds, sizes and speeds must match `precipitation.wesl`.
 - `crates/client/src/dungeon_map/viewers.rs`: `views` (for `update_meshes`): each viewer's sight, the player's in their cone, and all of it together.
 - `crates/client/src/dungeon_map/face_point.rs`: `face_pointed_at`: `common::PointedAtMap` to the ground there (`Ground::hit`), as `FaceTowards` in units. `sight_lines/cone.rs`: `WallMap::outline_in(from, cone)`: the outline inside the cone, cut to the near circle outside it, with rays along both edges.
+- `crates/client/src/dungeon_map/missiles.rs` (magic plan PR 6): `take_missiles` (always: `common::Missiles` from `MissileNews`, cleared on `Welcome` and changing map), `draw_missiles` (in view: a small glowing ball, marked `DungeonScene`, where each missile is now, a little above `DrawnGround`), `DrawnMissiles`; a stand-in until PR 7 draws wheres.
 
 ## Public API
 
@@ -68,6 +69,7 @@ The dungeon (and building) view: `shared::dungeon` cells drawn in 3D through `vi
 
 - `shared::site` (`BuildingLook`, for towns).
 - `common::Lightning`, `BoltStruck`: the flash and bolts of lightning (see Notes); `lightning` (`spawn_bolt`).
+- `common::Missiles` and `connection::FromServer` (`MissileNews`): missiles in flight.
 
 - `plants` (`PlantModels`, `FruitModels`, `TreeModels`, `fruit_plant_size`, `tree_size`, `patch_layout`), `character` (`CharacterSheet`, for herbs' names), `connection` (`ToServer`).
 - `common` (`Benches`, `HerbTable`, `HerbGrowthShift`, `CropGrowthShift`, `HerbShowcase`, `VegetableShowcase`, `OtherLevels`, `OtherFloorLooks` (the other floors), `HoveredOnMap`, `CurrentDungeon` incl. `known` and `remembered`, `CurrentWorld`, `GameClock`, `ServerClock`, `WorldReturn`, `GameView`, `LightSource`, `SharesSight`, `ViewStats`, `MapPosition`, `SmoothPosition`), `surface_style` (`SurfaceStyle`), `player` (`Player`, `PlayerSystems`, `TravelTo`), `view3d` (`ViewCamera`, `ViewGrid`, `View3dSystems`, `ClickedToken`, `TokenView`, `TOKEN_DIAMETER`, `XrayMaterial`, `XRAY_WHITE`), `shared::dungeon`, `shared::floor_sight` (what is seen of the other floors), `shared::site` (`StairsDirection`), `shared::protocol` (`SeenStairs`), `shared::poi` (`PoiKind`, for themes), `item_art` (`tool_pieces`), `plants` (`Shell`), `shared::crafting_bench`. Pictures: `assets/angbandtk/`.

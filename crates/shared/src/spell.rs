@@ -16,6 +16,7 @@ mod cost;
 mod design;
 mod effect;
 mod filters;
+mod flight;
 mod hit;
 mod hits;
 mod key;
@@ -33,7 +34,8 @@ mod toward;
 pub use auto_cast::{Aim, AutoCast, auto_cast};
 pub use beam::{BEAM_RANGE, BEAM_SPREAD, beam, beam_headings};
 pub use book::{
-    BookRefusal, BookSpell, LONGEST_NAME, MOST_SPELLS, Spellbook, heal_spell, tidy_name,
+    BookRefusal, BookSpell, LONGEST_NAME, MOST_SPELLS, Spellbook, heal_spell, healing_missile,
+    tidy_name,
 };
 pub use cast::{CAST_COST, CAST_WIND_UP, STEP_MILLIS, heal_restores};
 pub use check::{DesignError, check, is_unlocked, unlocked_wheres};
@@ -45,6 +47,7 @@ pub use cost::{
 pub use design::{EffectStep, MAX_STEPS, Spell, Step, WhereStep};
 pub use effect::Effect;
 pub use filters::Filters;
+pub use flight::{Path, launch};
 pub use hit::{Creature, Hit, Origin, Side, hit_anyone};
 pub use hits::where_hits;
 pub use key::SpellKey;
@@ -64,6 +67,8 @@ pub use toward::Toward;
 mod book_tests;
 #[cfg(test)]
 mod cast_tests;
+#[cfg(test)]
+mod flight_tests;
 #[cfg(test)]
 mod hits_tests;
 #[cfg(test)]

@@ -34,6 +34,7 @@ mod ground_hit;
 mod holes;
 mod liquid;
 mod mesh;
+mod missiles;
 mod oasis;
 mod other_floors;
 mod outlined;
@@ -158,6 +159,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<campfires::DrawnFires>()
             .init_resource::<hearth_fires::DrawnHearthFires>()
             .init_resource::<basket_logs::DrawnBasketLogs>()
+            .init_resource::<missiles::DrawnMissiles>()
             .add_plugins(MaterialPlugin::<rain::RainMaterial>::default())
             .add_plugins(MaterialPlugin::<SurfaceMaterial>::default())
             .add_systems(Startup, spawn_scene)
@@ -229,6 +231,7 @@ impl Plugin for DungeonMapPlugin {
                     sync_lights,
                     rain::update,
                     bolts::strike,
+                    missiles::draw_missiles,
                     border::draw_borders,
                     flowing::run_flow,
                 )
@@ -249,6 +252,7 @@ impl Plugin for DungeonMapPlugin {
                 Update,
                 (sepia_pictures, plain_pictures::plain_pictures).chain(),
             )
+            .add_systems(Update, missiles::take_missiles)
             .add_systems(
                 Update,
                 (hover::name_hovered_place, face_point::face_pointed_at)

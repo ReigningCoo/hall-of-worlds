@@ -331,6 +331,8 @@ mod hearth_fire_tests;
 #[cfg(test)]
 mod kick_tests;
 #[cfg(test)]
+mod missile_tests;
+#[cfg(test)]
 mod pour_tests;
 #[cfg(test)]
 mod press_juice_tests;

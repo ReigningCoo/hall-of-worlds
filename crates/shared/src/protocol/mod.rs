@@ -45,6 +45,7 @@ mod dev_vitals;
 mod door_ask;
 mod kind_change;
 mod map_marks;
+mod missile_news;
 mod moves;
 mod pick_news;
 mod ping;
@@ -74,6 +75,7 @@ pub use dev_vitals::{DEV_BONUS, DEV_BONUS_TICKS, DevVitals};
 pub use door_ask::DoorAsk;
 pub use kind_change::KindChange;
 pub use map_marks::{MarkAsk, MarkNews};
+pub use missile_news::{MissileId, MissileNews};
 pub use moves::{MOST_MOVE, Stretch, cell_of_units, is_middle, units_of_cell};
 pub use pick_news::PickNews;
 pub use quest::{
@@ -91,7 +93,7 @@ pub use yeast_ask::YeastAsk;
 
 /// Bump whenever a message changes, so mismatched clients and servers refuse
 /// each other instead of misreading messages.
-pub const PROTOCOL_VERSION: u32 = 170;
+pub const PROTOCOL_VERSION: u32 = 171;
 
 /// The most items one `ClientMessage::LookUpItems` is answered for.
 pub const MOST_LOOKED_UP: usize = 64;

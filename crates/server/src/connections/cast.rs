@@ -1,11 +1,13 @@
 //! A player casting a spell from their spellbook (magic plan PR 5): asked for
 //! with `SpellbookAsk::Cast`, wound up as the Magic ability, then its
 //! steps resolve about a second apart once every client has had its turn
-//! (`cast/run.rs`). A first step that hits nobody fizzles, costing only the
-//! time; otherwise the Mana is paid all at once as it lands.
+//! (`cast/run.rs`), a missile step's once its missiles land (`cast/flight.rs`).
+//! A first step that hits nobody fizzles, costing only the time; otherwise
+//! the Mana is paid all at once as it lands.
 
 mod creatures;
 mod effects;
+mod flight;
 mod run;
 mod step;
 
@@ -36,6 +38,8 @@ pub(crate) struct Casting {
     asked: Option<SpellKey>,
     /// Wound up, or landed with steps still to go.
     running: Option<Cast>,
+    /// Missiles launched so far, numbering the next (`MissileId`).
+    missiles: u32,
 }
 
 /// A spell under way.
@@ -54,6 +58,10 @@ struct Cast {
     /// The Form skills of the wheres so far, practised when an effect they
     /// carried does something.
     forms: Vec<SkillId>,
+    /// A missile step's missiles still flying; the next step waits for them.
+    flying: Vec<flight::Flying>,
+    /// What that step's missiles have landed on so far.
+    landed: Vec<Aimed>,
 }
 
 /// Something a where hit, kept between steps by id so it is followed if it
@@ -138,6 +146,8 @@ pub(super) fn start_cast(
         toward: target,
         aimed: Vec::new(),
         forms: Vec::new(),
+        flying: Vec::new(),
+        landed: Vec::new(),
     });
     let stayed = client.link.send(&ServerMessage::AbilityStarted {
         who: None,

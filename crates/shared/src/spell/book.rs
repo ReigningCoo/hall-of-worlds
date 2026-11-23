@@ -3,13 +3,15 @@
 //! known by its design, so the same design is never kept twice; each has the
 //! player's own name or none (the automatic one, `auto_name`, which the
 //! client words), and may be a favourite. Favourites are listed first, then
-//! the rest, each latest first. A new character's book holds Heal.
+//! the rest, each latest first. A new character's book holds Heal and
+//! Healing Missile.
 
 use serde::{Deserialize, Serialize};
 
 use super::check::{DesignError, check};
 use super::design::{Spell, Step};
 use super::effect::Effect;
+use super::place::Where;
 use crate::skill::Skills;
 
 /// At most this many spells in a book (a first guess).
@@ -56,15 +58,24 @@ pub fn heal_spell() -> Spell {
     Spell::new(vec![Step::effects(&[(Effect::Heal, 1)])])
 }
 
+/// Healing Missile: a missile to the target's spot, healing whoever it meets.
+pub fn healing_missile() -> Spell {
+    Spell::new(vec![
+        Step::at(Where::Missile, 1),
+        Step::effects(&[(Effect::Heal, 1)]),
+    ])
+}
+
 impl Default for Spellbook {
-    /// A new character's (and an older save's): Heal.
+    /// A new character's (and an older save's): Heal, then Healing Missile.
     fn default() -> Self {
+        let kept = |spell| BookSpell {
+            spell,
+            name: None,
+            favourite: false,
+        };
         Self {
-            spells: vec![BookSpell {
-                spell: heal_spell(),
-                name: None,
-                favourite: false,
-            }],
+            spells: vec![kept(heal_spell()), kept(healing_missile())],
         }
     }
 }

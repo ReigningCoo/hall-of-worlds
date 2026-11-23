@@ -51,6 +51,7 @@ mod items;
 mod lightning;
 mod map;
 mod map_marks;
+mod missiles;
 mod model_material;
 mod open_panels;
 mod own_ability;
@@ -126,6 +127,7 @@ pub use map::{
     SpotPosition, WorldReturn,
 };
 pub use map_marks::{MapMarks, in_cells, in_points, mark_name, near_way_round, point_at};
+pub use missiles::Missiles;
 pub use model_material::{ModelMaterial, model_material};
 pub use open_panels::OpenPanels;
 pub use own_ability::OwnAbility;
@@ -162,6 +164,7 @@ impl Plugin for CommonPlugin {
         window_open::open_as_saved(app, &preferences.window);
         app.init_resource::<ChosenServer>()
             .init_resource::<ServerTick>()
+            .init_resource::<Missiles>()
             .init_resource::<HomeServer>()
             .insert_resource(DisplayInUse(preferences.window.display))
             .insert_resource(frame_settings(true, &preferences.graphics))
