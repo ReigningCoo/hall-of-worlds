@@ -11,6 +11,7 @@ pub mod alignment;
 pub mod armour;
 pub mod bar;
 pub mod blade;
+pub mod board_game;
 pub mod body;
 pub mod bonus;
 pub mod bottle_rack;

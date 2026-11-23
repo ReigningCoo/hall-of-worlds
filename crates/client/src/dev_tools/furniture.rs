@@ -27,7 +27,8 @@ struct ForcedTables {
 /// `HOW_DEBUG_FURNITURE=style[,material]`: indexes into `STYLES` and
 /// `MATERIALS`, `all` for each in turn, or `show` for a table of every style
 /// in two rows south-east of the player, and every seat; `decor` for every
-/// piece of decor (`furniture_decor`).
+/// piece of decor (`furniture_decor`); `games` for games tables, barrels,
+/// crates and sacks (`furniture_games`).
 pub(super) fn add(app: &mut App) {
     let Ok(text) = env::var("HOW_DEBUG_FURNITURE") else {
         return;
@@ -38,6 +39,10 @@ pub(super) fn add(app: &mut App) {
     }
     if text.trim() == "decor" {
         app.add_systems(Update, super::furniture_decor::show_decor);
+        return;
+    }
+    if text.trim() == "games" {
+        app.add_systems(Update, super::furniture_games::show_games);
         return;
     }
     let mut values = text

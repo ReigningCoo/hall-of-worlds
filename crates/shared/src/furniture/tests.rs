@@ -160,7 +160,11 @@ fn seats_match_their_rooms_tables() {
                     | Furniture::BottleRack { .. }
                     | Furniture::BarCounter { .. }
                     | Furniture::Fireplace { .. }
-                    | Furniture::Candles { .. } => {}
+                    | Furniture::Candles { .. }
+                    | Furniture::GamesTable { .. }
+                    | Furniture::Barrel { .. }
+                    | Furniture::Crates { .. }
+                    | Furniture::Sacks { .. } => {}
                 }
             }
         }

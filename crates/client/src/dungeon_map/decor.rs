@@ -23,7 +23,9 @@ use crate::common::{CurrentDungeon, DrawnGround};
 // Split into files (`cargo xtask lint` keeps files small).
 mod boards;
 mod candles;
+mod clutter;
 mod colours;
+mod games;
 mod look;
 mod model;
 mod pegs;
@@ -46,11 +48,13 @@ struct Drawn {
     at: IVec3,
 }
 
-/// What a drawn piece is known by: decor by its place, candles by their cell.
+/// What a drawn piece is known by: decor by its place, candles by their
+/// cell, a board, barrel or sacks by the cell of the furniture.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum Key {
     Decor(shared::decor::DecorSlot),
     Candles((i64, i64)),
+    Furniture((i64, i64)),
 }
 
 /// The decor drawn now.
@@ -123,6 +127,15 @@ pub(super) fn update_decor(
             place: candles_place(piece, top),
         });
     }
+    wanted.extend(level.furniture().filter_map(|piece| {
+        let (look, lift) = furniture_look(piece)?;
+        Some(Wanted {
+            key: Key::Furniture(piece.at),
+            look,
+            cells: vec![piece.at],
+            place: furniture_place(piece, ground(&[piece.at]) + lift),
+        })
+    }));
     let mut keep = HashMap::new();
     for want in wanted {
         if !want
@@ -148,7 +161,7 @@ pub(super) fn update_decor(
         }
         let model = (models.0)
             .entry(want.look)
-            .or_insert_with(|| want.look.build().build(&mut meshes))
+            .or_insert_with(|| want.look.build().build(&mut meshes, want.look.thin()))
             .clone();
         let mut spawned = commands.spawn((want.place, Visibility::default()));
         spawned.with_children(|piece| {
@@ -177,6 +190,30 @@ pub(super) fn update_decor(
         commands.entity(entity).despawn();
     }
     drawn.drawn = keep;
+}
+
+/// What furniture drawn with decor looks like (a games table's board, a
+/// barrel, sacks), and how high over the ground it stands; `None` for the
+/// rest.
+fn furniture_look(piece: &Piece) -> Option<(DecorLook, f32)> {
+    Some(match piece.furniture {
+        Furniture::GamesTable { game } => (DecorLook::Board(game), TABLE_TOP),
+        Furniture::Barrel { barrel } => (DecorLook::Barrel(barrel, piece.material), 0.0),
+        Furniture::Sacks { sacks } => {
+            let seed = shared::rng::Seed::new(0).derive("furniture look");
+            let variant = seed.at(&[piece.at.0, piece.at.1]) % 9;
+            (DecorLook::Sacks(sacks, variant as u8), 0.0)
+        }
+        _ => return None,
+    })
+}
+
+/// Where a piece of furniture drawn with decor stands, `up` over the middle
+/// of its cell, turned the way it faces.
+fn furniture_place(piece: &Piece, up: f32) -> Transform {
+    let (x, y) = piece.at;
+    let at = Vec3::new(x as f32 * CELL_SIZE, up, y as f32 * CELL_SIZE);
+    Transform::from_translation(at).with_rotation(turn_to(piece.facing))
 }
 
 /// Where candles stand on their table's top at `top`: a pair side by side

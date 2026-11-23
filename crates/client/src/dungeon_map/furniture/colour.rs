@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use shared::furniture::{Material, Stone, Wood};
 
 /// A material's colour (linear, for vertex colours), from its sRGB.
-pub(super) fn of(material: Material) -> Vec3 {
+pub(in crate::dungeon_map) fn of(material: Material) -> Vec3 {
     let (r, g, b) = match material {
         Material::Wood(wood) => match wood {
             Wood::Oak => (0.62, 0.45, 0.28),

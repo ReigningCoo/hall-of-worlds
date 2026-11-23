@@ -3,8 +3,9 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{BenchStyle, Candles, ChairStyle, Material, TableStyle};
+use super::{Barrel, BenchStyle, Candles, ChairStyle, Crates, Material, Sacks, TableStyle};
 use crate::bar::BarCounter;
+use crate::board_game::BoardGame;
 use crate::bottle_rack::{BottleRack, BottleRackKind};
 use crate::cask_rack::CaskRack;
 use crate::crafting_bench::Craft;
@@ -64,6 +65,25 @@ pub enum Furniture {
     Candles {
         candles: Candles,
     },
+    /// A 1 × 1 wooden table whose top is a board for `game` (tavern furniture
+    /// plan PR 6), its men drawn where they start; facing the way the light
+    /// player looks across it. Seats and candles go with it as a table's.
+    GamesTable {
+        game: BoardGame,
+    },
+    /// A barrel standing on end as a 1 × 1 table: stools round it, candles
+    /// on it.
+    Barrel {
+        barrel: Barrel,
+    },
+    /// Crates stacked on one cell, in the way.
+    Crates {
+        crates: Crates,
+    },
+    /// Sacks on one cell, in the way.
+    Sacks {
+        sacks: Sacks,
+    },
 }
 
 impl Furniture {
@@ -82,11 +102,12 @@ impl Furniture {
         }
     }
 
-    /// Whether a piece standing on furniture may stand on this: a table or
-    /// a bar counter (not its flap).
+    /// Whether a piece standing on furniture may stand on this: a table, a
+    /// games table, a standing barrel or a bar counter (not its flap).
     pub fn holds_furniture(self) -> bool {
         match self {
             Self::BarCounter { counter } => counter.is_counter(),
+            Self::GamesTable { .. } | Self::Barrel { .. } => true,
             _ => self.is_table(),
         }
     }
@@ -99,11 +120,14 @@ impl Furniture {
             | Self::CaskRack { .. }
             | Self::BottleRack { .. }
             | Self::Fireplace { .. }
-            | Self::Candles { .. } => TABLE_COST_PER_MILLE,
+            | Self::Candles { .. }
+            | Self::GamesTable { .. }
+            | Self::Barrel { .. }
+            | Self::Crates { .. } => TABLE_COST_PER_MILLE,
             // A counter as a table's; its flap lifts, as open floor.
             Self::BarCounter { counter } if counter.is_counter() => TABLE_COST_PER_MILLE,
             Self::BarCounter { .. } => 1000,
-            Self::Chair { .. } | Self::Bench { .. } => SEAT_COST_PER_MILLE,
+            Self::Chair { .. } | Self::Bench { .. } | Self::Sacks { .. } => SEAT_COST_PER_MILLE,
         }
     }
 }
@@ -116,7 +140,8 @@ pub struct Piece {
     /// Cells east–west and north–south (a table 1 × 1 to 2 × 3 either way
     /// round, a chair 1 × 1, a bench 1 to 3 long and 1 deep, a crafting
     /// bench its craft's length and 1 deep, a cask rack, bottle rack or bar
-    /// counter its length and 1 deep, a fireplace its length and 1 deep).
+    /// counter its length and 1 deep, a fireplace its length and 1 deep, a
+    /// games table, barrel, crates or sacks 1 × 1).
     pub size: (u8, u8),
     /// A seat: the way someone sitting on it faces (towards their table, or
     /// away from the wall behind). A table: the way its length runs from its
@@ -126,7 +151,9 @@ pub struct Piece {
     /// bench. A spirit rack: the way its front (lowest shelf) faces. Candles:
     /// the way a pair stands side by side across. A bar
     /// counter: the side drinkers stand on, the barkeep behind it. A
-    /// fireplace: as a crafting bench, its hearth stone to the front.
+    /// fireplace: as a crafting bench, its hearth stone to the front. A games
+    /// table: the way the light player looks across the board. A barrel,
+    /// crates or sacks: only which way the model turns.
     pub facing: Side,
     pub material: Material,
     pub furniture: Furniture,
