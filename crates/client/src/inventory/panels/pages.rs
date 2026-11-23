@@ -1,5 +1,5 @@
 //! The Character panel's tabs: Character (what they are like), Inventory (what they
-//! wear and carry, and the ground), Abilities (filled by `abilities`) and Skills
+//! wear and carry, and the ground), Abilities and Spells (filled by `abilities`) and Skills
 //! (filled by `skills_page`). Only the chosen tab's page is laid out; the others
 //! are kept, hidden. The panel is markup (`CHARACTER`), its places filled here
 //! once it is built (`bind_pages`).
@@ -9,7 +9,7 @@ use bevy::prelude::*;
 use super::super::body::spawn_rows;
 use super::super::ground::spawn_section;
 use super::super::wear_note::wear_note;
-use crate::common::{AbilitiesPage, SkillsPage};
+use crate::common::{AbilitiesPage, SkillsPage, SpellsPage};
 use crate::dom::{Dom, Template, UiEvent, UiValue};
 use crate::html;
 use crate::widgets::UiId;
@@ -26,6 +26,7 @@ pub(super) static CHARACTER: Template = html!(
       <option>Character</option>
       <option>Inventory</option>
       <option>Abilities</option>
+      <option>Spells</option>
       <option>Skills</option>
     </tab-bar>
     <p id="sheet" class="medium"/>
@@ -51,6 +52,7 @@ pub(super) static CHARACTER: Template = html!(
       <canvas id="ground"/>
     </span>
     <canvas id="abilities"/>
+    <canvas id="spells"/>
     <canvas id="skills"/>
   </panel>
 </form>
@@ -64,23 +66,26 @@ pub(in crate::inventory) enum Page {
     #[default]
     Inventory,
     Abilities,
+    Spells,
     Skills,
 }
 
 impl Page {
-    const ALL: [Self; 4] = [
+    const ALL: [Self; 5] = [
         Self::Character,
         Self::Inventory,
         Self::Abilities,
+        Self::Spells,
         Self::Skills,
     ];
     /// As the tabs are written in `CHARACTER` (a test checks).
-    const NAMES: [&str; 4] = ["Character", "Inventory", "Abilities", "Skills"];
+    const NAMES: [&str; 5] = ["Character", "Inventory", "Abilities", "Spells", "Skills"];
     /// Each page's element.
-    const IDS: [&str; 4] = [
+    const IDS: [&str; 5] = [
         "inventory/sheet",
         "inventory/carried",
         "inventory/abilities",
+        "inventory/spells",
         "inventory/skills",
     ];
 
@@ -122,6 +127,9 @@ pub(in crate::inventory) fn bind_pages(
             }
             "abilities" => {
                 place.insert(AbilitiesPage);
+            }
+            "spells" => {
+                place.insert(SpellsPage);
             }
             "skills" => {
                 place.insert(SkillsPage);

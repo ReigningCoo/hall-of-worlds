@@ -16,6 +16,11 @@ pub struct Other {
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub struct AbilitiesPage;
 
+/// The Character panel's Spells page, which `abilities` fills in with the
+/// spellbook.
+#[derive(Component, Clone, Copy, Debug, Default)]
+pub struct SpellsPage;
+
 /// The Character panel's Skills page, which `skills_page` fills in.
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub struct SkillsPage;

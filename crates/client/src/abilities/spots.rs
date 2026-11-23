@@ -1,15 +1,16 @@
 //! What is at a point of the interface, for abilities: a slot of the bar, an
-//! ability on the Abilities page, elsewhere on that page, or elsewhere on the
-//! Character panel.
+//! ability on the Abilities page, a spell on the Spells page, elsewhere on
+//! those pages, or elsewhere on the Character panel.
 
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
-use shared::ability::Ability;
+use shared::ability::{Ability, BarThing};
+use shared::spell::SpellKey;
 
 use super::bar::SlotNode;
 use super::page::PageAbility;
-use crate::common::AbilitiesPage;
-use crate::dom::Finder;
+use crate::common::{AbilitiesPage, SpellsPage};
+use crate::dom::{AbilityCell, Finder};
 use crate::widgets::UiId;
 
 /// Where something can be picked up or dropped.
@@ -19,11 +20,16 @@ pub(super) enum Spot {
     Slot(u8),
     /// An ability on the Abilities page.
     Listed(Ability),
-    /// Anywhere else on the Abilities page.
+    /// A spell's picture on the Spells page.
+    Spell(SpellKey),
+    /// Anywhere else on the Abilities or Spells page.
     Page,
     /// Anywhere else on the Character panel (its other pages and tabs).
     Panel,
 }
+
+/// The Abilities page or the Spells page.
+type EitherPage = Or<(With<AbilitiesPage>, With<SpellsPage>)>;
 
 /// Finds the spot at a point: whatever is in front there (`dom`'s one
 /// search), or holds it.
@@ -33,7 +39,9 @@ pub(super) struct Spots<'w, 's> {
     parents: Query<'w, 's, &'static ChildOf>,
     slots: Query<'w, 's, &'static SlotNode>,
     listed: Query<'w, 's, &'static PageAbility>,
-    pages: Query<'w, 's, (), With<AbilitiesPage>>,
+    pages: Query<'w, 's, (), EitherPage>,
+    spell_pages: Query<'w, 's, (), With<SpellsPage>>,
+    cells: Query<'w, 's, &'static AbilityCell>,
     ids: Query<'w, 's, &'static UiId>,
 }
 
@@ -43,12 +51,23 @@ impl Spots<'_, '_> {
         self.of(self.finder.target_at(at)?)
     }
 
-    /// The spot this node, in front somewhere, is or is in.
+    /// The spot this node, in front somewhere, is or is in: a spell's
+    /// picture only on the Spells page (a spell in a slot is the slot's).
     pub(super) fn of(&self, front: Entity) -> Option<Spot> {
+        let mut spell = None;
         std::iter::once(front)
             .chain(self.parents.iter_ancestors(front))
             .find_map(|entity| {
-                if let Ok(slot) = self.slots.get(entity) {
+                if let Ok(AbilityCell {
+                    thing: BarThing::Spell(key),
+                    ..
+                }) = self.cells.get(entity)
+                {
+                    spell = Some(*key);
+                    None
+                } else if let (Some(key), true) = (spell, self.spell_pages.contains(entity)) {
+                    Some(Spot::Spell(key))
+                } else if let Ok(slot) = self.slots.get(entity) {
                     Some(Spot::Slot(slot.0))
                 } else if let Ok(listed) = self.listed.get(entity) {
                     Some(Spot::Listed(listed.0))

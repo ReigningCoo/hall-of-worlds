@@ -1,5 +1,6 @@
 //! Abilities: the Character panel's Abilities page, every ability the character
-//! knows, and the action bar either side of the Health and Mana circle. See
+//! knows, its Spells page (the spellbook), and the action bar either side of
+//! the Health and Mana circle. See
 //! `docs/context/client/abilities.md`.
 
 use bevy::prelude::*;
@@ -26,6 +27,7 @@ mod press_juice;
 mod press_oil;
 mod rain_here;
 mod sneak;
+mod spellbook;
 mod spells;
 mod spots;
 mod use_ability;
@@ -46,6 +48,7 @@ impl Plugin for AbilitiesPlugin {
             .init_resource::<press_oil::PressChooser>()
             .init_resource::<press_juice::JuiceChooser>()
             .init_resource::<ferment::Fermenting>()
+            .init_resource::<spellbook::SpellbookTab>()
             .add_message::<use_ability::UseSlot>()
             .add_message::<use_ability::UseListed>()
             .add_systems(
@@ -77,6 +80,8 @@ impl Plugin for AbilitiesPlugin {
                 Update,
                 (
                     (page::fill_pages, page::name_abilities),
+                    (spellbook::spawn_spellbook, spellbook::name_spells),
+                    (spellbook::answer_spellbook, spellbook::show_spellbook),
                     own_bar::take_bar,
                     peace::keep_peace,
                     held::use_by_key,

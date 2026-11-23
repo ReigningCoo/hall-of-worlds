@@ -1,4 +1,5 @@
-//! Using what a slot holds, or an ability clicked on the Abilities page:
+//! Using what a slot holds, or an ability clicked on the Abilities page (or a
+//! spell on the Spells page):
 //! queued by hand (`manual.rs`), asked for at once, eaten, drunk, or a panel
 //! opened or closed.
 
@@ -44,7 +45,7 @@ pub(super) fn use_slots(
         Some(held.thing)
     });
     let things: Vec<BarThing> = slots
-        .chain(listed.read().map(|&UseListed(ability)| ability.into()))
+        .chain(listed.read().map(|&UseListed(thing)| thing))
         .collect();
     for thing in things {
         let ability = match thing {
