@@ -53,6 +53,7 @@ impl Plugin for SitePlugin {
                     hall::follow_player,
                     wilderness::follow_point,
                     use_on_arrival,
+                    inn_way::through_clicked_way,
                 )
                     .chain(),
             );

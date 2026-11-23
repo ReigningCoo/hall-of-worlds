@@ -14,10 +14,11 @@ use crate::storage::{LevelSave, SiteId};
 /// The bags on a level's ground: where each is, and what is in it, oldest first.
 type Bags = crate::storage::SpotMap<Vec<Item>>;
 
-/// Where the player stands, in units, and which level it is on.
+/// Where the player stands, in units, and which level's ground it is on:
+/// in one of the inn's own rooms, their own copy's (`Visit::ground_site`).
 pub(super) fn standing_at(client: &Client) -> Option<(SiteId, u32, Spot)> {
     let visit = client.visit.as_ref()?;
-    Some((visit.id(), visit.index(), visit.spot()))
+    Some((visit.ground_site(), visit.index(), visit.spot()))
 }
 
 /// The level the player is on, to change.

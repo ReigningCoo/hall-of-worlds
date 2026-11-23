@@ -10,7 +10,7 @@ use shared::sheet::Sheet;
 use shared::world::WorldId;
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::{CharacterSave, CharacterWorldSave, Storage};
+use super::{CharacterSave, CharacterWorldSave, LevelSave, Storage};
 use crate::saves::{Save, SaveKey};
 
 /// What goes with a character from world to world, saved with what they know
@@ -29,6 +29,8 @@ pub struct Everywhere {
     pub difficulty: Option<Difficulty>,
     /// `CharacterSave::shown_as`.
     pub shown_as: Option<RoleId>,
+    /// `CharacterSave::inn_room`.
+    pub inn_room: LevelSave,
 }
 
 impl Storage {
@@ -131,6 +133,13 @@ impl Storage {
         Ok(self.character(id)?.and_then(|save| save.shown_as))
     }
 
+    /// What is in a character's own rooms in The Way Inn (nothing if they
+    /// are new, or have never put anything there).
+    pub fn load_inn_room(&self, id: &CharacterId) -> Result<LevelSave, String> {
+        let save = self.character(id)?;
+        Ok(save.and_then(|save| save.inn_room).unwrap_or_default())
+    }
+
     /// Deletes a character's save (dev tools), if they have one.
     pub fn remove_character(&self, id: &CharacterId) {
         if let Some(queue) = &self.queue {
@@ -169,6 +178,8 @@ impl Storage {
                     action_bar: everywhere.action_bar,
                     difficulty: everywhere.difficulty,
                     shown_as: everywhere.shown_as,
+                    inn_room: Some(everywhere.inn_room)
+                        .filter(|room| *room != LevelSave::default()),
                 }),
             );
         }

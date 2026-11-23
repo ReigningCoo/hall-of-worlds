@@ -1,8 +1,9 @@
 //! Walking off the Hall's edge at one of its hidden ways into The Way Inn
 //! (`hall::inn_way_behind`): the keys (or the pad) held outward on the edge
 //! tile in front of one ask the server to go in (`ClientMessage::UseExit`,
-//! which in the Hall means that), which checks it. Nothing on screen marks the way; anywhere else the edge
-//! stops the player as before.
+//! which in the Hall means that), which checks it, as does arriving in front
+//! of one clicked or tapped (`through_clicked_way`). Nothing on screen marks
+//! the way; anywhere else the edge stops the player as before.
 
 use bevy::prelude::*;
 use shared::hall::{self, Side};
@@ -11,7 +12,8 @@ use shared::spot::{CELL_SPAN, HALF_SPAN};
 
 use crate::common::{CurrentDungeon, GameView, SpotPosition};
 use crate::connection::ToServer;
-use crate::player::{Player, Walking};
+use crate::dungeon_map::InnWayClicked;
+use crate::player::{Arrived, Player, TravelTo, Walking};
 
 /// How long to wait before asking again, in seconds, while still pushing
 /// (the server may have refused, or not yet answered).
@@ -57,4 +59,30 @@ pub(super) fn walk_into_inn(
     }
     *asked_at = Some(now);
     to_server.write(ToServer(ClientMessage::UseExit));
+}
+
+/// A way in clicked (`dungeon_map::InnWayClicked`): on arriving at the tile
+/// in front of it, still in the Hall, asks to go in, as walking off there
+/// does. Any other journey (or a step by the keys) forgets it.
+pub(super) fn through_clicked_way(
+    mut clicked: MessageReader<InnWayClicked>,
+    mut journeys: MessageReader<TravelTo>,
+    mut arrivals: MessageReader<Arrived>,
+    dungeon: Res<CurrentDungeon>,
+    mut heading: Local<Option<(i64, i64)>>,
+    mut to_server: MessageWriter<ToServer>,
+) {
+    let new_journey = journeys.read().last().copied();
+    if let Some(&InnWayClicked { x, y }) = clicked.read().last() {
+        *heading = Some((x, y));
+    } else if new_journey.is_some() {
+        *heading = None;
+    }
+    let Some(&Arrived { x, y }) = arrivals.read().last() else {
+        return;
+    };
+    let in_hall = dungeon.info.as_ref().map(|info| info.kind);
+    if heading.take() == Some((x, y)) && matches!(in_hall, Some(LevelKind::Hall { .. })) {
+        to_server.write(ToServer(ClientMessage::UseExit));
+    }
 }

@@ -192,8 +192,12 @@ impl Visit {
         self.level.level.fungus_at(x, y)
     }
 
-    /// Where the plant at `(x, y)` on its level is kept.
+    /// Where the plant (or the piece with places) at `(x, y)` on its level
+    /// is kept: in the inn's own rooms, in the player's own copy.
     pub(crate) fn plant_key(&self, x: i64, y: i64) -> PlantKey {
+        if let Some(room) = self.own_room_at(x, y) {
+            return (room, self.index, (x, y));
+        }
         plant_key(self.id, self.index, &self.mirrors, x, self.kept_at(x), y)
     }
 

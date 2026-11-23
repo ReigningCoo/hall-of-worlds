@@ -46,12 +46,21 @@ pub enum SiteId {
     /// One of The Way Inn's instances (`sites/inn`), of at most 30 players:
     /// kept by the home world while anyone is in it, never saved.
     InnInstance(u32),
+    /// A character's own rooms in The Way Inn (`sites/inn/own_room.rs`),
+    /// saved with them (`CharacterSave::inn_room`), never as a site.
+    InnRoom(CharacterId),
 }
 
 impl SiteId {
     /// The Way Inn, an instance of it or (older saves) the one per world.
     pub(crate) fn is_inn(self) -> bool {
         matches!(self, Self::Inn | Self::InnInstance(_))
+    }
+
+    /// Never kept in a site's file: the inn's instances, and own rooms (kept
+    /// with their character).
+    pub(crate) fn never_saved(self) -> bool {
+        matches!(self, Self::InnInstance(_) | Self::InnRoom(_))
     }
 }
 
@@ -223,6 +232,11 @@ pub struct CharacterSave {
     /// account may be shown as another; missing from older saves.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shown_as: Option<shared::role::RoleId>,
+    /// What is in their own rooms in The Way Inn (`SiteId::InnRoom`),
+    /// upstairs' only: their chests' and wardrobes' insides and what lies on
+    /// their floors, the same on every world. Missing from older saves.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inn_room: Option<LevelSave>,
 }
 
 /// What a character knows of one world, and where they are in it.

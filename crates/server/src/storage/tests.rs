@@ -361,6 +361,7 @@ fn a_save_from_before_gates_playtime_and_the_action_bar_still_loads() {
         action_bar: shared::ability::ActionBar::default(),
         difficulty: None,
         shown_as: None,
+        inn_room: None,
     };
     let text = ron::to_string(&save).unwrap();
     // Gates, playtime, the action bar and difficulty are the last fields: a

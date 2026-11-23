@@ -7,6 +7,7 @@ use shared::spot::Spot;
 
 use super::Shown;
 use super::ground_hit::Ground;
+use super::inn_way_click::InnWayClicked;
 use crate::common::{
     ClickMode, CreateMobOrder, CurrentDungeon, DrawnGround, FurnitureClicked, HallBend, HoveredBag,
     MapPosition, PointerPosition,
@@ -25,7 +26,8 @@ use crate::view3d::{ClickedToken, ViewCamera};
 /// puts a mob made to order there, and in Furniture Mode or Bench Mode it says
 /// which cell was clicked (`FurnitureClicked`), for Place Furniture's or
 /// Create Crafting Bench's panel. A click on
-/// a crafting bench is `BenchClicked`.
+/// a crafting bench is `BenchClicked`. In the Hall, a click on a hidden way
+/// into the inn goes there and through (`InnWayClicked`).
 #[allow(clippy::too_many_arguments)]
 pub(super) fn pick_on_click(
     mouse: Res<ButtonInput<MouseButton>>,
@@ -45,7 +47,10 @@ pub(super) fn pick_on_click(
         MessageWriter<BenchClicked>,
     ),
     mut to_server: MessageWriter<ToServer>,
-    mut furniture: MessageWriter<FurnitureClicked>,
+    (mut furniture, mut inn_way): (
+        MessageWriter<FurnitureClicked>,
+        MessageWriter<InnWayClicked>,
+    ),
 ) {
     if !mouse.just_pressed(MouseButton::Left) || clicked.0.is_some() {
         return;
@@ -104,6 +109,15 @@ pub(super) fn pick_on_click(
         && *mode != ClickMode::Teleport
     {
         bench_clicked.write(BenchClicked { piece });
+        return;
+    }
+    // In the Hall, a hidden way into the inn: to the tile in front, to step
+    // through on arriving (`site`).
+    if *mode != ClickMode::Teleport
+        && let Some((x, y)) = super::inn_way_click::inn_way_front(ray, &dungeon)
+    {
+        inn_way.write(InnWayClicked { x, y });
+        travel.write(TravelTo { x, y });
         return;
     }
     let front = door.and_then(|id| dungeon.buildings.iter().find(|b| b.id == id));

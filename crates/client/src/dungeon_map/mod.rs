@@ -72,6 +72,7 @@ mod face_point;
 mod flowing;
 mod hearth_fires;
 mod hover;
+mod inn_way_click;
 mod lights;
 mod parts;
 mod pictures;
@@ -87,6 +88,7 @@ mod wild_ground;
 use click::pick_on_click;
 pub use click::{BenchClicked, DoorClicked};
 use herbs::{DrawnPatches, HerbHeading, aim_at_herbs, pick_on_arrival, update_herbs};
+pub use inn_way_click::InnWayClicked;
 use lights::sync_lights;
 pub use parts::Shown;
 use parts::{
@@ -129,6 +131,7 @@ impl Plugin for DungeonMapPlugin {
     fn build(&self, app: &mut App) {
         let in_view = in_state(GameView::Dungeon);
         app.add_message::<DoorClicked>()
+            .add_message::<InnWayClicked>()
             .add_message::<BenchClicked>()
             .init_resource::<bench_tools::DrawnTools>()
             .init_resource::<bench_tools::ToolModels>()

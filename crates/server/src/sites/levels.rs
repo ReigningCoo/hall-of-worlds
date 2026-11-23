@@ -231,6 +231,7 @@ pub(super) fn enter_level(
         further: 0,
         floors,
         benches_sent: Default::default(),
+        own_room: (id.is_inn().then_some(client.character_id).flatten()).map(SiteId::InnRoom),
     };
     if visit.is_town() {
         let looks = visit.level.buildings.iter().map(|b| b.look.clone());

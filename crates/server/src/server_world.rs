@@ -233,10 +233,11 @@ impl ServerWorld {
             return Ok(());
         }
         let version = self.new_version(id);
-        // The inn's instances are never saved (`sites/inn`).
-        let saved = match id {
-            SiteId::InnInstance(_) => None,
-            _ => self.storage.load_site(id)?,
+        // The inn's instances and own rooms are never saved as sites
+        // (`sites/inn`).
+        let saved = match id.never_saved() {
+            true => None,
+            false => self.storage.load_site(id)?,
         };
         let save = saved.unwrap_or_else(|| {
             self.unsaved_sites.mark(id);
@@ -278,7 +279,7 @@ impl ServerWorld {
         for id in self.unsaved_sites.take() {
             if let Some(save) = self.sites.get(&id)
                 && !self.unreachable_sites.contains(&id)
-                && !matches!(id, SiteId::InnInstance(_))
+                && !id.never_saved()
             {
                 self.storage.save_site(id, save);
             }

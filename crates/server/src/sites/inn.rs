@@ -6,7 +6,8 @@
 //! One inn for every world, in instances (`SiteId::InnInstance`) of at most
 //! `MOST_IN_ONE` players kept by the home world (`moving.rs`); no fighting
 //! anywhere in it (`peace.rs`); things left lying in its public rooms cleared
-//! after a while (`litter.rs`). Going in and out are asked for here and done
+//! after a while (`litter.rs`); players' own rooms upstairs each their own
+//! copy (`own_room.rs`). Going in and out are asked for here and done
 //! once a client's messages have been read (`move_inn`), as they need every
 //! world and everyone else in the inn.
 
@@ -27,10 +28,12 @@ use shared::protocol::LevelKind;
 
 mod litter;
 mod moving;
+mod own_room;
 mod peace;
 
 pub(crate) use litter::{Litter, clear_litter};
 pub(crate) use moving::{close_empty_inns, move_inn, out_of_inn};
+pub(crate) use own_room::{close_own_room, hidden_in_own_room, keep_own_room};
 pub(crate) use peace::refuses_harm;
 
 /// Where a client is with the inn.
@@ -45,6 +48,9 @@ pub(crate) struct InnState {
     /// A dev tool asked for in it, answered once they are out in their own
     /// world (`answer_dev`).
     pub(crate) after: Option<ClientMessage>,
+    /// What is in their own rooms upstairs (`own_room.rs`), as saved with
+    /// the character: kept by the home world while they are in the inn.
+    pub(crate) room: crate::storage::LevelSave,
 }
 
 /// Going into or out of the inn, done by `move_inn`.

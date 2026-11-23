@@ -67,10 +67,10 @@ use enter::enter_site;
 pub(crate) use enter::test_enter_poi;
 pub(super) use enter::{dev_enter, enter_dungeon, enter_poi, generate, resume};
 pub(crate) use generator::{seen_poi, site_generator};
-pub(crate) use inn::refuses_harm;
 pub(crate) use inn::{
     InnMove, InnState, Litter, clear_litter, close_empty_inns, move_inn, out_of_inn,
 };
+pub(crate) use inn::{close_own_room, hidden_in_own_room, keep_own_room, refuses_harm};
 pub(crate) use inn::{dev_to_inn, enter_from_hall, follow_inn, in_inn, inn_poi, leave_inn};
 use keepers::{NewKeepers, keepers_in_window, keepers_of};
 pub(super) use keepers::{give_to_keeper, keeper_building, keeper_stock, take_from_keeper};
@@ -134,6 +134,9 @@ pub(crate) struct Visit {
     floors: Vec<OtherFloor>,
     /// Benches told of, by cell, and whether a hearth was told lit (`benches`).
     benches_sent: std::collections::BTreeMap<(i64, i64), bool>,
+    /// In The Way Inn, where what is in the player's own rooms is kept
+    /// (`SiteId::InnRoom`): their copy of each, whoever else is in it.
+    own_room: Option<SiteId>,
 }
 
 impl Visit {
