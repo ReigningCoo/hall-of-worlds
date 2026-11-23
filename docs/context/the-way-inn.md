@@ -1,0 +1,49 @@
+# The Way Inn: plan
+
+Owner's request and decisions (2026-11-22). The Way Inn is the starting place for new players and a hub for everyone, like Honest John's in Feist's Midkemia books: it has always been here, a meeting place for those who travel the Hall of Worlds; magic stops all fighting inside, and weapons are kept. It is built in code from fixed constants like `shared::hall`, with no generator (golden fingerprint test). The Tavern Dev Area (`site::dev_area`, tavern furniture plan PR 8) shows the furniture it will be furnished with.
+
+## Owner's decisions
+
+### Getting in and out
+1. An invisible entrance: stepping off either edge of the Hall's walkway halfway between two gates on that side (the void tile in the gates' row, rows -1 and 3, midway between two gates) enters the inn. Nothing drawn marks it; stepping off anywhere else is refused as now (no death).
+2. The inn has no direction: you always arrive through its entrance door. Leaving through that door returns you to the walkway tile you stepped off from (saved on the character). Later: a random exit, revisiting places, exact places (with friends).
+3. New players start in the inn and are told how to come back (PR 6). In the Hall, at most a very slight worn look of the marble at those edge tiles, drawing only, as a reminder for returning players.
+
+### Layout (sizes Claude's to tune)
+4. No windows out: it exists in the void.
+5. A 3 × 3 foyer in front of the main room: its outer door is the entrance; the main room's doorway is an archway with no door. One side a chair, a 1 × 1 table and a chest in a line along the wall; the other a 1 × 3 chest; a clear lane up the middle. Only for looks for now; later replaced by the means to choose where you step out to.
+6. The main room, larger: 7–8 open booths down the right side (large tables, seats), 7–8 private rooms of the same size down the left, closed off with doors; both rows run back to the wall behind the bar, so the bar sits between them.
+7. Many tables up to 2 × 2 (about 30 groups) with chairs, scattered (a fixed seed, never a grid), with walking space round every group; a test checks clear space and paths to every booth, door and the bar.
+8. A staircase up in the middle of the main room.
+9. The bar across the back between the rows, a flap to get behind, a gap 2 wide, then drink storage against the back wall (wine, spirit and cask racks, always well stocked, refilling). A fireplace in the middle of the back wall, and one either side of the entrance.
+10. Doors at either end of the back wall: left into the kitchen (left half: several cooking stations, ranges, hearths, stoves, worktables), right into two rooms, brewing and ageing.
+11. The kitchen's back-left corner is left empty for a stair down later (staff rooms, a dungeon, to be decided).
+12. A 5 × 5 treasury behind the kitchen: a locked door with a window either side so the kitchen sees in; chests of gold and treasure; only to look at, never to enter.
+13. Well lit (chandeliers, sconces, candles on tables), decorations on most walls, interesting floors (planks, rugs, flagstones by the bar and the kitchen, perhaps an inlay).
+14. Upstairs: corridors 2 wide in an H, the stairs arriving in the middle of the crossbar, rooms on every side; small near the stairs, larger further out, the corners largest: tiers bought later (with more chests and perks).
+
+### Instances and rules
+15. Instances of at most 30 players: the fullest with room, else a new one; you see only your own. Friends and parties joining one later.
+16. No fighting anywhere in the inn (attacks, kicks, harmful abilities refused both ways; Heal allowed).
+17. Private rooms: one door per tier; every player going through it gets their own copy at the same time (looking out shows the shared instance; looking in from the corridor, your own room). Other tiers' doors locked. A room's storage (chest, wardrobe) is saved with the character, the same on every world.
+18. The kitchen, brewery and bar can be used by players (drinks free until there is trade). Staff later.
+19. Items dropped in public rooms are cleared after a short time (about 2 minutes, to tune) and destroyed: a stand-in for cleaners.
+
+## PRs
+
+1 → 2 → {3, 4, independent} → 5 → 6.
+
+1. **Layout** (built): `shared::inn`, both floors as levels with rooms marked, the foyer, stairs, doors (the treasury's locked), inside windows, the fixed places furniture goes (`inn::spots`); the Hall's hidden way-ins (`hall::inn_way`); golden fingerprint, print and walk-round tests.
+2. **In and out**: the Hall's edge into the foyer, leaving back to the same tile, the stairs, the client drawing it, `Where::Inn`, a "To The Way Inn" debug menu entry (and `docs/debug-menu.md`), the Hall's worn-marble hint. Needs 1.
+3. **Instances** of 30, no fighting, dropped items cleared. Needs 2.
+4. **Private rooms** per tier with personal copies and saved storage. Needs 2 and tavern furniture PR 7 (chests, wardrobes; built).
+5. **Furnishing** everything: tables, booths, the bar, stocked racks, three fireplaces, lights, decorations, rugs, floors, the kitchen, brewing, ageing, the treasury, the foyer. Needs tavern furniture PRs 4–7 (built).
+6. **New characters start in the inn** (their first exit: the Hall at their home world's first gate), the note about coming back, a wiki page, context files, decisions. Last.
+
+## Settled in PR 1 (Claude's choices)
+
+- 41 × 50 cells, walls included, both floors the same outline, `x` east and `y` south from the back wall's west end; the entrance in the middle of the south wall. Ground floor: 7 private rooms and 7 booths, each 6 × 4; storage, gap and counter rows 11 to 14; the kitchen also reaching down beside the bar's back to its door (as the brewing room does on the other side), the ageing room through the brewing room.
+- Upstairs: 28 bedrooms in 8 strips, tiers 1 to 3 by place from the stairs and the last of each strip (the largest, at the far end) tier 4.
+- The bar's counter, gap and storage are in the main room's `RoomId`, as a bar fills vessels only from what is stored in its own room.
+- Rooms are carved out of solid wall, so anything not carved is wall; the outside of the building is the level's edge (no void cells). Archway: a floor cell in the foyer's wall, in the foyer's room.
+- The Hall's way-ins are a rule beside `hall::tile` (`hall::inn_way`), not a `Tile` of their own: the tile stays `Void`, drawn and stepped on as before until PR 2.

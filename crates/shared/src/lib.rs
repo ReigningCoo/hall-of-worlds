@@ -53,6 +53,7 @@ pub mod ground;
 pub mod hall;
 pub mod herb;
 pub mod id;
+pub mod inn;
 pub mod item;
 pub mod item_form;
 pub mod item_text;
