@@ -26,7 +26,7 @@ mod doors;
 mod enter;
 mod furnishings;
 mod generator;
-mod inn;
+pub(crate) mod inn;
 mod keepers;
 mod key_place;
 mod leave;

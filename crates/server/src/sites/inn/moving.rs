@@ -6,7 +6,7 @@
 
 use shared::door::Swing;
 use shared::inn::{self, spots};
-use shared::protocol::ServerMessage;
+use shared::protocol::{ServerMessage, Tutorial};
 use shared::site::Exit;
 use shared::spot::Spot;
 use std::collections::{BTreeMap, BTreeSet};
@@ -30,7 +30,10 @@ pub(crate) fn move_inn(clients: &mut [Client], i: usize, worlds: &mut ServerWorl
     match going {
         InnMove::In { back, at } => {
             let (instance, fresh) = instance_for(clients, i);
-            go_in(&mut clients[i], worlds, instance, back, at, fresh)
+            let client = &mut clients[i];
+            go_in(client, worlds, instance, back, at, fresh)
+                && (!std::mem::take(&mut client.inn.welcome)
+                    || (client.link).send(&ServerMessage::Tutorial(Tutorial::WayInn)))
         }
         InnMove::Out => out_of_inn(&mut clients[i], worlds),
     }

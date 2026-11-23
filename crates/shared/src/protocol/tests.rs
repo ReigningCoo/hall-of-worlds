@@ -760,6 +760,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         },
         ServerMessage::Sheet(Sheet::new(CreatureKind::Horse)),
         ServerMessage::Clock { tick: 123_456 },
+        ServerMessage::Tutorial(Tutorial::WayInn),
         ServerMessage::DevPlace(super::PlaceAnswer::Arrived {
             heading: crate::facing::Heading::SOUTH,
         }),

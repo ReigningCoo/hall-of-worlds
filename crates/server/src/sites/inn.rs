@@ -27,6 +27,7 @@ use crate::storage::VisitSave;
 use crate::{ServerWorld, hall as server_hall};
 use shared::protocol::LevelKind;
 
+pub(crate) mod first_exit;
 mod litter;
 mod moving;
 mod own_room;
@@ -55,6 +56,9 @@ pub(crate) struct InnState {
     /// What is in their own rooms upstairs (`own_room.rs`), as saved with
     /// the character: kept by the home world while they are in the inn.
     pub(crate) room: crate::storage::LevelSave,
+    /// A new character on their way in for the first time: told about the
+    /// inn and how to come back once inside (`Tutorial::WayInn`).
+    pub(crate) welcome: bool,
 }
 
 /// Going into or out of the inn, done by `move_inn`.
@@ -132,6 +136,20 @@ pub(crate) fn dev_to_inn(
         }
     };
     client.inn.moving = Some(InnMove::In { back, at });
+    true
+}
+
+/// A new character (`welcome`): into an instance, in its main room
+/// (`spots::START`), to come out the first time somewhere along the Hall
+/// (`first_exit`), and told about the inn once in.
+pub(crate) fn start_in_inn(client: &mut Client) -> bool {
+    let Some(id) = client.character_id else {
+        return true;
+    };
+    let back = first_exit::first_way_back(&id);
+    let at = Some((inn::GROUND, Spot::middle_of(inn::spots::START)));
+    client.inn.moving = Some(InnMove::In { back, at });
+    client.inn.welcome = true;
     true
 }
 

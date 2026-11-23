@@ -144,3 +144,38 @@ fn the_entrance_door_shuts_behind_whoever_comes_in() {
     let visit = test.client.visit.as_ref().expect("in the inn");
     assert_eq!(visit.level.level.swing(x, y), Some(Swing::Closed));
 }
+
+#[test]
+fn new_characters_start_in_the_main_room_and_come_out_along_the_hall() {
+    let mut test = TestClient::new();
+    // As joining sets it: resuming onto a spot needs the world they came from.
+    test.client.world = Some(test.world.seed.id());
+    assert!(super::start_in_inn(&mut test.client));
+    let answers = test.send(&[]);
+    let start = (LevelKind::Inn, inn::GROUND, spots::START);
+    assert_eq!(
+        entered(&answers).map(|(kind, index, _)| (kind, index)),
+        Some((start.0, start.1))
+    );
+    let at = test
+        .client
+        .visit
+        .as_ref()
+        .expect("in the inn")
+        .position
+        .cell();
+    assert_eq!(at, spots::START);
+    let told = shared::protocol::Tutorial::WayInn;
+    assert!(
+        answers.contains(&ServerMessage::Tutorial(told)),
+        "{answers:?}"
+    );
+    let id = test.client.character_id.expect("a character");
+    let back = super::first_exit::first_way_back(&id);
+    assert_eq!(test.client.character.inn_return, Some(back));
+    // Told once only.
+    assert!(!test.send(&[]).contains(&ServerMessage::Tutorial(told)));
+    assert!(super::leave_inn(&mut test.client));
+    test.send(&[]);
+    assert_eq!(test.client.character.hall, Some(back));
+}

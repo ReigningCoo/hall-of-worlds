@@ -51,6 +51,7 @@ mod talk;
 mod target;
 mod touch;
 mod tracked_quest;
+mod tutorial;
 mod ui;
 mod view3d;
 mod vitals;
@@ -155,6 +156,7 @@ fn main() {
     app.add_plugins(lightning::LightningPlugin);
     app.add_plugins(step_pad::StepPadPlugin);
     app.add_plugins(notices::NoticesPlugin);
+    app.add_plugins(tutorial::TutorialPlugin);
     app.add_plugins(effect_bar::EffectBarPlugin);
     app.add_plugins(accounts_panel::AccountsPanelPlugin);
     app.add_plugins(quests::QuestsPlugin);

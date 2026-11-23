@@ -38,7 +38,9 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 3. **Instances** of 30, no fighting, dropped items cleared (built). Needs 2.
 4. **Private rooms** per tier with personal copies and saved storage (built). Needs 2 and tavern furniture PR 7 (chests, wardrobes; built).
 5. **Furnishing** everything: tables, booths, the bar, stocked racks, three fireplaces, lights, decorations, rugs, floors, the kitchen, brewing, ageing, the treasury, the foyer (built). Needs tavern furniture PRs 4–7 (built).
-6. **New characters start in the inn** (their first exit: the Hall at their home world's first gate), the note about coming back, a wiki page, context files, decisions. Last.
+6. **New characters start in the inn** (their first exit: a place along the Hall rolled per character, owner 2026-11-23, in place of their home world's first gate; `HOW_DEBUG_INN_EXIT` and the debug API's `server.inn_exit` to choose it), the note about coming back, a wiki page, context files, decisions (built). Last.
+
+All built.
 
 ## Settled in PR 1 (Claude's choices)
 
@@ -84,3 +86,10 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 - Chests and wardrobes outside players' own rooms (the foyer's, the treasury's, locked bedrooms') are only to look at: clicking them does nothing and the server refuses them (`inn::look_only`). The foyer's "1 × 3 chest" is a chest and a small chest end to end.
 - Lights: chandeliers over the main room, the bar's gap and each back room, a sconce every sixth cell along most walls, candles on most tables, the bar, the private rooms and booths. Decorations every third cell between (by room: trophies, shields, weapons, tapestries and coat pegs out front; hams, onions and herbs in the kitchen and brewing rooms; tapestries and coat pegs in bedrooms), a notice board and coat pegs by the archway. Rugs under the private rooms' tables, before the front fires, up the foyer; runners upstairs.
 - Floors: the inn is drawn with stone walls over plank floors. Flagstones by the bar and kitchen, and an inlay, would need floors chosen per cell: left for later.
+
+## Settled in PR 6 (Claude's choices)
+
+- "New" is a character made on the client's creation screen (`Client::starting_as`): they start in an instance of the inn, in the main room just inside the archway by the notice board (`inn::spots::START`), not in the foyer. A plain character the server makes for a client that makes none (`HOW_DEBUG_SKIP_CREATION`, the server's tests) still starts on the world map, so dev tools' start positions keep working.
+- Their first way back is a walkway tile anywhere along the Hall, rolled from their id (`first_exit.rs`), kept as `inn_return` like any other; the world map start is still worked out as before, for the World Gate they would come out of. `HOW_DEBUG_INN_EXIT=x[,y]` puts every new character's there; `server.inn_exit` sets or rerolls a player's while they are in the inn.
+- The note about coming back is a dialog (`client::tutorial`) the server asks for once, when the new character is inside (`ServerMessage::Tutorial(Tutorial::WayInn)`), shown once the loading screen has gone: the legend in two sentences, the door onto the Hall, and the way back (off the edge halfway between two gates, or a click there). It isn't saved: a character only arrives new once.
+- The players' page is `docs/the-way-inn.md`, under Gameplay after Making a character.

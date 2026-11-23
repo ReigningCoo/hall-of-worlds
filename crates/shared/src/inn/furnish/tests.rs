@@ -58,7 +58,7 @@ fn nothing_overlaps_and_everything_is_placed() {
             for cell in piece.cells() {
                 assert_eq!(level.cell(cell.0, cell.1), Cell::Floor, "{piece:?}");
                 assert!(room_kind(&rooms, cell).is_some(), "{piece:?} outside");
-                assert!(cell != STAIRS && cell != ARRIVAL, "{piece:?}");
+                assert!(![STAIRS, ARRIVAL, START].contains(&cell), "{piece:?}");
                 let other = floor_cells.insert(cell, piece.at);
                 assert!(other.is_none(), "{piece:?} over {other:?}");
             }
@@ -142,6 +142,7 @@ fn paths_to_everything_downstairs() {
     let rooms = rooms(GROUND);
     let reached = reached(&level, ARRIVAL);
     assert!(reached.contains(&STAIRS));
+    assert!(reached.contains(&START), "a new character's start");
     assert!(reached.contains(&BAR_FLAP));
     assert!(reached.contains(&(BAR_FLAP.0, BAR_GAP.y)), "behind the bar");
     for room in &rooms {
