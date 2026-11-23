@@ -17,6 +17,9 @@ pub(crate) struct SpellMob {
     pub id: Id,
     pub body: Body,
     pub enemy: bool,
+    /// What it resists harmful magic with (`spell::resistance`): its Aura,
+    /// with no skills.
+    pub resistance: u64,
 }
 
 /// Every mob on this site level (`Visit::population`) as a player of `kind`
@@ -37,6 +40,7 @@ pub(crate) fn mobs_for_spell(
             id: one.id,
             body: Body::on(relief, one.spot, one.size()),
             enemy: one.feeling_shown(kind, Some(&character)) == Feeling::Unfriendly,
+            resistance: shared::spell::resistance(&one.attributes, None),
         })
         .collect()
 }

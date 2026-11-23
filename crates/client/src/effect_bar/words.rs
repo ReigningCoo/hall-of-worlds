@@ -79,6 +79,10 @@ pub(super) fn name(source: Source, known: &FungusKnowledge, lang: &Lang) -> Stri
             let args = Args::new().text("stage", stage_key(stage));
             lang.render("effect-alcohol", &args)
         }
+        Source::Spell(part) => {
+            let args = Args::new().text("part", part.key());
+            lang.render("effect-spell", &args)
+        }
     };
     written(words)
 }
@@ -112,7 +116,13 @@ fn vegetable_name(tag: VegetableTag) -> &'static str {
 /// A line for each bonus it gives: "Restores 1 Health a second".
 pub(super) fn bonus_lines(effect: &Effect, lang: &Lang) -> Vec<String> {
     let bonuses = effect.bonuses.iter().filter(|bonus| amount_of(bonus) != 0);
-    bonuses.map(|bonus| bonus_line(bonus, lang)).collect()
+    let mut lines: Vec<String> = bonuses.map(|bonus| bonus_line(bonus, lang)).collect();
+    // A spell's wet or chill has no bonuses: what it does, in words.
+    if let Source::Spell(part) = effect.source {
+        let args = Args::new().text("part", part.key());
+        lines.push(written(lang.render("effect-spell-does", &args)));
+    }
+    lines
 }
 
 /// What ends it early ("Ends if you move or are hurt"), if anything does.

@@ -5,6 +5,7 @@
 //! step hits, and the spellbook. See
 //! `docs/context/shared/spell.md`.
 
+mod acts;
 mod aim;
 mod auto_cast;
 mod beam;
@@ -12,11 +13,13 @@ mod book;
 mod cast;
 mod check;
 mod combination;
+mod condition;
 mod cost;
 mod design;
 mod effect;
 mod filters;
 mod flight;
+mod harm;
 mod hit;
 mod hits;
 mod key;
@@ -33,6 +36,7 @@ mod surround;
 mod touch;
 mod toward;
 
+pub use acts::{Acts, ICE_SECONDS, STEAM_SECONDS, acts, acts_on_place, cloud_cells, frozen_cells};
 pub use auto_cast::{Aim, AutoCast, auto_cast};
 pub use beam::{BEAM_RANGE, BEAM_SPREAD, beam, beam_headings};
 pub use book::{
@@ -42,6 +46,9 @@ pub use book::{
 pub use cast::{CAST_COST, CAST_WIND_UP, STEP_MILLIS, heal_restores};
 pub use check::{DesignError, check, is_unlocked, unlocked_wheres};
 pub use combination::{COMBINATIONS, Combination, Mixture, Outcome, outcomes};
+pub use condition::{
+    CHILL_SECONDS, CHILL_SPEED_PERCENT, CHILLED, WET, WET_FIRE, WET_SECONDS, chill, condition, wet,
+};
 pub use cost::{
     EFFECT_BASE, FORM_SAVING, LEAST, effect_cost, effect_step_cost, spell_cost, step_cost,
     where_part_cost, where_step_cost,
@@ -50,6 +57,10 @@ pub use design::{EffectStep, MAX_STEPS, MAX_WHERES, Spell, Step, WherePart, Wher
 pub use effect::Effect;
 pub use filters::Filters;
 pub use flight::{Path, launch, launch_part};
+pub use harm::{
+    STEAM_HARM, does_harm, harm_before_resisting, harm_skills, resistance, resisted, spell_power,
+    takes_hold, warding_skill,
+};
 pub use hit::{Creature, Hit, Origin, Side, hit_anyone};
 pub use hits::{part_hits, step_hits, where_hits};
 pub use key::SpellKey;
@@ -71,6 +82,8 @@ pub use toward::Toward;
 mod book_tests;
 #[cfg(test)]
 mod cast_tests;
+#[cfg(test)]
+mod elements_tests;
 #[cfg(test)]
 mod flight_tests;
 #[cfg(test)]

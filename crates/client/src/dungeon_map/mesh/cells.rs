@@ -17,6 +17,9 @@ use super::super::town;
 use super::super::walls::{Layers, Scene, build_opening, build_secret_door, build_wall};
 use super::{MEMORY_SHADE, Surface, corner_light, with_ambient};
 
+/// How water frozen by a spell (`Cell::Ice`) tints the floor's tile.
+const ICE_TINT: Vec3 = Vec3::new(0.72, 0.9, 1.2);
+
 /// Whatever stands at a remembered cell.
 pub(super) fn build_cell_at(
     layers: &mut Layers,
@@ -148,6 +151,8 @@ pub(super) fn build_open_cell(
                 .tint
                 .filter(|_| surface == Surface::Ground)
                 .map_or(Vec3::ONE, |tints| tints.at(x, y, cell == Cell::Grass));
+            // Water frozen by a spell: the floor's tile, icy blue.
+            let tint = if cell == Cell::Ice { ICE_TINT } else { tint };
             // After the ambient light, which would wash it out at night.
             let lit = |p| with_ambient(floor_light(p)) * tint;
             let half = CELL_SIZE / 2.0;

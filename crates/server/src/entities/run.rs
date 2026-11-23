@@ -76,6 +76,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
         let noises = noises(&fighting, mobs);
         // Anyone at rest, settling or guarding may notice someone.
         for mob in mobs.iter_mut().filter(|mob| !mob.still) {
+            mob.thaw(tick);
             // One escorted only keeps near its quester (`escortee`).
             if mob.escort.is_some() {
                 if mind_escort(mob, &spots) {

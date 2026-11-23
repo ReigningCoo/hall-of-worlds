@@ -48,6 +48,8 @@ impl Client {
         let (sheet, situation) = self.sheet_and_situation();
         if sheet.forget_ended(situation, now) {
             self.unsaved = true;
+            // A spell's chill may have ended (`spell::CHILLED`).
+            self.update_speed(now);
             // Its Character panel shows the changes.
             if !self.send_sheet(now) {
                 return false;

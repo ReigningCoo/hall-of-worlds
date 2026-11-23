@@ -13,8 +13,7 @@ use shared::energy::{Energy, SITE_SCALE};
 use shared::id::Id;
 use shared::mob::Memory;
 use shared::movement::STRAIGHT_COST;
-use shared::protocol::CharacterId;
-use shared::sheet::{Appearance, Attributes, Feeling};
+use shared::sheet::{Appearance, Attributes};
 use shared::vitals::Vitals;
 use shared::wear::WornLook;
 use std::collections::{BTreeMap, BTreeSet};
@@ -24,6 +23,7 @@ use crate::combat::Fight;
 use crate::storage::SiteId;
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod chill;
 mod close_in;
 mod crossing;
 mod dev_gift;
@@ -34,9 +34,11 @@ mod escortee;
 mod facing;
 #[cfg(test)]
 mod facing_tests;
+mod feeling;
 mod feeling_shown;
 mod fight;
 mod gear;
+mod harmed;
 mod harmed_by;
 mod heal;
 mod inspect;
@@ -65,6 +67,7 @@ mod watching;
 mod watching_tests;
 mod wild;
 
+pub(crate) use chill::chill_mob;
 use crossing::cross;
 pub(crate) use dev_gift::{give_to_mob, mob_in_sight};
 pub(crate) use dev_mob::dev_mobs;
@@ -74,6 +77,7 @@ pub(crate) use escortee::{Escortee, escortee_mob, escortee_worn};
 pub(crate) use fight::{MobBlow, Striker, hit_mob};
 use gear::dressed;
 pub(super) use gear::{give, kill};
+pub(crate) use harmed::{Harmer, harm_mob};
 use harmed_by::HarmedBy;
 pub(crate) use harmed_by::Kill;
 pub(crate) use heal::{heal_mob, mobs_for_spell};
@@ -182,6 +186,8 @@ pub(crate) struct Mob {
     way_back: Vec<Hop>,
     energy: Energy,
     speed: u32,
+    /// Chilled by a spell: until when, and its own speed (`chill.rs`).
+    chilled: Option<(u64, u32)>,
     /// What can be seen of what it wears, from when it was made: mobs don't change
     /// clothes.
     shown: Vec<WornLook>,
@@ -209,23 +215,6 @@ pub(crate) struct Mob {
     escort: Option<Escortee>,
     /// A kept animal (`Spawn::penned`): never through a gate or over a fence.
     penned: bool,
-}
-
-impl Mob {
-    /// How fast it acts: energy a tick.
-    fn speed(&self) -> u32 {
-        self.speed
-    }
-
-    /// How it feels about a creature of this kind, played by this character, with
-    /// what it remembers of them.
-    fn feeling(&self, kind: CreatureKind, character: Option<&CharacterId>) -> Feeling {
-        if self.escort.is_some() {
-            return Feeling::Friendly;
-        }
-        let start = self.kind.feeling_about(kind);
-        character.map_or(start, |character| self.memory.standing(character, start))
-    }
 }
 
 /// Stairs a mob has come by: where they are here, and where they lead back to.

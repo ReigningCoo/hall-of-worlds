@@ -35,6 +35,11 @@ pub(crate) fn spawn_fx(mut paint: Paint, mut queue: ResMut<FxQueue>, ground: Res
                 paint.burst(place, &colours, BURST, speed, SPARK * CELL_SIZE);
             }
             Queued::Landed(on, look) => landed(&mut paint, &ground, &on, &look),
+            Queued::Clouds(cells, seconds) => {
+                for cell in cells {
+                    super::clouds::cloud(&mut paint, &ground, cell, seconds);
+                }
+            }
         }
     }
 }

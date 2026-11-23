@@ -31,6 +31,7 @@ pub(super) fn clear_line(level: &Level, from: (i64, i64), to: (i64, i64)) -> boo
     let (dx, dy) = (to.0 - from.0, to.1 - from.1);
     let (first, last) = (cell_of(from.0), cell_of(to.0));
     let step = if last >= first { 1 } else { -1 };
+    let ends = [(first, cell_of(from.1)), (last, cell_of(to.1))];
     let mut column = first;
     loop {
         // The part of the line in this column.
@@ -56,6 +57,10 @@ pub(super) fn clear_line(level: &Level, from: (i64, i64), to: (i64, i64)) -> boo
             if let Some((low, high)) = level.door_bar(column, row)
                 && line_hits_box(from, to, low, high)
             {
+                return false;
+            }
+            // A cloud of steam hides what is behind it, not itself.
+            if level.cloud_at(column, row) && !ends.contains(&(column, row)) {
                 return false;
             }
         }

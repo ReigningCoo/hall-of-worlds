@@ -78,6 +78,9 @@ pub enum Cell {
     /// a ruined floor's gap with a rough edge. Not `is_outside`: it is no
     /// ground, and never leads out.
     Air,
+    /// Water frozen by a spell (magic plan PR 11), for a while: walkable,
+    /// drawn as ice. Only the server sets it, and puts back what was there.
+    Ice,
 }
 
 impl Cell {
@@ -96,6 +99,7 @@ impl Cell {
                 | Self::WorldGate
                 | Self::Grass
                 | Self::Shallows
+                | Self::Ice
         ) || self.is_road()
     }
 

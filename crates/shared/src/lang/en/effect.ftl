@@ -21,6 +21,16 @@ effect-juice = { $fruit } Juice
 effect-cordial = { $fruit } Cordial
 effect-drink = Drink
 effect-well-fed = Well Fed
+effect-spell = { $part ->
+    [water] Wet
+    [ice] Chilled
+   *[other] Spell
+}
+effect-spell-does = { $part ->
+    [water] Fire does half the harm, and dries you
+    [ice] A third slower
+   *[other] {""}
+}
 effect-alcohol = { $stage ->
     [tipsy] Tipsy
     [drunk] Drunk

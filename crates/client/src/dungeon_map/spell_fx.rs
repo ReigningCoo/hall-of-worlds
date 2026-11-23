@@ -6,6 +6,7 @@
 //! level.
 
 mod bolts;
+mod clouds;
 mod colours;
 mod fade;
 mod kit;

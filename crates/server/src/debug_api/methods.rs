@@ -209,6 +209,7 @@ fn mark(cell: Cell) -> char {
         Cell::Shallows => '-',
         Cell::Bridge => 'B',
         Cell::Air => 'A',
+        Cell::Ice => 'I',
     }
 }
 

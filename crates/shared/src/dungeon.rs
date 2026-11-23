@@ -12,6 +12,7 @@
 mod bars;
 mod campfires;
 mod cell;
+mod clouds;
 mod darkness;
 mod decor;
 mod doors;

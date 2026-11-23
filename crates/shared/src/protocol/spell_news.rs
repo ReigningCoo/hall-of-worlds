@@ -14,4 +14,7 @@ pub enum SpellNews {
     Where(Shown),
     /// An effect step landed on whoever stands at these spots.
     Landed { on: Vec<Spot>, look: Look },
+    /// Steam left clouds over these cells, blocking sight for `millis` real
+    /// milliseconds (magic plan PR 11).
+    Clouds { cells: Vec<(i64, i64)>, millis: u32 },
 }

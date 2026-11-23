@@ -7,15 +7,15 @@ use bevy::prelude::*;
 use shared::magic::PRACTICE_PER_CAST;
 use shared::protocol::{Landed, ServerMessage, SpellNews};
 use shared::skill::SkillId;
-use shared::spell::{Effect, Look, STEP_MILLIS, Step, Where, spell_cost};
+use shared::spell::{Look, STEP_MILLIS, Step, Where, acts_on_place, spell_cost};
 use shared::vitals::Vital;
 
 use super::super::Client;
 use super::Aimed;
 use super::creatures::{Present, present};
-use super::effects::{heal_amount, heal_targets, heals_in};
+use super::effects::{Landing, land};
 use super::flight::{fly, launch_missiles, missile_paths, tell_level};
-use super::step::{effect_targets, where_step};
+use super::step::{effect_targets, landing_cells, where_step};
 use crate::{ServerWorld, ServerWorlds, TICKS_PER_SECOND};
 
 /// Resolves every step that is due, and flies every missile on, for every
@@ -83,7 +83,8 @@ fn run_step(
                 // A first step that hits nobody fizzles: nothing to see.
                 let last = cast.part + 1 == place.len();
                 let hit = (aimed.iter().chain(&cast.gathered)).any(|a| a.creature.is_some());
-                if !first || !last || hit {
+                let on_place = !aimed.is_empty() && acts_on_place(&cast.spell);
+                if !first || !last || hit || on_place {
                     for shown in looks {
                         tell_level(
                             clients,
@@ -126,11 +127,19 @@ fn run_step(
         present,
         &ServerMessage::Spell(SpellNews::Landed { on, look }),
     );
-    let count = heals_in(effects);
-    let amount = heal_amount(&clients[i], count);
-    let place = (present, cast.place);
-    if count > 0 && heal_targets(clients, i, world, place, &targets, amount) {
-        let skills = cast.forms.iter().copied().chain([Effect::Heal.skill()]);
+    let Some(index) = clients[i].visit.as_ref().map(|visit| visit.index()) else {
+        return;
+    };
+    let at = Landing {
+        present,
+        place: cast.place,
+        index,
+        tick,
+    };
+    let cells = landing_cells(&cast, present);
+    let skills = land(clients, i, world, &at, effects, (&targets, &cells));
+    if !skills.is_empty() {
+        let skills = cast.forms.iter().copied().chain(skills);
         practise(&mut clients[i], skills, tick);
     }
     next_step(&mut clients[i], cast, tick + STEP_TICKS);
@@ -168,7 +177,10 @@ fn finish_where(
     let all = std::mem::take(&mut cast.gathered);
     cast.part = 0;
     let first = cast.next == 0;
-    if first && !all.iter().any(|aimed| aimed.creature.is_some()) {
+    // Nobody hit is a fizzle, unless the spell does something to the place.
+    let landed = all.iter().any(|aimed| aimed.creature.is_some())
+        || (!all.is_empty() && acts_on_place(&cast.spell));
+    if first && !landed {
         fizzle(client, cast.toward);
         return;
     }
