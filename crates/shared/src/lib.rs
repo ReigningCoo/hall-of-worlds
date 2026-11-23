@@ -21,6 +21,7 @@ pub mod cask;
 pub mod cask_rack;
 pub mod celestial;
 pub mod cellar;
+pub mod chest;
 pub mod clearance;
 pub mod climate;
 pub mod clothing;

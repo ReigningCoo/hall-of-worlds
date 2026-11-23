@@ -35,6 +35,7 @@ mod spot_map;
 mod tree_save;
 mod unsaved;
 mod visit_save;
+mod world_save;
 
 pub use characters::Everywhere;
 pub use dungeon_stay::DungeonStay;

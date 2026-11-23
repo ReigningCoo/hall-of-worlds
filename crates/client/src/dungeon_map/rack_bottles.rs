@@ -64,7 +64,7 @@ pub(super) fn update_rack_bottles(
         let places = match held {
             Held::Bottles(bottles) => bottles.places(),
             Held::Bar(vessels) => vessels.places(),
-            Held::Bench(_) | Held::Casks(_) | Held::Fire(_) => continue,
+            Held::Bench(_) | Held::Casks(_) | Held::Fire(_) | Held::Store(_) => continue,
         };
         let top = level.furniture_on_top_at(at.0, at.1);
         let Some(piece) = top.or(level.furniture_at(at.0, at.1)) else {

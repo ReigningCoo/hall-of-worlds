@@ -8,7 +8,8 @@
 //! (`cask_rack::RackCasks`), wine and spirit racks their bottles
 //! (`bottle_rack::RackBottles`), bar counters their drinking vessels
 //! (`bar::BarVessels`), fireplaces their log basket's kindling and their fire
-//! (`fireplace::Fireside`).
+//! (`fireplace::Fireside`), chests and wardrobes what lies in their grid
+//! (`chest::Stored`).
 
 use serde::{Deserialize, Serialize};
 
@@ -16,6 +17,7 @@ use super::Furniture;
 use crate::bar::{BarCounter, BarVessels};
 use crate::bottle_rack::{BottleRack, RackBottles};
 use crate::cask_rack::{CaskRack, RackCasks};
+use crate::chest::{Storage, Stored};
 use crate::crafting_bench::{BenchTools, Craft, NotTaken};
 use crate::fireplace::{Fireplace, Fireside};
 use crate::id::Id;
@@ -29,6 +31,7 @@ pub enum Holder {
     Bottles(BottleRack),
     Bar(BarCounter),
     Fire(Fireplace),
+    Store(Storage),
 }
 
 impl Holder {
@@ -41,6 +44,8 @@ impl Holder {
             // A flap holds nothing.
             Furniture::BarCounter { counter } if counter.is_counter() => Some(Self::Bar(counter)),
             Furniture::Fireplace { fireplace } => Some(Self::Fire(fireplace)),
+            Furniture::Chest { chest } => Some(Self::Store(Storage::Chest(chest))),
+            Furniture::Wardrobe { wardrobe } => Some(Self::Store(Storage::Wardrobe(wardrobe))),
             _ => None,
         }
     }
@@ -53,24 +58,27 @@ impl Holder {
             Self::Bottles(rack) => rack.name().to_owned(),
             Self::Bar(counter) => counter.name().to_owned(),
             Self::Fire(fireplace) => fireplace.name().to_owned(),
+            Self::Store(storage) => storage.name().to_owned(),
         }
     }
 
     /// How many of a stack one of its places takes at once: a log basket's
     /// place a stack of kindling (`fireplace::KINDLING_PER_PLACE`), any other
-    /// place one thing (one bottle of a stack).
+    /// place one thing (one bottle of a stack); a chest or wardrobe a whole
+    /// stack, as a bag.
     pub fn per_place(self) -> u32 {
         match self {
             Self::Fire(_) => crate::fireplace::KINDLING_PER_PLACE,
+            Self::Store(_) => u32::MAX,
             Self::Bench(_) | Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) => 1,
         }
     }
 
     /// Whether a bar in its room pours from what lies on it (owner's): cask
     /// racks, cradles and Tun stands, wine and spirit racks, bar counters;
-    /// never a crafting bench nor a fireplace.
+    /// never a crafting bench, a fireplace, a chest nor a wardrobe.
     pub fn is_drink_storage(self) -> bool {
-        !matches!(self, Self::Bench(_) | Self::Fire(_))
+        !matches!(self, Self::Bench(_) | Self::Fire(_) | Self::Store(_))
     }
 }
 
@@ -82,6 +90,7 @@ pub enum Held {
     Bottles(RackBottles),
     Bar(BarVessels),
     Fire(Fireside),
+    Store(Stored),
 }
 
 impl Held {
@@ -93,6 +102,7 @@ impl Held {
             Holder::Bottles(rack) => Self::Bottles(RackBottles::new(rack)),
             Holder::Bar(counter) => Self::Bar(BarVessels::new(counter)),
             Holder::Fire(fireplace) => Self::Fire(Fireside::new(fireplace)),
+            Holder::Store(storage) => Self::Store(Stored::new(storage)),
         }
     }
 
@@ -104,6 +114,7 @@ impl Held {
             Self::Bottles(bottles) => Holder::Bottles(bottles.rack),
             Self::Bar(vessels) => Holder::Bar(vessels.counter),
             Self::Fire(fireside) => Holder::Fire(fireside.fireplace),
+            Self::Store(stored) => Holder::Store(stored.storage),
         }
     }
 
@@ -111,7 +122,9 @@ impl Held {
     pub fn bench(&self) -> Option<&BenchTools> {
         match self {
             Self::Bench(tools) => Some(tools),
-            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) | Self::Fire(_) => None,
+            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) | Self::Fire(_) | Self::Store(_) => {
+                None
+            }
         }
     }
 
@@ -121,7 +134,7 @@ impl Held {
         match self {
             Self::Bench(tools) => tools.is_lit(now),
             Self::Fire(fireside) => fireside.is_lit(now),
-            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) => false,
+            Self::Casks(_) | Self::Bottles(_) | Self::Bar(_) | Self::Store(_) => false,
         }
     }
 
@@ -133,6 +146,7 @@ impl Held {
             Self::Bottles(bottles) => Box::new(bottles.items()),
             Self::Bar(vessels) => Box::new(vessels.items()),
             Self::Fire(fireside) => Box::new(fireside.items()),
+            Self::Store(stored) => Box::new(stored.items()),
         }
     }
 
@@ -146,6 +160,7 @@ impl Held {
             Self::Bottles(bottles) => bottles.put(item).map(|()| None),
             Self::Bar(vessels) => vessels.put(item).map(|()| None),
             Self::Fire(fireside) => fireside.put(item).map(|()| None),
+            Self::Store(stored) => stored.put(item).map(|()| None),
         }
     }
 
@@ -157,17 +172,28 @@ impl Held {
             Self::Bottles(bottles) => bottles.take(id),
             Self::Bar(vessels) => vessels.take(id),
             Self::Fire(fireside) => fireside.take(id),
+            Self::Store(stored) => stored.take(id),
         }
     }
 
     /// Puts `item` back in the place of the one with its id, changed by
-    /// pouring from it at a bar. Whether it was there (never on a bench).
+    /// pouring from it at a bar. Whether it was there (never on a bench,
+    /// fireplace, chest or wardrobe).
     pub fn replace(&mut self, item: Item) -> bool {
         match self {
-            Self::Bench(_) | Self::Fire(_) => false,
+            Self::Bench(_) | Self::Fire(_) | Self::Store(_) => false,
             Self::Casks(casks) => casks.replace(item),
             Self::Bottles(bottles) => bottles.replace(item),
             Self::Bar(vessels) => vessels.replace(item),
+        }
+    }
+
+    /// As a client may see it: what hasn't been found out of what lies in a
+    /// chest or wardrobe hidden (`Item::hide_secrets`). Racks' and benches'
+    /// things are sent as they are.
+    pub fn hide_secrets(&mut self) {
+        if let Self::Store(stored) = self {
+            stored.items_mut().for_each(Item::hide_secrets);
         }
     }
 }

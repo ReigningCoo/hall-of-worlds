@@ -105,6 +105,8 @@ mod bar_tests;
 #[cfg(test)]
 mod bottle_rack_tests;
 #[cfg(test)]
+mod chest_tests;
+#[cfg(test)]
 mod rack_tests;
 #[cfg(test)]
 mod tests;

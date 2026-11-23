@@ -4,7 +4,8 @@
 //! the kind that fits (a fireplace has one, of stone), chairs without and then with arms, a cask rack's every
 //! cask size made at that length, a bar counter single, double, then a flap
 //! at length 1, candles each way they stand, a games table's each game,
-//! crates then sacks each way they stack: `variations.rs`), wrapping round; a
+//! crates then sacks each way they stack, a bed, chest or wardrobe the one of
+//! its size: `variations.rs`), wrapping round; a
 //! click elsewhere starts a new piece in the variation the last one ended on.
 //! Booths, wall decorations, chandeliers and rugs are put down by
 //! `decor.rs`.
@@ -44,6 +45,12 @@ pub(super) enum Kind {
     Barrel,
     /// Crates, then sacks (`furniture::Crates`, `Sacks`).
     Clutter,
+    /// A single or double bed (`furniture::Bed`), of wood.
+    Bed,
+    /// A chest (`shared::chest::Chest`), of wood.
+    Chest,
+    /// A wardrobe (`shared::chest::Wardrobe`), of wood.
+    Wardrobe,
     /// Two settles facing across a table (`furniture::booth`), of wood.
     Booth,
     /// Something hanging on a wall's face (`shared::decor::Hanging`).
@@ -55,7 +62,7 @@ pub(super) enum Kind {
 }
 
 impl Kind {
-    pub(super) const ALL: [Self; 16] = [
+    pub(super) const ALL: [Self; 19] = [
         Self::Table,
         Self::Chair,
         Self::Bench,
@@ -68,6 +75,9 @@ impl Kind {
         Self::GamesTable,
         Self::Barrel,
         Self::Clutter,
+        Self::Bed,
+        Self::Chest,
+        Self::Wardrobe,
         Self::Booth,
         Self::WallDecoration,
         Self::Chandelier,
@@ -88,6 +98,9 @@ impl Kind {
             Self::GamesTable => "Games Table",
             Self::Barrel => "Barrel Table",
             Self::Clutter => "Crates and Sacks",
+            Self::Bed => "Bed",
+            Self::Chest => "Chest",
+            Self::Wardrobe => "Wardrobe",
             Self::Booth => "Booth",
             Self::WallDecoration => "Wall Decoration",
             Self::Chandelier => "Chandelier",
@@ -107,6 +120,8 @@ impl Kind {
             | Self::WallDecoration
             | Self::Chandelier => &[(1, 1)],
             Self::Rug => &[(1, 1), (2, 1), (3, 2), (4, 3), (4, 4)],
+            Self::Bed => &[(2, 1), (2, 2)],
+            Self::Chest | Self::Wardrobe => &[(1, 1), (2, 1)],
             Self::Bench
             | Self::CaskRack
             | Self::WineRack
@@ -124,7 +139,9 @@ impl Kind {
             | Self::WineRack
             | Self::SpiritRack
             | Self::BarCounter
-            | Self::Fireplace => long.to_string(),
+            | Self::Fireplace
+            | Self::Chest
+            | Self::Wardrobe => long.to_string(),
             _ => format!("{short} × {long}"),
         }
     }
@@ -196,6 +213,9 @@ impl FurnitureOrder {
             | Kind::GamesTable
             | Kind::Barrel
             | Kind::Clutter
+            | Kind::Bed
+            | Kind::Chest
+            | Kind::Wardrobe
             | Kind::Booth
             | Kind::WallDecoration
             | Kind::Chandelier

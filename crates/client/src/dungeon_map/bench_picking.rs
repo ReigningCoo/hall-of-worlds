@@ -40,6 +40,7 @@ pub(super) fn bench_clicked(
             let tall = (super::furniture::rack_height(piece))
                 .or_else(|| super::furniture::bottle_rack_height(piece))
                 .or_else(|| super::furniture::bar_height(piece))
+                .or_else(|| storage_height(piece))
                 .unwrap_or(BENCH_HEIGHT);
             // A spirit rack on a counter stands that much higher.
             let under = level.furniture_at(piece.at.0, piece.at.1);
@@ -57,6 +58,15 @@ pub(super) fn bench_clicked(
     let blocked = (solid_faces.iter())
         .any(|face| hits_face(ray.origin, direction, face).is_some_and(|d| d < distance));
     (!blocked).then_some(piece)
+}
+
+/// How tall a chest or wardrobe is, for picking.
+fn storage_height(piece: &Piece) -> Option<f32> {
+    match piece.furniture {
+        shared::furniture::Furniture::Chest { .. } => Some(super::decor::CHEST_HEIGHT),
+        shared::furniture::Furniture::Wardrobe { .. } => Some(super::decor::WARDROBE_HEIGHT),
+        _ => None,
+    }
 }
 
 /// How far along the ray it first goes into the box from `low` to `high`.

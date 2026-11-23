@@ -26,12 +26,14 @@ mod candles;
 mod clutter;
 mod colours;
 mod games;
+mod inn_room;
 mod look;
 mod model;
 mod pegs;
 mod rugs;
 mod trophies;
 
+pub(super) use inn_room::{CHEST_HEIGHT, WARDROBE_HEIGHT};
 use look::{DecorLook, placed, turn_to};
 pub(super) use model::DecorMeshes;
 
@@ -129,11 +131,12 @@ pub(super) fn update_decor(
     }
     wanted.extend(level.furniture().filter_map(|piece| {
         let (look, lift) = furniture_look(piece)?;
+        let cells: Vec<(i64, i64)> = piece.cells().collect();
         Some(Wanted {
             key: Key::Furniture(piece.at),
             look,
-            cells: vec![piece.at],
-            place: furniture_place(piece, ground(&[piece.at]) + lift),
+            place: furniture_place(piece, ground(&cells) + lift),
+            cells,
         })
     }));
     let mut keep = HashMap::new();
@@ -193,8 +196,8 @@ pub(super) fn update_decor(
 }
 
 /// What furniture drawn with decor looks like (a games table's board, a
-/// barrel, sacks), and how high over the ground it stands; `None` for the
-/// rest.
+/// barrel, sacks, a bed, chest or wardrobe), and how high over the ground it
+/// stands; `None` for the rest.
 fn furniture_look(piece: &Piece) -> Option<(DecorLook, f32)> {
     Some(match piece.furniture {
         Furniture::GamesTable { game } => (DecorLook::Board(game), TABLE_TOP),
@@ -204,15 +207,27 @@ fn furniture_look(piece: &Piece) -> Option<(DecorLook, f32)> {
             let variant = seed.at(&[piece.at.0, piece.at.1]) % 9;
             (DecorLook::Sacks(sacks, variant as u8), 0.0)
         }
+        Furniture::Bed { bed } => {
+            let seed = shared::rng::Seed::new(0).derive("furniture look");
+            let variant = seed.at(&[piece.at.0, piece.at.1]) % 5;
+            (DecorLook::Bed(bed, piece.material, variant as u8), 0.0)
+        }
+        Furniture::Chest { chest } => (DecorLook::Chest(chest, piece.material), 0.0),
+        Furniture::Wardrobe { wardrobe } => (DecorLook::Wardrobe(wardrobe, piece.material), 0.0),
         _ => return None,
     })
 }
 
 /// Where a piece of furniture drawn with decor stands, `up` over the middle
-/// of its cell, turned the way it faces.
+/// of its cells, turned the way it faces.
 fn furniture_place(piece: &Piece, up: f32) -> Transform {
     let (x, y) = piece.at;
-    let at = Vec3::new(x as f32 * CELL_SIZE, up, y as f32 * CELL_SIZE);
+    let (width, height) = (f32::from(piece.size.0), f32::from(piece.size.1));
+    let middle = Vec2::new(
+        x as f32 + (width - 1.0) / 2.0,
+        y as f32 + (height - 1.0) / 2.0,
+    );
+    let at = Vec3::new(middle.x * CELL_SIZE, up, middle.y * CELL_SIZE);
     Transform::from_translation(at).with_rotation(turn_to(piece.facing))
 }
 

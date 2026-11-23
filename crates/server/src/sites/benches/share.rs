@@ -49,7 +49,7 @@ pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
                     craft.is_hearth() && bench_tools(world, bench.key, craft).is_lit(now)
                 }
                 Holder::Fire(fireplace) => fireside(world, bench.key, fireplace).is_lit(now),
-                Holder::Casks(_) | Holder::Bottles(_) | Holder::Bar(_) => false,
+                Holder::Casks(_) | Holder::Bottles(_) | Holder::Bar(_) | Holder::Store(_) => false,
             };
             if told != Some(lit) || changes.contains(&bench.key) {
                 seen.push((piece.at, bench));
@@ -60,7 +60,8 @@ pub(crate) fn share_benches(clients: &mut [Client], world: &mut ServerWorld) {
         }
         let mut told = Vec::with_capacity(seen.len());
         for (at, bench) in seen {
-            let held = settle_held(world, bench.key, bench.holder, celsius);
+            let mut held = settle_held(world, bench.key, bench.holder, celsius);
+            held.hide_secrets();
             let lit = held.is_lit(now);
             visit.benches_sent.insert(at, lit);
             told.push(SeenBench { at, held, lit });
