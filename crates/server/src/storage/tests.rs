@@ -210,6 +210,7 @@ fn saves_are_read_back() {
                 changes: BTreeMap::from([((1, 2), Cell::Floor)]),
                 locks_placed: true,
                 cellar_stocked: true,
+                furnishings_stocked: true,
                 benches: BTreeMap::from([((3, 4), {
                     let craft = shared::crafting_bench::Craft::Alchemy;
                     let mut tools = shared::crafting_bench::BenchTools::new(craft);

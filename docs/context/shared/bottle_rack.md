@@ -28,5 +28,5 @@ Wine racks and spirit racks (tavern furniture plan PR 2, owner's design, 2026-11
 - Bottles are a counted kind: putting a stack on puts one of it (the server lifts one off).
 - Spirits: there are none as drinks yet; a spirit rack takes pure alcohol's bottles and drinks' (Claude's reading of the owner's "bottles of drink").
 - Counts, rows and sizes are Claude's first guesses for the owner to tune; a cell is taken as about a metre, walls a cell high.
-- Not placed in sites yet (tavern furniture plan PR 8); only by Place Furniture, which keeps a piece with places (server `made_benches`), a spirit rack only while a table stands under it.
+- Castles' and towers' cellars may have a wine rack (`shared::furnishings`, PR 8), stocked once by the server with rolled bottles (`furnishings::rack_bottle`); the Tavern Dev Area has wine and spirit racks. Place Furniture keeps a piece with places (server `made_benches`), a spirit rack only while a table stands under it.
 - A bar (`shared::bar`) in the same room pours from what lies on it.

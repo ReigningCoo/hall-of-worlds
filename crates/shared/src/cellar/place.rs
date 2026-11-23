@@ -7,6 +7,7 @@ use std::collections::BTreeSet;
 use crate::cask::CaskSize;
 use crate::dungeon::{Cell, Level};
 use crate::furniture::place::rooms::{Room, rooms_of, usable_cells};
+use crate::furniture::{Furniture, Piece};
 use crate::material::Material;
 use crate::poi::PoiKind;
 use crate::rng::Seed;
@@ -121,7 +122,7 @@ pub fn cellar_casks(site: &SiteLevel, kind: PoiKind, seed: Seed, index: u32) -> 
 }
 
 /// A room's cells a cask may stand on: usable floor against a plain wall,
-/// with no furniture, row by row.
+/// with no furniture placed before it, row by row.
 fn places(level: &Level, room: &Room, usable: &BTreeSet<(i64, i64)>) -> Vec<(i64, i64)> {
     let by_wall = |(x, y): (i64, i64)| {
         [(1, 0), (-1, 0), (0, 1), (0, -1)]
@@ -130,7 +131,24 @@ fn places(level: &Level, room: &Room, usable: &BTreeSet<(i64, i64)>) -> Vec<(i64
     };
     (room.cells.iter().copied())
         .filter(|&(x, y)| {
-            usable.contains(&(x, y)) && by_wall((x, y)) && level.furniture_at(x, y).is_none()
+            usable.contains(&(x, y))
+                && by_wall((x, y))
+                && level
+                    .furniture_at(x, y)
+                    .is_none_or(|piece| !placed_before(piece))
         })
         .collect()
+}
+
+/// Whether a piece was placed before the casks: tables, seats and crafting
+/// benches. Furnishings (`shared::furnishings`) are placed after, round the
+/// casks, so the casks lie where they did before there were any.
+fn placed_before(piece: &Piece) -> bool {
+    matches!(
+        piece.furniture,
+        Furniture::Table { .. }
+            | Furniture::Chair { .. }
+            | Furniture::Bench { .. }
+            | Furniture::CraftingBench { .. }
+    )
 }

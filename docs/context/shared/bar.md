@@ -31,4 +31,4 @@ Bar counters (tavern furniture plan PR 3, owner's design, 2026-11-22): furniture
 - Moves over a counter cost as a table's; over a flap as open floor (lifted to walk through). A Tun counts only installed on its stand, as it is only drink storage there.
 - A spirit rack may stand on a counter (not a flap), drawn as much higher as a counter's top is over a table's.
 - Pouring at the bar is in reach of the counter (as putting things on it), with a tap carried to draw from a cask, as any pour.
-- Counts, heights and the panel's look are Claude's first guesses for the owner to tune. Not placed in sites yet (tavern furniture plan PR 8); only by Place Furniture.
+- Counts, heights and the panel's look are Claude's first guesses for the owner to tune. Placed by code (the Tavern Dev Area, The Way Inn later) and Place Furniture; no generator places bars (`shared::furnishings`).

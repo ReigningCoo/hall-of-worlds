@@ -31,6 +31,6 @@ Decor (tavern furniture plan PR 5, owner's design, 2026-11-22): what hangs on wa
 
 ## Notes
 
-- Not kept in saves yet: Place Furniture's is gone when the level is made again; the generators that place it (tavern plan PR 8) make it again each time.
+- Not kept in saves yet: Place Furniture's is gone when the level is made again; the generators that place it (`shared::furnishings` in castles and towers, the Tavern Dev Area) make it again each time.
 - The light lights the place as drawn, never a player: "no light without a lantern" still holds for characters (decisions, 2026-11-22). Tokens near candles are not lit by a real point light (fixed lights only light the cells), to keep an inn full of candles cheap.
 - Booths are three ordinary pieces (`furniture::booth`), settles a bench style (`BenchStyle::Settle`); both in `shared::furniture`.

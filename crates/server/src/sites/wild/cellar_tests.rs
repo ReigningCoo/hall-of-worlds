@@ -30,8 +30,15 @@ fn a_set_in_cellar_is_stocked_on_the_wilderness_ground_once() {
     assert_eq!(casks_lying(&mut test), 0);
     ensure_chunk(&mut test.world, chunk);
     let stocked = casks_lying(&mut test);
-    assert!(stocked > 0, "the cellar's casks lie there");
     let saved = &test.world.site(SiteId::Poi(chunk)).levels[&0];
+    // Some lie on racks of their size (`shared::furnishings`), kept in the
+    // site's own save.
+    let racked: usize = saved
+        .racks
+        .values()
+        .map(|casks| casks.items().count())
+        .sum();
+    assert!(stocked + racked > 0, "the cellar's casks lie there");
     assert!(saved.cellar_stocked);
     // Worked out again: nothing more.
     test.world.wilderness.forget(Some(chunk));

@@ -1,6 +1,6 @@
 //! A Dev Area round a kind of poi's site: its ground floor as the generator
 //! makes it, in the level's own coordinates, so its cells, town buildings,
-//! fields, furniture and way in need no moving. Its stairs are left out.
+//! fields, furniture, decor and way in need no moving. Its stairs are left out.
 
 use super::DevArea;
 use super::layout::{clear_round, walled, with_stairs};
@@ -48,6 +48,11 @@ pub(super) fn make(area: &DevArea, kind: PoiKind) -> SiteLevel {
             .all(|(x, y)| inside(x, y) && made.level.cell(x, y) == floor.level.cell(x, y))
         {
             made.level.place_furniture(*piece);
+        }
+    }
+    for decor in floor.level.decor() {
+        if decor.cells().iter().all(|&(x, y)| inside(x, y)) && decor.fits(&made.level) {
+            made.level.place_decor(*decor);
         }
     }
     made.buildings = floor

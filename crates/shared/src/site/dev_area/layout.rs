@@ -1,7 +1,7 @@
 //! A Dev Area's one level: open ground inside a ring of wall, with its layout
 //! in it and the way out on the west side (or at a building's own way in).
 
-use super::{DevArea, DevLayout, biome, building};
+use super::{DevArea, DevLayout, biome, building, tavern};
 use crate::dungeon::{Cell, Level};
 use crate::site::{Exit, SiteLevel, Stairs, StairsDirection};
 
@@ -12,6 +12,8 @@ const STAIRS_IN: i64 = 1;
 #[derive(Clone, Debug)]
 pub struct Plan {
     level: SiteLevel,
+    /// Whether it may have a cellar of casks: only round a kind of poi's site.
+    cellar: bool,
 }
 
 impl Plan {
@@ -19,13 +21,21 @@ impl Plan {
         let area = area.checked();
         let level = match area.layout {
             DevLayout::Building(kind) => building::make(&area, kind),
+            DevLayout::Tavern => tavern::make(&area),
             _ => plain(&area),
         };
-        Self { level }
+        let cellar = matches!(area.layout, DevLayout::Building(_));
+        Self { level, cellar }
     }
 
     pub fn level(&self) -> SiteLevel {
         self.level.clone()
+    }
+
+    /// Whether it may have a cellar of casks (`shared::cellar`): only an
+    /// area round a kind of poi's site, never the Tavern's rooms.
+    pub fn may_have_cellar(&self) -> bool {
+        self.cellar
     }
 }
 

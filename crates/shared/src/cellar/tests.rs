@@ -1,5 +1,6 @@
 use super::*;
 use crate::dungeon::Cell;
+use crate::furniture::Furniture;
 use crate::item::Quality;
 use crate::poi::PoiKind;
 use crate::potion::Liquid;
@@ -62,7 +63,12 @@ fn casks_stand_in_one_room_against_walls_apart() {
             let (x, y) = cask.at;
             assert_eq!(level.level.cell(x, y), Cell::Floor);
             assert_eq!(level.level.room(x, y), room, "{kind:?} one room");
-            assert!(level.level.furniture_at(x, y).is_none());
+            // Nothing but its own rack (`shared::furnishings`).
+            let under = level.level.furniture_at(x, y).map(|piece| piece.furniture);
+            assert!(
+                matches!(under, None | Some(Furniture::CaskRack { .. })),
+                "{under:?}"
+            );
             let walls = [(1, 0), (-1, 0), (0, 1), (0, -1)]
                 .iter()
                 .any(|&(dx, dy)| level.level.cell(x + dx, y + dy) == Cell::Wall);

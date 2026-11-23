@@ -19,6 +19,9 @@ pub enum DevLayout {
     Moat,
     /// The same of wall: nothing can be seen through it.
     Cover,
+    /// A whole tavern with inn bedrooms, to see the tavern furniture
+    /// together (`tavern.rs`).
+    Tavern,
     /// The wilderness's ground, grass and trees as they grow in this biome.
     Biome(Biome),
     /// The ground floor of this kind of poi's site, as its generator makes it
@@ -29,12 +32,16 @@ pub enum DevLayout {
 impl DevLayout {
     pub const PLAIN: [Self; 3] = [Self::Empty, Self::Moat, Self::Cover];
 
-    /// Every layout, in the order lists show them: the plain ones, the biomes,
-    /// then every kind of poi.
+    /// Every layout, in the order lists show them: the plain ones, the
+    /// Tavern, the biomes, then every kind of poi.
     pub fn all() -> Vec<Self> {
         let biomes = Biome::ALL.into_iter().map(Self::Biome);
         let kinds = PoiKind::ALL.into_iter().map(Self::Building);
-        Self::PLAIN.into_iter().chain(biomes).chain(kinds).collect()
+        (Self::PLAIN.into_iter())
+            .chain([Self::Tavern])
+            .chain(biomes)
+            .chain(kinds)
+            .collect()
     }
 
     /// Its name in lists: "Empty", "Boreal Forest", "Stone Tower".
@@ -43,6 +50,7 @@ impl DevLayout {
             Self::Empty => "Empty".into(),
             Self::Moat => "Moat".into(),
             Self::Cover => "Cover".into(),
+            Self::Tavern => "Tavern".into(),
             Self::Biome(biome) => words(&format!("{biome:?}")),
             Self::Building(kind) => words(&format!("{kind:?}")),
         }
@@ -63,6 +71,7 @@ impl DevLayout {
             Self::Empty => 0,
             Self::Moat => 1,
             Self::Cover => 2,
+            Self::Tavern => 3,
             Self::Biome(biome) => 100 + biome as i64,
             Self::Building(kind) => 1000 + kind as i64,
         }

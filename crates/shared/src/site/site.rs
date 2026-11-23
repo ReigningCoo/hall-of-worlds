@@ -108,6 +108,11 @@ impl Site {
         self.ruined
     }
 
+    /// How ruined it is, 0 to 5.
+    pub fn ruin(&self) -> u8 {
+        self.ruin
+    }
+
     pub fn kind(&self) -> PoiKind {
         self.kind
     }
@@ -157,8 +162,8 @@ impl Site {
 
     /// Generates level `index` (`0` is the one entered from the world map:
     /// a building's ground floor, a cave's first level), furnished last
-    /// (`furniture::furnish`, then `crafting_bench::place_benches`; a Dev
-    /// Area's building brings its own).
+    /// (`furniture::furnish`, `crafting_bench::place_benches`, then
+    /// `furnishings::furnish_rooms`; a Dev Area's building brings its own).
     pub fn level(&self, index: u32) -> SiteLevel {
         assert!(index < self.levels(), "no level {index}");
         let mut level = match &self.plan {
@@ -176,6 +181,15 @@ impl Site {
             crate::crafting_bench::place_benches(
                 &mut level, self.kind, self.seed, levels, index, self.ruin,
             );
+            let casks = self.cellar_casks(index, &level);
+            let floor = crate::furnishings::Floor {
+                kind: self.kind,
+                seed: self.seed,
+                index,
+                underground: self.is_underground(index),
+                ruin: self.ruin,
+            };
+            crate::furnishings::furnish_rooms(&mut level, floor, &casks);
         }
         level.level.set_natural_walls(self.kind.natural_walls());
         level
@@ -201,7 +215,8 @@ impl Site {
     pub fn cellar_casks(&self, index: u32, level: &SiteLevel) -> Vec<crate::cellar::CellarCask> {
         let cellar =
             crate::cellar::cellar_level(self.kind, self.seed, self.levels(), self.has_basement());
-        if cellar != Some(index) {
+        let dev_room = matches!(&self.plan, Plan::DevArea(plan) if !plan.may_have_cellar());
+        if cellar != Some(index) || dev_room {
             return Vec::new();
         }
         crate::cellar::cellar_casks(level, self.kind, self.seed, index)

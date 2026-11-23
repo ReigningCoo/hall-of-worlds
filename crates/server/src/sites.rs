@@ -24,6 +24,7 @@ mod dev_furniture;
 mod dev_place;
 mod doors;
 mod enter;
+mod furnishings;
 mod generator;
 mod keepers;
 mod key_place;
