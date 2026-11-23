@@ -16,10 +16,12 @@ use crate::oidc::Logins;
 use crate::sites;
 use crate::{ServerOptions, ServerWorld, ServerWorlds, gates};
 
+mod inn_moves;
 mod moves;
 mod sneaking;
 mod training;
 
+use inn_moves::moved_in_or_out;
 use moves::{move_taken, step_taken};
 pub(crate) use sneaking::Sneak;
 
@@ -97,9 +99,14 @@ pub(crate) fn handle_messages(
             let world = clients[i].world;
             clients[i].disconnect(worlds.of(world));
         }
+        if !clients[i].gone && !moved_in_or_out(clients, i, &mut worlds, accounts, &options) {
+            let world = clients[i].world;
+            clients[i].disconnect(worlds.of(world));
+        }
         let world = clients[i].world;
         put_out_of_forgotten_sites(clients, i, worlds.of(world));
     }
+    sites::close_empty_inns(clients, &mut worlds);
     super::heal::heal_players(clients, &mut worlds);
     super::for_others::do_for_others(clients, &mut worlds);
     answer_look_ups(clients, &mut worlds);
@@ -111,7 +118,8 @@ pub(crate) fn handle_messages(
 /// Does what a client has asked, as far as it has the energy, in order. `false` if gone.
 pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
     let tick = world.action_clock.ticks();
-    while client.energy.ready(tick, client.speed) {
+    // Nothing more once going into or out of the inn (`sites::move_inn`).
+    while client.energy.ready(tick, client.speed) && client.inn.moving.is_none() {
         let Some(action) = client.waiting.pop_front() else {
             break;
         };
@@ -158,6 +166,8 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             Action::Pick { x, y } => super::pick_fruit::pick(client, world, x, y),
             Action::Bench(ask) => super::bench::bench_act(client, world, ask),
             Action::Recipe(ask) => super::recipe_book::answer(client, world, ask),
+            // Nothing may harm anyone in The Way Inn.
+            Action::UseAbility { ability, .. } if sites::refuses_harm(client, ability) => (true, 0),
             Action::UseAbility { ability, target } => {
                 super::combat::start_ability(client, world, ability, target)
             }

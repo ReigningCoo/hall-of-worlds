@@ -5,7 +5,6 @@ use shared::protocol::{ClientMessage, DoorAsk, LevelKind, ServerMessage};
 use shared::spot::Spot;
 
 use crate::connections::tests::TestClient;
-use crate::storage::SiteId;
 
 /// A client in the Hall in front of a gate, and that tile (the Hall's own).
 fn in_the_hall() -> (TestClient, (i64, i64)) {
@@ -31,7 +30,7 @@ fn in_inn(test: &TestClient) -> bool {
     test.client
         .visit
         .as_ref()
-        .is_some_and(|visit| visit.id == SiteId::Inn)
+        .is_some_and(|visit| visit.id.is_inn())
 }
 
 /// In the Hall, walked along to the way in just past the gate, then off it:
@@ -128,7 +127,8 @@ fn dev_tools_go_in_from_the_world_map_and_out_into_the_hall() {
     // Beside a gate, as Teleport to World's Hall of Worlds would use.
     let gate_y = if y == 0 { -1 } else { WALKWAY_ROWS };
     assert!(GatePlace::at(x - INN_WAY_OFFSET, gate_y).is_some());
-    assert!(super::leave_inn(&mut test.client, &mut test.world));
+    assert!(super::leave_inn(&mut test.client));
+    test.send(&[]);
     assert_eq!(test.client.character.hall, Some(back));
 }
 

@@ -35,7 +35,7 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 
 1. **Layout** (built): `shared::inn`, both floors as levels with rooms marked, the foyer, stairs, doors (the treasury's locked), inside windows, the fixed places furniture goes (`inn::spots`); the Hall's hidden way-ins (`hall::inn_way`); golden fingerprint, print and walk-round tests.
 2. **In and out** (built): the Hall's edge into the foyer, leaving back to the same tile, the stairs, the client drawing it, `Where::Inn`, a "To The Way Inn" debug menu entry (and `docs/debug-menu.md`), the Hall's worn-marble hint. Needs 1.
-3. **Instances** of 30, no fighting, dropped items cleared. Needs 2.
+3. **Instances** of 30, no fighting, dropped items cleared (built). Needs 2.
 4. **Private rooms** per tier with personal copies and saved storage. Needs 2 and tavern furniture PR 7 (chests, wardrobes; built).
 5. **Furnishing** everything: tables, booths, the bar, stocked racks, three fireplaces, lights, decorations, rugs, floors, the kitchen, brewing, ageing, the treasury, the foyer. Needs tavern furniture PRs 4–7 (built).
 6. **New characters start in the inn** (their first exit: the Hall at their home world's first gate), the note about coming back, a wiki page, context files, decisions. Last.
@@ -55,3 +55,12 @@ Owner's request and decisions (2026-11-22). The Way Inn is the starting place fo
 - To The Way Inn (debug menu, Travel): from the Hall, back to the nearest way in; from anywhere else, beside the gate Teleport to World's Hall of Worlds would choose; already inside, where it was going to take you.
 - The worn marble: a faint, soft, warm grey patch lying on each edge tile in front of a way in, towards its edge (`hall_view::worn`). Lighting those tiles less didn't show: each corner's light is shared with its neighbours and the void.
 - Not yet (PR 3): fighting, kicking doors (the treasury's too) and dropping things are as anywhere else.
+
+## Settled in PR 3 (Claude's choices)
+
+- One inn for every world: its instances (`SiteId::InnInstance`) are kept by the server's home world, and while someone is in one the server counts them as in the home world, keeping the world they came from (`InnState::from`) for saving them, sending them back and its clock. So everyone in an instance shares its doors and floor whatever world they came from, with the code every site uses. Going in and out waits until the player's messages for the tick are read, as it needs every world and everyone else in the inn.
+- An instance takes the fullest with room (30), else a new one numbered the lowest free; instances are never saved and close once empty, taking what was left in them. Coming back to a save in the inn (or PR 2's per-world one) goes into an instance as it is then, on the same floor and spot.
+- What a player remembers of the layout goes with them from instance to instance; its doors and bags don't.
+- No fighting: Attack, Kick and Trample (`Ability::harms`) are refused by the server and greyed on the client in the inn; kicking doors is Kick, so the treasury's is safe too. Heal and everything else work.
+- Things lying in a public room (all but private rooms and bedrooms) are destroyed 120 real seconds after the server first sees them there, each on its own clock; a bag left empty goes. Private rooms keep theirs until PR 4 makes them each player's own.
+- Debug tools that go elsewhere (Teleport to Hall, Back to Start, sites, Teleport to World, Load) first take the player out of the inn into their own world.

@@ -74,7 +74,7 @@ pub(super) fn leave_for_poi(
 pub(crate) fn use_exit(client: &mut Client, world: &mut ServerWorld) -> bool {
     let Some(visit) = &client.visit else {
         // In the Hall: off its edge into the inn, where there is a way in.
-        return super::enter_from_hall(client, world);
+        return super::enter_from_hall(client);
     };
     let (x, y) = visit.position();
     let stairs = visit.stairs_underfoot();
@@ -87,9 +87,7 @@ pub(crate) fn use_exit(client: &mut Client, world: &mut ServerWorld) -> bool {
     let exit = match stairs {
         Some(stairs) => stairs.to,
         None if leads_out(&visit.level.level, x, y) => Exit::WorldMap,
-        None if visit.id == SiteId::Inn && shared::inn::is_way_out(visit.index, (x, y)) => {
-            Exit::WorldMap
-        }
+        None if visit.id.is_inn() && shared::inn::is_way_out(visit.index, (x, y)) => Exit::WorldMap,
         None => return true,
     };
     take_exit(client, world, exit)
@@ -125,8 +123,8 @@ fn take_exit(client: &mut Client, world: &mut ServerWorld, exit: Exit) -> bool {
     if let SiteId::DevArea(_) = visit.id {
         return super::dev_area::back_from_area(client, world);
     }
-    if visit.id == SiteId::Inn && exit == Exit::WorldMap {
-        return super::leave_inn(client, world);
+    if visit.id.is_inn() && exit == Exit::WorldMap {
+        return super::leave_inn(client);
     }
     if let SiteId::Quest { .. } = visit.id
         && exit == Exit::WorldMap
@@ -232,12 +230,8 @@ pub(crate) fn killed(client: &mut Client, world: &mut ServerWorld) -> bool {
     {
         return super::dev_area::back_from_area(client, world);
     }
-    if client
-        .visit
-        .as_ref()
-        .is_some_and(|visit| visit.id == SiteId::Inn)
-    {
-        return super::leave_inn(client, world);
+    if client.visit.as_ref().is_some_and(|visit| visit.id.is_inn()) {
+        return super::leave_inn(client);
     }
     leave(client, world);
     // Worked out while the visit says where in the wilderness they are.

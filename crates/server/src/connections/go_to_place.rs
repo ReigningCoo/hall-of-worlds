@@ -34,6 +34,11 @@ pub(super) fn go_to_place(
     ask: DevGoToPlace,
     options: &ServerOptions,
 ) -> bool {
+    // From the inn anywhere else: out into their own world first.
+    let elsewhere = !matches!(ask.place, Where::Inn { .. });
+    if client.inn.from.is_some() && elsewhere && !sites::out_of_inn(client, worlds) {
+        return false;
+    }
     let current = worlds.of(client.world).seed;
     let terrain = match ask.place {
         // The Hall and the inn are the same from any world: the one they are in.
@@ -114,15 +119,7 @@ fn go(
         }
         // Into the inn, then onto the floor and spot as if coming back to a
         // save there.
-        Where::Inn { level, at, .. } => {
-            let save = VisitSave {
-                site: SiteId::Inn,
-                level,
-                position: at,
-                from_wilderness: false,
-            };
-            sites::dev_to_inn(client, world) && sites::resume(client, world, save)
-        }
+        Where::Inn { level, at, .. } => sites::dev_to_inn(client, world, Some((level, at))),
         Where::Site {
             x,
             y,

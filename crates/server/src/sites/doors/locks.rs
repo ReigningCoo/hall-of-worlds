@@ -38,7 +38,7 @@ pub(in crate::sites) fn ensure_locks(
     let bounds = level.bounds();
     let doors = set_doors(world, &site, &mut level, bounds, (0, 0));
     // The inn: its layout's locked doors (the treasury's), with no key anywhere.
-    if id == SiteId::Inn {
+    if id.is_inn() {
         return lock_inn_doors(world, (id, index), site_level, &doors);
     }
     // A quest's own dungeon: only its stage door, with a key of the quest's.

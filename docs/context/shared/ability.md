@@ -4,7 +4,7 @@ Abilities, the named things a creature can do: active ones done when asked (and 
 
 ## Files
 
-- `crates/shared/src/ability.rs`: `Ability` (`ALL`, `name`, `description` (a line for its tip), `leans` (the attributes it leans on, which colour it: Attack and Kick Strength and Agility, Trample Strength and Toughness, Flutter Agility, Night Vision Perception, Heal Empathy as Healing), `mana_cost`, `use_kind`, `is_active` (active or a toggle: it goes on the bar), `is_toggle`), `Use::{Active, Passive, Toggle}`. Tests.
+- `crates/shared/src/ability.rs`: `Ability` (`ALL`, `name`, `description` (a line for its tip), `leans` (the attributes it leans on, which colour it: Attack and Kick Strength and Agility, Trample Strength and Toughness, Flutter Agility, Night Vision Perception, Heal Empathy as Healing), `mana_cost`, `use_kind`, `is_active` (active or a toggle: it goes on the bar), `is_toggle`, `harms` (Attack, Kick and Trample: refused in The Way Inn)), `Use::{Active, Passive, Toggle}`. Tests.
 - `crates/shared/src/ability/knowing.rs`: `known_by_kind`, `known`, `Ability::is_known`, `Ability::can_use`, `Ability::can_use_at`.
 - `crates/shared/src/ability/learned.rs`: `Learned`.
 - `crates/shared/src/ability/skill.rs`: `Ability::skill`, `ALCHEMY` (re-exported, also for `brewing`), and which skills' abilities everyone has for now.

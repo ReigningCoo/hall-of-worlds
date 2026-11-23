@@ -11,6 +11,7 @@ use super::icons::icon_path;
 use super::manual::Manual;
 use super::marks::Marks;
 use super::own_bar::OwnBar;
+use super::peace::Peace;
 use crate::character::CharacterSheet;
 use crate::common::AbilitiesPage;
 use crate::common::{BenchHere, OpenPanels, Sneaking};
@@ -48,7 +49,7 @@ type Using<'w> = (
 fn standing(
     carried: &Carried,
     sheet: &CharacterSheet,
-    here: &BenchHere,
+    here: (&BenchHere, Peace),
 ) -> Vec<(Ability, bool, bool)> {
     let kind = carried.0.creature;
     Ability::ALL
@@ -64,13 +65,18 @@ fn standing(
 /// usable changed.
 pub(super) fn fill_pages(
     pages: Query<(Entity, Option<&DrawnFor>), With<AbilitiesPage>>,
-    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
+    (carried, sheet, here, peace): (
+        Res<Carried>,
+        Res<CharacterSheet>,
+        Res<BenchHere>,
+        Res<Peace>,
+    ),
     (bar, manual, sneaking, panels): Using,
     assets: Res<AssetServer>,
     mut commands: Commands,
 ) {
     let now = DrawnFor(
-        standing(&carried, &sheet, &here)
+        standing(&carried, &sheet, (&here, *peace))
             .into_iter()
             .filter(|(_, known, _)| *known)
             .map(|(ability, _, usable)| (ability, usable))
@@ -85,7 +91,7 @@ pub(super) fn fill_pages(
         page.despawn_children().insert(now.clone());
         let marks = &now.1;
         page.with_children(|page| {
-            spawn_contents(page, (&carried, &sheet, &here), marks, &assets);
+            spawn_contents(page, (&carried, &sheet, (&here, *peace)), marks, &assets);
         });
     }
 }
@@ -93,18 +99,27 @@ pub(super) fn fill_pages(
 /// Says how every ability looks for the character as they are, by name, for an
 /// `<object type="ability">` anywhere: again when what can be used changes.
 pub(super) fn name_abilities(
-    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
+    (carried, sheet, here, peace): (
+        Res<Carried>,
+        Res<CharacterSheet>,
+        Res<BenchHere>,
+        Res<Peace>,
+    ),
     assets: Res<AssetServer>,
     mut known: ResMut<KnownAbilities>,
     mut named_for: Local<Option<Vec<(Ability, bool, bool)>>>,
 ) {
-    let now = standing(&carried, &sheet, &here);
+    let now = standing(&carried, &sheet, (&here, *peace));
     if named_for.as_ref() == Some(&now) {
         return;
     }
     *named_for = Some(now);
     for ability in Ability::ALL {
-        let look = look(ability, usable(ability, &carried, &sheet, &here), &assets);
+        let look = look(
+            ability,
+            usable(ability, &carried, &sheet, (&here, *peace)),
+            &assets,
+        );
         known.set(
             ability_id(ability),
             AbilityThing {
@@ -118,7 +133,7 @@ pub(super) fn name_abilities(
 /// The list of what the character knows, which draws itself (`dom`).
 fn spawn_contents(
     page: &mut ChildSpawnerCommands,
-    (carried, sheet, here): (&Carried, &CharacterSheet, &BenchHere),
+    (carried, sheet, here): (&Carried, &CharacterSheet, (&BenchHere, Peace)),
     marks: &Marks,
     assets: &AssetServer,
 ) {
@@ -144,9 +159,10 @@ pub(super) fn usable(
     ability: Ability,
     carried: &Carried,
     sheet: &CharacterSheet,
-    here: &BenchHere,
+    (here, peace): (&BenchHere, Peace),
 ) -> bool {
-    !ability.is_active() || ability.can_use_at(&carried.0, &sheet.0, here.tools())
+    !ability.is_active()
+        || (ability.can_use_at(&carried.0, &sheet.0, here.tools()) && !peace.refuses(ability))
 }
 
 /// How an ability shows on the page, greyed unless `usable` (`usable`).

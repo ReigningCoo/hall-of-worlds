@@ -81,7 +81,7 @@ pub(crate) fn put_plants(
     level: &mut SiteLevel,
 ) {
     // Nothing grows in The Way Inn.
-    if id == SiteId::Inn {
+    if id.is_inn() {
         return;
     }
     let plants = site_plants(world, (poi, site), index, level);

@@ -43,6 +43,10 @@ pub(super) fn change_world(
     options: &ServerOptions,
 ) -> bool {
     let id = client.character_id.expect("only players move");
+    // From the inn, out into their own world first.
+    if client.inn.from.is_some() && !sites::out_of_inn(client, worlds) {
+        return false;
+    }
     let to = match worlds.open(seed) {
         Ok(to) => to,
         Err(error) => {

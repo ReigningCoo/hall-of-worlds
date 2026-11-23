@@ -30,10 +30,10 @@ pub(super) fn for_each_world(
 /// has been in for a while.
 pub(crate) fn save_changes(mut connections: ResMut<Connections>, mut worlds: ResMut<ServerWorlds>) {
     save_all(&mut connections, &mut worlds);
-    let in_use: BTreeSet<WorldId> = connections
-        .clients
-        .iter()
-        .filter_map(|client| client.world)
+    // In the inn, the world they came from stays open for them too.
+    let in_use: BTreeSet<WorldId> = (connections.clients.iter())
+        .flat_map(|client| [client.world, client.inn.from])
+        .flatten()
         .collect();
     worlds.close_idle(&in_use);
 }
@@ -117,6 +117,7 @@ pub(crate) fn follow_quests(
 
 /// Every tick: tells everyone what has come to be on the ground under them.
 pub(crate) fn sync_ground(mut connections: ResMut<Connections>, mut worlds: ResMut<ServerWorlds>) {
+    crate::sites::clear_litter(worlds.home_mut(), std::time::Instant::now());
     for_each_world(&mut connections.clients, &mut worlds, ground::sync);
 }
 
@@ -132,7 +133,9 @@ pub(crate) fn tell_the_time(
         let moved = std::mem::take(&mut world.clock_moved);
         let new_hour = hour != world.hour;
         world.hour = hour;
-        let playing = |client: &&mut Client| client.phase == Phase::Playing;
+        // In the inn they keep their own world's time (`sites::move_inn`).
+        let playing =
+            |client: &&mut Client| client.phase == Phase::Playing && client.inn.from.is_none();
         for client in clients.iter_mut().filter(playing) {
             if moved {
                 client.link.send(&ServerMessage::WorldClock(world.time()));

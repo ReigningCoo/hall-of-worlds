@@ -39,6 +39,7 @@ impl Client {
             world: None,
             going_to: None,
             going_place: None,
+            inn: default(),
             account: None,
             login_state: None,
             discord: Default::default(),
@@ -212,9 +213,10 @@ impl Client {
             return;
         }
         self.character.visit = self.visit.as_ref().map(Visit::save);
+        // In the inn they are kept by the home world, but saved with their own.
         world.storage.save_character(
             id,
-            world.seed.id(),
+            self.inn.from.unwrap_or(world.seed.id()),
             &self.character,
             &self.other_worlds,
             Everywhere {

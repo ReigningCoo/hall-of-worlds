@@ -67,7 +67,11 @@ use enter::enter_site;
 pub(crate) use enter::test_enter_poi;
 pub(super) use enter::{dev_enter, enter_dungeon, enter_poi, generate, resume};
 pub(crate) use generator::{seen_poi, site_generator};
-pub(crate) use inn::{dev_to_inn, enter_from_hall, follow_inn, inn_poi, leave_inn};
+pub(crate) use inn::refuses_harm;
+pub(crate) use inn::{
+    InnMove, InnState, Litter, clear_litter, close_empty_inns, move_inn, out_of_inn,
+};
+pub(crate) use inn::{dev_to_inn, enter_from_hall, follow_inn, in_inn, inn_poi, leave_inn};
 use keepers::{NewKeepers, keepers_in_window, keepers_of};
 pub(super) use keepers::{give_to_keeper, keeper_building, keeper_stock, take_from_keeper};
 pub(crate) use key_place::key_place;

@@ -35,6 +35,15 @@ pub enum RoomKind {
     },
 }
 
+impl RoomKind {
+    /// Whether everyone in an instance shares it: all but private rooms and
+    /// bedrooms, which become each player's own (The Way Inn plan, PR 4).
+    /// Things left lying in these are cleared after a while.
+    pub fn is_public(self) -> bool {
+        !matches!(self, Self::PrivateRoom | Self::Bedroom { .. })
+    }
+}
+
 /// One room of the inn.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct InnRoom {

@@ -19,6 +19,7 @@ use super::storage::{SAVE_FORMAT, SiteId, SiteSave, Storage, Unsaved};
 mod find_item;
 mod forgetting;
 mod habitat;
+mod inns;
 mod lightning;
 mod new_version;
 mod sharing;
@@ -72,6 +73,8 @@ pub struct ServerWorld {
     unreachable_sites: BTreeSet<SiteId>,
     /// Who is on the site levels in use.
     pub(crate) populations: Populations,
+    /// What has been left lying in the inn's instances, and since when.
+    pub(crate) litter: crate::sites::Litter,
     /// Mobs died since players were last told who they see (`entities::sync`).
     pub(crate) died: BTreeSet<shared::id::Id>,
     /// Creatures harmed lately, told to others who see them (`entities::sync`).
@@ -188,6 +191,7 @@ impl ServerWorld {
             unsaved_sites: Unsaved::default(),
             unreachable_sites: BTreeSet::new(),
             populations: Populations::default(),
+            litter: default(),
             died: BTreeSet::new(),
             harmed: Vec::new(),
             kills: Vec::new(),
@@ -229,7 +233,12 @@ impl ServerWorld {
             return Ok(());
         }
         let version = self.new_version(id);
-        let save = self.storage.load_site(id)?.unwrap_or_else(|| {
+        // The inn's instances are never saved (`sites/inn`).
+        let saved = match id {
+            SiteId::InnInstance(_) => None,
+            _ => self.storage.load_site(id)?,
+        };
+        let save = saved.unwrap_or_else(|| {
             self.unsaved_sites.mark(id);
             SiteSave {
                 version,
@@ -269,6 +278,7 @@ impl ServerWorld {
         for id in self.unsaved_sites.take() {
             if let Some(save) = self.sites.get(&id)
                 && !self.unreachable_sites.contains(&id)
+                && !matches!(id, SiteId::InnInstance(_))
             {
                 self.storage.save_site(id, save);
             }

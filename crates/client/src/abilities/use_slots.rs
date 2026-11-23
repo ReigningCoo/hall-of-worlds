@@ -10,6 +10,7 @@ use super::ferment::Fermenting;
 use super::item_look::{can_drink, can_eat};
 use super::manual::Manual;
 use super::own_bar::OwnBar;
+use super::peace::Peace;
 use super::press_juice::JuiceChooser;
 use super::press_oil::PressChooser;
 use super::use_ability::{UseListed, UseSlot};
@@ -31,7 +32,7 @@ use crate::inventory::{Carried, DrinkPotion, EatKind};
 pub(super) fn use_slots(
     (mut used, mut listed): (MessageReader<UseSlot>, MessageReader<UseListed>),
     bar: Res<OwnBar>,
-    (carried, sheet, here, clock, time): Standing,
+    (carried, sheet, here, peace, clock, time): Standing,
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
@@ -67,7 +68,8 @@ pub(super) fn use_slots(
             }
         };
         // An open panel closes, whatever has changed since.
-        if !open.is_open(ability) && !ability.can_use_at(&carried.0, &sheet.0, here.tools()) {
+        let can = ability.can_use_at(&carried.0, &sheet.0, here.tools()) && !peace.refuses(ability);
+        if !open.is_open(ability) && !can {
             continue;
         }
         if ability == Ability::PressOil {
@@ -101,6 +103,7 @@ type Standing<'w> = (
     Res<'w, Carried>,
     Res<'w, CharacterSheet>,
     Res<'w, BenchHere>,
+    Res<'w, Peace>,
     Res<'w, ServerTick>,
     Res<'w, Time>,
 );

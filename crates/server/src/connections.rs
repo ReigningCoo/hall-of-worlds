@@ -198,6 +198,8 @@ pub struct Client {
     /// The place it has asked to go to (Load in Debug Info), gone to after
     /// any `going_to`.
     going_place: Option<shared::protocol::DevGoToPlace>,
+    /// Where they are with The Way Inn (`sites::InnState`).
+    pub(crate) inn: crate::sites::InnState,
     /// What the character knows of this world and where they are in it: the
     /// pois and cells they know (`visit` is filled in on saving).
     pub(crate) character: CharacterWorldSave,

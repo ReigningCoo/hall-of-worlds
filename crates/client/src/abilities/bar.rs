@@ -16,6 +16,7 @@ use super::manual::Manual;
 use super::marks::Marks;
 use super::own_bar::OwnBar;
 use super::page::usable;
+use super::peace::Peace;
 use super::vitals_now::affords;
 use crate::character::CharacterSheet;
 use crate::common::BenchHere;
@@ -114,7 +115,12 @@ pub(super) struct Shown {
 #[allow(clippy::too_many_arguments)]
 pub(super) fn show_bar(
     bar: Res<OwnBar>,
-    (carried, sheet, here): (Res<Carried>, Res<CharacterSheet>, Res<BenchHere>),
+    (carried, sheet, here, peace): (
+        Res<Carried>,
+        Res<CharacterSheet>,
+        Res<BenchHere>,
+        Res<Peace>,
+    ),
     preferences: Res<Preferences>,
     (aim, manual, sneaking, panels): (Res<Aim>, Res<Manual>, Res<Sneaking>, Res<OpenPanels>),
     (vitals, time, clock): (Res<OwnVitals>, Res<Time>, Res<ServerTick>),
@@ -143,7 +149,9 @@ pub(super) fn show_bar(
             .collect(),
         usable: (bar.0.slots.iter())
             .map(|held| match held.map(|held| held.thing) {
-                Some(BarThing::Ability(ability)) => usable(ability, &carried, &sheet, &here),
+                Some(BarThing::Ability(ability)) => {
+                    usable(ability, &carried, &sheet, (&here, *peace))
+                }
                 Some(BarThing::Potion(potion)) => {
                     let count = carried.0.count_of_potion(potion);
                     let now = clock.now(time.elapsed_secs_f64());

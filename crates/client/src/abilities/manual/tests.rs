@@ -18,6 +18,7 @@ fn app(own: OwnAbility) -> App {
         .init_resource::<crate::character::CharacterSheet>()
         .init_resource::<OwnVitals>()
         .init_resource::<crate::common::CurrentDungeon>()
+        .init_resource::<super::super::peace::Peace>()
         .init_resource::<crate::common::ServerClock>()
         .init_resource::<crate::common::WorldReturn>()
         .insert_resource(Target(Some(Id::for_test(1))))
