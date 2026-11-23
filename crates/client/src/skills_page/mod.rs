@@ -18,6 +18,8 @@ mod spawn;
 mod values;
 mod view;
 
+pub use icons::icon_path as skill_icon;
+
 pub struct SkillsPagePlugin;
 
 impl Plugin for SkillsPagePlugin {

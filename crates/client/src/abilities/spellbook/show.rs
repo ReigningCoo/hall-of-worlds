@@ -117,7 +117,7 @@ fn show_asking(
         .and_then(|kept| kept.name.clone())
         .unwrap_or_else(|| auto_name(spell, lang));
     let question = format!(
-        "Remove {name} from your spellbook? Its steps are lost unless you design it again."
+        "Take {name} out of your spellbook? Its steps go back to the spell design panel, to change and save again."
     );
     dom.set_text(&format!("{FORM}/question"), question);
 }

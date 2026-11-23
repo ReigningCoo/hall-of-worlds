@@ -21,13 +21,15 @@ use crate::common::{BenchHere, OpenPanels, ServerTick};
 use crate::connection::ToServer;
 use crate::cooking::OpenCooking;
 use crate::inventory::{Carried, DrinkPotion, EatKind};
+use crate::spell_design::OpenSpellDesign;
 
 /// A slot used, or an ability on the Abilities page clicked: its ability
 /// queued, or taken out of the queue; a toggle (Sneak) asked for at once, as
 /// it needs no target and takes no time; one of a kind of item eaten
 /// (`inventory::EatKind`), a potion drunk (`DrinkPotion`); Press Oil's, Press
-/// Juice's or Ferment's panel opened or closed, or the Alchemy or Cooking
-/// panel (`alchemy::OpenAlchemy`, `cooking::OpenCooking`), which can be closed
+/// Juice's or Ferment's panel opened or closed, or the Alchemy, Cooking or
+/// spell design panel (`alchemy::OpenAlchemy`, `cooking::OpenCooking`,
+/// `spell_design::OpenSpellDesign`), which can be closed
 /// so even when the ability can't be used now.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn use_slots(
@@ -37,7 +39,7 @@ pub(super) fn use_slots(
     mut manual: ResMut<Manual>,
     mut to_server: MessageWriter<ToServer>,
     (mut eat, mut drink): (MessageWriter<EatKind>, MessageWriter<DrinkPotion>),
-    (mut press, mut juice, mut fermenting, mut alchemy, mut cooking): Panels,
+    (mut press, mut juice, mut fermenting, mut alchemy, mut cooking, mut design): Panels,
     open: Res<OpenPanels>,
 ) {
     let slots = used.read().filter_map(|&UseSlot(slot)| {
@@ -92,8 +94,8 @@ pub(super) fn use_slots(
             // And Cook by the Cooking panel (`cooking`).
             cooking.write(OpenCooking);
         } else if ability == Ability::Magic {
-            // Opens the spell design panel, which comes in magic plan PR 9.
-            continue;
+            // And Magic by the spell design panel (`spell_design`).
+            design.write(OpenSpellDesign);
         } else if ability == Ability::Ferment {
             // And Ferment's in its own (`ferment/`).
             fermenting.open = !fermenting.open;
@@ -125,4 +127,5 @@ type Panels<'w> = (
     ResMut<'w, Fermenting>,
     MessageWriter<'w, OpenAlchemy>,
     MessageWriter<'w, OpenCooking>,
+    MessageWriter<'w, OpenSpellDesign>,
 );

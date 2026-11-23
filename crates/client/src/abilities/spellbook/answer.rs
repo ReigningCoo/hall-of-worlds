@@ -1,8 +1,9 @@
 //! What the player does on the Spells tab: the star marks a favourite or
 //! not; Rename opens its requester, and Rename there asks the server for the
 //! name typed (left empty, the automatic one); Remove asks first, and Remove
-//! in its requester asks the server. Keep, Cancel or a press outside leaves
-//! it. Each is asked at once (`SpellbookAsk`), and the list follows the
+//! in its requester asks the server and puts the spell on the spell design
+//! panel to be changed (`spell_design::EditSpell`). Keep, Cancel or a press
+//! outside leaves it. Each is asked at once (`SpellbookAsk`), and the list follows the
 //! sheet the server sends back.
 
 use bevy::prelude::*;
@@ -11,11 +12,13 @@ use shared::protocol::{ClientMessage, SpellbookAsk};
 use super::SpellbookTab;
 use crate::connection::ToServer;
 use crate::dom::{UiEvent, UiValue};
+use crate::spell_design::EditSpell;
 
 pub(in crate::abilities) fn answer_spellbook(
     mut events: MessageReader<UiEvent>,
     mut tab: ResMut<SpellbookTab>,
     mut to_server: MessageWriter<ToServer>,
+    mut edit: MessageWriter<EditSpell>,
 ) {
     let mut ask = |ask: SpellbookAsk| {
         to_server.write(ToServer(ClientMessage::Spellbook(ask)));
@@ -45,6 +48,10 @@ pub(in crate::abilities) fn answer_spellbook(
             ("remove", UiValue::Pressed, Some(kept)) => tab.asking = Some(kept.spell.clone()),
             ("really_remove", UiValue::Pressed, _) => {
                 if let Some(spell) = tab.asking.take() {
+                    let kept = tab.listed.iter().find(|(kept, _)| kept.spell == spell);
+                    if let Some((kept, _)) = kept {
+                        edit.write(EditSpell(kept.clone()));
+                    }
                     ask(SpellbookAsk::Remove { spell });
                 }
             }
