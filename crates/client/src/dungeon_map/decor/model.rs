@@ -7,9 +7,6 @@ use bevy::prelude::*;
 
 use crate::plants::Shell;
 
-/// How much of the maps' outline width small decor's outlines take.
-const THIN: f32 = 0.6;
-
 /// A model being built, in its own frame.
 #[derive(Default)]
 pub(super) struct Model {
@@ -97,6 +94,14 @@ impl Model {
         self.add_hull(&mesh, place);
     }
 
+    /// A flat box from `low` to `high` with no outline of its own, set into
+    /// a surface (a board's squares).
+    pub(super) fn inlay(&mut self, low: Vec3, high: Vec3, colour: Vec3) {
+        let mesh = Mesh::from(Cuboid::from_size((high - low).abs()));
+        let place = Transform::from_translation((low + high) / 2.0);
+        self.fill.add(&mesh, place, colour);
+    }
+
     /// A candle's flame over `at` (the top of its wick), `size` tall.
     pub(super) fn flame(&mut self, at: Vec3, size: f32) {
         let mesh = Sphere::new(0.5).mesh().uv(8, 5);
@@ -127,11 +132,11 @@ impl Model {
         }
     }
 
-    /// Into meshes.
-    pub(super) fn build(self, meshes: &mut Assets<Mesh>) -> DecorMeshes {
+    /// Into meshes, its outline `thin` of the maps' width (`DecorLook::thin`).
+    pub(super) fn build(self, meshes: &mut Assets<Mesh>, thin: f32) -> DecorMeshes {
         DecorMeshes {
             fill: meshes.add(self.fill.fill()),
-            outline: meshes.add(self.hull.outline(THIN)),
+            outline: meshes.add(self.hull.outline(thin)),
             memory: meshes.add(self.fill.memory()),
             flames: (!self.flames.is_empty()).then(|| meshes.add(self.flames.fill())),
         }

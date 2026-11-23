@@ -4,15 +4,17 @@
 use std::f32::consts::{FRAC_PI_2, PI};
 
 use bevy::prelude::*;
+use shared::board_game::BoardGame;
 use shared::decor::{ChandelierStyle, Decor, Hanging, Rug};
 use shared::door::Side;
 use shared::dungeon::{CELL_UNITS, WALL_HALF_UNITS};
-use shared::furniture::Candles;
+use shared::furniture::{Barrel, Candles, Material, Sacks};
 use shared::rng::Seed;
 
 use super::super::CELL_SIZE;
+use super::super::furniture::material_colour;
 use super::model::Model;
-use super::{boards, candles, pegs, rugs, trophies};
+use super::{boards, candles, clutter, games, pegs, rugs, trophies};
 
 /// How far a wall's face stands from the middle of its cell.
 const WALL_FACE: f32 = WALL_HALF_UNITS as f32 / CELL_UNITS as f32 * CELL_SIZE;
@@ -27,6 +29,11 @@ pub(super) enum DecorLook {
     Chandelier(ChandelierStyle),
     Candles(Candles),
     Rug((u8, u8), Rug),
+    /// A games table's board and men.
+    Board(BoardGame),
+    Barrel(Barrel, Material),
+    /// Sacks, and which colours.
+    Sacks(Sacks, u8),
 }
 
 impl DecorLook {
@@ -71,8 +78,22 @@ impl DecorLook {
             Self::Chandelier(style) => candles::chandelier(&mut model, style),
             Self::Candles(kind) => candles::candles(&mut model, kind),
             Self::Rug(size, rug) => rugs::rug(&mut model, size, rug),
+            Self::Board(game) => games::board(&mut model, game),
+            Self::Barrel(barrel, material) => {
+                clutter::barrel(&mut model, barrel, material_colour(material));
+            }
+            Self::Sacks(sacks, variant) => clutter::sacks(&mut model, sacks, variant),
         }
         model
+    }
+
+    /// How much of the maps' outline width its outline takes: small decor
+    /// less than the maps' models, a board's tiny men less still.
+    pub(super) fn thin(self) -> f32 {
+        match self {
+            Self::Board(_) => 0.3,
+            _ => 0.6,
+        }
     }
 }
 

@@ -29,6 +29,7 @@ mod crafting_bench;
 mod draw;
 mod fireplace;
 mod frame;
+mod games_table;
 mod hearth;
 mod part;
 mod seats;
@@ -46,6 +47,7 @@ use super::walls::{Layers, Scene};
 pub(super) use bar_counter::{bar_height, bar_vessel_spot, lift_on};
 pub(super) use bottle_rack::{TALLEST as TALLEST_BOTTLE, bottle_rack_height, bottle_spot};
 pub(super) use cask_rack::{cask_scale, cask_spot, rack_height};
+pub(super) use colour::of as material_colour;
 pub(super) use crafting_bench::{ghost_boxes, tool_spot};
 pub(super) use fireplace::basket_spot;
 pub(super) use hearth::firebox;
@@ -81,13 +83,16 @@ fn build_piece(
         .or_else(|| bottle_rack::parts(piece))
         .or_else(|| bar_counter::parts(scene.level, piece))
         .or_else(|| fireplace::parts(piece))
-        // Candles are drawn with decor, flames and all (`decor`).
+        .or_else(|| games_table::parts(piece))
+        // Candles, barrels and sacks are drawn with decor, in their own
+        // colours (`decor`).
         .or_else(|| {
-            let candles = matches!(
+            use shared::furniture::Furniture::{Barrel, Candles, Sacks};
+            let decor = matches!(
                 piece.furniture,
-                shared::furniture::Furniture::Candles { .. }
+                Candles { .. } | Barrel { .. } | Sacks { .. }
             );
-            candles.then(Vec::new)
+            decor.then(Vec::new)
         });
     let parts = match parts {
         Some(parts) if piece.furniture.stands_on_furniture() => {

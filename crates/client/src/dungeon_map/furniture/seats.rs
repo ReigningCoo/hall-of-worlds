@@ -93,14 +93,16 @@ impl Seat {
     }
 }
 
-/// Whether a seat faces a table (or a bar counter): one is in front of any
-/// of its cells.
+/// Whether a seat faces a table (or a bar counter or games table): one is in
+/// front of any of its cells. Never a standing barrel, which has nothing to
+/// reach under.
 pub(super) fn faces_table(level: &Level, piece: &Piece) -> bool {
     piece.cells().any(|cell| {
         let (x, y) = piece.facing.beside(cell);
-        level
-            .furniture_at(x, y)
-            .is_some_and(|other| other.furniture.holds_furniture())
+        level.furniture_at(x, y).is_some_and(|other| {
+            let barrel = matches!(other.furniture, Furniture::Barrel { .. });
+            other.furniture.holds_furniture() && !barrel
+        })
     })
 }
 
@@ -115,7 +117,11 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
         | Furniture::BottleRack { .. }
         | Furniture::BarCounter { .. }
         | Furniture::Fireplace { .. }
-        | Furniture::Candles { .. } => {
+        | Furniture::Candles { .. }
+        | Furniture::GamesTable { .. }
+        | Furniture::Barrel { .. }
+        | Furniture::Crates { .. }
+        | Furniture::Sacks { .. } => {
             return None;
         }
         Furniture::Chair { .. } => chairs::DEPTH,
@@ -145,7 +151,11 @@ pub(super) fn parts(piece: &Piece, under_table: bool) -> Option<Vec<Part>> {
         | Furniture::BottleRack { .. }
         | Furniture::BarCounter { .. }
         | Furniture::Fireplace { .. }
-        | Furniture::Candles { .. } => {
+        | Furniture::Candles { .. }
+        | Furniture::GamesTable { .. }
+        | Furniture::Barrel { .. }
+        | Furniture::Crates { .. }
+        | Furniture::Sacks { .. } => {
             return None;
         }
     })
