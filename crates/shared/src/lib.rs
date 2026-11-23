@@ -86,6 +86,7 @@ pub mod sheet;
 pub mod shop;
 pub mod site;
 pub mod skill;
+pub mod spell;
 pub mod spot;
 pub mod story;
 pub mod surface;

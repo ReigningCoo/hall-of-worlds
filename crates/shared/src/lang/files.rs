@@ -46,6 +46,10 @@ const ENGLISH: &[File] = &[
         name: "en/recipe.ftl",
         text: include_str!("en/recipe.ftl"),
     },
+    File {
+        name: "en/spell.ftl",
+        text: include_str!("en/spell.ftl"),
+    },
 ];
 
 pub(super) fn files(language: Language) -> &'static [File] {
