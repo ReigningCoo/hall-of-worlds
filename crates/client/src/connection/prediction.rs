@@ -49,12 +49,25 @@ impl Prediction {
     /// The message for a move towards `to` that `landed` somewhere else (a
     /// stumble, which the server works out from the move asked for).
     pub fn moved_to(&mut self, from: Spot, to: Spot, landed: Spot) -> ClientMessage {
+        let (map, number) = self.remember(from, landed);
+        ClientMessage::Move { map, number, to }
+    }
+
+    /// The message for a Teleport move from one spot to another, remembered
+    /// as a move is until it is confirmed.
+    pub fn teleported(&mut self, from: Spot, to: Spot) -> ClientMessage {
+        let (map, number) = self.remember(from, to);
+        ClientMessage::Teleport { map, number, to }
+    }
+
+    /// Remembers a move from `from` ending at `landed` until it is confirmed:
+    /// its map and number.
+    fn remember(&mut self, from: Spot, landed: Spot) -> (u32, u32) {
         self.last += 1;
         self.pending
             .push_back((self.last, (landed.x - from.x, landed.y - from.y)));
         self.sent = Some((landed.x, landed.y));
-        let (map, number) = (self.map, self.last);
-        ClientMessage::Move { map, number, to }
+        (self.map, self.last)
     }
 
     /// The map and number the next step or move sent will have.

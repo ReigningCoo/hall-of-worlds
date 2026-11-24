@@ -52,6 +52,7 @@ impl Mob {
             way_back: Vec::new(),
             energy: Default::default(),
             speed: sheet.speed(carrying),
+            own_speed: sheet.speed(carrying),
             chilled: None,
             spells: Default::default(),
             shown: carrying.shown(),

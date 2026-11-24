@@ -189,8 +189,11 @@ pub(crate) struct Mob {
     way_back: Vec<Hop>,
     energy: Energy,
     speed: u32,
-    /// Chilled by a spell: until when, and its own speed (`chill.rs`).
-    chilled: Option<(u64, u32)>,
+    /// Its speed without spells (`chill.rs`: `speed` is this, chilled and
+    /// paced).
+    own_speed: u32,
+    /// Chilled by a spell: until when (`chill.rs`).
+    chilled: Option<u64>,
     /// Spells' effects lying on it (`spells.rs`). Not saved.
     spells: MobSpells,
     /// What can be seen of what it wears, from when it was made: mobs don't change

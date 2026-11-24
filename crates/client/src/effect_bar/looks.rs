@@ -5,7 +5,10 @@ use bevy::prelude::*;
 use shared::alcohol::Stage;
 use shared::bonus::{Amount, Effect, Source, Stat};
 use shared::sheet::Sheet;
-use shared::spell::{Aim, CURSED, ILLUSION, Outcome, PARALYSED, POISONED, Part, STONESKIN, WARDED};
+use shared::spell::{
+    ANCHORED, Aim, BLESSED, CALMED, CURSED, DARKENED, FRIGHTENED, HASTED, ILLUSION, LEVITATING,
+    LIT, Outcome, PARALYSED, POISONED, Part, SLOWED, STONESKIN, TELEPORTING, WARDED, WEAKENED,
+};
 
 /// Behind an effect that helps: a calm blue-green.
 const HELPFUL: Color = Color::srgb(0.16, 0.38, 0.40);
@@ -94,6 +97,17 @@ fn spell_icon(part: Part) -> &'static str {
         CURSED => "icons/lorc/cursed-star.png",
         ILLUSION => "icons/delapouite/invisible.png",
         WARDED => "icons/lorc/magic-shield.png",
+        HASTED => "icons/lorc/sprint.png",
+        SLOWED => "icons/lorc/snail.png",
+        BLESSED => "icons/lorc/holy-symbol.png",
+        WEAKENED => "icons/lorc/broken-shield.png",
+        LIT => "icons/lorc/sunbeams.png",
+        DARKENED => "icons/lorc/night-sky.png",
+        CALMED => "icons/lorc/dove.png",
+        FRIGHTENED => "icons/lorc/despair.png",
+        LEVITATING => "icons/lorc/feather.png",
+        TELEPORTING => "icons/lorc/teleport.png",
+        ANCHORED => "icons/lorc/anchor.png",
         part if part.reversed => "icons/lorc/snowflake-1.png",
         _ => "icons/lorc/drop.png",
     }

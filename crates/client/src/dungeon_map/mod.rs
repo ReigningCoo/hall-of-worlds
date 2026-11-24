@@ -156,6 +156,7 @@ impl Plugin for DungeonMapPlugin {
             .init_resource::<vegetable_plants::DrawnVegetables>()
             .init_resource::<fungi::DrawnFungi>()
             .init_resource::<fixed_lights::FixedLights>()
+            .init_resource::<fixed_lights::SpellLights>()
             .init_resource::<campfires::DrawnFires>()
             .init_resource::<hearth_fires::DrawnHearthFires>()
             .init_resource::<basket_logs::DrawnBasketLogs>()
@@ -261,6 +262,10 @@ impl Plugin for DungeonMapPlugin {
                 (sepia_pictures, plain_pictures::plain_pictures).chain(),
             )
             .add_systems(Update, spell_fx::take_news)
+            .add_systems(
+                Update,
+                fixed_lights::follow_spell_lights.before(fixed_lights::update_fixed_lights),
+            )
             .add_systems(
                 Update,
                 (hover::name_hovered_place, face_point::face_pointed_at)

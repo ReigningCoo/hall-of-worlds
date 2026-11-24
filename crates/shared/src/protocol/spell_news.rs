@@ -17,4 +17,11 @@ pub enum SpellNews {
     /// Steam left clouds over these cells, blocking sight for `millis` real
     /// milliseconds (magic plan PR 11).
     Clouds { cells: Vec<(i64, i64)>, millis: u32 },
+    /// A Light lit these cells, its light reaching `reach` cells round each,
+    /// for `millis` real milliseconds (magic plan PR 13); drawn only.
+    Light {
+        cells: Vec<(i64, i64)>,
+        reach: u32,
+        millis: u32,
+    },
 }

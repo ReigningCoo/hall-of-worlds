@@ -6,14 +6,15 @@ use shared::protocol::ServerMessage;
 use super::prediction::Prediction;
 use super::stumble::Stumbling;
 use super::{FromServer, ServerConnection, ToServer};
-use crate::player::{Moved, Stepped};
+use crate::player::{Moved, Stepped, Teleported};
 
 /// Sends the steps and moves the player took this frame, keeping them until
 /// the server confirms them: on the world map as steps, on a level or in the
-/// Hall as moves in units. A stumble (`stumble.rs`) puts the player where it
+/// Hall as moves in units, then a Teleport's move. A stumble (`stumble.rs`) puts the player where it
 /// ends, and drops the rest walked this frame.
 pub(super) fn send_steps(
     (mut stepped, mut moved): (MessageReader<Stepped>, MessageReader<Moved>),
+    mut teleported: MessageReader<Teleported>,
     mut prediction: ResMut<Prediction>,
     mut to_server: MessageWriter<ToServer>,
     mut stumbling: Stumbling,
@@ -40,7 +41,12 @@ pub(super) fn send_steps(
             continue;
         };
         to_server.write(ToServer(prediction.moved_to(from, to, landed)));
-        break;
+        // A stumble: what came after it, a Teleport too, is not sent.
+        teleported.clear();
+        return;
+    }
+    for &Teleported { from, to } in teleported.read() {
+        to_server.write(ToServer(prediction.teleported(from, to)));
     }
 }
 

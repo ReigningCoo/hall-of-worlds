@@ -19,6 +19,16 @@ impl Mob {
             return Feeling::Friendly;
         }
         let start = self.kind.feeling_about(kind);
-        character.map_or(start, |character| self.memory.standing(character, start))
+        let feeling = character.map_or(start, |character| self.memory.standing(character, start));
+        // A Calm leaves it unfriendly to nobody (magic plan PR 13).
+        match feeling {
+            Feeling::Unfriendly if self.spells.has(shared::spell::CALMED) => Feeling::Neutral,
+            feeling => feeling,
+        }
+    }
+
+    /// Whether Fear lies on it: it keeps far from whoever it flees.
+    pub(super) fn frightened(&self) -> bool {
+        self.spells.has(shared::spell::FRIGHTENED)
     }
 }

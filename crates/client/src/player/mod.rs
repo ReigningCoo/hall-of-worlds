@@ -28,6 +28,7 @@ mod route_help;
 mod state;
 mod steps;
 mod stride;
+mod teleport;
 mod travel;
 mod wild_heights;
 
@@ -36,7 +37,9 @@ use doors::{AskDoor, door_answers, send_door_asks};
 use drawn_ground::keep_drawn_ground;
 use keys::move_player;
 use level_travel::travel_on_level;
-pub use messages::{Arrived, Moved, Player, PlayerSystems, Stepped, TakeStep, TravelTo, Walking};
+pub use messages::{
+    Arrived, Moved, Player, PlayerSystems, Stepped, TakeStep, Teleported, TravelTo, Walking,
+};
 pub use moving::PlayerMoving;
 use moving::note_moving;
 use rivers::keep_river_points;
@@ -71,6 +74,7 @@ impl Plugin for PlayerPlugin {
             .add_message::<AskDoor>()
             .add_message::<Stepped>()
             .add_message::<Moved>()
+            .add_message::<Teleported>()
             .add_message::<Walking>()
             .add_message::<SpentEnergy>()
             .add_message::<CancelledEnergy>()

@@ -8,7 +8,7 @@ use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
 use super::{DIRECTIONS, straighten_spots};
-use crate::clearance::{RoomMap, check_segment_by, has_footing_by};
+use crate::clearance::{Footing, RoomMap, check_segment_by, has_footing_by};
 use crate::dungeon::{Cell, Level};
 use crate::movement::{LevelWay, PIECE};
 use crate::spot::Spot;
@@ -34,7 +34,7 @@ pub(super) fn move_cost(
     (a, b): (Spot, Spot),
     jumps: bool,
 ) -> Option<u64> {
-    let passage = check_segment_by(way.level, rooms.size(), rooms.swims(), a, b)?;
+    let passage = check_segment_by(way.level, rooms.size(), rooms.footing(), a, b)?;
     let jumped = passage.jumped.is_some();
     if jumped && !jumps {
         return None;
@@ -96,7 +96,7 @@ pub fn find_sized_path(
             for reach in [1, 2] {
                 let next = (at.0 + dx * reach, at.1 + dy * reach);
                 let jumps = reach == 2;
-                if jumps && !jumpable(level, rooms.swims(), (at.0 + dx, at.1 + dy)) {
+                if jumps && !jumpable(level, rooms.footing(), (at.0 + dx, at.1 + dy)) {
                     continue;
                 }
                 if !rooms.has_room(next.0, next.1) || !allowed(next.0, next.1) {
@@ -152,7 +152,7 @@ pub fn find_sized_path(
 }
 
 /// Whether a cell is one a jump can go over (water isn't, for a swimmer).
-fn jumpable(level: &Level, swims: bool, (x, y): (i64, i64)) -> bool {
+fn jumpable(level: &Level, footing: Footing, (x, y): (i64, i64)) -> bool {
     let cell = level.cell(x, y);
-    cell == Cell::Fence || (cell.is_jumpable() && !has_footing_by(level, swims, x, y))
+    cell == Cell::Fence || (cell.is_jumpable() && !has_footing_by(level, footing, x, y))
 }

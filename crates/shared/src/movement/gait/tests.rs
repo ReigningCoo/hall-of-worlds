@@ -8,6 +8,7 @@ fn skilled(climbing: u32, running: u32) -> Gait {
         swimming: 0,
         jumping: 0,
         pioneering: [0; Terrain::ALL.len()],
+        floats: false,
     }
 }
 

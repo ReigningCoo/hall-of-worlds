@@ -45,7 +45,7 @@ impl Mob {
     fn fighter(&self) -> Fighter<'_> {
         Fighter {
             kind: self.kind,
-            attributes: &self.attributes,
+            attributes: self.spells.attributes().unwrap_or(&self.attributes),
             skills: None,
             wielded: self.wielded,
             guard: self.spells.guard(),
@@ -98,7 +98,7 @@ pub(super) fn mob_turn(
                 mob: mob.id,
                 target,
                 kind: mob.kind,
-                attributes: mob.attributes,
+                attributes: *mob.spells.attributes().unwrap_or(&mob.attributes),
                 wielded: mob.wielded,
                 guard: mob.spells.guard(),
                 swing,

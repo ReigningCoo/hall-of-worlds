@@ -1,19 +1,24 @@
 //! What outcomes do to the cells they land on (magic plan PR 11): Fire
 //! lights fireplaces, Water and steam put fires out, ice freezes water round
-//! them and steam leaves clouds blocking sight (`spell::Acts`). The cells are
+//! them and steam leaves clouds blocking sight (`spell::Acts`); a Light
+//! that reached nobody lights its spots for a while (PR 13), only for the
+//! eye: everyone there is told (`SpellNews::Light`) and nothing is kept. The cells are
 //! those the last where hit, creature or not, or the caster's own.
 
 use std::collections::BTreeSet;
 
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::protocol::{ServerMessage, SpellNews};
-use shared::spell::{Acts, ICE_SECONDS, STEAM_SECONDS, cloud_cells, frozen_cells};
+use shared::spell::{
+    Acts, ICE_SECONDS, LASTING_SECONDS, LIT, STEAM_SECONDS, cloud_cells, frozen_cells,
+    utility_bonuses,
+};
 
 use super::super::Client;
 use super::effects::Landing;
 use super::flight::tell_level;
 use crate::ServerWorld;
-use crate::sites::{douse, light_by_spell};
+use crate::sites::{douse, find_secret_doors, light_by_spell};
 
 /// `count` of an outcome that `acts` so on `cells`. Whether it changed
 /// anything there.
@@ -25,11 +30,12 @@ pub(super) fn act_on_cells(
     cells: &[(i64, i64)],
     (acts, count): (Acts, u32),
 ) -> bool {
+    let found = acts.identifies && find_secret_doors(&mut clients[caster], cells, count);
     let Some(visit) = clients[caster].visit.as_ref() else {
         return false;
     };
     let ticks = |seconds: u64| seconds * u64::from(count) * ACTION_TICKS_PER_SECOND as u64;
-    let mut changed = false;
+    let mut changed = found;
     let mut clouds = BTreeSet::new();
     for &cell in cells {
         if acts.lights {
@@ -54,6 +60,11 @@ pub(super) fn act_on_cells(
             }
         }
     }
+    if acts.glows && !cells.is_empty() {
+        let skills = Some(&clients[caster].sheet.skills);
+        tell_light(clients, at, (cells, skills_light(skills)), count);
+        changed = true;
+    }
     if !clouds.is_empty() {
         let millis = (STEAM_SECONDS * 1000 * u64::from(count)).min(u64::from(u32::MAX)) as u32;
         let news = SpellNews::Clouds {
@@ -63,4 +74,27 @@ pub(super) fn act_on_cells(
         tell_level(clients, at.present, &ServerMessage::Spell(news));
     }
     changed
+}
+
+/// How far a Light by a caster with `skills` reaches, in cells.
+fn skills_light(skills: Option<&shared::skill::Skills>) -> u32 {
+    let bonuses = utility_bonuses(LIT, 1, skills);
+    shared::bonus::Totals::of(&bonuses).light()
+}
+
+/// Tells everyone on the level that `count` Lights lit `cells`, reaching
+/// `reach` cells.
+fn tell_light(
+    clients: &mut [Client],
+    at: &Landing,
+    (cells, reach): (&[(i64, i64)], u32),
+    count: u32,
+) {
+    let millis = LASTING_SECONDS * 1000 * u64::from(count);
+    let news = SpellNews::Light {
+        cells: cells.to_vec(),
+        reach,
+        millis: millis.min(u64::from(u32::MAX)) as u32,
+    };
+    tell_level(clients, at.present, &ServerMessage::Spell(news));
 }

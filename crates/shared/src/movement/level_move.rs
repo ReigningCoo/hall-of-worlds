@@ -48,7 +48,7 @@ pub fn move_on_level(
         }
     }
     // A good swimmer swims water anywhere, as the cell rule lets them.
-    check_segment_by(level, size, gait.swims_deep(), from, to).map(LevelMove::Segment)
+    check_segment_by(level, size, gait.footing(), from, to).map(LevelMove::Segment)
 }
 
 impl LevelMove {

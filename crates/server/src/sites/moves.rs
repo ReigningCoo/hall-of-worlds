@@ -22,6 +22,15 @@ pub(crate) fn moved(client: &mut Client, to: Spot) -> bool {
     update_sight(client)
 }
 
+impl super::Visit {
+    /// Whether the client has been sent cell `(x, y)` on this visit: one the
+    /// player knows.
+    pub(crate) fn was_sent(&self, (x, y): (i64, i64)) -> bool {
+        let (chunk, bit) = level_chunk(x, y);
+        (self.sent.get(&chunk)).is_some_and(|mask| mask & (1 << bit) != 0)
+    }
+}
+
 /// A move to `to` was refused (`Position` puts the client right). A door the
 /// client took for open is told again as it hangs.
 pub(crate) fn refused(client: &mut Client, to: Spot) -> bool {

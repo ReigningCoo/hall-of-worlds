@@ -1,7 +1,6 @@
-//! Players in sites: entering them, moving about, taking stairs and leaving, and sending each
-//! player the cells of their level as they come to see them (or are about to). What a player has
-//! seen is kept with their character; each site keeps its generator version, when its levels
-//! were last visited and players' changes (`storage::SiteSave`).
+//! Players in sites: entering, moving, stairs and leaving, and sending each player the cells of
+//! their level as they come to see them (or are about to), remembered with their character. Sites
+//! keep their generator version, levels' last visits and players' changes (`storage::SiteSave`).
 
 use bevy::prelude::*;
 use shared::creature::Size;
@@ -61,7 +60,8 @@ pub(super) use dev_area::generate_area;
 pub(crate) use dev_furniture::{FurnitureChange, place_decor, place_furniture, share_furniture};
 pub(crate) use dev_place::{dev_wilderness, land_near};
 pub(crate) use doors::{
-    DoorChange, Standing, door_act, door_to_kick, kick_door, mob_opened, share_doors,
+    DoorChange, Standing, door_act, door_to_kick, find_secret_doors, kick_door, mob_opened,
+    share_doors,
 };
 use doors::{DoorSite, VisitDoors, door_looks, ensure_locks, remember_doors, set_doors};
 use enter::enter_site;

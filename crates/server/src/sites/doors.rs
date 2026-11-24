@@ -22,6 +22,7 @@ use crate::storage::SiteId;
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod act;
+mod found;
 mod gate;
 mod kick;
 mod locks;
@@ -31,9 +32,10 @@ mod stage;
 
 pub(super) use act::changed_at;
 use act::{close_near, dev_all, dev_key, open_door};
+pub(crate) use found::find_secret_doors;
 pub(crate) use kick::{door_to_kick, kick_door};
 pub(super) use locks::ensure_locks;
-pub(super) use looks::{door_looks, remember_doors};
+pub(super) use looks::{door_looks, remember_doors, remember_doors_found};
 pub(crate) use share::{DoorChange, Standing, share_doors};
 
 /// Where a door is kept: the site, level and cell it belongs to.

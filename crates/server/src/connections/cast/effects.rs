@@ -4,12 +4,14 @@
 //! wets and ice chills (`conditions.rs`); and what they do to the cells
 //! themselves (`place.rs`). PR 12: Air knocks (`knock.rs`); Earth, Poison,
 //! Curse, Illusion and Warding lie on creatures for a while (`lasting.rs`)
-//! or, reversed, take those away (`ending.rs`). Effects of the last effects
-//! PR do nothing yet.
+//! or, reversed, take those away (`ending.rs`). PR 13: Identify and Conceal
+//! (`identify.rs`), Mana given and drained (`mana.rs`), Light on a spot
+//! (`place.rs`); Teleport, Light, Haste, Calm, Blessing and Levitate lie on
+//! creatures as the lasting ones do.
 
 use shared::facing::Heading;
 use shared::skill::SkillId;
-use shared::spell::{Effect, EffectStep, Mixture, Outcome, Part, acts, outcomes};
+use shared::spell::{Acts, Effect, EffectStep, Mixture, Outcome, Part, acts, outcomes};
 
 use super::super::Client;
 use super::conditions::{chill_targets, wet_targets};
@@ -17,8 +19,10 @@ use super::creatures::Present;
 use super::ending::end_on_targets;
 use super::harm::harm_targets;
 use super::heal::{heal_amount, heal_targets};
+use super::identify::identify_targets;
 use super::knock::knock_targets;
 use super::lasting::lay_lasting;
+use super::mana::mana_targets;
 use super::place::act_on_cells;
 use crate::ServerWorld;
 use crate::storage::SiteId;
@@ -31,6 +35,8 @@ pub(super) struct Landing<'a> {
     pub place: (SiteId, u32),
     pub index: u32,
     pub tick: u64,
+    /// What the spell cost (Mana drained gives back no more).
+    pub cost: shared::vitals::Points,
     pub away: Vec<Heading>,
 }
 
@@ -72,6 +78,17 @@ pub(super) fn land(
         if let Some(ends) = does.ends {
             did |= end_on_targets(clients, world, at, targets, ends);
         }
+        if does.identifies || does.conceals {
+            did |= identify_targets(clients, at, targets, does.identifies);
+        }
+        if does.gives_mana || does.drains_mana {
+            did |= mana_targets(clients, caster, at, targets, (does.gives_mana, count));
+        }
+        // Light lights the spots it lands on only when it reached nobody.
+        let does = Acts {
+            glows: does.glows && targets.is_empty(),
+            ..does
+        };
         if does.on_place() {
             did |= act_on_cells(clients, caster, world, at, cells, (does, count));
         }

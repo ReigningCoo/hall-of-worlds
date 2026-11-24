@@ -19,6 +19,7 @@ use crate::{ServerOptions, ServerWorld, ServerWorlds, gates};
 mod inn_moves;
 mod moves;
 mod sneaking;
+mod teleport;
 mod training;
 
 use inn_moves::moved_in_or_out;
@@ -145,6 +146,13 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
                 };
                 client.moved_from(from, map);
                 client.walked(from, tick);
+                taken
+            }
+            Action::Teleport { number, to } => {
+                client.last_step = Some(number);
+                client.steps_done = number;
+                let taken = teleport::teleport_taken(client, world, to);
+                client.moved_from(from, map);
                 taken
             }
             Action::EnterSite { chunk } => (sites::enter_poi(client, world, chunk), 0),

@@ -146,6 +146,15 @@ impl Vitals {
         true
     }
 
+    /// Takes up to this much Mana, as much as there is (a spell draining
+    /// it): how much was taken. No practice, and Mana keeps refilling.
+    pub fn drain_mana(&mut self, amount: Points, limits: Limits, now: u64) -> Points {
+        let taken = amount.min(self.at(Vital::Mana, limits, now));
+        self.settle(limits, now);
+        self.mana.take(taken, limits.mana);
+        taken
+    }
+
     /// Gives back this much of one, never past the most; what is beyond it is
     /// lost. A wait for refilling stays.
     pub fn restore(&mut self, vital: Vital, amount: Points, limits: Limits, now: u64) {

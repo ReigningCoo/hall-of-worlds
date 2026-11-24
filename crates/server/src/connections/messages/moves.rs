@@ -62,7 +62,8 @@ pub(super) fn move_taken(client: &mut Client, world: &mut ServerWorld, to: Spot)
     let to_cell = to.cell();
     let place = visit.population();
     let wild = visit.is_wilderness();
-    let gait = Gait::of(&client.sheet.skills);
+    // Floating over holes and water under a Levitate.
+    let gait = Gait::of_sheet(&client.sheet);
     let size = client.size();
     let Some(landing) = visit.landing(to, gait, size) else {
         return (sites::refused(client, to), 0);

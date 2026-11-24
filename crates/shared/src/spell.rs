@@ -28,6 +28,7 @@ mod knock;
 mod lasting;
 mod line;
 mod look;
+mod mana;
 mod missile;
 mod name;
 mod part;
@@ -36,8 +37,11 @@ mod point;
 mod shown;
 mod spare;
 mod surround;
+mod teleport;
 mod touch;
 mod toward;
+mod under;
+mod utility;
 
 pub use acts::{
     Acts, ICE_SECONDS, Knock, STEAM_SECONDS, acts, acts_on_place, cloud_cells, frozen_cells,
@@ -77,6 +81,7 @@ pub use lasting::{
     poison_per_second, seconds_of,
 };
 pub use look::{LOOK_PARTS, Look};
+pub use mana::{MANA_GIVEN_PERCENT, mana_drained, mana_given};
 pub use missile::{
     Flight, MISSILE_FASTER, MISSILE_RANGE, MISSILE_SPEED, flight_millis, missile, missile_speed,
 };
@@ -87,8 +92,14 @@ pub use point::{POINT_RANGE, point};
 pub use shown::{Shown, shown, shown_part};
 pub use spare::spared_harm;
 pub use surround::{SURROUND_RING, SURROUND_SPOTS, surround, surround_reach};
+pub use teleport::{TELEPORT_RANGE, may_teleport_to};
 pub use touch::{TOUCH_HALF_ARC, TOUCH_WIDER, touch, touch_half_arc};
 pub use toward::Toward;
+pub use utility::{
+    ANCHORED, BLESSED, CALMED, DARKENED, FRIGHTENED, HASTED, LEVITATING, LIGHT_CELLS, LIT,
+    MOST_HASTE_PERCENT, MOST_LIGHT_CELLS, SHORT_SECONDS, SLOWED, TELEPORTING, WEAKENED, is_utility,
+    utility_bonuses, utility_seconds,
+};
 
 #[cfg(test)]
 mod book_tests;
@@ -108,3 +119,5 @@ mod look_tests;
 mod merged_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod utility_tests;

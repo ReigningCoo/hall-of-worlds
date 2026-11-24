@@ -176,3 +176,6 @@ fn frozen_water_is_ice_until_it_thaws() {
 
 /// Air, Earth, Poison, Curse, Illusion and Warding (magic plan PR 12).
 mod lasting;
+
+/// Identify, Teleport, Haste and Mana (magic plan PR 13).
+mod utility;

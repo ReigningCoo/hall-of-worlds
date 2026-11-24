@@ -3,7 +3,7 @@
 //! and dries them) and ice's chill (a third slower). Numbers are first
 //! guesses.
 
-use crate::bonus::{Effect as Timed, EndsOn, Source};
+use crate::bonus::{Effect as Timed, EndsOn, Source, Stat, Totals};
 use crate::energy::ACTION_TICKS_PER_SECOND;
 use crate::sheet::Sheet;
 
@@ -59,9 +59,18 @@ impl Sheet {
         self.effects.0.len() != before
     }
 
-    /// How fast spells let it go, in percent: chilled a third slower.
+    /// How fast spells let it go, in percent: chilled a third slower, then
+    /// Haste's more and Slow's less (`Stat::Speed`, PR 13), never below 1.
     pub fn spell_speed_percent(&self) -> u32 {
         let chilled = (self.effects.0.iter()).any(|e| e.source == Source::Spell(CHILLED));
-        if chilled { CHILL_SPEED_PERCENT } else { 100 }
+        let chill = if chilled { CHILL_SPEED_PERCENT } else { 100 };
+        let spells = self
+            .effects
+            .0
+            .iter()
+            .filter(|e| matches!(e.source, Source::Spell(_)));
+        let totals = Totals::of(spells.flat_map(|e| &e.bonuses));
+        let paced = u64::from(chill) * totals.per_mille(Stat::Speed) / 1000;
+        paced.clamp(1, u64::from(u32::MAX)) as u32
     }
 }
