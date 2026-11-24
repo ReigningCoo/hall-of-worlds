@@ -15,6 +15,7 @@ use crate::vitals::{Points, Vital};
 use super::effect::Effect;
 use super::harm::line_by;
 use super::part::Part;
+use super::utility::{is_utility, utility_bonuses, utility_seconds};
 
 /// Held still by Earth.
 pub const PARALYSED: Part = Part::plain(Effect::Earth);
@@ -49,12 +50,13 @@ pub fn seconds_of(part: Part, count: u32) -> u64 {
     let each = match part {
         PARALYSED => PARALYSIS_SECONDS,
         POISONED => POISON_SECONDS,
+        part if is_utility(part) => utility_seconds(part),
         _ => LASTING_SECONDS,
     };
     each * u64::from(count)
 }
 
-/// `count` of a lasting `part` (not poison: `poison`) by a caster with
+/// `count` of a lasting `part` (not poison: `poison`; PR 13's too, `utility`) by a caster with
 /// `skills`, from `now`; `None` for a part that leaves nothing lasting.
 pub fn lasting(part: Part, count: u32, skills: Option<&Skills>, now: u64) -> Option<Timed> {
     let percent = skills.map_or(0, |s| skill_percent(s.value(part.effect.skill()))) as i32;
@@ -67,6 +69,7 @@ pub fn lasting(part: Part, count: u32, skills: Option<&Skills>, now: u64) -> Opt
         CURSED => vec![less(Stat::BlowHarm)],
         ILLUSION => vec![more(Stat::Defence)],
         WARDED => vec![more(Stat::Resistance)],
+        part if is_utility(part) => utility_bonuses(part, count, skills),
         _ => return None,
     };
     Some(timed(part, bonuses, seconds_of(part, count), now))

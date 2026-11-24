@@ -5,11 +5,15 @@
 //! and Warding, which help, always lie on whoever they land on. Players keep
 //! them on their sheet (`Sheet::add_effect`), paralysis spending the energy
 //! it lasts as a drunken collapse does; mobs as `entities::lay_on_mob`.
+//! PR 13: Slow and Weakness take hold as a Curse does, Calm and Fear as
+//! paralysis does (on mobs only, so far); Haste, Blessing, Light, Darkness,
+//! Levitate, a Teleport and being held from one always lie on whoever they
+//! land on, a Teleport never on someone held.
 
 use shared::bonus::Effect as Timed;
 use shared::spell::{
-    CURSED, PARALYSED, POISONED, Part, effect_power, lasting, poison, poison_per_second, resisted,
-    takes_hold,
+    ANCHORED, CALMED, CURSED, FRIGHTENED, PARALYSED, POISONED, Part, SLOWED, TELEPORTING, WEAKENED,
+    effect_power, lasting, poison, poison_per_second, resisted, takes_hold,
 };
 
 use super::super::Client;
@@ -41,9 +45,17 @@ pub(super) fn lay_lasting(
     for &index in targets {
         let id = at.present.ids[index];
         let mut rng = luck(at.tick, by.id, id);
+        let player = at.present.players[index];
+        let against_will = matches!(part, PARALYSED | CALMED | FRIGHTENED);
+        let against_aura = matches!(part, CURSED | SLOWED | WEAKENED);
+        if against_will && !takes_hold(power, at.present.wills[index], &mut rng)
+            || against_aura && !takes_hold(power, at.present.resistances[index], &mut rng)
+        {
+            continue;
+        }
         let effect = match part {
-            PARALYSED if !takes_hold(power, at.present.wills[index], &mut rng) => continue,
-            CURSED if !takes_hold(power, at.present.resistances[index], &mut rng) => continue,
+            // Players have no feelings for a spell to change, yet.
+            CALMED | FRIGHTENED if player.is_some() => continue,
             POISONED => {
                 let resistance = at.present.resistances[index];
                 poison(resisted(per_second, power, resistance), count, at.tick)
@@ -53,24 +65,28 @@ pub(super) fn lay_lasting(
                 None => return changed,
             },
         };
-        changed |= match at.present.players[index] {
+        changed |= match player {
             Some(player) => lay_on_player(&mut clients[player], effect, at.tick),
-            None => {
-                let poisoner = (part == POISONED).then_some((by, at.index));
-                lay_on_mob(world, at.place, id, effect, poisoner, at.tick)
-            }
+            None => lay_on_mob(world, at.place, id, effect, (by, at.index), at.tick),
         };
     }
     changed
 }
 
-/// A spell's `effect` lies on a player from `tick`.
+/// A spell's `effect` lies on a player from `tick` (a Teleport never on one
+/// held from teleporting).
 fn lay_on_player(client: &mut Client, effect: Timed, tick: u64) -> bool {
-    let paralysis = effect.source == shared::bonus::Source::Spell(PARALYSED);
+    use shared::bonus::Source;
+    if effect.source == Source::Spell(TELEPORTING) && client.sheet.has_spell(ANCHORED) {
+        return false;
+    }
+    let paralysis = effect.source == Source::Spell(PARALYSED);
     let ticks = effect.end.unwrap_or(tick).saturating_sub(tick);
     let (sheet, situation) = client.sheet_and_situation();
     sheet.add_effect(effect, situation, tick);
     client.refresh_attributes(tick);
+    // Haste and Slow change how fast they go.
+    client.update_speed(tick);
     if paralysis {
         // Held still: no energy until it is over (as `alcohol.rs`'s collapse).
         let cost = u64::from(client.speed) * ticks;

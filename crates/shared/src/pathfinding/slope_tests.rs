@@ -24,11 +24,11 @@ fn m(x: i64, y: i64) -> Spot {
 }
 
 fn route(way: &LevelWay, from: Spot, to: Spot) -> SizedPath {
-    let rooms = RoomMap::new_by(way.level, Size::Medium, way.gait.swims_deep());
+    let rooms = RoomMap::new_by(way.level, Size::Medium, way.gait.footing());
     let path = find_sized_path(way, &rooms, from, to, None, |_, _| true);
     for pair in path.spots.windows(2) {
-        let swims = way.gait.swims_deep();
-        let legal = check_segment_by(way.level, Size::Medium, swims, pair[0], pair[1]);
+        let footing = way.gait.footing();
+        let legal = check_segment_by(way.level, Size::Medium, footing, pair[0], pair[1]);
         assert!(legal.is_some(), "{pair:?}");
     }
     path

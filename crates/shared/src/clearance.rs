@@ -28,7 +28,7 @@ pub use cell_blockers::{
     cell_blockers,
 };
 pub use crowd::{Crowding, Other, check_among, crowd_per_mille, crowded_at};
-pub use footing::{has_footing, has_footing_by};
+pub use footing::{Footing, has_footing, has_footing_by};
 pub use room_map::RoomMap;
 pub use segment::{
     JUMP_REACH, Passage, check_segment, check_segment_by, segment_cost, segment_is_legal,

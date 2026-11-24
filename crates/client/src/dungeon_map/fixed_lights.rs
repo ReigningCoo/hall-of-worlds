@@ -1,6 +1,7 @@
 //! Fixed lights: lights that stay where they are on a level (glowing fungus
-//! patches, lava's rims and candles: sconces, chandeliers, table candles), worked out once into a glow grid and kept until
-//! the level or the hour changes, then added to the light in `update_meshes`
+//! patches, lava's rims and candles: sconces, chandeliers, table candles; spots
+//! a spell's Light lit), worked out once into a glow grid and kept until the
+//! level, the hour or the lit spots change, then added to the light in `update_meshes`
 //! as town windows' glow is. Only the floor the player is on.
 
 use std::collections::HashMap;
@@ -14,6 +15,9 @@ use crate::common::{CurrentDungeon, ServerClock};
 mod candles;
 mod fungi;
 mod lava;
+mod spell;
+
+pub(super) use spell::{SpellLights, follow_spell_lights};
 
 /// A light that stays where it is on a level.
 #[derive(Clone, Debug, PartialEq)]
@@ -39,16 +43,18 @@ pub(super) struct FixedLights {
 pub(super) fn update_fixed_lights(
     dungeon: Res<CurrentDungeon>,
     clock: Res<ServerClock>,
+    spells: Res<SpellLights>,
     mut fixed: ResMut<FixedLights>,
 ) {
     let now = clock.minutes.max(0.0) as u64;
     let hour = Some(now / 60);
-    if fixed.hour == hour && !dungeon.is_changed() {
+    if fixed.hour == hour && !dungeon.is_changed() && !spells.is_changed() {
         return;
     }
     let mut lights = fungi::fungus_lights(&dungeon.level, now);
     lights.extend(lava::lava_lights(&dungeon.level));
     lights.extend(candles::candle_lights(&dungeon.level));
+    lights.extend(spells.lights());
     let glow = (!lights.is_empty()).then(|| glow_grid(&dungeon.level, &lights));
     if fixed.glow.is_none() && glow.is_none() {
         // Nothing to light: no change for `update_meshes` to see.

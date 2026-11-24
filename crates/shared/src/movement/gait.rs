@@ -71,6 +71,9 @@ pub struct Gait {
     jumping: u32,
     /// Pioneering in each terrain, in `Terrain::ALL`'s order.
     pioneering: [u32; Terrain::ALL.len()],
+    /// Floating over holes and water (a spell's Levitate: `floating`).
+    #[serde(default)]
+    floats: bool,
 }
 
 impl Gait {
@@ -81,6 +84,7 @@ impl Gait {
         swimming: 0,
         jumping: 0,
         pioneering: [0; Terrain::ALL.len()],
+        floats: false,
     };
 
     /// From a creature's skills.
@@ -91,6 +95,26 @@ impl Gait {
             swimming: skills.value(MOVEMENT_SKILLS.swimming).min(FULL),
             jumping: skills.value(MOVEMENT_SKILLS.jumping).min(FULL),
             pioneering: Terrain::ALL.map(|terrain| skills.value(terrain.skill()).min(FULL)),
+            floats: false,
+        }
+    }
+
+    /// From a character's sheet: their skills, floating while a Levitate lies
+    /// on them.
+    pub fn of_sheet(sheet: &crate::sheet::Sheet) -> Self {
+        Self {
+            floats: sheet.levitating(),
+            ..Self::of(&sheet.skills)
+        }
+    }
+
+    /// What it may stand on besides walkable ground on a level.
+    pub fn footing(self) -> crate::clearance::Footing {
+        use crate::clearance::Footing;
+        match (self.floats, self.swims_deep()) {
+            (true, _) => Footing::Floats,
+            (false, true) => Footing::Swims,
+            (false, false) => Footing::Walks,
         }
     }
 
@@ -104,6 +128,7 @@ impl Gait {
             swimming: self.swimming.min(other.swimming),
             jumping: self.jumping.min(other.jumping),
             pioneering: std::array::from_fn(|i| self.pioneering[i].min(other.pioneering[i])),
+            floats: self.floats && other.floats,
         }
     }
 

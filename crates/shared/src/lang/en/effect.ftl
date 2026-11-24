@@ -30,12 +30,29 @@ effect-spell = { $part ->
     [curse] Cursed
     [illusion] Illusion
     [warding] Warded
+    [haste] Hastened
+    [slow] Slowed
+    [blessing] Blessed
+    [weakness] Weakened
+    [light] Glowing
+    [darkness] Darkened
+    [calm] Calmed
+    [fear] Frightened
+    [levitate] Levitating
+    [teleport] Teleport ready
+    [anchor] Held in place
    *[other] Spell
 }
 effect-spell-does = { $part ->
     [water] Fire does half the harm, and dries you
     [ice] A third slower
     [earth] Held still
+    [darkness] No light of your own, a lantern's swallowed too
+    [calm] Unfriendly to nobody
+    [fear] Fleeing whoever cast it
+    [levitate] Floating over holes and water
+    [teleport] Your next move goes there at once: click a cell you can see
+    [anchor] No teleporting
    *[other] {""}
 }
 effect-alcohol = { $stage ->

@@ -88,6 +88,11 @@ impl Totals {
         (self.sum(Stat::Darkvision).flat / MILLI).clamp(0, i64::from(u32::MAX)) as u32
     }
 
+    /// How far in cells its own light reaches (a spell's Light): 0 without.
+    pub fn light(&self) -> u32 {
+        (self.sum(Stat::Light).flat / MILLI).clamp(0, i64::from(u32::MAX)) as u32
+    }
+
     /// A stat kept only as a percentage of whatever it changes (`Defence`,
     /// `BlowHarm`, `HarmTaken`, `Resistance`), per mille: 1000 with none,
     /// never below 0.

@@ -26,7 +26,7 @@ fn follow(distance: f64, slowness: f64) -> (bool, Spot) {
         let walker = Walker {
             level: &level,
             size: Size::Medium,
-            swims: false,
+            footing: shared::clearance::Footing::Walks,
             others: &[],
             squeezes: true,
         };

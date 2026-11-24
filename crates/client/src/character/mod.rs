@@ -95,7 +95,7 @@ fn publish_speed(
     mut gait: ResMut<PlayerGait>,
 ) {
     speed.set_if_neq(PlayerSpeed(sheet.0.speed(&carried.0)));
-    gait.set_if_neq(PlayerGait(Gait::of(&sheet.0.skills)));
+    gait.set_if_neq(PlayerGait(Gait::of_sheet(&sheet.0)));
 }
 
 /// The most the player can carry, for the weight under the inventory.

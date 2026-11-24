@@ -86,7 +86,7 @@ pub(super) fn everyone_playing(clients: &mut [Client]) -> Vec<Someone> {
                 scent: scent_strength(&client.inventory),
                 heading: client.heading,
                 fighting: client.winding_up(),
-                light: client.inventory.light_reach(),
+                light: client.sheet.light_reach(&client.inventory),
             }
         })
         .collect()

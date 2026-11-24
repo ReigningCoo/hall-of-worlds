@@ -24,7 +24,7 @@ pub(super) fn level_route(
     known: impl Fn(i64, i64) -> bool + Copy,
 ) -> SizedPath {
     let open = level.with_all_doors_open();
-    let rooms = RoomMap::new_by(&open, size, gait.swims_deep());
+    let rooms = RoomMap::new_by(&open, size, gait.footing());
     let way = LevelWay {
         level: &open,
         relief,

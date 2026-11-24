@@ -53,6 +53,19 @@ pub(in crate::sites) fn remember_doors(
     visit: &Visit,
     (x, y): (i64, i64),
 ) -> bool {
+    remember(client, visit, (x, y), false)
+}
+
+/// The same for a secret door found by a spell (Identify): known even shut.
+pub(in crate::sites) fn remember_doors_found(
+    client: &mut Client,
+    visit: &Visit,
+    (x, y): (i64, i64),
+) -> bool {
+    remember(client, visit, (x, y), true)
+}
+
+fn remember(client: &mut Client, visit: &Visit, (x, y): (i64, i64), found: bool) -> bool {
     let Some(door) = visit.doors.get(&(x, y)) else {
         return false;
     };
@@ -66,7 +79,7 @@ pub(in crate::sites) fn remember_doors(
     }
     let (id, index, kept) = places[0];
     let known = remembered_doors(client, id, index).is_some_and(|doors| doors.contains_key(&kept));
-    if secret && swing.is_shut() && !known && !client.truesight {
+    if secret && swing.is_shut() && !known && !client.truesight && !found {
         // It still looks like wall.
         return false;
     }

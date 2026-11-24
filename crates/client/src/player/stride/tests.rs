@@ -21,7 +21,7 @@ fn walker(level: &Level) -> Walker<'_> {
     Walker {
         level,
         size: Size::Medium,
-        swims: false,
+        footing: shared::clearance::Footing::Walks,
         others: &[],
         squeezes: false,
     }
@@ -131,7 +131,7 @@ fn enemies_are_not_walked_into() {
     let walker = Walker {
         level: &level,
         size: Size::Medium,
-        swims: false,
+        footing: shared::clearance::Footing::Walks,
         others: &[enemy],
         squeezes: false,
     };

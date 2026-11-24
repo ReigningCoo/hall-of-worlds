@@ -15,10 +15,12 @@ use super::level_moves::{door_ahead, follow_route, jump_ahead};
 use super::level_route::level_route;
 use super::route_help::{Others, crowd, enemy_cells};
 use super::stride::{Stride, Walker};
+use super::teleport::teleport_goal;
 use super::{
-    Arrived, DUNGEON_TRAVEL_SPEED, Moved, Player, PlayerEnergy, Travel, TravelTo, Walking,
-    action_tick,
+    Arrived, DUNGEON_TRAVEL_SPEED, Moved, Player, PlayerEnergy, Teleported, Travel, TravelTo,
+    Walking, action_tick,
 };
+use crate::character::CharacterSheet;
 use crate::common::{
     CurrentDungeon, DrawnGround, GameView, GodMode, MapPosition, PlayerGait, PlayerSize,
     PlayerSpeed, SmoothPosition, Sneaking, SpotPosition, WildCellHeights,
@@ -44,6 +46,7 @@ pub(super) fn travel_on_level(
     mut energy: ResMut<PlayerEnergy>,
     (god, size): (Res<GodMode>, Res<PlayerSize>),
     others: Others,
+    (sheet, mut teleports): (Res<CharacterSheet>, MessageWriter<Teleported>),
     player: Single<
         (
             &mut MapPosition,
@@ -107,7 +110,7 @@ pub(super) fn travel_on_level(
     let walker = Walker {
         level,
         size: size.0,
-        swims: gait.0.swims_deep(),
+        footing: gait.0.footing(),
         others: &crowd,
         squeezes: walk.is_none(),
     };
@@ -153,6 +156,24 @@ pub(super) fn travel_on_level(
                 travel.landing = Some(landing);
             }
         }
+    } else if travel.asked
+        && let Some(to) = teleport_goal(
+            &sheet.0,
+            (level, size.0),
+            travel.stride.at,
+            travel.goal,
+            |x, y| dungeon.remembered.is_seen(x, y),
+        )
+    {
+        // A Teleport: there at once, after what was walked so far.
+        travel.asked = false;
+        moves.extend(travel.stride.finish());
+        teleports.write(Teleported {
+            from: travel.stride.at,
+            to,
+        });
+        travel.stride = Stride::at(to);
+        travel.spots.clear();
     } else if travel.asked {
         travel.asked = false;
         let goal = travel.goal;

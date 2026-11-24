@@ -2,13 +2,15 @@
 //! cures poison (eaten, a fungus's begun, a spell's), Curse reversed lifts a
 //! Curse (and, on the server, curses on what is worn), Illusion reversed
 //! ends Illusions, and Warding reversed dispels every spell's effect, good
-//! and bad.
+//! and bad. PR 13: Levitate reversed brings floating things down, and
+//! Light and Darkness each end the other.
 
 use serde::{Deserialize, Serialize};
 
 use crate::bonus::Source;
 
 use super::lasting::{CURSED, ILLUSION, POISONED};
+use super::utility::{DARKENED, LEVITATING, LIT};
 
 /// Which effects a removing outcome ends.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -21,6 +23,12 @@ pub enum Ends {
     Illusion,
     /// Warding reversed: every spell's.
     Spells,
+    /// Levitate reversed: brings floating things down (PR 13).
+    Levitation,
+    /// Light reversed (Darkness): ends a Light.
+    Light,
+    /// Light: ends Darkness.
+    Darkness,
 }
 
 impl Ends {
@@ -34,6 +42,9 @@ impl Ends {
             Self::Curse => source == Source::Spell(CURSED),
             Self::Illusion => source == Source::Spell(ILLUSION),
             Self::Spells => matches!(source, Source::Spell(_)),
+            Self::Levitation => source == Source::Spell(LEVITATING),
+            Self::Light => source == Source::Spell(LIT),
+            Self::Darkness => source == Source::Spell(DARKENED),
         }
     }
 }

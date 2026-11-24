@@ -24,8 +24,9 @@ const SAME_WAY: f64 = 0.9999;
 pub(super) struct Walker<'a> {
     pub level: &'a Level,
     pub size: Size,
-    /// A good swimmer (`Gait::swims_deep`): water is swum, not jumped.
-    pub swims: bool,
+    /// What else it stands on: a good swimmer swims water rather than
+    /// jumping it, someone floating (Levitate) holes and water too.
+    pub footing: shared::clearance::Footing,
     pub others: &'a [Other],
     /// Walking freely, nobody squeezes any more than where they started (as
     /// `slide`), so pushing against a wall doesn't press into it; a
@@ -36,7 +37,7 @@ pub(super) struct Walker<'a> {
 impl Walker<'_> {
     /// The one rule for them (`check_segment_by`).
     pub(super) fn passage(&self, a: Spot, b: Spot) -> Option<Passage> {
-        check_segment_by(self.level, self.size, self.swims, a, b)
+        check_segment_by(self.level, self.size, self.footing, a, b)
     }
 
     /// Whether the straight walk from `a` to `b` is allowed: by the one rule,
@@ -197,7 +198,13 @@ impl Stride {
 /// east-west or north-south goes further (as much as the walk goes that
 /// way), as nothing may squeeze more than where it starts.
 fn slid(walker: &Walker, at: Spot, by: DVec2) -> Option<Spot> {
-    let slid = slide_by(walker.level, walker.size, walker.swims, at, offset(at, by));
+    let slid = slide_by(
+        walker.level,
+        walker.size,
+        walker.footing,
+        at,
+        offset(at, by),
+    );
     let (along_x, along_y) = (DVec2::new(by.x, 0.0), DVec2::new(0.0, by.y));
     let axes = match along_x.length() >= along_y.length() {
         true => [along_x, along_y],

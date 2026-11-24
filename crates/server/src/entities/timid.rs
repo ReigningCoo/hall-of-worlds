@@ -29,10 +29,15 @@ pub(super) fn keeps_apart(feeling: Feeling) -> i64 {
     }
 }
 
-/// Whether someone is nearer than this mob, timid or not, wants them.
+/// Whether someone is nearer than this mob, timid or not, wants them: as far
+/// as from an enemy while Fear lies on it.
 pub(super) fn too_near(mob: &Mob, spot: &Spot) -> bool {
     let feeling = mob.feeling(spot.kind, spot.character.as_ref());
-    cells_apart(mob.position, spot.position) < keeps_apart(feeling)
+    let apart = match mob.frightened() {
+        true => ENEMY_APART,
+        false => keeps_apart(feeling),
+    };
+    cells_apart(mob.position, spot.position) < apart
 }
 
 /// Who a timid mob that is keeping away would strike at now, if anyone: the one

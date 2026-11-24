@@ -202,3 +202,9 @@ delapouite/round-star
 # Spell design panel filters: Friend and Enemy (spell_design/piece.rs; Self is delapouite/person)
 delapouite/shaking-hands
 delapouite/angry-eyes
+# Spells' lasting effects in the effect bar (effect_bar/looks.rs)
+lorc/snail
+lorc/night-sky
+lorc/anchor
+lorc/despair
+lorc/broken-shield

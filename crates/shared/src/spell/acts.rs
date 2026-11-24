@@ -5,7 +5,11 @@
 //! that blocks sight (owner, 2026-11-23). Heal reversed harms. PR 12: Air
 //! knocks back, reversed pulls in; Earth, Poison, Curse, Illusion and Warding
 //! leave lasting effects (`lasting`), and reversed (Stoneskin aside) take
-//! them away (`ending`). Numbers are first guesses.
+//! them away (`ending`). PR 13: Identify finds out what worn things hide,
+//! reversed hides it; Mana gives Mana, reversed drains it; Teleport, Light,
+//! Haste, Calm, Blessing and Levitate lie on creatures (`utility`), Light
+//! lighting the spot when it reaches nobody, and Levitate reversed brings
+//! floating things down. Numbers are first guesses.
 
 use crate::dungeon::{Cell, Level};
 
@@ -16,6 +20,10 @@ use super::ending::Ends;
 use super::harm::does_harm;
 use super::lasting::{CURSED, ILLUSION, PARALYSED, POISONED, STONESKIN, WARDED};
 use super::part::Part;
+use super::utility::{
+    ANCHORED, BLESSED, CALMED, DARKENED, FRIGHTENED, HASTED, LEVITATING, LIT, SLOWED, TELEPORTING,
+    WEAKENED,
+};
 
 /// Seconds water stays frozen, each ice.
 pub const ICE_SECONDS: u64 = 60;
@@ -48,6 +56,17 @@ pub struct Acts {
     pub lasts: Option<Part>,
     /// Ends these effects on creatures (`Ends`).
     pub ends: Option<Ends>,
+    /// Finds out what is secret about what creatures wear, and secret doors
+    /// round where it lands (Identify).
+    pub identifies: bool,
+    /// Hides it again (Conceal, Identify reversed).
+    pub conceals: bool,
+    /// Gives Mana (`mana_given`).
+    pub gives_mana: bool,
+    /// Drains Mana, the caster getting back no more than the spell cost.
+    pub drains_mana: bool,
+    /// Lights the spots it lands on when it reaches nobody (Light).
+    pub glows: bool,
 }
 
 /// Which way Air moves what it lands on.
@@ -63,7 +82,7 @@ impl Acts {
     /// Whether it does anything to the place itself, not only to creatures:
     /// a first step landing only on such a place doesn't fizzle.
     pub fn on_place(self) -> bool {
-        self.lights || self.douses || self.freezes || self.clouds
+        self.lights || self.douses || self.freezes || self.clouds || self.glows || self.identifies
     }
 }
 
@@ -115,6 +134,31 @@ pub fn acts(outcome: Outcome) -> Acts {
             knocks: Some(if reversed { Knock::In } else { Knock::Away }),
             ..none
         },
+        (Effect::Identify, reversed) => Acts {
+            identifies: !reversed,
+            conceals: reversed,
+            ..none
+        },
+        (Effect::Mana, reversed) => Acts {
+            gives_mana: !reversed,
+            drains_mana: reversed,
+            ..none
+        },
+        (Effect::Light, false) => Acts {
+            lasts: Some(LIT),
+            ends: Some(Ends::Darkness),
+            glows: true,
+            ..none
+        },
+        (Effect::Light, true) => Acts {
+            lasts: Some(DARKENED),
+            ends: Some(Ends::Light),
+            ..none
+        },
+        (Effect::Levitate, true) => Acts {
+            ends: Some(Ends::Levitation),
+            ..none
+        },
         _ => lasting_or_ending(part, harms),
     }
 }
@@ -142,6 +186,15 @@ fn lasting_or_ending(part: Part, harms: bool) -> Acts {
         (Effect::Illusion, true) => ends(Ends::Illusion),
         (Effect::Warding, false) => lasts(WARDED),
         (Effect::Warding, true) => ends(Ends::Spells),
+        (Effect::Teleport, false) => lasts(TELEPORTING),
+        (Effect::Teleport, true) => lasts(ANCHORED),
+        (Effect::Haste, false) => lasts(HASTED),
+        (Effect::Haste, true) => lasts(SLOWED),
+        (Effect::Calm, false) => lasts(CALMED),
+        (Effect::Calm, true) => lasts(FRIGHTENED),
+        (Effect::Blessing, false) => lasts(BLESSED),
+        (Effect::Blessing, true) => lasts(WEAKENED),
+        (Effect::Levitate, false) => lasts(LEVITATING),
         _ => Acts { harms, ..none },
     }
 }

@@ -22,7 +22,7 @@ Right-click Attack on the action bar (or hold a finger on it) to have it used by
 
 ## Healing
 
-**Heal** is a spell from your spellbook: it turns about 5 Mana into Health, on you. It heals 12 Health at first, rising with the Healing skill to 120 for a master, and costs less Mana as Healing grows. It always spends its Mana, even when you are already whole; healing beyond your most is lost, and teaches nothing.
+**Heal** is a spell from your spellbook (see [Magic](magic) for designing your own): it turns about 5 Mana into Health, on you. It heals 12 Health at first, rising with the Healing skill to 120 for a master, and costs less Mana as Healing grows. It always spends its Mana, even when you are already whole; healing beyond your most is lost, and teaches nothing.
 
 Made automatic, Heal heals you whenever your Health is at a quarter or less and you have the Mana. Spells that only harm are cast by themselves when an enemy you have targeted is within their reach.
 

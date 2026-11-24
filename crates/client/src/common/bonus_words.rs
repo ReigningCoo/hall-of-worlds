@@ -84,6 +84,8 @@ pub fn stat_words(stat: Stat, lang: &Lang) -> String {
         Stat::BlowHarm => "stat-blow-harm".to_owned(),
         Stat::HarmTaken => "stat-harm-taken".to_owned(),
         Stat::Resistance => "stat-resistance".to_owned(),
+        Stat::Speed => "stat-speed".to_owned(),
+        Stat::Light => "stat-light".to_owned(),
         Stat::Skill(skill) => {
             let args = Args::new().text("skill", skill.name());
             return written(lang.render("stat-skill", &args));

@@ -130,11 +130,13 @@ fn run_step(
     let Some(index) = clients[i].visit.as_ref().map(|visit| visit.index()) else {
         return;
     };
+    let cost = spell_cost(&cast.spell, Some(&clients[i].sheet.skills));
     let at = Landing {
         present,
         place: cast.place,
         index,
         tick,
+        cost,
         away: away_headings(&cast, present, &targets, clients[i].heading),
     };
     let cells = landing_cells(&cast, present);

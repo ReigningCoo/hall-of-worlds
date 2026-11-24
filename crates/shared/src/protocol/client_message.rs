@@ -71,8 +71,7 @@ pub enum ClientMessage {
     /// (`OnWorldMap`): the wilderness from outside ground, not into water; a
     /// site where `site::can_leave` allows; a Dev Area from anywhere.
     Up,
-    /// Stop or restart the world's clock, answered with `Paused`. Only a server
-    /// with just this player on it pauses (`Welcome`'s `can_pause`).
+    /// Stop or restart the world's clock (`Paused`); only with just this player on (`can_pause`).
     SetPaused(bool),
     /// Opens the server to other players with these settings (or closes it, with `None`), answered
     /// with `Online`. Only the embedded server's own player may; others are ignored.
@@ -181,8 +180,7 @@ pub enum ClientMessage {
     /// Developer tools: truesight on or off: told what is secret about items and seeing secret doors,
     /// none found out. Answered with `Inventory`, and the level again if it has secret doors.
     DevTruesight(bool),
-    /// Developer tools: god mode on or off. Mobs take no notice of the character,
-    /// and it can walk through them.
+    /// Developer tools: god mode on or off: mobs ignore the character, who walks through them.
     DevGodMode(bool),
     /// Developer tools: this mob in sight dies for good, dropping what it had.
     DevKillMob { mob: Id },
@@ -193,8 +191,7 @@ pub enum ClientMessage {
     DevDeleteCharacter,
     /// Developer tools: jump to this point on the map (`protocol::moves`), answered with `Teleported`.
     DevTeleport { x: i64, y: i64 },
-    /// Developer tools: back to where new characters start on the world map, from anywhere,
-    /// answered with `OnWorldMap`. Only an embedded server accepts it; others ignore it.
+    /// Developer tools: back to new characters' start on the world map (`OnWorldMap`); embedded only.
     DevBackToStart,
     /// Developer tools: to the Hall of Worlds, before the gate leading to World Gate `gate` (from 0;
     /// none: the nearest, or another world's first) of world `seed` (none: theirs). `EnterHall`.
@@ -297,4 +294,7 @@ pub enum ClientMessage {
     Recipe(super::RecipeAsk),
     /// Change the spellbook (`SpellbookAsk`): answered with `Sheet`.
     Spellbook(super::SpellbookAsk),
+    /// A Teleport's move (`Sheet::may_teleport`): straight to a seen cell, `spell::may_teleport_to`;
+    /// `map` and `number` as `Move`'s, answered with `Position` either way.
+    Teleport { map: u32, number: u32, to: Spot },
 }

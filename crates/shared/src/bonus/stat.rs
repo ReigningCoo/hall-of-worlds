@@ -46,6 +46,12 @@ pub enum Stat {
     /// Only from effects, as a percentage: what it resists harmful magic with
     /// (`spell::resistance`; a spell's Warding).
     Resistance,
+    /// Only from effects, as a percentage: how fast it acts (a spell's Haste,
+    /// more; Slow, less: `Sheet::spell_speed_percent`).
+    Speed,
+    /// Only from effects: its own light reaching this many cells round it (a
+    /// spell's Light: `Sheet::light_reach`).
+    Light,
     // New stats go at the end: messages carry one by its place in this list.
 }
 

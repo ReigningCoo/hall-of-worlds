@@ -20,6 +20,11 @@ pub(super) enum Action {
         number: u32,
         to: shared::spot::Spot,
     },
+    /// A Teleport's move, straight to here (`messages/teleport.rs`).
+    Teleport {
+        number: u32,
+        to: shared::spot::Spot,
+    },
     EnterSite {
         chunk: ChunkPos,
     },
@@ -74,11 +79,19 @@ impl super::Client {
         true
     }
 
+    /// Queues a Teleport's move (`messages/teleport.rs`), unless it is meant
+    /// for a map the player has since left. Always stays.
+    pub(super) fn queue_teleport(&mut self, map: u32, number: u32, to: shared::spot::Spot) -> bool {
+        map != self.map || self.queue_move(Action::Teleport { number, to })
+    }
+
     /// Queues a step or move, unless too many wait already (its `Position`
     /// then puts the client right). Always stays.
     pub(super) fn queue_move(&mut self, action: Action) -> bool {
         let number = match action {
-            Action::Step { number, .. } | Action::Move { number, .. } => number,
+            Action::Step { number, .. }
+            | Action::Move { number, .. }
+            | Action::Teleport { number, .. } => number,
             _ => return true,
         };
         if self.waiting.len() < super::MOST_WAITING {

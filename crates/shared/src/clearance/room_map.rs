@@ -1,6 +1,6 @@
 //! Where creatures of one size have room to stand, cell by cell.
 
-use super::check_segment_by;
+use super::{Footing, check_segment_by};
 use crate::creature::Size;
 use crate::dungeon::Level;
 use crate::spot::Spot;
@@ -12,8 +12,9 @@ use crate::spot::Spot;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RoomMap {
     size: Size,
-    /// Whether it is for a good swimmer, who can stand in water.
-    swims: bool,
+    /// What it counts as footing: a good swimmer can stand in water, someone
+    /// floating over holes too.
+    footing: Footing,
     bounds: (i64, i64, i64, i64),
     /// Thousandths slower (`squeeze_per_mille`), 0 for no room, row by row.
     squeeze: Vec<u32>,
@@ -21,25 +22,25 @@ pub struct RoomMap {
 
 impl RoomMap {
     pub fn new(level: &Level, size: Size) -> Self {
-        Self::new_by(level, size, false)
+        Self::new_by(level, size, Footing::Walks)
     }
 
-    /// The same for a good swimmer (`swims`, `Gait::swims_deep`), who can
-    /// stand in water too (`has_footing_by`).
-    pub fn new_by(level: &Level, size: Size, swims: bool) -> Self {
+    /// The same for a good swimmer (`Gait::swims_deep`), who can stand in
+    /// water too, or someone floating (`Gait::footing`, `has_footing_by`).
+    pub fn new_by(level: &Level, size: Size, footing: Footing) -> Self {
         let bounds = level.bounds();
         let (min_x, min_y, width, height) = bounds;
         let mut squeeze = Vec::with_capacity((width * height) as usize);
         for y in min_y..min_y + height {
             for x in min_x..min_x + width {
                 let middle = Spot::middle_of((x, y));
-                let here = check_segment_by(level, size, swims, middle, middle);
+                let here = check_segment_by(level, size, footing, middle, middle);
                 squeeze.push(here.map_or(0, |passage| passage.squeeze_per_mille));
             }
         }
         Self {
             size,
-            swims,
+            footing,
             bounds,
             squeeze,
         }
@@ -50,9 +51,9 @@ impl RoomMap {
         self.size
     }
 
-    /// Whether it is for a good swimmer.
-    pub fn swims(&self) -> bool {
-        self.swims
+    /// What it counts as footing.
+    pub fn footing(&self) -> Footing {
+        self.footing
     }
 
     /// How squeezed a creature standing at cell `(x, y)`'s middle is, in

@@ -1,7 +1,7 @@
 //! The one rule for a move on a level: a creature's circle going straight from
 //! one spot to another.
 
-use super::{Blocker, blockers_near, has_footing_by, squeeze_per_mille};
+use super::{Blocker, Footing, blockers_near, has_footing_by, squeeze_per_mille};
 use crate::creature::Size;
 use crate::dungeon::{Level, line_hits_box};
 use crate::spot::{HALF_SPAN, Spot};
@@ -20,29 +20,31 @@ pub struct Passage {
 }
 
 /// Whether a creature of `size` may move straight from `from` to `to`, and how
-/// (`None`: it may not). Both ends need footing (`has_footing`); the middle's
+/// (`None`: it may not). The end needs footing (`has_footing`); the middle's
 /// line may cross no cell without footing unless the move is a jump: no longer
 /// than `JUMP_REACH`, over one cell of liquid, holes or fence and nothing else.
 /// The circle, swept along, must keep at least half its radius from every
 /// blocker but the fence it jumps (squeezing where it has less than its
 /// radius).
 pub fn check_segment(level: &Level, size: Size, from: Spot, to: Spot) -> Option<Passage> {
-    check_segment_by(level, size, false, from, to)
+    check_segment_by(level, size, Footing::Walks, from, to)
 }
 
-/// `check_segment` for someone who may or may not swim deep water: for a
-/// swimmer, water is footing (`has_footing_by`), swum rather than jumped.
+/// `check_segment` for someone who may swim deep water or float: for a
+/// swimmer, water is footing (`has_footing_by`), swum rather than jumped; for
+/// someone floating, holes and water.
 pub fn check_segment_by(
     level: &Level,
     size: Size,
-    swims: bool,
+    footing: Footing,
     from: Spot,
     to: Spot,
 ) -> Option<Passage> {
-    let footing = |x, y| has_footing_by(level, swims, x, y);
-    let (fx, fy) = from.cell();
+    let footing = |x, y| has_footing_by(level, footing, x, y);
     let (tx, ty) = to.cell();
-    if !footing(fx, fy) || !footing(tx, ty) {
+    // Only the end needs footing: someone left over water or a hole when a
+    // Levitate ends may still jump out (the start is then the cell jumped).
+    if !footing(tx, ty) {
         return None;
     }
     let low = Spot::new(from.x.min(to.x), from.y.min(to.y));

@@ -80,3 +80,11 @@ pub struct Moved {
     pub from: Spot,
     pub to: Spot,
 }
+
+/// A Teleport took the player straight from one spot to another on a level
+/// (units), at once (`teleport.rs`): for the server, which checks it.
+#[derive(Message, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Teleported {
+    pub from: Spot,
+    pub to: Spot,
+}

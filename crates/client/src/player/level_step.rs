@@ -26,7 +26,7 @@ pub(super) fn level_step(
     }
     let to = Spot::middle_of(step.from(cell));
     let legal = from.distance(to) <= MOST_MOVE
-        && check_segment_by(level, size, gait.swims_deep(), from, to)
+        && check_segment_by(level, size, gait.footing(), from, to)
             .is_some_and(|p| p.jumped.is_none());
     legal.then_some(to)
 }
