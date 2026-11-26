@@ -10,7 +10,8 @@ impl DebugAction {
     pub(in crate::debug_menu) fn tool(self) -> Option<DebugTool> {
         Some(match self {
             Self::Accounts => return None,
-            Self::ShowDebugInfo => DebugTool::ShowDebugInfo,
+            // Only this client, as Show Debug Info is.
+            Self::ShowDebugInfo | Self::PlayTestMusic => DebugTool::ShowDebugInfo,
             Self::LightningNow => DebugTool::LightningNow,
             Self::SunsAndMoons => DebugTool::SunsAndMoons,
             // Only how this client draws, as Drawing States is.

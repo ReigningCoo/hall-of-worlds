@@ -63,3 +63,17 @@ Made by `tools/make_town_atlas.py` from those tiles (same artist and licence): s
 - Source: the D. Gervais tiles library, <http://pousse.rapiere.free.fr/tome/> ("AngbandTk" download, `tiles/AngbandTk.zip`)
 - Licence: [Creative Commons Attribution 3.0](http://creativecommons.org/licenses/by/3.0/) (CC BY 3.0)
 - Changes: the spritesheets `dg_features32.gif`, `dg_grounds32.gif` and `dg_extra132.gif` were split into one 32×32 RGBA PNG per tile, named `<sheet>_<row>_<column>.png` (from 0, top left; empty tiles skipped), with the solid magenta (`#ff00ff`) background made transparent and names lower-cased. Only the tiles the game uses are here; the whole set is in `spare_assets/angbandtk/` (never shipped), which `tools/make_town_atlas.py` reads.
+
+## `music/music.sf2`: MuseScore General 0.2 and Early European Instruments, cut down
+
+- Makers: **S. Christian Collins** (MuseScore General, 2018-19), from **Michael Cowgill**'s FluidR3Mono (2014-17) and **Frank Wen**'s Fluid (R3) (2000-2002, 2008); Temple Blocks by Ethan Winer, Drumline Cymbals by Michael Schorsch (neither kept)
+- Source: <https://ftp.osuosl.org/pub/musescore/soundfont/MuseScore_General/> (`MuseScore_General.sf2`, version 0.2)
+- Licence: MIT, in `music/MuseScore_General-License.md` (the copyright notices must stay with any copy)
+- Changes: only the presets the music plays are kept, with their General MIDI bank and program, and only some keys of the standard drum kit (`tools/subset_soundfont.py`, which lists them); these samples are unchanged.
+
+Its hurdy-gurdy and cornemuse (bank 8, programs 110 and 109) are from Early European Instruments:
+
+- Shared by: **John Carter** (its file names Corey Ferrante as its author)
+- Source: <https://www.polyphone.io/en/soundfonts/instrument-sets/516-early-european-instruments> (`EarlyEuropean.sf2`)
+- Licence: public domain, as the page states
+- Changes: only those two presets kept, each from its left channel alone, at 48 kHz instead of 192 kHz (filtered and resampled by `tools/subset_soundfont.py`).

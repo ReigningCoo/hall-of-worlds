@@ -1,6 +1,6 @@
 # client: sound
 
-Whether this run plays sound at all, and the volumes chosen in Settings, Audio, put into play. Plays nothing itself yet: the music plan's synth (PR 2) and sequencer read what is here (`docs/context/research-music.md`). Sound is client-only, never game state.
+Whether this run plays sound at all, and the volumes chosen in Settings, Audio, put into play. Plays nothing itself: `music` (the synth, music plan PR 2) and the sequencer to come read what is here (`docs/context/research-music.md`). Sound is client-only, never game state.
 
 ## Files
 
@@ -20,4 +20,4 @@ Whether this run plays sound at all, and the volumes chosen in Settings, Audio, 
 
 ## Used by
 
-- `system_menu` (Settings, Audio) through `common`'s types; the music modules to come read `MusicVolume`.
+- `system_menu` (Settings, Audio) through `common`'s types; `music` reads `MusicVolume` and `SoundSwitches`.

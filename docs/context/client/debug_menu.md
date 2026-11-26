@@ -36,6 +36,7 @@ The debug menu: backtick or the warning button top left opens a full-screen laye
 ## Depends on
 
 - `common` (`AccountRole`, `OpenAccounts` (Admin Tools), `ClickMode`, `DebugInfo`, `CurrentDungeon`, `GameView`, `GodMode`, `Truesight`, `Target`, `Other`, `InspectedMob`, `HerbGrowthShift`, `CropGrowthShift`, `TouchGesture`, `TeleportToWorldAsked`, `LightningStrike`: Lightning Now; Lightning Strike Here sends `DevLightning`), `connection` (`ToServer`, `FromServer`), `player` (`TakeStep`, `PlayerSystems`), `minimap` (`FullMap`), `planet_view` (`ViewPlanet { world }`: View Planet, and Teleport to World's View Planet...), `widgets`, `item_art`, `dungeon_map` (`CROP_STAGES`, `HERB_STAGES`), `shared::movement`, `shared::site`.
+- `music`: `PlayTestMusic` (Play Test Music, under Display, needing the Show Debug Info tool as it is only this client).
 - `dom`: `Template`, `document`, `Document`, `Dom` (Show Widgets' sample, whose `object` shows the first thing carried, `inventory::Carried`).
 
 ## Used by

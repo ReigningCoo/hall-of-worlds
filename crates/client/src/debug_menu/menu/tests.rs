@@ -47,7 +47,7 @@ fn return_on_a_disabled_entry_does_nothing() {
 fn return_on_a_highlighted_entry_chooses_it() {
     let shown = on_show("", &facts());
     assert_eq!(
-        return_chooses(&shown, Some(11), &facts()),
+        return_chooses(&shown, Some(12), &facts()),
         Some(DebugAction::GodMode)
     );
 }
