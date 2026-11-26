@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use shared::difficulty::{Difficulties, Difficulty};
 use shared::protocol::OnlineSettings;
 
-use super::{Controls, GraphicsPrefs, SavedServer, WindowPrefs};
+use super::{AudioPrefs, Controls, GraphicsPrefs, SavedServer, WindowPrefs};
 
 /// The player's choices, loaded at start and saved whenever they change.
 #[derive(Resource, Serialize, Deserialize, Default, Clone, PartialEq, Debug)]
@@ -50,6 +50,8 @@ pub struct Preferences {
     pub window: WindowPrefs,
     /// Graphics settings for speed and clutter.
     pub graphics: GraphicsPrefs,
+    /// Volumes and mutes (Settings, Audio).
+    pub audio: AudioPrefs,
     /// "Pause When Not in Focus": single player pauses while another window is
     /// in front.
     pub pause_unfocused: bool,

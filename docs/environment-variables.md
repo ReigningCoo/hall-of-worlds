@@ -113,3 +113,5 @@ The native client reads `HOW_DATA` too, for its single-player saves, `HOW_UPNP`,
 | `HOW_SERVER` | none | A server for Play to join, such as `wss://game.example.com:24691/ws`, until logging out; a server chosen in Connect comes first. Without either, Play is single player. |
 | `HOW_SERVER_KEY` | none | The key fingerprint `HOW_SERVER` must have, from its log. Without it, any certificate is accepted. See [Connecting a native client](hosting/#connecting-a-native-client). |
 | `HOW_PREFERENCES` | `Hall of Worlds/client/client.ron` in the user's data folder | The file keeping the player's choices between runs. |
+| `HOW_SOUND` | `true` (`false` in development builds) | `false` plays no sound at all this run, whatever the volumes in Settings, Audio, which shows that. |
+| `HOW_MUSIC` | `true` | `false` plays no music this run, while other sounds still play. |

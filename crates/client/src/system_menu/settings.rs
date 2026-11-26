@@ -1,8 +1,9 @@
 //! The pages of Settings, under its tabs: Gameplay (`gameplay`), Controls
 //! (`controls`), Interface
-//! (its size, "Enable Touch" and "Always Show Scroll Bars") and Graphics (`graphics`). Interface choices go
-//! straight into `Preferences`.
+//! (its size, "Enable Touch" and "Always Show Scroll Bars"), Graphics (`graphics`)
+//! and Audio (`audio`). Interface choices go straight into `Preferences`.
 
+mod audio;
 mod controls;
 mod difficulty;
 mod gameplay;
@@ -12,6 +13,7 @@ mod rows;
 mod shell;
 mod shown_role;
 
+pub(super) use audio::{show_audio_page, use_audio_page};
 pub(super) use controls::{TakenKeys, forget_taken, show_controls_page, use_controls_page};
 pub(super) use difficulty::use_difficulty;
 pub(super) use gameplay::{show_gameplay_page, use_gameplay_page};

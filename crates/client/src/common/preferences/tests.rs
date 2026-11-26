@@ -21,6 +21,12 @@ fn preferences_read_back_as_saved() {
         interface_size: InterfaceSize::Percent(150),
         touch: true,
         always_show_scroll_bars: true,
+        audio: crate::common::AudioPrefs {
+            general: 80,
+            general_muted: true,
+            music: 35,
+            music_muted: false,
+        },
         quiet_slow_drawing: true,
         mark_colour: shared::map_mark::MarkColour::Purple,
         servers: vec![SavedServer {

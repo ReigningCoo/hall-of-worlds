@@ -208,3 +208,6 @@ lorc/night-sky
 lorc/anchor
 lorc/despair
 lorc/broken-shield
+# Settings, Audio: mute buttons (system_menu/settings/audio.rs)
+delapouite/speaker
+delapouite/speaker-off

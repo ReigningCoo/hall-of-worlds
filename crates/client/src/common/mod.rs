@@ -32,6 +32,7 @@ use bevy::prelude::*;
 // Split into files (`cargo xtask lint` keeps files small).
 mod account_role;
 mod action_tick;
+mod audio;
 mod bench_ghost;
 mod benches;
 mod bonus_words;
@@ -82,6 +83,7 @@ mod world;
 
 pub use account_role::{AccountRole, OpenAccounts};
 pub use action_tick::{ServerTick, take_clock};
+pub use audio::{AudioPrefs, SoundSwitches};
 pub use bench_ghost::BenchGhost;
 pub use benches::{BenchHere, Benches};
 pub use bonus_words::{amount_of, bonus_line, effect_lines, stat_words, written};
@@ -172,6 +174,7 @@ impl Plugin for CommonPlugin {
             .insert_resource(preferences);
         app.insert_resource(ClearColor(Color::BLACK))
             .init_resource::<Wording>()
+            .init_resource::<SoundSwitches>()
             .init_resource::<KeepDrawing>()
             .init_resource::<OwnVitals>()
             .init_resource::<BottomHud>()
