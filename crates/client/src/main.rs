@@ -44,6 +44,7 @@ mod quest_log;
 mod quests;
 mod site;
 mod skills_page;
+mod sound;
 mod spell_design;
 mod step_pad;
 mod surface_style;
@@ -168,6 +169,7 @@ fn main() {
     app.add_plugins(app_icon::AppIconPlugin);
     app.add_plugins(item_popup::ItemPopupPlugin);
     app.add_plugins(map_marks::MapMarksPlugin);
+    app.add_plugins(sound::SoundPlugin);
 
     // Native only: developer tools. (The embedded single-player server is
     // started by `connection`.)

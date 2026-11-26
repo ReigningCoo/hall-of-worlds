@@ -1933,3 +1933,7 @@ Magic plan PR 12. What Illusion, Curse, Stoneskin and Warding change is kept as 
 ## 2026-11-24: Footing kinds for moves, and moves needing footing only at their end
 
 Magic plan PR 13. A level move's footing is a `clearance::Footing` (walks, swims deep water, floats over holes and water under a Levitate), from `movement::Gait::footing`, in place of the swimmer's yes or no, so Levitate is the same one rule on both sides. A move needs footing only where it ends: whoever is left over water or a hole when a Levitate ends can still jump out, the start counting as the cell jumped. Nobody else can stand without footing, so nothing else changes.
+
+## 2026-11-26: Sound is client-only
+
+Music plan PR 1. Music and other sound are played by the client alone and are never game state: the server sends nothing for them and checks nothing, and a client may play what it likes (mods may add tunes). What plays follows what the client already knows (where the player is, being attacked). Volumes are client preferences (`Preferences::audio`, Settings, Audio). `HOW_SOUND` turns all sound off for a run, off by default in debug builds so development copies and tests stay quiet; `HOW_MUSIC` turns off only music, for ambient and interface sounds later. Both are booleans read like the server's options. Bevy's `GlobalVolume` carries General; music's own share is `sound::MusicVolume`.

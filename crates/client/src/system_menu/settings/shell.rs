@@ -29,6 +29,7 @@ static SETTINGS: Template = html!(
       <option>Controls</option>
       <option>Interface</option>
       <option>Graphics</option>
+      <option>Audio</option>
     </tab-bar>
     <div id="gameplay_page" fills>
       <form id="settings.gameplay" class="rows">
@@ -109,6 +110,27 @@ static SETTINGS: Template = html!(
       </form>
     </div>
     <div id="graphics_page" fills hidden/>
+    <div id="audio_page" fills hidden>
+      <form id="settings.audio" class="rows">
+        <p id="off_note" hidden/>
+        <span id="general_row" class="labelled" nowrap
+              title="How loud the game plays everything.">
+          <label for="general" width="240">General Volume</label>
+          <input id="general" type="range" min="0" max="100" step="1" width="200"/>
+          <span id="general_percent" width="60"/>
+          <button id="general_mute" title="Mute"><img src="icon:delapouite/speaker"/></button>
+          <button id="general_unmute" title="Unmute" hidden><img src="icon:delapouite/speaker-off"/></button>
+        </span>
+        <span id="music_row" class="labelled" nowrap
+              title="How loud music plays, as a share of General Volume.">
+          <label for="music" width="240">Music Volume</label>
+          <input id="music" type="range" min="0" max="100" step="1" width="200"/>
+          <span id="music_percent" width="60"/>
+          <button id="music_mute" title="Mute"><img src="icon:delapouite/speaker"/></button>
+          <button id="music_unmute" title="Unmute" hidden><img src="icon:delapouite/speaker-off"/></button>
+        </span>
+      </form>
+    </div>
   </dialog>
 </form>
 "#
@@ -151,6 +173,7 @@ pub(in crate::system_menu) fn bind_settings(
             }
             ("settings", "interface_page") => bound.insert(Page(2)),
             ("settings", "graphics_page") => bound.insert(Page(3)),
+            ("settings", "audio_page") => bound.insert(Page(4)),
             ("settings.graphics", _) => {
                 graphics::bind_graphics(&mut bound, id);
                 continue;
