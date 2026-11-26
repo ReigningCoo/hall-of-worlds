@@ -77,3 +77,9 @@ Its hurdy-gurdy and cornemuse (bank 8, programs 110 and 109) are from Early Euro
 - Source: <https://www.polyphone.io/en/soundfonts/instrument-sets/516-early-european-instruments> (`EarlyEuropean.sf2`)
 - Licence: public domain, as the page states
 - Changes: only those two presets kept, each from its left channel alone, at 48 kHz instead of 192 kHz (filtered and resampled by `tools/subset_soundfont.py`).
+
+## `music/tunes/`: medieval melodies
+
+Single-melody MIDI files written for the game from medieval manuscripts, each tune's source, the image or edition it was read from and its licence named in `music/playlists/game.playlist.ron`. The melodies are public domain; the editions read from are public domain or CC0, except:
+
+- **La quarte estampie royal** (`quarte_estampie_royal.mid`): from the edition by **Pablo F. Cantalapiedra** of Paris, BnF fr. 844, f. 104r, on IMSLP, licensed CC BY 4.0 (<https://creativecommons.org/licenses/by/4.0/>). Changes: the melody alone, with our own rhythm.

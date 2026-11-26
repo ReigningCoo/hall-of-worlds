@@ -35,6 +35,7 @@ pub(super) fn follow_surfaces(
                 {
                     *shown = wanted;
                 }
+                follow_title(element, *widget, &mut titles);
             }
             Tag::Panel => {
                 let wanted = match hidden {
@@ -49,12 +50,7 @@ pub(super) fn follow_surfaces(
                 if let Ok(mut panel) = panels.get_mut(*widget) {
                     panel.start_at(place_of(&element.attrs));
                 }
-                let title = element.attrs.title.as_deref().unwrap_or_default();
-                for (PanelTitleOf(of), mut words) in &mut titles {
-                    if of == widget && words.0 != title {
-                        words.0 = title.to_owned();
-                    }
-                }
+                follow_title(element, *widget, &mut titles);
             }
             // Where its `left` and `top` say, in the interface's pixels.
             Tag::Popup => {
@@ -127,3 +123,13 @@ pub(super) fn tidy_surfaces(
 
 #[cfg(test)]
 mod tests;
+
+/// A panel's or big dialog's title row says its `title`.
+fn follow_title(element: &Element, widget: Entity, titles: &mut Query<(&PanelTitleOf, &mut Text)>) {
+    let title = element.attrs.title.as_deref().unwrap_or_default();
+    for (PanelTitleOf(of), mut words) in titles {
+        if *of == widget && words.0 != title {
+            words.0 = title.to_owned();
+        }
+    }
+}

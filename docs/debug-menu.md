@@ -21,6 +21,8 @@ What only your screen shows.
 | Suns and Moons | | Toggles a panel changing the colours of the suns and moons, and how bright the suns are. Only on your screen, until you next join the world. |
 | Drawing States |  | Opens a panel with a row each for stairs, fields and herbs, whose buttons step through the styles of stairs, the stages of the crops and how grown the herbs are on the level you are on. A row is greyed where the level has none. Changes only what is drawn. |
 | Other Floors | | Opens a panel tuning how a building's other floors are drawn: how much darker each storey below you is by day and at night, how far the ground is shown, how tall a storey is, how wide the wedge is (in degrees, seen from above) towards the camera in which nothing above you is drawn, and whether what you remember of the outside is shown. Only on your screen, until you next start the game. |
+| Play Tune | | Opens a list of every tune the music has, in the order they play, filtered by typing. Choosing one plays it alone, round and round, with the usual players (melody, second player, drone and drums). Nothing is heard with sound or music off (`HOW_SOUND`, `HOW_MUSIC`) or muted in Settings, Audio. |
+| Play All Tunes | | Plays every tune in turn again, each twice round and then linked into the next, as the music does until it follows where you are. |
 | Play Test Music | | Plays a short phrase on each instrument the music has, then its drums, to hear that music plays and how each sounds (about a minute). Choosing it again starts it over. Nothing is heard with sound or music off (`HOW_SOUND`, `HOW_MUSIC`) or muted in Settings, Audio; sound is off by default in debug builds. |
 
 ## Galleries

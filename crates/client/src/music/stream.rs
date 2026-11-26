@@ -10,6 +10,7 @@ use bevy::prelude::*;
 use rustysynth::Synthesizer;
 
 use super::decoder::MusicDecoder;
+use super::sequencer::Program;
 
 /// One MIDI channel message for the synthesizer: a channel (0 to 15), a
 /// command (`0x90` note on, `0x80` note off, `0xC0` program change, `0xB0`
@@ -63,10 +64,18 @@ impl MusicEvent {
     }
 }
 
+/// What the sequencer is told to do, at the next block.
+pub(super) enum Command {
+    Play(Program),
+    Stop,
+}
+
 /// What the game and the audio side share.
 pub(super) struct Shared {
     /// Events waiting for the next block of samples.
     pub events: Mutex<Vec<MusicEvent>>,
+    /// Commands for the sequencer, waiting likewise.
+    pub commands: Mutex<Vec<Command>>,
     /// The gain to play at (music × general, linear), as `f32` bits.
     target_gain: AtomicU32,
 }
@@ -75,6 +84,7 @@ impl Shared {
     pub fn new() -> Self {
         Self {
             events: Mutex::new(Vec::new()),
+            commands: Mutex::new(Vec::new()),
             target_gain: AtomicU32::new(0),
         }
     }
@@ -85,6 +95,12 @@ impl Shared {
 
     pub fn target_gain(&self) -> f32 {
         f32::from_bits(self.target_gain.load(Ordering::Relaxed))
+    }
+
+    pub fn command(&self, command: Command) {
+        if let Ok(mut commands) = self.commands.lock() {
+            commands.push(command);
+        }
     }
 
     pub fn send(&self, event: MusicEvent) {

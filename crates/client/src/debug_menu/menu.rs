@@ -24,6 +24,7 @@ pub(super) use parts::{
 pub(super) use show::show_menu;
 pub(super) use spawn::{bind_menu, spawn_menu};
 pub use state::DebugMenu;
+pub(super) use state::Sublist;
 
 /// How long a toggled entry stays on show before the menu closes: just past the
 /// press's ripple (`widgets`, 0.35 s).

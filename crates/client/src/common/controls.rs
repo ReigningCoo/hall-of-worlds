@@ -47,9 +47,8 @@ impl Controls {
         let mut lost = Vec::new();
         if let Some(binding) = binding {
             for other in Action::ALL {
-                for other_slot in 0..SLOTS {
+                for (other_slot, place) in self.keys[other.index()].iter_mut().enumerate() {
                     let same_place = other == action && other_slot == slot;
-                    let place = &mut self.keys[other.index()][other_slot];
                     if !same_place && *place == Some(binding) {
                         *place = None;
                         lost.push((other, other_slot));

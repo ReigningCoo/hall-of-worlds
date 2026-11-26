@@ -4,12 +4,16 @@
 use bevy::prelude::*;
 use shared::protocol::{ClientMessage, DevMobTool, ServerMessage};
 
+use super::menu::Sublist;
 use super::{DebugAction, DebugMenu, OpenPanels};
 use crate::common::{
     ClickMode, DebugInfo, DetectMonsters, FreezeMobs, GodMode, LightningStrike, Truesight,
 };
 use crate::connection::{FromServer, ToServer};
 use crate::planet_view::ViewPlanet;
+
+/// The submenu's layer, whose title names what it lists.
+const SUBMENU_LAYER: &str = "debug.submenu/layer";
 
 /// A new connection knows nothing of god mode, truesight or frozen mobs.
 pub(super) fn remind_of_god_mode(
@@ -65,7 +69,11 @@ pub(super) fn run_actions(
         MessageWriter<LightningStrike>,
         MessageWriter<crate::common::OpenAccounts>,
     ),
-    mut test_music: MessageWriter<crate::music::PlayTestMusic>,
+    (mut test_music, mut tunes, tune_list): (
+        MessageWriter<crate::music::PlayTestMusic>,
+        MessageWriter<crate::music::PlayTunes>,
+        Res<crate::music::TuneList>,
+    ),
 ) {
     for &action in actions.read() {
         match action {
@@ -96,7 +104,17 @@ pub(super) fn run_actions(
             DebugAction::RemakeSite => {
                 to_server.write(ToServer(ClientMessage::DevForgetMapOnServer));
             }
-            DebugAction::GeneratePoi => menu.open_submenu(),
+            DebugAction::GeneratePoi => {
+                menu.open_submenu(Sublist::Kinds);
+                dom.set(SUBMENU_LAYER, "title", action.name());
+            }
+            DebugAction::PlayTune => {
+                menu.open_submenu(Sublist::Tunes(tune_list.0.clone()));
+                dom.set(SUBMENU_LAYER, "title", action.name());
+            }
+            DebugAction::PlayAllTunes => {
+                tunes.write(crate::music::PlayTunes::All);
+            }
             DebugAction::KeyForThisDoor => {
                 let ask = shared::protocol::DoorAsk::DevKey;
                 to_server.write(ToServer(ClientMessage::Door(ask)));

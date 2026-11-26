@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use shared::poi::PoiKind;
 
 use super::super::actions::{DebugAction, Facts, kind_name};
-use super::{ACTIONS, Entry};
+use super::{ACTIONS, Entry, Sublist};
 use crate::widgets::matches_filter;
 
 /// The actions on show, in order: those permitted that match the filter.
@@ -26,14 +26,25 @@ pub(super) fn kinds_on_show(filter: &str) -> Vec<PoiKind> {
 }
 
 /// The entries on show in a layer.
-pub(super) fn entries_on_show(layer: usize, filter: &str, facts: &Facts) -> Vec<Entry> {
+pub(super) fn entries_on_show(
+    layer: usize,
+    filter: &str,
+    facts: &Facts,
+    sublist: &Sublist,
+) -> Vec<Entry> {
     if layer == ACTIONS {
-        on_show(filter, facts)
+        return on_show(filter, facts)
             .into_iter()
             .map(Entry::Action)
-            .collect()
-    } else {
-        kinds_on_show(filter).into_iter().map(Entry::Kind).collect()
+            .collect();
+    }
+    match sublist {
+        Sublist::Kinds => kinds_on_show(filter).into_iter().map(Entry::Kind).collect(),
+        // In the order they play, as the list is meant for listening through.
+        Sublist::Tunes(titles) => (titles.iter().enumerate())
+            .filter(|(_, title)| matches_filter(title, filter))
+            .map(|(at, _)| Entry::Tune(at))
+            .collect(),
     }
 }
 
@@ -43,7 +54,7 @@ pub(super) fn headings_of(entries: &[Entry]) -> Vec<Option<&'static str>> {
         .iter()
         .map(|entry| match entry {
             Entry::Action(action) => Some(action.group().name()),
-            Entry::Kind(_) => None,
+            Entry::Kind(_) | Entry::Tune(_) => None,
         })
         .collect()
 }
