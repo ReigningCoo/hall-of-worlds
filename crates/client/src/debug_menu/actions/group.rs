@@ -47,6 +47,8 @@ impl DebugAction {
             | Self::SunsAndMoons
             | Self::DrawingStates
             | Self::OtherFloors
+            | Self::PlayTune
+            | Self::PlayAllTunes
             | Self::PlayTestMusic => Group::Display,
             Self::ItemPictures | Self::ShowWidgets | Self::ViewPlanet => Group::Galleries,
             Self::TeleportMode | Self::TeleportToWorld | Self::ToTheWayInn => Group::Travel,

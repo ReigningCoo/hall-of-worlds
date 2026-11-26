@@ -35,6 +35,15 @@ Artwork, fonts and models by other people keep their own licences. The [attribut
 - **Instruments:** a cut-down copy of [MuseScore General](https://ftp.osuosl.org/pub/musescore/soundfont/MuseScore_General/) 0.2 by S. Christian Collins, from FluidR3Mono by Michael Cowgill and Fluid (R3) by Frank Wen (MIT).
 - **Hurdy-gurdy and cornemuse:** [Early European Instruments](https://www.polyphone.io/en/soundfonts/instrument-sets/516-early-european-instruments), shared by John Carter (public domain).
 
+The tunes are medieval melodies, written into our own MIDI files from the manuscripts or from free editions of them:
+
+- **La quarte estampie royal** (Paris, BnF fr. 844): ed. Pablo F. Cantalapiedra (CC BY 4.0).
+- **London, British Library, Add MS 29987** (Trotto, Lamento di Tristano, La Rotta): the manuscript (public domain), with John Kelly's edition (CC0).
+- **The Llibre Vermell** (Montserrat, MS 1: Stella splendens, Imperayritz, Mariam matrem): editions by Marieh and by Daniel Van Gilst (CC0).
+- **The Cantigas de Santa Maria** (Madrid, BN MS 10069, the Toledo codex): the codex's facsimile (public domain), with Marieh's edition of CSM 100 (CC0).
+- **The Robertsbridge Codex** (British Library, Add MS 28550): Michael Robert Harding's edition (public domain).
+- **Sumer is icumen in** (British Library, Harley MS 978): the manuscript (public domain), with J. B. Hurry's edition of 1914.
+
 ## Software
 
 

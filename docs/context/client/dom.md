@@ -22,9 +22,9 @@ The whole interface is markup: HTML's look with XML's closing rule, no CSS and n
 - `crates/client/src/dom/theme.rs`: `Theme` (resource), `Look`. `theme/over_view.rs`: looks over the game's view or a dark backdrop (the loading bar, the hover box, the status text, popups).
 - `crates/client/src/dom/layout.rs`: `node_for`: an element's `Node` from its attributes, look and place in a table. Its `wrap_tests.rs` runs Bevy's real layout headless.
 - `crates/client/src/dom/parts.rs`: `Document`, `DocumentOf`, `document()`, `document_in()`, `Element`, `Inert`, `Canvas`, `Solid`, `Opaque`, `OwnPointer`, `AlwaysBars`, `Round`, `Reach`, `Hovered`; private `Darkened`, `TextStyle`, `Words`, `InTable`, `Bar`, `TemplateBody`.
-- `crates/client/src/dom/build.rs`: `Builder`, `build_documents`. In `build/`: `table.rs`, `progress.rs`, `surfaces.rs` (`panel`, `dialog`, `footer`, `popup`, `scroll`), `title_row.rs` (a big dialog's title and close button), `container.rs`.
+- `crates/client/src/dom/build.rs`: `Builder`, `build_documents`. In `build/`: `table.rs`, `progress.rs`, `surfaces.rs` (`panel`, `dialog`, `footer`, `popup`, `scroll`), `title_row.rs` (a big dialog's title, a `widgets::PanelTitleOf` its layer, and close button), `container.rs`.
 - `crates/client/src/dom/dark.rs`: a `dark` panel's darkening (`spawn`, from `fixed_panel`) and `follow_darkenings` (shown as the panel's `hidden` says).
-- `crates/client/src/dom/surfaces.rs`: `follow_surfaces` (a panel's or dialog's `hidden`; a moving panel's `title` and first place; a popup's `hidden`, `left`, `top`), `clear_surfaces`, `tidy_surfaces`.
+- `crates/client/src/dom/surfaces.rs`: `follow_surfaces` (a panel's or dialog's `hidden`; a moving panel's or big dialog's `title` (`follow_title`); a moving panel's first place; a popup's `hidden`, `left`, `top`), `clear_surfaces`, `tidy_surfaces`.
 - `crates/client/src/dom/popup.rs`: `Popup` (`locked`), `spawn_popup`, `press_locks`, `close_popups` (set `ClosePopups`); `popup/drag.rs`: `drag_popups`; `popup/hover.rs`: `KeptOpen`, `close_hovers` (a `hover` popup's closing by itself). Tests.
 - `crates/client/src/dom/strip.rs`: `top_strip()`, `bottom_strip()`.
 - `crates/client/src/dom/restyle.rs`: `restyle`: `Node`, background, tooltip, picture and bar of every new or changed `Element`.

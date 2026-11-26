@@ -11,7 +11,9 @@ impl DebugAction {
         Some(match self {
             Self::Accounts => return None,
             // Only this client, as Show Debug Info is.
-            Self::ShowDebugInfo | Self::PlayTestMusic => DebugTool::ShowDebugInfo,
+            Self::ShowDebugInfo | Self::PlayTestMusic | Self::PlayTune | Self::PlayAllTunes => {
+                DebugTool::ShowDebugInfo
+            }
             Self::LightningNow => DebugTool::LightningNow,
             Self::SunsAndMoons => DebugTool::SunsAndMoons,
             // Only how this client draws, as Drawing States is.

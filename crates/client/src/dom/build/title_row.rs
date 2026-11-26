@@ -4,7 +4,9 @@
 use bevy::prelude::*;
 
 use super::Builder;
-use crate::widgets::{CLOSE_PIXELS, Pressable, UiId, panel_title, spawn_close_button};
+use crate::widgets::{
+    CLOSE_PIXELS, PanelTitleOf, Pressable, UiId, panel_title, spawn_close_button,
+};
 
 /// How tall the row is.
 const ROW: f32 = 36.0;
@@ -14,9 +16,11 @@ const CLOSE_MARGIN: f32 = 4.0;
 impl Builder<'_, '_, '_> {
     /// Spawns the row in `panel`. With `close`, the id of a close button,
     /// there is one: a press on it is a `ButtonPressed` for what this returns.
+    /// The title follows the dialog's `title` (`surfaces`), as `layer`'s.
     pub(super) fn title_row(
         &mut self,
         panel: Entity,
+        layer: Entity,
         title: &str,
         close: Option<UiId>,
     ) -> Option<Entity> {
@@ -30,7 +34,7 @@ impl Builder<'_, '_, '_> {
         let mut button = None;
         self.commands.entity(panel).with_children(|panel| {
             panel.spawn(row).with_children(|row| {
-                row.spawn(panel_title(title));
+                row.spawn((panel_title(title), PanelTitleOf(layer)));
                 let Some(id) = close else {
                     return;
                 };

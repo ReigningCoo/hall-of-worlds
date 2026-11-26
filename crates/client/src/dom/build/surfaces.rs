@@ -88,7 +88,7 @@ impl Builder<'_, '_, '_> {
                 let close = element.id.filter(|_| attrs.has("closable"));
                 let close = close.map(|id| UiId::new(id.parts().0, "close"));
                 if !title.is_empty() || close.is_some() {
-                    close_button = self.title_row(panel, title, close);
+                    close_button = self.title_row(panel, layer, title, close);
                 }
                 (layer, panel, None)
             }

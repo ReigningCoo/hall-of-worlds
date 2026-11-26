@@ -4,7 +4,7 @@
 use bevy::prelude::*;
 
 use super::start::Music;
-use super::stream::MusicEvent;
+use super::stream::{Command, MusicEvent};
 use crate::common::SoundSwitches;
 use crate::sound::MusicVolume;
 
@@ -90,6 +90,10 @@ pub(super) fn play_test_tune(
             warn!(
                 "Play Test Music: music is off or silent (HOW_SOUND, HOW_MUSIC, Settings, Audio)"
             );
+        }
+        // The tunes stop for it (Play Tune... starts them again).
+        if let Some(shared) = music.shared() {
+            shared.command(Command::Stop);
         }
         *tune = TestTune {
             events: test_tune(),

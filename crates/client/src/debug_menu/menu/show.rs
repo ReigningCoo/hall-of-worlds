@@ -7,8 +7,8 @@ use super::super::FactSources;
 use super::super::actions::kind_name;
 use super::{
     COLUMN_WIDTH, DebugMenu, Entry, FONT, FORMS, FilterBox, GAP, HEADING, MenuEntry, MenuGrid,
-    MenuRoot, PageButton, ROW, Slot, WarningButton, columns_in, entries_on_show, headings_of,
-    lay_out, rows_in,
+    MenuRoot, PageButton, ROW, Slot, Sublist, WarningButton, columns_in, entries_on_show,
+    headings_of, lay_out, rows_in,
 };
 use crate::common::{GameView, interface_area};
 use crate::dom::Dom;
@@ -76,14 +76,14 @@ pub(in crate::debug_menu) fn show_menu(
         let room = interface_area(&window, &ui_scale);
         let rows = rows_in(room.y, layer);
         let fit = columns_in(room.x, layer);
-        let entries: Vec<_> = entries_on_show(layer, &level.filter, &facts)
+        let entries: Vec<_> = entries_on_show(layer, &level.filter, &facts, &menu.sublist)
             .into_iter()
             .enumerate()
             .map(|(at, entry)| {
                 let highlighted = level.highlight == Some(at);
                 let available = match entry {
                     Entry::Action(action) => action.is_available(&facts),
-                    Entry::Kind(_) => true,
+                    Entry::Kind(_) | Entry::Tune(_) => true,
                 };
                 let state = match (available, highlighted) {
                     (true, true) => ButtonState::Selected,
@@ -93,7 +93,7 @@ pub(in crate::debug_menu) fn show_menu(
                 };
                 let on = match entry {
                     Entry::Action(action) => action.is_on(&facts),
-                    Entry::Kind(_) => None,
+                    Entry::Kind(_) | Entry::Tune(_) => None,
                 };
                 (entry, state, on)
             })
@@ -157,6 +157,7 @@ pub(in crate::debug_menu) fn show_menu(
                         let label = match entry {
                             Entry::Action(action) => action.label(),
                             Entry::Kind(kind) => kind_name(kind),
+                            Entry::Tune(at) => tune_title(&menu.sublist, at),
                         };
                         spawn_check_button(column_node, state, on, label, FONT, node)
                             .insert((MenuEntry(entry), Pressable));
@@ -174,4 +175,39 @@ fn spawn_heading(column: &mut ChildSpawnerCommands, name: &str, mut node: Node) 
     column.spawn(node).with_children(|row| {
         row.spawn((Text::new(name), HEADING.font(), TextColor(INK)));
     });
+}
+
+/// A tune's title in the submenu, short enough for one line of a column.
+fn tune_title(sublist: &Sublist, at: usize) -> String {
+    match sublist {
+        Sublist::Tunes(titles) => titles.get(at).map_or(String::new(), |t| shortened(t)),
+        Sublist::Kinds => String::new(),
+    }
+}
+
+/// Letters that fit on one line of a column at the menu's size.
+const LETTERS: usize = 26;
+
+/// A title as it fits: whole, or without what is in brackets at its end,
+/// or cut after a word with "...".
+pub(super) fn shortened(title: &str) -> String {
+    let fits = |words: &str| words.chars().count() <= LETTERS;
+    if fits(title) {
+        return title.to_owned();
+    }
+    let plain = title.split(" (").next().unwrap_or(title).trim_end();
+    if fits(plain) {
+        return plain.to_owned();
+    }
+    let mut cut = String::new();
+    for word in plain.split(' ') {
+        if cut.chars().count() + word.chars().count() + 4 > LETTERS {
+            break;
+        }
+        if !cut.is_empty() {
+            cut.push(' ');
+        }
+        cut.push_str(word);
+    }
+    format!("{}...", cut.trim_end_matches(','))
 }
