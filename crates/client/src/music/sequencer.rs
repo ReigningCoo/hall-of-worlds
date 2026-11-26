@@ -8,8 +8,11 @@
 //! tune's, the drone moves to its final, the melody holds a bridging note on
 //! it, and the second player and percussion come back in over the new
 //! tune's first two bars. There are never silent rests (owner's decision).
-//! A program of one tune plays it round for good.
+//! A program of one tune plays it round for good. A new program (another
+//! place's) comes in at the next bar line, linked from what played
+//! (`change`).
 
+mod change;
 mod due;
 mod link;
 mod pass;
@@ -46,6 +49,8 @@ struct Playing {
     tune: usize,
     /// Times it has gone round.
     loops: u32,
+    /// The tick its present pass started on.
+    pass_start: u64,
     /// The drone's keys sounding.
     drone: Vec<u8>,
 }
@@ -98,10 +103,20 @@ impl Sequencer {
             program,
             tune: 0,
             loops: 0,
+            pass_start: 0,
             drone: Vec::new(),
         });
         link::move_drone(self, 0, first.final_class);
         pass::start_pass(self, 0, false);
+    }
+
+    /// Plays another program, coming in at the next bar line with a link
+    /// from what plays; at once if nothing does.
+    pub fn change(&mut self, program: Program, out: &mut Vec<MusicEvent>) {
+        match self.playing.is_some() {
+            true => change::change(self, program),
+            false => self.play(program, out),
+        }
     }
 
     /// Stops at once, letting every note go.
@@ -147,6 +162,13 @@ impl Sequencer {
         }
     }
 
+    /// The tick the clock is at now (between events), at the present tempo.
+    fn tick_now(&self) -> u64 {
+        let samples = (self.now - self.tick_sample).max(0.0);
+        let ticks = samples * self.tempo * PPQ as f64 / (self.sample_rate * 60.0);
+        self.tick + ticks.floor() as u64
+    }
+
     /// The sample a tick falls on at the present tempo.
     fn sample_of(&self, tick: u64) -> f64 {
         let ticks = tick.saturating_sub(self.tick) as f64;
@@ -179,5 +201,7 @@ fn all_notes_off(channel: u8) -> MusicEvent {
     }
 }
 
+#[cfg(test)]
+mod change_tests;
 #[cfg(test)]
 mod tests;

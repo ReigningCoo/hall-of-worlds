@@ -16,9 +16,10 @@ const DRUM_VELOCITY: f32 = 100.0;
 /// Queues a pass of the tune playing from `start`; `entering` after a link,
 /// so the second player and percussion fade in.
 pub(super) fn start_pass(sequencer: &mut Sequencer, start: u64, entering: bool) {
-    let Some(playing) = &sequencer.playing else {
+    let Some(playing) = &mut sequencer.playing else {
         return;
     };
+    playing.pass_start = start;
     let tune = playing.program.tunes[playing.tune].clone();
     let players = playing.program.players.clone();
     let fade = |at: u64| match entering {

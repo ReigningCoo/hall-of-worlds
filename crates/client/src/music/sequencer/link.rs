@@ -3,8 +3,10 @@
 //! bar in, and the melody holds a bridging note on that final while the old
 //! tune's last notes die away. Then the next tune starts (`pass`).
 
+use std::sync::Arc;
+
 use super::super::stream::MusicEvent;
-use super::super::tune::PPQ;
+use super::super::tune::{PPQ, Signature, Tune};
 use super::due::Due;
 use super::{DRONE, MELODY, Sequencer, pass};
 
@@ -23,6 +25,20 @@ pub(super) fn begin_link(sequencer: &mut Sequencer, start: u64) {
     let tunes = &playing.program.tunes;
     let next = tunes[(playing.tune + 1) % tunes.len()].clone();
     let signature = tunes[playing.tune].last_signature();
+    link_into(sequencer, start, signature, next);
+}
+
+/// A link at `start` in bars of `signature` into `next`, which starts when
+/// it ends (`end_link`: the program's tune after the one playing).
+pub(super) fn link_into(
+    sequencer: &mut Sequencer,
+    start: u64,
+    signature: Signature,
+    next: Arc<Tune>,
+) {
+    let Some(playing) = &sequencer.playing else {
+        return;
+    };
     let (bar, unit) = (signature.bar(), signature.unit());
     let bar_seconds = bar as f64 / PPQ as f64 * 60.0 / sequencer.tempo;
     let wanted = f64::from(playing.program.players.link_seconds) / bar_seconds / 2.0;

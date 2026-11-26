@@ -115,6 +115,9 @@ pub(super) fn run_actions(
             DebugAction::PlayAllTunes => {
                 tunes.write(crate::music::PlayTunes::All);
             }
+            DebugAction::MusicByPlace => {
+                tunes.write(crate::music::PlayTunes::ByPlace);
+            }
             DebugAction::KeyForThisDoor => {
                 let ask = shared::protocol::DoorAsk::DevKey;
                 to_server.write(ToServer(ClientMessage::Door(ask)));

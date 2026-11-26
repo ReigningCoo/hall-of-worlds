@@ -1,11 +1,13 @@
 //! The playlist: which tunes there are (each a MIDI file), where each comes
 //! from, whether its rhythm is the source's or ours, the places it suits,
-//! and the players who play them. The game's is
+//! and the players who play them, everywhere and by place (`ensembles`). The game's is
 //! `assets/music/playlists/game.playlist.ron`; mods add their own files
 //! beside it (`load`), each able to add tunes, replace one by its id, or
 //! change the players.
 
 use serde::Deserialize;
+
+use super::place::Place;
 
 /// One `.playlist.ron` file.
 #[derive(Deserialize, Clone, Debug, Default, PartialEq)]
@@ -14,6 +16,17 @@ pub(super) struct PlaylistFile {
     pub players: Option<Players>,
     #[serde(default)]
     pub tunes: Vec<TuneEntry>,
+    /// Players by place, instead of `players` there: the last naming a
+    /// place wins, so a mod's come after the game's.
+    #[serde(default)]
+    pub ensembles: Vec<Ensemble>,
+}
+
+/// Who plays in some places.
+#[derive(Deserialize, Clone, Debug, PartialEq)]
+pub(super) struct Ensemble {
+    pub places: Vec<Place>,
+    pub players: Players,
 }
 
 /// A tune in the playlist.
@@ -32,9 +45,9 @@ pub(super) struct TuneEntry {
     #[serde(default)]
     pub licence: String,
     pub rhythm: Rhythm,
-    /// The places it suits, as words for now (music by place, PR 4).
+    /// The places it plays in (none: everywhere).
     #[serde(default)]
-    pub places: Vec<String>,
+    pub places: Vec<Place>,
     /// A tune it is played straight after (La Rotta after the Lamento).
     #[serde(default)]
     pub after: Option<String>,
@@ -101,6 +114,7 @@ pub(super) fn merge(files: impl IntoIterator<Item = PlaylistFile>) -> PlaylistFi
         if file.players.is_some() {
             merged.players = file.players;
         }
+        merged.ensembles.extend(file.ensembles);
         for tune in file.tunes {
             match merged.tunes.iter_mut().find(|known| known.id == tune.id) {
                 Some(known) => *known = tune,

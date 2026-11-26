@@ -5,10 +5,10 @@ use super::*;
 use crate::music::playlist::{Instrument, Percussion};
 use crate::music::tune::{Note, Signature};
 
-const RATE: u32 = 44_100;
+pub(super) const RATE: u32 = 44_100;
 
 /// A tune of quarter notes in 4/4, its final D.
-fn tune(keys: &[u8], tempo: f64) -> Arc<Tune> {
+pub(super) fn tune(keys: &[u8], tempo: f64) -> Arc<Tune> {
     let notes = keys
         .iter()
         .enumerate()
@@ -29,7 +29,7 @@ fn tune(keys: &[u8], tempo: f64) -> Arc<Tune> {
     })
 }
 
-fn players() -> Players {
+pub(super) fn players() -> Players {
     let instrument = Instrument {
         bank: 0,
         program: 74,
@@ -48,7 +48,7 @@ fn players() -> Players {
 
 /// Runs the sequencer for `seconds`, the way the stream does, giving each
 /// event with the sample it fell on.
-fn run(sequencer: &mut Sequencer, seconds: f64) -> Vec<(usize, MusicEvent)> {
+pub(super) fn run(sequencer: &mut Sequencer, seconds: f64) -> Vec<(usize, MusicEvent)> {
     let end = (seconds * f64::from(RATE)) as usize;
     let (mut now, mut heard, mut out) = (0, Vec::new(), Vec::new());
     loop {
@@ -62,13 +62,13 @@ fn run(sequencer: &mut Sequencer, seconds: f64) -> Vec<(usize, MusicEvent)> {
     }
 }
 
-fn started(sequencer: &mut Sequencer, tunes: Vec<Arc<Tune>>, players: Players) {
+pub(super) fn started(sequencer: &mut Sequencer, tunes: Vec<Arc<Tune>>, players: Players) {
     let mut out = Vec::new();
     sequencer.play(Program { tunes, players }, &mut out);
     assert!(out.contains(&MusicEvent::program(MELODY, 74)));
 }
 
-fn melody_ons(heard: &[(usize, MusicEvent)]) -> Vec<(usize, u8, u8)> {
+pub(super) fn melody_ons(heard: &[(usize, MusicEvent)]) -> Vec<(usize, u8, u8)> {
     heard
         .iter()
         .filter(|(_, e)| e.channel == MELODY && e.command == 0x90)

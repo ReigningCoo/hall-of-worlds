@@ -100,6 +100,16 @@ impl Queue {
         }
     }
 
+    /// Takes out everything due at `tick` or later, giving it back in order.
+    pub fn cut_from(&mut self, tick: u64) -> Vec<Due> {
+        let (cut, kept): (Vec<_>, Vec<_>) =
+            self.heap.drain().partition(|entry| entry.0.tick >= tick);
+        self.heap.extend(kept);
+        let mut cut: Vec<Entry> = cut.into_iter().map(|entry| entry.0).collect();
+        cut.sort();
+        cut.into_iter().map(|entry| entry.due).collect()
+    }
+
     pub fn clear(&mut self) {
         self.heap.clear();
     }
