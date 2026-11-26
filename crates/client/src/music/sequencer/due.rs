@@ -16,6 +16,16 @@ pub(super) enum Due {
     PassEnd,
     /// A link is over: the next tune starts.
     LinkEnd,
+    /// Combat's share of the tempo from here on, for the fight numbered
+    /// `fight` (a later fight's ramp makes an earlier one's stale).
+    Factor {
+        factor: f64,
+        fight: u32,
+    },
+    /// The combat parts' next bar (or the rest of one) is due.
+    FightBar {
+        fight: u32,
+    },
 }
 
 impl Due {

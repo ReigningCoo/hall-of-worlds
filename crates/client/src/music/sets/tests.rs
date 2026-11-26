@@ -132,9 +132,30 @@ fn every_ensembles_instruments_are_in_the_soundfont() {
     let known = |i: Instrument| INSTRUMENTS.contains(&(i.bank, i.program));
     for ensemble in &file.ensembles {
         let p = &ensemble.players;
-        let parts = [Some(p.melody), p.second, p.drone];
+        let stinger = p.combat.and_then(|c| c.stinger).map(|s| s.instrument);
+        let parts = [Some(p.melody), p.second, p.drone, stinger];
         for instrument in parts.into_iter().flatten() {
             assert!(known(instrument), "{:?}: {instrument:?}", ensemble.places);
+        }
+    }
+}
+
+/// The standard kit's keys `music.sf2` keeps (`DRUM_KEYS` in
+/// `tools/subset_soundfont.py`).
+const DRUM_KEYS: [u8; 14] = [36, 38, 41, 45, 54, 60, 61, 62, 63, 64, 75, 76, 80, 81];
+
+#[test]
+fn every_place_but_the_inn_and_the_world_map_has_combat_parts() {
+    let file = game();
+    let players = file.players.clone().unwrap_or_default();
+    for place in every_place() {
+        let combat = players_for(place, &file.ensembles, &players).combat;
+        match place {
+            Place::Inn | Place::WorldMap => assert_eq!(combat, None, "{place:?}"),
+            _ => {
+                let combat = combat.unwrap_or_else(|| panic!("{place:?} has no combat parts"));
+                assert!(DRUM_KEYS.contains(&combat.drum), "{place:?}");
+            }
         }
     }
 }

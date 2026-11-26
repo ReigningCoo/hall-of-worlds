@@ -17,6 +17,11 @@
 // kit's keys: 41 and 45 toms (tabor, nakers, frame drum), 54 tambourine, 60
 // and 61 bongos, 76 wood block.
 //
+// `combat` is what joins in when the player is attacked: a drum (roll and
+// ostinato, a kit key: 36 bass drum too) and a stinger (an instrument playing
+// the tune's final `above` semitones over middle C's octave; none: the
+// drum's accent). Places with none (The Way Inn, the world map) never fight.
+//
 // Mods add their own `<name>.playlist.ron` beside this one (native builds),
 // with tunes and, if they like, players and ensembles; an entry with a known
 // id replaces it, and a mod's ensembles win over these for the places they
@@ -28,6 +33,7 @@
         drone: Some((bank: 0, program: 20)),
         percussion: Some((strong: 61, light: 60)),
         link_seconds: 5.0,
+        combat: Some((drum: 45)),
     )),
     ensembles: [
         // The wilderness: a pipe and drone, sparser at night.
@@ -38,6 +44,7 @@
                 second: Some((bank: 0, program: 24)),
                 drone: Some((bank: 0, program: 20)),
                 link_seconds: 8.0,
+                combat: Some((drum: 45)),
             ),
         ),
         (
@@ -46,6 +53,7 @@
                 melody: (bank: 0, program: 74),
                 drone: Some((bank: 0, program: 20)),
                 link_seconds: 10.0,
+                combat: Some((drum: 41)),
             ),
         ),
         // Highlands and the cold: the cornemuse.
@@ -55,6 +63,7 @@
                 melody: (bank: 8, program: 109),
                 drone: Some((bank: 0, program: 20)),
                 link_seconds: 8.0,
+                combat: Some((drum: 45)),
             ),
         ),
         // Deserts: shawm and frame drum.
@@ -66,6 +75,7 @@
                 drone: Some((bank: 0, program: 20)),
                 percussion: Some((strong: 41, light: 45)),
                 link_seconds: 8.0,
+                combat: Some((drum: 41)),
             ),
         ),
         // Hot and wet: recorder, psaltery and hand drums.
@@ -76,6 +86,7 @@
                 second: Some((bank: 0, program: 15)),
                 percussion: Some((strong: 61, light: 60)),
                 link_seconds: 8.0,
+                combat: Some((drum: 61)),
             ),
         ),
         (
@@ -95,6 +106,7 @@
                 second: Some((bank: 0, program: 14)),
                 drone: Some((bank: 0, program: 19)),
                 link_seconds: 10.0,
+                combat: Some((drum: 41, stinger: Some((instrument: (bank: 0, program: 14), above: 12)))),
             ),
         ),
         // A tavern band.
@@ -116,6 +128,7 @@
                 second: Some((bank: 0, program: 110)),
                 percussion: Some((strong: 45, light: 76)),
                 link_seconds: 4.0,
+                combat: Some((drum: 45)),
             ),
         ),
         (
@@ -126,6 +139,7 @@
                 drone: Some((bank: 8, program: 110)),
                 percussion: Some((strong: 45, light: 76)),
                 link_seconds: 3.0,
+                combat: Some((drum: 45, stinger: Some((instrument: (bank: 0, program: 57), above: 0)))),
             ),
         ),
         (
@@ -136,6 +150,7 @@
                 drone: Some((bank: 0, program: 111)),
                 percussion: Some((strong: 41, light: 45)),
                 link_seconds: 3.0,
+                combat: Some((drum: 41, stinger: Some((instrument: (bank: 0, program: 56), above: 7)))),
             ),
         ),
         (
@@ -145,6 +160,7 @@
                 second: Some((bank: 0, program: 15)),
                 drone: Some((bank: 8, program: 110)),
                 link_seconds: 5.0,
+                combat: Some((drum: 41, stinger: Some((instrument: (bank: 0, program: 56), above: 7)))),
             ),
         ),
         (
@@ -153,6 +169,7 @@
                 melody: (bank: 0, program: 15),
                 drone: Some((bank: 0, program: 19)),
                 link_seconds: 6.0,
+                combat: Some((drum: 41, stinger: Some((instrument: (bank: 0, program: 14), above: 12)))),
             ),
         ),
         // Low organ drone, bells and a recorder.
@@ -163,6 +180,7 @@
                 second: Some((bank: 0, program: 14)),
                 drone: Some((bank: 0, program: 19)),
                 link_seconds: 10.0,
+                combat: Some((drum: 36)),
             ),
         ),
         (
@@ -171,6 +189,7 @@
                 melody: (bank: 0, program: 109),
                 drone: Some((bank: 0, program: 20)),
                 link_seconds: 5.0,
+                combat: Some((drum: 45)),
             ),
         ),
         (
@@ -179,6 +198,7 @@
                 melody: (bank: 0, program: 15),
                 second: Some((bank: 0, program: 74)),
                 link_seconds: 5.0,
+                combat: Some((drum: 45)),
             ),
         ),
         // Shawm, lute and hand drums.
@@ -190,6 +210,7 @@
                 drone: Some((bank: 0, program: 20)),
                 percussion: Some((strong: 61, light: 60)),
                 link_seconds: 6.0,
+                combat: Some((drum: 61)),
             ),
         ),
     ],

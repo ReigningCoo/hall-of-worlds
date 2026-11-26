@@ -70,6 +70,8 @@ pub(super) enum Command {
     Play(Program),
     /// At the next bar line, linked from what plays.
     Change(Program),
+    /// The player was attacked: combat parts on the next beat.
+    Attacked,
     Stop,
 }
 

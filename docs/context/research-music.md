@@ -96,6 +96,6 @@ All in order, each needing the one before.
 2. **Synth and SoundFont.** rustysynth behind a custom Bevy source, the cut-down SoundFont in `assets/` (fetched by the web build only when music first plays), starting after the first click on the web; the Music section in `docs/credits.md`.
 3. **Sequencer, MIDI tunes and the tune list.** MIDI loading and the playlist file (moddable), the sequencer with layers and links between tunes, the first transcribed tunes, the debug tune list (`docs/debug-menu.md`). Needs the transcription's first batch.
 4. **Music by place.** Tune sets per place (wilderness by climate band, day and night, every poi kind, the Hall, the Inn, town sizes), changes at bar lines. Needs enough transcribed tunes for every place.
-5. **Combat music.** The client's "attacked" signal, stinger, tempo ramp, combat parts, hold and ease-off.
+5. **Combat music.** The client's "attacked" signal, stinger, tempo ramp, combat parts, hold and ease-off. (All five built.)
 
 Alongside (non-code): transcribing the tunes from the scans into MIDI files, in batches, each with its source and whether its rhythm is ours.

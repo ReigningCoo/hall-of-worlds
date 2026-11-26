@@ -9,8 +9,10 @@
 //! into the next. Each place has its own tunes and players (`place`,
 //! `place_now`, `sets`), changing at the next bar line; the debug menu plays
 //! every tune, one alone or by place (`PlayTunes`), or the test
-//! (`PlayTestMusic`).
+//! (`PlayTestMusic`). When the player is attacked (`common::Attacked`), the
+//! place's combat parts join on the next beat (`combat`).
 
+mod combat;
 mod decoder;
 mod font;
 mod gesture;
@@ -65,6 +67,7 @@ impl Plugin for MusicPlugin {
                     library::load_library,
                     place_now::follow_place,
                     play_tunes::play_tunes,
+                    combat::follow_attacks,
                     test_tune::play_test_tune,
                     start::send_events,
                     start::follow_volume,

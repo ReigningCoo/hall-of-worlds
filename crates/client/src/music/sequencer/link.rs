@@ -40,7 +40,7 @@ pub(super) fn link_into(
         return;
     };
     let (bar, unit) = (signature.bar(), signature.unit());
-    let bar_seconds = bar as f64 / PPQ as f64 * 60.0 / sequencer.tempo;
+    let bar_seconds = bar as f64 / PPQ as f64 * 60.0 / sequencer.rate();
     let wanted = f64::from(playing.program.players.link_seconds) / bar_seconds / 2.0;
     let bars = (wanted.round() as u64).clamp(1, MOST_BARS);
     let length = bars * bar;
