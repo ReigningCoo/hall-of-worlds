@@ -122,6 +122,30 @@
             })();
         </script>
         <script>
+            // Browsers start sound only after a click, tap or key, and the game's
+            // audio is set up before that, so it starts suspended: resume it then.
+            // The music itself waits for the same (crates/client/src/music/gesture.rs).
+            (() => {
+                const Original = window.AudioContext || window.webkitAudioContext;
+                if (!Original) return;
+                const contexts = [];
+                const Tracked = function (...args) {
+                    const context = new Original(...args);
+                    contexts.push(context);
+                    return context;
+                };
+                Tracked.prototype = Original.prototype;
+                window.AudioContext = Tracked;
+                const resume = () => {
+                    contexts.forEach((context) => context.state === "suspended" && context.resume());
+                    if (contexts.length && contexts.every((context) => context.state === "running")) {
+                        ["pointerup", "keyup", "touchend"].forEach((name) => document.removeEventListener(name, resume, true));
+                    }
+                };
+                ["pointerup", "keyup", "touchend"].forEach((name) => document.addEventListener(name, resume, true));
+            })();
+        </script>
+        <script>
             // Safari's own pinch zoom, which it may start despite touch-action.
             document.addEventListener("gesturestart", (event) => event.preventDefault());
         </script>

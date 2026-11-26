@@ -65,6 +65,7 @@ pub(super) fn run_actions(
         MessageWriter<LightningStrike>,
         MessageWriter<crate::common::OpenAccounts>,
     ),
+    mut test_music: MessageWriter<crate::music::PlayTestMusic>,
 ) {
     for &action in actions.read() {
         match action {
@@ -120,6 +121,9 @@ pub(super) fn run_actions(
             }
             DebugAction::LightningNow => {
                 lightning.write(LightningStrike);
+            }
+            DebugAction::PlayTestMusic => {
+                test_music.write(crate::music::PlayTestMusic);
             }
             DebugAction::LightningStrikeHere => {
                 to_server.write(ToServer(ClientMessage::DevLightning));

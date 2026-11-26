@@ -30,7 +30,13 @@ Artwork, fonts and models by other people keep their own licences. The [attribut
 - **The shapes of animals' bodies and heads:** measured from animal models by JALdMIC (CC BY), made for [MakeHuman](http://www.makehumancommunity.org), whose own model of a person (CC0) they reshape. The game holds only the measurements, not the models.
 - **Some creatures (the drider):** from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC, available at <https://dnd.wizards.com/resources/systems-reference-document>. The SRD 5.1 is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/legalcode).
 
+## Music
+
+- **Instruments:** a cut-down copy of [MuseScore General](https://ftp.osuosl.org/pub/musescore/soundfont/MuseScore_General/) 0.2 by S. Christian Collins, from FluidR3Mono by Michael Cowgill and Fluid (R3) by Frank Wen (MIT).
+- **Hurdy-gurdy and cornemuse:** [Early European Instruments](https://www.polyphone.io/en/soundfonts/instrument-sets/516-early-european-instruments), shared by John Carter (public domain).
+
 ## Software
+
 
 - **Built with:** [Bevy](https://bevy.org/) and the many other open source libraries it and the game use, which keep their own licences.
 

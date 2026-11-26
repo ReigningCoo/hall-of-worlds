@@ -36,6 +36,7 @@ mod loading_screen;
 mod login;
 mod map_marks;
 mod minimap;
+mod music;
 mod notices;
 mod planet_view;
 mod plants;
@@ -170,6 +171,7 @@ fn main() {
     app.add_plugins(item_popup::ItemPopupPlugin);
     app.add_plugins(map_marks::MapMarksPlugin);
     app.add_plugins(sound::SoundPlugin);
+    app.add_plugins(music::MusicPlugin);
 
     // Native only: developer tools. (The embedded single-player server is
     // started by `connection`.)

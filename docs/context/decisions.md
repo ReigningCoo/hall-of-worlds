@@ -1937,3 +1937,7 @@ Magic plan PR 13. A level move's footing is a `clearance::Footing` (walks, swims
 ## 2026-11-26: Sound is client-only
 
 Music plan PR 1. Music and other sound are played by the client alone and are never game state: the server sends nothing for them and checks nothing, and a client may play what it likes (mods may add tunes). What plays follows what the client already knows (where the player is, being attacked). Volumes are client preferences (`Preferences::audio`, Settings, Audio). `HOW_SOUND` turns all sound off for a run, off by default in debug builds so development copies and tests stay quiet; `HOW_MUSIC` turns off only music, for ambient and interface sounds later. Both are booleans read like the server's options. Bevy's `GlobalVolume` carries General; music's own share is `sound::MusicVolume`.
+
+## 2026-11-26: Music from rustysynth in a Bevy audio source, with a cut-down SoundFont
+
+Music plan PR 2. Music is rendered by `rustysynth` (MIT, pure Rust, natively and in browsers) inside a custom Bevy audio source (`Decodable`), not through kira: Bevy's own audio is enough so far. The instruments are a SoundFont in the assets, MuseScore General (MIT) cut to the presets the music plays by `tools/subset_soundfont.py`, keeping General MIDI's numbering so tunes name instruments as General MIDI does, plus the public-domain Early European Instruments' hurdy-gurdy and cornemuse in bank 8 (variations). Browsers download it only when music first plays, after the first click. OxiSynth is avoided (LGPL).

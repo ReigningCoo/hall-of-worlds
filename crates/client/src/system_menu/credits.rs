@@ -87,6 +87,19 @@ pub(super) const CREDITS: &[Group] = &[
         ],
     ),
     (
+        "Music",
+        &[
+            (
+                "Instruments: MuseScore General, from FluidR3Mono and Fluid (R3), MIT",
+                "S. Christian Collins, Michael Cowgill and Frank Wen",
+            ),
+            (
+                "Hurdy-gurdy and cornemuse: Early European Instruments, public domain",
+                "John Carter",
+            ),
+        ],
+    ),
+    (
         "Software",
         &[(
             "Built with",

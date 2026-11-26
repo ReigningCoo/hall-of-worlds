@@ -46,7 +46,8 @@ impl DebugAction {
             | Self::LightningNow
             | Self::SunsAndMoons
             | Self::DrawingStates
-            | Self::OtherFloors => Group::Display,
+            | Self::OtherFloors
+            | Self::PlayTestMusic => Group::Display,
             Self::ItemPictures | Self::ShowWidgets | Self::ViewPlanet => Group::Galleries,
             Self::TeleportMode | Self::TeleportToWorld | Self::ToTheWayInn => Group::Travel,
             Self::GodMode

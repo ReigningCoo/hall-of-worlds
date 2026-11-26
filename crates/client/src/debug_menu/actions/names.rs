@@ -31,6 +31,7 @@ impl DebugAction {
             Self::OpenAllDoors => "Open All Doors",
             Self::OtherFloors => "Other Floors",
             Self::PlaceFurniture => "Place Furniture",
+            Self::PlayTestMusic => "Play Test Music",
             Self::CreateCraftingBench => "Create Crafting Bench",
             Self::RegenerateDevArea => "Regenerate Dev Area",
             Self::RemakeSite => "Remake Site",
