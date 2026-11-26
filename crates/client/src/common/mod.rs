@@ -91,7 +91,7 @@ pub use browser::open_in_browser;
 pub use characters::{CharacterChoice, CharacterSelect, PlayFor, PlayableHere};
 pub use clock::{CropGrowthShift, GameClock, HerbGrowthShift, NIGHT_LIGHT, ServerClock};
 pub use creatures::{
-    AbilitiesPage, CancelledEnergy, CarryLimit, CharacterRefused, Dressing, EscortGait,
+    AbilitiesPage, Attacked, CancelledEnergy, CarryLimit, CharacterRefused, Dressing, EscortGait,
     MakesCharacters, MakingCharacter, Other, PlayerGait, PlayerSize, PlayerSpeed, SkillsPage,
     SpellsPage, SpentEnergy,
 };
@@ -188,6 +188,7 @@ impl Plugin for CommonPlugin {
             .init_resource::<PlayerField>()
             .init_resource::<PlayerCone>()
             .add_message::<FaceTowards>()
+            .add_message::<Attacked>()
             .add_message::<PointedAtMap>()
             .init_resource::<OwnAbility>()
             .init_resource::<LoadingStep>()

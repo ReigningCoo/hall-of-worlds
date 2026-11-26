@@ -11,8 +11,13 @@
 //! A program of one tune plays it round for good. A new program (another
 //! place's) comes in at the next bar line, linked from what played
 //! (`change`).
+//!
+//! When the player is attacked (`attacked`), combat parts join on the next
+//! beat over whatever plays (`combat`): a stinger, the tempo a fifth faster,
+//! a drum ostinato and a louder drone, easing back after a quiet spell.
 
 mod change;
+mod combat;
 mod due;
 mod link;
 mod pass;
@@ -33,7 +38,9 @@ const MELODY: u8 = 0;
 const SECOND: u8 = 1;
 const DRONE: u8 = 2;
 const DRUMS: u8 = 9;
-const CHANNELS: [u8; 4] = [MELODY, SECOND, DRONE, DRUMS];
+/// The combat stinger's instrument.
+const STINGER: u8 = 3;
+const CHANNELS: [u8; 5] = [MELODY, SECOND, DRONE, STINGER, DRUMS];
 
 /// What to play.
 #[derive(Clone, Debug)]
@@ -64,8 +71,11 @@ pub(super) struct Sequencer {
     tick_sample: f64,
     /// Samples played since the program started.
     now: f64,
-    /// Quarters a minute.
+    /// Quarters a minute, as the tune and links set it.
     tempo: f64,
+    /// Combat's share on top of that (1 when calm).
+    factor: f64,
+    fight: combat::Fight,
 }
 
 impl Sequencer {
@@ -78,6 +88,8 @@ impl Sequencer {
             tick_sample: 0.0,
             now: 0.0,
             tempo: 120.0,
+            factor: 1.0,
+            fight: combat::Fight::default(),
         }
     }
 
@@ -89,6 +101,8 @@ impl Sequencer {
         };
         (self.tick, self.tick_sample, self.now) = (0, 0.0, 0.0);
         self.tempo = first.tempo();
+        self.factor = 1.0;
+        self.fight = combat::Fight::default();
         for (channel, instrument) in [
             (MELODY, Some(program.players.melody)),
             (SECOND, program.players.second),
@@ -117,6 +131,11 @@ impl Sequencer {
             true => change::change(self, program),
             false => self.play(program, out),
         }
+    }
+
+    /// The player was attacked: combat parts join, or keep on.
+    pub fn attacked(&mut self) {
+        combat::attacked(self);
     }
 
     /// Stops at once, letting every note go.
@@ -159,20 +178,27 @@ impl Sequencer {
             Due::Tempo(tempo) => self.tempo = tempo,
             Due::PassEnd => pass::end_pass(self),
             Due::LinkEnd => link::end_link(self),
+            Due::Factor { factor, fight } => combat::set_factor(self, factor, fight, out),
+            Due::FightBar { fight } => combat::bar(self, fight),
         }
     }
 
     /// The tick the clock is at now (between events), at the present tempo.
     fn tick_now(&self) -> u64 {
         let samples = (self.now - self.tick_sample).max(0.0);
-        let ticks = samples * self.tempo * PPQ as f64 / (self.sample_rate * 60.0);
+        let ticks = samples * self.rate() * PPQ as f64 / (self.sample_rate * 60.0);
         self.tick + ticks.floor() as u64
     }
 
     /// The sample a tick falls on at the present tempo.
     fn sample_of(&self, tick: u64) -> f64 {
         let ticks = tick.saturating_sub(self.tick) as f64;
-        self.tick_sample + ticks * self.sample_rate * 60.0 / (self.tempo * PPQ as f64)
+        self.tick_sample + ticks * self.sample_rate * 60.0 / (self.rate() * PPQ as f64)
+    }
+
+    /// The tempo played, combat's share and all.
+    fn rate(&self) -> f64 {
+        self.tempo * self.factor
     }
 
     fn note(&mut self, channel: u8, key: u8, velocity: u8, at: u64, length: u64) {
@@ -189,6 +215,11 @@ impl Sequencer {
     fn tempo(&self) -> f64 {
         self.tempo
     }
+
+    #[cfg(test)]
+    fn factor(&self) -> f64 {
+        self.factor
+    }
 }
 
 /// Control change 123: every note on a channel let go.
@@ -203,5 +234,7 @@ fn all_notes_off(channel: u8) -> MusicEvent {
 
 #[cfg(test)]
 mod change_tests;
+#[cfg(test)]
+mod combat_tests;
 #[cfg(test)]
 mod tests;

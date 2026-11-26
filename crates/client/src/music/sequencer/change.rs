@@ -6,7 +6,7 @@
 use super::super::stream::MusicEvent;
 use super::super::tune::{Signature, Tune};
 use super::due::Due;
-use super::{DRONE, MELODY, Program, SECOND, Sequencer, link};
+use super::{DRONE, MELODY, Program, SECOND, Sequencer, combat, link};
 
 /// Swaps in `program` at the next bar line of what plays.
 pub(super) fn change(sequencer: &mut Sequencer, program: Program) {
@@ -24,6 +24,8 @@ pub(super) fn change(sequencer: &mut Sequencer, program: Program) {
     for due in sequencer.queue.cut_from(cut) {
         match due {
             Due::Midi(event) if event.command == 0x80 => sequencer.queue.push(cut, due),
+            // Combat's tempo ramp carries on through the change.
+            Due::Factor { .. } => sequencer.queue.push(cut, due),
             Due::Midi(event) if event.command == 0x90 && event.channel == DRONE => {
                 stopped_drone.push(event.data1);
             }
@@ -58,6 +60,7 @@ pub(super) fn change(sequencer: &mut Sequencer, program: Program) {
     playing.loops = 0;
     playing.program = program;
     link::link_into(sequencer, cut, signature, first);
+    combat::changed(sequencer, cut, signature);
 }
 
 /// The next bar line at or after `at` in a pass of `tune` (its end counts),

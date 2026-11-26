@@ -10,11 +10,12 @@ Targeting creatures: a right click on one (or a finger held on it), Tab and Shif
 - `crates/client/src/target/pick.rs`: `UnderPointer` (what is under the pointer: `dom::Hit` having a target (the pointer is on the interface), `HoveredToken`, `HoveredBag`, `HoveredOnMap`, `HoveredInSky`), `pick_by_right_click` (a right press and release less than `CLICK_SLOP`, 5 px, apart, not pressed on the interface: on a creature's token targets it, on nothing clears the target; a drag turns the camera), `pick_by_long_press` (a finger still for `LONG_PRESS`, 0.5 s, from `TouchGesture::still_at`, the same), `LongPress`, `eat_tap` (the tap lifting that finger makes is taken away, so it doesn't walk there).
 - `crates/client/src/target/keys.rs`: `cycle_by_keys` (`Action::NextTarget`, Tab; `Action::PreviousTarget`, Shift+Tab).
 - `crates/client/src/target/auto.rs`: `pick_attacker` (no target in sight: whoever begins an attack on the player, `AbilityStarted` aimed at them), `pick_after_death` (the target dies in sight, `EntityGone { died: true }`: the nearest other enemy in sight, or none).
+- `crates/client/src/target/attacked.rs`: `Feelings` (each creature's feeling as last seen), `notice_attacks` and `hostile`: `common::Attacked` for a blow landing on the player, the player's blow landing on someone unfriendly, someone unfriendly beginning an attack at the player, or someone seen again turned unfriendly (not when first seen: unfriendly by nature need not be after them).
 - `crates/client/src/target/reticule.rs`: `Reticule`, `spawn_reticule` (black ring with four ticks pointing in, over a slightly larger white copy as its outline, so it shows on any token, both unlit; owner, 2026-11-07), `place_reticule` (on the target's `TokenView`, a little above its top, under its picture, tilted with its base (`TokenView::tilt`); hidden while the target isn't in sight; one turn in `TURN_SECONDS`, 8, still with Reduce Motion), `reticule_mesh`.
 
 ## Public API
 
-- `TargetPlugin`. The target itself is `common::Target`.
+- `TargetPlugin`. The target itself is `common::Target`; hostile actions it notices are `common::Attacked`.
 
 ## Depends on
 
@@ -22,7 +23,7 @@ Targeting creatures: a right click on one (or a finger held on it), Tab and Shif
 
 ## Used by
 
-- `dev_tools` (`client.state` reads `common::Target`).
+- `dev_tools` (`client.state` reads `common::Target`). `music` (`common::Attacked`).
 
 ## Notes
 

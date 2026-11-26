@@ -79,6 +79,12 @@ pub struct SpentEnergy(pub u32);
 #[derive(Message, Clone, Copy, Debug)]
 pub struct Dressing(pub u32);
 
+/// A hostile action involving the player: they were hit, they hit an enemy,
+/// or an enemy turned on them or began an attack at them (`target` notices
+/// these in what the server tells; `music` answers with combat music).
+#[derive(Message, Clone, Copy, Debug, Default)]
+pub struct Attacked;
+
 /// What the player spent energy on was called off before it was done: all
 /// they still owe comes back but for this much (`Energy::cancel`).
 #[derive(Message, Clone, Copy, Debug)]

@@ -75,6 +75,10 @@ pub(super) struct Players {
     pub percussion: Option<Percussion>,
     /// Roughly how long a link between tunes lasts (1 to 3 bars).
     pub link_seconds: f32,
+    /// What joins in when the player is attacked (none: no combat music,
+    /// as in The Way Inn and on the world map).
+    #[serde(default)]
+    pub combat: Option<Combat>,
 }
 
 impl Default for Players {
@@ -89,6 +93,7 @@ impl Default for Players {
             drone: None,
             percussion: None,
             link_seconds: 5.0,
+            combat: None,
         }
     }
 }
@@ -104,6 +109,24 @@ pub(super) struct Instrument {
 pub(super) struct Percussion {
     pub strong: u8,
     pub light: u8,
+}
+
+/// The combat parts: a drum's key on the standard kit for the roll and the
+/// ostinato, and the stinger's instrument (none: the drum's accent).
+#[derive(Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct Combat {
+    pub drum: u8,
+    #[serde(default)]
+    pub stinger: Option<Stinger>,
+}
+
+/// The stinger's accent: an instrument (a horn, trumpet or bell) playing the
+/// tune's final in the fourth octave, `above` semitones higher.
+#[derive(Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct Stinger {
+    pub instrument: Instrument,
+    #[serde(default)]
+    pub above: u8,
 }
 
 /// The files read together, in order: later players win, and a tune with a

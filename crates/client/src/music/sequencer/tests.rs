@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use super::pass::drum_level;
 use super::*;
-use crate::music::playlist::{Instrument, Percussion};
+use crate::music::playlist::{Combat, Instrument, Percussion, Stinger};
 use crate::music::tune::{Note, Signature};
 
 pub(super) const RATE: u32 = 44_100;
@@ -43,6 +43,16 @@ pub(super) fn players() -> Players {
             light: 60,
         }),
         link_seconds: 4.0,
+        combat: Some(Combat {
+            drum: 45,
+            stinger: Some(Stinger {
+                instrument: Instrument {
+                    bank: 0,
+                    program: 56,
+                },
+                above: 7,
+            }),
+        }),
     }
 }
 

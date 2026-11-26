@@ -3,6 +3,7 @@
 //! for the player; a black reticule turning on the target's token. See
 //! `docs/context/client/target.md`.
 
+mod attacked;
 mod auto;
 mod choose;
 mod keys;
@@ -24,6 +25,7 @@ impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
         let playing = not(in_state(GameView::Connecting));
         app.init_resource::<pick::LongPress>()
+            .init_resource::<attacked::Feelings>()
             .add_systems(Startup, reticule::spawn_reticule)
             .add_systems(
                 Update,
@@ -44,6 +46,7 @@ impl Plugin for TargetPlugin {
                     .after(View3dSystems::Click)
                     .run_if(playing),
             )
+            .add_systems(Update, attacked::notice_attacks)
             .add_systems(
                 PostUpdate,
                 reticule::place_reticule.before(TransformSystems::Propagate),

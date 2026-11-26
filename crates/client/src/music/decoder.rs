@@ -62,6 +62,7 @@ impl MusicDecoder {
             match command {
                 Command::Play(program) => self.sequencer.play(program, &mut events),
                 Command::Change(program) => self.sequencer.change(program, &mut events),
+                Command::Attacked => self.sequencer.attacked(),
                 Command::Stop => self.sequencer.stop(&mut events),
             }
         }
