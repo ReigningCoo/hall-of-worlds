@@ -77,6 +77,7 @@ fn mods_add_tunes_replace_by_id_and_change_the_players() {
     let game = PlaylistFile {
         players: Some(Players::default()),
         tunes: vec![entry("a", None), entry("b", None)],
+        ensembles: vec![ensemble(Place::Town)],
     };
     let mut replaced = entry("b", None);
     replaced.title = "B again".into();
@@ -87,9 +88,19 @@ fn mods_add_tunes_replace_by_id_and_change_the_players() {
     let one_mod = PlaylistFile {
         players: Some(players.clone()),
         tunes: vec![replaced, entry("c", None)],
+        ensembles: vec![ensemble(Place::Cave)],
     };
     let merged = merge([game, one_mod]);
     assert_eq!(merged.players, Some(players));
     let titles: Vec<_> = merged.tunes.iter().map(|t| t.title.as_str()).collect();
     assert_eq!(titles, ["a", "B again", "c"]);
+    let ensembles: Vec<_> = merged.ensembles.iter().map(|e| e.places[0]).collect();
+    assert_eq!(ensembles, [Place::Town, Place::Cave]);
+}
+
+fn ensemble(place: Place) -> Ensemble {
+    Ensemble {
+        places: vec![place],
+        players: Players::default(),
+    }
 }

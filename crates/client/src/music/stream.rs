@@ -66,7 +66,10 @@ impl MusicEvent {
 
 /// What the sequencer is told to do, at the next block.
 pub(super) enum Command {
+    /// From the start, at once.
     Play(Program),
+    /// At the next bar line, linked from what plays.
+    Change(Program),
     Stop,
 }
 

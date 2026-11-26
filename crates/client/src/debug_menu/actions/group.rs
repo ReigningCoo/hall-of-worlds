@@ -49,6 +49,7 @@ impl DebugAction {
             | Self::OtherFloors
             | Self::PlayTune
             | Self::PlayAllTunes
+            | Self::MusicByPlace
             | Self::PlayTestMusic => Group::Display,
             Self::ItemPictures | Self::ShowWidgets | Self::ViewPlanet => Group::Galleries,
             Self::TeleportMode | Self::TeleportToWorld | Self::ToTheWayInn => Group::Travel,

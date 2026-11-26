@@ -6,8 +6,10 @@
 //! Tunes are MIDI files named by playlists (`assets/music/playlists/`, which
 //! mods add to), played by the sequencer inside the stream: a melody, a
 //! second player, a drone and percussion, each tune twice and then linked
-//! into the next. Until music by place (PR 4) every tune plays in turn; the
-//! debug menu plays one alone (`PlayTunes`) or the test (`PlayTestMusic`).
+//! into the next. Each place has its own tunes and players (`place`,
+//! `place_now`, `sets`), changing at the next bar line; the debug menu plays
+//! every tune, one alone or by place (`PlayTunes`), or the test
+//! (`PlayTestMusic`).
 
 mod decoder;
 mod font;
@@ -15,9 +17,12 @@ mod gesture;
 mod library;
 mod loaders;
 mod midi;
+mod place;
+mod place_now;
 mod play_tunes;
 mod playlist;
 mod sequencer;
+mod sets;
 mod start;
 mod stream;
 mod test_tune;
@@ -50,6 +55,7 @@ impl Plugin for MusicPlugin {
             .init_resource::<library::Library>()
             .init_resource::<TuneList>()
             .init_resource::<play_tunes::Asked>()
+            .init_resource::<place_now::PlaceNow>()
             .init_resource::<test_tune::TestTune>()
             .add_systems(
                 Update,
@@ -57,6 +63,7 @@ impl Plugin for MusicPlugin {
                     gesture::watch_for_gesture,
                     start::start_music,
                     library::load_library,
+                    place_now::follow_place,
                     play_tunes::play_tunes,
                     test_tune::play_test_tune,
                     start::send_events,

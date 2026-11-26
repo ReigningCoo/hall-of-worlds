@@ -10,7 +10,8 @@ use bevy::asset::LoadState;
 use bevy::prelude::*;
 
 use super::loaders::{PlaylistAsset, TuneAsset};
-use super::playlist::{Players, PlaylistFile, TuneEntry, in_order, merge};
+use super::place::Place;
+use super::playlist::{Ensemble, Players, PlaylistFile, TuneEntry, in_order, merge};
 use super::start::Music;
 use super::tune::Tune;
 
@@ -27,7 +28,10 @@ pub struct TuneList(pub Vec<String>);
 /// The tunes, ready to play.
 pub(super) struct Ready {
     pub tunes: Vec<Arc<Tune>>,
+    /// Each tune's places, beside it.
+    pub places: Vec<Vec<Place>>,
     pub players: Players,
+    pub ensembles: Vec<Ensemble>,
 }
 
 #[derive(Resource, Default)]
@@ -127,11 +131,13 @@ fn ready(
     tunes: &Assets<TuneAsset>,
 ) -> (Ready, Vec<String>) {
     let mut loaded = Vec::new();
+    let mut places = Vec::new();
     let mut titles = Vec::new();
     for (entry, handle) in playlist.tunes.iter().zip(handles) {
         match tunes.get(handle) {
             Some(tune) => {
                 loaded.push(tune.0.clone());
+                places.push(entry.places.clone());
                 titles.push(title_of(entry));
             }
             None => warn!(
@@ -143,7 +149,9 @@ fn ready(
     let players = playlist.players.clone().unwrap_or_default();
     let ready = Ready {
         tunes: loaded,
+        places,
         players,
+        ensembles: playlist.ensembles.clone(),
     };
     (ready, titles)
 }

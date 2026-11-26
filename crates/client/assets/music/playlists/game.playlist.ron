@@ -1,8 +1,26 @@
-// The game's playlist (music plan PR 3): every tune, its source and whether
-// its rhythm is written in the source or ours, and the places it suits (used
-// from PR 4). Made from the transcription task's index (tunes.toml).
+// The game's playlist: every tune, its source and whether its rhythm is
+// written in the source or ours, and the places it plays in; and who plays,
+// by place (`ensembles`; `players` wherever none is named). Made from the
+// transcription task's index (tunes.toml).
+//
+// Places: Wilderness(band, time) with bands Cold, Temperate, Dry, Hot (hot
+// and wet) and times Day, Night (Any for every one), WorldMap, Hall, Inn,
+// Village (hamlets too), Town, City, Castle (forts too), Tower, Cave (crypts,
+// cellars and basements too), Farm, Herbalist, Oasis. A tune with no places
+// plays everywhere.
+//
+// Instruments are General MIDI's bank and program, as `music.sf2` keeps them:
+// 74 recorder, 110 fiddle, 24 lute (nylon guitar), 46 harp, 15 psaltery
+// (dulcimer), 111 shawm (shanai), 56 trumpet, 57 sackbut (trombone), 109
+// bagpipe, 19 church organ, 20 reed organ, 53 voices, 14 tubular bells; bank 8
+// has the hurdy-gurdy (110) and cornemuse (109). Percussion uses the standard
+// kit's keys: 41 and 45 toms (tabor, nakers, frame drum), 54 tambourine, 60
+// and 61 bongos, 76 wood block.
+//
 // Mods add their own `<name>.playlist.ron` beside this one (native builds),
-// with tunes and, if they like, players; an entry with a known id replaces it.
+// with tunes and, if they like, players and ensembles; an entry with a known
+// id replaces it, and a mod's ensembles win over these for the places they
+// name.
 (
     players: Some((
         melody: (bank: 0, program: 74),
@@ -11,6 +29,170 @@
         percussion: Some((strong: 61, light: 60)),
         link_seconds: 5.0,
     )),
+    ensembles: [
+        // The wilderness: a pipe and drone, sparser at night.
+        (
+            places: [Wilderness(Any, Day)],
+            players: (
+                melody: (bank: 0, program: 74),
+                second: Some((bank: 0, program: 24)),
+                drone: Some((bank: 0, program: 20)),
+                link_seconds: 8.0,
+            ),
+        ),
+        (
+            places: [Wilderness(Any, Night)],
+            players: (
+                melody: (bank: 0, program: 74),
+                drone: Some((bank: 0, program: 20)),
+                link_seconds: 10.0,
+            ),
+        ),
+        // Highlands and the cold: the cornemuse.
+        (
+            places: [Wilderness(Cold, Day)],
+            players: (
+                melody: (bank: 8, program: 109),
+                drone: Some((bank: 0, program: 20)),
+                link_seconds: 8.0,
+            ),
+        ),
+        // Deserts: shawm and frame drum.
+        (
+            places: [Wilderness(Dry, Day)],
+            players: (
+                melody: (bank: 0, program: 111),
+                second: Some((bank: 0, program: 24)),
+                drone: Some((bank: 0, program: 20)),
+                percussion: Some((strong: 41, light: 45)),
+                link_seconds: 8.0,
+            ),
+        ),
+        // Hot and wet: recorder, psaltery and hand drums.
+        (
+            places: [Wilderness(Hot, Day)],
+            players: (
+                melody: (bank: 0, program: 74),
+                second: Some((bank: 0, program: 15)),
+                percussion: Some((strong: 61, light: 60)),
+                link_seconds: 8.0,
+            ),
+        ),
+        (
+            places: [WorldMap],
+            players: (
+                melody: (bank: 0, program: 46),
+                second: Some((bank: 0, program: 74)),
+                drone: Some((bank: 0, program: 20)),
+                link_seconds: 6.0,
+            ),
+        ),
+        // Organ drone, bells and voices, slow to change.
+        (
+            places: [Hall],
+            players: (
+                melody: (bank: 0, program: 53),
+                second: Some((bank: 0, program: 14)),
+                drone: Some((bank: 0, program: 19)),
+                link_seconds: 10.0,
+            ),
+        ),
+        // A tavern band.
+        (
+            places: [Inn],
+            players: (
+                melody: (bank: 0, program: 110),
+                second: Some((bank: 0, program: 24)),
+                percussion: Some((strong: 54, light: 54)),
+                link_seconds: 3.0,
+            ),
+        ),
+        // More players the larger the town: pipe and tabor with a fiddle; a
+        // town adds the hurdy-gurdy's drone and a lute; a city's loud band.
+        (
+            places: [Village],
+            players: (
+                melody: (bank: 0, program: 74),
+                second: Some((bank: 0, program: 110)),
+                percussion: Some((strong: 45, light: 76)),
+                link_seconds: 4.0,
+            ),
+        ),
+        (
+            places: [Town],
+            players: (
+                melody: (bank: 0, program: 110),
+                second: Some((bank: 0, program: 24)),
+                drone: Some((bank: 8, program: 110)),
+                percussion: Some((strong: 45, light: 76)),
+                link_seconds: 3.0,
+            ),
+        ),
+        (
+            places: [City],
+            players: (
+                melody: (bank: 0, program: 111),
+                second: Some((bank: 0, program: 57)),
+                drone: Some((bank: 0, program: 111)),
+                percussion: Some((strong: 41, light: 45)),
+                link_seconds: 3.0,
+            ),
+        ),
+        (
+            places: [Castle],
+            players: (
+                melody: (bank: 0, program: 46),
+                second: Some((bank: 0, program: 15)),
+                drone: Some((bank: 8, program: 110)),
+                link_seconds: 5.0,
+            ),
+        ),
+        (
+            places: [Tower],
+            players: (
+                melody: (bank: 0, program: 15),
+                drone: Some((bank: 0, program: 19)),
+                link_seconds: 6.0,
+            ),
+        ),
+        // Low organ drone, bells and a recorder.
+        (
+            places: [Cave],
+            players: (
+                melody: (bank: 0, program: 74),
+                second: Some((bank: 0, program: 14)),
+                drone: Some((bank: 0, program: 19)),
+                link_seconds: 10.0,
+            ),
+        ),
+        (
+            places: [Farm],
+            players: (
+                melody: (bank: 0, program: 109),
+                drone: Some((bank: 0, program: 20)),
+                link_seconds: 5.0,
+            ),
+        ),
+        (
+            places: [Herbalist],
+            players: (
+                melody: (bank: 0, program: 15),
+                second: Some((bank: 0, program: 74)),
+                link_seconds: 5.0,
+            ),
+        ),
+        // Shawm, lute and hand drums.
+        (
+            places: [Oasis],
+            players: (
+                melody: (bank: 0, program: 111),
+                second: Some((bank: 0, program: 24)),
+                drone: Some((bank: 0, program: 20)),
+                percussion: Some((strong: 61, light: 60)),
+                link_seconds: 6.0,
+            ),
+        ),
+    ],
     tunes: [
         (
             id: "trotto",
@@ -20,7 +202,7 @@
             read_from: "Photograph of f. 62v on Wikimedia Commons, 'London Add MS 29987, f 63v.jpg' (public domain)",
             licence: "Public domain (medieval melody; our own transcription)",
             rhythm: Ours,
-            places: ["The Way Inn", "Town", "City"],
+            places: [Inn, Town, City],
             after: None,
         ),
         (
@@ -31,7 +213,7 @@
             read_from: "John Kelly's edition, IMSLP (CC0 1.0)",
             licence: "Public domain melody; Kelly's edition CC0 (no credit required; credited as a courtesy)",
             rhythm: Written,
-            places: ["Castle", "Herbalist's hut", "Wilderness (temperate, night)"],
+            places: [Castle, Herbalist, Wilderness(Temperate, Night)],
             after: None,
         ),
         (
@@ -42,7 +224,7 @@
             read_from: "John Kelly's edition, IMSLP (CC0 1.0)",
             licence: "Public domain melody; Kelly's edition CC0",
             rhythm: Written,
-            places: ["Castle", "The Way Inn"],
+            places: [Castle, Inn],
             after: Some("lamento_di_tristano"),
         ),
         (
@@ -53,7 +235,7 @@
             read_from: "Marieh's guitar edition, IMSLP (CC0 1.0); upper voice only",
             licence: "Public domain melody; edition CC0 on IMSLP (its footer says 'Copyleft'; we take only the medieval melody)",
             rhythm: Written,
-            places: ["The Way Inn", "Village", "Town", "Wilderness (temperate, day)"],
+            places: [Inn, Village, Town, City, Wilderness(Temperate, Day)],
             after: None,
         ),
         (
@@ -64,7 +246,7 @@
             read_from: "Marieh's guitar edition, IMSLP (CC0 1.0); upper voice only",
             licence: "Public domain melody; edition CC0 on IMSLP (footer says 'Copyleft'; we take only the medieval melody)",
             rhythm: Written,
-            places: ["The Way Inn", "City", "Castle"],
+            places: [Inn, City, Castle],
             after: None,
         ),
         (
@@ -75,7 +257,7 @@
             read_from: "Daniel Van Gilst's three-voice edition, IMSLP (CC0 1.0); top voice",
             licence: "Public domain melody; edition CC0",
             rhythm: Written,
-            places: ["The Hall of Worlds", "Tower", "Cave", "Wilderness (night)"],
+            places: [Hall, Tower, Cave, Wilderness(Any, Night)],
             after: None,
         ),
         (
@@ -86,7 +268,7 @@
             read_from: "Pitches from Marieh's guitar edition, IMSLP (CC0 1.0); melody only",
             licence: "Public domain melody; only the pitches taken from the edition (its footer says 'Copyleft'), the rhythm is ours",
             rhythm: Ours,
-            places: ["Village", "Farm", "Oasis", "Wilderness (dry, day)"],
+            places: [Village, Farm, Oasis, Wilderness(Dry, Day), Wilderness(Hot, Day)],
             after: None,
         ),
         (
@@ -97,7 +279,7 @@
             read_from: "Pablo F. Cantalapiedra's edition, IMSLP (CC BY 4.0)",
             licence: "Public domain melody; edition CC BY 4.0: credit 'La quarte estampie royal, ed. Pablo F. Cantalapiedra (CC BY 4.0)' in docs/credits.md",
             rhythm: Ours,
-            places: ["Castle", "Tower", "World map"],
+            places: [Castle, Tower, WorldMap],
             after: None,
         ),
         (
@@ -108,7 +290,7 @@
             read_from: "Michael Robert Harding's edition, IMSLP (public domain, dedicated); top line, the highest note of each chord",
             licence: "Public domain",
             rhythm: Written,
-            places: ["Castle", "Tower", "Wilderness (highlands, day)"],
+            places: [Castle, Tower, Wilderness(Cold, Day)],
             after: None,
         ),
         (
@@ -119,7 +301,7 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["Herbalist's hut", "Castle", "Wilderness (temperate, day)"],
+            places: [Herbalist, Castle, Wilderness(Temperate, Day)],
             after: None,
         ),
         (
@@ -130,7 +312,7 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["World map", "Town", "City", "The Way Inn"],
+            places: [WorldMap, Town, City, Inn],
             after: None,
         ),
         (
@@ -141,7 +323,7 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["Village", "Town", "World map", "Farm"],
+            places: [Village, Town, City, WorldMap, Farm, Wilderness(Hot, Day)],
             after: None,
         ),
         (
@@ -152,7 +334,7 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["Village", "Farm", "Town"],
+            places: [Village, Farm, Town, City],
             after: None,
         ),
         (
@@ -163,7 +345,7 @@
             read_from: "Jamieson Boyd Hurry's edition (Novello, 1914), IMSLP (public domain); first treble; manuscript photograph on Commons (CC0)",
             licence: "Public domain",
             rhythm: Written,
-            places: ["Farm", "Village", "Wilderness (temperate, day)"],
+            places: [Farm, Village, Wilderness(Temperate, Day)],
             after: None,
         ),
         (
@@ -174,7 +356,7 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["Cave", "Oasis", "Wilderness (desert)", "The Hall of Worlds"],
+            places: [Cave, Oasis, Wilderness(Dry, Any), Hall],
             after: None,
         ),
         (
@@ -185,7 +367,7 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["Wilderness (night)", "Cave", "Herbalist's hut", "Tower"],
+            places: [Wilderness(Any, Night), Cave, Herbalist, Tower],
             after: None,
         ),
         (
@@ -196,7 +378,7 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["Town", "City", "The Way Inn"],
+            places: [Town, City, Inn],
             after: None,
         ),
         (
@@ -207,7 +389,62 @@
             read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain)",
             licence: "Public domain; our own transcription",
             rhythm: Ours,
-            places: ["Wilderness (temperate, day)", "Village", "Castle"],
+            places: [Wilderness(Temperate, Day), Wilderness(Cold, Day), Village, Castle],
+            after: None,
+        ),
+        (
+            id: "como_deus_fez_vinno",
+            file: "music/tunes/como_deus_fez_vinno.mid",
+            title: "Como Deus fez vinno d'agua (CSM 23)",
+            source: "Madrid, Biblioteca Nacional, MS 10069 (Toledo codex), f. 32v ('Cantiga XXIII')",
+            read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain), p. 22",
+            licence: "Public domain; our own transcription",
+            rhythm: Ours,
+            places: [WorldMap, Village, Inn],
+            after: None,
+        ),
+        (
+            id: "non_e_gran_cousa",
+            file: "music/tunes/non_e_gran_cousa.mid",
+            title: "Non e gran cousa se sabe bon joizo dar (CSM 26)",
+            source: "Madrid, Biblioteca Nacional, MS 10069 (Toledo codex), f. 33v ('Cantiga XXIV')",
+            read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain), pp. 23-24",
+            licence: "Public domain; our own transcription",
+            rhythm: Ours,
+            places: [Cave, Hall, Wilderness(Any, Night)],
+            after: None,
+        ),
+        (
+            id: "nas_mentes_sempre_teer",
+            file: "music/tunes/nas_mentes_sempre_teer.mid",
+            title: "Nas mentes sempre teer (CSM 29)",
+            source: "Madrid, Biblioteca Nacional, MS 10069 (Toledo codex), f. 39r-v ('Cantiga XXIX')",
+            read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain), pp. 27-28",
+            licence: "Public domain; our own transcription",
+            rhythm: Ours,
+            places: [WorldMap, Oasis, Town, City, Wilderness(Hot, Day)],
+            after: None,
+        ),
+        (
+            id: "tanto_se_deus_me_perdon",
+            file: "music/tunes/tanto_se_deus_me_perdon.mid",
+            title: "Tanto se Deus me perdon (CSM 31)",
+            source: "Madrid, Biblioteca Nacional, MS 10069 (Toledo codex), f. 42r-v ('Cantiga XXXII')",
+            read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain), p. 31",
+            licence: "Public domain; our own transcription",
+            rhythm: Ours,
+            places: [Cave, Oasis, Wilderness(Dry, Day)],
+            after: None,
+        ),
+        (
+            id: "muit_amar_devemos",
+            file: "music/tunes/muit_amar_devemos.mid",
+            title: "Muit' amar devemos en nossas voontades (CSM 36)",
+            source: "Madrid, Biblioteca Nacional, MS 10069 (Toledo codex), f. 49r-v ('Cantiga XXXVII')",
+            read_from: "The codex itself: IMSLP's facsimile of the Toledo codex (public domain), pp. 36-37",
+            licence: "Public domain; our own transcription",
+            rhythm: Ours,
+            places: [Hall, WorldMap, Castle, Wilderness(Cold, Day)],
             after: None,
         ),
     ],

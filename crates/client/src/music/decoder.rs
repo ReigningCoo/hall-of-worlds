@@ -61,6 +61,7 @@ impl MusicDecoder {
         for command in taken(&self.shared.commands) {
             match command {
                 Command::Play(program) => self.sequencer.play(program, &mut events),
+                Command::Change(program) => self.sequencer.change(program, &mut events),
                 Command::Stop => self.sequencer.stop(&mut events),
             }
         }
