@@ -10,7 +10,7 @@ use shared::combat::{Body, Weapon, Wielded, reach_between, within};
 use shared::id::Id;
 use shared::item::Inventory;
 use shared::sheet::Sheet;
-use shared::spell::where_reach;
+use shared::spell::{Spell, where_reach};
 
 use super::manual::Manual;
 use super::spells::spell_of;
@@ -44,11 +44,17 @@ pub(super) fn reach_needed(
         BarThing::Ability(Ability::Kick) => {
             Some(reach_between(me.size, Weapon::UNARMED.reach(), them.size))
         }
-        BarThing::Spell(key) => (spell_of(key, sheet)?.first_where())
-            .filter(|step| !step.filters.caster)
-            .map(|step| where_reach(step, me, them)),
+        BarThing::Spell(key) => spell_reach(spell_of(key, sheet)?, me, them),
         _ => None,
     }
+}
+
+/// How near a spell's first where must be to reach `them`; none for one aimed
+/// at the caster.
+fn spell_reach(spell: &Spell, me: &Body, them: &Body) -> Option<u64> {
+    (spell.first_where())
+        .filter(|step| !step.filters.caster)
+        .map(|step| where_reach(step, me, them))
 }
 
 /// Where the player and everyone else stand, for reaching.
@@ -63,9 +69,11 @@ pub(super) struct Reaching<'w, 's> {
 
 impl Reaching<'_, '_> {
     /// The approach `thing` needs first: `target` is seen out of its reach.
+    /// `spell`: the spell a `BarThing::Spell` casts (one in the book, or the
+    /// design panel's), else `None`.
     pub(super) fn approach_for(
         &self,
-        thing: BarThing,
+        (thing, spell): (BarThing, Option<&Spell>),
         target: Option<Id>,
         (sheet, carried): (&Sheet, &Inventory),
     ) -> Option<Approach> {
@@ -75,7 +83,10 @@ impl Reaching<'_, '_> {
         let (other, at) = (self.others.iter()).find(|(other, _)| other.id == target)?;
         let them = Body::on(relief, at.0, other.kind.def().size);
         let wielded = Wielded::of(carried);
-        let reach = reach_needed(thing, (sheet, &wielded), &me, &them)?;
+        let reach = match spell {
+            Some(spell) => spell_reach(spell, &me, &them),
+            None => reach_needed(thing, (sheet, &wielded), &me, &them),
+        }?;
         let reached = within(&self.dungeon.level, &me, &them, reach);
         (!reached).then_some(Approach {
             target,

@@ -14,13 +14,13 @@ use shared::protocol::{ClientMessage, SpellbookAsk};
 use shared::sheet::Sheet;
 use shared::spell::{
     AutoCast, Creature, Origin, Side, Spell, SpellKey, Step, Toward, Where, auto_cast, auto_name,
-    check, hit_anyone, spell_cost, where_hits,
+    hit_anyone, where_hits,
 };
 
 use super::page::look;
 use super::use_ability::ASK_WAIT;
-use super::vitals_now::{affords, wants_healing};
-use crate::common::{OwnAbility, OwnVitals, spell_icon};
+use super::vitals_now::wants_healing;
+use crate::common::{OwnAbility, OwnVitals, can_cast_spell, spell_icon};
 use crate::connection::ToServer;
 use crate::widgets::AbilityLook;
 
@@ -29,20 +29,16 @@ pub(super) fn spell_of(key: SpellKey, sheet: &Sheet) -> Option<&Spell> {
     sheet.spellbook.by_key(key).map(|kept| &kept.spell)
 }
 
-/// Whether it can be cast now: in the book, still allowed by the skills, with
-/// the Mana for it, and (in The Way Inn) only on the caster.
+/// Whether it can be cast now: in the book, and `common::can_cast_spell`
+/// (still allowed by the skills, with the Mana for it, and in The Way Inn
+/// only on the caster).
 pub(super) fn can_cast(
     key: SpellKey,
     sheet: &Sheet,
     (vitals, now): (&OwnVitals, f64),
     in_inn: bool,
 ) -> bool {
-    spell_of(key, sheet).is_some_and(|spell| {
-        let skills = Some(&sheet.skills);
-        check(spell, skills).is_ok()
-            && affords(spell_cost(spell, skills), vitals, now)
-            && !(in_inn && spell.first_where().is_some())
-    })
+    spell_of(key, sheet).is_some_and(|spell| can_cast_spell(spell, sheet, (vitals, now), in_inn))
 }
 
 /// How a spell looks on the bar: Heal's icon for one that heals first, else
@@ -82,11 +78,23 @@ pub(super) fn ask_cast(
     own: &mut OwnAbility,
     to_server: &mut MessageWriter<ToServer>,
 ) {
+    let ask = SpellbookAsk::Cast { spell: key, target };
     own.asked_until = now + ASK_WAIT;
-    to_server.write(ToServer(ClientMessage::Spellbook(SpellbookAsk::Cast {
-        spell: key,
-        target,
-    })));
+    to_server.write(ToServer(ClientMessage::Spellbook(ask)));
+}
+
+/// Asks the server to cast a design not in the book, as it is (the spell
+/// design panel's Cast).
+pub(super) fn ask_cast_design(
+    spell: Spell,
+    target: Option<Id>,
+    now: f64,
+    own: &mut OwnAbility,
+    to_server: &mut MessageWriter<ToServer>,
+) {
+    let ask = SpellbookAsk::CastDesign { spell, target };
+    own.asked_until = now + ASK_WAIT;
+    to_server.write(ToServer(ClientMessage::Spellbook(ask)));
 }
 
 /// Where the player stands and an enemy targeted, for an automatic spell.

@@ -1,5 +1,6 @@
-//! A player casting a spell from their spellbook (magic plan PR 5): asked for
-//! with `SpellbookAsk::Cast`, wound up as the Magic ability, then its
+//! A player casting a spell from their spellbook (magic plan PR 5), or a
+//! design from the spell design panel: asked for with `SpellbookAsk::Cast`
+//! or `CastDesign`, checked alike, wound up as the Magic ability, then its
 //! steps resolve about a second apart once every client has had its turn
 //! (`cast/run.rs`), a missile step's once its missiles land (`cast/flight.rs`).
 //! A first step that hits nobody fizzles, costing only the time; otherwise
@@ -43,12 +44,20 @@ pub(super) use run::run_due;
 /// A player's spell: the one asked for, and the one whose steps are going on.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Casting {
-    /// Asked for (`SpellbookAsk::Cast`), waiting to begin as the Magic ability.
-    asked: Option<SpellKey>,
+    /// Asked for (`SpellbookAsk::Cast` or `CastDesign`), waiting to begin as
+    /// the Magic ability.
+    asked: Option<Asked>,
     /// Wound up, or landed with steps still to go.
     running: Option<Cast>,
     /// Missiles launched so far, numbering the next (`MissileId`).
     missiles: u32,
+}
+
+/// The spell asked for: one in the book by its key, or a design sent whole.
+#[derive(Clone, Debug)]
+pub(crate) enum Asked {
+    Book(SpellKey),
+    Design(Spell),
 }
 
 /// A spell under way.
@@ -90,9 +99,9 @@ struct Aimed {
     heading: Heading,
 }
 
-/// `SpellbookAsk::Cast`: the spell kept for when it begins, and Magic
-/// asked for like any ability, one at a time. Always stays.
-pub(super) fn ask_cast(client: &mut Client, spell: SpellKey, target: Option<Id>) -> bool {
+/// `SpellbookAsk::Cast` or `CastDesign`: the spell kept for when it begins,
+/// and Magic asked for like any ability, one at a time. Always stays.
+pub(super) fn ask_cast(client: &mut Client, spell: Asked, target: Option<Id>) -> bool {
     if !(client.waiting.iter()).any(|a| matches!(a, Action::UseAbility { .. })) {
         client.casting.asked = Some(spell);
         client.waiting.push_back(Action::UseAbility {
@@ -103,25 +112,24 @@ pub(super) fn ask_cast(client: &mut Client, spell: SpellKey, target: Option<Id>)
     true
 }
 
-/// Begins the spell asked for, if it is in the book, its design still allowed,
-/// there is the Mana for it, nothing else is under way, and (in The Way Inn)
-/// it stays on the caster. Whether the client is still there, and the cost.
+/// Begins the spell asked for, if it is in the book (or sent whole), its
+/// design allowed by the caster's skills, there is the Mana for it, nothing
+/// else is under way, and (in The Way Inn) it stays on the caster. Whether the client is still there, and the cost.
 pub(super) fn start_cast(
     client: &mut Client,
     world: &mut ServerWorld,
     target: Option<Id>,
 ) -> (bool, u32) {
     let tick = world.action_clock.ticks();
-    let Some(key) = client.casting.asked.take() else {
+    let Some(asked) = client.casting.asked.take() else {
         debug!("Not casting: no spell asked for");
         return (true, 0);
     };
-    let Some(spell) = client
-        .sheet
-        .spellbook
-        .by_key(key)
-        .map(|kept| kept.spell.clone())
-    else {
+    let spell = match asked {
+        Asked::Book(key) => (client.sheet.spellbook.by_key(key)).map(|kept| kept.spell.clone()),
+        Asked::Design(spell) => Some(spell),
+    };
+    let Some(spell) = spell else {
         debug!("Not casting: the spell isn't in the book");
         return (true, 0);
     };

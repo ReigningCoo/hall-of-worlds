@@ -11,6 +11,7 @@
 //! one. A spell taken out of the book (`EditSpell`) comes back here to be
 //! changed. See `docs/context/client/spell_design.md`.
 
+mod cast;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
 mod draft;
@@ -31,7 +32,7 @@ mod units;
 mod words;
 
 use bevy::prelude::*;
-use shared::spell::BookSpell;
+use shared::spell::{BookSpell, Spell};
 
 use crate::common::PointerSystems;
 use crate::dom::{DomInput, HoldObjects};
@@ -47,6 +48,11 @@ pub struct OpenSpellDesign;
 #[derive(Message, Clone, Debug)]
 pub struct EditSpell(pub BookSpell);
 
+/// The panel's Cast: cast this design as it is, in the book or not, aimed and
+/// queued as a spell slot pressed (`abilities`).
+#[derive(Message, Clone, Debug)]
+pub struct CastDesign(pub Spell);
+
 pub struct SpellDesignPlugin;
 
 impl Plugin for SpellDesignPlugin {
@@ -57,6 +63,7 @@ impl Plugin for SpellDesignPlugin {
             .init_resource::<drag::DesignAim>()
             .add_message::<OpenSpellDesign>()
             .add_message::<EditSpell>()
+            .add_message::<CastDesign>()
             .add_systems(
                 PreUpdate,
                 (
@@ -80,9 +87,11 @@ impl Plugin for SpellDesignPlugin {
                     open::notice_closed,
                     open::tell_open,
                     side::answer_panel,
+                    cast::answer_cast,
                     rows::draw_rows,
                     octagon::give_octagons,
                     side::show_side,
+                    cast::show_cast,
                     preview::show_preview,
                 )
                     .chain(),

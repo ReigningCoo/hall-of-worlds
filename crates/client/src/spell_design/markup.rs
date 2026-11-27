@@ -1,7 +1,7 @@
 //! The spell design panel as markup: a moving panel with the pieces along the
 //! top and the steps under them (both canvases `pieces` and `steps` fill),
 //! then the picture it would have, its name and what it costs, what is wrong,
-//! Save and Clear; and the Save
+//! Save, Cast and Clear; and the Save
 //! requester asking for a name.
 
 use crate::dom::Template;
@@ -27,6 +27,7 @@ pub(super) static SPELL_DESIGN: Template = html!(
     <p id="problem" width="640"/>
     <span nowrap valign="middle">
       <button id="save" class="main">Save</button>
+      <button id="cast">Cast</button>
       <button id="clear">Clear</button>
     </span>
   </panel>

@@ -9,12 +9,19 @@ use shared::protocol::SpellbookAsk;
 use shared::spell::BookRefusal;
 
 use super::Client;
+use super::cast::Asked;
 use crate::ServerWorld;
 
 /// Answers one ask about the spellbook: `false` if the client has gone.
 pub(super) fn answer(client: &mut Client, world: &ServerWorld, ask: SpellbookAsk) -> bool {
-    if let SpellbookAsk::Cast { spell, target } = ask {
-        return super::cast::ask_cast(client, spell, target);
+    match ask {
+        SpellbookAsk::Cast { spell, target } => {
+            return super::cast::ask_cast(client, Asked::Book(spell), target);
+        }
+        SpellbookAsk::CastDesign { spell, target } => {
+            return super::cast::ask_cast(client, Asked::Design(spell), target);
+        }
+        _ => {}
     }
     let skills = client.sheet.skills.clone();
     let book = &mut client.sheet.spellbook;
@@ -25,7 +32,7 @@ pub(super) fn answer(client: &mut Client, world: &ServerWorld, ask: SpellbookAsk
         SpellbookAsk::Rename { spell, name } => book.rename(spell, name.as_deref()),
         SpellbookAsk::Favourite { spell, favourite } => book.set_favourite(spell, *favourite),
         SpellbookAsk::Remove { spell } => book.remove(spell).map(|_| ()),
-        SpellbookAsk::Cast { .. } => return true,
+        SpellbookAsk::Cast { .. } | SpellbookAsk::CastDesign { .. } => return true,
     };
     match done {
         Ok(()) => client.unsaved = true,

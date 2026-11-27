@@ -8,7 +8,7 @@ The spell design panel (magic plan PR 9, `docs/context/magic-system.md`): opened
 - `draft.rs`: `Draft` (resource: the panel's document, the steps as `shared::spell::Step`s with no filters on their wheres, the filters apart (`filters`: always the first step's, put on its where by `spell`; `set_steps` takes them off a design; forgotten with the last step; `filters_stranded` when the first step isn't a where), the player's own name kept from an edited spell, the Save requester and the name typed); every change, a where or effect at a time: `add_step`, `takes`, `add_to`, `append` (clicks: to the last step if it takes it, else a new step), `set_filter` (on only with a where first), `has_filter`, `shift`, `remove`, `remove_unit` (its step too once empty), `move_unit` (`Goes::Step` or `Goes::Gap`; put back if the step won't take it), `load`, `clear`; never past `MAX_STEPS`. Kept when the panel closes.
 - `units.rs`: `Unit` (one where or one effect, as added), `units(step)` (a where step's wheres, each `count` times, in order; an effect step's runs spelled out), `step_of(units, filters)` (back to a counted step, runs of the same where folding into a count and different wheres merged in order (PR 10); none when empty, mixed, more than `MAX_WHERES` wheres, or more than `MOST_REPEATS`, 9, of one in a row), `with` (any where onto a where step merges), `click_joins` (a click adds the same where as the step's last again; another kind starts a new step), `filters_of`.
 - `piece.rs`: `Piece` (`Where`, `Filter(FilterKind)`, `Effect`): names, tips, ids, icons (the skill's from `skills_page::skill_icon`; filters `delapouite/person`, `shaking-hands`, `angry-eyes`), and `look` (an `AbilityLook` on `attribute_colour` of what its skill leans on; wheres drawn round); `FilterKind` (Self, Friend, Enemy).
-- `markup.rs`: `SPELL_DESIGN` (`spell_design/panel`: `words`, the canvases `pieces` and `steps`, `next`, the `preview` object beside `name` and `cost`, `problem`, `save`, `clear`; the `naming` dialog with `typed`, `really_save`, `cancel_save`), `WORDS`.
+- `markup.rs`: `SPELL_DESIGN` (`spell_design/panel`: `words`, the canvases `pieces` and `steps`, `next`, the `preview` object beside `name` and `cost`, `problem`, `save`, `cast`, `clear`; the `naming` dialog with `typed`, `really_save`, `cancel_save`), `WORDS`.
 - `open.rs`: `open_panel` (`OpenSpellDesign` toggles it, on its own: owner, 2026-11-27, no longer opening the Character panel; `EditSpell` loads a spell and opens it if closed), `bind_panel`, `notice_closed`, `tell_open` (into `common::OpenPanels` as Magic, so the ability shows as on).
 - `rows.rs`: `draw_rows` (both canvases again when the draft, the skills or the drag's aim change): `PiecesRow` (Wheres unlocked, Filters, each greyed unless the first step is a where or once used, Effects in lines of 9: `PieceNode`), `StepsRow`.
 - `steps.rs`: `draw_steps` (each step's box, `StepNode`: its wheres or effects one under another, first at the top (owner), each as often as added, `EntryNode`, and in the first step the filters used above them (`FilterNode`, red with no where there to filter); ">" between; the end box, `EndNode`), `step_wrong` (red edge: a locked where, a where last, filters over effects); green edge on the effect step a drag would join, the gold mark where it would go.
@@ -20,6 +20,7 @@ The spell design panel (magic plan PR 9, `docs/context/magic-system.md`): opened
 - `right_click.rs`: `remove_on_right_click` (`PreUpdate`, with `press_design`: a right-click on a where or effect in a step takes it out, its step too once empty, and on a filter takes it off; owner, 2026-11-27; no long press on touch, dragging off is easier there), `remove`.
 - `preview.rs`: `show_preview` (the design in `dom::KnownAbilities` as `spell_design.preview`, `PREVIEW`, for the `preview` object, hidden with no steps), `design_look` (as `abilities` draws a book spell: `common::spell_icon`, Magic's colour, its kept or automatic name, greyed unless `can_store`).
 - `side.rs`: `can_store` (filters with no where first; then the book's own `store` on a copy: the design's problem, "in your spellbook", full), `answer_panel` (Save opens the requester with the kept name; its Save sends `SpellbookAsk::Store` with `tidy_name`; Clear), `show_side` (the next unlock, the names, the cost, the problem or "Ready to save.", Save and Clear greyed when they can do nothing, the requester).
+- `cast.rs`: `answer_cast` (Cast pressed: `CastDesign` with the design, if it can be cast), `show_cast` (Cast greyed, checked every frame as the Mana refills, by `common::can_cast_spell`, the bar's own rule (owner, 2026-11-27: not for being in the book, no other rule), and filters with no where first).
 - `words.rs`: `problem_words` (each `DesignError`), `cost_words` ("Costs 32 Mana (4.8 × 6.7)": each step's share to one place), `next_words` (the next where at Magic ⌈n³ ÷ 6⌉%, and the Magic now).
 - `debug_api.rs` (debug API only): `client.spell_design`.
 
@@ -27,15 +28,16 @@ The spell design panel (magic plan PR 9, `docs/context/magic-system.md`): opened
 
 - `SpellDesignPlugin`.
 - `OpenSpellDesign` (message): opens the panel, or closes it if open (`abilities`, on using Magic or the Spells tab's Design a Spell).
+- `CastDesign(Spell)` (message): the panel's Cast, read by `abilities`, which aims and queues it as a spell slot pressed and sends it as `SpellbookAsk::CastDesign` (or `Cast` if the book holds it).
 - `EditSpell(BookSpell)` (message): puts a spell on the panel in place of the design there, opening it if closed (`abilities`' Spells tab, on Remove).
 
 ## Depends on
 
-- `character` (`CharacterSheet`), `common` (`spell_icon`), `skills_page` (`skill_icon`), `common` (`OpenPanels`, `Session`, `Wording`, `UiPointer`, `TouchGesture`, `PointerSystems`), `connection` (`ToServer`), `dom` (`Dom`, `UiEvent`, `HeldObject`, `Dropped`, `Finder`, `AbilityThing`, `KnownAbilities`, `Solid`, `DomInput`, `HoldObjects`), `widgets` (`spawn_ability`, `AbilityLook`, `attribute_colour`, `Shade`, `HoverTip`, `UiId`, `logical_rect`), `shared::spell`.
+- `character` (`CharacterSheet`), `common` (`spell_icon`, `can_cast_spell`, `in_inn`, `OwnVitals`, `CurrentDungeon`, `GameView`), `skills_page` (`skill_icon`), `common` (`OpenPanels`, `Session`, `Wording`, `UiPointer`, `TouchGesture`, `PointerSystems`), `connection` (`ToServer`), `dom` (`Dom`, `UiEvent`, `HeldObject`, `Dropped`, `Finder`, `AbilityThing`, `KnownAbilities`, `Solid`, `DomInput`, `HoldObjects`), `widgets` (`spawn_ability`, `AbilityLook`, `attribute_colour`, `Shade`, `HoverTip`, `UiId`, `logical_rect`), `shared::spell`.
 
 ## Used by
 
-- `abilities` (`OpenSpellDesign`, `EditSpell`).
+- `abilities` (`OpenSpellDesign`, `EditSpell`, `CastDesign`).
 
 ## Notes
 

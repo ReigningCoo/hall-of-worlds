@@ -9,17 +9,20 @@ use shared::ability::{Ability, BarThing};
 use shared::campfire::can_make_fire;
 use shared::id::Id;
 use shared::protocol::ClientMessage;
+use shared::sheet::Sheet;
+use shared::spell::{Spell, SpellKey};
 use shared::spot::Spot;
 
 use super::approach::Reaching;
 use super::peace::Peace;
 use super::rain_here::WaterHere;
-use super::spells::{ask_cast, can_cast, hand_aim, spell_of};
+use super::spells::{ask_cast, ask_cast_design, hand_aim, spell_of};
 use super::use_ability::{ASK_WAIT, ask};
 use super::woodcutting::{log_aim, tree_to_fell};
 use crate::character::CharacterSheet;
 use crate::common::{
     CurrentDungeon, FaceTowards, Facing, OwnAbility, OwnVitals, SpotPosition, Target,
+    can_cast_spell,
 };
 use crate::connection::ToServer;
 use crate::inventory::{Carried, GroundShown};
@@ -45,6 +48,10 @@ pub(super) struct Manual {
     /// Just come into reach: asked for next frame, once the last stretch
     /// walked has gone to the server.
     pub(super) settle: bool,
+    /// The spell design panel's last Cast (`spell_design::CastDesign`),
+    /// queued as `BarThing::Spell` of its key: cast as it is when the book
+    /// doesn't hold it.
+    pub(super) design: Option<Spell>,
 }
 
 impl Manual {
@@ -80,6 +87,14 @@ impl Manual {
             self.sent = None;
             self.lands = lands;
         }
+    }
+
+    /// The spell `key` stands for, and whether it is the book's: the book's,
+    /// else the design cast.
+    fn spell<'a>(&'a self, key: SpellKey, sheet: &'a Sheet) -> Option<(&'a Spell, bool)> {
+        let design = (self.design.as_ref()).filter(|design| SpellKey::of(design) == key);
+        let book = spell_of(key, sheet).map(|spell| (spell, true));
+        book.or(design.map(|spell| (spell, false)))
     }
 
     /// Moving takes the place of everything chosen.
@@ -127,8 +142,12 @@ pub(super) fn ask_wanted(
         let ability = match thing {
             BarThing::Ability(ability) => ability,
             BarThing::Spell(key) => {
-                let Some(spell) = spell_of(key, &sheet.0)
-                    .filter(|_| can_cast(key, &sheet.0, (&vitals, now), peace.0))
+                let castable = |(spell, _): &(&Spell, bool)| {
+                    can_cast_spell(spell, &sheet.0, (&vitals, now), peace.0)
+                };
+                let Some((spell, in_book)) = (manual.spell(key, &sheet.0))
+                    .filter(castable)
+                    .map(|(spell, in_book)| (spell.clone(), in_book))
                 else {
                     debug!("A spell can't be cast now");
                     continue;
@@ -136,15 +155,20 @@ pub(super) fn ask_wanted(
                 if automatic_waiting {
                     to_server.write(ToServer(ClientMessage::WithdrawAbility));
                 }
-                let target = hand_aim(spell, target.0);
+                let target = hand_aim(&spell, target.0);
                 let carrying = (&sheet.0, &carried.0);
-                if let Some(going) = reaching.approach_for(thing, target, carrying) {
+                let going = reaching.approach_for((thing, Some(&spell)), target, carrying);
+                if let Some(going) = going {
                     manual.queued.push_front(thing);
                     manual.approaching = Some(going.target);
                     approach.write(going);
                     return;
                 }
-                ask_cast(key, target, now, &mut own, &mut to_server);
+                if in_book {
+                    ask_cast(key, target, now, &mut own, &mut to_server);
+                } else {
+                    ask_cast_design(spell, target, now, &mut own, &mut to_server);
+                }
                 manual.sent = Some(thing);
                 manual.sent_until = now + ASK_WAIT;
                 return;
@@ -181,7 +205,7 @@ pub(super) fn ask_wanted(
         if automatic_waiting {
             to_server.write(ToServer(ClientMessage::WithdrawAbility));
         }
-        if let Some(going) = reaching.approach_for(thing, at, (&sheet.0, &carried.0)) {
+        if let Some(going) = reaching.approach_for((thing, None), at, (&sheet.0, &carried.0)) {
             manual.queued.push_front(thing);
             manual.approaching = Some(going.target);
             approach.write(going);
