@@ -1,6 +1,6 @@
 //! Reading an `Item`: the same fields, then any counted kind's old stack (from
 //! before counted stacks, 2026-11-12: one item with an id for each coin) folded
-//! into its count, the apple's form for an apple saved before fruit, and a form for a necklace saved before necklaces had one. Works
+//! into its count, an old set item's flag into a piece of a set, the apple's form for an apple saved before fruit, and a form for a necklace saved before necklaces had one. Works
 //! the same for messages, which never have such stacks or necklaces.
 
 use serde::Deserialize;
@@ -9,6 +9,7 @@ use crate::id::Id;
 use crate::item::item::one;
 use crate::item::{Favour, Item, ItemKind, Known, Made, MadeAt, Placed, Quality};
 use crate::item_form::{ItemForm, RollRequest, give_form_to};
+use crate::item_set::SavedSet;
 use crate::quest::QuestId;
 
 /// An `Item` as written: see `Item` for each field.
@@ -25,7 +26,7 @@ pub(super) struct Saved {
     #[serde(default)]
     name: Option<String>,
     #[serde(default)]
-    set: bool,
+    set: SavedSet,
     #[serde(default)]
     form: Option<ItemForm>,
     #[serde(default)]
@@ -50,7 +51,7 @@ impl From<Saved> for Item {
             quality: saved.quality,
             made_at: saved.made_at,
             name: saved.name,
-            set: saved.set,
+            set: (saved.set).piece(saved.kind, saved.quality, saved.id),
             form: saved.form,
             favour: saved.favour,
             known: saved.known,

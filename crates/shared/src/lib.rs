@@ -56,6 +56,7 @@ pub mod id;
 pub mod inn;
 pub mod item;
 pub mod item_form;
+pub mod item_set;
 pub mod item_text;
 pub mod juice;
 pub mod lang;

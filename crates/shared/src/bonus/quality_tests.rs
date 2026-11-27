@@ -3,6 +3,7 @@ use crate::creature::CreatureKind;
 use crate::id::Id;
 use crate::item::{Item, ItemKind, Quality};
 use crate::item_form::{ItemOrder, make_item};
+use crate::item_set::SetPiece;
 use crate::rng::Seed;
 use crate::skill::SkillId;
 
@@ -126,7 +127,7 @@ fn uniques_give_twice_as_much_and_never_a_negative() {
     for n in 1..300 {
         let artifact = ring(Quality::Artifact, n);
         let mut set = ring(Quality::Rare, n);
-        set.set = true;
+        set.set = Some(SetPiece { set: 0, piece: 0 });
         for item in [artifact, set] {
             assert!(is_unique(&item));
             for bonus in quality_bonuses(&item) {
@@ -200,5 +201,21 @@ fn every_kind_of_gear_has_room_for_an_artifacts_five() {
         if takes_quality_bonuses(&item) {
             assert_eq!(quality_bonuses(&item).len(), 5, "{kind:?}");
         }
+    }
+}
+
+#[test]
+fn set_items_have_one_fewer_of_their_own_but_at_least_one() {
+    for (quality, own) in [
+        (Quality::Common, 1),
+        (Quality::Uncommon, 1),
+        (Quality::Rare, 1),
+        (Quality::Epic, 2),
+        (Quality::Legendary, 3),
+    ] {
+        let mut item = ring(quality, 7);
+        item.set = Some(SetPiece { set: 0, piece: 0 });
+        assert_eq!(own_count(&item, quality), own, "{quality:?}");
+        assert_eq!(quality_bonuses(&item).len(), own, "{quality:?}");
     }
 }

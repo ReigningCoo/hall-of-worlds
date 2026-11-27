@@ -6,6 +6,7 @@ use super::{Attributes, Sheet};
 use crate::bonus::{Bonus, Cancel, Effect, Source, Stat, Totals, eating};
 use crate::creature::CreatureKind;
 use crate::item::{Item, ItemKind};
+use crate::item_set::set_bonuses;
 use crate::requirement::effective_bonuses;
 use crate::vitals::Limits;
 
@@ -24,13 +25,15 @@ impl Sheet {
     /// Every bonus from what is worn and the effects lasting at `now`, added up.
     /// What is worn gives its good bonuses by how well it works for this
     /// creature (`requirement::effective_bonuses`), judged by its attributes
-    /// with effects only.
+    /// with effects only. Sets' bonuses for the pieces worn are added in full.
     pub fn totals(&self, worn: &[Item], now: u64) -> Totals {
         let own = self.attributes_without_worn(now);
-        let from_items: Vec<Bonus> = worn
+        let mut from_items: Vec<Bonus> = worn
             .iter()
             .flat_map(|item| effective_bonuses(item, &own))
             .collect();
+        // Sets' bonuses count in full: no piece asks anything of them.
+        from_items.extend(set_bonuses(worn));
         Totals::of(from_items.iter().chain(self.effects.bonuses(now)))
     }
 

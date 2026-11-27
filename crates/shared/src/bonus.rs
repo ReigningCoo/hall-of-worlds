@@ -37,7 +37,7 @@ pub use item::{
 pub use later::{Later, Pending};
 pub use material::{MaterialFactors, material_factors};
 pub use quality::{
-    NEGATIVE_ODDS, is_unique, quality_bonuses, quality_steps, takes_quality_bonuses,
+    NEGATIVE_ODDS, is_unique, own_count, quality_bonuses, quality_steps, takes_quality_bonuses,
 };
 pub use raised::Raised;
 pub use stat::{Amount, Bonus, PER_CENT, Stat};

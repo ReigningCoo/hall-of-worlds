@@ -6,6 +6,7 @@ use crate::creature::{CreatureKind, Size};
 use crate::id::Id;
 use crate::item::{Favour, Item, ItemKind, Made, MadeAt, Quality, artifact_name};
 use crate::item_form::{Refused, RollRequest, give_form_to};
+use crate::item_set::SetPiece;
 use crate::rng::Seed;
 
 /// What is asked for.
@@ -18,7 +19,8 @@ pub struct ItemOrder {
     pub magical: bool,
     /// Ignored for kinds without quality.
     pub quality: Quality,
-    /// Part of a set, if it has quality.
+    /// Part of a set, if it has quality: a piece of its kind of some set,
+    /// chosen from its id (`SetPiece::fitting`).
     pub set: bool,
     /// Blessed or cursed, only for what is worn.
     pub favour: Option<Favour>,
@@ -104,7 +106,9 @@ pub fn try_make_item(
         ..Item::new(id, kind)
     };
     give_form_to(&mut item, size, seed, &order.request, new_id)?;
-    item.set = order.set && item.quality.is_some();
+    item.set = (order.set && item.quality.is_some())
+        .then(|| SetPiece::fitting(kind, item.quality, id))
+        .flatten();
     item.made.magical = order.magical && item.can_be_magical();
     item.favour = order.favour.filter(|_| worn);
     Ok(item)

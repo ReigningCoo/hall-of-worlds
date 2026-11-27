@@ -8,6 +8,7 @@
 use shared::id::Id;
 use shared::item::{Item, ItemKind, MadeAt, Quality};
 use shared::item_form::{ItemOrder, make_item};
+use shared::item_set::SetPiece;
 use shared::quest::{Quest, QuestId, artifact_kind, set_item_of};
 use shared::recipe::{dev_recipe, new_item};
 use shared::rng::Seed;
@@ -55,12 +56,15 @@ pub(super) fn prize_items(
         match part {
             RewardPart::Artifact => {
                 let kind = artifact_kind(seed);
-                items.push(made(client, kind, Quality::Artifact, false, seed, made_at));
+                items.push(made(client, kind, Quality::Artifact, None, seed, made_at));
             }
             RewardPart::SetItem => {
-                let (kind, quality) = set_item_of(world.seed.value());
-                items.push(made(client, kind, quality, true, seed, made_at));
-                set_item = true;
+                let piece = set_item_of(world.seed.value());
+                if let Some(kind) = piece.kind() {
+                    let quality = piece.quality();
+                    items.push(made(client, kind, quality, Some(piece), seed, made_at));
+                    set_item = true;
+                }
             }
             // A scroll of a real dish rolled from the seed (`shared::recipe`).
             RewardPart::Item(ItemCategory::Recipe) => {
@@ -82,25 +86,25 @@ fn prize_seed(client: &Client, quest: QuestId) -> Seed {
     Id(uuid::Uuid::new_v5(&who.0, name.as_bytes())).seed()
 }
 
-/// One item made for the character's body from `seed`, with an id of its own.
+/// One item made for the character's body from `seed`, with an id of its
+/// own, a piece of `set` if given.
 fn made(
     client: &Client,
     kind: ItemKind,
     quality: Quality,
-    set: bool,
+    set: Option<SetPiece>,
     seed: Seed,
     made_at: MadeAt,
 ) -> Item {
-    let order = ItemOrder {
-        set,
-        ..ItemOrder::plain(kind, quality)
-    };
-    make_item(
+    let order = ItemOrder::plain(kind, quality);
+    let mut item = make_item(
         &order,
         client.inventory.creature,
         new_id(),
         seed,
         Some(made_at),
         &mut new_id,
-    )
+    );
+    item.set = set;
+    item
 }

@@ -172,7 +172,7 @@ fn spawn_worn(inside: &mut ChildSpawnerCommands, slot: Entity, thing: &SlotThing
         let image = ImageNode::default().with_color(Color::WHITE.with_alpha(alpha));
         worn.with_child((ItemPicture { look, pixels }, image, node));
     }
-    if item.set {
+    if item.set.is_some() {
         worn.with_child(set_edge(item.quality, UiRect::all(px(width)), width));
     }
     worn.with_children(|inside| fuel_in_slot(inside, item, width));

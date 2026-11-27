@@ -49,7 +49,7 @@ pub(in crate::inventory) fn show_tooltip(
         // A stack is named by its top, which is what shows.
         let item = holding.item(&carried.0)?.top();
         let words = format!("{}{}", named(item), worn_notes(&carried.0, id));
-        Some((words, item.quality, item.set))
+        Some((words, item.quality, item.set.is_some()))
     });
     let (Some((name, quality, set)), Some(at)) = (name, pointer.0.or(holding.at)) else {
         return;

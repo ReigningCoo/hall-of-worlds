@@ -21,4 +21,8 @@ Weapons, armour, clothes, shoes and jewellery get one bonus for each step of qua
 
 A skill level is one percentage point of the skill. Now and then one bonus on an item with two or more is a penalty instead, and another bonus on it is twice as strong to make up for it. Artifacts and items that belong to a set never have a penalty, and their bonuses are twice as strong.
 
+### Sets
+
+Some items belong to a set, and their name has a metal edge. A set has two to seven pieces, all of the same quality, each worn in a different place (a set may have two rings). A set item has one bonus fewer of its own than its quality gives, but never none. Wearing two or more different pieces of the same set gives the set's bonuses: one more for each piece worn from the second on, and one more again for the whole set, so a whole set of five gives five. Set bonuses are about twice as strong as an item's own. Each world's final quests may give a piece of one set.
+
 An item's popup lists its bonuses, each with what it does: "+5% Strength: carrying and how hard you hit".

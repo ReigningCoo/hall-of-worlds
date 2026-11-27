@@ -5,11 +5,13 @@
 use super::item::item_bonuses;
 use super::totals::Totals;
 use crate::item::Inventory;
+use crate::item_set::set_bonuses;
 
 impl Inventory {
-    /// Every bonus its worn and held items give, added up.
+    /// Every bonus its worn and held items give, with their sets', added up.
     pub fn worn_totals(&self) -> Totals {
-        let bonuses: Vec<_> = self.worn.iter().flat_map(item_bonuses).collect();
+        let mut bonuses: Vec<_> = self.worn.iter().flat_map(item_bonuses).collect();
+        bonuses.extend(set_bonuses(&self.worn));
         Totals::of(&bonuses)
     }
 }
