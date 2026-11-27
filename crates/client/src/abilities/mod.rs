@@ -13,6 +13,7 @@ use crate::player::PlayerSystems;
 mod approach;
 mod bar;
 mod cancel;
+mod cast_design;
 mod drag;
 mod ferment;
 mod held;
@@ -93,6 +94,7 @@ impl Plugin for AbilitiesPlugin {
                     cancel::cancel_by_moving,
                     approach::take_approached,
                     use_slots::use_slots,
+                    cast_design::take_cast_designs,
                     manual::ask_wanted,
                     use_ability::use_automatic,
                     marks::tell_own_panels,

@@ -26,4 +26,10 @@ pub enum SpellbookAsk {
         spell: crate::spell::SpellKey,
         target: Option<crate::id::Id>,
     },
+    /// Cast a design as it is, kept in the book or not (the spell design
+    /// panel's Cast): checked and queued as `Cast` is, by the same rules.
+    CastDesign {
+        spell: Spell,
+        target: Option<crate::id::Id>,
+    },
 }

@@ -4,9 +4,8 @@
 
 use bevy::prelude::*;
 use shared::ability::Ability;
-use shared::protocol::LevelKind;
 
-use crate::common::{CurrentDungeon, GameView};
+use crate::common::{CurrentDungeon, GameView, in_inn};
 
 /// Whether the player is in The Way Inn, where nothing may harm anyone.
 #[derive(Resource, Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -25,7 +24,5 @@ pub(super) fn keep_peace(
     dungeon: Res<CurrentDungeon>,
     mut peace: ResMut<Peace>,
 ) {
-    let in_inn = *view.get() == GameView::Dungeon
-        && (dungeon.info.as_ref()).is_some_and(|info| info.kind == LevelKind::Inn);
-    peace.set_if_neq(Peace(in_inn));
+    peace.set_if_neq(Peace(in_inn(*view.get(), &dungeon)));
 }

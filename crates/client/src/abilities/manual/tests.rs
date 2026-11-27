@@ -225,3 +225,63 @@ fn a_target_out_of_reach_is_walked_up_to_first() {
     let manual = app.world().resource::<Manual>();
     assert!(manual.queued.is_empty() && manual.approaching.is_none());
 }
+
+/// Full Health and Mana, told now.
+fn full_vitals(app: &mut App) {
+    use crate::common::ToldVitals;
+    use shared::vitals::{Points, VitalNow};
+    let full = VitalNow {
+        value: Points::whole(20),
+        most: 20,
+        refills_in: 0,
+        refill: shared::vitals::REFILL_TICKS as u32,
+        ..Default::default()
+    };
+    app.insert_resource(OwnVitals(Some(ToldVitals {
+        health: full,
+        mana: full,
+        at: 0.0,
+    })));
+}
+
+#[test]
+fn a_design_cast_from_the_panel_is_sent_whole_unless_in_the_book() {
+    use shared::protocol::SpellbookAsk;
+    use shared::spell::{SpellKey, heal_spell};
+    let mut app = app(OwnAbility::default());
+    full_vitals(&mut app);
+    let design = heal_spell();
+    let key = SpellKey::of(&design);
+    (app.world_mut()
+        .resource_mut::<crate::character::CharacterSheet>()
+        .0)
+        .spellbook
+        .remove(&design)
+        .unwrap();
+    let mut manual = app.world_mut().resource_mut::<Manual>();
+    manual.design = Some(design.clone());
+    manual.queued = [BarThing::Spell(key)].into();
+    app.update();
+    assert!(matches!(
+        &sent(&mut app)[..],
+        [ClientMessage::Spellbook(SpellbookAsk::CastDesign { spell, target: None })]
+            if *spell == design
+    ));
+}
+
+#[test]
+fn a_design_cast_from_the_panel_that_is_in_the_book_is_cast_by_its_key() {
+    use shared::protocol::SpellbookAsk;
+    use shared::spell::{SpellKey, heal_spell};
+    let mut app = app(OwnAbility::default());
+    full_vitals(&mut app);
+    let key = SpellKey::of(&heal_spell());
+    let mut manual = app.world_mut().resource_mut::<Manual>();
+    manual.design = Some(heal_spell());
+    manual.queued = [BarThing::Spell(key)].into();
+    app.update();
+    assert!(matches!(
+        sent(&mut app)[..],
+        [ClientMessage::Spellbook(SpellbookAsk::Cast { spell, target: None })] if spell == key
+    ));
+}

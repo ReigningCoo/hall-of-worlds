@@ -304,6 +304,8 @@ mod bench_alchemy_tests;
 #[cfg(test)]
 mod campfire_tests;
 #[cfg(test)]
+mod cast_design_tests;
+#[cfg(test)]
 mod collect_water_tests;
 #[cfg(test)]
 mod cook_tests;
