@@ -1,5 +1,6 @@
-//! Opening and closing the panel: the Magic ability opens it (with the
-//! Character panel, where the spellbook is) or closes it; so does its close
+//! Opening and closing the panel: the Magic ability (or the Spells tab's
+//! Design a Spell) opens it or closes it, on its own (owner, 2026-11-27: it
+//! no longer opens the Character panel too); so does its close
 //! button; leaving the game closes it. A spell taken out of the book to
 //! change (`EditSpell`) is put on it, opening it if closed. The design on it
 //! is kept for the next time.
@@ -13,13 +14,11 @@ use super::rows::{PiecesRow, StepsRow};
 use super::{EditSpell, OpenSpellDesign};
 use crate::common::{OpenPanels, Session};
 use crate::dom::{UiEvent, UiValue, document, top_strip};
-use crate::inventory::OpenCharacter;
 use crate::widgets::UiId;
 
 pub(super) fn open_panel(
     (mut asked, mut edits): (MessageReader<OpenSpellDesign>, MessageReader<EditSpell>),
     mut draft: ResMut<Draft>,
-    mut open_character: MessageWriter<OpenCharacter>,
     mut commands: Commands,
 ) {
     let mut toggle = asked.read().count() % 2 == 1;
@@ -40,7 +39,6 @@ pub(super) fn open_panel(
         .insert(top_strip())
         .id();
     draft.document = Some(document);
-    open_character.write(OpenCharacter);
 }
 
 /// Marks the built canvases.

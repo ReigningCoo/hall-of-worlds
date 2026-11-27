@@ -29,9 +29,10 @@ pub struct ActionBar {
 
 /// What new characters' bars start with, beyond Attack, in the order it was
 /// added: older bars are given each once. The Heal ability first, now the
-/// Heal spell (magic plan PR 5).
-fn given() -> [BarThing; 1] {
-    [BarThing::heal()]
+/// Heal spell (magic plan PR 5); then Magic, so the spell design panel is
+/// to hand (owner, 2026-11-27).
+fn given() -> [BarThing; 2] {
+    [BarThing::heal(), BarThing::Ability(Ability::Magic)]
 }
 
 /// A change the player asks for.
@@ -78,11 +79,15 @@ pub enum BarRefusal {
 
 /// A new character's: the Heal spell in the first slot and Attack in the
 /// second, so with both automatic, healing comes first (Claude's suggestion,
-/// 2026-11-07).
+/// 2026-11-07), then Magic, which opens the spell design panel.
 impl Default for ActionBar {
     fn default() -> Self {
         let mut slots = [None; BAR_SLOTS];
-        let things = [BarThing::heal(), BarThing::Ability(Ability::Attack)];
+        let things = [
+            BarThing::heal(),
+            BarThing::Ability(Ability::Attack),
+            BarThing::Ability(Ability::Magic),
+        ];
         for (slot, thing) in things.into_iter().enumerate() {
             slots[slot] = Some(BarSlot::new(thing));
         }

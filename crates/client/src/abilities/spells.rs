@@ -13,14 +13,14 @@ use shared::lang::Lang;
 use shared::protocol::{ClientMessage, SpellbookAsk};
 use shared::sheet::Sheet;
 use shared::spell::{
-    AutoCast, Creature, Effect, Origin, Side, Spell, SpellKey, Step, Toward, Where, auto_cast,
-    auto_name, check, hit_anyone, spell_cost, where_hits,
+    AutoCast, Creature, Origin, Side, Spell, SpellKey, Step, Toward, Where, auto_cast, auto_name,
+    check, hit_anyone, spell_cost, where_hits,
 };
 
 use super::page::look;
 use super::use_ability::ASK_WAIT;
 use super::vitals_now::{affords, wants_healing};
-use crate::common::{OwnAbility, OwnVitals};
+use crate::common::{OwnAbility, OwnVitals, spell_icon};
 use crate::connection::ToServer;
 use crate::widgets::AbilityLook;
 
@@ -60,12 +60,7 @@ pub(super) fn spell_look(
         shown.usable = false;
         return shown;
     };
-    let heals = (kept.spell.effect_steps().next())
-        .and_then(|step| step.effects.first())
-        .is_some_and(|(effect, _)| *effect == Effect::Heal);
-    if heals {
-        shown.icon = assets.load("icons/delapouite/healing.png");
-    }
+    shown.icon = assets.load(spell_icon(&kept.spell));
     shown.name = kept
         .name
         .clone()

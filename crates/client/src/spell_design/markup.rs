@@ -1,6 +1,7 @@
 //! The spell design panel as markup: a moving panel with the pieces along the
 //! top and the steps under them (both canvases `pieces` and `steps` fill),
-//! then what it costs, what is wrong, its name, Save and Clear; and the Save
+//! then the picture it would have, its name and what it costs, what is wrong,
+//! Save and Clear; and the Save
 //! requester asking for a name.
 
 use crate::dom::Template;
@@ -16,8 +17,13 @@ pub(super) static SPELL_DESIGN: Template = html!(
     <p id="next" class="faint"/>
     <hr/>
     <canvas id="steps"/>
-    <p id="name"/>
-    <p id="cost"/>
+    <span nowrap valign="middle">
+      <object id="preview" type="ability" for="spell_design.preview"/>
+      <div fills>
+        <p id="name"/>
+        <p id="cost"/>
+      </div>
+    </span>
     <p id="problem" width="640"/>
     <span nowrap valign="middle">
       <button id="save" class="main">Save</button>
@@ -41,4 +47,4 @@ pub(super) const WORDS: &str = "Click a where, filter or effect, or drag it down
     to the spell. A step holds wheres or effects, never both; filters go on a first where. \
     To use one more than once, add it again. Drag a where onto a where step to merge it, \
     leading on from the one above. Drag steps, wheres and effects to move them, \
-    or off the row to take them out.";
+    or off the row (or right-click them) to take them out.";

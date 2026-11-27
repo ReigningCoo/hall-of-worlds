@@ -10,6 +10,10 @@ Every character can cast spells, and every spell is one you design yourself. **M
 
 New characters' spellbooks start with **Heal** (a Heal on yourself) and **Healing Missile** (a missile that heals whoever it hits first).
 
+## Designing a spell
+
+Magic sits on the action bar from the start; if you take it off, the Spells tab (P) has a **Design a Spell** button too. In the design panel, click a where, filter or effect along the top, or drag it down, to add it to the spell. Drag steps, and the wheres and effects in them, to move them; drag them off the row, or right-click them, to take them out. Beside the spell's name and cost is the picture it will have on the action bar, greyed until it can be saved.
+
 ## Steps
 
 A spell is a row of up to ten steps, cast one after another, about a second apart.

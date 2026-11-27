@@ -3,6 +3,8 @@
 
 use shared::ability::Ability;
 
+use crate::common::MAGIC_ICON;
+
 /// Where an ability's icon is, in the assets.
 pub(super) fn icon_path(ability: Ability) -> &'static str {
     match ability {
@@ -21,6 +23,6 @@ pub(super) fn icon_path(ability: Ability) -> &'static str {
         Ability::Ferment => "icons/delapouite/barrel.png",
         Ability::MakeCampfire => "icons/lorc/campfire.png",
         Ability::Cook => "icons/delapouite/cooking-pot.png",
-        Ability::Magic => "icons/lorc/magic-swirl.png",
+        Ability::Magic => MAGIC_ICON,
     }
 }
