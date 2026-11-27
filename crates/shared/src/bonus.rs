@@ -11,21 +11,35 @@ mod eating;
 mod effect;
 mod effects;
 mod food;
+mod gear;
+mod gear_skills;
 mod item;
 mod later;
 mod material;
+mod quality;
+mod raised;
 mod stat;
 mod totals;
+mod worn;
 
 pub use eating::{POISON_DRAIN, POISON_TICKS, eating, food_effect, poison};
 pub use effect::{Cancel, Effect, EndsOn, Source};
 pub use effects::Effects;
 pub use food::{Food, Others, edible, food, is_food, may_eat, may_use_on_self, usable_on_self};
+pub use gear::{
+    CELL_BONUS, GEAR_STATS, GearStat, MOST_BONUS, PERCENT_BONUS, Places, RESTORE_BONUS,
+    SKILL_LEVEL, places_of,
+};
+pub use gear_skills::gear_skills;
 pub use item::{
     AGILITY_PER_KG, HAIR_SHIRT_WILL, MANA_PER_KG, TOUGHNESS_PER_KG, item_bonuses, quality_factor,
 };
 pub use later::{Later, Pending};
 pub use material::{MaterialFactors, material_factors};
+pub use quality::{
+    NEGATIVE_ODDS, is_unique, quality_bonuses, quality_steps, takes_quality_bonuses,
+};
+pub use raised::Raised;
 pub use stat::{Amount, Bonus, PER_CENT, Stat};
 pub use totals::{Sum, Totals, round_milli};
 
@@ -34,5 +48,7 @@ pub const MILLI: i64 = 1000;
 
 #[cfg(test)]
 mod food_tests;
+#[cfg(test)]
+mod quality_tests;
 #[cfg(test)]
 mod tests;

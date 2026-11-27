@@ -2,6 +2,7 @@
 //! quality, own weight and material), so both sides always agree.
 
 use super::material::{MaterialFactors, armour_material, material_factors};
+use super::quality::quality_bonuses;
 use super::stat::PER_CENT;
 use super::stat::{Bonus, Stat};
 use crate::item::{Item, ItemCategory, Quality};
@@ -37,10 +38,11 @@ pub const fn quality_factor(quality: Option<Quality>) -> i64 {
 /// −5% (owner, 2026-11-14; other, better bonuses may come later).
 pub const HAIR_SHIRT_WILL: i32 = -5 * PER_CENT;
 
-/// What this item gives while worn: armour by its weight (`armour_bonuses`),
-/// a hair shirt less Will, nothing else so far.
+/// What this item gives while worn or held: armour by its weight
+/// (`armour_bonuses`), a hair shirt less Will, then its quality's bonuses
+/// (`quality_bonuses`).
 pub fn item_bonuses(item: &Item) -> Vec<Bonus> {
-    if item.kind.category() == ItemCategory::Armour {
+    let mut bonuses = if item.kind.category() == ItemCategory::Armour {
         armour_bonuses(item)
     } else if is_hair_shirt(item) {
         vec![Bonus::percent(
@@ -49,7 +51,9 @@ pub fn item_bonuses(item: &Item) -> Vec<Bonus> {
         )]
     } else {
         Vec::new()
-    }
+    };
+    bonuses.extend(quality_bonuses(item));
+    bonuses
 }
 
 /// A shirt of haircloth (not a horsehair petticoat, which is haircloth too).

@@ -1,9 +1,10 @@
 //! Bonuses and effects in words (`shared::bonus`, through `item.ftl`): shared
 //! by item popups and the effect bar, so both say the same thing.
 
-use shared::bonus::{Amount, Bonus, Effect, Stat};
+use shared::bonus::{Amount, Bonus, Effect, SKILL_LEVEL, Stat};
 use shared::energy::ACTION_TICKS_PER_SECOND;
 use shared::lang::{Args, Lang, RenderError};
+use shared::skill::SkillId;
 use shared::vitals::Vital;
 
 /// A bonus's amount in thousandths, flat or a percentage.
@@ -60,11 +61,50 @@ pub fn bonus_line(bonus: &Bonus, lang: &Lang) -> String {
                 .text("stat", stat);
             return written(lang.render("item-drains-deadly", &args));
         }
+        (Stat::Skill(skill), Amount::Flat(milli)) => return skill_levels(skill, milli, lang),
         (_, Amount::Flat(milli)) => ("item-bonus", milli),
         (_, Amount::Percent(milli)) => ("item-bonus-percent", milli),
     };
     let args = Args::new().text("amount", signed(milli)).text("stat", stat);
     written(lang.render(id, &args))
+}
+
+/// A skill raised or lowered by levels, each one percentage point
+/// (`bonus::SKILL_LEVEL`): "+1 level in Sword", "−2 levels in Melee".
+fn skill_levels(skill: SkillId, milli: i32, lang: &Lang) -> String {
+    let levels = i64::from(milli) * 1000 / i64::from(SKILL_LEVEL);
+    let levels = levels.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
+    let whole = (levels.unsigned_abs() + 500) / 1000;
+    let args = Args::new()
+        .text("amount", signed(levels))
+        .count("count", i64::from(whole))
+        .text("skill", skill.name());
+    written(lang.render("item-skill-levels", &args))
+}
+
+/// What a stat does, worded to suit a bonus either way: "carrying and how
+/// hard you hit".
+pub fn does_words(stat: Stat, lang: &Lang) -> String {
+    let vital = |vital: Vital| match vital {
+        Vital::Health => "health",
+        Vital::Mana => "mana",
+    };
+    let id = match stat {
+        Stat::Attribute(attribute) => format!("does-{}", attribute.name().to_lowercase()),
+        Stat::Most(of) => format!("does-most-{}", vital(of)),
+        Stat::Restore(of) | Stat::Drain(of) | Stat::DeadlyDrain(of) => {
+            format!("does-restore-{}", vital(of))
+        }
+        Stat::Darkvision => "does-darkvision".to_owned(),
+        Stat::Defence => "does-defence".to_owned(),
+        Stat::BlowHarm => "does-blow-harm".to_owned(),
+        Stat::HarmTaken => "does-harm-taken".to_owned(),
+        Stat::Resistance => "does-resistance".to_owned(),
+        Stat::Speed => "does-speed".to_owned(),
+        Stat::Light => "does-light".to_owned(),
+        Stat::Skill(_) => "does-skill".to_owned(),
+    };
+    written(lang.render(&id, &Args::new()))
 }
 
 /// What a stat is called: "Toughness", "most Mana".

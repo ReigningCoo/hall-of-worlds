@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::Sheet;
+use crate::bonus::Stat;
 use crate::creature::Size;
 use crate::energy::NORMAL_SPEED;
 use crate::item::Inventory;
@@ -57,16 +58,22 @@ impl Sheet {
     /// How much energy it gains per tick: its kind's speed, slowed by what it
     /// carries and by drink (`alcohol::Stage::speed_percent`), the two
     /// stacking fully (owner, 2026-11-18), and by spells' chill
-    /// (`Sheet::spell_speed_percent`).
+    /// (`Sheet::spell_speed_percent`), and by gear's Speed (quality bonuses).
     pub fn speed(&self, carrying: &Inventory) -> u32 {
         let kind = carrying.creature.def().speed;
         let drink = self
             .alcohol_stage()
             .map_or(100, crate::alcohol::Stage::speed_percent);
         let spells = self.spell_speed_percent();
-        (NORMAL_SPEED * kind / 100 * self.load(carrying).speed_percent() / 100 * drink / 100
-            * spells
-            / 100)
-            .max(1)
+        let gear = carrying.worn_totals().per_mille(Stat::Speed);
+        let speed =
+            u64::from(NORMAL_SPEED * kind / 100 * self.load(carrying).speed_percent() / 100)
+                * u64::from(drink)
+                / 100
+                * u64::from(spells)
+                / 100
+                * gear
+                / 1000;
+        speed.clamp(1, u64::from(u32::MAX)) as u32
     }
 }

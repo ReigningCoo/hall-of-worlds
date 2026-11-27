@@ -27,17 +27,14 @@ pub fn kick_skill() -> Option<SkillId> {
 impl Fighter<'_> {
     fn kick_power(&self) -> u64 {
         let skill = kick_skill();
-        let total = self.skills.zip(skill).map_or(0, |(s, id)| s.total(id));
+        let total = self.total(skill);
         power(self.attributes, skill.map_or(&[], SkillId::leans), total)
     }
 
     /// A kick: an unarmed attack's cost, by agility and the Kick skill, made
     /// `KICK_COST_PER_MILLE` as long.
     pub fn kick(&self) -> Swing {
-        let value = self
-            .skills
-            .zip(kick_skill())
-            .map_or(0, |(s, id)| s.value(id));
+        let value = self.value(kick_skill());
         let cost = attack_cost(
             &Weapon::UNARMED,
             self.attributes.agility,

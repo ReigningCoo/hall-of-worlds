@@ -2,13 +2,13 @@
 //! (`shared::bonus`), each worded through the language files (`item.ftl`).
 //! Only what the client's copy of the item knows goes in.
 
-use shared::bonus::{Others, food, food_effect, item_bonuses, poison};
+use shared::bonus::{Bonus, Others, food, food_effect, item_bonuses, poison};
 use shared::fruit::{Fruits, eating};
 use shared::item::Item;
 use shared::lang::{Args, Lang};
 use shared::vegetable::{self, VegetableSet, Vegetables};
 
-use crate::common::{amount_of, bonus_line, effect_lines, written};
+use crate::common::{amount_of, bonus_line, does_words, effect_lines, written};
 
 /// One line for each bonus the item gives: worn ("+40 Toughness") or eaten
 /// ("Restores 1 Health a second for 30 s; stops on moving or being hurt").
@@ -17,7 +17,7 @@ pub(super) fn bonus_lines(item: &Item, lang: &Lang) -> Vec<String> {
     let item = item.top();
     let worn = item_bonuses(item).into_iter();
     let worn = worn.filter(|bonus| amount_of(bonus) != 0);
-    let mut lines: Vec<String> = worn.map(|bonus| bonus_line(&bonus, lang)).collect();
+    let mut lines: Vec<String> = worn.map(|bonus| worn_line(&bonus, lang)).collect();
     if let Some(effect) = food_effect(item.kind, 0) {
         lines.extend(effect_lines(&effect, lang));
     }
@@ -32,6 +32,15 @@ pub(super) fn bonus_lines(item: &Item, lang: &Lang) -> Vec<String> {
         }
     }
     lines
+}
+
+/// A worn or held thing's bonus with what the stat does: "+5% Strength:
+/// carrying and how hard you hit".
+fn worn_line(bonus: &Bonus, lang: &Lang) -> String {
+    let args = Args::new()
+        .text("line", bonus_line(bonus, lang))
+        .text("does", does_words(bonus.stat, lang));
+    written(lang.render("item-bonus-does", &args))
 }
 
 /// A fruit's healing and effects for one serving (`fruit::eating`), and a

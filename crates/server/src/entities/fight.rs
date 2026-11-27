@@ -43,13 +43,8 @@ pub(crate) enum MobBlow {
 
 impl Mob {
     fn fighter(&self) -> Fighter<'_> {
-        Fighter {
-            kind: self.kind,
-            attributes: self.spells.attributes().unwrap_or(&self.attributes),
-            skills: None,
-            wielded: self.wielded,
-            guard: self.spells.guard(),
-        }
+        let attributes = self.spells.attributes().unwrap_or(&self.attributes);
+        Fighter::mob(self.kind, attributes, self.wielded, self.spells.guard())
     }
 
     /// How much Health it has at this tick.

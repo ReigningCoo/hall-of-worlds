@@ -1,6 +1,7 @@
 //! `Fighter`: one side of a fight as the rules see it, for working out each
 //! attack's cost and harm the same way for players and mobs.
 
+use crate::bonus::Raised;
 use crate::creature::CreatureKind;
 use crate::rng::Rng;
 use crate::sheet::Attributes;
@@ -23,6 +24,8 @@ pub struct Fighter<'a> {
     pub kind: CreatureKind,
     pub attributes: &'a Attributes,
     pub skills: Option<&'a Skills>,
+    /// What its gear's quality bonuses add to its skills (none for mobs yet).
+    pub raised: Raised,
     pub wielded: Wielded,
     /// What spells lying on it do to blows (Illusion, Curse, Stoneskin).
     pub guard: Guard,
@@ -47,13 +50,39 @@ fn leans(skill: Option<SkillId>) -> &'static [crate::sheet::Attribute] {
     skill.map_or(&[], SkillId::leans)
 }
 
+impl<'a> Fighter<'a> {
+    /// A mob: no skills or raised ones yet, so counting from the floor.
+    pub fn mob(
+        kind: CreatureKind,
+        attributes: &'a Attributes,
+        wielded: Wielded,
+        guard: Guard,
+    ) -> Self {
+        Self {
+            kind,
+            attributes,
+            skills: None,
+            raised: Raised::default(),
+            wielded,
+            guard,
+        }
+    }
+}
+
 impl Fighter<'_> {
-    fn value(&self, skill: Option<SkillId>) -> u32 {
-        self.skills.zip(skill).map_or(0, |(s, id)| s.value(id))
+    /// A skill's value with what its gear raises it by (`Raised`).
+    pub(super) fn value(&self, skill: Option<SkillId>) -> u32 {
+        skill.map_or(0, |id| {
+            let own = self.skills.map_or(0, |skills| skills.value(id));
+            self.raised.value(id, own)
+        })
     }
 
-    fn total(&self, skill: Option<SkillId>) -> u32 {
-        self.skills.zip(skill).map_or(0, |(s, id)| s.total(id))
+    /// The values along a skill's path, each raised (as `Skills::total`).
+    pub(super) fn total(&self, skill: Option<SkillId>) -> u32 {
+        skill.map_or(0, |id| {
+            id.upwards().map(|node| self.value(Some(node))).sum()
+        })
     }
 
     fn dual_percent(&self) -> Option<u64> {
