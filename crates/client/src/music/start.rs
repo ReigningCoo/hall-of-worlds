@@ -1,14 +1,19 @@
 //! Starting the music: the SoundFont is loaded (in a browser, downloaded)
 //! only once music is on, audible and allowed to play; then a synthesizer is
-//! made from it and its stream played for good.
+//! made from it and its stream played for good: natively by Bevy's audio, in
+//! a browser by the music's own Web Audio output (`web_out`).
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+#[cfg(not(target_arch = "wasm32"))]
+use std::sync::Mutex;
 
 use bevy::asset::LoadState;
 use bevy::audio::{AudioSinkPlayback, GlobalVolume, Volume};
 use bevy::prelude::*;
 use rustysynth::{Synthesizer, SynthesizerSettings};
 
+#[cfg(target_arch = "wasm32")]
+use super::decoder::MusicDecoder;
 use super::decoder::SAMPLE_RATE;
 use super::font::{PATH, SoundFontAsset};
 use super::gesture::MayPlay;
@@ -92,6 +97,21 @@ fn play(
         }
     };
     let shared = Arc::new(Shared::new());
+    if !output(synth, &shared, streams, commands) {
+        return Music::Failed;
+    }
+    info!("Music started");
+    Music::Playing(shared)
+}
+
+/// Natively, the stream played by Bevy's audio.
+#[cfg(not(target_arch = "wasm32"))]
+fn output(
+    synth: Synthesizer,
+    shared: &Arc<Shared>,
+    streams: &mut Assets<MusicStream>,
+    commands: &mut Commands,
+) -> bool {
     let stream = streams.add(MusicStream {
         shared: shared.clone(),
         synth: Mutex::new(Some(synth)),
@@ -102,8 +122,19 @@ fn play(
         AudioPlayer(stream),
         PlaybackSettings::ONCE,
     ));
-    info!("Music started");
-    Music::Playing(shared)
+    true
+}
+
+/// In a browser, the decoder played by the music's own Web Audio output
+/// (`web_out`): Bevy's keeps too little queued.
+#[cfg(target_arch = "wasm32")]
+fn output(
+    synth: Synthesizer,
+    shared: &Arc<Shared>,
+    _streams: &mut Assets<MusicStream>,
+    _commands: &mut Commands,
+) -> bool {
+    super::web_out::start(MusicDecoder::new(Some(synth), shared.clone()))
 }
 
 /// Bevy sets a new sound's volume from `GlobalVolume` only when it starts,
