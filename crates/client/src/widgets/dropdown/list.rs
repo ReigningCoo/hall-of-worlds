@@ -9,7 +9,7 @@ use super::{
     Dropdown, FONT, GAP, LEAST_WIDTH, LIST_LAYER, List, ListBacking, ListRows, ROW, ROWS,
     SEARCH_HEIGHT, list_corner,
 };
-use crate::dom::Opaque;
+use crate::dom::{Opaque, OwnPointer};
 
 pub(super) fn spawn_list(
     commands: &mut Commands,
@@ -41,8 +41,12 @@ pub(super) fn spawn_list(
         ))
         .id();
     let holder = commands.spawn(panel()).id();
+    // A surface over everything, whose finger slides are left for
+    // `run_dropdowns` to scroll by (`OwnPointer`), not taken by the panels'
+    // code as slides on the interface.
     commands.entity(holder).insert((
         Opaque,
+        OwnPointer,
         Node {
             position_type: PositionType::Absolute,
             left: px(corner.x),
