@@ -7,7 +7,7 @@ use super::super::bodies::BodiesToShow;
 use super::html_sample::HTML_SAMPLE;
 use super::{
     alignment, change_creature, create_bench, create_mob, dev_area, examine_mob, generate, give,
-    herbs, learn_skills, pictures_spawn, place_furniture, steps, teleport_to_world, vitals,
+    herbs, learn_skills, music, pictures_spawn, place_furniture, steps, teleport_to_world, vitals,
     world_time,
 };
 use crate::dom::{Dom, document};
@@ -44,6 +44,7 @@ pub(in crate::debug_menu) fn bind_panels(
             "debug.item_pictures" => pictures_spawn::bind(&mut bound, id),
             learn_skills::FORM => learn_skills::bind(&mut bound, id, &mut dom),
             herbs::FORM => herbs::bind(&mut bound, id),
+            music::FORM => music::bind(&mut bound, id),
             "debug.generate_poi" => generate::bind(&mut bound, id, &mut dom),
             place_furniture::FORM => place_furniture::bind(&mut bound, id),
             create_bench::FORM => create_bench::bind(&mut bound, id),

@@ -116,6 +116,7 @@ fn a_change_to_a_place_with_no_combat_parts_calms_down() {
     let program = Program {
         tunes: vec![tune(&[69, 67, 65, 64], 100.0)],
         players: calm,
+        listed: Vec::new(),
     };
     sequencer.change(program, &mut Vec::new());
     run(&mut sequencer, 6.0);
@@ -140,4 +141,17 @@ fn the_ostinato_is_strong_on_the_downbeat_and_lighter_after() {
     assert_eq!(combat::ostinato(&compound, unit, false), 0.3);
     assert_eq!(combat::ostinato(&compound, unit, true), 0.55);
     assert_eq!(combat::ostinato(&compound, 3 * unit, false), 0.6);
+}
+
+#[test]
+fn attacked_again_and_again_as_forced_combat_does_it_never_eases_off() {
+    let mut sequencer = playing();
+    for _ in 0..40 {
+        sequencer.attacked();
+        run(&mut sequencer, 0.5);
+    }
+    assert_eq!(sequencer.fight.state, State::Fighting);
+    // Let go, it eases back after the quiet hold.
+    run(&mut sequencer, 16.0);
+    assert_eq!(sequencer.fight.state, State::Calm);
 }

@@ -48,6 +48,7 @@ impl Plugin for DebugMenuPlugin {
                 panels::add_other_floors_panel,
                 panels::add_learn_skills_panel,
                 panels::add_kept_choices,
+                panels::add_music_panel,
             ))
             .add_systems(Startup, menu::spawn_menu)
             .add_systems(

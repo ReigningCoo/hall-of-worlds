@@ -74,7 +74,14 @@ pub(super) fn run(sequencer: &mut Sequencer, seconds: f64) -> Vec<(usize, MusicE
 
 pub(super) fn started(sequencer: &mut Sequencer, tunes: Vec<Arc<Tune>>, players: Players) {
     let mut out = Vec::new();
-    sequencer.play(Program { tunes, players }, &mut out);
+    sequencer.play(
+        Program {
+            tunes,
+            players,
+            listed: Vec::new(),
+        },
+        &mut out,
+    );
     assert!(out.contains(&MusicEvent::program(MELODY, 74)));
 }
 
@@ -204,4 +211,27 @@ fn drums_follow_the_first_rhythmic_mode() {
     };
     let levels: Vec<f32> = (0..3).map(|unit| drum_level(&three_four, unit)).collect();
     assert_eq!(levels, [1.0, 0.0, 0.35]);
+}
+
+#[test]
+fn the_tune_playing_is_told_by_its_place_in_the_list() {
+    let mut sequencer = Sequencer::new(RATE);
+    assert_eq!(sequencer.tune_now(), None);
+    let tunes = vec![
+        tune(&[62, 64, 65, 67], 120.0),
+        tune(&[69, 67, 65, 64], 120.0),
+    ];
+    let program = Program {
+        tunes,
+        players: players(),
+        listed: vec![4, 9],
+    };
+    sequencer.play(program, &mut Vec::new());
+    assert_eq!(sequencer.tune_now(), Some(4));
+    let mut seen = Vec::new();
+    for _ in 0..40 {
+        run(&mut sequencer, 0.5);
+        seen.extend(sequencer.tune_now());
+    }
+    assert!(seen.contains(&9), "the next tune, once linked into");
 }

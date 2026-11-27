@@ -1,5 +1,5 @@
 //! The moveable panels the menu opens: Drawing States, the world's time,
-//! Teleport to World, Vitals, Give Item and the rest.
+//! Teleport to World, Vitals, Give Item, Play Tune's Music panel and the rest.
 
 use bevy::prelude::*;
 
@@ -51,6 +51,8 @@ mod kept_choices;
 mod layout;
 mod learn_skills;
 mod learn_skills_systems;
+mod music;
+mod music_systems;
 mod open;
 mod other_floors;
 mod pictures_form;
@@ -102,6 +104,7 @@ pub(super) use html_sample::{fill_html_sample, show_html_events};
 pub(super) use kept_choices::add_kept_choices;
 use layout::show_if;
 pub(super) use learn_skills_systems::add_learn_skills_panel;
+pub(super) use music::add_music_panel;
 pub(super) use open::{OpenPanels, forget_closed};
 pub(super) use other_floors::add_other_floors_panel;
 use pictures_form::{

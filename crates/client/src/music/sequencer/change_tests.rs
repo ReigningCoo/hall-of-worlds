@@ -47,6 +47,7 @@ fn a_new_place_comes_in_at_the_next_bar_line() {
         Program {
             tunes: vec![new],
             players: organ,
+            listed: Vec::new(),
         },
         &mut out,
     );
@@ -96,6 +97,7 @@ fn a_new_place_without_a_drone_lets_the_old_one_go() {
     let program = Program {
         tunes: vec![new],
         players: quiet,
+        listed: Vec::new(),
     };
     sequencer.change(program, &mut Vec::new());
     let heard = run(&mut sequencer, 4.0);
@@ -119,6 +121,7 @@ fn changing_with_nothing_playing_starts_at_once() {
     let program = Program {
         tunes: vec![new],
         players: players(),
+        listed: Vec::new(),
     };
     sequencer.change(program, &mut out);
     assert!(out.contains(&MusicEvent::program(MELODY, 74)));
