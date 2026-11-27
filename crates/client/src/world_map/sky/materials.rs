@@ -17,10 +17,11 @@ pub struct SkyParams {
     pub(super) origin_a: Vec2,
     pub(super) origin_b: Vec2,
     pub(super) extent: f32,
-    /// How far from the first moment of the sky to the second, `0..=1`.
-    pub(super) blend: f32,
-    /// Seconds, for things moving.
-    pub(super) time: f32,
+    /// How far from the first moment of the sky to the second, `0..=1`, when
+    /// written; the shaders run it on at `still.z` a second (`kept`).
+    pub(super) blend_from: f32,
+    /// Bevy's clock (`globals.time`, wrapped) when written.
+    pub(super) written: f32,
     pub(super) cloud_height: f32,
     /// The terrain window (see `ViewSquare`).
     pub(super) half: f32,
@@ -33,8 +34,10 @@ pub struct SkyParams {
     /// The Graphics settings, each 0 (off) to 1: clouds shown, clouds shading the
     /// ground (needs shadows too), the share of rain drawn, foliage painted.
     pub(super) shown: Vec4,
-    /// `x`: the least light on the land (Brightness); `y`: seconds for moving
-    /// water, which Reduce Motion holds still.
+    /// `x`: the least light on the land (Brightness); `y`: 1 for things moving
+    /// by Bevy's clock (`globals.time`, as water), 0 with Reduce Motion; `z`: how
+    /// fast the fade between moments runs, a second; `w`: the seconds Bevy's
+    /// clock wraps at.
     pub(super) still: Vec4,
 }
 

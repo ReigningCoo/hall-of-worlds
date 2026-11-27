@@ -53,6 +53,7 @@ mod site_icons;
 mod sources;
 mod spawn;
 mod stamps;
+mod store;
 mod teleport;
 
 pub use click::FullMapClick;

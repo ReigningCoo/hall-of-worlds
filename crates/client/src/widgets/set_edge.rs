@@ -106,18 +106,31 @@ fn drifted(shift: f32, seconds: f32) -> f32 {
     (shift + DRIFT_SPEED * seconds).rem_euclid(BAND_PIXELS)
 }
 
+/// Slides the bands of the qualities on show. Only those: changing a material
+/// every frame made the web build make new buffers every frame, so with no set
+/// item on show nothing changes.
 pub(super) fn slide_bands(
     shift: Res<BandShift>,
     edges: Res<SetEdges>,
+    shown: Query<(&SetEdge, &InheritedVisibility)>,
     mut materials: ResMut<Assets<SetEdgeMaterial>>,
 ) {
     if !shift.is_changed() {
         return;
     }
-    for handle in &edges.0 {
-        if let Some(mut material) = materials.get_mut(handle) {
+    let mut done = Vec::new();
+    for (edge, visibility) in &shown {
+        let handle = edges.of(edge.0);
+        if !visibility.get() || done.contains(&handle) {
+            continue;
+        }
+        let stale = materials
+            .get(&handle)
+            .is_some_and(|material| material.params.shift != shift.0);
+        if stale && let Some(mut material) = materials.get_mut(&handle) {
             material.params.shift = shift.0;
         }
+        done.push(handle);
     }
 }
 

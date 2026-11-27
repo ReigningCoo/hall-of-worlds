@@ -9,6 +9,7 @@ mod place;
 mod raise;
 mod sight;
 mod visited;
+mod water;
 mod worn;
 
 use bevy::prelude::*;
@@ -24,7 +25,8 @@ pub struct HallViewPlugin;
 
 impl Plugin for HallViewPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<place::Gates>()
+        app.add_plugins(MaterialPlugin::<water::GateWaterMaterial>::default())
+            .init_resource::<place::Gates>()
             .init_resource::<worn::Worn>()
             .init_resource::<VisitedGates>()
             .init_resource::<visited::WaterMaterials>()
@@ -34,10 +36,12 @@ impl Plugin for HallViewPlugin {
             )
             .add_systems(
                 Update,
-                (place::place_gates, raise::raise_gates, place::run_water)
+                (place::place_gates, raise::raise_gates)
                     .chain()
                     .run_if(in_state(GameView::Dungeon)),
             )
+            // In every view, so the water stops when the gates go.
+            .add_systems(Update, place::run_water.after(place::place_gates))
             .add_systems(
                 Update,
                 worn::place_worn

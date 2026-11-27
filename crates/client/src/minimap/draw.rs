@@ -1,7 +1,6 @@
 //! Drawing the minimap or the full map when what it shows changes.
 
 use bevy::prelude::*;
-use bevy::render::render_resource::Extent3d;
 
 use super::canvas::Canvas;
 use super::frame::FrameCache;
@@ -33,7 +32,7 @@ pub(super) fn draw_maps(
     mut last: Local<Option<DrawnFrom>>,
     mut pending: Local<bool>,
     (mut since, mut since_filled): (Local<f32>, Local<f32>),
-    (mut kept, mut frame): (Local<KeptLand>, Local<FrameCache>),
+    (mut kept, mut frame, mut painted): (Local<KeptLand>, Local<FrameCache>, Local<Vec<u8>>),
 ) {
     let Sources {
         view,
@@ -183,25 +182,16 @@ pub(super) fn draw_maps(
     *since = 0.0;
     *last = Some(now.clone());
 
-    let Some(mut image) = images.get_mut(if full.open {
+    let picture = if full.open {
         &pictures.full
     } else {
         &pictures.minimap
-    }) else {
-        return;
     };
-    if image.width() != size.0 || image.height() != size.1 {
-        image.resize(Extent3d {
-            width: size.0,
-            height: size.1,
-            depth_or_array_layers: 1,
-        });
-    }
-    let Some(data) = image.data.as_mut() else {
-        return;
-    };
+    // Painted aside, and put in the image only if it changed (`store`).
+    painted.clear();
+    painted.resize(size.0 as usize * size.1 as usize * 4, 0);
     let mut canvas = Canvas {
-        pixels: data,
+        pixels: painted.as_mut_slice(),
         width: size.0,
         height: size.1,
     };
@@ -284,4 +274,5 @@ pub(super) fn draw_maps(
             .then(|| world.as_deref().map(|world| world.surface.width()))
             .flatten(),
     });
+    super::store::store(&mut images, picture, size, &mut painted);
 }

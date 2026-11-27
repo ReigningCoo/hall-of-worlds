@@ -8,6 +8,7 @@ use shared::world::GAME_HOUR_SECONDS;
 use super::super::lights::{FLASH_COLOUR, FLASH_LIT};
 use super::super::map_sky::MapSky;
 use super::super::view_square;
+use super::kept;
 use super::{
     CLOUD_HEIGHT, CloudMaterial, PLAYER_GLOW, PrecipitationMaterial, SKY_INTERVAL, SKY_REACH,
     SKY_SIDE, SKY_SPACING, SkyAssets, SkyParams, TerrainMaterial,
@@ -97,7 +98,8 @@ pub struct SkyState {
     square: Option<(f32, f32)>,
 }
 
-/// Every frame: passes the time and window to the shaders, and each
+/// Every frame: works out what the shaders need, writing it only when it
+/// would look different (`kept`: they keep the time themselves), and each
 /// `SKY_INTERVAL` works out the next moment of the sky around the player.
 #[allow(clippy::too_many_arguments)]
 pub fn update(
@@ -123,6 +125,8 @@ pub fn update(
     let (px, py) = (player.x, player.y);
     let hours = clock.hours();
     let interval = SKY_INTERVAL / GAME_HOUR_SECONDS as f64;
+    // Whether the moments' pictures changed: written into the materials again.
+    let mut moments_changed = false;
 
     // The texture snaps to whole spacings, so clouds stay put as the player
     // walks.
@@ -154,6 +158,7 @@ pub fn update(
             origins[i] = Some(origin);
         }
         *newer_hours = hours + interval;
+        moments_changed = true;
     } else if hours >= state.newer_hours {
         // The newer moment becomes the older; the next is worked out into
         // the older's texture.
@@ -170,6 +175,7 @@ pub fn update(
         }
         origins[1] = Some(origin);
         state.newer_hours = next;
+        moments_changed = true;
     }
 
     let corner = |o: Option<(i64, i64)>| {
@@ -178,14 +184,16 @@ pub fn update(
         Vec2::new(x as f32, y as f32) - Vec2::splat(SKY_SPACING as f32 / 2.0)
     };
     let graphics = &preferences.graphics;
+    // Bevy's clock as the shaders get it (`globals.time`).
+    let now = time.elapsed_secs_wrapped();
     let square = view_square(&orbit, graphics.view_distance);
     let sky_now = &sky_now.0;
     let params = SkyParams {
         origin_a: corner(state.origins[0]),
         origin_b: corner(state.origins[1]),
         extent: (SKY_SIDE as i64 * SKY_SPACING) as f32,
-        blend: (1.0 - (state.newer_hours - hours) / interval).clamp(0.0, 1.0) as f32,
-        time: time.elapsed_secs(),
+        blend_from: (1.0 - (state.newer_hours - hours) / interval).clamp(0.0, 1.0) as f32,
+        written: now,
         cloud_height: CLOUD_HEIGHT,
         half: square.half,
         right: square.right,
@@ -199,30 +207,35 @@ pub fn update(
         shown: shown(graphics),
         still: Vec4::new(
             graphics.least_light(),
-            if graphics.reduce_motion {
-                0.0
-            } else {
-                time.elapsed_secs()
-            },
-            0.0,
-            0.0,
+            if graphics.reduce_motion { 0.0 } else { 1.0 },
+            fade_rate(&clock, interval),
+            time.wrap_period().as_secs_f32(),
         ),
     };
     let [older, newer] = &assets.moments;
     // Writing to these also tells Bevy to pick up changed textures.
+    let stale = |stored: Option<&SkyParams>| {
+        moments_changed || stored.is_some_and(|stored| !kept::looks_like(stored, &params, now))
+    };
     for handle in [&assets.terrain, &assets.rivers] {
-        if let Some(mut material) = terrain_materials.get_mut(handle) {
+        if stale(terrain_materials.get(handle).map(|m| &m.extension.params))
+            && let Some(mut material) = terrain_materials.get_mut(handle)
+        {
             material.extension.params = params;
             material.extension.sky_a = older.clone();
             material.extension.sky_b = newer.clone();
         }
     }
-    if let Some(mut material) = clouds.get_mut(&assets.clouds) {
+    if stale(clouds.get(&assets.clouds).map(|m| &m.params))
+        && let Some(mut material) = clouds.get_mut(&assets.clouds)
+    {
         material.params = params;
         material.sky_a = older.clone();
         material.sky_b = newer.clone();
     }
-    if let Some(mut material) = precipitation.get_mut(&assets.precipitation) {
+    if stale(precipitation.get(&assets.precipitation).map(|m| &m.params))
+        && let Some(mut material) = precipitation.get_mut(&assets.precipitation)
+    {
         material.params = params;
         material.sky_a = older.clone();
         material.sky_b = newer.clone();
@@ -245,4 +258,15 @@ pub fn update(
         // Seen from above whichever way it was wound.
         .with_inserted_indices(Indices::U32(vec![0, 1, 2, 0, 2, 3, 0, 2, 1, 0, 3, 2]));
     }
+}
+
+/// How fast the fade between the sky's moments runs, a second of Bevy's clock:
+/// the world's hours a second over the hours between moments; 0 while stopped.
+fn fade_rate(clock: &ServerClock, interval: f64) -> f32 {
+    if clock.paused {
+        return 0.0;
+    }
+    let hours_a_second =
+        (clock.time.minutes(clock.seconds + 1.0) - clock.time.minutes(clock.seconds)) / 60.0;
+    (hours_a_second / interval) as f32
 }

@@ -33,12 +33,27 @@ const FALL_HEIGHT: f32 = CELL_SIZE * 4.0;
 struct RainParams {
     rain: f32,
     temperature: f32,
-    /// Seconds, for things moving.
-    time: f32,
+    /// Unused: the shader moves the drops by Bevy's own clock (`globals.time`),
+    /// so the material changes only when the weather or light does (changing it
+    /// every frame made the web build make new buffers every frame).
+    spare: f32,
     fall_height: f32,
     /// `rgb`: what to multiply colours by to look lit (`OutsideLight::lit`);
     /// `a`: the share of drops the Weather setting draws.
     light: Vec4,
+}
+
+impl RainParams {
+    /// Close enough to `other` that drawing it again would look the same: the
+    /// weather and the light drift a little every frame.
+    fn looks_like(&self, other: &Self) -> bool {
+        const STEP: f32 = 1.0 / 512.0;
+        let near = |a: f32, b: f32| (a - b).abs() < STEP;
+        near(self.rain, other.rain)
+            && near(self.temperature, other.temperature)
+            && self.fall_height == other.fall_height
+            && self.light.abs_diff_eq(other.light, STEP)
+    }
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -145,7 +160,6 @@ fn drops_mesh(cells: &[(i64, i64)], heights: &DrawnGround) -> Mesh {
 /// is in sight changed, drops over the outside cells in it.
 #[allow(clippy::too_many_arguments)]
 pub fn update(
-    time: Res<Time>,
     clock: Res<ServerClock>,
     world: Option<Res<CurrentWorld>>,
     place: Res<WorldReturn>,
@@ -195,20 +209,28 @@ pub fn update(
         }
     }
 
+    // Hidden (no outside in sight): nothing to keep up.
+    if outside.is_empty() {
+        return;
+    }
     let (x, y) = (place.0.x, place.0.y);
     // Worked out as `world_map::sky` does, so it matches the map outside.
     let weather = world.weather.sample(x, y, clock.hours());
     let temperature = world.climate.sample(x, y, world.params.sea_level);
-    if let Some(mut material) = materials.get_mut(&material.0) {
-        material.params = RainParams {
-            rain: weather.rain as f32,
-            temperature: temperature.temperature as f32,
-            time: time.elapsed_secs(),
-            fall_height: FALL_HEIGHT,
-            // Alpha: the share the Weather setting draws.
-            light: outside_light
-                .lit_in(lightning.0)
-                .extend(preferences.graphics.precipitation.share()),
-        };
+    let params = RainParams {
+        rain: weather.rain as f32,
+        temperature: temperature.temperature as f32,
+        spare: 0.0,
+        fall_height: FALL_HEIGHT,
+        // Alpha: the share the Weather setting draws.
+        light: outside_light
+            .lit_in(lightning.0)
+            .extend(preferences.graphics.precipitation.share()),
+    };
+    let stored = materials.get(&material.0).map(|m| m.params);
+    if stored.is_some_and(|stored| !stored.looks_like(&params))
+        && let Some(mut material) = materials.get_mut(&material.0)
+    {
+        material.params = params;
     }
 }

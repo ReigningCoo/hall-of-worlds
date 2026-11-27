@@ -8,6 +8,7 @@
 //! precipitation (`precipitation.wesl`). All purely visual.
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod kept;
 mod materials;
 mod spawn;
 mod update;

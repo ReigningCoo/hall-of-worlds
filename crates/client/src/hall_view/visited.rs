@@ -8,6 +8,7 @@ use shared::protocol::ServerMessage;
 use std::collections::HashSet;
 
 use super::GateModel;
+use super::water::{GateWaterMaterial, Sliding};
 use crate::connection::FromServer;
 
 /// The Hall gates (`GatePlace::number`) whose pairs the player has gone
@@ -25,8 +26,8 @@ pub struct GateWater(pub u32);
 /// the Hall (`run_water`).
 #[derive(Resource)]
 pub(super) struct WaterMaterials {
-    pub(super) blue: Handle<StandardMaterial>,
-    pub(super) orange: Handle<StandardMaterial>,
+    pub(super) blue: Handle<GateWaterMaterial>,
+    pub(super) orange: Handle<GateWaterMaterial>,
 }
 
 impl FromWorld for WaterMaterials {
@@ -35,15 +36,18 @@ impl FromWorld for WaterMaterials {
         let orange = GateModel::water_picture(true);
         let mut images = world.resource_mut::<Assets<Image>>();
         let (blue, orange) = (images.add(blue), images.add(orange));
-        let mut materials = world.resource_mut::<Assets<StandardMaterial>>();
+        let mut materials = world.resource_mut::<Assets<GateWaterMaterial>>();
         let mut material = |picture| {
-            materials.add(StandardMaterial {
-                base_color_texture: Some(picture),
-                unlit: true,
-                alpha_mode: AlphaMode::Blend,
-                cull_mode: None,
-                double_sided: true,
-                ..default()
+            materials.add(GateWaterMaterial {
+                base: StandardMaterial {
+                    base_color_texture: Some(picture),
+                    unlit: true,
+                    alpha_mode: AlphaMode::Blend,
+                    cull_mode: None,
+                    double_sided: true,
+                    ..default()
+                },
+                extension: Sliding::default(),
             })
         };
         Self {
@@ -54,7 +58,7 @@ impl FromWorld for WaterMaterials {
 }
 
 impl WaterMaterials {
-    fn of(&self, place: u32, visited: &VisitedGates) -> Handle<StandardMaterial> {
+    fn of(&self, place: u32, visited: &VisitedGates) -> Handle<GateWaterMaterial> {
         if visited.0.contains(&place) {
             self.orange.clone()
         } else {

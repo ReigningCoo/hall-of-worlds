@@ -196,11 +196,13 @@ pub(super) fn give_auras(
 /// Keeps them pulsing, while any are there.
 pub(super) fn pulse_auras(
     time: Res<Time<Real>>,
-    shown: Query<(), With<AuraGlow>>,
+    shown: Query<&InheritedVisibility, With<AuraGlow>>,
     auras: Res<Auras>,
     mut materials: ResMut<Assets<AuraMaterial>>,
 ) {
-    if shown.is_empty() {
+    // Only while any are on show: changing materials every frame made the web
+    // build make new buffers every frame.
+    if !shown.iter().any(|seen| seen.get()) {
         return;
     }
     for handle in auras.materials.values() {

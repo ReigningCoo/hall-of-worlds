@@ -3,12 +3,14 @@
 // for the whole site says whether it falls and as what. Kinds, sizes and speeds
 // match `precipitation.wesl`. Nothing here affects the game.
 
-import bevy_pbr::render::mesh_view_bindings::view;
+import bevy_pbr::render::mesh_view_bindings::{globals, view};
 
 struct Weather {
     rain: f32,
     temperature: f32,
-    time: f32,
+    // Unused: the time is Bevy's (`globals.time`), so the material doesn't
+    // change every frame.
+    spare: f32,
     fall_height: f32,
     light: vec4<f32>,
 }
@@ -74,7 +76,7 @@ fn vertex(in: Vertex) -> Output {
         out.is_round = 1.0;
     }
 
-    let height = weather.fall_height * fract(random - weather.time * speed / weather.fall_height);
+    let height = weather.fall_height * fract(random - globals.time * speed / weather.fall_height);
     let view_right = view.world_from_view[0].xyz;
     let place = vec3<f32>(in.drop.x, ground + height, in.drop.z)
         + view_right * in.corner.x * size.x

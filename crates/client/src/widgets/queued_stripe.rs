@@ -83,14 +83,17 @@ pub(super) fn give_queued_stripes(
     }
 }
 
-/// Moves the stripes on, by real time so pausing doesn't stop them.
+/// Moves the stripes on, by real time so pausing doesn't stop them, while any
+/// are on show: changing the material every frame made the web build make new
+/// buffers every frame, so with none on show nothing changes.
 pub(super) fn chase_stripes(
     time: Res<Time<Real>>,
     preferences: Res<Preferences>,
     stripes: Res<QueuedStripes>,
+    shown: Query<&InheritedVisibility, With<QueuedStripe>>,
     mut materials: ResMut<Assets<QueuedStripeMaterial>>,
 ) {
-    if preferences.graphics.reduce_motion {
+    if preferences.graphics.reduce_motion || !shown.iter().any(|seen| seen.get()) {
         return;
     }
     if let Some(mut material) = materials.get_mut(&stripes.0) {

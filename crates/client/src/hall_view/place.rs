@@ -8,12 +8,10 @@ use std::collections::BTreeMap;
 
 use super::GateModel;
 use super::visited::{GateWater, WaterMaterials};
+use super::water::GateWaterMaterial;
 use crate::common::{CurrentDungeon, CurrentWorld, LightSource, MapPosition, SmoothPosition};
 use crate::dungeon_map::CELL_SIZE;
 use shared::wilderness::SCALE;
-
-/// How fast the water runs down, in pictures a second.
-const FLOW: f32 = 0.6;
 
 /// How far a World Gate's light reaches in the wilderness, in cells (owner).
 const GATE_LIGHT_RADIUS: u32 = 8;
@@ -155,20 +153,21 @@ fn wilderness_gates(
         .collect()
 }
 
-/// Runs the water down every gate's opening, by sliding its pictures.
+/// Runs the water down every gate's opening while gates stand in the Hall, by
+/// sliding its pictures (the shader keeps the time: `water`); still elsewhere,
+/// as on the world map.
 pub(super) fn run_water(
     gates: Res<Gates>,
     waters: Res<WaterMaterials>,
-    time: Res<Time>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<GateWaterMaterial>>,
 ) {
-    if gates.standing.is_empty() {
-        return;
-    }
-    let down = (time.elapsed_secs() * FLOW).fract();
+    let running = !gates.standing.is_empty();
     for handle in [&waters.blue, &waters.orange] {
-        if let Some(mut water) = materials.get_mut(handle) {
-            water.uv_transform = bevy::math::Affine2::from_translation(Vec2::new(0.0, -down));
+        let stale = materials
+            .get(handle)
+            .is_some_and(|water| water.extension.running() != running);
+        if stale && let Some(mut water) = materials.get_mut(handle) {
+            water.extension.set_running(running);
         }
     }
 }

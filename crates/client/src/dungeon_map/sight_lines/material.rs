@@ -34,9 +34,10 @@ pub struct MaskParams {
     /// One over the world size it covers.
     pub(super) per_unit: Vec2,
     side: f32,
-    /// Seconds water's picture has flowed for (`mesh::flow`), wrapping; 0 on
-    /// every material but the lit water's, and with Reduce Motion.
-    flow_time: f32,
+    /// 1 when water's picture flows (`mesh::flow`), by the shader's own clock
+    /// (Bevy's globals), so the material never changes each frame; 0 on every
+    /// material but the lit water's, and with Reduce Motion.
+    flowing: f32,
     /// The cosine of half the wedge's angle (see `Wedge`).
     wedge_cos: f32,
     /// 1 when the wedge hides what is in it, 0 off.
@@ -111,15 +112,13 @@ impl SightMask {
     }
 
     /// How long water's picture has flowed, in seconds (0: still).
-    pub fn flow_time(&self) -> f32 {
-        self.params.flow_time
+    pub fn flowing(&self) -> bool {
+        self.params.flowing > 0.5
     }
 
-    /// How long water's picture has flowed, in seconds.
-    pub fn set_flow_time(&mut self, seconds: f32) {
-        if self.params.flow_time != seconds {
-            self.params.flow_time = seconds;
-        }
+    /// Whether water's picture flows.
+    pub fn set_flowing(&mut self, flowing: bool) {
+        self.params.flowing = if flowing { 1.0 } else { 0.0 };
     }
 
     pub fn new(mask: Handle<Image>, side: MaskSide) -> Self {
