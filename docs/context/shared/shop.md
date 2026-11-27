@@ -4,11 +4,12 @@ What town shops have in stock, and working it out when one is opened. Only the s
 
 ## Files
 
-- `crates/shared/src/shop.rs`: `Shop`, `sells`, `NewStock`, `Restocked`, `catch_up`, `REPLACED_AFTER`, `TOP_UP_AFTER`, `DOOR_REACH` (360 units from the door's middle: any cell beside it), `beside_door(spot, door)` (the one rule both sides use). Tests. In `shop/`: `shop.rs` (`Shop`), `sells.rs`, `armoursmith.rs` (the armoursmith's long list: every armour piece and set), `bottled.rs` (what shops' bottles hold), `catch_up.rs`.
+- `crates/shared/src/shop.rs`: `Shop`, `sells`, `NewStock`, `Restocked`, `catch_up`, `REPLACED_AFTER`, `TOP_UP_AFTER`, `DOOR_REACH` (360 units from the door's middle: any cell beside it), `beside_door(spot, door)` (the one rule both sides use). Tests. In `shop/`: `shop.rs` (`Shop`), `sells.rs`, `armoursmith.rs` (the armoursmith's long list: every armour piece and set), `bottled.rs` (what shops' bottles hold), `catch_up.rs`, `herb_stock.rs` (`could_stock_herb`).
 
 ## Public API
 
 - `sells(BuildingKind)`: what it sells, with weights; empty if it isn't a shop. Herbalists and potion shops sell Sulphur and Mercury (Retort solids, one at a time). Vessels (drinks PR 2) at carpenters (with taps), leatherworkers, jewellers and herbalists. Blacksmiths sell the Keyring, herbalists the Herb Pouch, eggs (`shared::farmyard`, until towns have farm shops or general stores; the animal by the town's land, `shared::produce`) and yeast (until towns have bakers; `shared::yeast`, nearly always Common by `yeast::shop_quality` in `catch_up`), fruit and vegetables (potion shops some fruit: which ones, by the town's climate, is `shared::produce`, chosen by the server); herbalists and potion shops sell bottles. Brewing's tools: carpenters sell the Oil Press and casks (`shared::cask`, the small sizes far more often), herbalists and potion shops the Mortar and Pestle, the Retort, the Alembic, the Filter and the Pelican (Alchemy's apparatus), blacksmiths the Crucible, the Cauldron and the Pan, carpenters the Bowl and the Sieve (cooking's kitchen tools). Scroll shops sell recipe scrolls (`shared::recipe`, any real dish, rolled from the item's seed by `give_form_to`), as do inns and taverns (only those, so they are shops). Millers sell only flour (which grain, by the town's climate, is `shared::produce`'s `flour_grain_for`).
+- `could_stock_herb(BuildingKind, herb key)`: whether a shop could have that herb in stock, so quests never send players to gather it (`shared::quest`); any herb for a shop selling herb items, as no shop chooses its herbs yet, and none sells them today.
 - `bottled(BuildingKind)`: the liquids its bottles hold (herbalists and potion shops: Water, Cave Water, Moon Water and the four oils, never Salt Water or Rain Water; herbalists milk and honey too); `stock_request(shop, item kind, seed)`: the `RollRequest` a new stock item is given its form by, a bottle's liquid picked from its seed, a vessel one the shop makes (`vessel::vessel_for_shop`), anything else `NONE`.
 - `Shop { kind, quality, trades, of_kind }`: `target`, `minimum` (80% of it), `tops_up`, `make_minutes(quality, kind_percent)`, `replaced_after`.
 - `catch_up(seed, shop, stock qualities, last_made, last_visit, now) -> Restocked { keep, new, last_made }`.
@@ -19,7 +20,7 @@ What town shops have in stock, and working it out when one is opened. Only the s
 
 ## Used by
 
-- `server` (`sites`), client `talk`.
+- `server` (`sites`), client `talk`, `shared::quest` (`could_stock_herb`).
 
 ## Notes
 

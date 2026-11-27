@@ -10,12 +10,14 @@
 mod armoursmith;
 mod bottled;
 mod catch_up;
+mod herb_stock;
 mod sells;
 #[allow(clippy::module_inception)]
 mod shop;
 
 pub use bottled::{bottled, stock_request};
 pub use catch_up::{NewStock, Restocked, catch_up};
+pub use herb_stock::could_stock_herb;
 pub use sells::sells;
 use sells::{base_minutes, sell_weight, steps_from_common};
 pub use shop::Shop;

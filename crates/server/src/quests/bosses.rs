@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 use shared::poi::{ChunkPos, Poi};
 use shared::protocol::BossSign;
-use shared::quest::{Hook, QuestId, QuestKind, QuestWorld, Target, owner};
+use shared::quest::{Hook, QuestId, QuestKind, Target, owner};
 
 use super::{cache, done_flags};
 use crate::ServerWorld;
@@ -58,25 +58,7 @@ fn find(world: &mut ServerWorld, chunk: ChunkPos, hook: Hook) -> Option<HookQues
     if !Hook::of_poi(&poi).contains(&hook) {
         return None;
     }
-    let town = {
-        let moons = world.moon_count();
-        let ServerWorld {
-            pois,
-            ground,
-            quests,
-            ..
-        } = &*world;
-        let name_of = |poi: &Poi| {
-            shared::place_name::place_name(poi.kind, poi.seed, ground.metres(poi.x, poi.y))
-        };
-        let quest_world = QuestWorld {
-            pois,
-            roads: quests.roads(),
-            name_of: &name_of,
-            moons,
-        };
-        owner(&quest_world, &poi, hook)?
-    };
+    let town = cache::with_quest_world(world, |view| owner(view, &poi, hook))?;
     let wanted = Target::Poi { chunk, hook };
     let town = cache::town(world, town)?;
     town.quests.iter().find_map(|quest| {

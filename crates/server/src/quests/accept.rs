@@ -70,6 +70,7 @@ pub(crate) fn accept(
     super::dungeon_entrance::note_entrance(client, &quest);
     let ahead = super::ahead::already_done(client, &quest);
     (!ahead || super::ahead::tell_ahead(client, world))
+        && super::herbs::taken(client, world, &quest)
         && learn_targets(client, world, &quest)
         && log::tell_changed(client, world, id)
         && tell_markers(client, world, id.town, now)

@@ -23,6 +23,9 @@ pub struct Facts {
     pub place: Option<Place>,
     pub creatures: Option<Creatures>,
     pub item: Option<ItemCategory>,
+    /// The herb a gathering step names, by key (`quest::HerbAsk`): its items'
+    /// words are then the herb written as an item (`${kind:herb:<key>}`).
+    pub herb: Option<String>,
     /// What a "Collect" step brings back ("kobold teeth"): the items' words.
     pub remains: Option<Remains>,
     pub destination: Option<Destination>,

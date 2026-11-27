@@ -1,24 +1,31 @@
 //! The client's fixed test world, its towns and their buildings, for tests.
 
 use super::QuestWorld;
+use crate::herb::Herbs;
+use crate::mob::Habitat;
 use crate::place_name::place_name;
 use crate::poi::{ChunkPos, Poi, PoiMap};
 use crate::rng::Seed;
 use crate::road::Roads;
 use crate::site::{BuildingLook, Site};
+use crate::wilderness::Wilderness;
 use crate::world::WorldParams;
 
 pub(super) struct TestWorld {
     pub pois: PoiMap,
     pub roads: Roads,
+    /// The land at a poi, from the world's climate, as the server has it.
+    habitat: Box<dyn Fn(&Poi) -> Habitat>,
 }
 
 impl TestWorld {
     pub fn new() -> Self {
         let params = WorldParams::from_seed(Seed::new(12345));
+        let wild = Wilderness::new(&params);
         Self {
             pois: PoiMap::new(&params, params.seed.derive("pois")),
             roads: Roads::new(&params),
+            habitat: Box::new(move |poi| wild.habitat_at(poi.x.rem_euclid(wild.points()), poi.y)),
         }
     }
 
@@ -29,6 +36,8 @@ impl TestWorld {
             roads: &self.roads,
             name_of: &name_of,
             moons: 2,
+            herbs: Herbs::built_in_ref(),
+            habitat_of: &*self.habitat,
         }
     }
 

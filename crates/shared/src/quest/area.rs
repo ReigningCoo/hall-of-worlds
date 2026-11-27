@@ -25,14 +25,24 @@ impl Candidate {
 
 /// Everything near `town` its quests may use, in a fixed order. `towns`:
 /// every town within `radius + MOST_RADIUS` of it, sorted by chunk, to
-/// decide who owns what. Dailies use only shared hooks, nearer.
-pub(super) fn candidates(pois: &PoiMap, town: &Poi, towns: &[Poi], daily: bool) -> Vec<Candidate> {
+/// decide who owns what. Dailies use only shared hooks, nearer. Gathering
+/// only where `gathers(poi)` (a herb to ask for grows there).
+pub(super) fn candidates(
+    pois: &PoiMap,
+    town: &Poi,
+    towns: &[Poi],
+    daily: bool,
+    gathers: &dyn Fn(&Poi) -> bool,
+) -> Vec<Candidate> {
     let reach = radius(town.kind, daily);
-    let mut found = vec![Candidate {
-        poi: *town,
-        hook: Hook::Gather,
-        weight: hook_weight(Hook::Gather) * (reach as u64 + 1),
-    }];
+    let mut found = Vec::new();
+    if gathers(town) {
+        found.push(Candidate {
+            poi: *town,
+            hook: Hook::Gather,
+            weight: hook_weight(Hook::Gather) * (reach as u64 + 1),
+        });
+    }
     for poi in pois_within(pois, town, reach) {
         if poi.kind.is_town() {
             continue;
@@ -43,6 +53,9 @@ pub(super) fn candidates(pois: &PoiMap, town: &Poi, towns: &[Poi], daily: bool) 
             if hook.is_exclusive()
                 && (daily || owner_among(pois, towns, &poi, hook) != Some(town.chunk))
             {
+                continue;
+            }
+            if hook == Hook::Gather && !gathers(&poi) {
                 continue;
             }
             found.push(Candidate {

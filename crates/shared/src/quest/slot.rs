@@ -14,6 +14,7 @@ use super::{Giver, Hook, Need, Quest, QuestId, QuestKind, QuestWorld, Requiremen
 use crate::alignment::Band;
 use crate::poi::{ChunkPos, Poi};
 use crate::rng::{Rng, Seed};
+use crate::site::BuildingKind;
 use crate::skill::SkillId;
 use crate::story::Goal;
 
@@ -37,6 +38,7 @@ pub(super) fn slot_quests(
     giver: &Giver,
     slot: u8,
     candidates: &[Candidate],
+    shops: &[BuildingKind],
     claims: &mut Claims,
 ) -> Vec<Quest> {
     let building = giver.building;
@@ -64,7 +66,7 @@ pub(super) fn slot_quests(
             let Some(main) = choose(candidates, claims, &mut rng) else {
                 break;
             };
-            plan(town, &main, candidates, &mut rng)
+            plan(world, town, shops, &main, candidates, &mut rng)
         };
         for &claim in &plan.claims {
             claims.taken.insert(claim);

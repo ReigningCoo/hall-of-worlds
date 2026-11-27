@@ -1,7 +1,9 @@
 //! Handing a quest in at its giver's door once every step is done: the
 //! reward is all or nothing (owner), so if it doesn't all fit in what the
 //! player carries, the giver keeps it and the quest stays ready ("?") until it
-//! does. Then the giver tells the ending, standing rises in the town, and the
+//! does. Gathering steps' herbs are counted again and exactly as many as
+//! asked are taken, the poorest first (`HerbAsk::take`); too few is Not Ready.
+//! Then the giver tells the ending, standing rises in the town, and the
 //! quest's deeds move the character's alignment.
 
 use bevy::prelude::*;
@@ -33,6 +35,8 @@ pub(crate) fn turn_in(
         warn!("{} handed in a quest away from its giver", client.in_log());
         return true;
     }
+    // Gathering steps by what is carried now.
+    super::herbs::recount(client, &quest);
     let ready = (client.character.quests.taken.get(&id))
         .is_some_and(|progress| quest.ready_to_turn_in(&done_flags(&quest, &progress.counts)));
     if !ready {
@@ -42,6 +46,14 @@ pub(crate) fn turn_in(
     // is long gone; anything found is handed over).
     let mut inventory = client.inventory.clone();
     inventory.remove_quest_items(id);
+    // Each gathering step's herbs, exactly as many as asked, the poorest first.
+    for step in &quest.steps {
+        if let (Some(ask), Some(count)) = (&step.herb, step.count)
+            && !ask.take(&mut inventory, count, &mut new_id)
+        {
+            return refuse(client, id, QuestRefusal::NotReady);
+        }
+    }
     let (prizes, set_item) = super::prize::prize_items(client, world, &quest);
     for item in reward_items(world, &quest).into_iter().chain(prizes) {
         if inventory.give(item, world.stacks, &mut new_id).is_err() {

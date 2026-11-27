@@ -28,6 +28,7 @@ mod escortee;
 mod finds;
 mod follow;
 mod give_up;
+mod herbs;
 mod log;
 mod needs;
 mod offers;
@@ -109,6 +110,8 @@ mod escort_tests;
 mod extras_tests;
 #[cfg(test)]
 mod finds_tests;
+#[cfg(test)]
+mod herb_tests;
 #[cfg(test)]
 mod hidden_tests;
 #[cfg(test)]

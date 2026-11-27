@@ -161,6 +161,7 @@ impl Client {
                 return false;
             }
         }
+        self.quest_seen.inventory_changed();
         let mut seen = self.inventory.clone();
         if !self.truesight {
             seen.hide_secrets();

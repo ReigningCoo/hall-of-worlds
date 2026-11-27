@@ -14,7 +14,7 @@ use super::slot::{Claims, slot_quests};
 use super::world::{MOST_RADIUS, pois_within, radius};
 use super::{Quest, QuestWorld, givers};
 use crate::poi::Poi;
-use crate::site::BuildingLook;
+use crate::site::{BuildingKind, BuildingLook};
 
 /// Every normal quest `town` offers, givers in the buildings' order, each
 /// slot's chain in order, then its feeder. `buildings` are its site's
@@ -23,7 +23,8 @@ pub fn town_quests(world: &QuestWorld, town: &Poi, buildings: &[BuildingLook]) -
     if !town.kind.is_town() {
         return Vec::new();
     }
-    let candidates = town_candidates(world, town, false);
+    let shops = shops_of(buildings);
+    let candidates = town_candidates(world, town, false, &shops);
     let mut claims = Claims {
         taken: BTreeSet::new(),
         uses: BTreeMap::new(),
@@ -37,6 +38,7 @@ pub fn town_quests(world: &QuestWorld, town: &Poi, buildings: &[BuildingLook]) -
                 &giver,
                 slot,
                 &candidates,
+                &shops,
                 &mut claims,
             ));
         }
@@ -49,11 +51,33 @@ pub fn town_quests(world: &QuestWorld, town: &Poi, buildings: &[BuildingLook]) -
     quests
 }
 
-/// What `town`'s quests (or dailies) may use.
-pub(super) fn town_candidates(world: &QuestWorld, town: &Poi, daily: bool) -> Vec<Candidate> {
+/// What `town`'s quests (or dailies) may use. `shops`: the giver's town's
+/// buildings' kinds (`shops_of`), whose stock no gathering step asks for.
+pub(super) fn town_candidates(
+    world: &QuestWorld,
+    town: &Poi,
+    daily: bool,
+    shops: &[BuildingKind],
+) -> Vec<Candidate> {
     let reach = radius(town.kind, daily) + MOST_RADIUS;
     let towns: Vec<Poi> = (pois_within(world.pois, town, reach).into_iter())
         .filter(|poi| poi.kind.is_town())
         .collect();
-    candidates(world.pois, town, &towns, daily)
+    let gathers = |poi: &Poi| !herb_choices(world, poi, shops).is_empty();
+    candidates(world.pois, town, &towns, daily, &gathers)
+}
+
+/// The kinds of a town's buildings, for what its shops could stock.
+pub(super) fn shops_of(buildings: &[BuildingLook]) -> Vec<BuildingKind> {
+    buildings.iter().map(|building| building.kind).collect()
+}
+
+/// The herbs a gathering step at `poi` may ask for (`herb_ask`).
+pub(super) fn herb_choices<'a>(
+    world: &QuestWorld<'a>,
+    poi: &Poi,
+    shops: &[BuildingKind],
+) -> Vec<&'a crate::herb::HerbDef> {
+    let stocked = |herb: &str| super::herb_ask::shops_stock(shops, herb);
+    super::herb_ask::herb_choices(world.herbs, &(world.habitat_of)(poi), &stocked)
 }

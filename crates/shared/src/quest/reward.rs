@@ -48,7 +48,12 @@ pub(super) fn reward(
             let count = u64::from(step.count.unwrap_or(1));
             match step.goal {
                 Goal::Slay if step.count.is_some() => base * count / 4,
-                Goal::Gather => base * count / 8,
+                // A rarer herb asked (`HerbAsk::least`) pays half as much
+                // again per quality step above Common, until items have values.
+                Goal::Gather => {
+                    let steps = step.herb.as_ref().map_or(0, |ask| ask.steps_above_common());
+                    base * count * (2 + steps) / 16
+                }
                 Goal::Visit => base / 2,
                 _ => base,
             }
