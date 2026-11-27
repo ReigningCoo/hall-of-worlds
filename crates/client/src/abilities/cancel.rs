@@ -1,6 +1,6 @@
 //! Calling off the player's ability while it winds up: Esc, or moving (owner,
-//! 2026-11-07). Once it has landed there is nothing to call off, and Esc opens
-//! the menu as usual.
+//! 2026-11-07); and walking into reach for one (Esc too). Once it has landed
+//! there is nothing to call off, and Esc opens the menu as usual.
 
 use bevy::prelude::*;
 use shared::combat::CANCEL_PENALTY;
@@ -11,7 +11,7 @@ use crate::common::{CancelledEnergy, OwnAbility};
 use crate::connection::ToServer;
 use crate::debug_menu::DebugMenu;
 use crate::minimap::FullMap;
-use crate::player::{TakeStep, TravelTo, Walking};
+use crate::player::{StopApproach, TakeStep, TravelTo, Walking};
 use crate::system_menu::SystemMenu;
 
 /// Calls it off: the server is asked, the player's energy here comes back but
@@ -29,7 +29,9 @@ fn cancel(
 }
 
 /// Esc while winding up calls it off instead of opening the menu (unless
-/// something Esc closes is open). Before the system menu takes input.
+/// something Esc closes is open), and so does Esc while walking into reach
+/// for one, forgetting what was chosen by hand. Before the system menu takes
+/// input.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn cancel_by_escape(
     mut keys: ResMut<ButtonInput<KeyCode>>,
@@ -38,16 +40,25 @@ pub(super) fn cancel_by_escape(
     debug_menu: Res<DebugMenu>,
     full_map: Res<FullMap>,
     mut own: ResMut<OwnAbility>,
+    (mut manual, mut stop): (ResMut<Manual>, MessageWriter<StopApproach>),
     mut to_server: MessageWriter<ToServer>,
     mut cancelled: MessageWriter<CancelledEnergy>,
 ) {
     let now = time.elapsed_secs_f64();
     let open = menu.is_open() || debug_menu.open || full_map.open;
-    if open || !own.is_winding_up(now) || !keys.just_pressed(KeyCode::Escape) {
+    let approaching = manual.approaching.is_some();
+    let busy = own.is_winding_up(now) || approaching;
+    if open || !busy || !keys.just_pressed(KeyCode::Escape) {
         return;
     }
     keys.clear_just_pressed(KeyCode::Escape);
-    cancel(now, &mut own, &mut to_server, &mut cancelled);
+    if approaching {
+        stop.write(StopApproach);
+        manual.forget();
+    }
+    if own.is_winding_up(now) {
+        cancel(now, &mut own, &mut to_server, &mut cancelled);
+    }
 }
 
 /// A step or a journey asked for takes the place of any ability: one chosen

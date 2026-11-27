@@ -10,6 +10,7 @@ use crate::dom::DomInput;
 use crate::dom::{DrawObjects, HoldObjects};
 use crate::player::PlayerSystems;
 
+mod approach;
 mod bar;
 mod cancel;
 mod drag;
@@ -90,6 +91,7 @@ impl Plugin for AbilitiesPlugin {
                     // Moving first, then what was chosen by hand, then
                     // automatic abilities if nothing else is waiting.
                     cancel::cancel_by_moving,
+                    approach::take_approached,
                     use_slots::use_slots,
                     manual::ask_wanted,
                     use_ability::use_automatic,

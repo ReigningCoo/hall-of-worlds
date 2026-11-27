@@ -10,6 +10,7 @@ use bevy::prelude::*;
 use crate::common::{CancelledEnergy, GameView, ServerStatus, SpentEnergy};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod approach;
 mod darkvision;
 mod door_key;
 mod doors;
@@ -34,6 +35,7 @@ mod teleport;
 mod travel;
 mod wild_heights;
 
+pub use approach::{Approach, Approached, StopApproach};
 use door_key::open_or_close_doors;
 use doors::{AskDoor, door_answers, send_door_asks};
 use drawn_ground::keep_drawn_ground;
@@ -78,6 +80,9 @@ impl Plugin for PlayerPlugin {
             .add_message::<Moved>()
             .add_message::<Teleported>()
             .add_message::<Walking>()
+            .add_message::<Approach>()
+            .add_message::<Approached>()
+            .add_message::<StopApproach>()
             .add_message::<SpentEnergy>()
             .add_message::<CancelledEnergy>()
             .configure_sets(
@@ -117,6 +122,7 @@ impl Plugin for PlayerPlugin {
                         ),
                         take_steps,
                         travel,
+                        approach::approach,
                         travel_on_level,
                         send_door_asks,
                         note_moving,

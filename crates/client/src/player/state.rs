@@ -50,6 +50,9 @@ pub(super) struct Travel {
     /// Where the player last stood clear of everyone else on the level: the
     /// side they came in from, for stepping out.
     pub(super) clear_at: Option<Spot>,
+    /// Walking into reach of someone (`approach.rs`): the journey is to them,
+    /// and reaching its end is no `Arrived`.
+    pub(super) approach: Option<super::approach::Approaching>,
 }
 
 /// The player's energy as far as the client can tell, the same way the server

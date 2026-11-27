@@ -46,6 +46,7 @@ mod utility;
 pub use acts::{
     Acts, ICE_SECONDS, Knock, STEAM_SECONDS, acts, acts_on_place, cloud_cells, frozen_cells,
 };
+pub use aim::where_reach;
 pub use auto_cast::{Aim, AutoCast, auto_cast};
 pub use beam::{BEAM_RANGE, BEAM_SPREAD, beam, beam_headings};
 pub use book::{

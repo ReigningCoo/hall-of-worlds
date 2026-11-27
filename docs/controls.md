@@ -46,6 +46,8 @@ Some doors have a lock, which you can see. Whether one is locked you only find o
 
 Anyone with legs can kick: put Kick on your action bar from the Abilities page. Kicking your target shoves it a step away, or hurts it more if it has nowhere to go; with no target in reach, you kick the closed door beside you. Enough kicks break a door open for good.
 
+Using Attack, Kick or a spell aimed at your target by hand (its key, a click or a tap) when the target is out of reach walks you up to it first, following it as it moves, and then attacks, kicks or casts. Moving yourself, clicking somewhere else or Esc calls that off, and it gives up if the target goes out of sight or can't be got nearer. Abilities used automatically never walk you anywhere: they wait until the target is in reach.
+
 ## Targeting
 
 | Action | Keyboard and mouse | Touch |
