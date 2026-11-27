@@ -23,7 +23,6 @@ use shared::wear::{Fit, WearRefused};
 
 use super::bag_slots::BagSlotNode;
 use super::body::BodyNode;
-use super::give::GiveRow;
 use super::hold::QuickFrom;
 use super::panels::{BinNode, DropNode, GridOwner, ItemCell, OpenGrids};
 use super::split::{PickRow, Split, SplitCell};
@@ -44,7 +43,7 @@ pub(super) fn worth_wearing(check: Result<Fit, WearRefused>) -> bool {
 }
 
 /// What the thing in front may be: a grid, or the bin, the ground, the body, people
-/// to give to, text to write an item into and the belt's bag slots.
+/// taking gifts, text to write an item into and the belt's bag slots.
 #[derive(SystemParam)]
 #[allow(clippy::type_complexity)]
 pub(super) struct Under<'w, 's> {
@@ -56,7 +55,6 @@ pub(super) struct Under<'w, 's> {
             Has<BinNode>,
             Has<DropNode>,
             Has<BodyNode>,
-            Option<&'static GiveRow>,
             Option<&'static TakesGifts>,
             Option<&'static TakesItemText>,
             Option<&'static BagSlotNode>,

@@ -44,30 +44,24 @@ pub(super) fn aim_at(
     let front = over.front.and_then(|front| {
         let up = std::iter::once(front).chain(parents.iter_ancestors(front));
         up.filter_map(|entity| marks.get(entity).ok()).find(
-            |(bin, drop, body, row, gifts, text, slot)| {
-                *bin || *drop
-                    || *body
-                    || row.is_some()
-                    || gifts.is_some()
-                    || text.is_some()
-                    || slot.is_some()
+            |(bin, drop, body, gifts, text, slot)| {
+                *bin || *drop || *body || gifts.is_some() || text.is_some() || slot.is_some()
             },
         )
     });
-    let on_slot = front.and_then(|marks| marks.6).map(|slot| slot.0);
-    let (on_bin, on_drop, on_body, on_row, on_gifts, on_text) = front
-        .map(|(is_bin, is_drop, is_body, row, gifts, text, _)| {
+    let on_slot = front.and_then(|marks| marks.5).map(|slot| slot.0);
+    let (on_bin, on_drop, on_body, on_gifts, on_text) = front
+        .map(|(is_bin, is_drop, is_body, gifts, text, _)| {
             (
                 is_bin,
                 is_drop,
                 is_body,
-                row.map(|row| row.0),
                 gifts.map(|gifts| gifts.0),
                 text.map(|text| text.0),
             )
         })
         .unwrap_or_default();
-    let on_row = on_row.or(on_gifts);
+    let on_row = on_gifts;
     // Something of theirs can only go back to them.
     let on_gifts = on_gifts.filter(|&to| from_stock.is_none_or(|from| from == to));
     over_gifts.0 = on_gifts.zip(at).map(|(to, at)| HeldGift {

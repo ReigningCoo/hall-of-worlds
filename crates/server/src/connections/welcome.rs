@@ -144,7 +144,7 @@ pub(super) fn welcome(
             client.sheet.skills.settle(played);
             if !client.inventory.outfitted {
                 // New characters only: those made before it never get it.
-                super::starting_kit::give_lantern_and_oil(
+                super::starting_kit::give_starting_kit(
                     &mut client.inventory,
                     world.made_now(),
                     world.stacks,

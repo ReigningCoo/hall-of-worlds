@@ -1,6 +1,7 @@
 //! The Quest Log's button, just right of the Character button at the bottom
 //! left (the same size, a list on it): pressed or tapped, it does what L
-//! does. Hidden while connecting, as the Character button is.
+//! does. Hidden while connecting, as the Character button is. The trade
+//! button sits just right of it (`trade/button.rs`).
 
 use bevy::prelude::*;
 

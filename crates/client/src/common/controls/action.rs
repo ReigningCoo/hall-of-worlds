@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 
-use super::{Binding, Mods, SLOTS};
+use super::{Binding, Group, Mods, SLOTS};
 
 /// Something done with a key. The order is Settings' order within each group.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -45,6 +45,8 @@ pub enum Action {
     Spellbook,
     /// The Quest Log panel.
     QuestLog,
+    /// The trade window (trading plan).
+    Trade,
     /// Use the action bar's slot (0 to 9, keys 1 to 0).
     UseSlot(u8),
     FullMap,
@@ -54,38 +56,8 @@ pub enum Action {
     FullScreen,
 }
 
-/// The headings actions are shown under.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Group {
-    Movement,
-    Camera,
-    Targeting,
-    ActionBar,
-    Interface,
-}
-
-impl Group {
-    pub const ALL: [Self; 5] = [
-        Self::Movement,
-        Self::Camera,
-        Self::Targeting,
-        Self::ActionBar,
-        Self::Interface,
-    ];
-
-    pub fn name(self) -> &'static str {
-        match self {
-            Self::Movement => "Movement",
-            Self::Camera => "Camera",
-            Self::Targeting => "Targeting",
-            Self::ActionBar => "Action Bar",
-            Self::Interface => "Interface",
-        }
-    }
-}
-
 impl Action {
-    pub const ALL: [Self; 36] = [
+    pub const ALL: [Self; 37] = [
         Self::StepUp,
         Self::StepDown,
         Self::StepLeft,
@@ -118,6 +90,7 @@ impl Action {
         Self::Skills,
         Self::Spellbook,
         Self::QuestLog,
+        Self::Trade,
         Self::FullMap,
         Self::TurnItem,
         Self::DebugMenu,
@@ -149,6 +122,7 @@ impl Action {
             Self::Skills => "Skills",
             Self::Spellbook => "Spellbook",
             Self::QuestLog => "Quest Log",
+            Self::Trade => "Trade",
             Self::UseSlot(slot) => BAR_NAMES[slot as usize % BAR_NAMES.len()],
             Self::FullMap => "Full Map",
             Self::TurnItem => "Turn Held Item",
@@ -182,6 +156,7 @@ impl Action {
             Self::Skills => "skills",
             Self::Spellbook => "spellbook",
             Self::QuestLog => "quest_log",
+            Self::Trade => "trade",
             Self::UseSlot(slot) => BAR_IDS[slot as usize % BAR_IDS.len()],
             Self::FullMap => "full_map",
             Self::TurnItem => "turn_item",
@@ -212,7 +187,7 @@ impl Action {
             Self::NextTarget | Self::PreviousTarget => Group::Targeting,
             Self::UseSlot(_) => Group::ActionBar,
             Self::Character | Self::Inventory | Self::Abilities | Self::Skills => Group::Interface,
-            Self::Spellbook => Group::Interface,
+            Self::Spellbook | Self::Trade => Group::Interface,
             Self::QuestLog | Self::FullMap | Self::TurnItem | Self::DebugMenu => Group::Interface,
             Self::FullScreen => Group::Interface,
         }
@@ -248,6 +223,7 @@ impl Action {
             Self::Skills => [key(KeyCode::KeyK), None],
             Self::Spellbook => [key(KeyCode::KeyP), None],
             Self::QuestLog => [key(KeyCode::KeyL), None],
+            Self::Trade => [key(KeyCode::KeyT), None],
             Self::UseSlot(slot) => [key(BAR_KEYS[slot as usize % BAR_KEYS.len()]), None],
             Self::FullMap => [key(KeyCode::KeyM), None],
             Self::TurnItem => [key(KeyCode::KeyR), None],

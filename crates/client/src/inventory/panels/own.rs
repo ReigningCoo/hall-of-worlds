@@ -3,7 +3,6 @@
 use bevy::prelude::*;
 use shared::item::Holder;
 
-use super::super::give::NearbyPanel;
 use super::super::ui_ids::grid_id;
 use super::super::{Carried, OpenCharacter};
 use super::shown::shown_size;
@@ -34,8 +33,6 @@ pub(in crate::inventory) fn toggle_inventory(
     view: Res<State<GameView>>,
     carried: Res<Carried>,
     mut open: ResMut<OpenGrids>,
-    mut nearby: ResMut<NearbyPanel>,
-    nodes: Query<(), With<Node>>,
     mut commands: Commands,
     mut dom: Dom,
 ) {
@@ -61,16 +58,11 @@ pub(in crate::inventory) fn toggle_inventory(
         Some(page) => is_open && open.page == page && !by_asking,
     };
     if close {
-        // Things are given by dragging them from there.
-        nearby.close(&mut commands, &nodes);
         open.toggle_inventory(&carried.0, &mut commands, &mut dom);
         return;
     }
     if let Some(page) = want {
         open.page = page;
-    }
-    if !is_open {
-        nearby.open(&mut commands, &mut dom, &nodes);
     }
     open.open(Holder::Inventory, &carried.0, &mut commands, &mut dom);
     // (Also when it has only just been opened: it is built by then.)

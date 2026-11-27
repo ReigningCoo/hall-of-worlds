@@ -4,12 +4,14 @@
 
 mod action;
 mod binding;
+mod group;
 mod input;
 mod key_names;
 mod saved;
 
-pub use action::{Action, Group};
+pub use action::Action;
 pub use binding::{Binding, Mods};
+pub use group::Group;
 
 /// Bindings each action has (owner: two keys each; a gamepad's button will be
 /// a third, of its own).

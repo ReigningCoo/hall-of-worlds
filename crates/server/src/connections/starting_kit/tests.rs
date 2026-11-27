@@ -1,4 +1,4 @@
-//! A new character's lantern and oil.
+//! A new character's lantern, oil and coins.
 
 use shared::item::{Inventory, Item, ItemKind, MadeAt, StackLimits};
 use shared::item_form::ItemForm;
@@ -6,7 +6,7 @@ use shared::lantern::FOUNT_ML;
 use shared::potion::{Liquid, Oil};
 use shared::world::WorldSeed;
 
-use super::{OIL_BOTTLES, give_lantern_and_oil};
+use super::{OIL_BOTTLES, STARTING_COPPER, give_starting_kit};
 
 fn carried(inventory: &Inventory) -> Vec<&Item> {
     inventory.items.iter().map(|placed| &placed.item).collect()
@@ -19,7 +19,7 @@ fn a_new_character_gets_a_full_lantern_and_two_bottles_of_oil() {
         world: WorldSeed::new(1).id(),
         minute: 0,
     };
-    give_lantern_and_oil(&mut inventory, made_at, StackLimits::default());
+    give_starting_kit(&mut inventory, made_at, StackLimits::default());
     let items = carried(&inventory);
     let lanterns: Vec<_> = items.iter().filter_map(|item| item.lantern()).collect();
     assert_eq!(lanterns.len(), 1);
@@ -33,4 +33,21 @@ fn a_new_character_gets_a_full_lantern_and_two_bottles_of_oil() {
     };
     let bottles: u32 = items.iter().filter(oil).map(|item| item.count()).sum();
     assert_eq!(bottles, OIL_BOTTLES);
+}
+
+#[test]
+fn a_new_character_gets_a_gold_coin() {
+    let mut inventory = Inventory::default();
+    let made_at = MadeAt {
+        world: WorldSeed::new(1).id(),
+        minute: 0,
+    };
+    give_starting_kit(&mut inventory, made_at, StackLimits::default());
+    let gold: Vec<_> = carried(&inventory)
+        .into_iter()
+        .filter(|item| item.kind == ItemKind::GoldCoin)
+        .collect();
+    assert_eq!(gold.len(), 1);
+    assert_eq!(gold[0].count(), 1);
+    assert_eq!(STARTING_COPPER, 10_000);
 }

@@ -3,7 +3,6 @@
 
 mod bag_slots;
 mod body;
-mod give;
 mod ground;
 mod ground_shown;
 mod hands;
@@ -12,7 +11,6 @@ mod panels;
 mod quest_drop;
 
 use bevy::prelude::*;
-use give::NearbyPanel;
 use panels::OpenGrids;
 use shared::item::Inventory;
 
@@ -57,7 +55,6 @@ impl Plugin for InventoryPlugin {
             .init_resource::<bag_slots::EmptyIcon>()
             .init_resource::<Split>()
             .init_resource::<OpenGrids>()
-            .init_resource::<NearbyPanel>()
             .init_resource::<ground::Ground>()
             .init_resource::<GroundShown>()
             .init_resource::<GroundInReach>()
@@ -107,7 +104,6 @@ impl Plugin for InventoryPlugin {
                     read_server,
                     panels::toggle_inventory,
                     panels::forget_closed,
-                    give::forget_closed,
                     panels::show_bins,
                     panels::show_drop,
                     (ground::read_server, filter::keep_filters).chain(),
@@ -131,8 +127,6 @@ impl Plugin for InventoryPlugin {
                         .chain(),
                     strength_room::keep_strength_room,
                     (body::show_body_aim, wear_note::show_wear_note),
-                    (give::show_nearby, give::bind_rows).chain(),
-                    give::show_give_aim,
                     panels::show_aim,
                     panels::show_tooltip,
                     (panels::bind_button, panels::show_button).chain(),
