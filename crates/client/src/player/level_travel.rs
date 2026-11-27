@@ -5,15 +5,18 @@
 
 use bevy::math::DVec2;
 use bevy::prelude::*;
+use shared::clearance::crowded_at;
 use shared::dungeon::Cell;
 use shared::energy::{ACTION_TICKS_PER_SECOND, NORMAL_SPEED};
-use shared::spot::{CELL_SPAN, Spot};
+use shared::spot::CELL_SPAN;
 
 use super::doors::AskDoor;
 use super::level_costs::LevelCosts;
 use super::level_moves::{door_ahead, follow_route, jump_ahead};
 use super::level_route::level_route;
+use super::route_edge::stop_at_edge;
 use super::route_help::{Others, crowd, enemy_cells};
+use super::step_out::step_out;
 use super::stride::{Stride, Walker};
 use super::teleport::teleport_goal;
 use super::{
@@ -69,6 +72,8 @@ pub(super) fn travel_on_level(
         travel.landing = None;
         travel.stride = Stride::at(spot.0);
         travel.last_spot = spot.0;
+        travel.clear_at = None;
+        travel.was_moving = false;
         *smooth = SmoothPosition::of_units((spot.0.x, spot.0.y));
     }
     let tick = action_tick(&time);
@@ -136,11 +141,7 @@ pub(super) fn travel_on_level(
         travel.spots.clear();
         travel.asked = false;
         let want = DVec2::new(x, y);
-        let ahead = Spot::new(
-            at.x + (want.x * CELL_SPAN as f64).round() as i64,
-            at.y + (want.y * CELL_SPAN as f64).round() as i64,
-        );
-        let distance = distance / costs.slowness(at, ahead);
+        let distance = distance / costs.pace(travel.stride.start, at, want);
         let walked = travel
             .stride
             .walk(&walker, want, distance, None, &mut moves);
@@ -187,7 +188,10 @@ pub(super) fn travel_on_level(
         let ground = (drawn.relief.as_ref(), gait.0);
         let path = level_route(level, ground, travel.stride.at, size.0, goal, known);
         travel.route_arrives = path.reached;
-        travel.spots = path.spots.into_iter().skip(1).collect();
+        let mut spots = path.spots;
+        let legal = |a, b| walker.passage(a, b).is_some_and(|p| p.jumped.is_none());
+        stop_at_edge(&mut spots, size.0, &crowd, legal);
+        travel.spots = spots.into_iter().skip(1).collect();
         if travel.spots.is_empty() && path.reached {
             arrived.write(Arrived {
                 x: goal.0,
@@ -199,13 +203,30 @@ pub(super) fn travel_on_level(
         moves.extend(travel.stride.finish());
     }
     if walk.is_none() && !travel.spots.is_empty() {
-        let costs = |a, b| costs.slowness(a, b);
-        if follow_route(&mut travel, &walker, distance, costs, &mut moves, &mut asks) {
+        let pace = |start, at, way| costs.pace(start, at, way);
+        if follow_route(&mut travel, &walker, distance, pace, &mut moves, &mut asks) {
             arrived.write(Arrived {
                 x: travel.goal.0,
                 y: travel.goal.1,
             });
         }
+    }
+
+    // A walk or journey ended inside someone squeezed past: step out.
+    let moving = walk.is_some() || travel.asked || !travel.spots.is_empty();
+    if travel.landing.is_some() {
+        // Ended by a jump: looked at again once it lands.
+        travel.was_moving |= moving;
+    } else {
+        if travel.was_moving && !moving {
+            moves.extend(travel.stride.finish());
+            if let Some(out) = step_out(&walker, travel.stride.at, travel.clear_at) {
+                moves.push((travel.stride.at, out));
+                travel.stride = Stride::at(out);
+                travel.landing = Some(out);
+            }
+        }
+        travel.was_moving = moving;
     }
 
     for &(from, to) in &moves {
@@ -221,6 +242,9 @@ pub(super) fn travel_on_level(
         cell.set_if_neq(MapPosition { x, y });
     }
     travel.last_spot = now;
+    if !crowded_at(size.0, now, &crowd) {
+        travel.clear_at = Some(now);
+    }
     travel.last = *cell;
     if travel.landing.is_none() {
         let shown = SmoothPosition::of_units((now.x, now.y));

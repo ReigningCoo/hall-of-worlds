@@ -111,3 +111,26 @@ fn crowded_where_circles_overlap() {
     assert!(!crowded_at(Size::Medium, m(0, 0).offset(160, 0), &them));
     assert!(!crowded_at(Size::Medium, m(3, 0), &them));
 }
+
+#[test]
+fn moving_away_from_someone_overlapped_is_not_slowed() {
+    let giant = m(1, 0);
+    let them = [other(giant, Size::Giant, Crowding::Squeeze)];
+    let inside = giant.offset(-100, 0);
+    // Straight out, or across from the nearest point: no squeeze.
+    assert_eq!(
+        crowd_per_mille(Size::Medium, inside, inside.offset(-300, 0), &them),
+        Some(1000)
+    );
+    assert_eq!(
+        crowd_per_mille(Size::Medium, inside, inside.offset(0, 200), &them),
+        Some(1000)
+    );
+    // Any closer, and squeezed as ever.
+    assert_eq!(
+        crowd_per_mille(Size::Medium, inside, inside.offset(20, 0), &them),
+        Some(4000)
+    );
+    assert!(crowd_per_mille(Size::Medium, inside, inside.offset(-40, 40), &them) == Some(1000));
+    assert!(crowd_per_mille(Size::Medium, inside, inside.offset(10, 300), &them).unwrap() > 1000);
+}

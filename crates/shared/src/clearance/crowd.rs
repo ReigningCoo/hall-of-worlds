@@ -33,9 +33,11 @@ pub struct Other {
 ///
 /// Circles overlapping are what counts. Squeezing past someone goes by the
 /// room left round the mover's middle, as for a gap (`squeeze_per_mille`),
-/// but never stops it: at worst it is `MOST_SQUEEZE_PER_MILLE`. An enemy's
-/// circle can't be entered; one already overlapping (arriving by stairs, a
-/// shove) may only be moved away from.
+/// but never stops it: at worst it is `MOST_SQUEEZE_PER_MILLE`; a move away
+/// from someone already overlapped (its nearest point to them is its start)
+/// costs no squeeze from them. An enemy's circle can't be entered; one
+/// already overlapping (arriving by stairs, a shove) may only be moved away
+/// from.
 pub fn crowd_per_mille(size: Size, from: Spot, to: Spot, others: &[Other]) -> Option<u32> {
     let radius = size.radius();
     let mut slowest = 1000;
@@ -51,20 +53,20 @@ pub fn crowd_per_mille(size: Size, from: Spot, to: Spot, others: &[Other]) -> Op
         if passing >= radius {
             continue;
         }
+        // Moving away from someone already overlapped: the nearest the move
+        // comes to them is where it starts.
+        let away = point_to_segment(other.at, from, to) >= other.at.distance_squared(from);
         match other.crowding {
             Crowding::Pass => {}
+            // Away from them costs nothing: stepping out isn't slowed.
+            Crowding::Squeeze if away => {}
             Crowding::Squeeze => {
                 let squeeze = squeeze_per_mille(radius, passing).unwrap_or(MOST_SQUEEZE_PER_MILLE);
                 slowest = slowest.max(squeeze);
             }
-            Crowding::Block => {
-                // Only away from where it already overlaps: the nearest the
-                // move comes is where it starts.
-                let nearest = point_to_segment(other.at, from, to);
-                if nearest < other.at.distance_squared(from) {
-                    return None;
-                }
-            }
+            // Only away from where it already overlaps.
+            Crowding::Block if away => {}
+            Crowding::Block => return None,
         }
     }
     Some(slowest)

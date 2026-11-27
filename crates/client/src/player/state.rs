@@ -44,6 +44,12 @@ pub(super) struct Travel {
     /// The route was found again because the way was blocked, and nothing
     /// has been walked since: blocked again, the journey ends.
     pub(super) rerouted: bool,
+    /// Walking (keys held) or on a journey last frame: when that ends inside
+    /// someone squeezed past, the player steps out of them.
+    pub(super) was_moving: bool,
+    /// Where the player last stood clear of everyone else on the level: the
+    /// side they came in from, for stepping out.
+    pub(super) clear_at: Option<Spot>,
 }
 
 /// The player's energy as far as the client can tell, the same way the server

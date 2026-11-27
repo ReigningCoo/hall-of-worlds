@@ -38,7 +38,7 @@ fn follow(distance: f64, slowness: f64) -> (bool, Spot) {
         };
         travel.spots.push_back(Spot::middle_of((1, 0)));
         let mut moves = Vec::new();
-        let slow = |_, _| slowness;
+        let slow = |_, _, _| slowness;
         let arrived = follow_route(&mut travel, &walker, distance, slow, &mut moves, &mut asks);
         (arrived, travel.stride.at)
     };

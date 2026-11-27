@@ -5,7 +5,7 @@ use bevy::math::DVec2;
 use bevy::prelude::*;
 use shared::clearance::{JUMP_REACH, crowd_per_mille};
 use shared::dungeon::Level;
-use shared::spot::{CELL_SPAN, Spot};
+use shared::spot::Spot;
 
 use super::Travel;
 use super::doors::{AskDoor, wait_at_door};
@@ -40,8 +40,9 @@ pub(super) fn jump_ahead(walker: &Walker, at: Spot, way: DVec2) -> Option<Spot> 
         .find(|&to| (walker.passage(at, to)).is_some_and(|passage| passage.jumped.is_some()))
 }
 
-/// Goes `distance` units (on flat ground; `slowness` says how much longer
-/// walking from one spot to another takes) along a journey's route, adding
+/// Goes `distance` units (on flat ground; `pace` says how much longer walking
+/// on takes, from the stretch's start, where the player is and the way it
+/// goes: `LevelCosts::pace`) along a journey's route, adding
 /// each straight move to `moves`. Waits at a closed door in the way (asked
 /// open once); finds a new way from where it is if something else is in
 /// the way, giving up if that found way is blocked at once. Stops for this
@@ -51,7 +52,7 @@ pub(super) fn follow_route(
     travel: &mut Travel,
     walker: &Walker,
     mut distance: f64,
-    slowness: impl Fn(Spot, Spot) -> f64,
+    pace: impl Fn(Spot, Spot, DVec2) -> f64,
     moves: &mut Vec<(Spot, Spot)>,
     asks: &mut MessageWriter<AskDoor>,
 ) -> bool {
@@ -79,7 +80,7 @@ pub(super) fn follow_route(
             return travel.spots.is_empty() && travel.route_arrives;
         }
         let way = to_vector(at, next) / unit_distance(at, next);
-        let slow = slowness(at, ahead_of(at, way, CELL_SPAN as f64)).max(0.1);
+        let slow = pace(travel.stride.start, at, way).max(0.1);
         let walked = travel
             .stride
             .walk(walker, way, distance / slow, Some(next), moves);
