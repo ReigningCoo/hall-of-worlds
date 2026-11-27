@@ -158,6 +158,7 @@ pub(super) fn travel_on_level(
             }
         }
     } else if travel.asked
+        && travel.approach.is_none()
         && let Some(to) = teleport_goal(
             &sheet.0,
             (level, size.0),
@@ -192,7 +193,7 @@ pub(super) fn travel_on_level(
         let legal = |a, b| walker.passage(a, b).is_some_and(|p| p.jumped.is_none());
         stop_at_edge(&mut spots, size.0, &crowd, legal);
         travel.spots = spots.into_iter().skip(1).collect();
-        if travel.spots.is_empty() && path.reached {
+        if travel.spots.is_empty() && path.reached && travel.approach.is_none() {
             arrived.write(Arrived {
                 x: goal.0,
                 y: goal.1,
@@ -204,7 +205,8 @@ pub(super) fn travel_on_level(
     }
     if walk.is_none() && !travel.spots.is_empty() {
         let pace = |start, at, way| costs.pace(start, at, way);
-        if follow_route(&mut travel, &walker, distance, pace, &mut moves, &mut asks) {
+        let ended = follow_route(&mut travel, &walker, distance, pace, &mut moves, &mut asks);
+        if ended && travel.approach.is_none() {
             arrived.write(Arrived {
                 x: travel.goal.0,
                 y: travel.goal.1,

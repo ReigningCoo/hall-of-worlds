@@ -54,7 +54,7 @@ pub(super) fn aim_first(
         .filter(|&index| Some(index) != origin.creature && theirs(index))
         .filter(|&index| {
             let body = &creatures[index].body;
-            distance(&from, body) <= reach(step, &from, body)
+            distance(&from, body) <= where_reach(step, &from, body)
                 && spots_are_clear(level, origin.at, body.at)
         })
         .min_by_key(|&index| (distance(&from, &creatures[index].body), index))?;
@@ -64,8 +64,10 @@ pub(super) fn aim_first(
     Some((turned, Toward::Creature(nearest)))
 }
 
-/// How far a where reaches from `from` to `to`, for choosing a target.
-fn reach(step: &WhereStep, from: &crate::combat::Body, to: &crate::combat::Body) -> u64 {
+/// How far a where reaches from `from` to `to` (between their middles, in
+/// 3D), for choosing a target, and for the client walking into reach before
+/// casting.
+pub fn where_reach(step: &WhereStep, from: &crate::combat::Body, to: &crate::combat::Body) -> u64 {
     match step.place {
         Where::Touch => reach_between(from.size, 0, to.size),
         Where::Missile => MISSILE_RANGE,

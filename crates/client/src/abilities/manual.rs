@@ -11,6 +11,7 @@ use shared::id::Id;
 use shared::protocol::ClientMessage;
 use shared::spot::Spot;
 
+use super::approach::Reaching;
 use super::peace::Peace;
 use super::rain_here::WaterHere;
 use super::spells::{ask_cast, can_cast, hand_aim, spell_of};
@@ -22,7 +23,7 @@ use crate::common::{
 };
 use crate::connection::ToServer;
 use crate::inventory::{Carried, GroundShown};
-use crate::player::Player;
+use crate::player::{Approach, Player};
 
 /// The abilities the player chose by hand, from pressing them until the last
 /// lands.
@@ -38,6 +39,12 @@ pub(super) struct Manual {
     pub(super) sent_until: f64,
     /// Begun: when it lands.
     pub(super) lands: f64,
+    /// The target being walked into reach of (`approach.rs`) for the first
+    /// queued: nothing is asked for meanwhile.
+    pub(super) approaching: Option<Id>,
+    /// Just come into reach: asked for next frame, once the last stretch
+    /// walked has gone to the server.
+    pub(super) settle: bool,
 }
 
 impl Manual {
@@ -79,6 +86,8 @@ impl Manual {
     pub(super) fn forget(&mut self) {
         self.queued.clear();
         self.sent = None;
+        self.approaching = None;
+        self.settle = false;
     }
 }
 
@@ -89,7 +98,9 @@ type PlayerFacing<'w, 's> = Query<'w, 's, (&'static SpotPosition, &'static Facin
 /// as the player can act; those that can't be done when their turn comes are
 /// passed over. An automatic one asked for and still waiting on the server is
 /// taken back first, so this goes in its place. Fell Tree turns the player to
-/// a tree in reach first if none is faced.
+/// a tree in reach first if none is faced. Attack, Kick and spells at a
+/// target out of reach walk into reach first (`player::Approach`), waiting at
+/// the front meanwhile.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn ask_wanted(
     (carried, sheet, ground): (Res<Carried>, Res<CharacterSheet>, Res<GroundShown>),
@@ -100,10 +111,11 @@ pub(super) fn ask_wanted(
     mut own: ResMut<OwnAbility>,
     (mut to_server, mut face): (MessageWriter<ToServer>, MessageWriter<FaceTowards>),
     (dungeon, player, water): (Res<CurrentDungeon>, PlayerFacing, WaterHere),
-    peace: Res<Peace>,
+    (peace, reaching, mut approach): (Res<Peace>, Reaching, MessageWriter<Approach>),
 ) {
     let now = time.elapsed_secs_f64();
-    if manual.queued.is_empty() {
+    let settling = std::mem::take(&mut manual.settle);
+    if manual.queued.is_empty() || manual.approaching.is_some() || settling {
         return;
     }
     let automatic_waiting = now < own.asked_until && !manual.is_sent(now);
@@ -124,13 +136,15 @@ pub(super) fn ask_wanted(
                 if automatic_waiting {
                     to_server.write(ToServer(ClientMessage::WithdrawAbility));
                 }
-                ask_cast(
-                    key,
-                    hand_aim(spell, target.0),
-                    now,
-                    &mut own,
-                    &mut to_server,
-                );
+                let target = hand_aim(spell, target.0);
+                let carrying = (&sheet.0, &carried.0);
+                if let Some(going) = reaching.approach_for(thing, target, carrying) {
+                    manual.queued.push_front(thing);
+                    manual.approaching = Some(going.target);
+                    approach.write(going);
+                    return;
+                }
+                ask_cast(key, target, now, &mut own, &mut to_server);
                 manual.sent = Some(thing);
                 manual.sent_until = now + ASK_WAIT;
                 return;
@@ -166,6 +180,12 @@ pub(super) fn ask_wanted(
         };
         if automatic_waiting {
             to_server.write(ToServer(ClientMessage::WithdrawAbility));
+        }
+        if let Some(going) = reaching.approach_for(thing, at, (&sheet.0, &carried.0)) {
+            manual.queued.push_front(thing);
+            manual.approaching = Some(going.target);
+            approach.write(going);
+            return;
         }
         if let Some((cell, heading)) = turn {
             to_server.write(ToServer(ClientMessage::Face(heading)));

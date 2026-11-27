@@ -21,6 +21,8 @@ fn app(own: OwnAbility) -> App {
         .init_resource::<super::super::peace::Peace>()
         .init_resource::<crate::common::ServerClock>()
         .init_resource::<crate::common::WorldReturn>()
+        .init_resource::<crate::common::DrawnGround>()
+        .init_resource::<crate::common::PlayerSize>()
         .insert_resource(Target(Some(Id::for_test(1))))
         .insert_resource(own)
         .insert_resource(Manual {
@@ -29,6 +31,7 @@ fn app(own: OwnAbility) -> App {
         })
         .add_message::<ToServer>()
         .add_message::<crate::common::FaceTowards>()
+        .add_message::<crate::player::Approach>()
         .add_systems(Update, ask_wanted);
     app
 }
@@ -184,4 +187,41 @@ fn the_next_waits_for_the_last_asked_for_and_is_not_swapped_for_it() {
         app.world().resource::<Manual>().queued,
         [BarThing::from(Ability::Attack)]
     );
+}
+
+#[test]
+fn a_target_out_of_reach_is_walked_up_to_first() {
+    use crate::common::{Other, SpotPosition};
+    use crate::player::{Approach, Approached, Player};
+    use shared::spot::Spot;
+    let mut app = app(OwnAbility::default());
+    app.add_message::<Approached>().add_systems(
+        Update,
+        super::super::approach::take_approached.before(ask_wanted),
+    );
+    app.world_mut()
+        .spawn((Player, SpotPosition(Spot::new(0, 0))));
+    let other = Other {
+        id: Id::for_test(1),
+        kind: shared::creature::CreatureKind::Human,
+        feeling: shared::sheet::Feeling::Unfriendly,
+    };
+    app.world_mut()
+        .spawn((other, SpotPosition(Spot::new(2400, 0))));
+    app.update();
+    assert!(sent(&mut app).is_empty(), "nothing is asked for yet");
+    let approaches = app.world().resource::<Messages<Approach>>();
+    let asked: Vec<Approach> = approaches.get_cursor().read(approaches).copied().collect();
+    assert!(matches!(asked[..], [Approach { target, .. }] if target == Id::for_test(1)));
+    let manual = app.world().resource::<Manual>();
+    assert_eq!(manual.queued, [BarThing::from(Ability::Attack)]);
+    assert_eq!(manual.approaching, Some(Id::for_test(1)));
+    // Given up: the attack goes with it.
+    app.world_mut().write_message(Approached {
+        target: Id::for_test(1),
+        reached: false,
+    });
+    app.update();
+    let manual = app.world().resource::<Manual>();
+    assert!(manual.queued.is_empty() && manual.approaching.is_none());
 }
