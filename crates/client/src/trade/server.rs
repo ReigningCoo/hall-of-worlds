@@ -97,6 +97,13 @@ fn hear(news: &TradeNews, window: &mut TradeWindow, trading: &mut Trading, carri
             window.said = ended_words(*why);
         }
         TradeNews::Ended { .. } => {}
+        // Trades with players and NPCs, and the receive box: the window
+        // shows them in trading plan PR 6.
+        TradeNews::Between(_)
+        | TradeNews::Asking { .. }
+        | TradeNews::Asked { .. }
+        | TradeNews::Received(_)
+        | TradeNews::Setting(_) => {}
     }
 }
 

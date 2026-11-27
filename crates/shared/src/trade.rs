@@ -11,16 +11,22 @@
 //! - Coins are paid and change given automatically on completing, highest
 //!   coins first, over the carry limit if need be (`item::inventory::pay`).
 //!   Paying more than is due is a tip, less is haggling (`settle.rs`).
+//! - Trades between characters (`between.rs`): each side up to 8 × 8, settled
+//!   once both are locked in, into the other's receive box (`received.rs`).
 
+mod between;
 mod complete;
 mod price;
 mod rates;
+mod received;
 mod settle;
 mod shop_trade;
 
+pub use between::{Between, Offer, SIDE_CELLS, Side, for_trade};
 pub use complete::{Completed, complete};
 pub use price::{NOT_SOLD_PERCENT, normally_sold, shop_asks, shop_pays};
 pub use rates::{MOST_SKILL, MOST_STANDING, Rates, skill_percent, standing_percent};
+pub use received::{Received, TradingSetting};
 pub use settle::{HAGGLE_PERCENT, Payment, TIP_PERCENT, TRADE_PRACTICE, due, haggle_room, judge};
 pub use shop_trade::{Buy, Refusal, ShopTrade, Totals, for_sale};
 
@@ -39,5 +45,12 @@ pub fn shop_in_reach(at: Spot, door: (i64, i64)) -> bool {
     at.distance(Spot::middle_of(door)) <= REACH
 }
 
+/// Whether two characters at `a` and `b` are near enough to trade.
+pub fn in_reach(a: Spot, b: Spot) -> bool {
+    a.distance(b) <= REACH
+}
+
+#[cfg(test)]
+mod between_tests;
 #[cfg(test)]
 mod tests;

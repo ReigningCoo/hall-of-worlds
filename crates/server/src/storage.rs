@@ -20,6 +20,7 @@ use crate::save_queue::{FINISH_WITHIN, SaveQueue};
 use crate::saves::{LoadError, Save, SaveKey};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod building_save;
 mod characters;
 mod dev_return;
 mod dungeon_stay;
@@ -32,6 +33,7 @@ mod saves;
 mod sites;
 mod spot_compat;
 mod spot_map;
+mod trade_save;
 mod tree_save;
 mod unsaved;
 mod visit_save;
@@ -49,6 +51,7 @@ pub use saves::{
     ServerSave, SiteId, SiteSave, VisitSave, WorldSave,
 };
 pub use spot_map::SpotMap;
+pub use trade_save::TradeSave;
 pub use tree_save::TreeSave;
 pub use unsaved::{Unsaved, now};
 

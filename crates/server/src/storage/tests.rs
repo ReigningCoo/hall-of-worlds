@@ -362,6 +362,7 @@ fn a_save_from_before_gates_playtime_and_the_action_bar_still_loads() {
         action_bar: shared::ability::ActionBar::default(),
         difficulty: None,
         shown_as: None,
+        trading: Default::default(),
         inn_room: None,
     };
     let text = ron::to_string(&save).unwrap();

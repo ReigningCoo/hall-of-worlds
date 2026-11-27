@@ -81,6 +81,16 @@ pub(crate) fn give(
     item: Id,
     to: Id,
 ) -> Result<CreatureKind, &'static str> {
+    give_within(client, world, (item, to), GIVE_REACH)
+}
+
+/// As `give`, from up to `reach` cells away (a trade's reach).
+pub(crate) fn give_within(
+    client: &mut Client,
+    world: &mut ServerWorld,
+    (item, to): (Id, Id),
+    reach: i64,
+) -> Result<CreatureKind, &'static str> {
     let character = client.character_id.ok_or("nobody to remember")?;
     let visit = client.visit.as_mut().ok_or("not in a site")?;
     let (from, place) = (visit.position(), visit.population());
@@ -94,7 +104,7 @@ pub(crate) fn give(
         .iter_mut()
         .find(|mob| mob.id == to)
         .ok_or("no such mob here")?;
-    if cells_apart(from, mob.position) > GIVE_REACH
+    if cells_apart(from, mob.position) > reach
         || !line_is_clear(&population.level, from, mob.position)
     {
         return Err("too far away");

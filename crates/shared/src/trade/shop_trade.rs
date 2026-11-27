@@ -57,6 +57,16 @@ pub enum Refusal {
     NotHere,
     /// Nothing to complete: nothing bought or sold, and nothing given.
     Nothing,
+    /// They never trade (`TradingSetting::Never`), or this NPC doesn't.
+    Never,
+    /// They are trading with someone else, being asked, or have things
+    /// waiting in their receive box.
+    Busy,
+    /// Things are waiting in the receive box: none can start until it is
+    /// empty.
+    Unclaimed,
+    /// They said no to trading.
+    Denied,
 }
 
 /// A trade's sums: what the shop asks and pays in fine units, and what the

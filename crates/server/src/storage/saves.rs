@@ -174,29 +174,6 @@ pub struct LevelSave {
     pub trees: BTreeMap<(i64, i64), super::TreeSave>,
 }
 
-/// What players have done with a town's building.
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
-pub struct BuildingSave {
-    /// Trades made by players, on top of the number it was generated with.
-    pub trades: u32,
-    /// The server's clock (game minutes) when last interacted with, for its stock: in the
-    /// future if the clock was moved back (dev tools), counting as no time passed.
-    pub last_interaction: Option<f64>,
-    /// Who keeps it, if a shop: a mob never on the map, in the level's `records`, whose
-    /// `carried` is what the shop has.
-    #[serde(default)]
-    pub keeper: Option<Id>,
-    /// What it had for sale before it had a keeper: moved to them when they come.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub stock: Vec<Item>,
-    /// The game minute it last finished making something.
-    #[serde(default)]
-    pub last_made: Option<u64>,
-    /// What players sold it, by the game minute each was sold (`shop::sold_gone`).
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
-    pub sold: BTreeMap<Id, u64>,
-}
-
 /// Cells of a level by chunk: one bit per cell (see
 /// `shared::protocol::level_chunk`).
 pub type CellMasks = BTreeMap<(i64, i64), u64>;
@@ -233,6 +210,10 @@ pub struct CharacterSave {
     /// account may be shown as another; missing from older saves.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shown_as: Option<shared::role::RoleId>,
+    /// Their Trading setting and receive box (`connections::trade`); missing
+    /// from older saves.
+    #[serde(default, skip_serializing_if = "TradeSave::is_default")]
+    pub trading: TradeSave,
     /// What is in their own rooms in The Way Inn (`SiteId::InnRoom`),
     /// upstairs' only: their chests' and wardrobes' insides and what lies on
     /// their floors, the same on every world. Missing from older saves.
@@ -294,7 +275,9 @@ pub type RememberedBags = SpotMap<Load>;
 /// The doors a character remembers on a level, by cell, as they last saw them.
 pub type RememberedDoors = BTreeMap<(i64, i64), shared::door::Swing>;
 
+pub use super::building_save::BuildingSave;
 pub use super::dev_return::DevReturn;
 pub use super::known_poi::KnownPoi;
+pub use super::trade_save::TradeSave;
 pub use super::visit_save::VisitSave;
 pub use super::world_save::{ServerSave, WorldSave};

@@ -77,7 +77,7 @@ use doubling_back::Pacing;
 pub(crate) use escortee::{Escortee, escortee_mob, escortee_worn};
 pub(crate) use fight::{MobBlow, Striker, hit_mob};
 use gear::dressed;
-pub(super) use gear::{give, kill};
+pub(super) use gear::{give, give_within, kill};
 pub(crate) use harmed::{Harmer, harm_mob};
 use harmed_by::HarmedBy;
 pub(crate) use harmed_by::Kill;

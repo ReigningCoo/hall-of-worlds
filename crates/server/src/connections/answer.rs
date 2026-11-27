@@ -139,14 +139,9 @@ pub(crate) fn answer(
             let discord = logins.is_some_and(Logins::requires_member);
             super::role_ask::answer_role(client, ask, accounts, discord)
         }
-        ClientMessage::OpenTrade { with } => {
-            client.waiting.push_back(Action::OpenTrade { with });
-            true
-        }
-        ClientMessage::Trade(ask) => {
-            client.waiting.push_back(Action::Trade(ask));
-            true
-        }
+        ClientMessage::OpenTrade { with } => client.queue(Action::OpenTrade { with }),
+        ClientMessage::Trade(ask) => client.queue(Action::Trade(ask)),
+        ClientMessage::SetTrading(setting) => super::trade::set_setting(client, setting),
         ClientMessage::Quest(ask) => {
             client.waiting.push_back(Action::Quest(ask));
             true

@@ -90,7 +90,7 @@ fn nothing_is_bought_until_the_trade_is_completed() {
         test.client.inventory.find(item).is_none(),
         "still the shop's"
     );
-    assert_eq!(test.client.trade.as_ref().unwrap().buying.len(), 1);
+    assert_eq!(test.client.trade.shop.as_ref().unwrap().buying.len(), 1);
     let answers = test.send(&[trade(TradeAsk::Complete)]);
     let Some(TradeEnd::Completed { paid, payment }) = ended(&answers) else {
         panic!("completed: {answers:?}");
@@ -101,7 +101,7 @@ fn nothing_is_bought_until_the_trade_is_completed() {
     assert_eq!(test.client.inventory.coins_carried(), coins - paid as u64);
     let left = stock_in(&answers).expect("the stock comes back");
     assert!(left.iter().all(|one| one.id != item));
-    assert!(test.client.trade.is_none());
+    assert!(test.client.trade.shop.is_none());
 }
 
 #[test]
@@ -118,7 +118,7 @@ fn walking_away_or_closing_moves_nothing() {
     (test.client.visit.as_mut().unwrap()).move_for_test((front.0 + 40, front.1));
     let answers = test.send(&[]);
     assert_eq!(ended(&answers), Some(TradeEnd::OutOfReach));
-    assert!(test.client.trade.is_none());
+    assert!(test.client.trade.shop.is_none());
     assert!(test.client.inventory.find(stock[0].id).is_none());
     // Out of reach, it doesn't open at all.
     let answers = test.send(&[ClientMessage::OpenTrade { with }]);
@@ -175,7 +175,7 @@ fn coins_and_haggles_past_the_skill_are_refused() {
     ]);
     let answers = test.send(&[trade(TradeAsk::Complete)]);
     assert_eq!(refused(&answers), Some(Refusal::TooShort));
-    assert!(test.client.trade.is_some(), "still open");
+    assert!(test.client.trade.shop.is_some(), "still open");
     assert!(test.client.inventory.find(stock[0].id).is_none());
 }
 
@@ -188,7 +188,7 @@ fn a_tip_raises_standing_and_a_big_one_unpractises_trading() {
         panic!("opened: {answers:?}");
     };
     test.send(&[buy(&test, &stock, stock[0].id)]);
-    let open = test.client.trade.clone().unwrap();
+    let open = test.client.trade.shop.clone().unwrap();
     let totals = open
         .totals(&stock, &test.client.inventory, rates, shop)
         .unwrap();
@@ -219,5 +219,5 @@ fn nothing_bought_that_cant_be_paid_for() {
     test.client.inventory.items.clear();
     let answers = test.send(&[buy(&test, &stock, stock[0].id)]);
     assert_eq!(refused(&answers), Some(Refusal::CantAfford));
-    assert!(test.client.trade.as_ref().unwrap().buying.is_empty());
+    assert!(test.client.trade.shop.as_ref().unwrap().buying.is_empty());
 }

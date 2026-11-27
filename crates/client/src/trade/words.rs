@@ -44,6 +44,10 @@ pub(super) fn refusal_words(why: Refusal) -> &'static str {
         Refusal::NoRoom => "You have no room for it.",
         Refusal::NotHere => "You are too far away to trade.",
         Refusal::Nothing => "There is nothing to trade.",
+        Refusal::Never => "They don't trade.",
+        Refusal::Busy => "They are busy.",
+        Refusal::Unclaimed => "Take what you received first.",
+        Refusal::Denied => "They said no.",
     }
 }
 
@@ -65,5 +69,7 @@ pub(super) fn ended_words(why: TradeEnd) -> Option<String> {
         }
         TradeEnd::Closed => None,
         TradeEnd::OutOfReach => Some("You walked away: nothing was traded.".to_owned()),
+        TradeEnd::Exchanged => Some("Traded.".to_owned()),
+        TradeEnd::Denied => Some("They said no.".to_owned()),
     }
 }

@@ -110,6 +110,7 @@ pub(crate) fn handle_messages(
     sites::close_empty_inns(clients, &mut worlds);
     super::cast::run_casts(clients, &mut worlds);
     super::for_others::do_for_others(clients, &mut worlds);
+    super::trade::do_deals(clients, &mut worlds);
     answer_look_ups(clients, &mut worlds);
     crate::quests::answer_planet_logs(clients, &mut worlds);
     super::role_ask::refresh_roles(clients, accounts, &mut worlds);
@@ -164,7 +165,7 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             Action::UseExit => (sites::use_exit(client, world), 0),
             Action::Down => (sites::go_down(client, world), 0),
             Action::Up => (sites::go_up(client, world), 0),
-            Action::OpenTrade { with } => (sites::open_trade(client, world, with), 0),
+            Action::OpenTrade { with } => (super::trade::open(client, world, with), 0),
             Action::Trade(ask) => (super::trade::answer(client, world, ask), 0),
             Action::Quest(ask) => (crate::quests::answer_quest(client, world, ask), 0),
             Action::Ground(action) => ground::act(client, world, action),

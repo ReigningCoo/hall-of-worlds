@@ -120,10 +120,15 @@ pub enum ClientMessage {
     /// Gives something carried to a mob near enough and in sight, which remembers it,
     /// answered with `Inventory`, whether or not it could be done.
     GiveItem { item: Id, to: Id },
-    /// Opens a trade with someone: for now a shop's keeper (`Keepers`), within
-    /// `trade::REACH` of its door, after any steps to get there. Answered with
-    /// `TradeStock` and `TradeNews::Opened` if it can; any trade open is closed.
+    /// Opens a trade with someone: a shop's keeper (`Keepers`), within
+    /// `trade::REACH` of its door, or a player or NPC within `trade::REACH`,
+    /// after any steps to get there. Answered with `TradeStock` and
+    /// `TradeNews::Opened` (a shop), `TradeNews::Between` or `Asking` (a
+    /// character) if it can, else `Refused`; any trade open is closed.
     OpenTrade { with: Id },
+    /// How the character takes trades with players, answered with
+    /// `TradeNews::Setting`.
+    SetTrading(crate::trade::TradingSetting),
     /// What these items are, for showing them where they are written into text
     /// (`crate::item_text`): answered with `ItemsLookedUp`. Only the first
     /// `MOST_LOOKED_UP` of a message are looked up.
