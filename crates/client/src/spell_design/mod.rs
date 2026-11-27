@@ -4,8 +4,8 @@
 //! row of steps; a step holds wheres (the same one, as often as it was added,
 //! and in the first step the filters) or effects in order, never both, with
 //! no counts: one used twice is added twice (owner, 2026-11-23). Steps, and
-//! the wheres and effects in them, are moved by dragging, and dragged off to
-//! take them out. What it costs and
+//! the wheres and effects in them, are moved by dragging, and dragged off (or
+//! right-clicked) to take them out. What it costs, the picture it will have and
 //! what is wrong show as it is built (`shared::spell`, the server's own
 //! rules), and Save keeps it in the spellbook with a name or the automatic
 //! one. A spell taken out of the book (`EditSpell`) comes back here to be
@@ -21,6 +21,8 @@ mod octagon;
 mod open;
 mod piece;
 mod places;
+mod preview;
+mod right_click;
 mod rows;
 mod side;
 mod spots;
@@ -34,8 +36,8 @@ use shared::spell::BookSpell;
 use crate::common::PointerSystems;
 use crate::dom::{DomInput, HoldObjects};
 
-/// Opens the panel, or closes it if it is open (the Magic ability used, by
-/// `abilities`).
+/// Opens the panel, or closes it if it is open (the Magic ability used, or
+/// the Spells tab's Design a Spell, by `abilities`).
 #[derive(Message, Clone, Copy, Debug, Default)]
 pub struct OpenSpellDesign;
 
@@ -63,6 +65,10 @@ impl Plugin for SpellDesignPlugin {
                         .after(DomInput::Find)
                         .before(DomInput::Presses)
                         .before(HoldObjects),
+                    right_click::remove_on_right_click
+                        .after(PointerSystems)
+                        .after(DomInput::Find)
+                        .before(DomInput::Presses),
                     drag::drop_on_design.after(HoldObjects),
                 ),
             )
@@ -77,6 +83,7 @@ impl Plugin for SpellDesignPlugin {
                     rows::draw_rows,
                     octagon::give_octagons,
                     side::show_side,
+                    preview::show_preview,
                 )
                     .chain(),
             );

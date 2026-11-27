@@ -1,5 +1,6 @@
-//! The Spells tab's markup: a word on what to do, the list (a row per
-//! spell), and the requesters for renaming and removing.
+//! The Spells tab's markup: Design a Spell (opening the spell design panel),
+//! a word on what to do, the list (a row per spell), and the requesters for
+//! renaming and removing.
 
 use crate::dom::Template;
 use crate::html;
@@ -9,6 +10,7 @@ pub(super) static SPELLBOOK: Template = html!(
     r#"
 <form id="spellbook">
   <div>
+    <button id="design">Design a Spell</button>
     <p class="faint" width="520">Drag a spell onto the action bar, or click it to cast it. Favourites stay at the top.</p>
     <p id="empty" class="faint" hidden>Your spellbook is empty.</p>
     <scroll id="scroll" max-height="440">

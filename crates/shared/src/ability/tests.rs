@@ -78,11 +78,28 @@ fn the_heal_spell_may_be_automatic_and_a_spell_not_in_the_book_may_not() {
 }
 
 #[test]
-fn a_new_bar_has_the_heal_spell_then_attack() {
+fn a_new_bar_has_the_heal_spell_then_attack_then_magic() {
     let bar = ActionBar::default();
     assert_eq!(bar.slots[0], Some(BarSlot::new(BarThing::heal())));
     assert_eq!(bar.slots[1], slot(Ability::Attack, false));
-    assert!(bar.slots[2..].iter().all(Option::is_none));
+    assert_eq!(bar.slots[2], slot(Ability::Magic, false));
+    assert!(bar.slots[3..].iter().all(Option::is_none));
+}
+
+#[test]
+fn an_old_bar_is_given_magic_once_and_taken_off_it_stays_off() {
+    let mut bar = attack_only();
+    bar.given = 1;
+    bar.catch_up();
+    assert_eq!(bar.slot_of(Ability::Magic), Some(1));
+    bar.apply(
+        BarChange::Clear { slot: 1 },
+        &known_by_kind(CreatureKind::Human),
+        &Spellbook::default(),
+    )
+    .unwrap();
+    bar.catch_up();
+    assert_eq!(bar.slot_of(Ability::Magic), None);
 }
 
 #[test]
@@ -91,6 +108,7 @@ fn an_old_bar_is_given_the_heal_spell_once_in_the_first_empty_slot() {
     bar.given = 0;
     bar.catch_up();
     assert_eq!(bar.slots[1], Some(BarSlot::new(BarThing::heal())));
+    assert_eq!(bar.slot_of(Ability::Magic), Some(2), "then Magic");
     // Taken off, it stays off.
     bar.apply(
         BarChange::Clear { slot: 1 },
@@ -387,7 +405,7 @@ fn alchemy_at_a_bench_needs_one_of_its_tools() {
 #[test]
 fn old_grind_and_brew_slots_load_as_one_alchemy() {
     let text = "(slots: (Some((ability: Grind, auto: false)), Some((ability: Brew, auto: false)), \
-        None, None, None, None, None, None, None, None), given: 1)";
+        None, None, None, None, None, None, None, None), given: 2)";
     let mut bar: ActionBar = ron::from_str(text).unwrap();
     bar.catch_up();
     assert_eq!(bar.slot_of(Ability::Alchemy), Some(0));

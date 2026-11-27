@@ -3,7 +3,10 @@ use shared::spell::{Effect, Filters, Step, Where, WherePart};
 use super::draft::{Draft, Goes};
 use super::markup::SPELL_DESIGN;
 use super::piece::FilterKind;
+use super::right_click::remove;
+use super::spots::Spot;
 use super::units::{MOST_REPEATS, Unit};
+use crate::common::{MAGIC_ICON, spell_icon};
 
 #[test]
 fn the_panel_is_good_markup() {
@@ -186,4 +189,34 @@ fn a_where_dragged_onto_a_where_step_merges_after_the_rest() {
         panic!("a where step");
     };
     assert_eq!((step.len(), step.last().place), (2, Where::Touch));
+}
+
+#[test]
+fn a_right_click_takes_out_a_where_effect_or_filter_but_not_a_piece() {
+    let mut draft = Draft::default();
+    draft.append(Unit::Where(Where::Missile));
+    draft.append(Unit::Effect(Effect::Heal));
+    draft.append(Unit::Effect(Effect::Fire));
+    draft.set_filter(FilterKind::Enemy, true);
+    assert!(!remove(
+        &mut draft,
+        Spot::Piece(super::piece::Piece::Where(Where::Beam))
+    ));
+    assert!(remove(&mut draft, Spot::Entry(1, 0)));
+    assert_eq!(draft.steps[1], Step::effects(&[(Effect::Fire, 1)]));
+    assert!(remove(&mut draft, Spot::Filter(FilterKind::Enemy)));
+    assert!(!draft.has_filter(FilterKind::Enemy));
+    // The last in its step takes the step with it.
+    assert!(remove(&mut draft, Spot::Entry(1, 0)));
+    assert_eq!(draft.steps.len(), 1);
+}
+
+#[test]
+fn a_design_healing_first_shows_heals_icon_else_magics() {
+    let mut draft = Draft::default();
+    draft.append(Unit::Effect(Effect::Heal));
+    assert_ne!(spell_icon(&draft.spell()), MAGIC_ICON);
+    draft.clear();
+    draft.append(Unit::Effect(Effect::Fire));
+    assert_eq!(spell_icon(&draft.spell()), MAGIC_ICON);
 }
