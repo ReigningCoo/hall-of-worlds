@@ -50,6 +50,7 @@ pub struct InventoryPlugin;
 impl Plugin for InventoryPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Carried>()
+            .init_resource::<crate::common::Trading>()
             .init_resource::<Stacks>()
             .init_resource::<Holding>()
             .init_resource::<bag_slots::EmptyIcon>()

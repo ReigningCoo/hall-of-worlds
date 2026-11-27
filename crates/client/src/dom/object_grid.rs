@@ -32,6 +32,8 @@ pub struct GridThing {
     pub rotation: Rotation,
     /// Faded, as not what is being looked for.
     pub dimmed: bool,
+    /// Marked by a trade: being sold, or bought and not yet paid for.
+    pub mark: crate::widgets::ItemMark,
 }
 
 /// Cells to tint where something held would go: green if it may, red if not.
@@ -182,7 +184,8 @@ fn draw_things(commands: &mut Commands, grid: Entity, layer: Entity, shown: &Gri
             let (item, rotation) = (thing.item.id, thing.rotation);
             let look = ItemLook::of(&thing.item)
                 .turned(rotation)
-                .dimmed(thing.dimmed);
+                .dimmed(thing.dimmed)
+                .marked(thing.mark);
             let shape = thing.item.shape().turned(rotation);
             let corner = (thing.x as f32, thing.y as f32);
             spawn_item_cells(layer, look, shape, corner, true, |x, y| ThingCell {

@@ -67,7 +67,7 @@ pub use fullscreen::{
 pub use hold_button::HoldButton;
 pub use hover_tip::{HoverTip, Pinned, PinnedTip};
 pub use item::{
-    CELL, HELD_ITEM_Z, ITEM_LABEL_FONT, ItemLook, ItemName, ItemTip, ItemTooltip,
+    CELL, HELD_ITEM_Z, ITEM_LABEL_FONT, ItemLook, ItemMark, ItemName, ItemTip, ItemTooltip,
     PICTURE_PIXELS_PER_CELL, Pointed, PointedItem, at_cell, covering, fuel_in_slot, item_colour,
     item_edge, item_edge_width, item_label, item_picture, logical_rect, picture_in_square,
     shown_at, spawn_item_cells,

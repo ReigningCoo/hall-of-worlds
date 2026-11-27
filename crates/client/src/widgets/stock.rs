@@ -35,6 +35,8 @@ pub struct StockGrid {
     pub changed: bool,
     /// Only this shows clearly: the rest is faded.
     pub filter: Option<ItemCategory>,
+    /// It shows at least this many rows (a trade's own side, 8 × 8).
+    least_rows: u8,
 }
 
 /// Something given, and where in the grid it was let go.
@@ -63,6 +65,15 @@ impl StockGrid {
             gifts: Vec::new(),
             changed: true,
             filter: None,
+            least_rows: 0,
+        }
+    }
+
+    /// Showing at least this many rows, however little is in it.
+    pub fn at_least(self, rows: u8) -> Self {
+        Self {
+            least_rows: rows,
+            ..self
         }
     }
 
@@ -128,17 +139,21 @@ impl StockGrid {
                 dimmed: self
                     .filter
                     .is_some_and(|only| placed.item.top().kind.category() != only),
+                mark: Default::default(),
             })
             .collect();
         let shown = GridShown {
             columns: self.columns,
-            rows: rows_for(&self.stock),
+            rows: rows_for(&self.stock).max(self.least_rows),
             things,
             aim: None,
             takes_gifts: Some(self.with),
             cells: None,
         };
-        commands.entity(holder).insert((StockOf(self.with), shown));
+        // (Its holder may have gone this frame with its panel.)
+        commands
+            .entity(holder)
+            .try_insert((StockOf(self.with), shown));
     }
 
     /// Where this, held over the grid, would land.

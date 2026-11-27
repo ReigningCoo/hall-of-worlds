@@ -15,12 +15,13 @@ mod mixed;
 mod name;
 mod nodes;
 mod picture;
+mod trade_mark;
 
 pub use cells::spawn_item_cells;
 pub use fuel::fuel_in_slot;
 pub use look::{
-    ItemLook, ItemName, ItemTip, ItemTooltip, Pointed, PointedItem, item_colour, item_edge,
-    item_edge_width, item_label,
+    ItemLook, ItemMark, ItemName, ItemTip, ItemTooltip, Pointed, PointedItem, item_colour,
+    item_edge, item_edge_width, item_label,
 };
 pub(super) use look::{NameBox, NameEdge, NameText};
 pub(super) use name::{name_item_at_pointer, show_item_tooltip, spawn_name_box};

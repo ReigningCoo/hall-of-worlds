@@ -112,6 +112,10 @@ pub(super) struct DragParams {
     /// A finger instead of the mouse.
     #[serde(default)]
     touch: bool,
+    /// Frames held still after pressing, before moving (a finger resting
+    /// picks things up).
+    #[serde(default)]
+    hold_frames: u32,
 }
 
 pub(super) fn ten() -> u32 {
@@ -134,13 +138,19 @@ pub(super) fn drag(
         steps,
         button,
         touch,
+        hold_frames,
     } = params(request)?;
     let end = |id: Option<&str>, at: Option<[f32; 2]>| {
         aim_needed(&places, id, at.map(|a| a[0]), at.map(|a| a[1]))
     };
     let from = end(from_id.as_deref(), from)?;
     let to = end(to_id.as_deref(), to)?;
-    queued(&mut fake, drag_steps(from, to, steps, button, touch))
+    let mut steps = drag_steps(from, to, steps, button, touch);
+    // Still where it pressed: after the finger's start, or the mouse's press.
+    let pressed = if touch { 1 } else { 3 };
+    let still = (0..hold_frames).map(|_| Step::Wait);
+    steps.splice(pressed..pressed, still);
+    queued(&mut fake, steps)
 }
 
 /// The steps of a drag.

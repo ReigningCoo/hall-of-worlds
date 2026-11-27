@@ -12,6 +12,7 @@ mod press;
 mod quick;
 mod read;
 mod tie;
+mod trade;
 
 use aim::aim_at;
 use bevy::ecs::system::SystemParam;
@@ -66,12 +67,16 @@ pub(super) struct Under<'w, 's> {
     god: Res<'w, crate::common::GodMode>,
     /// The character's recipe book is on it: a scroll it has isn't read.
     sheet: Res<'w, crate::character::CharacterSheet>,
+    /// The trade open: what is being bought takes room, and must be paid for.
+    trading: Res<'w, crate::common::Trading>,
 }
 
 /// What letting go of something tells the server and the rest of the client.
 #[derive(SystemParam)]
 pub(super) struct Outbox<'w> {
     to_server: MessageWriter<'w, ToServer>,
+    /// The trade open: what letting go in it asks (`trade`).
+    trading: Res<'w, crate::common::Trading>,
     gave: MessageWriter<'w, GaveItem>,
     took: MessageWriter<'w, TookItem>,
     spent: MessageWriter<'w, SpentEnergy>,

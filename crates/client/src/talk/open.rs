@@ -1,12 +1,12 @@
 //! Talking at a door: clicking it, walking there, and asking the server what
-//! the giver has and (for a shop) what is in stock; asking again with
-//! truesight.
+//! the giver has and (for a shop) to trade, which the trade window (`trade`)
+//! opens on.
 
 use bevy::prelude::*;
 use shared::protocol::{ClientMessage, QuestAsk};
 
 use super::{Heading, Keepers, OpenTalks, beside, front_of, key_of};
-use crate::common::{CurrentDungeon, MapPosition, Truesight};
+use crate::common::{CurrentDungeon, MapPosition};
 use crate::connection::ToServer;
 use crate::dom::Dom;
 use crate::dungeon_map::DoorClicked;
@@ -79,19 +79,6 @@ pub(super) fn follow_clicked_door(
                 x: front.0,
                 y: front.1,
             });
-        }
-    }
-}
-
-/// Truesight changes what the server tells of what is shown here.
-pub(super) fn ask_again_with_truesight(
-    truesight: Res<Truesight>,
-    open: Res<OpenTalks>,
-    mut to_server: MessageWriter<ToServer>,
-) {
-    if truesight.is_changed() && !truesight.is_added() {
-        for with in open.0.iter().filter_map(|talk| talk.keeper()) {
-            to_server.write(ToServer(ClientMessage::OpenTrade { with }));
         }
     }
 }
