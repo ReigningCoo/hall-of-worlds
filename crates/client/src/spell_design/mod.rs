@@ -53,6 +53,12 @@ pub struct EditSpell(pub BookSpell);
 #[derive(Message, Clone, Debug)]
 pub struct CastDesign(pub Spell);
 
+/// The design the panel's preview shows, with the player's own name for it
+/// if it kept one (none while the panel is closed or empty), for the spell
+/// popup on the preview (`spell_popup`).
+#[derive(Resource, Clone, Debug, Default, PartialEq)]
+pub struct PreviewSpell(pub Option<(Spell, Option<String>)>);
+
 pub struct SpellDesignPlugin;
 
 impl Plugin for SpellDesignPlugin {
@@ -61,6 +67,7 @@ impl Plugin for SpellDesignPlugin {
             .init_resource::<draft::Draft>()
             .init_resource::<drag::DesignDrag>()
             .init_resource::<drag::DesignAim>()
+            .init_resource::<PreviewSpell>()
             .add_message::<OpenSpellDesign>()
             .add_message::<EditSpell>()
             .add_message::<CastDesign>()

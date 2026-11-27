@@ -18,7 +18,7 @@ The spell design panel (magic plan PR 9, `docs/context/magic-system.md`): opened
 - `spots.rs`: `Spot` (a piece, a step, a where or effect in a step, a filter in the first step, the end box), `DesignSpots` (`at` a point, `of` a node).
 - `drag.rs`: `press_design` (`PreUpdate`, before `dom::DomInput::Presses` and `HoldObjects`: clicks and taps add a piece (a filter into the first step); a drag picks up a piece, a step, or one where, effect or filter in a step (a where or effect alone in it, the step; a filter dragged off the row comes off, dropped anywhere on the row into the first step) as `dom::HeldObject`, drawn as an ability) and `drop_on_design` (after `HoldObjects`: `DesignAim`, and the change on `dom::Dropped`), `DesignDrag`, `DesignAim`, `Dragging`.
 - `right_click.rs`: `remove_on_right_click` (`PreUpdate`, with `press_design`: a right-click on a where or effect in a step takes it out, its step too once empty, and on a filter takes it off; owner, 2026-11-27; no long press on touch, dragging off is easier there), `remove`.
-- `preview.rs`: `show_preview` (the design in `dom::KnownAbilities` as `spell_design.preview`, `PREVIEW`, for the `preview` object, hidden with no steps), `design_look` (as `abilities` draws a book spell: `common::spell_icon`, Magic's colour, its kept or automatic name, greyed unless `can_store`).
+- `preview.rs`: `show_preview` (the design in `dom::KnownAbilities` as `spell_design.preview`, `PREVIEW`, for the `preview` object, hidden with no steps, unnamed so it has no plain tip; and in `PreviewSpell` for the spell popup), `design_look` (as `abilities` draws a book spell: `common::spell_icon`, Magic's colour, its kept or automatic name, greyed unless `can_store`).
 - `side.rs`: `can_store` (filters with no where first; then the book's own `store` on a copy: the design's problem, "in your spellbook", full), `answer_panel` (Save opens the requester with the kept name; its Save sends `SpellbookAsk::Store` with `tidy_name`; Clear), `show_side` (the next unlock, the names, the cost, the problem or "Ready to save.", Save and Clear greyed when they can do nothing, the requester).
 - `cast.rs`: `answer_cast` (Cast pressed: `CastDesign` with the design, if it can be cast), `show_cast` (Cast greyed, checked every frame as the Mana refills, by `common::can_cast_spell`, the bar's own rule (owner, 2026-11-27: not for being in the book, no other rule), and filters with no where first).
 - `words.rs`: `problem_words` (each `DesignError`), `cost_words` ("Costs 32 Mana (4.8 × 6.7)": each step's share to one place), `next_words` (the next where at Magic ⌈n³ ÷ 6⌉%, and the Magic now).
@@ -29,6 +29,7 @@ The spell design panel (magic plan PR 9, `docs/context/magic-system.md`): opened
 - `SpellDesignPlugin`.
 - `OpenSpellDesign` (message): opens the panel, or closes it if open (`abilities`, on using Magic or the Spells tab's Design a Spell).
 - `CastDesign(Spell)` (message): the panel's Cast, read by `abilities`, which aims and queues it as a spell slot pressed and sends it as `SpellbookAsk::CastDesign` (or `Cast` if the book holds it).
+- `PreviewSpell(Option<(Spell, Option<String>)>)` (resource): the design the preview shows and its kept name, none while closed or empty (`spell_popup`).
 - `EditSpell(BookSpell)` (message): puts a spell on the panel in place of the design there, opening it if closed (`abilities`' Spells tab, on Remove).
 
 ## Depends on
@@ -38,6 +39,7 @@ The spell design panel (magic plan PR 9, `docs/context/magic-system.md`): opened
 ## Used by
 
 - `abilities` (`OpenSpellDesign`, `EditSpell`, `CastDesign`).
+- `spell_popup` (`PreviewSpell`).
 
 ## Notes
 

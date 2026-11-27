@@ -41,7 +41,9 @@ pub(in crate::abilities) fn name_spells(
         return;
     }
     for &(key, usable, _) in &standing {
-        let look = spell_look(key, &sheet.0, &wording.0, usable, &assets);
+        let mut look = spell_look(key, &sheet.0, &wording.0, usable, &assets);
+        // No plain tip: the spell popup (`spell_popup`) says what it is.
+        look.name = String::new();
         let thing = AbilityThing {
             thing: BarThing::Spell(key),
             look,
