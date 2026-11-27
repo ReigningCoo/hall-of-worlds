@@ -1,6 +1,6 @@
 # shared: item_set
 
-Item sets (owner, 2026-11-27; quality bonuses PR 2): a fixed pool of sets, each rolled from its number alone, and the bonuses wearing their pieces gives. Not how sets are shown (the item popup's set section is PR 3) or which planet pays which piece (`quest::set_item_of`).
+Item sets (owner, 2026-11-27; quality bonuses PR 2): a fixed pool of sets, each rolled from its number alone, and the bonuses wearing their pieces gives. Not how sets are shown (the item popup's set section, `client: item_popup`'s `set.rs`) or which planet pays which piece (`quest::set_item_of`).
 
 ## Files
 
@@ -9,12 +9,12 @@ Item sets (owner, 2026-11-27; quality bonuses PR 2): a fixed pool of sets, each 
 - `item_set/roll.rs`: the pool seed, a set's quality (Common to Legendary) and pieces (prize kinds, `quest::PRIZE_KINDS`, worn in different places, a second ring allowed, never rings with gauntlets).
 - `item_set/bonuses.rs`: `SetBonus { worn, bonus }`, `SET_BONUS_FACTOR` (2); one at each count from 2 up and one more at the whole set, each a different stat from `bonus::GEAR_STATS` suiting any piece, or a skill a piece's kind suits (`bonus::gear_skills` on a stand-in: armour's Defence, footwear's Kick).
 - `item_set/piece.rs`: `SetPiece { set, piece }` (`whole`, `kind`, `quality`, `fitting(kind, quality, id)`: a piece of that kind from an id-picked start, of that quality if any).
-- `item_set/worn.rs`: `worn_pieces(worn)` (different pieces of each set worn, only on items of the piece's kind), `set_bonuses(worn)`.
+- `item_set/worn.rs`: `worn_pieces(worn)` (different pieces of each set worn, only on items of the piece's kind), `pieces_worn(worn, set)` (which of one set's pieces, for the popup), `set_bonuses(worn)`.
 - `item_set/saved.rs`: `SavedSet` (crate only): reading `Item::set`; a save's old `set: true` becomes `SetPiece::fitting`, messages always `Option<SetPiece>`.
 
 ## Public API
 
-- `ItemSet`, `SetPiece`, `SetBonus`, `set_bonuses`, `worn_pieces`, `POOL`, `MIN_PIECES`, `MAX_PIECES`, `SET_BONUS_FACTOR`.
+- `ItemSet`, `SetPiece`, `SetBonus`, `set_bonuses`, `worn_pieces`, `pieces_worn`, `POOL`, `MIN_PIECES`, `MAX_PIECES`, `SET_BONUS_FACTOR`.
 
 ## Depends on
 
@@ -22,7 +22,7 @@ Item sets (owner, 2026-11-27; quality bonuses PR 2): a fixed pool of sets, each 
 
 ## Used by
 
-- `item` (`Item::set`, `Saved`), `item_form` (`make_item`: an order's `set` becomes `fitting`), `bonus` (`worn_totals`; set items' `own_count`), `sheet` (`Sheet::totals`), `quest` (`set_item_of`), server `quests/prize.rs`.
+- `item` (`Item::set`, `Saved`), `item_form` (`make_item`: an order's `set` becomes `fitting`), `bonus` (`worn_totals`; set items' `own_count`), `sheet` (`Sheet::totals`), `quest` (`set_item_of`), server `quests/prize.rs`, client `item_popup` (`set.rs`).
 
 ## Notes
 

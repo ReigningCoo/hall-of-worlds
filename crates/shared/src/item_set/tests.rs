@@ -143,3 +143,19 @@ fn old_saves_set_flag_becomes_a_piece() {
     let bytes = postcard::to_allocvec(&item).unwrap();
     assert_eq!(postcard::from_bytes::<Item>(&bytes).unwrap(), item);
 }
+
+#[test]
+fn pieces_worn_names_each_piece_once() {
+    let set = (0..POOL)
+        .map(ItemSet::of)
+        .find(|set| set.pieces.len() >= 3)
+        .unwrap();
+    let worn = vec![
+        piece_of(&set, 2, 1),
+        piece_of(&set, 0, 2),
+        piece_of(&set, 2, 3),
+    ];
+    let pieces: Vec<u8> = pieces_worn(&worn, set.number).into_iter().collect();
+    assert_eq!(pieces, vec![0, 2]);
+    assert!(pieces_worn(&worn, (set.number + 1) % POOL).is_empty());
+}

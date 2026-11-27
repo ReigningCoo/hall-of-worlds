@@ -223,6 +223,11 @@ item-skill-levels = { $amount } { $count ->
 
 item-bonus-does = { $line }: { $does }
 
+## A set's bonuses in an item's popup come under how many of its different
+## pieces must be worn for them: "2 worn:".
+
+item-set-worn = { $count } worn:
+
 ## What each stat does, after a worn or held thing's bonus: worded to suit
 ## a bonus either way, as some are negative.
 

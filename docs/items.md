@@ -25,4 +25,4 @@ A skill level is one percentage point of the skill. Now and then one bonus on an
 
 Some items belong to a set, and their name has a metal edge. A set has two to seven pieces, all of the same quality, each worn in a different place (a set may have two rings). A set item has one bonus fewer of its own than its quality gives, but never none. Wearing two or more different pieces of the same set gives the set's bonuses: one more for each piece worn from the second on, and one more again for the whole set, so a whole set of five gives five. Set bonuses are about twice as strong as an item's own. Each world's final quests may give a piece of one set.
 
-An item's popup lists its bonuses, each with what it does: "+5% Strength: carrying and how hard you hit".
+An item's popup lists its bonuses, each with what it does: "+5% Strength: carrying and how hard you hit". A set item's popup then names its set and every piece of it, greyed out when you aren't wearing that piece, and the set's bonuses under how many pieces they need ("2 worn:"), greyed out until you wear that many.

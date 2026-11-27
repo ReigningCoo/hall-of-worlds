@@ -158,7 +158,7 @@ pub(super) fn follow_pointed(
         of,
         &pointed,
         (pointed.at + OFFSET).round(),
-        (&wording.0, viewer, size.0),
+        (&wording.0, viewer, size.0, &carried.0.worn),
         (KeyWords { lines, runes }, herb, staff),
     );
     kept.0.push(box_id(of));

@@ -36,7 +36,7 @@ pub(super) fn bonus_lines(item: &Item, lang: &Lang) -> Vec<String> {
 
 /// A worn or held thing's bonus with what the stat does: "+5% Strength:
 /// carrying and how hard you hit".
-fn worn_line(bonus: &Bonus, lang: &Lang) -> String {
+pub(super) fn worn_line(bonus: &Bonus, lang: &Lang) -> String {
     let args = Args::new()
         .text("line", bonus_line(bonus, lang))
         .text("does", does_words(bonus.stat, lang));
