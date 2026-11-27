@@ -38,6 +38,8 @@ mod shown;
 mod spare;
 mod surround;
 mod teleport;
+mod tip;
+mod tip_words;
 mod touch;
 mod toward;
 mod under;
@@ -94,6 +96,8 @@ pub use shown::{Shown, shown, shown_part};
 pub use spare::spared_harm;
 pub use surround::{SURROUND_RING, SURROUND_SPOTS, surround, surround_reach};
 pub use teleport::{TELEPORT_RANGE, may_teleport_to};
+pub use tip::{Fact, OutcomeTip, Reach, SpellTip, StepTip, WhereTip, facts, reach, spell_tip};
+pub use tip_words::{TipLine, tip_lines, worded};
 pub use touch::{TOUCH_HALF_ARC, TOUCH_WIDER, touch, touch_half_arc};
 pub use toward::Toward;
 pub use utility::{

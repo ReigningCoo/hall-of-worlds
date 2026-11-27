@@ -89,6 +89,8 @@ Spells never kill you or your friends: harm from your own spells stops at 1 Heal
 
 Every spell has a cost in Mana, shown in the panel as you build it. An effect costs less the better its skill; a where costs more the further it reaches, less with its own skill. The steps' costs are **multiplied together**, so long spells soon cost a great deal: Heal costs 5 at first, a Healing Missile 10, and a missile that heals and then burns everything round its target 150. The whole cost is paid when the first step lands. A spell you can't afford can't be cast.
 
+Rest the pointer (or a finger) on a spell's picture, on the action bar, in your spellbook or beside a design, to see what it costs and what each step does, with numbers: how far each where reaches, and each effect's harm, healing and how long it lasts. The numbers are yours as your skills are now, before the target resists: you can't know how much of it a target will shrug off.
+
 ## Casting
 
 A spell winds up before its first step; moving or Esc calls it off until then. After that the steps go on whatever you do.

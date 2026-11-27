@@ -211,7 +211,15 @@ fn slot_of(slot: u8, now: &Shown, book: (&Sheet, &Lang), assets: &AssetServer) -
             BarThing::Potion(potion) => ("Potion", potion_words(potion)),
             BarThing::Spell(_) => (spell.as_str(), "A spell from your spellbook.".to_owned()),
         };
-        if !full.is_empty() {
+        // A spell in the book has the spell popup (`spell_popup`), with its
+        // key, in place of a plain tip.
+        let in_book = held
+            .thing
+            .spell()
+            .is_some_and(|key| book.0.spellbook.by_key(key).is_some());
+        if in_book {
+            look.name = String::new();
+        } else if !full.is_empty() {
             look.name = format!(
                 "{name} ({full})
 {description}"

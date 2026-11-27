@@ -47,6 +47,7 @@ mod site;
 mod skills_page;
 mod sound;
 mod spell_design;
+mod spell_popup;
 mod step_pad;
 mod surface_style;
 mod system_menu;
@@ -169,6 +170,7 @@ fn main() {
     app.add_plugins(tracked_quest::TrackedQuestPlugin);
     app.add_plugins(app_icon::AppIconPlugin);
     app.add_plugins(item_popup::ItemPopupPlugin);
+    app.add_plugins(spell_popup::SpellPopupPlugin);
     app.add_plugins(map_marks::MapMarksPlugin);
     app.add_plugins(sound::SoundPlugin);
     app.add_plugins(music::MusicPlugin);
