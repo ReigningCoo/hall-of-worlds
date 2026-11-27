@@ -18,10 +18,7 @@ fn no_system_asks_for_what_another_of_its_parameters_has() {
     starts(change_of_mind);
     starts(follow_clicked_door);
     starts(open_on_arrival);
-    starts(note_gifts);
     starts(read_server);
-    starts(draw_grids);
-    starts(show_gift_aim);
     starts(close_on_escape);
     starts(close_when_left);
     starts(news::read_quest_news);
@@ -30,10 +27,8 @@ fn no_system_asks_for_what_another_of_its_parameters_has() {
 }
 
 #[test]
-fn the_panel_is_good_markup_with_the_grids_columns() {
+fn the_panel_is_good_markup() {
     markup::TALK.assert_good();
-    let columns = format!("columns=\"{COLUMNS}\"");
-    assert!(markup::TALK.source.contains(&columns));
 }
 
 #[test]

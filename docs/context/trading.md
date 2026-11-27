@@ -23,7 +23,7 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 - Coins below: accepted up to 5% short at full Trading skill (scaled down with skill; a fixed rule, no dice, so the client can say beforehand), with practice when accepted; refused beyond.
 - As built (Claude's choices, to balance): standing takes off 0, 6, 12, 18, 25% from Stranger to Champion; the player offers a sum to pay (`TradeAsk::Pay`), its gap from what is due being the tip or haggle (the shop paying the player works the same way); a point of standing per 1,000 copper tipped, past what acts give; what a shop pays is rounded **down** to whole copper (rounding it up would let a pinch of anything sell for a copper again and again); what is bought is kept out of the inventory until completed, with the place it is to go (anywhere it fits if that is taken by then), so nothing can be used unpaid; coins and anything holding coins or a quest item can't be sold; trading is within 5 cells of a shop's door.
 
-## One trade window
+## One trade window (PR 4 built for shops: client `trade`)
 
 - T by default, and a trade icon at the bottom left beside the others (the owner is also planning a FAB menu).
 - A dropdown at the top: players, shops (by door) and NPCs within 5 cells; anyone set to Never greyed out and unselectable; disabled once a trade starts, until both sides are clear.
@@ -31,6 +31,7 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 - Middle: the value of each side, who gains and by how much. Shops: a Complete trade button and the total due or received at the bottom right. Players and NPCs: a Trade toggle; on, your side goes slightly darker with a solid surround (the other sees it); any change to your side turns your toggle off.
 - Consistency (owner): every trade, shops included, only happens on Complete or both locked in. Closing the window, walking out of range, leaving the level or disconnecting resets everything, nothing transferred.
 - Coins paid and change given automatically, highest coins first, allowed over the carry limit.
+- As built for shops (PR 4, Claude's choices for the owner to check): a click on a shop's door opens the trade window on it, and the talk panel's Trade tab is gone; opening the window (T) asks for the nearest shop and opens the Character panel to drag into. Carried things let go on either side are sold; the middle shows each side's worth and what the shop pays or asks, and who gains (worth received − worth given − coins paid). Coins are written as words for now, and there is no way yet to offer more or less than is due (tips and haggling: the server takes `TradeAsk::Pay`).
 
 ## Player trades
 
@@ -51,7 +52,7 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 | 1 | Item values and the popup's value; this file | built |
 | 2 | 1 gold for new characters, the Nearby panel removed, the Trading skill under Social with negative practice, the T key and icon | built |
 | 3 | The server's trade core and shop trades: rates, standing, not normally sold, sold stock timing out, tips, haggling | built |
-| 4 | The window for shops | |
+| 4 | The window for shops | built |
 | 5 | The server's player and NPC trades: asking, locking in, resets, the setting, the receive box saved | |
 | 6 | The window for players: sides, toggle, "Asking...", the request popup, the receive box with Take all, the Gameplay setting | |
 | 7 | Beggars | |

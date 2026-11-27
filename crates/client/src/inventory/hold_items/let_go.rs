@@ -27,7 +27,14 @@ pub(super) fn let_go_of(
     (over_gifts, held_stock): (&HeldOverGifts, &mut ResMut<HeldStock>),
     out: &mut Outbox,
 ) {
-    if super::tie::let_go_on_slot(held, aim, holding, carried, out)
+    if super::trade::let_go_in_trade(
+        held,
+        aim,
+        holding,
+        &carried.0,
+        (over_gifts, held_stock),
+        out,
+    ) || super::tie::let_go_on_slot(held, aim, holding, carried, out)
         || super::pour::pour_on(held, aim, holding, carried, held_stock, out)
         || super::feed::feed_on(held, aim, holding, carried, held_stock, out)
         || super::read::read_on(held, aim, holding, carried, held_stock, out)

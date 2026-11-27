@@ -9,7 +9,7 @@ use shared::story::Story;
 
 use super::detail::{Detail, detail_of};
 use super::words::{giver_title, hint_text, plain};
-use super::{OpenTalk, OpenTalks, Tab};
+use super::{OpenTalk, OpenTalks};
 use crate::common::{CurrentDungeon, Wording};
 use crate::dom::Dom;
 use crate::quests::QuestBook;
@@ -27,17 +27,6 @@ pub(super) fn show_pages(
         talk.dirty = false;
         let ids = Ids(format!("talk#{}", talk.key()));
         let lang = &wording.0;
-        let shop = talk.grid.is_some();
-        let tab = if shop { talk.tab } else { Tab::Quests };
-        dom.set_flag(&ids.of("tabs"), "hidden", !shop);
-        let words = if tab == Tab::Quests {
-            "Quests"
-        } else {
-            "Trade"
-        };
-        dom.set(&ids.of("tabs"), "value", words);
-        dom.set_flag(&ids.of("quests_page"), "hidden", tab != Tab::Quests);
-        dom.set_flag(&ids.of("trade_page"), "hidden", tab != Tab::Trade);
         let kind = (dungeon.buildings.iter()).find(|look| look.id == talk.building);
         if let (Some(look), Some(offer)) = (kind, talk.offers.first()) {
             let title = giver_title(lang, &offer.giver, look.kind);

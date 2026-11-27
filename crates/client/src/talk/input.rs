@@ -6,7 +6,7 @@
 use bevy::prelude::*;
 use shared::protocol::{ClientMessage, QuestAsk};
 
-use super::{OpenTalk, OpenTalks, Tab};
+use super::{OpenTalk, OpenTalks};
 use crate::connection::ToServer;
 use crate::dom::{UiEvent, UiValue};
 
@@ -23,11 +23,6 @@ pub(super) fn read_events(
             continue;
         };
         let asks = match &event.value {
-            UiValue::Choice { index, .. } if name == "tabs" => {
-                talk.tab = if *index == 0 { Tab::Quests } else { Tab::Trade };
-                talk.dirty = true;
-                Vec::new()
-            }
             UiValue::Pressed => pressed(talk, name, event.id.index()),
             _ => Vec::new(),
         };

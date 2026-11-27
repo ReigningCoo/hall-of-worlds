@@ -31,7 +31,11 @@ pub(super) fn aim_at(
         stacks,
         god,
         sheet,
+        trading,
     } = under;
+    // What is being bought takes room where it is to go.
+    let with_buys = super::trade::with_unpaid(&carried.0, trading, held.id);
+    let inventory = with_buys.as_ref().unwrap_or(&carried.0);
     let from_stock = holding.stock.as_ref().map(|(with, _)| *with);
     // One of our grids, and the cell of it the pointer is in.
     let cell = over.cell.and_then(|(grid, x, y)| {
@@ -121,7 +125,11 @@ pub(super) fn aim_at(
         } else {
             StackLimits::NONE
         };
-        return super::super::hold::target_for_new(&carried.0, item, held, cell, limits);
+        let target = super::super::hold::target_for_new(inventory, item, held, cell, limits);
+        // Something new from the shop's grid must be paid for.
+        let new = Some(*with) == trading.with && trading.unpaid(item.id).is_none();
+        let buying = new.then_some(item);
+        return super::trade::trade_aim(target, trading, buying, carried.0.coins_carried());
     }
     if on_drop {
         // Only sites have ground.
@@ -161,5 +169,6 @@ pub(super) fn aim_at(
             allowed: worth_wearing(tried),
         };
     }
-    super::super::hold::target(&carried.0, held, cell, stacks.0)
+    let target = super::super::hold::target(inventory, held, cell, stacks.0);
+    super::trade::trade_aim(target, trading, None, 0)
 }

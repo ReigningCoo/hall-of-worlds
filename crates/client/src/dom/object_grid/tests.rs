@@ -16,6 +16,7 @@ fn apple(n: u128, x: u8) -> GridThing {
         y: 0,
         rotation: Rotation::None,
         dimmed: false,
+        mark: Default::default(),
     }
 }
 

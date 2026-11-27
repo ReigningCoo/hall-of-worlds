@@ -13,14 +13,6 @@ use shared::story::Ending;
 use std::collections::BTreeMap;
 
 use crate::common::MapPosition;
-use crate::widgets::StockGrid;
-
-/// The panel's two tabs, in the tab bar's order.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum Tab {
-    Quests,
-    Trade,
-}
 
 /// A talk panel: one building's door on this level, whoever is behind it.
 pub(super) struct OpenTalk {
@@ -29,11 +21,6 @@ pub(super) struct OpenTalk {
     pub(super) panel: Entity,
     /// The door: what the player must stay near.
     pub(super) place: (i64, i64),
-    pub(super) tab: Tab,
-    /// The shop's stock, once the server has sent it (shops only), and the
-    /// panel's `object-grid` it goes in, once built.
-    pub(super) grid: Option<StockGrid>,
-    pub(super) holder: Option<Entity>,
     /// What the giver has, as last told (`QuestNews::Talk`), and the town.
     pub(super) town: Option<ChunkPos>,
     pub(super) offers: Vec<Offer>,
@@ -50,14 +37,11 @@ pub(super) struct OpenTalk {
 }
 
 impl OpenTalk {
-    pub(super) fn new(building: u16, panel: Entity, place: (i64, i64), tab: Tab) -> Self {
+    pub(super) fn new(building: u16, panel: Entity, place: (i64, i64)) -> Self {
         Self {
             building,
             panel,
             place,
-            tab,
-            grid: None,
-            holder: None,
             town: None,
             offers: Vec::new(),
             heard: false,
@@ -71,11 +55,6 @@ impl OpenTalk {
     /// What its document is known by: `talk#<key>/...`.
     pub(super) fn key(&self) -> Id {
         key_of(self.building)
-    }
-
-    /// The shop's keeper, once its stock has come.
-    pub(super) fn keeper(&self) -> Option<Id> {
-        self.grid.as_ref().map(|grid| grid.with)
     }
 }
 
@@ -97,10 +76,6 @@ impl OpenTalks {
 
     pub(super) fn by_key(&mut self, key: Id) -> Option<&mut OpenTalk> {
         self.0.iter_mut().find(|talk| talk.key() == key)
-    }
-
-    pub(super) fn trading_with(&mut self, keeper: Id) -> Option<&mut OpenTalk> {
-        self.0.iter_mut().find(|talk| talk.keeper() == Some(keeper))
     }
 
     pub(super) fn is_open(&self, building: u16) -> bool {

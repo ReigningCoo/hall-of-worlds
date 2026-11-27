@@ -9,6 +9,7 @@ use super::super::{ITEM_EDGE, Pressable};
 use super::count::spawn_count;
 use super::fuel::spawn_fuel;
 use super::mixed::spawn_mixed_mark;
+use super::trade_mark::{spawn_trade_mark, spawn_unpaid_background};
 use super::{
     CELL, ITEM_LABEL_FONT, ItemLook, PICTURE_PIXELS_PER_CELL, at_cell, item_colour, item_edge,
     item_edge_width, item_label, item_picture, picture_node, picture_turned,
@@ -39,8 +40,11 @@ pub fn spawn_item_cells<B: Bundle>(
         mixed,
         dimmed,
         fuel,
+        mark,
     } = look;
     let drawn = picture.is_some();
+    // Behind everything, even its glow.
+    spawn_unpaid_background(parent, mark, shape, corner);
     let pixels = shape.width.max(shape.height) as u32 * PICTURE_PIXELS_PER_CELL;
     // Behind a picture, with its frame drawn over it.
     if let (Some(aura), Some(picture)) = (aura, &picture) {
@@ -108,6 +112,13 @@ pub fn spawn_item_cells<B: Bundle>(
     spawn_count(parent, count, shape, corner, item_edge_width(quality));
     spawn_mixed_mark(parent, mixed, shape, corner, item_edge_width(quality));
     spawn_fuel(parent, fuel, shape, corner, item_edge_width(quality));
+    spawn_trade_mark(
+        parent,
+        mark,
+        (shape, drawn),
+        corner,
+        item_edge_width(quality),
+    );
     if dimmed {
         // Last, so over all of it: the grid's colour, mostly hiding it.
         for (x, y) in shape.cells() {

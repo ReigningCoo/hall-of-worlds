@@ -5,9 +5,9 @@
 use bevy::prelude::*;
 use shared::protocol::{OfferState, QuestNews, ServerMessage};
 
+use super::OpenTalks;
 use super::spawn::open_panel;
 use super::words::refusal;
-use super::{OpenTalks, Tab};
 use crate::common::{CurrentDungeon, Wording};
 use crate::connection::FromServer;
 use crate::dom::Dom;
@@ -34,17 +34,9 @@ pub(super) fn read_quest_news(
                 let talk = match open.is_open(*building) || !offers.is_empty() {
                     true => {
                         let (open, dungeon) = (&mut open, &dungeon);
-                        open_panel(
-                            open,
-                            *building,
-                            Tab::Quests,
-                            dungeon,
-                            &mut dom,
-                            &mut commands,
-                        )
+                        open_panel(open, *building, dungeon, &mut dom, &mut commands)
                     }
-                    // Nothing to say, and no panel to say it on: a shop's
-                    // stock opens it at its Trade tab.
+                    // Nothing to say, and no panel to say it on.
                     false => None,
                 };
                 let Some(talk) = talk else {
@@ -70,9 +62,6 @@ pub(super) fn read_quest_news(
                             OfferState::Available { .. } | OfferState::Ready
                         )
                     });
-                    if wanted.clone().next().is_some() {
-                        talk.tab = Tab::Quests;
-                    }
                     if let [only] = wanted.collect::<Vec<_>>()[..] {
                         talk.chosen = Some(only.id);
                     }

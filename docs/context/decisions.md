@@ -1973,3 +1973,7 @@ Trading plan PR 3 (owner: every trade only happens on Complete; closing, walking
 ## 2026-11-27: No asset changed every frame
 
 iOS Safari killed the web client in The Way Inn for memory; the cause was materials changed every frame (UI stripes and set-item edges, rain, water, the world map's sky) and the minimap repainted four times a second, each change making new GPU buffers or textures the browser was slow to free. Animated values now come from Bevy's clock in the shaders (`globals.time`), and other changes are written only when they would look different, or only for what is on show (`project.md`). Idle in the inn, nothing changes.
+
+## 2026-11-27: One trade window; the client's trade in `common::Trading`
+
+Trading plan PR 4. The trade window (`client: trade`) holds the shop's stock and the player's side; the talk panel's Trade tab is gone, and a click on a shop's door opens the window on it (Claude's choice for the owner to check). The trade as the client last heard it is a `common` resource (`Trading`), written only by `trade` and read by `inventory`, which draws what is being sold (a bag in the corner) and bought (unpaid, a solid background, picked up only as the shop's stock) and refuses aims onto unpaid things or past the coins: so neither module reaches into the other. Nothing is moved on the client either: unpaid things are drawn from `Trading`, never added to `Carried`.

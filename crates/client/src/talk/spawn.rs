@@ -4,17 +4,16 @@
 use bevy::prelude::*;
 
 use super::markup::TALK;
-use super::{AT, NEXT_AT, OpenTalk, OpenTalks, Tab, key_of};
+use super::{AT, NEXT_AT, OpenTalk, OpenTalks, key_of};
 use crate::common::CurrentDungeon;
 use crate::dom::{DocumentOf, Dom, document, top_strip};
 use crate::widgets::UiId;
 
-/// The panel for `building`'s door, opened at `tab` if it isn't open yet.
-/// `None` if the building isn't on this level.
+/// The panel for `building`'s door, opened if it isn't open yet. `None` if
+/// the building isn't on this level.
 pub(super) fn open_panel<'a>(
     open: &'a mut OpenTalks,
     building: u16,
-    tab: Tab,
     dungeon: &CurrentDungeon,
     dom: &mut Dom,
     commands: &mut Commands,
@@ -23,14 +22,14 @@ pub(super) fn open_panel<'a>(
         let look = dungeon.buildings.iter().find(|look| look.id == building)?;
         let at = AT + NEXT_AT * open.0.len() as f32;
         let key = key_of(building);
-        // One of several documents alike, by building: `talk#<key>/stock`.
+        // One of several documents alike, by building: `talk#<key>/panel`.
         let panel = (commands.spawn((document(&TALK), DocumentOf(key))))
             .insert(top_strip())
             .id();
         let id = UiId::of("talk", key, "panel").to_string();
         dom.set(&id, "title", look.kind.name());
         dom.start_at(&id, at);
-        open.0.push(OpenTalk::new(building, panel, look.door, tab));
+        open.0.push(OpenTalk::new(building, panel, look.door));
     }
     open.of(building)
 }

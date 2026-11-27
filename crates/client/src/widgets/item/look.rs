@@ -65,6 +65,19 @@ pub struct ItemLook {
     pub dimmed: bool,
     /// A lantern's fuel bar, how full (`fuel_share`).
     pub fuel: Option<f32>,
+    /// Whether it is in a trade (`ItemMark`).
+    pub mark: ItemMark,
+}
+
+/// How an item is marked by a trade (trading plan PR 4): carried and being
+/// sold (a bag in its corner), or being bought and not yet paid for (a solid
+/// background behind it).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum ItemMark {
+    #[default]
+    None,
+    Selling,
+    Unpaid,
 }
 
 impl ItemLook {
@@ -83,12 +96,18 @@ impl ItemLook {
             mixed,
             dimmed: false,
             fuel: super::fuel::fuel_share(item),
+            mark: ItemMark::None,
         }
     }
 
     /// Faded or not, by a filter.
     pub fn dimmed(self, dimmed: bool) -> Self {
         Self { dimmed, ..self }
+    }
+
+    /// Marked by a trade.
+    pub fn marked(self, mark: ItemMark) -> Self {
+        Self { mark, ..self }
     }
 
     /// Turned this way.
