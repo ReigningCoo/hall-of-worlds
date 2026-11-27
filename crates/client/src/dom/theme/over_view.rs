@@ -42,6 +42,17 @@ pub(super) fn add(theme: &mut Theme) {
         ..default()
     };
     theme.set(Tag::Img, "gold", gold);
+    // Silver and copper pictures: coins in an item's value.
+    let silver = Look {
+        colour: Some(Color::srgb(0.78, 0.8, 0.84)),
+        ..default()
+    };
+    theme.set(Tag::Img, "silver", silver);
+    let copper = Look {
+        colour: Some(Color::srgb(0.8, 0.5, 0.3)),
+        ..default()
+    };
+    theme.set(Tag::Img, "copper", copper);
     // White writing over the game's view, with symbols: the status text,
     // and in red what it warns of.
     let status = Look {

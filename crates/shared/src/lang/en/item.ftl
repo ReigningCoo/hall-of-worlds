@@ -304,3 +304,9 @@ key-place-elsewhere = { $place }, on another planet
 
 recipe-known = Already in your recipe book
 recipe-drop-on-self = Drop on yourself to add it to your recipe book
+
+## An item's value in its popup, after a stack's whole value in coins: what
+## one is worth, between these (trading plan PR 1).
+
+item-value-each-start = (
+item-value-each-end = each)

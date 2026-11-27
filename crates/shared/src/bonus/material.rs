@@ -28,7 +28,7 @@ pub fn material_factors(_material: Material) -> MaterialFactors {
 }
 
 /// What an armour piece is made of, as its form says (a set's is its torso's).
-pub(super) fn armour_material(item: &Item) -> Option<Material> {
+pub fn armour_material(item: &Item) -> Option<Material> {
     Some(match item.form.as_ref()? {
         ItemForm::Hands(form) => form.material,
         ItemForm::Shoulders(form) => form.material,

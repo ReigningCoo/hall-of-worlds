@@ -93,6 +93,7 @@ pub mod story;
 pub mod surface;
 pub mod tree;
 pub mod underclothes;
+pub mod value;
 pub mod vegetable;
 pub mod vegetation;
 pub mod vessel;

@@ -2,7 +2,8 @@
 //! drawn opens a `hover` popup (`dom`) with its name in its quality's colour,
 //! what it gives (`shared::bonus`, worded through `shared::lang`), its set's
 //! pieces and bonuses (`shared::item_set`), what it
-//! asks of its wearer (`shared::requirement`), what a key remembers, its weight, and its id
+//! asks of its wearer (`shared::requirement`), what a key remembers, its weight,
+//! its value in coins (`shared::value`), and its id
 //! for staff with debug tools. It stays while
 //! the pointer is on the item or on it, and goes when the pointer leaves both;
 //! its padlock keeps it open. Whoever draws items says which one the pointer
@@ -23,6 +24,7 @@ mod recipe;
 mod set;
 mod show;
 mod size;
+mod value;
 mod words;
 mod yeast;
 
