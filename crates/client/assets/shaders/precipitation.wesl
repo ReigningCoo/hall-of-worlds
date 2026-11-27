@@ -2,14 +2,15 @@
 // positions hold random numbers; this places each one, using the sky texture
 // to decide if it falls at all and as what. Nothing here affects the game.
 
-import bevy_pbr::render::mesh_view_bindings::view;
+import bevy_pbr::render::mesh_view_bindings::{globals, view};
 
 struct Sky {
     origin_a: vec2<f32>,
     origin_b: vec2<f32>,
     extent: f32,
-    blend: f32,
-    time: f32,
+    // How far between the moments when written, and Bevy's clock then.
+    blend_from: f32,
+    written: f32,
     cloud_height: f32,
     half: f32,
     right: vec2<f32>,
@@ -25,12 +26,24 @@ struct Sky {
 @group(constants::MATERIAL_BIND_GROUP) @binding(2) var sky_sampler: sampler;
 @group(constants::MATERIAL_BIND_GROUP) @binding(3) var sky_b: texture_2d<f32>;
 
+// How far from the first moment of the sky to the second, now: from when the
+// material was written, by Bevy's clock, so it needn't change every frame
+// (`world_map/sky/update.rs`).
+fn blend_now() -> f32 {
+    var since = globals.time - sky.written;
+    // Bevy's clock wraps (`still.w` seconds).
+    if since < 0.0 {
+        since += sky.still.w;
+    }
+    return clamp(sky.blend_from + since * sky.still.z, 0.0, 1.0);
+}
+
 // The sky here: two moments of it, faded between so it changes smoothly.
 fn sky_at(place: vec2<f32>) -> vec4<f32> {
     return mix(
         textureSampleLevel(sky_a, sky_sampler, (place - sky.origin_a) / sky.extent, 0.0),
         textureSampleLevel(sky_b, sky_sampler, (place - sky.origin_b) / sky.extent, 0.0),
-        sky.blend,
+        blend_now(),
     );
 }
 
@@ -109,7 +122,7 @@ fn vertex(in: Vertex) -> Output {
     }
 
     let fall = sky.cloud_height - LOWEST;
-    let height = LOWEST + fall * fract(in.seed.y - sky.time * speed / fall);
+    let height = LOWEST + fall * fract(in.seed.y - globals.time * speed / fall);
     let view_right = view.world_from_view[0].xyz;
     let place = vec3<f32>(ground.x, height, ground.y)
         + view_right * in.corner.x * size.x

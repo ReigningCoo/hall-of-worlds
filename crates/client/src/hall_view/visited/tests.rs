@@ -7,7 +7,7 @@ use super::*;
 fn coloured(places: &[u32], visited: &[u32]) -> (World, Vec<Entity>) {
     let mut world = World::new();
     world.init_resource::<Assets<Image>>();
-    world.init_resource::<Assets<StandardMaterial>>();
+    world.init_resource::<Assets<GateWaterMaterial>>();
     world.init_resource::<WaterMaterials>();
     world.insert_resource(VisitedGates(visited.iter().copied().collect()));
     let waters = places
@@ -18,9 +18,9 @@ fn coloured(places: &[u32], visited: &[u32]) -> (World, Vec<Entity>) {
     (world, waters)
 }
 
-fn material_of(world: &World, water: Entity) -> Handle<StandardMaterial> {
+fn material_of(world: &World, water: Entity) -> Handle<GateWaterMaterial> {
     world
-        .get::<MeshMaterial3d<StandardMaterial>>(water)
+        .get::<MeshMaterial3d<GateWaterMaterial>>(water)
         .unwrap()
         .0
         .clone()

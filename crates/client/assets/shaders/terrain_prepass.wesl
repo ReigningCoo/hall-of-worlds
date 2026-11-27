@@ -9,8 +9,9 @@ struct Sky {
     origin_a: vec2<f32>,
     origin_b: vec2<f32>,
     extent: f32,
-    blend: f32,
-    time: f32,
+    // How far between the moments when written, and Bevy's clock then.
+    blend_from: f32,
+    written: f32,
     cloud_height: f32,
     half: f32,
     right: vec2<f32>,

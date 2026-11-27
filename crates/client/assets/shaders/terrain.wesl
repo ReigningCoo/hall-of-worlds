@@ -3,6 +3,7 @@
 
 import bevy_pbr::render::{
     forward_io::{FragmentOutput, VertexOutput},
+    mesh_view_bindings::globals,
     pbr_fragment::pbr_input_from_standard_material,
     pbr_functions::{alpha_discard, apply_pbr_lighting, main_pass_post_lighting_processing},
 };
@@ -11,8 +12,9 @@ struct Sky {
     origin_a: vec2<f32>,
     origin_b: vec2<f32>,
     extent: f32,
-    blend: f32,
-    time: f32,
+    // How far between the moments when written, and Bevy's clock then.
+    blend_from: f32,
+    written: f32,
     cloud_height: f32,
     half: f32,
     right: vec2<f32>,
@@ -28,12 +30,24 @@ struct Sky {
 @group(constants::MATERIAL_BIND_GROUP) @binding(102) var sky_sampler: sampler;
 @group(constants::MATERIAL_BIND_GROUP) @binding(103) var sky_b: texture_2d<f32>;
 
+// How far from the first moment of the sky to the second, now: from when the
+// material was written, by Bevy's clock, so it needn't change every frame
+// (`world_map/sky/update.rs`).
+fn blend_now() -> f32 {
+    var since = globals.time - sky.written;
+    // Bevy's clock wraps (`still.w` seconds).
+    if since < 0.0 {
+        since += sky.still.w;
+    }
+    return clamp(sky.blend_from + since * sky.still.z, 0.0, 1.0);
+}
+
 // The sky here: two moments of it, faded between so it changes smoothly.
 fn sky_at(place: vec2<f32>) -> vec4<f32> {
     return mix(
         textureSample(sky_a, sky_sampler, (place - sky.origin_a) / sky.extent),
         textureSample(sky_b, sky_sampler, (place - sky.origin_b) / sky.extent),
-        sky.blend,
+        blend_now(),
     );
 }
 
@@ -158,7 +172,8 @@ fn fragment(in: VertexOutput, @builtin(front_facing) is_front: bool) -> Fragment
         // Two layers of slow ripples, rougher and greyer under a storm.
         let rough = above.g;
         let speed = 0.25 + 0.75 * above.r + rough;
-        let time = sky.still.y;
+        // Still with Reduce Motion (`still.y` 0).
+        let time = globals.time * sky.still.y;
         let wrapped = place.xz % 4096.0;
         let small = smooth_noise(TURN * wrapped / 6.0 + vec2<f32>(time * 0.11, time * 0.07) * speed);
         let large = smooth_noise(TURN * TURN * wrapped / 19.0 - vec2<f32>(time * 0.05, time * -0.03) * speed);

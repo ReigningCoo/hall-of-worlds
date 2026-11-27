@@ -141,10 +141,18 @@ pub(super) fn update(
 
     // The edge faces are unlit, so their colours match the prototype's: they
     // only need dimming, or they would glow at night.
-    if let Some(mut material) = materials.get_mut(&faces.0) {
-        let lit = sky.lit().max(Vec3::splat(graphics.least_light()));
-        let lit = lit.lerp(FLASH_COLOUR * FLASH_LIT, lightning.0);
-        material.base_color = Color::linear_rgb(lit.x, lit.y, lit.z);
+    // Only when it would look different: changing a material every frame made
+    // the web build make new buffers every frame.
+    let lit = sky.lit().max(Vec3::splat(graphics.least_light()));
+    let lit = lit.lerp(FLASH_COLOUR * FLASH_LIT, lightning.0);
+    let colour = LinearRgba::rgb(lit.x, lit.y, lit.z);
+    let stale = materials.get(&faces.0).is_some_and(|material| {
+        !LinearRgba::from(material.base_color)
+            .to_vec4()
+            .abs_diff_eq(colour.to_vec4(), 1.0 / 512.0)
+    });
+    if stale && let Some(mut material) = materials.get_mut(&faces.0) {
+        material.base_color = colour.into();
     }
 }
 

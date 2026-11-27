@@ -1,6 +1,9 @@
-//! Keeping the lit water's flow clock (`mesh::flow`): seconds, wrapping every
-//! `PERIOD`, so the picture of water on raised wilderness ground moves
-//! downhill. Still with Reduce Motion (owner) and off the wilderness.
+//! Turning the lit water's flow on and off (`mesh::flow`), so the picture of
+//! water on raised wilderness ground moves downhill. The shader keeps the time
+//! itself (`sight_mask.wesl`, from Bevy's globals), so the material changes only
+//! when flowing starts or stops: changing it every frame made the web build
+//! make new buffers every frame. Still with Reduce Motion (owner) and off the
+//! wilderness.
 
 use bevy::prelude::*;
 
@@ -9,30 +12,19 @@ use super::parts::SurfaceMaterials;
 use super::sight_lines::SurfaceMaterial;
 use crate::common::{DrawnGround, Preferences};
 
-/// How often the flow clock wraps, in seconds: every band's speed is a whole
-/// number of pictures in it (`SLOWEST_FLOW` in `sight_mask.wesl`), so the
-/// picture never jumps.
-const PERIOD: f32 = 8.0;
-
-/// Sets the lit water's flow clock each frame.
+/// Starts or stops the lit water flowing.
 pub(super) fn run_flow(
-    time: Res<Time>,
     preferences: Res<Preferences>,
     heights: Res<DrawnGround>,
     surfaces: Res<SurfaceMaterials>,
     mut materials: ResMut<Assets<SurfaceMaterial>>,
 ) {
     let flowing = heights.slopes() && !preferences.graphics.reduce_motion;
-    let seconds = match flowing {
-        // Never quite 0, which means still.
-        true => (time.elapsed_secs() % PERIOD).max(1.0e-3),
-        false => 0.0,
-    };
     let water = &surfaces.solid[Surface::Water as usize];
-    let current = materials.get(water).map(|m| m.extension.flow_time());
-    if current.is_some_and(|now| now != seconds)
+    let current = materials.get(water).map(|m| m.extension.flowing());
+    if current.is_some_and(|now| now != flowing)
         && let Some(mut material) = materials.get_mut(water)
     {
-        material.extension.set_flow_time(seconds);
+        material.extension.set_flowing(flowing);
     }
 }
