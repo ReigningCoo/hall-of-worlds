@@ -9,7 +9,7 @@ use shared::sheet::Attribute;
 
 use super::difficulty::{DifficultyBox, IronmanAnswer, IronmanRequester};
 use super::picture::PIXELS;
-use crate::dom::{Template, document};
+use crate::dom::{OwnPointer, Template, document};
 use crate::html;
 use crate::widgets::{INK, Pressable, TextSize, UiId};
 
@@ -133,7 +133,12 @@ pub(super) fn bind_screen(
             "ironman_no" => bound.insert(IronmanAnswer(false)),
             "triangles" => {
                 let picture = images.add(blank_picture());
-                let chooser = (Chooser(picture.clone()), ImageNode::new(picture), Pressable);
+                let chooser = (
+                    Chooser(picture.clone()),
+                    ImageNode::new(picture),
+                    Pressable,
+                    OwnPointer,
+                );
                 bound.insert(chooser).with_children(spawn_corner_labels)
             }
             _ => continue,
