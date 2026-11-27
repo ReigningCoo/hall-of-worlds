@@ -4,7 +4,7 @@
 //! viewer's, what it asks of its wearer (what the viewer falls short of as a
 //! warning), what a key remembers
 //! (with the runes of the planet it was found on, if not this one), its
-//! weight, and for staff with debug tools its id with a copy button
+//! weight with its value beside it (`value.rs`), and for staff with debug tools its id with a copy button
 //! (`copy.rs`).
 
 use super::about::about;
@@ -13,6 +13,7 @@ use super::needs::{Viewer, need_lines};
 use super::open::{FORM, ItemPopups};
 use super::set::{set_lines, show_set};
 use super::size::size_line;
+use super::value::{show_value, value_pieces};
 use super::words::bonus_lines;
 use crate::common::{NO_QUALITY_NAME, quality_colour};
 use crate::dom::{Dom, Template};
@@ -43,7 +44,29 @@ pub(super) static ITEM_POPUP: Template = html!(
     <p id="unmet" class="warning" max-width="300" hidden>.</p>
     <p id="keys" max-width="300" hidden>.</p>
     <img id="planet" hidden/>
-    <p id="weight">.</p>
+    <span class="columns" nowrap valign="middle">
+      <p id="weight" fills>.</p>
+      <span id="value" class="columns" nowrap valign="middle" hidden/>
+    </span>
+    <template id="coin_gold">
+      <span id="coin_gold" class="joined" nowrap valign="middle">
+        <img class="gold" src="icon:delapouite/token" width="16" height="16"/>
+        <p id="gold_count">.</p>
+      </span>
+    </template>
+    <template id="coin_silver">
+      <span id="coin_silver" class="joined" nowrap valign="middle">
+        <img class="silver" src="icon:delapouite/token" width="16" height="16"/>
+        <p id="silver_count">.</p>
+      </span>
+    </template>
+    <template id="coin_copper">
+      <span id="coin_copper" class="joined" nowrap valign="middle">
+        <img class="copper" src="icon:delapouite/token" width="16" height="16"/>
+        <p id="copper_count">.</p>
+      </span>
+    </template>
+    <template id="value_words"><p id="value_words"/></template>
     <span id="id_row" class="columns" nowrap valign="middle" hidden>
       <p id="item_id">.</p>
       <div id="copy_holder" width="28" height="28"/>
@@ -104,6 +127,7 @@ pub(super) fn fill(
     dom.set_flag(&id("planet"), "hidden", keys.runes.is_none());
     let weight = weight_words(pointed.item.total_weight(), None);
     dom.set_text(&id("weight"), weight);
+    show_value(dom, &form, value_pieces(&pointed.item, lang));
     dom.set_flag(&id("id_row"), "hidden", !staff);
     dom.set_text(&id("item_id"), of.to_string());
 }
