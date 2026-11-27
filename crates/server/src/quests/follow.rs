@@ -41,11 +41,19 @@ pub(crate) struct Seen {
     pub(super) escort_gait: Option<Option<shared::movement::Gait>>,
     /// Where they were on the world map, for someone escorted a step behind.
     pub(super) trail: super::escort_look::Trail,
+    /// Their inventory has changed since gathering steps were last counted
+    /// (`herbs`).
+    inventory_changed: bool,
 }
 
 impl Seen {
     pub(crate) fn town(&self) -> Option<ChunkPos> {
         self.town
+    }
+
+    /// What they carry has changed: gathering steps are counted again.
+    pub(crate) fn inventory_changed(&mut self) {
+        self.inventory_changed = true;
     }
 
     pub(crate) fn ask_planet_log(&mut self, world: WorldId) {
@@ -75,6 +83,7 @@ fn follow_one(client: &mut Client, world: &mut ServerWorld, now: i64) {
     if client.quest_seen.world != client.world {
         client.quest_seen = Seen {
             world: client.world,
+            inventory_changed: true,
             ..Seen::default()
         };
         // Learned here, so the Quest Log can name the planet from anywhere.
@@ -84,6 +93,9 @@ fn follow_one(client: &mut Client, world: &mut ServerWorld, now: i64) {
             .link
             .send(&shared::protocol::ServerMessage::Quest(whole));
         super::ahead::tell_ahead(client, world);
+    }
+    if std::mem::take(&mut client.quest_seen.inventory_changed) {
+        super::herbs::recount_all(client, world, now);
     }
     let in_hall = client.character.hall.is_some();
     if in_hall && !client.quest_seen.hall {

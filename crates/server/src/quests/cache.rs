@@ -46,10 +46,6 @@ impl TownQuests {
         }
     }
 
-    pub(super) fn roads(&self) -> &Roads {
-        &self.roads
-    }
-
     /// A town's quests, if they have been worked out already.
     pub(super) fn kept(&self, chunk: ChunkPos) -> Option<&Town> {
         self.towns.get(&chunk)
@@ -66,26 +62,14 @@ pub(crate) fn town(world: &mut ServerWorld, chunk: ChunkPos) -> Option<Town> {
         .in_chunk(chunk)
         .filter(|poi| poi.kind.is_town())?;
     let buildings = town_buildings(world, &poi);
-    let moons = world.moon_count();
-    let ServerWorld {
-        pois,
-        ground,
-        quests,
-        ..
-    } = world;
-    let name_of =
-        |poi: &Poi| shared::place_name::place_name(poi.kind, poi.seed, ground.metres(poi.x, poi.y));
-    let quest_world = QuestWorld {
-        pois,
-        roads: &quests.roads,
-        name_of: &name_of,
-        moons,
-    };
     let made = Town {
         poi,
-        quests: Arc::new(town_quests(&quest_world, &poi, &buildings)),
+        quests: Arc::new(with_quest_world(world, |view| {
+            town_quests(view, &poi, &buildings)
+        })),
         buildings: Arc::new(buildings),
     };
+    let quests = &mut world.quests;
     if quests.towns.len() >= MOST_TOWNS {
         quests.towns.clear();
     }
@@ -105,27 +89,32 @@ pub(crate) fn daily(
         return found.clone();
     }
     let town = town(world, chunk)?;
-    let moons = world.moon_count();
-    let ServerWorld {
-        pois,
-        ground,
-        quests,
-        ..
-    } = world;
-    let name_of =
-        |poi: &Poi| shared::place_name::place_name(poi.kind, poi.seed, ground.metres(poi.x, poi.y));
-    let quest_world = QuestWorld {
-        pois,
-        roads: &quests.roads,
-        name_of: &name_of,
-        moons,
-    };
-    let made = daily_quest(&quest_world, &town.poi, &town.buildings, building, day).map(Arc::new);
+    let made = with_quest_world(world, |view| {
+        daily_quest(view, &town.poi, &town.buildings, building, day).map(Arc::new)
+    });
+    let quests = &mut world.quests;
     if quests.dailies.len() >= MOST_TOWNS {
         quests.dailies.clear();
     }
     quests.dailies.insert(key, made.clone());
     made
+}
+
+/// What the generator reads of `world` (`QuestWorld`), handed to `then`:
+/// places' names, the moons, the server's herbs and the land at each poi.
+pub(super) fn with_quest_world<R>(world: &ServerWorld, then: impl FnOnce(&QuestWorld) -> R) -> R {
+    let ground = &world.ground;
+    let name_of =
+        |poi: &Poi| shared::place_name::place_name(poi.kind, poi.seed, ground.metres(poi.x, poi.y));
+    let habitat_of = |poi: &Poi| world.habitat_of_poi(poi);
+    then(&QuestWorld {
+        pois: &world.pois,
+        roads: &world.quests.roads,
+        name_of: &name_of,
+        moons: world.moon_count(),
+        herbs: &world.herbs,
+        habitat_of: &habitat_of,
+    })
 }
 
 /// A quest by its id, made again from its town's seed.

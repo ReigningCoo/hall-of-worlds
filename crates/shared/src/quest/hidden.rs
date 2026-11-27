@@ -72,6 +72,7 @@ pub(super) fn plan_hidden(
         count,
         after: Vec::new(),
         alternatives: Vec::new(),
+        herb: None,
     };
     Some(Plan {
         steps: vec![

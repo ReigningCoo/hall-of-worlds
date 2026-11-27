@@ -34,6 +34,13 @@ fn member(args: Args, lang: &Lang, member: &Member) -> Result<Args, RenderError>
     Ok(args)
 }
 
+/// A herb written into text as an item, `${kind:herb:<key>}`, so it shows
+/// with its picture and popup.
+fn herb_token(key: &str) -> String {
+    let wanted = crate::cooking::Wanted::One(crate::cooking::Source::Herb, key.to_owned());
+    crate::item_text::KindToken::Food(wanted).token()
+}
+
 /// The reward in words: "3 gold coins, a ring and training".
 pub(super) fn reward(lang: &Lang, parts: &[RewardPart]) -> Result<String, RenderError> {
     let mut words = Vec::new();
@@ -115,7 +122,9 @@ impl Story {
                 .text("destination-direction", lang.phrase(&to.direction)?)
                 .text("destination-distance", lang.phrase(&to.distance)?);
         }
-        if let Some(item) = &facts.item {
+        if let Some(herb) = &facts.herb {
+            args = args.text("items", herb_token(herb));
+        } else if let Some(item) = &facts.item {
             let plural = format!("{}-{}.plural", item.fact(), item.key());
             args = args.text("items", lang.render(&plural, &Args::new())?);
         }

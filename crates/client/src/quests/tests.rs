@@ -32,6 +32,7 @@ pub(crate) fn entry(state: QuestState, counts: Vec<u32>) -> LogEntry {
         count: None,
         after,
         alternatives: Vec::new(),
+        herb: None,
     };
     LogEntry {
         id: QuestId {

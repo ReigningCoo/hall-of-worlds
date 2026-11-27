@@ -10,8 +10,8 @@ fn fingerprint(quest: &Quest) -> String {
     let steps: Vec<String> = (quest.steps.iter())
         .map(|step| {
             format!(
-                "{:?} {:?} {:?} {:?}",
-                step.goal, step.target, step.count, step.after
+                "{:?} {:?} {:?} {:?} {:?}",
+                step.goal, step.target, step.count, step.after, step.herb
             )
         })
         .collect();
@@ -32,8 +32,10 @@ fn golden_quests() {
 
 /// Changed 2026-11-13 (quests PR 8a, quest dungeons): a roll for a cellar
 /// of the giver's own comes before each quest's hook, so towns' quests move.
+/// 2026-11-27 (herb gathering): steps show their herb; gathering steps draw
+/// their herb after their count, so later quests of a town with one move.
 const GOLDEN: &[&str] = &[
-    "Giver { building: 0, slot: 0, chain: 0 } 0 [\"Slay Poi { chunk: ChunkPos { x: 9, y: 1 }, hook: Kills(Lizardfolk) } Some(4) []\"] [Coins(40)] Rumour",
-    "Giver { building: 0, slot: 0, chain: 1 } 0 [\"Visit Poi { chunk: ChunkPos { x: 11, y: 1 }, hook: Visit } None []\"] [Coins(35)] Rumour",
-    "Giver { building: 1, slot: 0, chain: 0 } 0 [\"Explore Poi { chunk: ChunkPos { x: 11, y: 0 }, hook: Explore } None []\", \"Find Poi { chunk: ChunkPos { x: 11, y: 0 }, hook: Item } None [0]\"] [Coins(75), Training] Family",
+    "Giver { building: 0, slot: 0, chain: 0 } 0 [\"Slay Poi { chunk: ChunkPos { x: 9, y: 1 }, hook: Kills(Lizardfolk) } Some(4) [] None\"] [Coins(40)] Rumour",
+    "Giver { building: 0, slot: 0, chain: 1 } 0 [\"Visit Poi { chunk: ChunkPos { x: 11, y: 1 }, hook: Visit } None [] None\"] [Coins(35)] Rumour",
+    "Giver { building: 1, slot: 0, chain: 0 } 0 [\"Explore Poi { chunk: ChunkPos { x: 11, y: 0 }, hook: Explore } None [] None\", \"Find Poi { chunk: ChunkPos { x: 11, y: 0 }, hook: Item } None [0] None\"] [Coins(75), Training] Family",
 ];

@@ -49,9 +49,10 @@ pub(super) fn artifact_line(
     };
     let length = rng.range_u64(SHORTEST, LONGEST + 1) as usize;
     let mut plans: Vec<Plan> = Vec::new();
+    let shops = super::town::shops_of(buildings);
     for step in 0..length - 1 {
         let neighbour = neighbours[(first + step) % neighbours.len()];
-        if let Some(plan) = plan_near(world, &neighbour, &mut rng) {
+        if let Some(plan) = plan_near(world, &neighbour, &shops, &mut rng) {
             plans.push(plan);
         }
     }
@@ -121,9 +122,15 @@ fn giver(city: &Poi, buildings: &[BuildingLook], rng: &mut Rng) -> Option<u16> {
 }
 
 /// A whole quest round `neighbour`, on shared hooks only (as dailies are), so
-/// the neighbour's own quests keep their bosses, items and lost ones.
-fn plan_near(world: &QuestWorld, neighbour: &Poi, rng: &mut Rng) -> Option<Plan> {
-    let candidates: Vec<Candidate> = town_candidates(world, neighbour, true);
+/// the neighbour's own quests keep their bosses, items and lost ones. `shops`:
+/// the city's, as it is the city's giver who asks.
+fn plan_near(
+    world: &QuestWorld,
+    neighbour: &Poi,
+    shops: &[BuildingKind],
+    rng: &mut Rng,
+) -> Option<Plan> {
+    let candidates: Vec<Candidate> = town_candidates(world, neighbour, true, shops);
     let weights: Vec<(usize, u64)> = (candidates.iter().enumerate())
         .map(|(i, c)| (i, c.weight))
         .collect();
@@ -131,5 +138,5 @@ fn plan_near(world: &QuestWorld, neighbour: &Poi, rng: &mut Rng) -> Option<Plan>
         return None;
     }
     let main = candidates[rng.pick_weighted(&weights)];
-    Some(plan(neighbour, &main, &candidates, rng))
+    Some(plan(world, neighbour, shops, &main, &candidates, rng))
 }

@@ -37,7 +37,8 @@ pub fn daily_quest(
     if !daily_givers(town, buildings).contains(&building) {
         return None;
     }
-    let candidates = town_candidates(world, town, true);
+    let shops = super::town::shops_of(buildings);
+    let candidates = town_candidates(world, town, true, &shops);
     let seed = Seed::new((quest_seed(town).derive("daily")).at(&[i64::from(building), day]));
     let mut rng = seed.derive("plan").rng();
     let weights: Vec<(usize, u64)> = (candidates.iter().enumerate())
@@ -47,7 +48,7 @@ pub fn daily_quest(
         super::dungeon::plan_cellar(town, true, &mut rng)
     } else {
         let main = candidates[rng.pick_weighted(&weights)];
-        plan(town, &main, &candidates, &mut rng)
+        plan(world, town, &shops, &main, &candidates, &mut rng)
     };
     let making = Making {
         id: QuestId {

@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{DungeonWay, Hook};
+use super::{DungeonWay, HerbAsk, Hook};
 use crate::poi::ChunkPos;
 use crate::skill::SkillId;
 use crate::story::Goal;
@@ -72,6 +72,9 @@ pub struct Step {
     pub after: Vec<u8>,
     /// Other ways of doing it.
     pub alternatives: Vec<Alternative>,
+    /// The herb a gathering step asks for (`HerbAsk`); `None` for every
+    /// other step, a creature part's "Gather" included.
+    pub herb: Option<HerbAsk>,
 }
 
 impl Step {

@@ -56,6 +56,10 @@ pub(super) fn make(
         daily,
     };
     let mut telling = tell_plan(world, town, plan, tale);
+    // The herb a gathering step asks for is named, as an item.
+    telling.story.facts.herb = (plan.steps.iter())
+        .find_map(|step| step.herb.as_ref())
+        .map(|ask| ask.herb.clone());
     telling.story.part = (making.parts > 1).then_some(Part {
         number: making.chain + 1,
         of: Some(making.parts),

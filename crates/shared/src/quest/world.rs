@@ -1,5 +1,7 @@
 //! What the generator reads of the world, and the sizes of towns' reach.
 
+use crate::herb::Herbs;
+use crate::mob::Habitat;
 use crate::poi::{CHUNK_SIZE, Poi, PoiKind, PoiMap};
 use crate::road::{RoadKind, Roads};
 
@@ -14,6 +16,11 @@ pub struct QuestWorld<'a> {
     /// How many moons the world has (`Celestial::moon_count`), for quests
     /// that wait for one in the sky.
     pub moons: u8,
+    /// The server's herbs (mods included), for gathering steps' herbs.
+    pub herbs: &'a Herbs,
+    /// The land at a poi (`ServerWorld::habitat_of_poi`): which herbs grow
+    /// wild round it.
+    pub habitat_of: &'a dyn Fn(&Poi) -> Habitat,
 }
 
 /// The largest `radius`, in chunks: how far a poi may be from a town whose

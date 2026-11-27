@@ -152,6 +152,7 @@ pub(super) fn plan_cellar(town: &Poi, daily: bool, rng: &mut Rng) -> Plan {
         count,
         after: Vec::new(),
         alternatives: Vec::new(),
+        herb: None,
     };
     let mut steps = vec![step(Goal::Slay, Hook::Kills(creatures), Some(count))];
     if levels > 1 {

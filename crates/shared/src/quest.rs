@@ -15,6 +15,7 @@ mod dungeon;
 mod feeder;
 mod feeder_quest;
 mod givers;
+mod herb_ask;
 mod hidden;
 mod hook;
 mod id;
@@ -42,6 +43,7 @@ pub use daily::{SECONDS_PER_DAY, daily_givers, daily_quest, utc_day};
 pub use dungeon::{DUNGEON_KIND, DungeonWay, HIDDEN_KIND, QuestDungeon};
 pub use feeder::{feeder_destination, feeds_into};
 pub use givers::{Giver, givers};
+pub use herb_ask::{HerbAsk, RARER_PERCENT};
 pub use hook::Hook;
 pub use id::{QuestId, Slot};
 pub use kind::QuestKind;
@@ -60,6 +62,8 @@ mod artifact_tests;
 mod dungeon_tests;
 #[cfg(test)]
 mod golden_tests;
+#[cfg(test)]
+mod herb_tests;
 #[cfg(test)]
 mod neighbour_tests;
 #[cfg(test)]

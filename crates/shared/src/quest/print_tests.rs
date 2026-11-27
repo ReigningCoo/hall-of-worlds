@@ -25,11 +25,12 @@ pub(super) fn print(lang: &Lang, quest: &Quest) -> String {
     }
     for (index, step) in quest.steps.iter().enumerate() {
         text += &format!(
-            "- {}   ({:?}, after {:?}, ways {:?})\n",
+            "- {}   ({:?}, after {:?}, ways {:?}{})\n",
             story.step_text(lang, index, 0).unwrap(),
             step.target,
             step.after,
             step.alternatives.iter().map(|a| a.way).collect::<Vec<_>>(),
+            (step.herb.as_ref()).map_or(String::new(), |ask| format!(", at least {:?}", ask.least)),
         );
     }
     text += &format!("- {}\n", story.return_text(lang).unwrap());

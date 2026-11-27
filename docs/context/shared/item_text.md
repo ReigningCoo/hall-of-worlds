@@ -24,7 +24,7 @@ Items written into text as `${item:<uuid>}`, and kinds of item as `${kind:<kind>
 
 ## Used by
 
-- Client `widgets` (item text and text boxes), `dom` (whether writing has any), `item_text`; recipes' reading panel (recipes plan PR 4).
+- `shared::story` (a quest's gathering herb, `${kind:herb:<key>}`), client `widgets` (item text and text boxes), `dom` (whether writing has any), `item_text`; recipes' reading panel (recipes plan PR 4).
 
 ## Notes
 

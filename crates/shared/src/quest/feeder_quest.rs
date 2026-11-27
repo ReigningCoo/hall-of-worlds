@@ -50,6 +50,7 @@ pub(super) fn feeder_quest(
             count: None,
             after: Vec::new(),
             alternatives: Vec::new(),
+            herb: None,
         }],
         item: Some(SENT[rng.range_u64(0, SENT.len() as u64) as usize]),
         destination: Some(destination),

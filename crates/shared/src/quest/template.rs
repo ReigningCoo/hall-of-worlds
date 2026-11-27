@@ -3,13 +3,16 @@
 //! from the poi's own seed, as everyone sees the same ones.
 
 use super::area::Candidate;
+use super::herb_ask::choose_ask;
 use super::hook::slain_with_weights;
 use super::plan::Plan;
+use super::town::herb_choices;
 use super::world::size;
-use super::{Alternative, Hook, Step, Target, Way};
+use super::{Alternative, Hook, QuestWorld, Step, Target, Way};
 use crate::item::Quality;
 use crate::poi::Poi;
 use crate::rng::{Rng, Seed};
+use crate::site::BuildingKind;
 use crate::skill::SkillId;
 use crate::story::{Boss, Goal, ItemCategory, Pet};
 
@@ -19,8 +22,18 @@ const PAIRED_PERCENT: u64 = 35;
 const PET_PERCENT: u64 = 60;
 
 /// The plan for a quest on `main`, perhaps pairing it with one of `others`
-/// at the same poi. `town` is the giver's town.
-pub(super) fn plan(town: &Poi, main: &Candidate, others: &[Candidate], rng: &mut Rng) -> Plan {
+/// at the same poi. `town` is the giver's town (or, on a city's artifact
+/// line, the neighbour it is round); `shops` the giver's town's buildings'
+/// kinds, whose stock gathering never asks for.
+pub(super) fn plan(
+    world: &QuestWorld,
+    town: &Poi,
+    shops: &[BuildingKind],
+    main: &Candidate,
+    others: &[Candidate],
+    rng: &mut Rng,
+) -> Plan {
+    let gather = Gathering { world, shops };
     let poi = main.poi;
     let mut plan = Plan {
         place: Some(poi),
@@ -31,15 +44,21 @@ pub(super) fn plan(town: &Poi, main: &Candidate, others: &[Candidate], rng: &mut
         .flatten();
     let mut after = Vec::new();
     if let Some(first) = paired {
-        add(&mut plan, town, first, Vec::new(), rng);
+        add(&mut plan, town, &gather, first, Vec::new(), rng);
         // The guards before their boss, or the way down before a find, in
         // series; anything else alongside.
         if main.hook == Hook::Boss || first.hook == Hook::Explore {
             after.push(0);
         }
     }
-    add(&mut plan, town, *main, after, rng);
+    add(&mut plan, town, &gather, *main, after, rng);
     plan
+}
+
+/// What a gathering step's herb is chosen by.
+struct Gathering<'w, 'a> {
+    world: &'w QuestWorld<'a>,
+    shops: &'w [BuildingKind],
 }
 
 /// A second step for `main`: counted kills, or exploring, at the same poi.
@@ -60,7 +79,14 @@ fn partner(main: &Candidate, others: &[Candidate], rng: &mut Rng) -> Option<Cand
 }
 
 /// Adds the step `candidate` makes, and what the story needs for it.
-fn add(plan: &mut Plan, town: &Poi, candidate: Candidate, after: Vec<u8>, rng: &mut Rng) {
+fn add(
+    plan: &mut Plan,
+    town: &Poi,
+    gather: &Gathering,
+    candidate: Candidate,
+    after: Vec<u8>,
+    rng: &mut Rng,
+) {
     let poi = candidate.poi;
     let target = if candidate.is_wilds() {
         Target::Wilds { chunk: poi.chunk }
@@ -77,6 +103,7 @@ fn add(plan: &mut Plan, town: &Poi, candidate: Candidate, after: Vec<u8>, rng: &
         count: None,
         after,
         alternatives: Vec::new(),
+        herb: None,
     };
     match candidate.hook {
         Hook::Boss => {
@@ -121,6 +148,9 @@ fn add(plan: &mut Plan, town: &Poi, candidate: Candidate, after: Vec<u8>, rng: &
             step.goal = Goal::Gather;
             step.count = Some(rng.range_u64(5, 11) as u32);
             plan.item = Some(ItemCategory::Herb);
+            // Candidates are only made where a herb fits (`town_candidates`).
+            let choices = herb_choices(gather.world, &poi, gather.shops);
+            step.herb = choose_ask(&choices, rng);
         }
     }
     if candidate.hook.is_exclusive() {
