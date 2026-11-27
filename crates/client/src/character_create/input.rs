@@ -11,6 +11,7 @@ use super::draft::Draft;
 use super::geometry::{angle_round_middle, corners, dot_at, dot_place, near_triangle, turned_by};
 use super::screen::Chooser;
 use crate::common::{TouchGesture, UiPointer, in_interface};
+use crate::dom::Hit;
 use crate::widgets::{ButtonPressed, TextFocus};
 
 /// How near a triangle a press still takes its dot, in the chooser's units.
@@ -78,7 +79,8 @@ fn follow(holding: Holding, point: Vec2, draft: &mut Draft) {
 #[allow(clippy::too_many_arguments)]
 pub(super) fn point_at_triangles(
     mut pressed: MessageReader<ButtonPressed>,
-    mouse: Res<ButtonInput<MouseButton>>,
+    mut mouse: ResMut<ButtonInput<MouseButton>>,
+    hit: Res<Hit>,
     pointer: Res<UiPointer>,
     gesture: Res<TouchGesture>,
     ui_scale: Res<UiScale>,
@@ -87,8 +89,16 @@ pub(super) fn point_at_triangles(
     mut draft: ResMut<Draft>,
 ) {
     let (entity, node, transform) = *chooser;
-    let pressed_here = pressed.read().any(|press| press.0 == entity);
-    // A finger sliding from the chooser holds it too: panels take slides.
+    // The picture reads the pointer itself (`dom::OwnPointer`), so a click or
+    // tap on it is left as a press for this; `ButtonPressed` comes only from
+    // the debug API's `client.ui.press`.
+    let clicked = mouse.just_pressed(MouseButton::Left) && hit.chain.contains(&entity);
+    if clicked {
+        mouse.clear_just_pressed(MouseButton::Left);
+    }
+    let pressed_here = pressed.read().any(|press| press.0 == entity) || clicked;
+    // A finger sliding from the chooser holds it too: being `OwnPointer`,
+    // panels leave the slide for it.
     let start = in_interface(gesture.drag_start, &ui_scale);
     let slid_here = gesture.drag != Vec2::ZERO
         && *holding == Holding::Nothing
