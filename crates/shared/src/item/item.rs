@@ -7,6 +7,7 @@ use crate::creature::{Location, Size};
 use crate::id::Id;
 use crate::item::{Favour, ItemKind, Known, Made, Placed, Quality, Saved, Shape};
 use crate::item_form::ItemForm;
+use crate::item_set::SetPiece;
 use crate::quest::QuestId;
 use crate::world::WorldId;
 
@@ -39,9 +40,9 @@ pub struct Item {
     /// Its own name, if it has one: every artifact does.
     #[serde(default)]
     pub name: Option<String>,
-    /// Part of a set, of whatever quality it is.
+    /// The set it is a piece of, if any (`shared::item_set`).
     #[serde(default)]
-    pub set: bool,
+    pub set: Option<SetPiece>,
     /// What it is physically like, for kinds rolled that way.
     #[serde(default)]
     pub form: Option<ItemForm>,
@@ -82,7 +83,7 @@ impl Item {
             quality: None,
             made_at: None,
             name: None,
-            set: false,
+            set: None,
             form: None,
             favour: None,
             known: Known::default(),

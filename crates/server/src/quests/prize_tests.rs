@@ -4,6 +4,7 @@
 
 use shared::item::{Item, ItemKind, Quality};
 use shared::item_form::ItemForm;
+use shared::item_set::SetPiece;
 use shared::poi::{CHUNK_SIZE, ChunkPos, PoiKind};
 use shared::protocol::OfferState;
 use shared::quest::{Quest, QuestKind, SECONDS_PER_DAY, Slot, daily_givers, set_item_of, utc_day};
@@ -151,13 +152,11 @@ fn the_set_item_is_found_once_then_artifacts_are_paid() {
         }
     }
     let (items, set_item) = prize::prize_items(&test.client, &test.world, &last);
-    let (kind, quality) = set_item_of(test.world.seed.value());
+    let piece = set_item_of(test.world.seed.value());
     assert!(set_item);
-    assert!(
-        items
-            .iter()
-            .any(|item| item.set && item.kind == kind && item.quality == Some(quality))
-    );
+    assert!(items.iter().any(|item| item.set == Some(piece)
+        && Some(item.kind) == piece.kind()
+        && item.quality == Some(piece.quality())));
 
     // Found by another quest: this one now pays an artifact, in its words too.
     let mut other = last.id;
@@ -168,7 +167,7 @@ fn the_set_item_is_found_once_then_artifacts_are_paid() {
     assert!(!seen.story.facts.reward.contains(&RewardPart::SetItem));
     let (items, set_item) = prize::prize_items(&test.client, &test.world, &last);
     assert!(!set_item);
-    assert!(items.iter().all(|item| !item.set));
+    assert!(items.iter().all(|item| item.set.is_none()));
     assert!(
         items
             .iter()
@@ -176,8 +175,16 @@ fn the_set_item_is_found_once_then_artifacts_are_paid() {
     );
 }
 
+/// An item's kind, quality, set and form.
+type What = (
+    ItemKind,
+    Option<Quality>,
+    Option<SetPiece>,
+    Option<ItemForm>,
+);
+
 /// What a prize is, leaving out its id and when it was made.
-fn what(items: &[Item]) -> Vec<(ItemKind, Option<Quality>, bool, Option<ItemForm>)> {
+fn what(items: &[Item]) -> Vec<What> {
     (items.iter())
         .map(|item| (item.kind, item.quality, item.set, item.form.clone()))
         .collect()
@@ -234,7 +241,7 @@ fn handing_in_the_line_pays_its_prize_or_keeps_the_same_one() {
     let prize = prize.expect("its prize, besides coins").item.clone();
     assert_eq!(what(&offered), what(std::slice::from_ref(&prize)));
     if last.reward.contains(&RewardPart::SetItem) {
-        assert!(prize.set);
+        assert!(prize.set.is_some());
         assert_eq!(book.set_item, Some(last.id));
     } else {
         assert_eq!(prize.quality, Some(Quality::Artifact));

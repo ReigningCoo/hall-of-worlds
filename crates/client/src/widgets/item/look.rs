@@ -75,7 +75,7 @@ impl ItemLook {
         Self {
             kind: item.kind,
             quality: item.quality,
-            set: item.set,
+            set: item.set.is_some(),
             picture: look_of(item),
             rotation: Rotation::None,
             aura: Aura::of(item),

@@ -26,9 +26,19 @@ pub const fn quality_steps(quality: Quality) -> usize {
     }
 }
 
+/// How many quality bonuses this item has of its own: set items one fewer
+/// than their quality gives, never fewer than 1 (owner, 2026-11-27), as their
+/// set gives more.
+pub fn own_count(item: &Item, quality: Quality) -> usize {
+    match item.set {
+        Some(_) => quality_steps(quality).saturating_sub(1).max(1),
+        None => quality_steps(quality),
+    }
+}
+
 /// Artifacts and set items: twice as strong, never with a negative.
 pub fn is_unique(item: &Item) -> bool {
-    item.set || item.quality == Some(Quality::Artifact)
+    item.set.is_some() || item.quality == Some(Quality::Artifact)
 }
 
 /// Whether this item can have quality bonuses: gear that is worn or held
@@ -59,7 +69,7 @@ pub fn quality_bonuses(item: &Item) -> Vec<Bonus> {
         .derive(&format!("{quality:?}"));
     let mut rng = seed.rng();
     let mut bonuses = Vec::new();
-    while bonuses.len() < quality_steps(quality) && !left.is_empty() {
+    while bonuses.len() < own_count(item, quality) && !left.is_empty() {
         let at = rng.range_u64(0, left.len() as u64) as usize;
         bonuses.push(left.remove(at));
     }

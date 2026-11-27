@@ -543,14 +543,15 @@ fn only_things_with_quality_can_be_part_of_a_set() {
             to: None,
         })
     };
-    test.send(&[give(ItemKind::Hat), give(ItemKind::Bread)]);
+    test.send(&[give(ItemKind::Helmet), give(ItemKind::Bread)]);
     let set_of = |kind| {
         let carried = test.client.inventory.items.iter();
         let mut carried = carried.filter(|placed| placed.item.kind == kind);
         carried.next_back().unwrap().item.set
     };
-    assert!(set_of(ItemKind::Hat));
-    assert!(!set_of(ItemKind::Bread));
+    let piece = set_of(ItemKind::Helmet).expect("a piece of a set with helmets");
+    assert_eq!(piece.kind(), Some(ItemKind::Helmet));
+    assert!(set_of(ItemKind::Bread).is_none());
 }
 
 #[test]

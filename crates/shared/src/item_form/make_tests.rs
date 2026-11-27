@@ -45,12 +45,12 @@ fn what_is_asked_for_is_kept_where_the_kind_allows_it() {
         quality: Quality::Common,
         set: true,
         favour: Some(Favour::Blessed),
-        ..ItemOrder::plain(ItemKind::Hat, Quality::Common)
+        ..ItemOrder::plain(ItemKind::Helmet, Quality::Common)
     };
     let hat = made(&order, 1, 1);
     assert_eq!(hat.made.size, Size::Large);
     assert!(hat.is_magical(), "magic raises the quality enough for it");
-    assert!(hat.set);
+    assert!(hat.set.is_some(), "a piece of a set with helmets");
     assert_eq!(hat.favour, Some(Favour::Blessed));
     let apple = made(
         &ItemOrder {
@@ -61,7 +61,7 @@ fn what_is_asked_for_is_kept_where_the_kind_allows_it() {
         1,
     );
     assert_eq!(apple.made.size, Size::Medium);
-    assert!(!apple.set && apple.favour.is_none() && !apple.is_magical());
+    assert!(apple.set.is_none() && apple.favour.is_none() && !apple.is_magical());
 }
 
 #[test]
