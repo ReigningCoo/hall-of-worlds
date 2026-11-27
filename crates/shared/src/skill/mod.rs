@@ -21,6 +21,7 @@ mod rust;
 mod save_format;
 mod saved_node;
 mod tree;
+mod unpractise;
 mod window;
 
 pub use dev::{DEV_LEARN_PERCENT, practice_for};
@@ -37,3 +38,5 @@ mod dev_tests;
 mod rust_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod unpractise_tests;

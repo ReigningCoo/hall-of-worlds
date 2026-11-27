@@ -17,13 +17,14 @@ The skill tree as data: every node (Combat › Melee › Longsword › Longsword
 - `skill/window.rs`: `Windows`, `WINDOW_TICKS`.
 - `skill/familiar.rs`: `familiarity`, `taught`, `FAMILIAR_HALVING`.
 - `skill/save_format.rs`: how `Skills` is written in saves and messages.
+- `skill/unpractise.rs`: `Skills::unpractise` (negative practice, trading plan). Tests in `unpractise_tests.rs`.
 - `skill/dev.rs`: dev tools' changes (Learn Skills): `practice_for(percent)` (the cube), `DEV_LEARN_PERCENT` (10), `Skills::percent`, `set_percent` (that node alone; 0 forgets), `learn` (as practising), `forget` (with everything under), `clear`, `set_all`. Tests in `dev_tests.rs`.
 - `skill/old.rs`: the five skills from before the tree, by name (`old_skill`), and where nodes that moved went (`moved`: the shields, Wild's leaves, Illusion).
 
 ## Public API
 
 - `SkillId`: `all`, `top_levels`, `find(path)`, `name`, `key`, `path`, `parent`, `children`, `depth` (1 at the top), `leans` (its own attributes, or its parent's), `rust` (its own `Rust`, or its parent's), `upwards` (itself, then each node above), `number` / `from_number` (for messages).
-- `Skills`: `starting(kind)`, `practice(id)`, `best(id)`, `knows(id)`, `known()` (parents first), `is_empty`, `practise(id, amount)` (flows up, halving each level; doubled below a node's best), `value(id)` (cube root of practice, in hundredths: 100% is 1,000,000), `total(id)` (values along the path: what a check would count).
+- `Skills`: `starting(kind)`, `practice(id)`, `best(id)`, `knows(id)`, `known()` (parents first), `is_empty`, `practise(id, amount)` (flows up, halving each level; doubled below a node's best), `value(id)` (cube root of practice, in hundredths: 100% is 1,000,000), `total(id)` (values along the path: what a check would count), `unpractise(id, amount)` (negative practice: taken from the node and, halving, from those above it; only known nodes, never below 1, the best kept; for tipping too much, trading plan).
 - Rust (`Skills`): `used(id, played)` (the server, after practising: pushes the clocks of the node and every known node above it to `STEP_EVERY` on, and gives each node it opposes a step if that node's clock has passed; whether anything rusted), `rust(played)` (disuse: a step per `STEP_EVERY` once a node's `disuse_after` has passed since it was used, however often it is asked), `rust_for_hours(hours)` (dying: every known node, clocks untouched), `settle(played)` (on joining: nodes from saves before rust count as used now).
 - `Rust { disuse_after, step_per_mille, floor_per_mille }`: `STEADY` (no disuse; a step is 1% of what is above a floor of half the best), `DISUSED` (also after 8 hours unused: Melee). `HOUR`, `STEP_EVERY` (an hour) in action ticks of playtime.
 - `key_of(name)`: a name as a node's key (lower case, no spaces or hyphens), for finding a weapon's node by its name (`combat`).

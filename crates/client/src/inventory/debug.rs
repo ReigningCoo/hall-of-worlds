@@ -4,7 +4,6 @@ use bevy::prelude::*;
 use shared::item::Holder;
 use shared::protocol::ClientMessage;
 
-use super::give::NearbyPanel;
 use super::hold::Held;
 use super::panels::OpenGrids;
 use super::{Carried, Hand, Holding, InventoryDebug};
@@ -19,8 +18,6 @@ pub(super) fn run_debug(
     carried: Res<Carried>,
     (mut holding, mut object): (ResMut<Holding>, ResMut<crate::dom::HeldObject>),
     mut open: ResMut<OpenGrids>,
-    mut nearby: ResMut<NearbyPanel>,
-    nodes: Query<(), With<Node>>,
     mut commands: Commands,
     mut dom: Dom,
     view: Res<State<GameView>>,
@@ -33,7 +30,6 @@ pub(super) fn run_debug(
         match *asked {
             InventoryDebug::OpenInventory => {
                 open.open(Holder::Inventory, &carried.0, &mut commands, &mut dom);
-                nearby.open(&mut commands, &mut dom, &nodes);
             }
             InventoryDebug::OpenBags => {
                 for placed in &carried.0.items {

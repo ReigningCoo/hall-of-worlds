@@ -310,13 +310,20 @@ fn inventory(answers: &[ServerMessage]) -> Inventory {
 #[test]
 fn a_character_is_told_what_they_carry_on_joining() {
     let first = inventory(&TestClient::new().welcome);
-    // A lantern and a stack of two bottles of oil (`starting_kit`).
+    // A lantern, a stack of two bottles of oil and a gold coin (`starting_kit`).
     let carried: Vec<_> = first.items.iter().map(|placed| &placed.item).collect();
     let kinds: Vec<_> = carried
         .iter()
         .map(|item| (item.kind, item.count()))
         .collect();
-    assert_eq!(kinds, [(ItemKind::Lantern, 1), (ItemKind::Bottle, 2)]);
+    assert_eq!(
+        kinds,
+        [
+            (ItemKind::Lantern, 1),
+            (ItemKind::Bottle, 2),
+            (ItemKind::GoldCoin, 1)
+        ]
+    );
     let kinds: Vec<_> = first.worn.iter().map(|item| item.kind).collect();
     assert_eq!(
         kinds,

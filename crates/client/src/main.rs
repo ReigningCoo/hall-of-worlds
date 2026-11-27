@@ -55,6 +55,7 @@ mod talk;
 mod target;
 mod touch;
 mod tracked_quest;
+mod trade;
 mod tutorial;
 mod ui;
 mod view3d;
@@ -166,6 +167,7 @@ fn main() {
     app.add_plugins(accounts_panel::AccountsPanelPlugin);
     app.add_plugins(quests::QuestsPlugin);
     app.add_plugins(quest_log::QuestLogPlugin);
+    app.add_plugins(trade::TradePlugin);
     app.add_plugins(debug_info::DebugInfoPlugin);
     app.add_plugins(tracked_quest::TrackedQuestPlugin);
     app.add_plugins(app_icon::AppIconPlugin);

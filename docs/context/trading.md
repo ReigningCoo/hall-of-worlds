@@ -39,16 +39,16 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 
 ## Other
 
-- The Trading skill, under Social.
+- The Trading skill, under Social (`social/trading`, built; it was already in the tree). Negative practice (`Skills::unpractise`, built in PR 2): flows up halving as practice does, never below 1 on a known node, the best kept.
 - Beggars (`CreatureKind::Beggar`): the first NPCs in the list; giving them coins (their side empty) raises town standing slightly, by amount, with a daily cap.
-- New characters get 1 gold for testing (to be lowered to a real starting amount); the Nearby panel (`inventory/give.rs`) is removed (speaking to and trading with any NPC later).
+- New characters get 1 gold for testing (to be lowered to a real starting amount; the server's `starting_kit.rs`); the Nearby panel (`inventory/give.rs`) is removed (speaking to and trading with any NPC later). Built in PR 2, with the T key and the trade button opening an empty window (`client: trade`) for PRs 4 and 6 to fill.
 
 ## PRs
 
 | # | What | |
 | - | ---- | - |
 | 1 | Item values and the popup's value; this file | built |
-| 2 | 1 gold for new characters, the Nearby panel removed, the Trading skill under Social with negative practice, the T key and icon | |
+| 2 | 1 gold for new characters, the Nearby panel removed, the Trading skill under Social with negative practice, the T key and icon | built |
 | 3 | The server's trade core and shop trades: rates, standing, not normally sold, sold stock timing out, tips, haggling | |
 | 4 | The window for shops | |
 | 5 | The server's player and NPC trades: asking, locking in, resets, the setting, the receive box saved | |
