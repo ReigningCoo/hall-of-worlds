@@ -1,9 +1,11 @@
-//! Shopkeepers: who keeps which building, and giving and taking their stock.
+//! Shopkeepers: who keeps which building, and their side of a trade.
 
 use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::Item;
+use shared::poi::ChunkPos;
 use shared::shop::sells;
+use shared::site::BuildingKind;
 
 use super::Mirror;
 use super::shop_here::shop_of;
@@ -66,73 +68,65 @@ pub(crate) fn keeper_building(client: &Client, world: &mut ServerWorld, with: Id
     shop_of(client, world, with).map(|shop| shop.building.look.id)
 }
 
-/// Gives a shop's keeper something, from beside its door: it joins what the shop has,
-/// which comes back, and the keeper remembers it. Selling, until there is payment.
-pub(crate) fn give_to_keeper(
-    client: &mut Client,
-    world: &mut ServerWorld,
-    item: Id,
-    with: Id,
-) -> Result<Vec<Item>, &'static str> {
-    let character = client.character_id.ok_or("nobody to remember")?;
-    let shop = shop_of(client, world, with).ok_or("no such keeper here")?;
-    let visit = client.visit.as_ref().ok_or("not in a site")?;
-    if !shop.in_reach(visit.spot()) {
-        return Err("too far away");
-    }
-    let item = client
-        .inventory
-        .hand_over(item)
-        .ok_or("can't hand that over")?;
-    let level = world
-        .site_mut(shop.id)
-        .levels
-        .entry(shop.index)
-        .or_default();
-    let record = level.records.entry(with).or_default();
-    record.memory.remember_gift(character);
-    record.carried.push(item);
-    Ok(record.carried.clone())
+/// A shop's side of a trade with the player, as their level has it.
+pub(crate) struct ShopTerms {
+    /// The town it is in.
+    pub(crate) town: ChunkPos,
+    /// What kind of shop it is (what it normally sells).
+    pub(crate) kind: BuildingKind,
+    /// What it has.
+    pub(crate) stock: Vec<Item>,
+    /// Whether the player is within `trade::REACH` of its door.
+    pub(crate) in_reach: bool,
+    /// Where its save is: site, level and building.
+    at: (SiteId, u32, u16),
 }
 
-/// What a keeper on the player's level has.
-pub(crate) fn keeper_stock(
-    client: &Client,
-    world: &mut ServerWorld,
-    with: Id,
-) -> Option<Vec<Item>> {
+/// The shop `with` keeps on the player's level, if any, with what it has.
+pub(crate) fn shop_terms(client: &Client, world: &mut ServerWorld, with: Id) -> Option<ShopTerms> {
     let shop = shop_of(client, world, with)?;
-    let level = world.site(shop.id).levels.get(&shop.index)?;
-    Some(level.records.get(&with)?.carried.clone())
+    let at = client.visit.as_ref()?.spot();
+    let level = world.site(shop.id).levels.get(&shop.index);
+    let stock = level.and_then(|level| level.records.get(&with));
+    Some(ShopTerms {
+        town: shop.poi.chunk,
+        kind: shop.building.look.kind,
+        stock: stock
+            .map(|record| record.carried.clone())
+            .unwrap_or_default(),
+        in_reach: shop.in_reach(at),
+        at: (shop.id, shop.index, shop.building.look.id),
+    })
 }
 
-/// Takes something from a shop's keeper, from beside its door, if it is still there
-/// and can go where it is asked to. Free, until there is payment.
-pub(crate) fn take_from_keeper(
-    client: &mut Client,
+/// Whether the player is within `trade::REACH` of the door of the shop `with`
+/// keeps on their level: `shop_terms` without its stock.
+pub(crate) fn near_shop(client: &Client, world: &mut ServerWorld, with: Id) -> bool {
+    let at = client.visit.as_ref().map(|visit| visit.spot());
+    let shop = shop_of(client, world, with);
+    at.zip(shop).is_some_and(|(at, shop)| shop.in_reach(at))
+}
+
+/// A trade with a shop completed: what it has now, `sold` to it at game
+/// minute `minute` (gone sooner than its own stock, `shop::sold_gone`).
+pub(crate) fn traded_with(
     world: &mut ServerWorld,
+    terms: &ShopTerms,
     with: Id,
-    item: Id,
-    (to, x, y, rotation): (shared::item::Holder, u8, u8, shared::item::Rotation),
-) -> Result<(), &'static str> {
-    let shop = shop_of(client, world, with).ok_or("no such keeper here")?;
-    let visit = client.visit.as_ref().ok_or("not in a site")?;
-    if !shop.in_reach(visit.spot()) {
-        return Err("too far away");
+    stock: Vec<Item>,
+    (sold, minute): (&[Id], u64),
+) {
+    let (id, index, building) = terms.at;
+    let level = world.site_mut(id).levels.entry(index).or_default();
+    let level_stock_len = level.records.get(&with).map_or(0, |had| had.carried.len());
+    let saved = level.buildings.entry(building).or_default();
+    // A gift alone (a tip with nothing traded) isn't a trade.
+    if !sold.is_empty() || stock.len() != level_stock_len {
+        saved.trades = saved.trades.saturating_add(1);
     }
-    let level = world
-        .site_mut(shop.id)
-        .levels
-        .entry(shop.index)
-        .or_default();
-    let carried = &mut level.records.entry(with).or_default().carried;
-    let place = carried.iter().position(|one| one.id == item);
-    let place = place.ok_or("they don't have that")?;
-    let taken = carried[place].clone();
-    client
-        .inventory
-        .add(taken, to, x, y, rotation)
-        .map_err(|_| "it can't go there")?;
-    carried.remove(place);
-    Ok(())
+    saved.sold.extend(sold.iter().map(|&item| (item, minute)));
+    saved
+        .sold
+        .retain(|item, _| stock.iter().any(|one| one.id == *item));
+    level.records.entry(with).or_default().carried = stock;
 }

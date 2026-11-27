@@ -7,6 +7,7 @@ mod cost;
 mod kinds;
 mod lookup;
 mod parts;
+mod pay;
 mod room;
 mod rules;
 mod sort;
@@ -15,6 +16,7 @@ mod strength_room;
 mod tying;
 
 pub use bag_slots::{belt_slots, grams_off};
+pub use pay::PayRefused;
 pub use strength_room::{
     PLAYER_GRID_WIDTH, PLAYER_MAX_CELLS, PLAYER_MIN_CELLS, cells_for_strength,
 };

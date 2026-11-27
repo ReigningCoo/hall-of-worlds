@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::characters::ListedCharacter;
 use super::level::{LevelChunk, LevelInfo, RememberedLevel};
 use super::login::{EmailAddress, LoginMethod, SessionToken};
-use super::{Landed, OnlineState, Strike, WorldChunk, WorldInfo};
+use super::{Landed, OnlineState, Strike, TradeNews, WorldChunk, WorldInfo};
 use crate::ability::{Ability, ActionBar};
 use crate::alignment::Alignment;
 use crate::difficulty::{Difficulties, Difficulty};
@@ -43,6 +43,8 @@ pub enum ServerMessage {
     },
     /// What someone the player is trading with has to trade.
     TradeStock { with: Id, items: Vec<Item> },
+    /// A trade's news (`TradeNews`).
+    Trade(TradeNews),
     /// The answer to `LookUpItems`: each item as the player may know it, alone (nothing in it or
     /// stacked on it), never where; `unknown`: ids it has nowhere it looks (destroyed, unloaded).
     ItemsLookedUp { found: Vec<Item>, unknown: Vec<Id> },
@@ -89,11 +91,9 @@ pub enum ServerMessage {
         /// The role the character is shown as to others, and what it may be.
         shown: ShownRole,
     },
-    /// About roles (answering `ClientMessage::Role`, or a change of the
-    /// account's role while playing).
+    /// About roles (answering `ClientMessage::Role`, or a role changed in play).
     Role(super::RoleAnswer),
-    /// Everything the client knows of the world map is forgotten; the chunks
-    /// it may know again follow (`DevForgetMap`).
+    /// The world map is forgotten; the chunks it may know follow (`DevForgetMap`).
     ForgetWorldMap,
     /// A new whole hour has begun on the clock (`% 24` is the time of day).
     /// The tide, and so where can be walked on the world map, follows it.

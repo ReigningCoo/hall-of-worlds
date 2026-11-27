@@ -143,6 +143,10 @@ pub(crate) fn answer(
             client.waiting.push_back(Action::OpenTrade { with });
             true
         }
+        ClientMessage::Trade(ask) => {
+            client.waiting.push_back(Action::Trade(ask));
+            true
+        }
         ClientMessage::Quest(ask) => {
             client.waiting.push_back(Action::Quest(ask));
             true
@@ -234,7 +238,6 @@ pub(crate) fn answer(
         | ClientMessage::PartOfStack { .. }
         | ClientMessage::StackFromGround { .. }
         | ClientMessage::GiveItem { .. }
-        | ClientMessage::TakeItem { .. }
         | ClientMessage::WearItem { .. }
         | ClientMessage::TieBag { .. }
         | ClientMessage::BinItem { .. } => answer_items(client, message, world),

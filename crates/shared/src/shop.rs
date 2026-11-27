@@ -35,6 +35,15 @@ pub const REPLACED_AFTER: u64 = 90 * MINUTES_PER_DAY;
 /// buying everything and coming straight back gets nothing.
 pub const TOP_UP_AFTER: u64 = MINUTES_PER_DAY;
 
+/// How long something a player sold stays in a shop's stock, in game
+/// minutes: sooner gone than its own (trading plan; Claude's, to balance).
+pub const SOLD_KEPT_FOR: u64 = 7 * MINUTES_PER_DAY;
+
+/// Whether something sold to a shop at game minute `sold_at` is gone by `now`.
+pub fn sold_gone(sold_at: u64, now: u64) -> bool {
+    now.saturating_sub(sold_at) >= SOLD_KEPT_FOR
+}
+
 /// The least and most a shop aims to have, for the worst and best of shops.
 const STOCK_AT_WORST: u64 = 5;
 const STOCK_AT_BEST: u64 = 30;

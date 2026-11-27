@@ -13,7 +13,7 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 - Anchored so a Common apple is 1 copper (a Poor one ½). Values are kept in fine units (thousandths of a copper); only what is paid or shown is rounded **up** (a stack's total, a trade's total, "each" on its own).
 - Item popup, bottom right: coin pictures and numbers, zero denominations left out; stacks show "gT sT cT (gE sE cE each)", "each" only for more than one.
 
-## Shops
+## Shops (PR 3, built: `shared::trade`, the server's `connections/trade.rs`)
 
 - Buy at 50%, sell at 150%. Town standing (the quest `Standing` bands) moves both by up to 25%, the Trading skill by up to 25%, added (both full: 100% both ways).
 - Things the shop doesn't normally sell: a further 50% off what it pays, after everything else; it resells them at its normal price.
@@ -21,6 +21,7 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 - Payment is automatic on Complete trade.
 - Coins added above the price: standing up by any amount; a tip of up to 5% gives Trading practice, more gives **negative** practice (new to the skill system).
 - Coins below: accepted up to 5% short at full Trading skill (scaled down with skill; a fixed rule, no dice, so the client can say beforehand), with practice when accepted; refused beyond.
+- As built (Claude's choices, to balance): standing takes off 0, 6, 12, 18, 25% from Stranger to Champion; the player offers a sum to pay (`TradeAsk::Pay`), its gap from what is due being the tip or haggle (the shop paying the player works the same way); a point of standing per 1,000 copper tipped, past what acts give; what a shop pays is rounded **down** to whole copper (rounding it up would let a pinch of anything sell for a copper again and again); what is bought is kept out of the inventory until completed, with the place it is to go (anywhere it fits if that is taken by then), so nothing can be used unpaid; coins and anything holding coins or a quest item can't be sold; trading is within 5 cells of a shop's door.
 
 ## One trade window
 
@@ -49,7 +50,7 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 | - | ---- | - |
 | 1 | Item values and the popup's value; this file | built |
 | 2 | 1 gold for new characters, the Nearby panel removed, the Trading skill under Social with negative practice, the T key and icon | built |
-| 3 | The server's trade core and shop trades: rates, standing, not normally sold, sold stock timing out, tips, haggling | |
+| 3 | The server's trade core and shop trades: rates, standing, not normally sold, sold stock timing out, tips, haggling | built |
 | 4 | The window for shops | |
 | 5 | The server's player and NPC trades: asking, locking in, resets, the setting, the receive box saved | |
 | 6 | The window for players: sides, toggle, "Asking...", the request popup, the receive box with Take all, the Gameplay setting | |

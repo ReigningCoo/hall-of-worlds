@@ -11,6 +11,19 @@ impl Visit {
         self.position = Spot::middle_of(at);
     }
 
+    /// The level's first shop: its keeper and the cell before its door, for tests.
+    pub(crate) fn first_shop_for_test(
+        &self,
+        world: &mut crate::ServerWorld,
+    ) -> (shared::id::Id, (i64, i64)) {
+        let shop =
+            (self.level.buildings.iter()).find(|b| !shared::shop::sells(b.look.kind).is_empty());
+        let look = &shop.expect("a shop").look;
+        let saved = &world.site(self.id).levels[&self.index].buildings[&look.id];
+        let front = (look.door.0 + look.faces.0, look.door.1 + look.faces.1);
+        (saved.keeper.expect("a keeper"), front)
+    }
+
     /// Changes a cell of the level, for tests.
     pub(crate) fn set_cell_for_test(&mut self, (x, y): (i64, i64), cell: shared::dungeon::Cell) {
         self.level.level.set(x, y, cell);

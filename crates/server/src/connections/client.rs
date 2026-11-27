@@ -40,6 +40,7 @@ impl Client {
             going_to: None,
             going_place: None,
             inn: default(),
+            trade: None,
             account: None,
             login_state: None,
             discord: Default::default(),

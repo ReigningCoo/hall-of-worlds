@@ -228,6 +228,7 @@ pub(super) fn receive(
                 | ServerMessage::Inventory(_)
                 | ServerMessage::NotWorn { .. }
                 | ServerMessage::TradeStock { .. }
+                | ServerMessage::Trade(_)
                 | ServerMessage::ItemsLookedUp { .. }
                 | ServerMessage::GroundItems { .. }
                 | ServerMessage::GroundSeen { .. }

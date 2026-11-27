@@ -273,6 +273,7 @@ fn saves_are_read_back() {
                         last_interaction: Some(12.5),
                         stock: Vec::new(),
                         last_made: Some(9),
+                        sold: BTreeMap::from([(Id::for_test(5), 7)]),
                     },
                 )]),
             },

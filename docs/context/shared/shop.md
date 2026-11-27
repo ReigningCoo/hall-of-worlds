@@ -4,7 +4,7 @@ What town shops have in stock, and working it out when one is opened. Only the s
 
 ## Files
 
-- `crates/shared/src/shop.rs`: `Shop`, `sells`, `NewStock`, `Restocked`, `catch_up`, `REPLACED_AFTER`, `TOP_UP_AFTER`, `DOOR_REACH` (360 units from the door's middle: any cell beside it), `beside_door(spot, door)` (the one rule both sides use). Tests. In `shop/`: `shop.rs` (`Shop`), `sells.rs`, `armoursmith.rs` (the armoursmith's long list: every armour piece and set), `bottled.rs` (what shops' bottles hold), `catch_up.rs`, `herb_stock.rs` (`could_stock_herb`).
+- `crates/shared/src/shop.rs`: `Shop`, `sells`, `NewStock`, `Restocked`, `catch_up`, `REPLACED_AFTER`, `TOP_UP_AFTER`, `DOOR_REACH` (360 units from the door's middle: any cell beside it), `beside_door(spot, door)` (the one rule both sides use for talking at doors; trading goes by `trade::shop_in_reach`, 5 cells), `SOLD_KEPT_FOR` (7 game days) and `sold_gone(sold_at, now)`: what players sold a shop goes sooner than its own stock (trading plan PR 3; the server marks it in `BuildingSave::sold`). Tests. In `shop/`: `shop.rs` (`Shop`), `sells.rs`, `armoursmith.rs` (the armoursmith's long list: every armour piece and set), `bottled.rs` (what shops' bottles hold), `catch_up.rs`, `herb_stock.rs` (`could_stock_herb`).
 
 ## Public API
 
@@ -20,7 +20,7 @@ What town shops have in stock, and working it out when one is opened. Only the s
 
 ## Used by
 
-- `server` (`sites`), client `talk`, `shared::quest` (`could_stock_herb`).
+- `server` (`sites`), client `talk`, `shared::quest` (`could_stock_herb`), `shared::trade` (`sells`, for what a shop normally sells).
 
 ## Notes
 

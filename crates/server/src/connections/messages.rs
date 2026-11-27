@@ -165,6 +165,7 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
             Action::Down => (sites::go_down(client, world), 0),
             Action::Up => (sites::go_up(client, world), 0),
             Action::OpenTrade { with } => (sites::open_trade(client, world, with), 0),
+            Action::Trade(ask) => (super::trade::answer(client, world, ask), 0),
             Action::Quest(ask) => (crate::quests::answer_quest(client, world, ask), 0),
             Action::Ground(action) => ground::act(client, world, action),
             Action::Door(ask) => sites::door_act(client, world, ask),
@@ -192,7 +193,8 @@ pub(super) fn act(client: &mut Client, world: &mut ServerWorld) -> bool {
         };
         client.energy.spend(tick, client.speed, cost);
     }
-    true
+    // Walked or moved out of reach of a trade's shop: it closes.
+    super::trade::keep_in_reach(client, world)
 }
 
 /// Puts anyone but client `i` (who did the forgetting, and has been dealt with)
