@@ -30,8 +30,8 @@ impl ItemSet {
             number,
             name: name(number),
             quality,
-            bonuses: roll_bonuses(number, &pieces),
-            pieces,
+            bonuses: roll_bonuses(number, pieces),
+            pieces: pieces.to_vec(),
         }
     }
 

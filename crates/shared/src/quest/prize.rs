@@ -1,14 +1,16 @@
 //! What the artifact line's end pays: an artifact, or the planet's own set
 //! item (decisions.md: one per planet, from the planet's seed, so players may
-//! later learn what each planet has), a piece of one of the pool's sets. Only weapons, armour pieces and
-//! jewellery: things with quality worth carrying for good (Claude's choice).
+//! later learn what each planet has), a piece of one of the pool's sets
+//! (any kind a set may have: `shared::item_set`). Artifacts are only
+//! weapons, armour pieces and jewellery: things with quality worth carrying
+//! for good (Claude's choice).
 
 use crate::item::ItemKind;
 use crate::item_set::{ItemSet, POOL, SetPiece};
 use crate::rng::Seed;
 
-/// The kinds an artifact or a set item may be: weapons, armour pieces (not
-/// whole suits, nor a horse's) and jewellery.
+/// The kinds an artifact may be: weapons, armour pieces (not whole suits,
+/// nor a horse's) and jewellery. Set items are any of a set's pieces.
 pub const PRIZE_KINDS: [ItemKind; 33] = [
     ItemKind::Axe,
     ItemKind::Dagger,
