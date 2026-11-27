@@ -7,16 +7,17 @@ use shared::item_form::give_form_to;
 use shared::produce::{Source, suit_to_place};
 use shared::protocol::ServerMessage;
 use shared::rng::Seed;
-use shared::shop::{Shop, catch_up, sells, stock_request};
+use shared::shop::{Shop, catch_up, sells, sold_gone, stock_request};
 
 use super::shop_here::shop_of;
 use crate::ServerWorld;
 use crate::connections::Client;
 use crate::ids::new_id;
 
-/// Opens trading with a shop's keeper for a player beside its door: its stock is
-/// caught up and sent. Anything else is refused, with no answer. `false` if the
-/// client has gone.
+/// Opens trading with a shop's keeper for a player within reach of its door:
+/// its stock is caught up (what players sold it going sooner) and sent, and a
+/// trade opened (`connections::trade`). Anything else is refused, with no
+/// answer. `false` if the client has gone.
 pub(crate) fn open_trade(client: &mut Client, world: &mut ServerWorld, with: Id) -> bool {
     let Some(visit) = &client.visit else {
         warn!("Refused opening a trade from outside any site");
@@ -33,6 +34,7 @@ pub(crate) fn open_trade(client: &mut Client, world: &mut ServerWorld, with: Id)
         return true;
     }
     let (kind, quality, trades) = (town.look.kind, town.quality, town.trades);
+    let town_at = here.poi.chunk;
     let (building, of_kind) = (town.look.id, here.of_kind);
     let seed = here.poi.seed.derive("shop");
     let seed = Seed::new(seed.at(&[here.index as i64, building as i64]));
@@ -43,6 +45,10 @@ pub(crate) fn open_trade(client: &mut Client, world: &mut ServerWorld, with: Id)
     let level = world.site_mut(id).levels.entry(index).or_default();
     let keeping = level.records.entry(with).or_default();
     let saved = level.buildings.entry(building).or_default();
+    let minute = made.minute;
+    let sold = &mut saved.sold;
+    (keeping.carried).retain(|item| sold.get(&item.id).is_none_or(|&at| !sold_gone(at, minute)));
+    sold.retain(|item, _| keeping.carried.iter().any(|one| one.id == *item));
     let shop = Shop {
         kind,
         quality,
@@ -93,4 +99,5 @@ pub(crate) fn open_trade(client: &mut Client, world: &mut ServerWorld, with: Id)
     saved.last_interaction = Some(now);
     let items = client.as_seen(items);
     client.link.send(&ServerMessage::TradeStock { with, items })
+        && crate::connections::trade_opened(client, with, town_at, kind)
 }

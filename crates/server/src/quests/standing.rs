@@ -69,11 +69,23 @@ pub(crate) fn killed_near(
     changed
 }
 
-/// The character bought from or sold to a shop of the town they are in.
-pub(crate) fn traded(client: &mut Client, world: &ServerWorld) {
-    if let Some(town) = town_here(client, world)
-        && helped(&mut client.character.quests, town, FOR_TRADE)
-    {
+/// The character bought or sold `things` in a trade with a shop of `town`.
+pub(crate) fn traded_in(client: &mut Client, town: ChunkPos, things: u32) {
+    if helped(&mut client.character.quests, town, FOR_TRADE * things) {
+        client.unsaved = true;
+    }
+}
+
+/// Copper tipped for each point of standing (trading plan: a tip raises
+/// standing by any amount; Claude's, to balance).
+const TIP_PER_POINT: u64 = 1000;
+
+/// The character tipped a shop of `town` this many copper: standing rises
+/// with it, past what acts alone give.
+pub(crate) fn tipped(client: &mut Client, town: ChunkPos, copper: u64) {
+    let points = (copper / TIP_PER_POINT).min(u64::from(u32::MAX)) as u32;
+    if points > 0 {
+        add(&mut client.character.quests, town, points);
         client.unsaved = true;
     }
 }

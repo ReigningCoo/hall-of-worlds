@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::login::{CharacterId, Credentials, NewCharacter};
 use super::{
     DevAlignment, DevFurniture, DevGive, DevMobTool, DevSkills, DevVitals, DoorAsk, KindChange,
-    OnlineSettings,
+    OnlineSettings, TradeAsk,
 };
 use crate::ability::{Ability, BarChange};
 use crate::creature::CreatureKind;
@@ -120,23 +120,16 @@ pub enum ClientMessage {
     /// Gives something carried to a mob near enough and in sight, which remembers it,
     /// answered with `Inventory`, whether or not it could be done.
     GiveItem { item: Id, to: Id },
-    /// Asks to trade with someone: for now a shop's keeper (`Keepers`), from beside
-    /// its door, after any steps to get there. Answered with `TradeStock` if it can.
+    /// Opens a trade with someone: for now a shop's keeper (`Keepers`), within
+    /// `trade::REACH` of its door, after any steps to get there. Answered with
+    /// `TradeStock` and `TradeNews::Opened` if it can; any trade open is closed.
     OpenTrade { with: Id },
     /// What these items are, for showing them where they are written into text
     /// (`crate::item_text`): answered with `ItemsLookedUp`. Only the first
     /// `MOST_LOOKED_UP` of a message are looked up.
     LookUpItems(Vec<Id>),
-    /// Takes something from who they are trading with, to this place. Answered with
-    /// `Inventory` and `TradeStock`, whether or not it could be done.
-    TakeItem {
-        with: Id,
-        item: Id,
-        to: Holder,
-        x: u8,
-        y: u8,
-        rotation: Rotation,
-    },
+    /// A change to the open trade, completing or closing it (`TradeAsk`).
+    Trade(TradeAsk),
     /// Puts on something the character carries, answered with `Inventory`, whether
     /// or not it could go on. Taking it off is `MoveItem`.
     WearItem { item: Id },

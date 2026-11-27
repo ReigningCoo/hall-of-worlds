@@ -91,6 +91,7 @@ pub mod spell;
 pub mod spot;
 pub mod story;
 pub mod surface;
+pub mod trade;
 pub mod tree;
 pub mod underclothes;
 pub mod value;

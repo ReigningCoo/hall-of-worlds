@@ -178,14 +178,15 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ClientMessage::DevHerbs(super::DevHerbs::LearnAll),
         ClientMessage::DevHerbs(super::DevHerbs::ForgetAll),
         ClientMessage::Face(crate::facing::Heading(40_000)),
-        ClientMessage::TakeItem {
-            with: Id::for_test(3),
+        ClientMessage::Trade(super::TradeAsk::Buy(crate::trade::Buy {
             item: Id::for_test(4),
             to: Holder::Inventory,
             x: 1,
             y: 2,
             rotation: Rotation::Quarter,
-        },
+        })),
+        ClientMessage::Trade(super::TradeAsk::Pay(Some(-12))),
+        ClientMessage::Trade(super::TradeAsk::Complete),
         ClientMessage::DropItem {
             item: Id::for_test(5),
         },
@@ -421,6 +422,21 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             with: Id::for_test(3),
             items: Vec::new(),
         },
+        ServerMessage::Trade(super::TradeNews::Opened {
+            with: Id::for_test(3),
+            rates: crate::trade::Rates::default(),
+            shop: crate::site::BuildingKind::Blacksmith,
+        }),
+        ServerMessage::Trade(super::TradeNews::State(crate::trade::ShopTrade::new(
+            Id::for_test(3),
+        ))),
+        ServerMessage::Trade(super::TradeNews::Ended {
+            with: Id::for_test(3),
+            why: super::TradeEnd::Completed {
+                paid: -4,
+                payment: crate::trade::Payment::Haggled { copper: 1 },
+            },
+        }),
         ServerMessage::Quest(super::QuestNews::Markers {
             town: ChunkPos { x: 2, y: -1 },
             markers: vec![

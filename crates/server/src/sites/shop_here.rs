@@ -3,8 +3,8 @@
 
 use shared::id::Id;
 use shared::poi::Poi;
-use shared::shop::beside_door;
 use shared::site::TownBuilding;
+use shared::trade::shop_in_reach;
 
 use crate::ServerWorld;
 use crate::connections::Client;
@@ -26,10 +26,10 @@ pub(super) struct ShopHere {
 }
 
 impl ShopHere {
-    /// Whether the player, at `at`, stands near enough to its door
-    /// (`shop::beside_door`).
+    /// Whether the player, at `at`, is near enough to its door to trade
+    /// (`trade::shop_in_reach`).
     pub(super) fn in_reach(&self, at: shared::spot::Spot) -> bool {
-        beside_door(at, self.door)
+        shop_in_reach(at, self.door)
     }
 }
 

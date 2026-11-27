@@ -25,7 +25,7 @@ What every item is worth (trading plan PR 1, `docs/context/trading.md`): one det
 
 ## Used by
 
-- client `item_popup` (the value at a popup's bottom right).
+- client `item_popup` (the value at a popup's bottom right), `shared::trade` (prices).
 
 ## Notes
 

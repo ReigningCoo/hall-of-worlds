@@ -1,0 +1,43 @@
+//! Trading (trading plan PR 3, `docs/context/trading.md`): the rules every
+//! trade goes by, so the client can say beforehand what the server will do.
+//!
+//! - Nothing moves until a trade is completed: what is offered stays where it
+//!   is, and closing, walking out of reach, leaving the level or going resets
+//!   everything (owner).
+//! - Shops buy at 50% of an item's value (`shared::value`) and sell at 150%,
+//!   town standing and the Trading skill each moving both by up to 25%
+//!   (`Rates`); what a shop doesn't normally sell it pays a further 50% less
+//!   for (`price.rs`).
+//! - Coins are paid and change given automatically on completing, highest
+//!   coins first, over the carry limit if need be (`item::inventory::pay`).
+//!   Paying more than is due is a tip, less is haggling (`settle.rs`).
+
+mod complete;
+mod price;
+mod rates;
+mod settle;
+mod shop_trade;
+
+pub use complete::{Completed, complete};
+pub use price::{NOT_SOLD_PERCENT, normally_sold, shop_asks, shop_pays};
+pub use rates::{MOST_SKILL, MOST_STANDING, Rates, skill_percent, standing_percent};
+pub use settle::{HAGGLE_PERCENT, Payment, TIP_PERCENT, TRADE_PRACTICE, due, haggle_room, judge};
+pub use shop_trade::{Buy, Refusal, ShopTrade, Totals, for_sale};
+
+use crate::spot::{CELL_SPAN, Spot};
+
+/// How far apart, in cells, two sides of a trade may be: a shop's door
+/// counts as where it is.
+pub const REACH_CELLS: u64 = 5;
+
+/// The same in units (`spot`).
+pub const REACH: u64 = REACH_CELLS * CELL_SPAN as u64;
+
+/// Whether someone at `at` is near enough to the door in cell `door` to
+/// trade with its shop. Both sides go by it.
+pub fn shop_in_reach(at: Spot, door: (i64, i64)) -> bool {
+    at.distance(Spot::middle_of(door)) <= REACH
+}
+
+#[cfg(test)]
+mod tests;

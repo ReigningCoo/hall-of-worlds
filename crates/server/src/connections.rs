@@ -98,6 +98,7 @@ mod starting_kit;
 mod strength_room;
 mod stumble;
 mod systems;
+mod trade;
 mod visited_gates;
 mod vitals;
 mod wearing;
@@ -120,6 +121,7 @@ pub(super) use systems::save_all;
 pub(super) use systems::{
     follow_quests, run_mobs, save_changes, share_doors, sync_entities, sync_ground, tell_the_time,
 };
+pub(crate) use trade::trade_opened;
 pub(super) use welcome::made_for;
 use welcome::welcome;
 
@@ -142,9 +144,8 @@ impl Connections {
 /// What a client is told when saves can't be reached. Nothing has been lost.
 const SAVES_TROUBLE: &str = "the server can't reach its saves just now: try again soon";
 
-/// The most things a client can be waiting to do: a second or so of the quickest
-/// steps. A client sending more is going faster than it can, and they are dropped,
-/// and put right by `Position`.
+/// The most things a client can be waiting to do: a second or so of the quickest steps.
+/// More are going faster than it can: dropped, and put right by `Position`.
 const MOST_WAITING: usize = 64;
 
 /// How far a client has got, from connecting to playing.
@@ -162,12 +163,10 @@ pub(crate) enum Phase {
     Playing,
 }
 
-/// One connected client: its character, where it is and what it has been
-/// sent.
+/// One connected client: its character, where it is and what it has been sent.
 pub struct Client {
     pub(crate) link: ServerLink,
-    /// The embedded server's own player (connected without logging in): its
-    /// Owner, who may open it to others.
+    /// The embedded server's own player (no login): its Owner, who may open it to others.
     pub(crate) host: bool,
     /// Its account's role, once logged in, and what it is shown as (`role.rs`).
     role: role::RoleState,
@@ -190,8 +189,7 @@ pub struct Client {
     pub(crate) name: String,
     /// Whether it is to be disconnected (and was saved).
     gone: bool,
-    /// The world its character is in, once joining has decided it. In the
-    /// Hall, the world they came from.
+    /// The world its character is in, once joining has decided it (in the Hall, the last).
     pub(crate) world: Option<WorldId>,
     /// The world it has asked to go to (dev tools), moved to once its
     /// messages this tick have been read.
@@ -199,6 +197,8 @@ pub struct Client {
     /// The place it has asked to go to (Load in Debug Info), gone to after
     /// any `going_to`.
     going_place: Option<shared::protocol::DevGoToPlace>,
+    /// The trade it has open, if any (`trade.rs`): not saved.
+    trade: Option<shared::trade::ShopTrade>,
     /// Where they are with The Way Inn (`sites::InnState`).
     pub(crate) inn: crate::sites::InnState,
     /// What the character knows of this world and where they are in it: the

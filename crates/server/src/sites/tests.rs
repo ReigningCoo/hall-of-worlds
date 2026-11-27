@@ -2,7 +2,7 @@ use crate::ServerWorld;
 use crate::storage::{CellMasks, SiteId};
 use shared::dungeon::{Cell, Level, Sight};
 use shared::id::Id;
-use shared::item::{Item, Quality};
+use shared::item::Item;
 use shared::movement::{Step, step_on_level};
 use shared::poi::PoiKind;
 use shared::protocol::{ClientMessage, ServerMessage};
@@ -93,86 +93,6 @@ fn a_keeper_stays_and_takes_over_what_a_shop_had() {
     let level = &test.world.site(id).levels[&index];
     assert!(level.buildings[&building].stock.is_empty());
     assert!(level.records[&keeper].carried.contains(&old));
-}
-
-#[test]
-fn what_is_given_to_a_keeper_joins_the_stock_from_beside_the_door_only() {
-    let (mut test, with, front) = in_a_village();
-    let coin = ClientMessage::DevGiveItem(shared::protocol::DevGive {
-        kind: shared::item::ItemKind::CopperCoin,
-        size: None,
-        magical: false,
-        quality: Quality::Common,
-        set: false,
-        favour: None,
-        seed: Some(1),
-        count: 1,
-        identical: true,
-        request: shared::item_form::RollRequest::NONE,
-        herb: None,
-        to: None,
-    });
-    test.send(&[coin]);
-    let item = test.client.inventory.items.last().unwrap().item.id;
-    let give = ClientMessage::GiveItem { item, to: with };
-    test.send(&[ClientMessage::DevTeleport {
-        x: front.0 + 40,
-        y: front.1,
-    }]);
-    assert_eq!(stock_in(&test.send(std::slice::from_ref(&give))), None);
-    assert!(test.client.inventory.find(item).is_some(), "still theirs");
-    test.send(&[ClientMessage::DevTeleport {
-        x: front.0,
-        y: front.1,
-    }]);
-    let stock = stock_in(&test.send(&[give])).expect("the stock comes back");
-    assert!(stock.iter().any(|one| one.id == item));
-    assert!(
-        test.client.inventory.find(item).is_none(),
-        "no longer theirs"
-    );
-}
-
-#[test]
-fn taking_from_a_keeper_needs_reach_room_and_it_still_being_there() {
-    use shared::item::{Holder, Rotation};
-    let (mut test, with, front) = in_a_village();
-    let near = ClientMessage::DevTeleport {
-        x: front.0,
-        y: front.1,
-    };
-    test.send(std::slice::from_ref(&near));
-    let open = ClientMessage::OpenTrade { with };
-    let stock = stock_in(&test.send(&[open])).unwrap();
-    let item = stock[0].id;
-    let take = |x: u8| ClientMessage::TakeItem {
-        with,
-        item,
-        to: Holder::Inventory,
-        x,
-        y: 0,
-        rotation: Rotation::None,
-    };
-    // Clear the inventory, for room.
-    test.client.inventory.items.clear();
-    // Set directly, as a teleport only goes somewhere walkable.
-    test.client.visit.as_mut().unwrap().position =
-        shared::spot::Spot::middle_of((front.0 + 40, front.1));
-    test.send(&[take(0)]);
-    assert!(test.client.inventory.find(item).is_none(), "out of reach");
-    test.client.visit.as_mut().unwrap().position = shared::spot::Spot::middle_of(front);
-    // Off the end of the inventory.
-    test.send(&[take(200)]);
-    assert!(test.client.inventory.find(item).is_none(), "no room there");
-    let answers = test.send(&[take(0)]);
-    assert!(test.client.inventory.find(item).is_some());
-    let left = stock_in(&answers).expect("the stock comes back");
-    assert!(left.iter().all(|one| one.id != item));
-    assert_eq!(left.len(), stock.len() - 1);
-    // Taken twice, it isn't copied.
-    test.client.inventory.items.clear();
-    test.send(&[take(0)]);
-    assert!(test.client.inventory.find(item).is_none(), "already gone");
 }
 
 #[test]

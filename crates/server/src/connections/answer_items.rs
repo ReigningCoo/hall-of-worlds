@@ -4,7 +4,7 @@
 use bevy::prelude::*;
 use shared::energy::handling_cost;
 use shared::item::{Holder, Inventory, Item};
-use shared::protocol::{ClientMessage, ServerMessage};
+use shared::protocol::ClientMessage;
 
 use super::{Action, Client, stack_parts};
 use crate::ServerWorld;
@@ -128,7 +128,6 @@ pub(super) fn answer_items(
             client.send_inventory()
         }
         ClientMessage::GiveItem { item, to } => {
-            let mut stock = None;
             let cost = client.inventory.put_down_cost(item);
             let quest_item = (client.inventory.find(item)).is_some_and(Item::holds_quest_item);
             let tick = world.action_clock.ticks();
@@ -141,11 +140,8 @@ pub(super) fn answer_items(
                 // Quest items are the character's own (owner).
                 Err("quest items can't be given")
             } else if sites::keeper_building(client, world, to).is_some() {
-                let sold = sites::give_to_keeper(client, world, item, to);
-                sold.map(|items| {
-                    stock = Some(items);
-                    crate::quests::traded(client, world);
-                })
+                // Shops are paid, through a trade (`trade.rs`).
+                Err("shops take things only in a trade")
             } else {
                 (crate::entities::give(client, world, item, to))
                     .map(|kind| crate::quests::gave(client, world, kind))
@@ -159,47 +155,7 @@ pub(super) fn answer_items(
                 Err(why) => warn!("Refused giving {item:?} to {to:?}: {why}"),
             }
             client.update_speed(world.action_clock.ticks());
-            let sent = client.send_inventory();
-            match stock {
-                Some(items) => {
-                    let items = client.as_seen(items);
-                    sent && client
-                        .link
-                        .send(&ServerMessage::TradeStock { with: to, items })
-                }
-                None => sent,
-            }
-        }
-        ClientMessage::TakeItem {
-            with,
-            item,
-            to,
-            x,
-            y,
-            rotation,
-        } => {
-            match sites::take_from_keeper(client, world, with, item, (to, x, y, rotation)) {
-                Ok(()) => {
-                    client.unsaved = true;
-                    crate::quests::traded(client, world);
-                    let grams = client.inventory.find(item).map_or(0, Item::total_weight);
-                    let tick = world.action_clock.ticks();
-                    client
-                        .energy
-                        .spend(tick, client.speed, handling_cost(grams));
-                }
-                Err(why) => warn!("Refused taking {item:?} from {with:?}: {why}"),
-            }
-            client.update_speed(world.action_clock.ticks());
-            let stock = sites::keeper_stock(client, world, with);
-            let sent = client.send_inventory();
-            match stock {
-                Some(items) => {
-                    let items = client.as_seen(items);
-                    sent && client.link.send(&ServerMessage::TradeStock { with, items })
-                }
-                None => sent,
-            }
+            client.send_inventory()
         }
         ClientMessage::WearItem { item } => {
             let tick = world.action_clock.ticks();

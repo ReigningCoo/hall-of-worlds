@@ -76,7 +76,7 @@ pub(crate) use inn::{
 pub(crate) use inn::{close_own_room, hidden_in_own_room, keep_own_room, refuses_harm};
 pub(crate) use inn::{dev_to_inn, enter_from_hall, follow_inn, in_inn, inn_poi, leave_inn};
 use keepers::{NewKeepers, keepers_in_window, keepers_of};
-pub(super) use keepers::{give_to_keeper, keeper_building, keeper_stock, take_from_keeper};
+pub(crate) use keepers::{ShopTerms, keeper_building, near_shop, shop_terms, traded_with};
 pub(crate) use key_place::key_place;
 use leave::leave_for_poi;
 pub(super) use leave::{forget_site, killed, leave, leave_dungeon, put_out, use_exit};
