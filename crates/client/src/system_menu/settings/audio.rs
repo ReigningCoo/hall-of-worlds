@@ -1,7 +1,8 @@
 //! Settings' Audio page: General and Music volumes, each a slider with a Mute
 //! button drawn as a speaker, swapped for an Unmute button drawn as a
-//! crossed-out speaker while muted (a button's picture is fixed once built). Disabled, with a note
-//! saying why, while `HOW_SOUND` or `HOW_MUSIC` turns sound off for this run.
+//! crossed-out speaker and pressed (`selected`) while muted (a button's
+//! picture is fixed once built). Disabled, with a note saying why, while
+//! `HOW_SOUND` or `HOW_MUSIC` turns sound off for this run.
 
 use bevy::prelude::*;
 
@@ -37,6 +38,7 @@ fn show_row(dom: &mut Dom, row: &str, percent: u8, muted: bool, usable: bool) {
     dom.set_text(&id("_percent"), format!("{percent}%"));
     dom.set_flag(&id("_mute"), "hidden", muted);
     dom.set_flag(&id("_unmute"), "hidden", !muted);
+    dom.set_flag(&id("_unmute"), "selected", muted);
     dom.set_flag(&id(""), "disabled", !usable);
     dom.set_flag(&id("_mute"), "disabled", !usable);
     dom.set_flag(&id("_unmute"), "disabled", !usable);

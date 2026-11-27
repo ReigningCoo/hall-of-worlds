@@ -35,8 +35,6 @@ pub(in crate::debug_menu) struct PageButton {
 pub(super) enum Entry {
     Action(DebugAction),
     Kind(PoiKind),
-    /// A tune, by its place in `music::TuneList`.
-    Tune(usize),
 }
 
 #[derive(Component, Clone, Copy)]

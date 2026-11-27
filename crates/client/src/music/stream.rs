@@ -2,7 +2,7 @@
 //! renders while Bevy's audio pulls samples (`decoder`). The game talks to it
 //! through `Shared`: MIDI events queued, and the gain it should play at.
 
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use bevy::audio::Decodable;
@@ -83,7 +83,15 @@ pub(super) struct Shared {
     pub commands: Mutex<Vec<Command>>,
     /// The gain to play at (music × general, linear), as `f32` bits.
     target_gain: AtomicU32,
+    /// The tune playing, by its place in `TuneList` (`NONE` for none),
+    /// written by the decoder after each block.
+    tune: AtomicUsize,
+    /// Whether combat music is forced on (the debug panel's Attack).
+    forced: AtomicBool,
 }
+
+/// No tune playing.
+const NONE: usize = usize::MAX;
 
 impl Shared {
     pub fn new() -> Self {
@@ -91,6 +99,8 @@ impl Shared {
             events: Mutex::new(Vec::new()),
             commands: Mutex::new(Vec::new()),
             target_gain: AtomicU32::new(0),
+            tune: AtomicUsize::new(NONE),
+            forced: AtomicBool::new(false),
         }
     }
 
@@ -100,6 +110,22 @@ impl Shared {
 
     pub fn target_gain(&self) -> f32 {
         f32::from_bits(self.target_gain.load(Ordering::Relaxed))
+    }
+
+    pub fn set_tune(&self, tune: Option<usize>) {
+        self.tune.store(tune.unwrap_or(NONE), Ordering::Relaxed);
+    }
+
+    pub fn tune(&self) -> Option<usize> {
+        Some(self.tune.load(Ordering::Relaxed)).filter(|&tune| tune != NONE)
+    }
+
+    pub fn set_forced(&self, forced: bool) {
+        self.forced.store(forced, Ordering::Relaxed);
+    }
+
+    pub fn forced(&self) -> bool {
+        self.forced.load(Ordering::Relaxed)
     }
 
     pub fn command(&self, command: Command) {

@@ -66,6 +66,10 @@ impl MusicDecoder {
                 Command::Stop => self.sequencer.stop(&mut events),
             }
         }
+        // Forced combat: attacked every block, so the fight never eases off.
+        if self.shared.forced() {
+            self.sequencer.attacked();
+        }
         events.append(&mut taken(&self.shared.events));
         play(synth, &mut events);
         let silent = self.gain == 0.0 && self.shared.target_gain() == 0.0;
@@ -87,6 +91,7 @@ impl MusicDecoder {
             self.sequencer.advance(samples, &mut self.due);
             play(synth, &mut self.due);
         }
+        self.shared.set_tune(self.sequencer.tune_now());
     }
 }
 

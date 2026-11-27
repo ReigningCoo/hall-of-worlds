@@ -90,17 +90,14 @@ pub(super) fn play_tunes(
 
 /// The tunes and players for what is wanted (none if there are no tunes).
 fn program(wanted: Told, ready: &Ready, turns: &mut HashMap<Place, usize>) -> Option<Program> {
-    let (tunes, players) = match wanted {
-        Told::All => (ready.tunes.clone(), ready.players.clone()),
+    let (listed, players): (Vec<usize>, _) = match wanted {
+        Told::All => ((0..ready.tunes.len()).collect(), ready.players.clone()),
         Told::One(at) => (
-            ready.tunes.get(at).cloned().into_iter().collect(),
+            (at < ready.tunes.len()).then_some(at).into_iter().collect(),
             ready.players.clone(),
         ),
         Told::Place(place) => {
-            let mut chosen: Vec<_> = tunes_for(place, &ready.places)
-                .into_iter()
-                .map(|at| ready.tunes[at].clone())
-                .collect();
+            let mut chosen = tunes_for(place, &ready.places);
             let turn = turns.entry(place).or_default();
             if !chosen.is_empty() {
                 let start = *turn % chosen.len();
@@ -111,5 +108,10 @@ fn program(wanted: Told, ready: &Ready, turns: &mut HashMap<Place, usize>) -> Op
             (chosen, players)
         }
     };
-    (!tunes.is_empty()).then_some(Program { tunes, players })
+    let tunes = listed.iter().map(|&at| ready.tunes[at].clone()).collect();
+    (!listed.is_empty()).then_some(Program {
+        tunes,
+        players,
+        listed,
+    })
 }

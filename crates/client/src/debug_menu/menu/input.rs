@@ -15,7 +15,6 @@ use super::{
 };
 use crate::common::{Action, Preferences, TouchGesture, interface_area};
 use crate::minimap::FullMap;
-use crate::music::PlayTunes;
 use crate::widgets::{
     ButtonPressed, HighlightStep, SoftKey, SoftKeyPressed, TextBox, TextEdited, TextFocus,
 };
@@ -59,7 +58,7 @@ pub(in crate::debug_menu) fn take_input(
     time: Res<Time<Real>>,
     mut menu: ResMut<DebugMenu>,
     mut actions: MessageWriter<DebugAction>,
-    (mut generate, mut tunes): (MessageWriter<GenerateKind>, MessageWriter<PlayTunes>),
+    mut generate: MessageWriter<GenerateKind>,
 ) {
     let MenuReaders {
         mut pressed,
@@ -118,7 +117,6 @@ pub(in crate::debug_menu) fn take_input(
             .iter()
             .find(|(box_, filter_box, _)| filter_box.0 == layer && edits.contains(box_))
             .map(|(.., text_box)| text_box.text.clone());
-        let sublist = menu.sublist.clone();
         let level = if layer == ACTIONS {
             &mut menu.actions
         } else {
@@ -129,7 +127,7 @@ pub(in crate::debug_menu) fn take_input(
             level.highlight = None;
             level.first_column = 0;
         }
-        let shown = entries_on_show(layer, &level.filter, &facts, &sublist);
+        let shown = entries_on_show(layer, &level.filter, &facts);
         let columns = lay_out(&headings_of(&shown), rows);
         for (key, step) in [
             (KeyCode::ArrowUp, HighlightStep::Up),
@@ -181,9 +179,8 @@ pub(in crate::debug_menu) fn take_input(
             }
         }
         match chosen {
-            // Opening a submenu, which `run` fills.
-            Some(Entry::Action(action @ (DebugAction::GeneratePoi | DebugAction::PlayTune))) => {
-                actions.write(action);
+            Some(Entry::Action(DebugAction::GeneratePoi)) => {
+                menu.open_submenu();
                 back = false;
             }
             Some(Entry::Action(action)) => {
@@ -196,10 +193,6 @@ pub(in crate::debug_menu) fn take_input(
             }
             Some(Entry::Kind(kind)) => {
                 generate.write(GenerateKind(kind));
-                closing = true;
-            }
-            Some(Entry::Tune(at)) => {
-                tunes.write(PlayTunes::One(at));
                 closing = true;
             }
             None => {}

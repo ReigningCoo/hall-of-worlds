@@ -11,6 +11,7 @@ use bevy::prelude::*;
 
 use super::loaders::{PlaylistAsset, TuneAsset};
 use super::place::Place;
+use super::place_words::place_words;
 use super::playlist::{Ensemble, Players, PlaylistFile, TuneEntry, in_order, merge};
 use super::start::Music;
 use super::tune::Tune;
@@ -21,9 +22,18 @@ const GAME_PLAYLIST: &str = "music/playlists/game.playlist.ron";
 #[cfg(not(target_arch = "wasm32"))]
 const PLAYLISTS: &str = "music/playlists";
 
-/// Every tune's title, in the order they play (the debug menu lists them).
+/// Every tune, in the order they play (the debug panel lists them).
 #[derive(Resource, Default, Debug)]
-pub struct TuneList(pub Vec<String>);
+pub struct TuneList(pub Vec<ListedTune>);
+
+/// A tune as the debug panel shows it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ListedTune {
+    pub title: String,
+    /// The places and times it is played in, as words ("Everywhere" for
+    /// none named).
+    pub used: String,
+}
 
 /// The tunes, ready to play.
 pub(super) struct Ready {
@@ -129,7 +139,7 @@ fn ready(
     playlist: &PlaylistFile,
     handles: &[Handle<TuneAsset>],
     tunes: &Assets<TuneAsset>,
-) -> (Ready, Vec<String>) {
+) -> (Ready, Vec<ListedTune>) {
     let mut loaded = Vec::new();
     let mut places = Vec::new();
     let mut titles = Vec::new();
@@ -138,7 +148,10 @@ fn ready(
             Some(tune) => {
                 loaded.push(tune.0.clone());
                 places.push(entry.places.clone());
-                titles.push(title_of(entry));
+                titles.push(ListedTune {
+                    title: title_of(entry),
+                    used: place_words(&entry.places),
+                });
             }
             None => warn!(
                 "Music: left out {}: {} couldn't be read",

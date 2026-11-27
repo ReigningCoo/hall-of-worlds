@@ -9,7 +9,8 @@
 //! into the next. Each place has its own tunes and players (`place`,
 //! `place_now`, `sets`), changing at the next bar line; the debug menu plays
 //! every tune, one alone or by place (`PlayTunes`), or the test
-//! (`PlayTestMusic`). When the player is attacked (`common::Attacked`), the
+//! (`PlayTestMusic`), and its Music panel follows the tune playing
+//! (`PlayingTune`) and can force combat music on (`ForcedCombat`). When the player is attacked (`common::Attacked`), the
 //! place's combat parts join on the next beat (`combat`).
 
 mod combat;
@@ -19,8 +20,10 @@ mod gesture;
 mod library;
 mod loaders;
 mod midi;
+mod now;
 mod place;
 mod place_now;
+mod place_words;
 mod play_tunes;
 mod playlist;
 mod sequencer;
@@ -31,6 +34,7 @@ mod test_tune;
 mod tune;
 
 pub use library::TuneList;
+pub use now::{ForcedCombat, PlayingTune};
 pub use play_tunes::PlayTunes;
 pub use stream::MusicEvent;
 pub use test_tune::PlayTestMusic;
@@ -52,6 +56,8 @@ impl Plugin for MusicPlugin {
             .add_message::<MusicEvent>()
             .add_message::<PlayTestMusic>()
             .add_message::<PlayTunes>()
+            .init_resource::<PlayingTune>()
+            .init_resource::<ForcedCombat>()
             .init_resource::<gesture::MayPlay>()
             .init_resource::<start::Music>()
             .init_resource::<library::Library>()
@@ -68,6 +74,7 @@ impl Plugin for MusicPlugin {
                     place_now::follow_place,
                     play_tunes::play_tunes,
                     combat::follow_attacks,
+                    now::follow_now,
                     test_tune::play_test_tune,
                     start::send_events,
                     start::follow_volume,

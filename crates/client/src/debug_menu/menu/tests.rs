@@ -47,7 +47,7 @@ fn return_on_a_disabled_entry_does_nothing() {
 fn return_on_a_highlighted_entry_chooses_it() {
     let shown = on_show("", &facts());
     assert_eq!(
-        return_chooses(&shown, Some(15), &facts()),
+        return_chooses(&shown, Some(14), &facts()),
         Some(DebugAction::GodMode)
     );
 }
@@ -143,26 +143,4 @@ fn the_layers_are_good_markup_and_the_submenu_is_named_for_its_entry() {
     super::spawn::WARNING.assert_good();
     let title = format!("title=\"{}\"", DebugAction::GeneratePoi.name());
     assert!(super::spawn::MENU.source.contains(&title));
-}
-
-#[test]
-fn long_tune_titles_are_shortened_to_a_line() {
-    use super::show::shortened;
-    assert_eq!(shortened("Trotto"), "Trotto");
-    assert_eq!(
-        shortened("Rosa das rosas (CSM 10)"),
-        "Rosa das rosas (CSM 10)"
-    );
-    assert_eq!(
-        shortened("Macar ome per folia (CSM 11)"),
-        "Macar ome per folia"
-    );
-    assert_eq!(
-        shortened("Assi como Jesu Cristo (CSM 14)"),
-        "Assi como Jesu Cristo"
-    );
-    assert_eq!(
-        shortened("Quen dona fremosa e boa quiser amar (CSM 16)"),
-        "Quen dona fremosa e boa..."
-    );
 }

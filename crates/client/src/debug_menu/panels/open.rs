@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use super::super::actions::DebugAction;
 use super::{
     FIRST_AT, NEXT_AT, alignment, change_creature, create_bench, create_mob, dev_area, examine_mob,
-    generate, give, herbs, learn_skills, other_floors, pictures_spawn, place_furniture, steps,
-    teleport_to_world, vitals, world_time,
+    generate, give, herbs, learn_skills, music, other_floors, pictures_spawn, place_furniture,
+    steps, teleport_to_world, vitals, world_time,
 };
 use crate::dom::{Dom, Template, UiEvent, UiValue, document, top_strip};
 use crate::html;
@@ -120,6 +120,7 @@ fn template_of(action: DebugAction) -> Option<&'static Template> {
         DebugAction::GiveItem => Some(&give::GIVE_ITEM),
         DebugAction::ItemPictures => Some(&pictures_spawn::ITEM_PICTURES),
         DebugAction::TeleportToWorld => Some(&teleport_to_world::TELEPORT_TO_WORLD),
+        DebugAction::PlayTune => Some(&music::MUSIC),
         _ => None,
     }
 }
@@ -146,6 +147,7 @@ pub(in crate::debug_menu) fn form_of(action: DebugAction) -> &'static str {
         DebugAction::DrawingStates => "debug.drawing_states",
         DebugAction::OtherFloors => other_floors::FORM,
         DebugAction::GeneratePoi => "debug.generate_poi",
+        DebugAction::PlayTune => music::FORM,
         _ => "debug.panel",
     }
 }

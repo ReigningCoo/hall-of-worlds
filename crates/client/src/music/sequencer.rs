@@ -47,6 +47,8 @@ const CHANNELS: [u8; 5] = [MELODY, SECOND, DRONE, STINGER, DRUMS];
 pub(super) struct Program {
     pub tunes: Vec<Arc<Tune>>,
     pub players: Players,
+    /// Each tune's place in `TuneList`, beside it (for saying what plays).
+    pub listed: Vec<usize>,
 }
 
 /// Where the program is.
@@ -131,6 +133,12 @@ impl Sequencer {
             true => change::change(self, program),
             false => self.play(program, out),
         }
+    }
+
+    /// The tune playing (or being linked from), by its place in `TuneList`.
+    pub fn tune_now(&self) -> Option<usize> {
+        let playing = self.playing.as_ref()?;
+        playing.program.listed.get(playing.tune).copied()
     }
 
     /// The player was attacked: combat parts join, or keep on.
