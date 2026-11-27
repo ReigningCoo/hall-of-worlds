@@ -1,7 +1,8 @@
 //! What an item's popup shows: its name in its quality's colour, its
 //! description if it has one, anything about where it is, a line for each
-//! bonus, the size it was made in when not the viewer's, what it asks of its
-//! wearer (what the viewer falls short of as a warning), what a key remembers
+//! bonus, a set item's set (`set.rs`), the size it was made in when not the
+//! viewer's, what it asks of its wearer (what the viewer falls short of as a
+//! warning), what a key remembers
 //! (with the runes of the planet it was found on, if not this one), its
 //! weight, and for staff with debug tools its id with a copy button
 //! (`copy.rs`).
@@ -10,6 +11,7 @@ use super::about::about;
 use super::herb::HerbWords;
 use super::needs::{Viewer, need_lines};
 use super::open::{FORM, ItemPopups};
+use super::set::{set_lines, show_set};
 use super::size::size_line;
 use super::words::bonus_lines;
 use crate::common::{NO_QUALITY_NAME, quality_colour};
@@ -19,6 +21,7 @@ use crate::widgets::{Pointed, TextSize, UiId, weight_words};
 use bevy::prelude::*;
 use shared::creature::Size;
 use shared::id::Id;
+use shared::item::Item;
 use shared::lang::Lang;
 
 /// The popup: `name` is filled with the name in its colour once built; the
@@ -32,6 +35,9 @@ pub(super) static ITEM_POPUP: Template = html!(
     <p id="about" max-width="300" hidden>.</p>
     <p id="notes" max-width="300" hidden>.</p>
     <p id="bonuses" max-width="300" hidden>.</p>
+    <div id="set" class="tight" hidden/>
+    <template id="set_line"><p id="set_line" max-width="300"/></template>
+    <template id="set_off"><p id="set_off" class="off" max-width="300"/></template>
     <p id="size" max-width="300" hidden>.</p>
     <p id="needs" max-width="300" hidden>.</p>
     <p id="unmet" class="warning" max-width="300" hidden>.</p>
@@ -56,13 +62,14 @@ pub(super) struct KeyWords {
 
 /// Places the popup about `of` at `at` and writes what it says, its
 /// requirements against the `viewer` (none: all met) and its size against
-/// theirs (`yours`); its id too for `staff`.
+/// theirs (`yours`) and its set's pieces against what they wear; its id too
+/// for `staff`.
 pub(super) fn fill(
     dom: &mut Dom,
     of: Id,
     pointed: &Pointed,
     at: Vec2,
-    (lang, viewer, yours): (&Lang, Option<Viewer>, Size),
+    (lang, viewer, yours, worn): (&Lang, Option<Viewer>, Size, &[Item]),
     (keys, herb, staff): (KeyWords, Option<HerbWords>, bool),
 ) {
     let form = UiId::of(FORM, of, "box").form();
@@ -80,6 +87,7 @@ pub(super) fn fill(
     let lines = effects.unwrap_or_else(|| bonus_lines(&pointed.item, lang));
     dom.set_flag(&id("bonuses"), "hidden", lines.is_empty());
     dom.set_text(&id("bonuses"), lines.join("\n"));
+    show_set(dom, &form, set_lines(&pointed.item, worn, lang));
     let size = size_line(&pointed.item, yours, lang);
     dom.set_flag(&id("size"), "hidden", size.is_none());
     dom.set_text(&id("size"), size.unwrap_or_default());

@@ -1,6 +1,7 @@
 //! Item popups: resting the pointer (or a finger) on an item anywhere it is
 //! drawn opens a `hover` popup (`dom`) with its name in its quality's colour,
-//! what it gives (`shared::bonus`, worded through `shared::lang`), what it
+//! what it gives (`shared::bonus`, worded through `shared::lang`), its set's
+//! pieces and bonuses (`shared::item_set`), what it
 //! asks of its wearer (`shared::requirement`), what a key remembers, its weight, and its id
 //! for staff with debug tools. It stays while
 //! the pointer is on the item or on it, and goes when the pointer leaves both;
@@ -19,6 +20,7 @@ mod ointment;
 mod open;
 mod place;
 mod recipe;
+mod set;
 mod show;
 mod size;
 mod words;

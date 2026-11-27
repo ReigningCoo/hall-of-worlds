@@ -16,7 +16,7 @@ pub use bonuses::{SET_BONUS_FACTOR, SetBonus};
 pub use piece::SetPiece;
 pub(crate) use saved::SavedSet;
 pub use set::ItemSet;
-pub use worn::{set_bonuses, worn_pieces};
+pub use worn::{pieces_worn, set_bonuses, worn_pieces};
 
 /// How many sets there are (first guess): every planet picks from these.
 pub const POOL: u16 = 1024;
