@@ -210,6 +210,44 @@ stat-speed = speed
 stat-light = cells of light
 stat-skill = { $skill }
 
+## A quality bonus raising a skill: signed levels, each one percentage point
+## ("+1 level in Sword", "+2 levels in Melee").
+
+item-skill-levels = { $amount } { $count ->
+    [one] level
+   *[other] levels
+} in { $skill }
+
+## A worn or held thing's bonus with what the stat does: "+5% Strength:
+## carrying and how hard you hit".
+
+item-bonus-does = { $line }: { $does }
+
+## What each stat does, after a worn or held thing's bonus: worded to suit
+## a bonus either way, as some are negative.
+
+does-strength = carrying and how hard you hit
+does-agility = how quick your attacks are, and defending
+does-toughness = your Health
+does-intellect = reasoning, learning and arcane magic
+does-perception = noticing things, and defending
+does-will = your Mana
+does-presence = commanding and persuading
+does-empathy = reading others, and divine magic
+does-aura = standing up to magic
+does-most-health = how much Health you can have
+does-most-mana = how much Mana you can have
+does-restore-health = Health coming back while it refills
+does-restore-mana = Mana coming back while it refills
+does-darkvision = seeing in the dark
+does-defence = how well you defend
+does-blow-harm = how much your blows hurt
+does-harm-taken = how much blows hurt you
+does-resistance = how much harmful magic does to you
+does-speed = how fast you act and move
+does-light = how far your light reaches
+does-skill = how well you fight
+
 ## What wearing it asks of the wearer: an attribute at least this much
 ## ("Needs 110 Strength"), and how well it works for the viewer when they fall
 ## short ("Working at 49%": nothing at half, all at the requirement).

@@ -3,7 +3,7 @@
 //! attributes with every bonus, which rules go by and the client is told; and
 //! effects ended by moving or being hurt.
 
-use shared::bonus::{Cancel, Stat};
+use shared::bonus::{Cancel, Raised, Stat};
 use shared::combat::Guard;
 use shared::item::Item;
 use shared::protocol::ServerMessage;
@@ -22,6 +22,8 @@ pub(crate) struct Bonused {
     /// Its resistance to harmful magic per mille, from Warding
     /// (`bonus::Stat::Resistance`).
     pub(super) resisting: u64,
+    /// What its gear adds to its skills, for fighting (`bonus::Raised`).
+    pub(super) raised: Raised,
     /// What its client was last told they are.
     told: Option<Attributes>,
 }
@@ -33,6 +35,7 @@ impl Default for Bonused {
             attributes: Attributes::default(),
             guard: Guard::NONE,
             resisting: 1000,
+            raised: Raised::default(),
             told: None,
         }
     }
@@ -84,6 +87,7 @@ impl Client {
         self.bonused.attributes = totals.attributes(&self.sheet.attributes);
         self.bonused.guard = Guard::of(&totals);
         self.bonused.resisting = totals.per_mille(Stat::Resistance);
+        self.bonused.raised = Raised::of(&totals);
     }
 
     /// Tells the client its attributes with their bonuses, if they have

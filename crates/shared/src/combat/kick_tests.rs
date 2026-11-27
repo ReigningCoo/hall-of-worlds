@@ -1,4 +1,5 @@
 use super::*;
+use crate::bonus::Raised;
 use crate::creature::CreatureKind;
 use crate::rng::Seed;
 use crate::sheet::Attributes;
@@ -12,6 +13,7 @@ fn a_kick_is_slower_than_two_punches_and_weaker_than_one() {
         kind: CreatureKind::Human,
         attributes: &attributes,
         skills: Some(&skills),
+        raised: Raised::default(),
         wielded: Wielded {
             main: Weapon::UNARMED,
             off: None,

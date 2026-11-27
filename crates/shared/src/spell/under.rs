@@ -17,7 +17,7 @@ impl Sheet {
     }
 
     /// How far its light reaches, in cells, carrying `carrying`: a lit
-    /// lantern's or a Light's, whichever is further; none while Darkness lies
+    /// lantern's or a Light's, whichever is further, and gear's on top; none while Darkness lies
     /// on it, which swallows a lantern's too.
     pub fn light_reach(&self, carrying: &Inventory) -> u32 {
         if self.has_spell(DARKENED) {
@@ -29,7 +29,8 @@ impl Sheet {
             .iter()
             .filter(|e| matches!(e.source, Source::Spell(_)));
         let light = Totals::of(spells.flat_map(|e| &e.bonuses)).light();
-        carrying.light_reach().max(light)
+        // Gear's light reaches further than whichever light it has.
+        carrying.light_reach().max(light) + carrying.worn_totals().light()
     }
 
     /// Whether it floats over holes and water (Levitate).

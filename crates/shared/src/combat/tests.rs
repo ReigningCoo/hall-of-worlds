@@ -1,5 +1,6 @@
 use super::*;
 use crate::blade::Family;
+use crate::bonus::Raised;
 use crate::creature::Size;
 use crate::dungeon::Level;
 use crate::item::Quality;
@@ -213,6 +214,7 @@ fn a_fighter_swings_and_practises_its_own_skills() {
         kind: CreatureKind::Human,
         attributes: &attributes,
         skills: Some(&skills),
+        raised: Raised::default(),
         wielded: Wielded {
             main: Weapon::UNARMED,
             off: None,

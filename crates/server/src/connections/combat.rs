@@ -21,6 +21,7 @@ impl Client {
             // With every bonus (`bonuses.rs`).
             attributes: &self.bonused.attributes,
             skills: Some(&self.sheet.skills),
+            raised: self.bonused.raised.clone(),
             wielded: Wielded::of(&self.inventory),
             guard: self.bonused.guard,
         }
@@ -272,13 +273,7 @@ pub(crate) fn take_mob_blows(
                 swing,
                 ..
             } => {
-                let attacker = Fighter {
-                    kind,
-                    attributes: &attributes,
-                    skills: None,
-                    wielded,
-                    guard,
-                };
+                let attacker = Fighter::mob(kind, &attributes, wielded, guard);
                 let harm = attacker.harm(&swing, &client.fighter(), &mut luck(tick, mob, target));
                 // Less on Easy, more on Hard and Ironman.
                 let harm = client.playing_on().harm_taken(harm);

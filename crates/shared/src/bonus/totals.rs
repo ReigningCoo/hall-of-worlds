@@ -18,7 +18,7 @@ pub struct Sum {
 /// Everything a creature's bonuses come to now. Always built from scratch
 /// (`of`), never changed a piece at a time.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct Totals(BTreeMap<Stat, Sum>);
+pub struct Totals(pub(super) BTreeMap<Stat, Sum>);
 
 impl Totals {
     /// All these bonuses added up.

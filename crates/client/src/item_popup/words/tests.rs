@@ -72,9 +72,14 @@ fn armour_gives_toughness_and_costs_agility_and_mana() {
     let piece = make_item(&order, human, Id::for_test(1), Seed::new(3), None, next);
     let lines = bonus_lines(&piece, &lang);
     assert_eq!(lines.len(), 3, "{lines:?}");
-    assert!(lines[0].starts_with('+') && lines[0].ends_with(" Toughness"));
-    assert!(lines[1].starts_with(MINUS) && lines[1].ends_with(" Agility"));
-    assert!(lines[2].starts_with(MINUS) && lines[2].ends_with(" most Mana"));
+    assert!(lines[0].starts_with('+') && lines[0].ends_with(" Toughness: your Health"));
+    assert!(
+        lines[1].starts_with(MINUS)
+            && lines[1].ends_with(" Agility: how quick your attacks are, and defending")
+    );
+    assert!(
+        lines[2].starts_with(MINUS) && lines[2].ends_with(" most Mana: how much Mana you can have")
+    );
 }
 
 #[test]
@@ -82,6 +87,31 @@ fn a_ring_gives_nothing() {
     let lang = Lang::new(Language::English);
     let ring = Item::new(Id::for_test(1), ItemKind::Ring);
     assert!(bonus_lines(&ring, &lang).is_empty());
+}
+
+#[test]
+fn an_epic_ring_says_its_three_bonuses_and_what_they_do() {
+    let lang = Lang::new(Language::English);
+    let mut ring = Item::new(Id::for_test(1), ItemKind::Ring);
+    ring.quality = Some(Quality::Epic);
+    let lines = bonus_lines(&ring, &lang);
+    assert_eq!(lines.len(), 3, "{lines:?}");
+    assert!(lines.iter().all(|line| line.contains(": ")), "{lines:?}");
+}
+
+#[test]
+fn a_skill_bonus_is_worded_in_levels() {
+    use shared::bonus::{Bonus, SKILL_LEVEL, Stat};
+    use shared::skill::SkillId;
+    let lang = Lang::new(Language::English);
+    let melee = SkillId::find("combat/melee").unwrap();
+    let one = Bonus::flat(Stat::Skill(melee), SKILL_LEVEL);
+    assert_eq!(
+        worn_line(&one, &lang),
+        "+1 level in Melee: how well you fight"
+    );
+    let two = Bonus::flat(Stat::Skill(melee), -2 * SKILL_LEVEL);
+    assert_eq!(bonus_line(&two, &lang), format!("{MINUS}2 levels in Melee"));
 }
 
 #[test]
@@ -102,7 +132,10 @@ fn a_hair_shirt_costs_five_percent_will() {
         .expect("a hair shirt");
     let mut shirt = Item::new(Id::for_test(1), UnderPiece::Shirt.kind());
     shirt.form = Some(ItemForm::Under(form));
-    assert_eq!(bonus_lines(&shirt, &lang), vec![format!("{MINUS}5% Will")]);
+    assert_eq!(
+        bonus_lines(&shirt, &lang),
+        vec![format!("{MINUS}5% Will: your Mana")]
+    );
 }
 
 #[test]
