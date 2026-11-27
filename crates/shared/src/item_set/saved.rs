@@ -1,7 +1,9 @@
 //! Reading an item's set. Messages always have `Option<SetPiece>`. A save
 //! may also have one from before sets had pieces (2026-11-27): `set: true`,
 //! which becomes a piece of a set chosen from the item's id
-//! (`SetPiece::fitting`).
+//! (`SetPiece::fitting`). A piece whose set now has another kind there (the
+//! sets were rolled again when they took any wearable, 2026-11-27) is
+//! fitted the same way.
 
 use std::fmt;
 
@@ -27,8 +29,9 @@ impl Default for SavedSet {
 }
 
 impl SavedSet {
-    /// The piece it is: an old save's set item gets one fitting its kind
-    /// and quality, if any set has a piece of its kind.
+    /// The piece it is: an old save's set item, or a piece of another kind
+    /// than the item, gets one fitting its kind and quality, if any set has
+    /// a piece of its kind.
     pub(crate) fn piece(
         self,
         kind: ItemKind,
@@ -38,6 +41,9 @@ impl SavedSet {
         match self {
             Self::Old(false) => None,
             Self::Old(true) => SetPiece::fitting(kind, quality, id),
+            Self::Piece(Some(piece)) if piece.kind() != Some(kind) => {
+                SetPiece::fitting(kind, quality, id)
+            }
             Self::Piece(piece) => piece,
         }
     }
