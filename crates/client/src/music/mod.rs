@@ -32,6 +32,8 @@ mod start;
 mod stream;
 mod test_tune;
 mod tune;
+#[cfg(target_arch = "wasm32")]
+mod web_out;
 
 pub use library::TuneList;
 pub use now::{ForcedCombat, PlayingTune};
@@ -82,6 +84,13 @@ impl Plugin for MusicPlugin {
                 )
                     .chain(),
             );
+        // In a browser the music has its own output, topped up each frame
+        // (and as each chunk ends).
+        #[cfg(target_arch = "wasm32")]
+        app.add_systems(
+            Update,
+            web_out::top_up_each_frame.after(start::follow_volume),
+        );
     }
 }
 
