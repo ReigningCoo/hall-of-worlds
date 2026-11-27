@@ -25,6 +25,7 @@ fn seen(number: u128, feeling: Feeling) -> ServerMessage {
         boss: None,
         stage: shared::livestock::Stage::Adult,
         light: 0,
+        never_trades: false,
     })
 }
 

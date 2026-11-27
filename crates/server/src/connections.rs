@@ -197,8 +197,8 @@ pub struct Client {
     /// The place it has asked to go to (Load in Debug Info), gone to after
     /// any `going_to`.
     going_place: Option<shared::protocol::DevGoToPlace>,
-    /// The trade it has open, if any (`trade.rs`): not saved.
-    trade: Option<shared::trade::ShopTrade>,
+    /// Its trading (`trade.rs`): any trade open, and its saved setting and receive box.
+    trade: trade::Trading,
     /// Where they are with The Way Inn (`sites::InnState`).
     pub(crate) inn: crate::sites::InnState,
     /// What the character knows of this world and where they are in it: the
@@ -228,8 +228,8 @@ pub struct Client {
     pub(crate) seen_marks: BTreeMap<Id, Option<shared::role::RoleBadge>>,
     /// The stage of life each was told at, to tell again as it grows.
     pub(crate) seen_stages: BTreeMap<Id, shared::livestock::Stage>,
-    /// How far each one's light reached when told (`EntityLook::light`).
-    pub(crate) seen_lights: BTreeMap<Id, u32>,
+    /// Each one's light and never trading when told (`EntityLook::light`, `never_trades`).
+    pub(crate) seen_lights: BTreeMap<Id, (u32, bool)>,
     /// What the character is like.
     pub(crate) sheet: Sheet,
     /// Its action bar (`CharacterSave::action_bar`).

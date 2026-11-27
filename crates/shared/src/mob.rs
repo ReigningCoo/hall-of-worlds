@@ -284,6 +284,9 @@ pub struct EntityLook {
     /// How far its light reaches, in cells: a player's `Inventory::light_reach`
     /// (`shared::lantern`); 0 for mobs, which carry none (no darkness rule yet).
     pub light: u32,
+    /// A player set never to trade (`trade::TradingSetting::Never`), shown
+    /// greyed out in the trade window's list; `false` for everyone else.
+    pub never_trades: bool,
 }
 
 /// What everyone sees of a quest boss (`quest::boss_of`, `quest::boss_tier`).

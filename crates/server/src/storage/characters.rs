@@ -10,7 +10,7 @@ use shared::sheet::Sheet;
 use shared::world::WorldId;
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::{CharacterSave, CharacterWorldSave, LevelSave, Storage};
+use super::{CharacterSave, CharacterWorldSave, LevelSave, Storage, TradeSave};
 use crate::saves::{Save, SaveKey};
 
 /// What goes with a character from world to world, saved with what they know
@@ -31,6 +31,8 @@ pub struct Everywhere {
     pub shown_as: Option<RoleId>,
     /// `CharacterSave::inn_room`.
     pub inn_room: LevelSave,
+    /// `CharacterSave::trading`.
+    pub trading: TradeSave,
 }
 
 impl Storage {
@@ -133,6 +135,14 @@ impl Storage {
         Ok(self.character(id)?.and_then(|save| save.shown_as))
     }
 
+    /// A character's Trading setting and receive box (a new one's if none).
+    pub fn load_trading(&self, id: &CharacterId) -> Result<TradeSave, String> {
+        Ok(self
+            .character(id)?
+            .map(|save| save.trading)
+            .unwrap_or_default())
+    }
+
     /// What is in a character's own rooms in The Way Inn (nothing if they
     /// are new, or have never put anything there).
     pub fn load_inn_room(&self, id: &CharacterId) -> Result<LevelSave, String> {
@@ -178,6 +188,7 @@ impl Storage {
                     action_bar: everywhere.action_bar,
                     difficulty: everywhere.difficulty,
                     shown_as: everywhere.shown_as,
+                    trading: everywhere.trading,
                     inn_room: Some(everywhere.inn_room)
                         .filter(|room| *room != LevelSave::default()),
                 }),

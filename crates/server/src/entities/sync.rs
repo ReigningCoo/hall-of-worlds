@@ -107,6 +107,7 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld, in_hall: &[S
                     boss: None,
                     stage: Stage::Adult,
                     light: someone.light,
+                    never_trades: someone.never_trades,
                 };
                 seen.push((look, someone.speed));
             }
@@ -143,6 +144,7 @@ pub(crate) fn sync(clients: &mut [Client], world: &mut ServerWorld, in_hall: &[S
                         stage: stage_of(mob.kind, mob.id, minutes),
                         // Mobs carry no light: they have no darkness rule yet.
                         light: 0,
+                        never_trades: false,
                     };
                     seen.push((look, mob.speed()));
                 }

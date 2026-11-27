@@ -33,11 +33,12 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 - Coins paid and change given automatically, highest coins first, allowed over the carry limit.
 - As built for shops (PR 4, Claude's choices for the owner to check): a click on a shop's door opens the trade window on it, and the talk panel's Trade tab is gone; opening the window (T) asks for the nearest shop and opens the Character panel to drag into. Carried things let go on either side are sold; the middle shows each side's worth and what the shop pays or asks, and who gains (worth received − worth given − coins paid). Coins are written as words for now, and there is no way yet to offer more or less than is due (tips and haggling: the server takes `TradeAsk::Pay`).
 
-## Player trades
+## Player trades (PR 5 built on the server: `connections/trade/deals.rs`, `shared::trade::Side`, `Received`)
 
 - Both locked in: the middle and your side vanish (your items go), and their side becomes your **receive box**: take things out by hand or with Take all (whatever doesn't fit stays).
 - The receive box takes no inventory space or weight, is saved with the character, and blocks starting any trade (shops too) until empty, so it can't be used as storage.
 - Trading setting (Settings › Gameplay, "Trading"): Allow (opens the window by itself), Ask (the default: a popup to Allow or Deny; the asker sees their side darkened with "Asking..."), Never. Kept on the character by the server.
+- As built on the server (PR 5, Claude's choices for the owner to check): trades with characters only on a level (not the Hall or world map); each side's things placed in its 8 × 8 like a grid (`Offer`), quest items refused, coins allowed; someone trading, being asked or with things in their box is `Busy`; NPCs are the people kinds (an alignment) not unfriendly to the player and in sight: their side is empty and always locked, so locking in gives them what is offered as Give Item would, and nothing comes back (beggars build on this in PR 7); taking one thing out of the box goes where asked (no stacking onto what is there), Take all wherever it fits.
 
 ## Other
 
@@ -53,6 +54,6 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 | 2 | 1 gold for new characters, the Nearby panel removed, the Trading skill under Social with negative practice, the T key and icon | built |
 | 3 | The server's trade core and shop trades: rates, standing, not normally sold, sold stock timing out, tips, haggling | built |
 | 4 | The window for shops | built |
-| 5 | The server's player and NPC trades: asking, locking in, resets, the setting, the receive box saved | |
+| 5 | The server's player and NPC trades: asking, locking in, resets, the setting, the receive box saved | built |
 | 6 | The window for players: sides, toggle, "Asking...", the request popup, the receive box with Take all, the Gameplay setting | |
 | 7 | Beggars | |

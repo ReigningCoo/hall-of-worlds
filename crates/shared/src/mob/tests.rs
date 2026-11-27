@@ -145,6 +145,7 @@ fn a_look_reads_back_from_a_message() {
         boss: None,
         stage: crate::livestock::Stage::Young,
         light: 0,
+        never_trades: false,
     };
     let bytes = postcard::to_allocvec(&look).unwrap();
     assert_eq!(postcard::from_bytes::<EntityLook>(&bytes).unwrap(), look);

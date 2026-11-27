@@ -187,6 +187,19 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         })),
         ClientMessage::Trade(super::TradeAsk::Pay(Some(-12))),
         ClientMessage::Trade(super::TradeAsk::Complete),
+        ClientMessage::Trade(super::TradeAsk::Offer(crate::trade::Offer {
+            item: Id::for_test(4),
+            x: 7,
+            y: 0,
+            rotation: Rotation::None,
+        })),
+        ClientMessage::Trade(super::TradeAsk::Lock(true)),
+        ClientMessage::Trade(super::TradeAsk::Answer {
+            by: Id::for_test(8),
+            allow: false,
+        }),
+        ClientMessage::Trade(super::TradeAsk::TakeAll),
+        ClientMessage::SetTrading(crate::trade::TradingSetting::Never),
         ClientMessage::DropItem {
             item: Id::for_test(5),
         },
@@ -430,6 +443,31 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ServerMessage::Trade(super::TradeNews::State(crate::trade::ShopTrade::new(
             Id::for_test(3),
         ))),
+        ServerMessage::Trade(super::TradeNews::Between(crate::trade::Between {
+            with: Id::for_test(8),
+            mine: crate::trade::Side::default(),
+            theirs: crate::trade::Side {
+                offers: Vec::new(),
+                locked: true,
+            },
+        })),
+        ServerMessage::Trade(super::TradeNews::Asked {
+            by: Id::for_test(8),
+            name: "Ada".into(),
+        }),
+        ServerMessage::Trade(super::TradeNews::Received(crate::trade::Received {
+            items: vec![crate::item::Item::new(
+                Id::for_test(9),
+                crate::item::ItemKind::Dagger,
+            )],
+        })),
+        ServerMessage::Trade(super::TradeNews::Setting(
+            crate::trade::TradingSetting::Allow,
+        )),
+        ServerMessage::Trade(super::TradeNews::Ended {
+            with: Id::for_test(8),
+            why: super::TradeEnd::Exchanged,
+        }),
         ServerMessage::Trade(super::TradeNews::Ended {
             with: Id::for_test(3),
             why: super::TradeEnd::Completed {
@@ -818,6 +856,7 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
             }),
             stage: crate::livestock::Stage::Juvenile,
             light: crate::lantern::LANTERN_LIGHT,
+            never_trades: true,
         }),
         ServerMessage::Moves(vec![crate::protocol::Stretch {
             id: Id(uuid::Uuid::from_u128(4)),

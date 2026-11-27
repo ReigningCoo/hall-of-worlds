@@ -50,6 +50,8 @@ pub(crate) struct Someone {
     /// How far their light reaches (`Inventory::light_reach`: a lit lantern's
     /// further), which everyone who sees them is told.
     pub(super) light: u32,
+    /// Set never to trade, which everyone who sees them is told.
+    pub(super) never_trades: bool,
 }
 
 pub(super) fn everyone_playing(clients: &mut [Client]) -> Vec<Someone> {
@@ -87,6 +89,7 @@ pub(super) fn everyone_playing(clients: &mut [Client]) -> Vec<Someone> {
                 heading: client.heading,
                 fighting: client.winding_up(),
                 light: client.sheet.light_reach(&client.inventory),
+                never_trades: client.never_trades(),
             }
         })
         .collect()

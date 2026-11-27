@@ -40,7 +40,7 @@ impl Client {
             going_to: None,
             going_place: None,
             inn: default(),
-            trade: None,
+            trade: Default::default(),
             account: None,
             login_state: None,
             discord: Default::default(),
@@ -238,6 +238,7 @@ impl Client {
                 difficulty: self.difficulty,
                 shown_as: self.shown_to_save(),
                 inn_room: self.inn.room.clone(),
+                trading: self.trade.to_save(),
             },
         );
         self.unsaved = false;

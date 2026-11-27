@@ -102,7 +102,10 @@ pub(super) fn welcome(
             let bar = world.storage.load_action_bar(id)?;
             let difficulty = world.storage.load_difficulty(id)?;
             let shown = world.storage.load_shown_as(id)?;
-            let room = world.storage.load_inn_room(id)?;
+            let room = (
+                world.storage.load_inn_room(id)?,
+                world.storage.load_trading(id)?,
+            );
             Ok((
                 character,
                 inventory,
@@ -116,7 +119,7 @@ pub(super) fn welcome(
     match loaded {
         Ok((character, inventory, sheet, gates, (played, bar, difficulty, shown, room))) => {
             client.action_bar = bar;
-            client.inn.room = room;
+            (client.inn.room, client.trade) = (room.0, super::trade::Trading::loaded(room.1));
             client.show_saved(shown);
             client.decide_difficulty(difficulty, options.difficulties);
             (client.character, client.other_worlds) = character;
@@ -206,6 +209,7 @@ pub(super) fn send_welcome(
         && client.send_action_bar()
         && client.send_visited_gates()
         && client.send_inventory()
+        && super::trade::told_on_joining(client)
         && client.send_difficulty(options.difficulties)
         && client.send_lockdown(options)
         && {

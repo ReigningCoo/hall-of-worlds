@@ -40,6 +40,12 @@ pub(super) fn changed(
         TradeAsk::Unsell { item } => trade.selling.retain(|&one| one != item),
         TradeAsk::Pay(paying) => trade.paying = paying,
         TradeAsk::Complete | TradeAsk::Close => {}
+        // Trades with characters', and the receive box's (`trade.rs`).
+        TradeAsk::Offer(_)
+        | TradeAsk::Lock(_)
+        | TradeAsk::Answer { .. }
+        | TradeAsk::Take(_)
+        | TradeAsk::TakeAll => return Err(Refusal::NotHere),
     }
     let rates = terms_rates(client, terms);
     let totals = trade.totals(&terms.stock, &client.inventory, rates, terms.kind)?;
