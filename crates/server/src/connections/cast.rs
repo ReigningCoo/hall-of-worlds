@@ -156,6 +156,10 @@ pub(super) fn start_cast(
         return (true, 0);
     }
     let me = client.entity_id();
+    let at = client.visit.as_ref().map(|visit| visit.spot());
+    if let Some(at) = at {
+        crate::entities::make_noise(world, place, shared::noise::Source::Spell, at);
+    }
     let lands_in = ticks_for(CAST_WIND_UP, client.speed);
     client.fight.pending = Some(Pending {
         target: target.unwrap_or(me),

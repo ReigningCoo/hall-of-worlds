@@ -147,7 +147,7 @@ pub use runes::rune_picture;
 pub use sepia::{lightness, sepia, sepia_linear};
 pub use sky::SkyNow;
 use sky::update_sky;
-pub use sneaking::Sneaking;
+pub use sneaking::{MobAlert, Sneaking};
 pub use spell_cast::{can_cast_spell, in_inn};
 pub use spell_icon::{MAGIC_ICON, spell_icon};
 pub use states::{ClickMode, GameView, LoadingStep, ServerStatus, Session};

@@ -68,6 +68,8 @@ pub(crate) fn open_door(
     door.door.swing = Swing::Open(side);
     let visit = client.visit.as_mut().expect("checked above");
     set_with_gate(visit, world, (x, y), door);
+    let (place, at) = (visit.population(), shared::spot::Spot::middle_of((x, y)));
+    crate::entities::make_noise(world, place, shared::noise::Source::Door, at);
     if turned {
         client.unsaved = true;
         if !client.send_inventory() {

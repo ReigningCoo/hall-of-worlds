@@ -50,6 +50,11 @@ impl Client {
         self.link.send(&ServerMessage::Sneaking(on))
     }
 
+    /// Whether they are sneaking now.
+    pub(crate) fn sneaking(&self) -> bool {
+        self.learning.sneak.on
+    }
+
     /// What a move on a level costing `cost` and `length` units long takes,
     /// sneaking or not.
     pub(super) fn sneak_cost(&self, cost: u32, length: u64) -> u32 {

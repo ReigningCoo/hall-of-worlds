@@ -55,7 +55,10 @@ pub(crate) fn kick_door(
         }
     }
     set_here(visit, at, door);
+    let place = visit.population();
     keep_door(world, door.key, door.door);
+    let source = shared::noise::Source::DoorKicked;
+    crate::entities::make_noise(world, place, source, shared::spot::Spot::middle_of(at));
     let left = (toughness - door.door.damage) * 1000 / toughness;
     update_sight(client).then_some(left as u16)
 }

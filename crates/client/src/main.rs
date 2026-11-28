@@ -45,6 +45,7 @@ mod quest_log;
 mod quests;
 mod site;
 mod skills_page;
+mod sneak_eye;
 mod sound;
 mod spell_design;
 mod spell_popup;
@@ -176,6 +177,7 @@ fn main() {
     app.add_plugins(map_marks::MapMarksPlugin);
     app.add_plugins(sound::SoundPlugin);
     app.add_plugins(music::MusicPlugin);
+    app.add_plugins(sneak_eye::SneakEyePlugin);
 
     // Native only: developer tools. (The embedded single-player server is
     // started by `connection`.)

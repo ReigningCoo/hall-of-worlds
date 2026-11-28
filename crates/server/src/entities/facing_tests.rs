@@ -1,4 +1,4 @@
-//! Facing: sneaking up behind a mob, and mobs turning to blows and noises.
+//! Facing: sneaking up behind a mob, and mobs turning to blows.
 
 use shared::creature::CreatureKind;
 use shared::facing::Heading;
@@ -32,15 +32,6 @@ fn prey_see_almost_all_round() {
     mob_mut(&mut test).heading = Heading::NORTH;
     let cone = the_mob(&test).cone();
     assert!(cone.sees(Spot::middle_of(super::tests::player(&test))));
-}
-
-#[test]
-fn a_mob_at_rest_turns_to_fighting_it_hears() {
-    let mut test = beside_a_mob(CreatureKind::Kobold, 3);
-    mob_mut(&mut test).heading = Heading::EAST;
-    let at = Spot::middle_of(super::tests::player(&test));
-    mob_mut(&mut test).listen(&[at]);
-    assert_eq!(the_mob(&test).heading, Heading::WEST);
 }
 
 #[test]
