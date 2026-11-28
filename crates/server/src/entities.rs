@@ -26,6 +26,9 @@ mod chill;
 mod choice;
 mod close_in;
 mod crossing;
+mod defend;
+#[cfg(test)]
+mod defend_tests;
 mod dev_gift;
 mod dev_mob;
 mod doing;

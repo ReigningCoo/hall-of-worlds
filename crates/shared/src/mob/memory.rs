@@ -161,6 +161,18 @@ impl Memory {
         }
     }
 
+    /// It saw them harm one of its band or an ally (mob behaviour plan PR 3):
+    /// it turns unfriendly to them, and, as they struck first, anything they
+    /// do to it is self-defence (`Regard::provoked`), unless they have already
+    /// struck it.
+    pub fn remember_band_harmed(&mut self, about: CharacterId) {
+        let regard = self.regard_mut(about);
+        regard.standing = Some(Feeling::Unfriendly);
+        if !regard.harmed {
+            regard.provoked = true;
+        }
+    }
+
     /// Whether killing it would be self-defence for this character
     /// (`Regard::provoked`).
     pub fn provoked(&self, about: &CharacterId) -> bool {

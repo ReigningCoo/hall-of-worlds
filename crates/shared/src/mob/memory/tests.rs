@@ -159,3 +159,21 @@ fn starting_a_fight_is_never_self_defence() {
     assert!(!memory.provoked(&who(1)));
     assert!(!memory.provoked(&who(2)));
 }
+
+#[test]
+fn seeing_its_band_harmed_turns_it_and_is_provoked() {
+    let mut memory = Memory::default();
+    memory.remember_band_harmed(who(1));
+    assert_eq!(
+        memory.standing(&who(1), Feeling::Friendly),
+        Feeling::Unfriendly
+    );
+    assert!(memory.provoked(&who(1)));
+    // Fighting back against it afterwards stays self-defence.
+    memory.remember_harm(who(1), Points::whole(1), Feeling::Neutral);
+    assert!(memory.provoked(&who(1)));
+    // Whoever struck it first started it, whatever its band saw later.
+    memory.remember_harm(who(2), Points::whole(1), Feeling::Neutral);
+    memory.remember_band_harmed(who(2));
+    assert!(!memory.provoked(&who(2)));
+}
