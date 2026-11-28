@@ -9,6 +9,7 @@
 
 mod band;
 mod def;
+mod desire;
 mod relation;
 mod table;
 mod temper;

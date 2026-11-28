@@ -6,6 +6,7 @@ use shared::dungeon::Level;
 use shared::sheet::Feeling;
 
 use super::super::alert::in_view;
+use super::super::desire::{Lying, take_option};
 use super::super::harmed::Harmer;
 use super::super::timid::is_timid;
 use super::super::{Doing, FRIENDLY_GAP, Mob, SETTLING_STEPS, Spot};
@@ -21,7 +22,8 @@ fn hurt(mob: &Mob, tick: u64) -> i32 {
     (1000 - left).clamp(0, 1000) / 10
 }
 
-/// What `mob` does now about the players and other mobs it sees (`spots`), if it should stop
+/// What `mob` does now about the players and other mobs it sees (`spots`) and
+/// the bags it wants that it sees (`lying`, `desire.rs`), if it should stop
 /// what it is doing, and its scores. One going after someone, following them
 /// or keeping away only changes its mind to flee. `others` are its level's mobs
 /// as they stood at the start of the tick, `fires` the open fires there.
@@ -29,7 +31,7 @@ pub(in super::super) fn choose(
     mob: &Mob,
     level: &Level,
     spots: &[Spot],
-    (others, fires): (&[Other], &[(i64, i64)]),
+    (others, fires, lying): (&[Other], &[(i64, i64)], &[Lying]),
     behaviours: &Behaviours,
     tick: u64,
 ) -> (Option<Doing>, Scores) {
@@ -38,16 +40,19 @@ pub(in super::super) fn choose(
         .filter(|spot| in_view(mob, level, spot))
         .map(|spot| Seen::of(mob, spot, near_fire(fires, spot.position)))
         .collect();
-    if seen.is_empty() {
+    let def = behaviours.of(mob.kind);
+    let take = take_option(mob, level, (lying, fires), def, tick);
+    if seen.is_empty() && take.is_none() {
         return (None, Scores::default());
     }
-    let def = behaviours.of(mob.kind);
     let friends = match seen.iter().any(|one| one.enemy) {
         true => friends_seen(mob, level, others, behaviours),
         false => 0,
     };
-    let (options, fear) = score(&mind(mob, def, friends, tick), &seen);
-    let chosen = pick(&options, Choice::of(&mob.doing));
+    let (mut options, fear) = score(&mind(mob, def, friends, tick), &seen);
+    options.extend(take);
+    let current = Choice::of(&mob.doing);
+    let chosen = pick(&options, current);
     let scores = Scores {
         options,
         fear,
@@ -58,11 +63,15 @@ pub(in super::super) fn choose(
         Doing::Going { .. } | Doing::Following { .. } | Doing::Fleeing { .. }
     );
     let doing = chosen.and_then(|choice| {
-        if busy && !(matches!(choice, Choice::Flee(_)) && Choice::of(&mob.doing) != Some(choice)) {
+        if busy && !(matches!(choice, Choice::Flee(_)) && current != Some(choice)) {
             return None;
         }
-        let at = seen.iter().find(|one| one.id == choice.who())?.position;
-        Some(choice.doing(at))
+        let Some(who) = choice.who() else {
+            // Going for a bag: carrying on if it already is.
+            return (current != Some(choice)).then(|| choice.doing(mob.position, tick));
+        };
+        let at = seen.iter().find(|one| one.id == who)?.position;
+        Some(choice.doing(at, tick))
     });
     (doing, scores)
 }
@@ -96,7 +105,7 @@ pub(in super::super) fn after_harm(
             ..Scores::default()
         };
         let fleeing = matches!(mob.doing, Doing::Fleeing { from, .. } if from == by.id);
-        return ((!fleeing).then(|| flee.doing(by.position)), scores);
+        return ((!fleeing).then(|| flee.doing(by.position, tick)), scores);
     }
     let enemy = feeling == Feeling::Unfriendly;
     let seen = [Seen {
@@ -111,7 +120,7 @@ pub(in super::super) fn after_harm(
     let chosen = pick(&options, current);
     let doing = match (chosen, mob.doing) {
         (Some(choice), _) if Some(choice) == current => None,
-        (Some(choice), _) => Some(choice.doing(by.position)),
+        (Some(choice), _) => Some(choice.doing(by.position, tick)),
         (None, Doing::Going { after, gap, .. }) if after == by.id && gap == FRIENDLY_GAP => {
             Some(Doing::Settling {
                 steps_left: SETTLING_STEPS,

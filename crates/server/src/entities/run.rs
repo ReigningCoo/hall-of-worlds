@@ -30,6 +30,8 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
     super::poison_mobs(world, tick);
     let everyone = everyone_playing(clients);
     let fires = super::choice::fires_by_place(clients, world);
+    let lying = super::desire::lying_by_place(world);
+    let mut reached = Vec::new();
     let behaviours = world.populations.1.clone();
     let mut crossings = Vec::new();
     let mut blows: Vec<MobBlow> = Vec::new();
@@ -99,6 +101,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
         let made = made_here(std::mem::take(kept), &fighting, mobs, steps);
         let mut overheard = Overheard::of(&made);
         let fires_here = fires.get(&place).map_or(&[][..], Vec::as_slice);
+        let lying_here = lying.get(&place).map_or(&[][..], Vec::as_slice);
         // Every mob's choice from where everyone stands now, before any moves.
         let others = others_of(mobs);
         // Mobs see, and may fight, other mobs too (mob behaviour plan PR 4).
@@ -125,7 +128,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 mob,
                 level,
                 &creatures,
-                (&others, fires_here),
+                (&others, fires_here, lying_here),
                 &behaviours,
                 tick,
             );
@@ -232,6 +235,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 doors.open = level.with_doors_open();
             }
             mob.turn_after(was_spot, &creatures);
+            super::desire::reached(mob, place, tick, &mut reached);
             // Others see it where it now stands.
             if let Some(me) = creatures.iter_mut().find(|one| one.id == mob.id) {
                 (me.position, me.at) = (mob.position, mob.spot);
@@ -276,6 +280,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             client.practise_unheard(tick);
         }
     }
+    super::desire::take_up(world, reached, &behaviours);
     for (place, blow) in on_mobs {
         strike_mob(world, place, blow, tick);
     }
@@ -287,10 +292,4 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
     }
     crate::connections::take_mob_blows(clients, world, blows, tick);
     super::tell_alerts(clients, world);
-}
-
-/// How far apart on the world map, the nearer way round the planet.
-pub(super) fn world_gap(a: (i64, i64), b: (i64, i64), width: i64) -> i64 {
-    let dx = (a.0 - b.0).rem_euclid(width);
-    dx.min(width - dx).max((a.1 - b.1).abs())
 }

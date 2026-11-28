@@ -33,6 +33,7 @@ mod curious_tests;
 mod defend;
 #[cfg(test)]
 mod defend_tests;
+mod desire;
 mod dev_gift;
 mod dev_mob;
 mod doing;
@@ -105,7 +106,6 @@ use moves::{Taken, act, nearest_free, take_step};
 pub(crate) use noise::make_noise;
 use notice::{Maps, Someone, Spot, cells_apart, everyone_playing};
 pub(super) use run::run_mobs;
-use run::world_gap;
 pub(crate) use scent::Scents;
 pub(crate) use shove::{knock_mob, shove, shoved_to};
 use spells::MobSpells;
@@ -204,6 +204,8 @@ pub(crate) struct Mob {
     foes: foes::Foes,
     /// Unaware, Alert or Aware (`alert.rs`). Not saved.
     wariness: shared::alertness::Wariness,
+    /// A bag it couldn't get to, and until when it passes it over (`desire.rs`).
+    passed_over: Option<(shared::spot::Spot, u64)>,
 }
 
 /// Stairs a mob has come by: where they are here, and where they lead back to.
