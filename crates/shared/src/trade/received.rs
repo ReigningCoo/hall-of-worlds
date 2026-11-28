@@ -5,14 +5,24 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::Buy;
 use crate::id::Id;
-use crate::item::{Inventory, Item, StackLimits};
+use crate::item::{Holder, Inventory, Item, Rotation, StackLimits};
 
 /// Things received in a trade, not yet taken out.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Received {
     pub items: Vec<Item>,
+}
+
+/// Something in the receive box (`item`), and the place in the inventory it
+/// is to be taken out to.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Place {
+    pub item: Id,
+    pub to: Holder,
+    pub x: u8,
+    pub y: u8,
+    pub rotation: Rotation,
 }
 
 /// How each character takes trades with players (Settings › Gameplay,
@@ -36,7 +46,7 @@ impl Received {
 
     /// One thing taken out, to the place `to` says (its `item` the one taken).
     /// `false`, and nothing changed, if it isn't here or doesn't go there.
-    pub fn take(&mut self, to: &Buy, carried: &mut Inventory) -> bool {
+    pub fn take(&mut self, to: &Place, carried: &mut Inventory) -> bool {
         let Some(at) = self.items.iter().position(|item| item.id == to.item) else {
             return false;
         };

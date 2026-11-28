@@ -28,20 +28,19 @@ use crate::common::Trading;
 use crate::inventory::Carried;
 use bevy::prelude::*;
 use shared::id::Id;
-use shared::item::{Holder, Inventory, Item, ItemKind, Rotation};
+use shared::item::{Inventory, Item, ItemKind, Rotation};
 use shared::protocol::TradeEnd;
 use shared::site::BuildingKind;
-use shared::trade::{Buy, Payment, Rates, Totals, shop_asks};
+use shared::trade::{Offer, Payment, Rates, Totals, shop_asks};
 use shared::value::total;
 
 fn sword(n: u128) -> Item {
     Item::new(Id::for_test(n), ItemKind::Sword)
 }
 
-fn buying(item: &Item) -> (Buy, Item) {
-    let buy = Buy {
+fn buying(item: &Item) -> (Offer, Item) {
+    let buy = Offer {
         item: item.id,
-        to: Holder::Inventory,
         x: 0,
         y: 0,
         rotation: Rotation::None,
@@ -57,6 +56,11 @@ fn the_grids_are_as_wide_as_their_sides() {
     let stock = format!("columns=\"{STOCK_COLUMNS}\"");
     assert!(TRADE.source.contains(&own));
     assert!(TRADE.source.contains(&stock));
+    let buying = format!(
+        "id=\"buying\" type=\"item\" places=\"packed\" stacks=\"false\" columns=\"{}\"",
+        shared::trade::BUYING_COLUMNS
+    );
+    assert!(TRADE.source.contains(&buying));
 }
 
 #[test]

@@ -6,7 +6,7 @@ use bevy::prelude::*;
 use shared::bonus::{may_use_on_self, usable_on_self};
 use shared::energy::handling_cost;
 use shared::item::Item;
-use shared::protocol::{BenchAsk, ClientMessage, TradeAsk};
+use shared::protocol::{BenchAsk, ClientMessage};
 
 use super::super::hold::{Target, stack_onto};
 use super::super::quest_drop::holds_quest_item;
@@ -127,19 +127,6 @@ pub(super) fn let_go_of(
             super::super::hold::drop_move(&carried.0, held.item, aim)
         {
             let item_id = held.item.id;
-            if with != GROUND {
-                // From a shop: bought in its trade, still the shop's until the
-                // trade is completed (trading plan; its window is PR 4's).
-                let buy = shared::trade::Buy {
-                    item: item_id,
-                    to,
-                    x,
-                    y,
-                    rotation,
-                };
-                to_server.write(ToServer(ClientMessage::Trade(TradeAsk::Buy(buy))));
-                return;
-            }
             let grams = item.total_weight();
             if carried.0.add(item, to, x, y, rotation).is_ok() {
                 let item = item_id;

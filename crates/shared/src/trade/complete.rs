@@ -6,11 +6,13 @@ use crate::id::Id;
 use crate::item::{Inventory, Item, MadeAt, PayRefused, StackLimits};
 use crate::site::BuildingKind;
 
-/// A trade done: what the player now carries and the shop has, what was paid
-/// (copper, negative when the shop paid) and how.
+/// A trade done: what the player now carries and the shop has, what bought
+/// didn't fit and goes into the receive box, what was paid (copper, negative
+/// when the shop paid) and how.
 #[derive(Clone, Debug)]
 pub struct Completed {
     pub inventory: Inventory,
+    pub received: Vec<Item>,
     pub stock: Vec<Item>,
     pub totals: Totals,
     pub paid: i64,
@@ -19,9 +21,9 @@ pub struct Completed {
 
 /// What a shop and its customer would have after `trade`, with this much
 /// Trading (a whole percentage): sold things join the stock, coins are paid
-/// highest first with change given, what is bought goes where asked (or
-/// anywhere it fits), and the shop's coins last, over the carry limit if
-/// need be.
+/// highest first with change given, the shop's coins over the carry limit if
+/// need be, and what is bought goes wherever it fits, in the order bought,
+/// the rest into the receive box (`Completed::received`).
 #[allow(clippy::too_many_arguments)]
 pub fn complete(
     trade: &ShopTrade,
@@ -50,20 +52,21 @@ pub fn complete(
             PayRefused::NoRoom => Refusal::NoRoom,
         })?;
     }
-    for buy in &trade.buying {
-        let place = stock.iter().position(|item| item.id == buy.item);
-        let item = stock.remove(place.ok_or(Refusal::NotStocked)?);
-        let (to, x, y, rotation) = (buy.to, buy.x, buy.y, buy.rotation);
-        if inventory.add(item.clone(), to, x, y, rotation).is_err() {
-            (inventory.give(item, limits, new_id)).map_err(|_| Refusal::NoRoom)?;
-        }
-    }
     if paid < 0 {
         let receiving = inventory.receive_coins(paid.unsigned_abs(), limits, made_at, new_id);
         receiving.map_err(|_| Refusal::NoRoom)?;
     }
+    let mut received = Vec::new();
+    for buy in &trade.buying {
+        let place = stock.iter().position(|item| item.id == buy.item);
+        let item = stock.remove(place.ok_or(Refusal::NotStocked)?);
+        if let Err(item) = inventory.give(item, limits, new_id) {
+            received.push(item);
+        }
+    }
     Ok(Completed {
         inventory,
+        received,
         stock,
         totals,
         paid,

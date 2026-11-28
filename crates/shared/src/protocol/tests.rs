@@ -178,13 +178,18 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ClientMessage::DevHerbs(super::DevHerbs::LearnAll),
         ClientMessage::DevHerbs(super::DevHerbs::ForgetAll),
         ClientMessage::Face(crate::facing::Heading(40_000)),
-        ClientMessage::Trade(super::TradeAsk::Buy(crate::trade::Buy {
+        ClientMessage::Trade(super::TradeAsk::Buy {
             item: Id::for_test(4),
-            to: Holder::Inventory,
-            x: 1,
-            y: 2,
-            rotation: Rotation::Quarter,
-        })),
+            at: Some(crate::trade::BoxPlace {
+                x: 1,
+                y: 2,
+                rotation: Rotation::Quarter,
+            }),
+        }),
+        ClientMessage::Trade(super::TradeAsk::Buy {
+            item: Id::for_test(4),
+            at: None,
+        }),
         ClientMessage::Trade(super::TradeAsk::Pay(Some(-12))),
         ClientMessage::Trade(super::TradeAsk::Complete),
         ClientMessage::Trade(super::TradeAsk::Offer(crate::trade::Offer {

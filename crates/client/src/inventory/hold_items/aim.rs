@@ -33,9 +33,7 @@ pub(super) fn aim_at(
         sheet,
         trading,
     } = under;
-    // What is being bought takes room where it is to go.
-    let with_buys = super::trade::with_unpaid(&carried.0, trading, held.id);
-    let inventory = with_buys.as_ref().unwrap_or(&carried.0);
+    let inventory = &carried.0;
     let from_stock = holding.stock.as_ref().map(|(with, _)| *with);
     // One of our grids, and the cell of it the pointer is in.
     let cell = over.cell.and_then(|(grid, x, y)| {
@@ -66,8 +64,10 @@ pub(super) fn aim_at(
         })
         .unwrap_or_default();
     let on_row = on_gifts;
-    // Something of theirs can only go back to them.
-    let on_gifts = on_gifts.filter(|&to| from_stock.is_none_or(|from| from == to));
+    // Something of theirs can only go back to them (a shop's stock to the
+    // Buying box too, and back).
+    let on_gifts = on_gifts
+        .filter(|&to| from_stock.is_none_or(|from| super::trade::may_go_to(trading, from, to)));
     over_gifts.0 = on_gifts.zip(at).map(|(to, at)| HeldGift {
         to,
         item: held.id,
@@ -116,7 +116,9 @@ pub(super) fn aim_at(
                 allowed: worth_wearing(tried),
             };
         }
-        if on_bin || on_body || on_row.is_some() {
+        // A shop's goes only into the Buying box, never the inventory.
+        let shops = super::trade::is_shops(trading, *with);
+        if on_bin || on_body || on_row.is_some() || shops {
             return Target::Nowhere;
         }
         // Only what is on the ground can go on a stack, not someone's stock.
@@ -126,10 +128,7 @@ pub(super) fn aim_at(
             StackLimits::NONE
         };
         let target = super::super::hold::target_for_new(inventory, item, held, cell, limits);
-        // Something new from the shop's grid must be paid for.
-        let new = Some(*with) == trading.with && trading.unpaid(item.id).is_none();
-        let buying = new.then_some(item);
-        return super::trade::trade_aim(target, trading, buying, carried.0.coins_carried());
+        return target;
     }
     if on_drop {
         // Only sites have ground.
@@ -169,6 +168,5 @@ pub(super) fn aim_at(
             allowed: worth_wearing(tried),
         };
     }
-    let target = super::super::hold::target(inventory, held, cell, stacks.0);
-    super::trade::trade_aim(target, trading, None, 0)
+    super::super::hold::target(inventory, held, cell, stacks.0)
 }

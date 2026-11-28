@@ -1,13 +1,13 @@
 //! A trade with a shop as both sides hold it: what the player is buying
-//! (still the shop's until completed, with where it is to go) and selling
-//! (still carried), and what they offer to pay. Its totals are worked out
+//! (still the shop's until completed, where it lies in the Buying box,
+//! `buying.rs`) and selling (still carried), and what they offer to pay. Its totals are worked out
 //! the same way on both sides.
 
 use serde::{Deserialize, Serialize};
 
-use super::{Rates, due, normally_sold, shop_asks, shop_pays};
+use super::{Offer, Rates, due, normally_sold, shop_asks, shop_pays};
 use crate::id::Id;
-use crate::item::{Holder, Inventory, Item, Rotation};
+use crate::item::{Inventory, Item};
 use crate::site::BuildingKind;
 use crate::value::total;
 
@@ -15,24 +15,14 @@ use crate::value::total;
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ShopTrade {
     pub with: Id,
-    /// What is being bought from its stock, in the order asked.
-    pub buying: Vec<Buy>,
+    /// What is being bought from its stock, in the order asked, and where it
+    /// lies in the Buying box.
+    pub buying: Vec<Offer>,
     /// What is being sold, still carried, in the order asked.
     pub selling: Vec<Id>,
     /// What the player offers to pay in copper (negative: to be paid), if
     /// not what is due: a tip or a haggle.
     pub paying: Option<i64>,
-}
-
-/// Something from a shop's stock, and the place in the player's inventory
-/// it goes to (anywhere it fits, if that is taken by then).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Buy {
-    pub item: Id,
-    pub to: Holder,
-    pub x: u8,
-    pub y: u8,
-    pub rotation: Rotation,
 }
 
 /// Why something in a trade was refused.

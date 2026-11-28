@@ -1,6 +1,6 @@
 use super::*;
 use crate::id::Id;
-use crate::item::{Holder, Inventory, Item, ItemKind, Rotation, StackLimits};
+use crate::item::{Inventory, Item, ItemKind, StackLimits};
 use crate::quest::Standing;
 use crate::site::BuildingKind;
 use crate::value::total;
@@ -129,13 +129,7 @@ fn a_trade_is_all_at_once() {
     let stock = vec![sword.clone()];
     let mut trade = ShopTrade::new(Id::for_test(99));
     trade.selling.push(stone.id);
-    trade.buying.push(Buy {
-        item: sword.id,
-        to: Holder::Inventory,
-        x: 200,
-        y: 200,
-        rotation: Rotation::None,
-    });
+    trade.buy(sword.id, None, &stock).unwrap();
     let terms = (Rates::default(), BuildingKind::Blacksmith);
     let totals = trade.totals(&stock, &carried, terms.0, terms.1).unwrap();
     assert_eq!(totals.asks, total(&sword) * 3 / 2);
@@ -151,7 +145,7 @@ fn a_trade_is_all_at_once() {
         &mut stand_in(),
     )
     .unwrap();
-    // Bought where it fits, as its place was off the grid; the stone sold.
+    // Bought where it fits; the stone sold.
     assert!(done.inventory.find(sword.id).is_some());
     assert!(done.inventory.find(stone.id).is_none());
     assert_eq!(

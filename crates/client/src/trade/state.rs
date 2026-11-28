@@ -7,10 +7,11 @@ use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::Item;
 use shared::protocol::Keeper;
+use shared::trade::BUYING_ROWS;
 use std::collections::BTreeMap;
 
 use super::markup::{OWN_COLUMNS, STOCK_COLUMNS};
-use crate::common::{own_side, receive_box};
+use crate::common::{buying_box, own_side, receive_box};
 use crate::widgets::StockGrid;
 
 /// Someone near enough to trade with, as the dropdown lists them: a shop's
@@ -43,6 +44,9 @@ pub(super) struct TradeWindow {
     pub(super) own: StockGrid,
     pub(super) their_holder: Option<Entity>,
     pub(super) own_holder: Option<Entity>,
+    /// A shop trade's Buying box, where the server says things lie in it.
+    pub(super) buying: StockGrid,
+    pub(super) buying_holder: Option<Entity>,
     /// A character's side (seen, not touched), drawn where they put things.
     pub(super) between_holder: Option<Entity>,
     /// The receive box: what a settled trade gave, until taken out.
@@ -71,6 +75,8 @@ impl Default for TradeWindow {
             own: own_grid(),
             their_holder: None,
             own_holder: None,
+            buying: buying_grid(),
+            buying_holder: None,
             between_holder: None,
             received: Vec::new(),
             receive: receive_grid(),
@@ -89,6 +95,7 @@ impl TradeWindow {
         self.stock.clear();
         self.theirs = None;
         self.own = own_grid();
+        self.buying = buying_grid();
         self.dirty = true;
     }
 
@@ -109,6 +116,11 @@ impl TradeWindow {
 /// The own side: 8 × 8 however little is in it.
 fn own_grid() -> StockGrid {
     StockGrid::new(own_side(), OWN_COLUMNS, &[]).exactly(OWN_COLUMNS)
+}
+
+/// The Buying box: 8 wide, 4 rows until the server says it has grown.
+fn buying_grid() -> StockGrid {
+    StockGrid::new(buying_box(), OWN_COLUMNS, &[]).exactly(BUYING_ROWS)
 }
 
 /// The receive box: 8 × 8 however little is in it.

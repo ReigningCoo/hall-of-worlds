@@ -87,7 +87,8 @@ pub(super) fn show_gift_aim(
     let with = open.grid.with;
     let aim = held.0.filter(|gift| gift.to == with).and_then(|gift| {
         let (_, node, transform) = grids.iter().find(|(grid, ..)| grid.0 == with)?;
-        open.grid.aim(&gift, &carried.0, node, transform)
+        open.grid
+            .aim(&gift, carried.0.find(gift.item), node, transform)
     });
     let ours = shown.iter_mut().filter(|(of, _)| of.0 == with);
     show_stock_aim(ours, aim);

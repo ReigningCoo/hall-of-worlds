@@ -5,6 +5,7 @@
 //! `common::Trading`, its sums worked out as the server works them.
 
 use bevy::prelude::*;
+use shared::item::Placed;
 use shared::protocol::{ClientMessage, ServerMessage, TradeEnd, TradeNews};
 use shared::trade::ShopTrade;
 
@@ -129,7 +130,8 @@ fn take_state(trade: &ShopTrade, window: &TradeWindow, trading: &mut Trading) {
 }
 
 /// Works out the trade's sums again, and what each side shows: the shop's
-/// stock but what is being bought, and what is being sold as it is carried.
+/// stock but what is being bought, the Buying box where the server says
+/// things lie in it, and what is being sold as it is carried.
 /// Also when what is carried changes.
 pub(super) fn follow(window: &mut TradeWindow, trading: &mut Trading, carried: &Carried) {
     if let Some(between) = &trading.between {
@@ -148,10 +150,18 @@ pub(super) fn follow(window: &mut TradeWindow, trading: &mut Trading, carried: &
         let totals = trade.totals(&window.stock, &carried.0, rates, shop);
         trading.totals = totals.unwrap_or_default();
         let theirs: Vec<_> = (window.stock.iter())
-            .filter(|item| trading.unpaid(item.id).is_none())
+            .filter(|item| trading.bought(item.id).is_none())
             .cloned()
             .collect();
         window.their_grid(with).heard(&theirs);
+        let bought = trading.buying.iter().map(|(offer, item)| Placed {
+            item: item.clone(),
+            x: offer.x,
+            y: offer.y,
+            rotation: offer.rotation,
+        });
+        window.buying.placed(bought.collect());
+        window.buying.set_rows(trade.buying_rows(&window.stock));
     }
     let selling: Vec<_> = (trading.selling.iter())
         .filter_map(|&id| carried.0.find(id).cloned())

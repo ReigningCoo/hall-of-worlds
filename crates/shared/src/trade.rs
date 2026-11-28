@@ -11,10 +11,14 @@
 //! - Coins are paid and change given automatically on completing, highest
 //!   coins first, over the carry limit if need be (`item::inventory::pay`).
 //!   Paying more than is due is a tip, less is haggling (`settle.rs`).
+//! - What is bought lies in the Buying box (`buying.rs`) until completed,
+//!   then goes wherever it fits in the inventory, the rest into the receive
+//!   box.
 //! - Trades between characters (`between.rs`): each side up to 8 × 8, settled
 //!   once both are locked in, into the other's receive box (`received.rs`).
 
 mod between;
+mod buying;
 mod complete;
 mod price;
 mod rates;
@@ -23,12 +27,13 @@ mod settle;
 mod shop_trade;
 
 pub use between::{Between, Offer, SIDE_CELLS, Side, for_trade};
+pub use buying::{BUYING_COLUMNS, BUYING_ROWS, BoxPlace};
 pub use complete::{Completed, complete};
 pub use price::{NOT_SOLD_PERCENT, normally_sold, shop_asks, shop_pays};
 pub use rates::{MOST_SKILL, MOST_STANDING, Rates, skill_percent, standing_percent};
-pub use received::{Received, TradingSetting};
+pub use received::{Place, Received, TradingSetting};
 pub use settle::{HAGGLE_PERCENT, Payment, TIP_PERCENT, TRADE_PRACTICE, due, haggle_room, judge};
-pub use shop_trade::{Buy, Refusal, ShopTrade, Totals, for_sale};
+pub use shop_trade::{Refusal, ShopTrade, Totals, for_sale};
 
 use crate::spot::{CELL_SPAN, Spot};
 
@@ -52,5 +57,7 @@ pub fn in_reach(a: Spot, b: Spot) -> bool {
 
 #[cfg(test)]
 mod between_tests;
+#[cfg(test)]
+mod buying_tests;
 #[cfg(test)]
 mod tests;

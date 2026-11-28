@@ -1,8 +1,8 @@
-//! Changing an open trade: something to buy or sell added or taken back, or
-//! what to pay. Each change is checked as it comes, so the trade the client
+//! Changing an open trade: something put in the Buying box (or moved in
+//! it) or back in the stock, something to sell added or taken back, or what
+//! to pay. Each change is checked as it comes, so the trade the client
 //! is told of is one that could be completed now.
 
-use shared::item::Item;
 use shared::protocol::TradeAsk;
 use shared::trade::{Refusal, ShopTrade, for_sale};
 
@@ -19,14 +19,8 @@ pub(super) fn changed(
 ) -> Result<ShopTrade, Refusal> {
     let mut trade = trade.clone();
     match ask {
-        TradeAsk::Buy(buy) => {
-            if trade.has(buy.item) {
-                return Err(Refusal::AlreadyIn);
-            }
-            trade.buying.push(buy);
-            fits(client, &trade, &terms.stock)?;
-        }
-        TradeAsk::Unbuy { item } => trade.buying.retain(|buy| buy.item != item),
+        TradeAsk::Buy { item, at } => trade.buy(item, at, &terms.stock)?,
+        TradeAsk::Unbuy { item } => trade.unbuy(item),
         TradeAsk::Sell { item } => {
             if trade.has(item) {
                 return Err(Refusal::AlreadyIn);
@@ -55,16 +49,4 @@ pub(super) fn changed(
         return Err(Refusal::CantAfford);
     }
     Ok(trade)
-}
-
-/// Whether everything being bought fits where it is to go, beside what is
-/// carried and each other.
-fn fits(client: &Client, trade: &ShopTrade, stock: &[Item]) -> Result<(), Refusal> {
-    let mut trial = client.inventory.clone();
-    for buy in &trade.buying {
-        let item = stock.iter().find(|item| item.id == buy.item);
-        let item = item.ok_or(Refusal::NotStocked)?.clone();
-        (trial.add(item, buy.to, buy.x, buy.y, buy.rotation)).map_err(|_| Refusal::NoRoom)?;
-    }
-    Ok(())
 }

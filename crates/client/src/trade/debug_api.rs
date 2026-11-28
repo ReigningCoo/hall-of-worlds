@@ -54,7 +54,6 @@ fn trade(
             json!({
                 "item": item.id.to_string(),
                 "kind": format!("{:?}", item.kind),
-                "to": format!("{:?}", buy.to),
                 "x": buy.x,
                 "y": buy.y,
             })

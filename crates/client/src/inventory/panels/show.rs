@@ -14,8 +14,7 @@ use crate::widgets::{Dropdown, ItemMark, weight_words};
 
 /// Says what is in each open grid again when it changes, or its filter does, and
 /// how big it is. What is held isn't shown where it was, though it is still there
-/// until dropped. A trade marks what is being sold, and draws what is being
-/// bought where it is to go, unpaid (`common::Trading`).
+/// until dropped. A trade marks what is being sold (`common::Trading`).
 pub(in crate::inventory) fn show_grids(
     carried: Res<Carried>,
     trading: Res<Trading>,
@@ -47,23 +46,9 @@ pub(in crate::inventory) fn show_grids(
             true => ItemMark::Selling,
             false => ItemMark::None,
         };
-        let unpaid = (trading.buying.iter()).filter(|(buy, _)| buy.to == holder);
-        let unpaid = unpaid.map(|(buy, item)| Placed {
-            item: item.clone(),
-            x: buy.x,
-            y: buy.y,
-            rotation: buy.rotation,
-        });
-        let unpaid: Vec<Placed> = unpaid.collect();
         let things = placed
             .filter(|placed| Some(placed.item.id) != held)
             .map(|placed| thing(placed, dims(filter, &placed.item), mark(placed)))
-            .chain(
-                unpaid
-                    .iter()
-                    .filter(|placed| Some(placed.item.id) != held)
-                    .map(|placed| thing(placed, dims(filter, &placed.item), ItemMark::Unpaid)),
-            )
             .collect();
         let (columns, rows) = shown_size(&carried.0, holder).unwrap_or((shown.columns, shown.rows));
         let now = GridShown {

@@ -1,7 +1,8 @@
 //! The trade window as markup (trading plan PRs 4 and 6): who to trade with
 //! at the top, the player's side (8 × 8: what is sold or offered), the middle
 //! (what each side is worth and who gains, and with a character the Trade
-//! toggle), and their side: a shop's whole stock, or a character's 8 × 8,
+//! toggle), and their side: a shop's Buying box (8 wide, what is being
+//! bought, dragged there from its stock) above its stock, or a character's 8 × 8,
 //! seen but not touched. Along the bottom, for a shop, Complete trade with
 //! what is due beside it. Once a trade with a character settles, all that
 //! gives way to the receive box, with Take all.
@@ -38,6 +39,8 @@ pub(super) static TRADE: Template = html!(
       </div>
       <container id="their_frame" title="Theirs">
         <p id="asking" hidden>Asking...</p>
+        <p id="buying_label">Buying</p>
+        <object-grid id="buying" type="item" places="packed" stacks="false" columns="8"/>
         <scroll id="scroll" max-height="55%">
           <object-grid id="stock" type="item" places="packed" stacks="false" columns="12"/>
         </scroll>
