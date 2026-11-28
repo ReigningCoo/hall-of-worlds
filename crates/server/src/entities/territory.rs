@@ -1,12 +1,13 @@
 //! Territorial mobs: they keep strangers out of the ground round their home,
-//! standing between them and it, and turn on anyone who comes in.
+//! standing between them and it, and turn on anyone who comes in (what they
+//! choose to do is `choice`'s; here their ground, trespasses and where to stand).
 
 use shared::creature::Temper;
 use shared::dungeon::{Level, line_is_clear};
 use shared::movement::mob_can_stand;
 use shared::sheet::Feeling;
 
-use super::{Doing, Mob, Spot, Taken, cells_apart, nearest_free};
+use super::{Mob, Spot, Taken, cells_apart, nearest_free};
 
 /// How far round its home a territorial mob counts as its own, in cells.
 pub(super) const TERRITORY: i64 = 6;
@@ -38,26 +39,6 @@ pub(super) fn mind_territory(mob: &mut Mob, level: &Level, spots: &[Spot], tick:
         if inside && seen && mob.feeling(spot.kind, Some(&character)) != Feeling::Friendly {
             mob.memory.remember_trespass(character, tick);
         }
-    }
-}
-
-/// What a territorial mob does about someone it can see, in place of its kind's
-/// usual reaction: it guards against strangers, and chases those it is angry with
-/// only while they are near its home.
-pub(super) fn territorial_doing(mob: &Mob, spot: &Spot, feeling: Feeling) -> Option<Doing> {
-    let guard = Doing::Guarding {
-        against: spot.id,
-        last_seen: spot.position,
-    };
-    match feeling {
-        Feeling::None | Feeling::Friendly => None,
-        Feeling::Neutral => Some(guard),
-        Feeling::Unfriendly if cells_apart(spot.position, mob.home) > LEASH => Some(guard),
-        Feeling::Unfriendly => Some(Doing::Going {
-            after: spot.id,
-            last_seen: spot.position,
-            gap: super::ATTACK_GAP,
-        }),
     }
 }
 

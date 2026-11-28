@@ -1,6 +1,6 @@
 # shared: behaviour
 
-How each race of creature behaves, as data (mob behaviour plan PR 1; the plan: `docs/context/mob-behaviour.md`): drives, who it defends, its alarm call, what it hunts, how it flees, whether fences stop it, whether it fears open fire, what it wants from the ground, its temper, and bands with their variants and relations. Only data and rules: what mobs do with them is the server's (`entities`), from the plan's PR 2 on; nothing in play reads more than `Temper` yet.
+How each race of creature behaves, as data (mob behaviour plan PR 1; the plan: `docs/context/mob-behaviour.md`): drives, who it defends, its alarm call, what it hunts, how it flees, whether fences stop it, whether it fears open fire, what it wants from the ground, its temper, and bands with their variants and relations. Only data and rules: what mobs do with them is the server's (`entities/choice`, from the plan's PR 2): drives score its choices, and flee style, fences and fear of fire steer its steps; `defends`, `alarm`, `hunts` and `desires` are read from later PRs.
 
 ## Files
 
@@ -29,7 +29,7 @@ How each race of creature behaves, as data (mob behaviour plan PR 1; the plan: `
 
 ## Used by
 
-- `creature` (`Temper`, `temper()`: `feeling_about`, `reaction`), `mob` (`Spawn::band`, `family`), server `behaviours.rs` (loading mods, `BehaviourTable`), and through `temper()` the server's `entities` (territory, timid, watching) and `quests/standing.rs`.
+- `creature` (`Temper`, `temper()`: `feeling_about`, `reaction`), `mob` (`Spawn::band`, `family`), server `behaviours.rs` (loading mods, `BehaviourTable`), server `entities/choice` (`Behaviours::of`, `relation` for friends in sight, `Ways`), and through `temper()` the server's `entities` (territory, timid, watching) and `quests/standing.rs`.
 
 ## Notes
 

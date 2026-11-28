@@ -2,8 +2,8 @@
 //! with its mods' replacing a race's by `kind`. Mods are the `behaviours/*.ron`
 //! files in the mods folder (`crate::mods`), each a list of races' behaviours,
 //! read in name order at start. Never sent to clients. Kept as the resource
-//! `BehaviourTable`, which mobs' choices read from the mob behaviour plan's
-//! PR 2 on.
+//! `BehaviourTable`, shared with every world (`ServerWorlds::use_behaviours`)
+//! for mobs' choices (`entities::choice`).
 
 use std::path::Path;
 use std::sync::Arc;

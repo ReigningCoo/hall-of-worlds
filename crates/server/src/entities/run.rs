@@ -2,6 +2,7 @@
 
 use shared::dungeon::line_is_clear;
 
+use super::choice::{choose, others_of, with_fire};
 use super::doors::{Opened, open_on_the_way, way_level};
 use super::escortee::mind_escort;
 use super::facing::noises;
@@ -9,7 +10,7 @@ use super::fight::{MobBlow, mob_turn};
 use super::on_ground::on_ground;
 use super::territory::mind_territory;
 use super::tracking::track;
-use super::{Doing, Maps, Population, Spot, Taken, act, cross, everyone_playing, notice};
+use super::{Doing, Maps, Population, Spot, Taken, act, cross, everyone_playing};
 use crate::ServerWorld;
 use crate::connections::Client;
 
@@ -26,6 +27,8 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
     // Spells' poison harms before anyone acts.
     super::poison_mobs(world, tick);
     let everyone = everyone_playing(clients);
+    let fires = super::choice::fires_by_place(clients, world);
+    let behaviours = world.populations.1.clone();
     let mut crossings = Vec::new();
     let mut blows: Vec<MobBlow> = Vec::new();
     let mut opened: Vec<Opened> = Vec::new();
@@ -76,7 +79,9 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             .map(|someone| someone.spot)
             .collect();
         let noises = noises(&fighting, mobs);
-        // Anyone at rest, settling or guarding may notice someone.
+        let fires_here = fires.get(&place).map_or(&[][..], Vec::as_slice);
+        // Every mob's choice from where everyone stands now, before any moves.
+        let others = others_of(mobs);
         for mob in mobs.iter_mut().filter(|mob| !mob.still) {
             mob.thaw(tick);
             // One escorted only keeps near its quester (`escortee`).
@@ -88,7 +93,13 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             }
             mob.listen(&noises);
             mind_territory(mob, level, &spots, tick);
-            if let Some(doing) = notice(mob, level, &spots) {
+            mob.ways.set(behaviours.of(mob.kind));
+            let (chosen, scores) =
+                choose(mob, level, &spots, (&others, fires_here), &behaviours, tick);
+            if !scores.options.is_empty() {
+                mob.scores = scores;
+            }
+            if let Some(doing) = chosen {
                 let at_rest = mob.doing == Doing::Idle;
                 mob.doing = doing;
                 mob.target = doing.target();
@@ -123,10 +134,16 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             };
             let was_at = mob.position;
             let was_spot = mob.spot;
+            // One that fears fire steps no nearer one.
+            let feared = match mob.ways.fears_fire {
+                true => with_fire(&taken, mob.position, fires_here),
+                false => None,
+            };
+            let taken_now = feared.as_ref().unwrap_or(&taken);
             let ground = (&*level, relief.as_ref());
             let fighting = match mob.escort {
                 Some(_) => None,
-                None => mob_turn(mob, ground, &spots, (tick, &taken), &mut blows),
+                None => mob_turn(mob, ground, &spots, (tick, taken_now), &mut blows),
             };
             let cost = if let Some(cost) = fighting {
                 cost
@@ -136,7 +153,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                     way_level(mob, level, doors.as_ref()),
                     &spots,
                     scents,
-                    &taken,
+                    taken_now,
                     tick,
                 )
             } else {
@@ -148,7 +165,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                     tick,
                     seen,
                     &mut crossing,
-                    &taken,
+                    taken_now,
                     place,
                 )
             };

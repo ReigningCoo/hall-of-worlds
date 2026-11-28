@@ -162,8 +162,9 @@ impl Plugin for ServerPlugin {
         };
         let herbs = herbs::load(self.data.as_deref());
         let behaviours = behaviours::load(self.data.as_deref());
-        let worlds = ServerWorlds::start(self.world_seed, storage, herbs)
+        let mut worlds = ServerWorlds::start(self.world_seed, storage, herbs)
             .unwrap_or_else(|error| panic!("The server can't open its home world: {error}"));
+        worlds.use_behaviours(behaviours.0.clone());
         let mut roles = match &self.data {
             Some(data) => roles::Roles::open(data, storage::now())
                 .unwrap_or_else(|error| panic!("The server can't read its roles: {error}")),

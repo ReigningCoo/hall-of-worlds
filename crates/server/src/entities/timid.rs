@@ -13,7 +13,7 @@ const FRIEND_APART: i64 = 2;
 /// Strangers, five cells.
 const STRANGER_APART: i64 = 5;
 /// Enemies, ten cells.
-const ENEMY_APART: i64 = 10;
+pub(super) const ENEMY_APART: i64 = 10;
 
 pub(super) fn is_timid(mob: &Mob) -> bool {
     mob.kind.temper() == Temper::Timid

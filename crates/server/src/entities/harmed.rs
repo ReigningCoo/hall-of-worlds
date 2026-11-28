@@ -5,12 +5,11 @@
 use shared::creature::CreatureKind;
 use shared::id::Id;
 use shared::protocol::CharacterId;
-use shared::sheet::Feeling;
 use shared::vitals::Points;
 
+use super::Doing;
+use super::choice::{after_harm, friends_seen, others_of};
 use super::gear::{bury, record_of};
-use super::timid::is_timid;
-use super::{ATTACK_GAP, Doing, FRIENDLY_GAP, Mob, SETTLING_STEPS};
 use crate::ServerWorld;
 use crate::combat::{Harm, health_left};
 use crate::storage::SiteId;
@@ -34,7 +33,7 @@ pub(crate) struct Harmer {
 
 /// A mob on `place` (whose own level is `here_index`) takes `harm` from a
 /// player: it is harmed, remembers it (`Memory::remember_harm`, saved), does
-/// what its standing with them now says (`after_hit`), and dies if that was
+/// what its standing with them now says (`choice::after_harm`), and dies if that was
 /// the last of its Health. `None` if it is no longer there.
 pub(crate) fn harm_mob(
     world: &mut ServerWorld,
@@ -44,7 +43,9 @@ pub(crate) fn harm_mob(
     by: Harmer,
     tick: u64,
 ) -> Option<MobHit> {
+    let behaviours = world.populations.1.clone();
     let population = world.populations.0.get_mut(&place)?;
+    let others = others_of(&population.mobs);
     let one = population.mobs.iter_mut().find(|one| one.id == mob)?;
     let limits = one.limits();
     one.vitals.hurt(harm, limits, tick, 0);
@@ -66,7 +67,11 @@ pub(crate) fn harm_mob(
     one.memory.remember_harm(character, harm, start);
     let feeling = one.feeling(by.kind, Some(&character));
     let at_rest = one.doing == Doing::Idle;
-    if let Some(doing) = after_hit(one, &by, feeling) {
+    let friends = friends_seen(one, &population.level, &others, &behaviours);
+    let def = behaviours.of(kind);
+    let (doing, scores) = after_harm(one, &by, feeling, (def, friends), tick);
+    one.scores = scores;
+    if let Some(doing) = doing {
         one.doing = doing;
         one.target = doing.target();
         if at_rest && doing != Doing::Idle {
@@ -82,35 +87,4 @@ pub(crate) fn harm_mob(
         bury(world, place, here_index, mob, true);
     }
     Some(MobHit { harm, left, kind })
-}
-
-/// What a mob does once hit, by how it now stands with whoever hit it: a timid
-/// one keeps away, an unfriendly one goes for them, and one only cooled to
-/// neutral stops coming over but doesn't fight back. `None` to carry on.
-fn after_hit(mob: &Mob, by: &Harmer, feeling: Feeling) -> Option<Doing> {
-    if is_timid(mob) {
-        let fleeing = matches!(mob.doing, Doing::Fleeing { from, .. } if from == by.id);
-        return (!fleeing).then_some(Doing::Fleeing {
-            from: by.id,
-            struck: false,
-        });
-    }
-    match (feeling, mob.doing) {
-        (Feeling::Unfriendly, Doing::Going { after, gap, .. })
-            if after == by.id && gap == ATTACK_GAP =>
-        {
-            None
-        }
-        (Feeling::Unfriendly, _) => Some(Doing::Going {
-            after: by.id,
-            last_seen: by.position,
-            gap: ATTACK_GAP,
-        }),
-        (_, Doing::Going { after, gap, .. }) if after == by.id && gap == FRIENDLY_GAP => {
-            Some(Doing::Settling {
-                steps_left: SETTLING_STEPS,
-            })
-        }
-        _ => None,
-    }
 }

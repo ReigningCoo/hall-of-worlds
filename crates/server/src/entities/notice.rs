@@ -1,18 +1,16 @@
-//! What a mob notices: players near enough, and where they are.
+//! Players as mobs see them, and where they are (what mobs do about them is
+//! `choice`).
 
 use shared::creature::{CreatureKind, Size};
-use shared::dungeon::{Level, line_is_clear};
+use shared::dungeon::Level;
 use shared::id::Id;
 use shared::mob::scent_strength;
 use shared::pathfinding::DistanceMap;
 use shared::protocol::CharacterId;
-use shared::sheet::{Appearance, Feeling, Reaction};
+use shared::sheet::Appearance;
 use shared::wear::WornLook;
 use std::collections::BTreeMap;
 
-use super::territory::{is_territorial, territorial_doing};
-use super::timid::too_near;
-use super::{ATTACK_GAP, Doing, FRIENDLY_GAP, Mob};
 use crate::connections::{Client, Phase};
 use crate::storage::SiteId;
 
@@ -123,44 +121,4 @@ pub(super) struct Spot {
     pub(super) at: shared::spot::Spot,
     /// How strong a trail they leave, as a percentage.
     pub(super) scent: u32,
-}
-
-/// What a mob does about players now, if it should stop what it is doing.
-pub(super) fn notice(mob: &Mob, level: &Level, spots: &[Spot]) -> Option<Doing> {
-    if matches!(
-        mob.doing,
-        Doing::Going { .. } | Doing::Following { .. } | Doing::Fleeing { .. }
-    ) {
-        return None;
-    }
-    let sees_within = mob.kind.senses().sight_range();
-    // Only what is in its cone: sneaking up behind works.
-    let cone = mob.cone();
-    spots
-        .iter()
-        .filter(|spot| {
-            cells_apart(spot.position, mob.position) <= sees_within
-                && cone.sees(spot.at)
-                && line_is_clear(level, mob.position, spot.position)
-        })
-        .find_map(|spot| {
-            let going = |gap| Doing::Going {
-                after: spot.id,
-                last_seen: spot.position,
-                gap,
-            };
-            let feeling = mob.feeling(spot.kind, spot.character.as_ref());
-            if is_territorial(mob) && feeling != Feeling::Friendly {
-                return territorial_doing(mob, spot, feeling);
-            }
-            match mob.kind.reaction(feeling) {
-                Reaction::Ignore => None,
-                Reaction::Flee => too_near(mob, spot).then_some(Doing::Fleeing {
-                    from: spot.id,
-                    struck: false,
-                }),
-                Reaction::Approach => Some(going(FRIENDLY_GAP)),
-                Reaction::Attack => Some(going(ATTACK_GAP)),
-            }
-        })
 }

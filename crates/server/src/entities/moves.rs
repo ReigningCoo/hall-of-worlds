@@ -8,6 +8,7 @@ use shared::rng::Seed;
 use shared::spot::Spot as Units;
 use std::collections::BTreeSet;
 
+use super::choice::zigzag;
 use super::doubling_back::walk_towards;
 use super::territory::{LEASH, guard_cell, is_territorial};
 use super::timid::too_near;
@@ -32,7 +33,10 @@ pub(super) fn take_step(
 ) -> Option<u32> {
     let size = mob.size();
     let (to, squeeze) = mob_step_sized(level, size, mob.position, step?)?;
-    if taken.contains(&to) || (mob.penned && leaves_pen(level, mob.position, to)) {
+    // Kept animals, and races fences stop (wolves, unless running for their lives).
+    let fleeing = matches!(mob.doing, Doing::Fleeing { .. });
+    let fenced = mob.penned || mob.ways.stopped_by_fences(fleeing);
+    if taken.contains(&to) || (fenced && leaves_pen(level, mob.position, to)) {
         return None;
     }
     let here = Units::middle_of(mob.position);
@@ -50,8 +54,8 @@ pub(super) fn take_step(
     Some(cost as u32)
 }
 
-/// Whether a step would take a kept animal out of its pen: through its gate
-/// or by jumping its fence (anything jumped).
+/// Whether a step would take a kept animal out of its pen, or anything fenced
+/// over a fence: through a gate or by jumping (anything jumped).
 fn leaves_pen(level: &Level, from: (i64, i64), to: (i64, i64)) -> bool {
     let jump = (to.0 - from.0).abs().max((to.1 - from.1).abs()) > 1;
     jump || level.cell(to.0, to.1) == shared::dungeon::Cell::FieldGate
@@ -164,10 +168,12 @@ pub(super) fn act(
                 from,
                 struck: false,
             };
-            let step = maps
-                .to(level, mob.size(), threat.position)
-                .away(level, mob.position, free);
-            take_step(mob, level, step, taken).unwrap_or(THINKING_COST)
+            let map = maps.to(level, mob.size(), threat.position);
+            let away = map.away(level, mob.position, free);
+            let step = zigzag(mob, level, map, (away, threat.position), free);
+            (take_step(mob, level, step, taken))
+                .or_else(|| take_step(mob, level, away, taken))
+                .unwrap_or(THINKING_COST)
         }
         Doing::Guarding { against, .. } => {
             let sees_within = mob.kind.senses().sight_range();

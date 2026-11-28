@@ -145,6 +145,15 @@ impl ServerWorlds {
         self.open.iter().map(|(id, world)| (*id, world))
     }
 
+    /// Every world's mobs, and those of worlds opened later, go by `behaviours`
+    /// (the server's, with its mods).
+    pub(crate) fn use_behaviours(&mut self, behaviours: Arc<shared::behaviour::Behaviours>) {
+        for world in self.open.values_mut() {
+            world.populations.1 = behaviours.clone();
+        }
+        self.shared.behaviours = behaviours;
+    }
+
     pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = (WorldId, &mut ServerWorld)> {
         self.open.iter_mut().map(|(id, world)| (*id, world))
     }
