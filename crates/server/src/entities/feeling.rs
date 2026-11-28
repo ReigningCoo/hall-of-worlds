@@ -15,11 +15,17 @@ impl Mob {
     /// How it feels about a creature of this kind, played by this character, with
     /// what it remembers of them.
     pub(super) fn feeling(&self, kind: CreatureKind, character: Option<&CharacterId>) -> Feeling {
+        self.feeling_from(character, self.kind.feeling_about(kind))
+    }
+
+    /// How it feels about someone it starts out feeling `start` about, with
+    /// what it remembers of them (players by their character; other mobs by
+    /// their own id, `foes.rs`).
+    pub(super) fn feeling_from(&self, who: Option<&CharacterId>, start: Feeling) -> Feeling {
         if self.escort.is_some() {
             return Feeling::Friendly;
         }
-        let start = self.kind.feeling_about(kind);
-        let feeling = character.map_or(start, |character| self.memory.standing(character, start));
+        let feeling = who.map_or(start, |who| self.memory.standing(who, start));
         // A Calm leaves it unfriendly to nobody (magic plan PR 13).
         match feeling {
             Feeling::Unfriendly if self.spells.has(shared::spell::CALMED) => Feeling::Neutral,

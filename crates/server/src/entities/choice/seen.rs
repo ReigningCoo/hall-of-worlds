@@ -39,7 +39,7 @@ pub(in super::super) struct Seen {
 impl Seen {
     /// What `mob` makes of a player it can see.
     pub(in super::super) fn of(mob: &Mob, spot: &Spot, near_fire: bool) -> Self {
-        let feeling = mob.feeling(spot.kind, spot.character.as_ref());
+        let feeling = mob.feeling_towards(spot);
         let wants = wants(mob, spot, feeling);
         Self {
             id: spot.id,
@@ -79,6 +79,8 @@ pub(in super::super) struct Other {
     pub id: Id,
     pub member: Member,
     pub position: (i64, i64),
+    /// It may fight other mobs and be fought by them (`foes::in_mob_fights`).
+    pub fights: bool,
 }
 
 /// Every mob on a level as it stands now.
@@ -88,6 +90,7 @@ pub(in super::super) fn others_of(mobs: &[Mob]) -> Vec<Other> {
             id: mob.id,
             member: mob.member(),
             position: mob.position,
+            fights: super::super::foes::in_mob_fights(mob),
         })
         .collect()
 }

@@ -29,6 +29,7 @@ fn wolf_struck_beside(band: Option<Band>, heading: Heading) -> TestClient {
         id: test.client.entity_id(),
         position: (x, y),
         kind: CreatureKind::Human,
+        member: None,
     };
     let tick = test.world.action_clock.ticks();
     harm_mob(

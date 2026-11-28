@@ -42,6 +42,7 @@ pub(super) fn harm_targets(
             .as_ref()
             .map_or((0, 0), |visit| visit.position()),
         kind: client.inventory.creature,
+        member: None,
     };
     let mut changed = false;
     for &index in targets {

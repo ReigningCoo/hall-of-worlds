@@ -415,6 +415,7 @@ fn an_angry_territorial_mob_only_chases_near_its_home() {
         position: (mob.home.0 - x, mob.home.1),
         at: shared::spot::Spot::middle_of((mob.home.0 - x, mob.home.1)),
         scent: 100,
+        member: None,
     };
     assert_eq!(
         wants(&mob, &spot(LEASH), Feeling::Unfriendly),
@@ -1141,6 +1142,7 @@ fn seeing_them_again_ends_the_tracking() {
         position: player(&test),
         at: shared::spot::Spot::middle_of(player(&test)),
         scent: 100,
+        member: None,
     };
     let level = &test.world.populations.0.values().next().unwrap().level;
     track(&mut mob, level, &[spot], &scents, &Taken::new(), 20);

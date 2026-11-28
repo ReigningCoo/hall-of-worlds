@@ -40,6 +40,7 @@ pub(super) fn lay_lasting(
         id: me.entity_id(),
         position: me.visit.as_ref().map_or((0, 0), |visit| visit.position()),
         kind: me.inventory.creature,
+        member: None,
     };
     let mut changed = false;
     for &index in targets {
