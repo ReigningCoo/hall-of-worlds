@@ -1,15 +1,18 @@
 //! The trade window (T, or its button at the bottom left): one window for
-//! trading with shops, players and NPCs near enough (trading plan). For now
-//! shops (PR 4): who to trade with, the own side, the middle, the shop's
-//! stock, and Complete trade; players and NPCs come in PR 6. See
+//! trading with shops, players and NPCs near enough (trading plan PRs 4 and
+//! 6): who to trade with, the own side, the middle, the shop's stock and
+//! Complete trade, or a character's side and the Trade toggle; the receive
+//! box; and the requester when another player asks to trade. See
 //! `docs/context/client/trade.md`.
 
 use bevy::prelude::*;
 
-use crate::common::Trading;
+use crate::common::{TradeSetting, Trading};
 use crate::player::PlayerSystems;
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod asked;
+mod between;
 mod button;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
@@ -17,9 +20,11 @@ mod grids;
 mod icon;
 mod markup;
 mod open;
+mod people;
 mod server;
 mod shops;
 mod show;
+mod sides;
 mod state;
 mod truesight;
 mod words;
@@ -30,7 +35,8 @@ impl Plugin for TradePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<state::TradeWindow>()
             .init_resource::<Trading>()
-            .add_systems(Startup, button::spawn_button)
+            .init_resource::<TradeSetting>()
+            .add_systems(Startup, (button::spawn_button, asked::spawn_asked))
             .add_systems(Update, (button::bind_button, button::show_button))
             .add_systems(
                 Update,
@@ -48,6 +54,11 @@ impl Plugin for TradePlugin {
                     grids::show_aim,
                     show::press_complete,
                     show::show_middle,
+                    sides::press_lock,
+                    sides::show_sides,
+                    sides::draw_their_side,
+                    asked::answer_asked,
+                    asked::show_asked,
                 )
                     .chain()
                     .after(PlayerSystems::Travel),
@@ -57,5 +68,7 @@ impl Plugin for TradePlugin {
     }
 }
 
+#[cfg(test)]
+mod between_tests;
 #[cfg(test)]
 mod tests;

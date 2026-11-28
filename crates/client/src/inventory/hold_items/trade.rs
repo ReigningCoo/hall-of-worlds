@@ -3,7 +3,9 @@
 //! carried, marked), and taken off it anywhere else is taken back; what is
 //! being bought, drawn unpaid where it is to go, takes room there, can be
 //! moved (bought again to its new place) or put back on the shop's grid; and
-//! nothing more is bought than can be paid for.
+//! nothing more is bought than can be paid for. With a player or an NPC (PR
+//! 6), what is let go on the own side is offered where it lands (`trade`
+//! sends that); what is in the receive box is taken out where let go.
 
 use bevy::prelude::*;
 use shared::id::Id;
@@ -14,7 +16,7 @@ use shared::trade::Buy;
 use super::super::hold::{Target, drop_move};
 use super::super::{HeldBy, Holding};
 use super::Outbox;
-use crate::common::{GaveItem, HeldOverGifts, HeldStock, Trading, own_side};
+use crate::common::{GaveItem, HeldOverGifts, HeldStock, Trading, own_side, receive_box};
 use crate::connection::ToServer;
 
 /// What is carried with what is being bought placed where it is to go (but
@@ -93,16 +95,39 @@ pub(super) fn let_go_in_trade(
         // Only whole things: part of a stack would be new.
         let part = holding.group.take().is_some() | holding.counted.take().is_some();
         if !part && trading.with.is_some() {
-            send(TradeAsk::Sell { item: held.item.id });
+            // To a character, `trade` offers it where it lands.
+            if trading.between.is_none() {
+                send(TradeAsk::Sell { item: held.item.id });
+            }
             if let Some(gift) = over_gifts.0.filter(|gift| gift.to == own_side()) {
                 gave.write(GaveItem(gift));
             }
         }
         return true;
     }
+    // Nothing goes into the receive box.
+    if aim == Target::Someone(receive_box()) && holding.stock.is_none() {
+        return true;
+    }
     let Some((with, item)) = holding.stock.clone() else {
         return false;
     };
+    if with == receive_box() {
+        // Taken out of the receive box to where it was let go, if anywhere.
+        holding.stock = None;
+        held_stock.set_if_neq(HeldStock(None));
+        if let Some((to, x, y, rotation)) = drop_move(carried, held.item, aim) {
+            let to = Buy {
+                item: item.id,
+                to,
+                x,
+                y,
+                rotation,
+            };
+            send(TradeAsk::Take(to));
+        }
+        return true;
+    }
     if with != own_side() && trading.unpaid(item.id).is_none() {
         return false;
     }

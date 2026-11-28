@@ -10,6 +10,10 @@ pub struct Other {
     pub id: shared::id::Id,
     pub kind: shared::creature::CreatureKind,
     pub feeling: shared::sheet::Feeling,
+    /// Another player's character, not a mob.
+    pub player: bool,
+    /// A player set never to trade (`EntityLook::never_trades`).
+    pub never_trades: bool,
 }
 
 /// The Character panel's Abilities page, which `abilities` fills in.

@@ -1,6 +1,7 @@
 //! What the trade window keeps while open: its document, who is near enough
-//! to trade with, the shop's whole stock and the two grids, and what it has
-//! to say. The trade itself is `common::Trading`, which the inventory reads.
+//! to trade with, the other side's things and the grids, the receive box, and
+//! what it has to say. The trade itself is `common::Trading`, which the
+//! inventory reads.
 
 use bevy::prelude::*;
 use shared::id::Id;
@@ -8,14 +9,17 @@ use shared::item::Item;
 use std::collections::BTreeMap;
 
 use super::markup::{OWN_COLUMNS, STOCK_COLUMNS};
-use crate::common::own_side;
+use crate::common::{own_side, receive_box};
 use crate::widgets::StockGrid;
 
-/// A shop near enough to trade with, as the dropdown lists it.
+/// Someone near enough to trade with, as the dropdown lists them: a shop's
+/// keeper, a player or an NPC.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) struct Shop {
-    pub(super) keeper: Id,
+pub(super) struct Partner {
+    pub(super) with: Id,
     pub(super) name: String,
+    /// A player set never to trade: greyed out, not to be chosen.
+    pub(super) never: bool,
 }
 
 /// The window.
@@ -27,9 +31,10 @@ pub(super) struct TradeWindow {
     pub(super) just_opened: bool,
     /// Who keeps each shop on this level, by building.
     pub(super) keepers: BTreeMap<u16, Id>,
-    /// The shops in the dropdown, nearest first.
-    pub(super) shops: Vec<Shop>,
-    /// The shop's whole stock, as last heard, things being bought included.
+    /// Who the dropdown lists: players, shops, NPCs, each nearest first.
+    pub(super) shops: Vec<Partner>,
+    /// The shop's whole stock, as last heard, things being bought included;
+    /// or what a character offers.
     pub(super) stock: Vec<Item>,
     /// The shop's side (its stock but what is being bought) and the own side
     /// (what is being sold), with the grids they are drawn in once built.
@@ -37,6 +42,14 @@ pub(super) struct TradeWindow {
     pub(super) own: StockGrid,
     pub(super) their_holder: Option<Entity>,
     pub(super) own_holder: Option<Entity>,
+    /// A character's side (seen, not touched), drawn where they put things.
+    pub(super) between_holder: Option<Entity>,
+    /// The receive box: what a settled trade gave, until taken out.
+    pub(super) received: Vec<Item>,
+    pub(super) receive: StockGrid,
+    pub(super) receive_holder: Option<Entity>,
+    /// Who asks to trade, and their name, while the requester is up.
+    pub(super) asked: Option<(Id, String)>,
     /// What the window says under the sides: a refusal, or how a trade ended.
     pub(super) said: Option<String>,
     /// A refusal was just said: the state after it doesn't clear it.
@@ -57,6 +70,11 @@ impl Default for TradeWindow {
             own: own_grid(),
             their_holder: None,
             own_holder: None,
+            between_holder: None,
+            received: Vec::new(),
+            receive: receive_grid(),
+            receive_holder: None,
+            asked: None,
             said: None,
             just_refused: false,
             dirty: true,
@@ -73,6 +91,11 @@ impl TradeWindow {
         self.dirty = true;
     }
 
+    /// Whether the receive box shows in place of the trade: something is in it.
+    pub(super) fn receiving(&self) -> bool {
+        !self.received.is_empty()
+    }
+
     /// The shop's grid, for `with`'s stock: a new one for another shop.
     pub(super) fn their_grid(&mut self, with: Id) -> &mut StockGrid {
         if self.theirs.as_ref().is_none_or(|grid| grid.with != with) {
@@ -84,5 +107,10 @@ impl TradeWindow {
 
 /// The own side: 8 × 8 however little is in it.
 fn own_grid() -> StockGrid {
-    StockGrid::new(own_side(), OWN_COLUMNS, &[]).at_least(OWN_COLUMNS)
+    StockGrid::new(own_side(), OWN_COLUMNS, &[]).exactly(OWN_COLUMNS)
+}
+
+/// The receive box: 8 × 8 however little is in it.
+fn receive_grid() -> StockGrid {
+    StockGrid::new(receive_box(), OWN_COLUMNS, &[]).at_least(OWN_COLUMNS)
 }

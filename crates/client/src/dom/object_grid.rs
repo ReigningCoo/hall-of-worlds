@@ -15,7 +15,8 @@ use shared::item::{Item, Rotation};
 
 use crate::common::TakesGifts;
 use crate::widgets::{
-    ALLOWED, CELL, GRID_COLOUR, GRID_LINE, ItemLook, REFUSED, at_cell, covering, spawn_item_cells,
+    ALLOWED, CELL, GRID_COLOUR, GRID_LINE, INK, ItemLook, REFUSED, at_cell, covering,
+    spawn_item_cells,
 };
 
 /// When grids and slots are drawn (`PostUpdate`): an owner's system giving
@@ -56,6 +57,8 @@ pub struct GridShown {
     /// Only this many cells, row by row, so the last row may be short (the own
     /// grid with bags tied to the belt); all of them if `None`.
     pub cells: Option<u32>,
+    /// Darkened, with a solid edge round it: a side of a trade locked in.
+    pub locked: bool,
 }
 
 impl GridShown {
@@ -106,8 +109,19 @@ pub(super) fn draw_object_grids(
     for (grid, shown, drawn) in &changed {
         let same_box = drawn.is_some_and(|drawn| {
             let was = &drawn.shown;
-            (was.columns, was.rows, was.takes_gifts, was.cells)
-                == (shown.columns, shown.rows, shown.takes_gifts, shown.cells)
+            (
+                was.columns,
+                was.rows,
+                was.takes_gifts,
+                was.cells,
+                was.locked,
+            ) == (
+                shown.columns,
+                shown.rows,
+                shown.takes_gifts,
+                shown.cells,
+                shown.locked,
+            )
         });
         let (cells, things, aim) = match (drawn, same_box) {
             (Some(drawn), true) => (drawn.cells, drawn.things, drawn.aim),
@@ -146,11 +160,20 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
     };
     let gifts = shown.takes_gifts.map(TakesGifts);
     // A short last row: each cell has the grid's colour, the box none.
+    // A side of a trade locked in: slightly darker.
+    let colour = match shown.locked {
+        true => GRID_COLOUR.darker(0.12),
+        false => GRID_COLOUR,
+    };
     let (whole, each) = match shown.cells {
-        None => (GRID_COLOUR, Color::NONE),
-        Some(_) => (Color::NONE, GRID_COLOUR),
+        None => (colour, Color::NONE),
+        Some(_) => (Color::NONE, colour),
     };
     let mut made = commands.spawn((node, BackgroundColor(whole), ChildOf(grid)));
+    if shown.locked {
+        // A solid edge round it, outside its cells (taking no room).
+        made.insert(Outline::new(px(3.0), px(0.0), INK));
+    }
     if let Some(gifts) = gifts {
         made.insert(gifts);
     }

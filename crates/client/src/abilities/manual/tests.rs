@@ -205,6 +205,8 @@ fn a_target_out_of_reach_is_walked_up_to_first() {
         id: Id::for_test(1),
         kind: shared::creature::CreatureKind::Human,
         feeling: shared::sheet::Feeling::Unfriendly,
+        player: false,
+        never_trades: false,
     };
     app.world_mut()
         .spawn((other, SpotPosition(Spot::new(2400, 0))));

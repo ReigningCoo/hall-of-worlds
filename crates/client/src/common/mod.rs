@@ -156,7 +156,7 @@ pub use target::Target;
 pub use token::{Attitude, Icon, Token, TokenShape, TokenSize};
 pub use token_glow::TokenGlow;
 pub use token_model::{ModelMeshes, TokenModel};
-pub use trading::{Trading, own_side};
+pub use trading::{TradeSetting, Trading, own_side, receive_box};
 pub use view::{ViewFacing, ViewStats, ViewTurn};
 pub use vitals::{BottomHud, OwnVitals, ToldVitals, VitalsCircle};
 pub use wild_heights::{DRAWN_PER_16TH, WildCellHeights};

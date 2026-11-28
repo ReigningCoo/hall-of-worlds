@@ -34,6 +34,8 @@ pub(super) enum Change {
     Options(Vec<(String, String)>),
     /// A picture before each of a `select`'s options' words.
     OptionPictures(Vec<Handle<Image>>),
+    /// Which of a `select`'s options are greyed, not to be chosen.
+    OptionsGreyed(Vec<bool>),
     /// A panel that moves, brought in front of the others.
     Raise,
 }
@@ -114,6 +116,13 @@ impl Dom<'_> {
     /// shape (a planet's runes). After `set_options`, which takes them off.
     pub fn set_option_pictures(&mut self, id: &str, pictures: Vec<Handle<Image>>) {
         self.ask(id, Change::OptionPictures(pictures));
+    }
+
+    /// Greys a `select`'s options, by index, so they show but can't be
+    /// chosen (anyone set never to trade). After `set_options`, which
+    /// ungreys them all.
+    pub fn set_options_greyed(&mut self, id: &str, greyed: Vec<bool>) {
+        self.ask(id, Change::OptionsGreyed(greyed));
     }
 }
 

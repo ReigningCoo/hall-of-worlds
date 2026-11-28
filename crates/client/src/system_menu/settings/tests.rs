@@ -24,3 +24,12 @@ fn a_saved_size_not_offered_shows_the_next_one_up() {
         InterfaceSize::Percent(300)
     );
 }
+
+#[test]
+fn every_trading_setting_is_its_own_choice() {
+    use shared::trade::TradingSetting::{Allow, Ask, Never};
+    for setting in [Allow, Ask, Never] {
+        assert_eq!(trading::setting(trading::value(setting)), Some(setting));
+    }
+    assert_eq!(trading::setting("sometimes"), None);
+}

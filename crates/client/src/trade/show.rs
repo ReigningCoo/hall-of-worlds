@@ -5,7 +5,9 @@
 //! can be paid for. Pressing it completes the trade: all of it or nothing.
 
 use bevy::prelude::*;
+use shared::item::Item;
 use shared::protocol::{ClientMessage, TradeAsk};
+use shared::trade::Between;
 use shared::value::{copper_shown, total};
 
 use super::state::TradeWindow;
@@ -26,7 +28,10 @@ pub(super) struct Middle {
 
 /// The middle's words: each side's worth and its price, and who gains (the
 /// worth received less the worth given and what is paid).
-pub(super) fn middle(trading: &Trading, carried: &Carried) -> Middle {
+pub(super) fn middle(trading: &Trading, carried: &Carried, offered: &[Item]) -> Middle {
+    if let Some(between) = &trading.between {
+        return between_middle(between, carried, offered);
+    }
     let own_worth: u64 = (trading.selling.iter())
         .filter_map(|&id| carried.0.find(id))
         .map(total)
@@ -58,6 +63,35 @@ pub(super) fn middle(trading: &Trading, carried: &Carried) -> Middle {
     Middle { own, theirs, gain }
 }
 
+/// With a character: each side's worth, and who gains (no coins change
+/// hands but what is offered).
+fn between_middle(between: &Between, carried: &Carried, offered: &[Item]) -> Middle {
+    let worth = |side: &shared::trade::Side, items: &[&Item]| -> u64 {
+        let found = side.offers.iter().filter_map(|offer| {
+            let found = items.iter().find(|item| item.id == offer.item);
+            found.map(|item| total(item))
+        });
+        found.sum()
+    };
+    let carried: Vec<&Item> = (between.mine.offers.iter())
+        .filter_map(|offer| carried.0.find(offer.item))
+        .collect();
+    let own_worth = worth(&between.mine, &carried);
+    let their_worth = worth(&between.theirs, &offered.iter().collect::<Vec<_>>());
+    let own = format!("Yours: worth {}", coins_words(copper_shown(own_worth)));
+    let theirs = format!("Theirs: worth {}", coins_words(copper_shown(their_worth)));
+    let gain = match their_worth as i64 - own_worth as i64 {
+        _ if between.mine.offers.is_empty() && between.theirs.offers.is_empty() => String::new(),
+        0 => "Neither side gains".to_owned(),
+        gain if gain > 0 => format!("You gain {}", coins_words(copper_shown(gain as u64))),
+        gain => format!(
+            "They gain {}",
+            coins_words(copper_shown(gain.unsigned_abs()))
+        ),
+    };
+    Middle { own, theirs, gain }
+}
+
 /// Writes the middle and the bottom again when the trade or the window
 /// changes.
 pub(super) fn show_middle(
@@ -71,15 +105,15 @@ pub(super) fn show_middle(
         return;
     }
     window.dirty = false;
-    let Middle { own, theirs, gain } = middle(&trading, &carried);
+    let Middle { own, theirs, gain } = middle(&trading, &carried, &window.stock);
     dom.set_text("trade/own_value", own);
     dom.set_text("trade/their_value", theirs);
     dom.set_flag("trade/gain", "hidden", gain.is_empty());
     dom.set_text("trade/gain", gain);
     let due = trading.totals.due;
     let words = match trading.with {
-        Some(_) => due_words(due),
-        None => String::new(),
+        Some(_) if trading.terms.is_some() => due_words(due),
+        _ => String::new(),
     };
     dom.set_text("trade/due", words);
     let affordable = trading.totals.affordable(carried.0.coins_carried(), None);

@@ -104,6 +104,7 @@ impl Plugin for SystemMenuPlugin {
                         .chain(),
                     settings::use_shown_role,
                     settings::use_gameplay_page,
+                    (settings::use_trading_row, settings::show_trading_row).chain(),
                 ),
             )
             .init_resource::<settings::TakenKeys>()
