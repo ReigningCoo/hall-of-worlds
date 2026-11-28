@@ -7,8 +7,9 @@ use shared::dungeon::{Level, line_is_clear};
 use shared::id::Id;
 use shared::sheet::{Feeling, Reaction};
 
+use super::super::hunt::HUNT_LEASH;
 use super::super::territory::{LEASH, is_territorial};
-use super::super::timid::too_near;
+use super::super::timid::{ENEMY_APART, too_near};
 use super::super::{Mob, Spot, cells_apart};
 
 /// What a mob would do about someone, before scoring.
@@ -41,21 +42,37 @@ impl Seen {
     pub(in super::super) fn of(mob: &Mob, spot: &Spot, near_fire: bool) -> Self {
         let feeling = mob.feeling_towards(spot);
         let wants = wants(mob, spot, feeling);
+        // Prey is no threat to be afraid of.
+        let prey = mob.foes.is_prey(spot.id);
         Self {
             id: spot.id,
             position: spot.position,
             wants,
-            enemy: wants == Wants::Attack || feeling == Feeling::Unfriendly,
+            enemy: !prey && (wants == Wants::Attack || feeling == Feeling::Unfriendly),
             apart: cells_apart(mob.position, spot.position),
             near_fire,
         }
     }
 }
 
-/// Today's rules: a territorial mob guards against strangers and goes for
-/// those it is angry with only near its home; any other goes by its kind's
-/// reaction, a timid one keeping away only from those too near.
+/// Today's rules: a hunter always goes after its prey, unless it is too far
+/// from home (`HUNT_LEASH`), and prey keeps away from hunters near it; a territorial mob guards against strangers and
+/// goes for those it is angry with only near its home; any other goes by its
+/// kind's reaction, a timid one keeping away only from those too near.
 pub(in super::super) fn wants(mob: &Mob, spot: &Spot, feeling: Feeling) -> Wants {
+    if mob.foes.is_prey(spot.id) {
+        return match cells_apart(spot.position, mob.home) <= HUNT_LEASH {
+            true => Wants::Attack,
+            false => Wants::Nothing,
+        };
+    }
+    // Prey keeps away from those hunting it, whatever its temper.
+    if mob.foes.is_hunter(spot.id) {
+        return match cells_apart(mob.position, spot.position) < ENEMY_APART {
+            true => Wants::KeepAway,
+            false => Wants::Nothing,
+        };
+    }
     if is_territorial(mob) && feeling != Feeling::Friendly {
         return match feeling {
             Feeling::None | Feeling::Friendly => Wants::Nothing,

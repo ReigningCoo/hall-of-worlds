@@ -46,6 +46,7 @@ mod gear;
 mod harmed;
 mod harmed_by;
 mod heal;
+mod hunt;
 mod inspect;
 #[cfg(test)]
 mod light_tests;
@@ -190,9 +191,8 @@ pub(crate) struct Mob {
     ways: Ways,
     /// Its choices as last scored (`choice`), for Inspect. Not saved.
     scores: Scores,
-    /// The mobs on its level it would fight (rival bands and enemies,
-    /// `foes.rs`), as of the start of this tick. Not saved.
-    foes: Vec<Id>,
+    /// The mobs on its level it would fight, and its prey (`foes::Foes`).
+    foes: foes::Foes,
 }
 
 /// Stairs a mob has come by: where they are here, and where they lead back to.

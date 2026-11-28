@@ -1,7 +1,7 @@
 //! A mob harmed by a player or another mob, by a blow or a spell: it loses the Health,
 //! remembers who did it, does what its standing with them now says, and dies
-//! if that was the last of it. Its band and allies who see it join in
-//! (`defend`).
+//! if that was the last of it, eaten if a hunter killed it (`hunt`). Its band
+//! and allies who see it join in (`defend`).
 
 use shared::behaviour::Member;
 use shared::creature::CreatureKind;
@@ -89,14 +89,21 @@ pub(crate) fn harm_mob(
     let keep = (one.id, one.home_level, one.home);
     let (memory, kept_with) = (one.memory.clone(), one.kept_with(place.0));
     let dead = one.health(tick) == Points::ZERO;
+    // Killed by a hunter, it is eaten: nothing is left of it (`hunt`).
+    let eaten = dead && super::hunt::eaten(&behaviours, &by, kind);
+    let lay = one.position;
     // Its band and allies who see it come to its help.
     let rallied = rally(population, mob, &by, (&others, &behaviours), place.0, tick);
+    if eaten {
+        let due = &mut population.due;
+        super::hunt::feast(&mut population.mobs, (mob, lay), by.id, tick, due);
+    }
     record_of(world, kept_with, keep).memory = memory;
     for one in rallied {
         record_of(world, one.kept_with, one.keep).memory = one.memory;
     }
     if dead {
-        bury(world, place, here_index, mob, true);
+        bury(world, place, here_index, mob, !eaten);
     }
     Some(MobHit { harm, left, kind })
 }

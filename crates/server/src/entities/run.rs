@@ -121,6 +121,8 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 }
             }
         }
+        // Hunters join their band's hunts or pick one up by scent.
+        super::hunt::hunt(mobs, level, (scents, &behaviours), tick, due);
 
         let mut taken: Taken = standing.iter().copied().collect();
         taken.extend(mobs.iter().map(|mob| mob.position));

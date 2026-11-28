@@ -34,16 +34,32 @@ fn land(biome: Biome, metres: i32, celsius: i32) -> Habitat {
     }
 }
 
-/// The herds of `count` blocks in a row.
+/// A block's own pack or herd, without any prey near it (`wild_prey`): the
+/// first and those of its band.
+fn own(mobs: Vec<Spawn>) -> Vec<Spawn> {
+    let band = mobs.first().map(|mob| mob.band);
+    mobs.into_iter()
+        .filter(|mob| Some(mob.band) == band)
+        .collect()
+}
+
+/// The herds of `count` blocks in a row (each block's own, without prey).
 fn herds(seed: u64, level: &Level, land: Habitat, count: i64) -> Vec<Vec<Spawn>> {
     (0..count)
-        .map(|n| wild_spawns(Seed::new(seed), BlockPos { x: n, y: 3 }, level, land))
+        .map(|n| {
+            own(wild_spawns(
+                Seed::new(seed),
+                BlockPos { x: n, y: 3 },
+                level,
+                land,
+            ))
+        })
         .filter(|herd| !herd.is_empty())
         .collect()
 }
 
 #[test]
-fn blocks_have_one_kind_each_and_the_same_every_time() {
+fn blocks_have_one_kind_each_besides_prey_and_the_same_every_time() {
     let seed = Seed::new(7);
     let level = open_block();
     let boreal = Habitat::typical(Biome::BorealForest);
@@ -52,9 +68,21 @@ fn blocks_have_one_kind_each_and_the_same_every_time() {
         let block = BlockPos { x: n, y: 3 };
         let herd = wild_spawns(seed, block, &level, boreal);
         assert_eq!(herd, wild_spawns(seed, block, &level, boreal));
-        assert!(herd.len() <= (MOST_TOGETHER + MOST_YOUNG) as usize);
-        let kind = herd.first().map(|mob| mob.kind);
-        assert!(herd.iter().all(|mob| Some(mob.kind) == kind));
+        let pack = own(herd.clone());
+        assert!(pack.len() <= (MOST_TOGETHER + MOST_YOUNG) as usize);
+        let kind = pack.first().map(|mob| mob.kind);
+        assert!(pack.iter().all(|mob| Some(mob.kind) == kind));
+        // Any others are one herd of its prey.
+        let prey: Vec<&Spawn> = herd.iter().filter(|mob| Some(mob.kind) != kind).collect();
+        assert_eq!(prey.len() + pack.len(), herd.len());
+        if let (Some(first), Some(kind)) = (prey.first(), kind) {
+            let hunts = &crate::behaviour::Behaviours::built_in_ref().of(kind).hunts;
+            assert!(hunts.contains(&first.kind));
+            assert!(
+                prey.iter()
+                    .all(|mob| mob.kind == first.kind && mob.band == first.band)
+            );
+        }
         lived += usize::from(!herd.is_empty());
     }
     assert!((20..=45).contains(&lived), "{lived} of 60 blocks");
@@ -185,4 +213,33 @@ fn a_pack_or_herd_is_one_band_and_the_next_another() {
         assert!(herd.iter().all(|mob| mob.band == herd[0].band));
     }
     assert_ne!(herds[0][0].band, herds[1][0].band);
+}
+
+#[test]
+fn wolves_often_have_prey_living_near_their_den() {
+    let seed = Seed::new(21);
+    let level = open_block();
+    let woodland = Habitat::typical(Biome::Woodland);
+    let (mut packs, mut with_prey) = (0, 0);
+    for n in 0..400 {
+        let mobs = wild_spawns(seed, BlockPos { x: n, y: 9 }, &level, woodland);
+        let Some(first) = mobs.first().filter(|mob| mob.kind == CreatureKind::Wolf) else {
+            continue;
+        };
+        packs += 1;
+        let prey: Vec<&Spawn> = mobs.iter().filter(|mob| mob.kind != first.kind).collect();
+        if let Some(near) = prey.first() {
+            with_prey += 1;
+            let apart = (near.position.0 - first.position.0)
+                .abs()
+                .max((near.position.1 - first.position.1).abs());
+            // Within a wolf's sight of the pack.
+            assert!(apart <= 16 + 2 * SPREAD, "{apart} cells");
+        }
+    }
+    assert!(packs > 20, "{packs} packs");
+    assert!(
+        with_prey * 100 >= packs * 30,
+        "{with_prey} of {packs} packs"
+    );
 }
