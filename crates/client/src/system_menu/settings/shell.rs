@@ -45,6 +45,14 @@ static SETTINGS: Template = html!(
             <option>Player</option>
           </select>
         </span>
+        <span id="trading_row" class="labelled" nowrap hidden>
+          <label for="trading" width="240">Trading</label>
+          <select id="trading" width="200" value="ask">
+            <option value="allow">Allow</option>
+            <option value="ask">Ask</option>
+            <option value="never">Never</option>
+          </select>
+        </span>
         <span id="pause_unfocused_row" class="labelled" nowrap>
           <label for="pause_unfocused" width="240">Pause When Not in Focus</label>
           <input id="pause_unfocused" type="checkbox" switch/>

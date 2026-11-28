@@ -1,14 +1,20 @@
 //! The window's two grids: the own side (what is being sold, let go there from
 //! the inventory) and the shop's (its stock, dragged into the inventory to
-//! buy). Each is a `widgets::StockGrid`: placed here, drawn again when what is
-//! in it changes, with green where something held would land.
+//! buy), and the receive box (taken out into the inventory). Each is a
+//! `widgets::StockGrid`: placed here, drawn again when what is in it changes,
+//! with green where something held would land. In a trade with a character,
+//! what is let go on the own side is offered where it lands; their side is
+//! `sides`'.
 
 use bevy::prelude::*;
 use bevy::ui::UiGlobalTransform;
 use shared::id::Id;
+use shared::protocol::{ClientMessage, TradeAsk};
+use shared::trade::Offer;
 
 use super::state::TradeWindow;
-use crate::common::{GaveItem, HeldOverGifts, HeldStock, own_side};
+use crate::common::{GaveItem, HeldOverGifts, HeldStock, Trading, own_side};
+use crate::connection::ToServer;
 use crate::dom::GridShown;
 use crate::inventory::Carried;
 use crate::widgets::{StockGridNode, StockOf, UiId, show_stock_aim};
@@ -30,22 +36,45 @@ pub(super) fn bind_grids(
                     grid.changed = true;
                 }
             }
+            ("trade", "theirs") => {
+                window.between_holder = Some(entity);
+                window.dirty = true;
+            }
+            ("trade", "received") => {
+                window.receive_holder = Some(entity);
+                window.receive.changed = true;
+            }
             _ => {}
         }
     }
 }
 
-/// Notes where things were let go on either grid, for when they come back.
+/// Notes where things were let go on either grid, for when they come back;
+/// in a trade with a character, offers what was let go on the own side where
+/// it lands.
 pub(super) fn note_gifts(
     mut gave: MessageReader<GaveItem>,
     grids: Query<(&StockGridNode, &ComputedNode, &UiGlobalTransform)>,
     mut window: ResMut<TradeWindow>,
+    (trading, carried): (Res<Trading>, Res<Carried>),
+    mut to_server: MessageWriter<ToServer>,
 ) {
     for GaveItem(gift) in gave.read() {
         let Some((_, node, transform)) = grids.iter().find(|(grid, ..)| grid.0 == gift.to) else {
             continue;
         };
-        if gift.to == own_side() {
+        if gift.to == own_side() && trading.between.is_some() {
+            if let Some((_, (x, y), _)) = window.own.aim(gift, &carried.0, node, transform) {
+                let offer = Offer {
+                    item: gift.item,
+                    x,
+                    y,
+                    rotation: gift.rotation,
+                };
+                to_server.write(ToServer(ClientMessage::Trade(TradeAsk::Offer(offer))));
+            }
+            window.own.gave(gift, node, transform);
+        } else if gift.to == own_side() {
             window.own.gave(gift, node, transform);
         } else if let Some(grid) = (window.theirs.as_mut()).filter(|grid| grid.with == gift.to) {
             grid.gave(gift, node, transform);
@@ -69,6 +98,12 @@ pub(super) fn draw_grids(
     {
         window.own.changed = false;
         window.own.show(&mut commands, holder, held.0);
+    }
+    if let Some(holder) = window.receive_holder
+        && (window.receive.changed || picked_up)
+    {
+        window.receive.changed = false;
+        window.receive.show(&mut commands, holder, held.0);
     }
     let Some(holder) = window.their_holder else {
         return;

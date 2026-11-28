@@ -108,6 +108,8 @@ fn read_server(
                             id: look.id,
                             kind: look.kind,
                             feeling: look.feeling,
+                            player: look.name.is_some(),
+                            never_trades: look.never_trades,
                         },
                         at,
                         // Where the server has it (units on a level).

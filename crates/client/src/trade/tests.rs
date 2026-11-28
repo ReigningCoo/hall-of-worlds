@@ -5,6 +5,7 @@ use super::markup::TRADE;
 fn the_markup_is_good() {
     BUTTON.assert_good();
     TRADE.assert_good();
+    super::markup::ASKED.assert_good();
 }
 
 #[test]
@@ -120,12 +121,12 @@ fn the_middle_says_who_gains() {
         },
         ..Trading::default()
     };
-    let words = middle(&trading, &Carried(Inventory::default()));
+    let words = middle(&trading, &Carried(Inventory::default()), &[]);
     // Buying at 150%: the shop gains.
     assert!(words.gain.starts_with("They gain"), "{words:?}");
     assert!(words.theirs.contains("they ask"), "{words:?}");
     // Nothing in the trade: nothing said of gains.
-    let idle = middle(&Trading::default(), &Carried(Inventory::default()));
+    let idle = middle(&Trading::default(), &Carried(Inventory::default()), &[]);
     assert!(idle.gain.is_empty());
 }
 
@@ -148,4 +149,9 @@ fn no_system_asks_for_what_another_of_its_parameters_has() {
     starts(super::show::press_complete);
     starts(super::show::show_middle);
     starts(super::truesight::ask_again_with_truesight);
+    starts(super::sides::press_lock);
+    starts(super::sides::show_sides);
+    starts(super::sides::draw_their_side);
+    starts(super::asked::answer_asked);
+    starts(super::asked::show_asked);
 }

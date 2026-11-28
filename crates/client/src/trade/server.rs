@@ -1,16 +1,18 @@
 //! What the server says of trades: who keeps each shop, a shop's stock (which
 //! opens the window on it, as a click on its door asks), the trade opened, as
-//! it stands after each change, refused, or ended. The trade is kept in
+//! it stands after each change, refused, or ended; trades with characters,
+//! the receive box and the setting are `between`'s. The trade is kept in
 //! `common::Trading`, its sums worked out as the server works them.
 
 use bevy::prelude::*;
 use shared::protocol::{ClientMessage, ServerMessage, TradeEnd, TradeNews};
 use shared::trade::ShopTrade;
 
+use super::between::{follow_between, hear_between};
 use super::open::open_window;
 use super::state::TradeWindow;
 use super::words::{ended_words, refusal_words};
-use crate::common::Trading;
+use crate::common::{TradeSetting, Trading};
 use crate::connection::{FromServer, ToServer};
 use crate::inventory::{Carried, OpenCharacter};
 
@@ -19,6 +21,7 @@ pub(super) fn read_server(
     mut from_server: MessageReader<FromServer>,
     mut window: ResMut<TradeWindow>,
     mut trading: ResMut<Trading>,
+    mut setting: ResMut<TradeSetting>,
     carried: Res<Carried>,
     mut inventory: MessageWriter<OpenCharacter>,
     mut to_server: MessageWriter<ToServer>,
@@ -32,6 +35,7 @@ pub(super) fn read_server(
             | ServerMessage::EnterHall { .. } => {
                 window.keepers.clear();
                 window.forget_trade();
+                window.asked = None;
                 *trading = Trading::default();
             }
             ServerMessage::Keepers(list) => window.keepers = list.iter().copied().collect(),
@@ -48,6 +52,10 @@ pub(super) fn read_server(
                 follow(&mut window, &mut trading, &carried);
             }
             ServerMessage::Trade(news) => {
+                if hear_between(news, &mut window, &mut trading, &mut setting) {
+                    follow(&mut window, &mut trading, &carried);
+                    continue;
+                }
                 hear(news, &mut window, &mut trading, &carried);
                 // Completed, the window stays on the same shop for more.
                 if let TradeNews::Ended {
@@ -91,19 +99,19 @@ fn hear(news: &TradeNews, window: &mut TradeWindow, trading: &mut Trading, carri
             window.just_refused = true;
             window.dirty = true;
         }
-        TradeNews::Ended { with, why } if Some(*with) == trading.with => {
-            *trading = Trading::default();
-            window.forget_trade();
-            window.said = ended_words(*why);
+        TradeNews::Ended { with, why } => {
+            // Whoever asked gave up, or went: the requester goes too.
+            if window.asked.as_ref().is_some_and(|(by, _)| by == with) {
+                window.asked = None;
+            }
+            if Some(*with) == trading.with {
+                *trading = Trading::default();
+                window.forget_trade();
+                window.said = ended_words(*why);
+            }
         }
-        TradeNews::Ended { .. } => {}
-        // Trades with players and NPCs, and the receive box: the window
-        // shows them in trading plan PR 6.
-        TradeNews::Between(_)
-        | TradeNews::Asking { .. }
-        | TradeNews::Asked { .. }
-        | TradeNews::Received(_)
-        | TradeNews::Setting(_) => {}
+        // Trades with characters: `between`'s.
+        _ => {}
     }
 }
 
@@ -122,6 +130,11 @@ fn take_state(trade: &ShopTrade, window: &TradeWindow, trading: &mut Trading) {
 /// stock but what is being bought, and what is being sold as it is carried.
 /// Also when what is carried changes.
 pub(super) fn follow(window: &mut TradeWindow, trading: &mut Trading, carried: &Carried) {
+    if let Some(between) = &trading.between {
+        follow_between(window, between, carried);
+        window.dirty = true;
+        return;
+    }
     if let (Some(with), Some((rates, shop))) = (trading.with, trading.terms) {
         let trade = ShopTrade {
             with,

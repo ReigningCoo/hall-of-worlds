@@ -19,6 +19,8 @@ fn in_the_way(feeling: Feeling) -> (Crowding, bool) {
             id: Id::for_test(1),
             kind: CreatureKind::Wolf,
             feeling,
+            player: false,
+            never_trades: false,
         },
         MapPosition { x: 3, y: 4 },
         SpotPosition(shared::spot::Spot::middle_of((3, 4))),

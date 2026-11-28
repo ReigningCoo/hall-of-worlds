@@ -120,6 +120,8 @@ fn marks_app() -> (App, MapPictures, Entity) {
                 id: shared::id::Id::for_test(1),
                 kind: shared::creature::CreatureKind::Kobold,
                 feeling: shared::sheet::Feeling::Unfriendly,
+                player: false,
+                never_trades: false,
             },
             MapPosition { x: 52, y: 50 },
             Token {

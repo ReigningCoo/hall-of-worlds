@@ -35,8 +35,12 @@ pub struct StockGrid {
     pub changed: bool,
     /// Only this shows clearly: the rest is faded.
     pub filter: Option<ItemCategory>,
-    /// It shows at least this many rows (a trade's own side, 8 × 8).
+    /// It shows at least this many rows (a trade's own side, 8 × 8), and at
+    /// most `most_rows` if set.
     least_rows: u8,
+    most_rows: Option<u8>,
+    /// Drawn darkened with a solid edge (a side of a trade locked in).
+    pub locked: bool,
 }
 
 /// Something given, and where in the grid it was let go.
@@ -66,6 +70,8 @@ impl StockGrid {
             changed: true,
             filter: None,
             least_rows: 0,
+            most_rows: None,
+            locked: false,
         }
     }
 
@@ -73,6 +79,16 @@ impl StockGrid {
     pub fn at_least(self, rows: u8) -> Self {
         Self {
             least_rows: rows,
+            ..self
+        }
+    }
+
+    /// Always this many rows, however much or little is in it (a side of a
+    /// trade, 8 × 8).
+    pub fn exactly(self, rows: u8) -> Self {
+        Self {
+            least_rows: rows,
+            most_rows: Some(rows),
             ..self
         }
     }
@@ -92,6 +108,16 @@ impl StockGrid {
         self.stock = restocked(self.columns, &self.stock, items, &self.gifts);
         self.gifts.clear();
         self.changed = true;
+    }
+
+    /// The server says where each thing is (a side of a trade with a
+    /// character): exactly there, whatever was there before.
+    pub fn placed(&mut self, placed: Vec<Placed>) {
+        if self.stock != placed {
+            self.stock = placed;
+            self.changed = true;
+        }
+        self.gifts.clear();
     }
 
     /// Something was let go on it: if it is here already it moves, or else it is noted
@@ -144,11 +170,13 @@ impl StockGrid {
             .collect();
         let shown = GridShown {
             columns: self.columns,
-            rows: rows_for(&self.stock).max(self.least_rows),
+            rows: (rows_for(&self.stock).max(self.least_rows))
+                .min(self.most_rows.unwrap_or(u8::MAX)),
             things,
             aim: None,
             takes_gifts: Some(self.with),
             cells: None,
+            locked: self.locked,
         };
         // (Its holder may have gone this frame with its panel.)
         commands

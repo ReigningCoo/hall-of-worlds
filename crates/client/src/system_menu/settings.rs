@@ -12,6 +12,7 @@ mod keep;
 mod rows;
 mod shell;
 mod shown_role;
+mod trading;
 
 pub(super) use audio::{show_audio_page, use_audio_page};
 pub(super) use controls::{TakenKeys, forget_taken, show_controls_page, use_controls_page};
@@ -23,6 +24,7 @@ pub(super) use graphics::{
 pub(super) use keep::{GraphicsTrial, KeepButton, run_trial};
 pub(super) use shell::{bind_settings, show_interface_page, spawn_settings};
 pub(super) use shown_role::{ShownAs, keep_shown_role, use_shown_role};
+pub(super) use trading::{show_trading_row, use_trading_row};
 
 use bevy::prelude::*;
 

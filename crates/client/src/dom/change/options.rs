@@ -51,3 +51,17 @@ pub(super) fn set_option_pictures(
     dropdown.icons = pictures;
     Ok(())
 }
+
+/// Greys a `select`'s options by index, shown but not to be chosen.
+pub(super) fn set_options_greyed(
+    world: &mut World,
+    entity: Entity,
+    greyed: Vec<bool>,
+) -> Result<(), String> {
+    const WRONG: &str = "only a select's options can be greyed";
+    let control = world.get::<Control>(entity).copied();
+    let Control(widget) = control.ok_or(WRONG)?;
+    let mut dropdown = world.get_mut::<Dropdown>(widget).ok_or(WRONG)?;
+    dropdown.greyed = greyed;
+    Ok(())
+}
