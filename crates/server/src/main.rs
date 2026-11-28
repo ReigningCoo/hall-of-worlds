@@ -50,6 +50,8 @@
 //! - `HOW_STATS_SECRET`: the key `/_stats` asks for; made and kept in the data
 //!   folder's `stats-key.txt` if unset.
 //! - `HOW_DEBUG_TOOLS`: `true` accepts dev tools messages from anyone connected.
+//! - `HOW_DEBUG_MEMLOG`: `true` logs the web page's memory log (`/_memlog`, sent
+//!   by a page opened with `?memlog`) as `memlog` lines.
 //! - `HOW_SERVER_NAME`: what the server calls itself (default `Hall of Worlds`).
 //! - `HOW_PLAYER_LIMIT`: the most players at once (default 0, no limit).
 //! - `HOW_DIFFICULTIES`: the difficulties characters may have, as names

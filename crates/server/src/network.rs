@@ -19,7 +19,9 @@
 //!
 //! Every port also answers `/_healthz` and `/_version` (`health`), and the
 //! server's binary can ask the first itself (`--health`), for Docker. A
-//! standalone server also answers `/_stats` to those with its key (`stats`).
+//! standalone server also answers `/_stats` to those with its key (`stats`),
+//! and with `HOW_DEBUG_MEMLOG=true` the ports serving the game take the web
+//! page's memory log on `/_memlog` (`memlog`).
 
 use bevy::prelude::*;
 use shared::protocol::ServerLink;
@@ -38,6 +40,7 @@ use crate::tls::{Certificates, Security};
 // Split into files (`cargo xtask lint` keeps files small).
 mod health;
 mod health_check;
+mod memlog;
 mod online;
 mod ports;
 mod routes;

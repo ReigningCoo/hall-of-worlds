@@ -4,6 +4,10 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Hall of Worlds</title>
+        <!-- The memory log, only with ?memlog in the address: first, so it sees
+             everything the game makes (web/memlog.js). -->
+        <link data-trunk rel="copy-file" href="web/memlog.js" />
+        <script src="memlog.js"></script>
         <!-- Tells Trunk to compile the Rust crate to WebAssembly and load it,
              filling the loading bar as it goes (web/loader.js). -->
         <link data-trunk rel="rust" href="crates/client/Cargo.toml" data-bin="hall-of-worlds" data-wasm-opt="s" data-initializer="web/loader.js" />
