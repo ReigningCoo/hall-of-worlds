@@ -389,7 +389,7 @@ The owner asked whether the server could use the ping, suggesting the client han
 
 ## 2026-11-01: A copy of the loading screen in the page, for the download
 
-The owner saw 5-6 seconds of black page while the wasm downloaded. `index.html` now shows the same screen saying "Downloading...", until the game has drawn its own and removes it, which also covers compiling the wasm and starting the graphics. It needs no JavaScript beyond showing the title once its font has loaded, as the owner wants no flash of another font there. The fonts come from the same server as the page, so nothing needs the internet. The cost is colours and sizes kept in two places.
+The owner saw 5-6 seconds of black page while the wasm downloaded. `index.html` now shows the same screen saying "Downloading...", until the game has drawn its own and removes it, which also covers compiling the wasm and starting the graphics. Its title stays hidden until its font has loaded, as the owner wants no flash of another font there; since 2026-11-28 its bar is filled by a small script (below). The fonts come from the same server as the page, so nothing needs the internet. The cost is colours and sizes kept in two places.
 
 ## 2026-11-01: Symbols for the status text, from Noto Emoji
 
@@ -1993,3 +1993,7 @@ Mob behaviour plan PR 2. What a mob does about those it sees, or whoever harmed 
 ## 2026-11-28: Alertness, and sneak attacks as critical hits
 
 Mob behaviour plan PR 7. Each mob has one alertness (`shared::alertness`: Unaware, Alert, Aware), kept by the server and never saved; players are told only `ServerMessage::MobAlert` (a mob Alert to or Aware of them), for the sneaking eye, never a mob's stage (no markers over mobs, owner). A blow on a mob caught off guard is a critical (`combat::Critical`, double harm), its own rule so later criticals build on it. Caught off guard means Unaware, or Alert while still reacting (Claude's reading of the owner's "someone heard gets a moment first"; also needed because a blow's own wind-up is heard).
+
+## 2026-11-28: The page's loading bar filled by Trunk's initializer
+
+The owner saw the page's "Downloading..." give no progress and then seem to freeze while the browser compiled and the game started, so they asked for a real bar. `web/loader.js` is Trunk's initializer (`data-initializer`), called as Trunk's own loader fetches the wasm, so it is downloaded once rather than fetched again by hand. Trunk's total is the wasm's size before wasm-opt shrinks it, and the server sends it brotli-compressed or as a delta, so the true size comes from the server (`/web/_wasm-size`); without one (`trunk serve`) the bar shows megabytes, unfilled. Compiling and starting can't be measured as they happen, so the bar fills at the pace the last load took (kept in `localStorage`), easing so it never arrives before the game takes over, and fills only as far as the game's own bar starts ("Connecting...", half), so the hand-over doesn't jump back. The page's thread is busy while the game starts, so everything that moves is a transform animation, which the browser runs without it. The game says "Starting..." as `main` begins and marks each stage (`performance.mark`), and the page logs the times.

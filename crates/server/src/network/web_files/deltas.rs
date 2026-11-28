@@ -24,6 +24,8 @@ pub(in crate::network) struct WebFiles {
     pub(super) files: PathBuf,
     /// The current wasm's file name, if there is one wasm.
     wasm: Option<String>,
+    /// The current wasm's size in bytes, before any compression.
+    wasm_bytes: Option<u64>,
     /// What browsers are told to keep the wasm as (`Use-As-Dictionary`).
     pub(super) use_as_dictionary: HeaderValue,
     /// Each delta to the current wasm, by the hash of the build it is from.
@@ -44,6 +46,10 @@ impl WebFiles {
             wasm: wasm
                 .as_ref()
                 .and_then(|wasm| wasm.file_name()?.to_str().map(Into::into)),
+            wasm_bytes: wasm
+                .as_ref()
+                .and_then(|wasm| fs::metadata(wasm).ok())
+                .map(|metadata| metadata.len()),
             use_as_dictionary: HeaderValue::from_str(&pattern).expect("plain text"),
             deltas: RwLock::default(),
         });
@@ -62,6 +68,11 @@ impl WebFiles {
     /// The current wasm's file name.
     pub(super) fn wasm(&self) -> Option<&str> {
         self.wasm.as_deref()
+    }
+
+    /// The current wasm's size before compression, for the page's loading bar.
+    pub(super) fn wasm_bytes(&self) -> Option<u64> {
+        self.wasm_bytes
     }
 
     /// The delta from the build with this hash, if there is one.
