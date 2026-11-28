@@ -20,7 +20,7 @@ fn hurt(mob: &Mob, tick: u64) -> i32 {
     (1000 - left).clamp(0, 1000) / 10
 }
 
-/// What `mob` does now about the players it sees (`spots`), if it should stop
+/// What `mob` does now about the players and other mobs it sees (`spots`), if it should stop
 /// what it is doing, and its scores. One going after someone, following them
 /// or keeping away only changes its mind to flee. `others` are its level's mobs
 /// as they stood at the start of the tick, `fires` the open fires there.
@@ -37,7 +37,8 @@ pub(in super::super) fn choose(
     let cone = mob.cone();
     let seen: Vec<Seen> = (spots.iter())
         .filter(|spot| {
-            cells_apart(spot.position, mob.position) <= sees_within
+            spot.id != mob.id
+                && cells_apart(spot.position, mob.position) <= sees_within
                 && cone.sees(spot.at)
                 && line_is_clear(level, mob.position, spot.position)
         })

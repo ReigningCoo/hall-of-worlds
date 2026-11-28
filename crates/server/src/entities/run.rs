@@ -7,6 +7,8 @@ use super::doors::{Opened, open_on_the_way, way_level};
 use super::escortee::mind_escort;
 use super::facing::noises;
 use super::fight::{MobBlow, mob_turn};
+use super::foes::with_mobs;
+use super::mob_blows::strike_mob;
 use super::on_ground::on_ground;
 use super::territory::mind_territory;
 use super::tracking::track;
@@ -31,6 +33,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
     let behaviours = world.populations.1.clone();
     let mut crossings = Vec::new();
     let mut blows: Vec<MobBlow> = Vec::new();
+    let mut on_mobs = Vec::new();
     let mut opened: Vec<Opened> = Vec::new();
     for (&place, population) in &mut world.populations.0 {
         let here = || {
@@ -49,6 +52,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 position: someone.position,
                 at: someone.spot,
                 scent: someone.scent,
+                member: None,
             })
             .collect();
         let Population {
@@ -82,6 +86,8 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
         let fires_here = fires.get(&place).map_or(&[][..], Vec::as_slice);
         // Every mob's choice from where everyone stands now, before any moves.
         let others = others_of(mobs);
+        // Mobs see, and may fight, other mobs too (mob behaviour plan PR 4).
+        let mut creatures = with_mobs(&spots, mobs);
         for mob in mobs.iter_mut().filter(|mob| !mob.still) {
             mob.thaw(tick);
             // One escorted only keeps near its quester (`escortee`).
@@ -94,8 +100,15 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             mob.listen(&noises);
             mind_territory(mob, level, &spots, tick);
             mob.ways.set(behaviours.of(mob.kind));
-            let (chosen, scores) =
-                choose(mob, level, &spots, (&others, fires_here), &behaviours, tick);
+            mob.find_foes(&others, &behaviours);
+            let (chosen, scores) = choose(
+                mob,
+                level,
+                &creatures,
+                (&others, fires_here),
+                &behaviours,
+                tick,
+            );
             if !scores.options.is_empty() {
                 mob.scores = scores;
             }
@@ -112,6 +125,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
         let mut taken: Taken = standing.iter().copied().collect();
         taken.extend(mobs.iter().map(|mob| mob.position));
         let mut maps = Maps::default();
+        let first_blow = blows.len();
         while let Some(&(when, id)) = due.first() {
             if when > tick {
                 break;
@@ -143,7 +157,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             let ground = (&*level, relief.as_ref());
             let fighting = match mob.escort {
                 Some(_) => None,
-                None => mob_turn(mob, ground, &spots, (tick, taken_now), &mut blows),
+                None => mob_turn(mob, ground, &creatures, (tick, taken_now), &mut blows),
             };
             let cost = if let Some(cost) = fighting {
                 cost
@@ -151,7 +165,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 track(
                     mob,
                     way_level(mob, level, doors.as_ref()),
-                    &spots,
+                    &creatures,
                     scents,
                     taken_now,
                     tick,
@@ -160,7 +174,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 act(
                     mob,
                     way_level(mob, level, doors.as_ref()),
-                    &spots,
+                    &creatures,
                     &mut maps,
                     tick,
                     seen,
@@ -193,7 +207,11 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 }
                 doors.open = level.with_doors_open();
             }
-            mob.turn_after(was_spot, &spots);
+            mob.turn_after(was_spot, &creatures);
+            // Others see it where it now stands.
+            if let Some(me) = creatures.iter_mut().find(|one| one.id == mob.id) {
+                (me.position, me.at) = (mob.position, mob.spot);
+            }
             // Mobs leave scent too.
             scents.walked(mob.id, was_at, mob.position, mob.scent, tick);
             mob.pacing.turn_ended(was_at, mob.position);
@@ -211,6 +229,20 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 due.insert((mob.next_due(tick), id));
             }
         }
+        // Blows on other mobs land once every level has had its turn.
+        let made: Vec<MobBlow> = blows.drain(first_blow..).collect();
+        for blow in made {
+            match creatures
+                .iter()
+                .any(|one| one.id == blow.target() && one.member.is_some())
+            {
+                true => on_mobs.push((place, blow)),
+                false => blows.push(blow),
+            }
+        }
+    }
+    for (place, blow) in on_mobs {
+        strike_mob(world, place, blow, tick);
     }
     for crossing in crossings {
         cross(&mut world.populations, crossing, tick, &everyone);

@@ -111,7 +111,8 @@ impl Maps {
     }
 }
 
-/// A player on a level, as far as its mobs go.
+/// A player on a level, as far as its mobs go, or another mob (`member`).
+#[derive(Clone, Debug)]
 pub(super) struct Spot {
     pub(super) id: Id,
     pub(super) character: Option<CharacterId>,
@@ -121,4 +122,7 @@ pub(super) struct Spot {
     pub(super) at: shared::spot::Spot,
     /// How strong a trail they leave, as a percentage.
     pub(super) scent: u32,
+    /// Another mob's race and band (mob behaviour plan PR 4); `None` for a
+    /// player.
+    pub(super) member: Option<shared::behaviour::Member>,
 }

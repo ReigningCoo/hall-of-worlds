@@ -32,7 +32,7 @@ pub(super) fn keeps_apart(feeling: Feeling) -> i64 {
 /// Whether someone is nearer than this mob, timid or not, wants them: as far
 /// as from an enemy while Fear lies on it.
 pub(super) fn too_near(mob: &Mob, spot: &Spot) -> bool {
-    let feeling = mob.feeling(spot.kind, spot.character.as_ref());
+    let feeling = mob.feeling_towards(spot);
     let apart = match mob.frightened() {
         true => ENEMY_APART,
         false => keeps_apart(feeling),
@@ -52,6 +52,6 @@ pub(super) fn strikes_at<'a>(mob: &Mob, spots: &'a [Spot]) -> Option<&'a Spot> {
         return None;
     };
     let spot = spots.iter().find(|spot| spot.id == from)?;
-    let feeling = mob.feeling(spot.kind, spot.character.as_ref());
+    let feeling = mob.feeling_towards(spot);
     (feeling == Feeling::Unfriendly).then_some(spot)
 }

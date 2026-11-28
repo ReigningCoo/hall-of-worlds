@@ -20,6 +20,7 @@ fn friends_are_kept_one_cell_off_strangers_five_enemies_ten() {
         position: (mob.position.0 - apart, mob.position.1),
         at: shared::spot::Spot::middle_of((mob.position.0 - apart, mob.position.1)),
         scent: 100,
+        member: None,
     };
     // Another chicken is a friend.
     assert!(too_near(&mob, &at(1, CreatureKind::Chicken)));

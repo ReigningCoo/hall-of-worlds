@@ -238,11 +238,7 @@ pub(crate) fn take_mob_blows(
     tick: u64,
 ) {
     for blow in blows {
-        let target = match &blow {
-            MobBlow::Started { target, .. }
-            | MobBlow::Landed { target, .. }
-            | MobBlow::Fizzled { target, .. } => *target,
-        };
+        let target = blow.target();
         let Some(client) = clients.iter_mut().find(|c| c.entity_id() == target) else {
             continue;
         };

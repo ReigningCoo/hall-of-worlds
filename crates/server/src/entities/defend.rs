@@ -1,6 +1,7 @@
 //! Packs defending each other (mob behaviour plan PR 3): a mob that sees one of
 //! its band, or an ally if it defends allies (`behaviour::Defends`), harmed by a
-//! player remembers that player as an enemy who struck first
+//! player or another mob (PR 4; never one of its own band or allies) remembers
+//! the attacker as an enemy who struck first
 //! (`Memory::remember_band_harmed`, so killing it is self-defence for them) and
 //! joins in through the scorer (`choice::after_harm`), the attacker's place known.
 
@@ -33,6 +34,17 @@ fn defends(defender: &Mob, victim: &Mob, behaviours: &Behaviours) -> bool {
     }
 }
 
+/// Whether the attacker is a mob of `defender`'s band or an ally: then it
+/// keeps out of it.
+fn sides_with(defender: &Mob, by: &Harmer, behaviours: &Behaviours) -> bool {
+    by.member.is_some_and(|them| {
+        matches!(
+            behaviours.relation(defender.member(), them),
+            Relation::Kin | Relation::Ally
+        )
+    })
+}
+
 /// Whether `defender` sees `victim`: within its sight, in its cone, the way
 /// clear.
 fn sees(defender: &Mob, victim: &Mob, population: &Population) -> bool {
@@ -59,6 +71,7 @@ pub(super) fn rally(
     let character = CharacterId(by.id);
     let defenders: Vec<usize> = (population.mobs.iter().enumerate())
         .filter(|(_, one)| one.id != victim.id && !one.still && one.escort.is_none())
+        .filter(|(_, one)| one.id != by.id && !sides_with(one, by, behaviours))
         .filter(|(_, one)| defends(one, &victim, behaviours) && sees(one, &victim, population))
         .map(|(index, _)| index)
         .collect();
@@ -72,7 +85,7 @@ pub(super) fn rally(
         );
         let one = &mut population.mobs[index];
         one.memory.remember_band_harmed(character);
-        let feeling = one.feeling(by.kind, Some(&character));
+        let feeling = one.feeling_about(by, behaviours);
         debug_assert_eq!(feeling, Feeling::Unfriendly);
         let def = behaviours.of(one.kind);
         let (doing, scores) = after_harm(one, by, feeling, (def, friends), tick);

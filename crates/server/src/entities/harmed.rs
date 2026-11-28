@@ -1,8 +1,9 @@
-//! A mob harmed by a player, by a blow or a spell: it loses the Health,
+//! A mob harmed by a player or another mob, by a blow or a spell: it loses the Health,
 //! remembers who did it, does what its standing with them now says, and dies
 //! if that was the last of it. Its band and allies who see it join in
 //! (`defend`).
 
+use shared::behaviour::Member;
 use shared::creature::CreatureKind;
 use shared::id::Id;
 use shared::protocol::CharacterId;
@@ -16,7 +17,7 @@ use crate::ServerWorld;
 use crate::combat::{Harm, health_left};
 use crate::storage::SiteId;
 
-/// What a player did to a mob.
+/// What a player (or another mob) did to a mob.
 pub(crate) struct MobHit {
     pub harm: Points,
     /// Health left, per mille: none when it died.
@@ -25,16 +26,19 @@ pub(crate) struct MobHit {
     pub kind: CreatureKind,
 }
 
-/// The player who harmed a mob: who, where they stand, and what they are.
+/// Who harmed a mob, a player or another mob: who, where they stand, and what
+/// they are.
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct Harmer {
     pub id: Id,
     pub position: (i64, i64),
     pub kind: CreatureKind,
+    /// A mob's race and band (mob behaviour plan PR 4); `None` for a player.
+    pub member: Option<Member>,
 }
 
 /// A mob on `place` (whose own level is `here_index`) takes `harm` from a
-/// player: it is harmed, remembers it (`Memory::remember_harm`, saved), does
+/// player or another mob: it is harmed, remembers it (`Memory::remember_harm`, saved), does
 /// what its standing with them now says (`choice::after_harm`), and dies if that was
 /// the last of its Health. `None` if it is no longer there.
 pub(crate) fn harm_mob(
@@ -63,11 +67,12 @@ pub(crate) fn harm_mob(
             told: by.id,
         });
     }
-    // A player's entity id is their character's.
+    // A player's entity id is their character's; a mob is remembered by its
+    // own id the same way (`foes.rs`).
     let character = CharacterId(by.id);
-    let start = one.kind.feeling_about(by.kind);
+    let start = one.start_towards(&by, &behaviours);
     one.memory.remember_harm(character, harm, start);
-    let feeling = one.feeling(by.kind, Some(&character));
+    let feeling = one.feeling_about(&by, &behaviours);
     let at_rest = one.doing == Doing::Idle;
     let friends = friends_seen(one, &population.level, &others, &behaviours);
     let def = behaviours.of(kind);

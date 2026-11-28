@@ -17,7 +17,7 @@ use crate::combat::{Act, Pending, luck, ticks_for};
 use crate::storage::SiteId;
 
 /// What a mob did to a player this tick, for the player's client to be told
-/// once every level has had its turn.
+/// once every level has had its turn; or to another mob (`mob_blows`).
 pub(crate) enum MobBlow {
     Started {
         mob: Id,
@@ -41,8 +41,19 @@ pub(crate) enum MobBlow {
     },
 }
 
+impl MobBlow {
+    /// Who it is aimed at.
+    pub(crate) fn target(&self) -> Id {
+        match self {
+            Self::Started { target, .. }
+            | Self::Landed { target, .. }
+            | Self::Fizzled { target, .. } => *target,
+        }
+    }
+}
+
 impl Mob {
-    fn fighter(&self) -> Fighter<'_> {
+    pub(super) fn fighter(&self) -> Fighter<'_> {
         let attributes = self.spells.attributes().unwrap_or(&self.attributes);
         Fighter::mob(self.kind, attributes, self.wielded, self.spells.guard())
     }
@@ -175,6 +186,7 @@ pub(crate) fn hit_mob(
         id: by.id,
         position: by.position,
         kind: by.fighter.kind,
+        member: None,
     };
     harm_mob(world, (place, here_index), mob, harm, harmer, tick)
 }

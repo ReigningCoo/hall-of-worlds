@@ -41,6 +41,7 @@ mod facing_tests;
 mod feeling;
 mod feeling_shown;
 mod fight;
+mod foes;
 mod gear;
 mod harmed;
 mod harmed_by;
@@ -49,6 +50,7 @@ mod inspect;
 #[cfg(test)]
 mod light_tests;
 mod made;
+mod mob_blows;
 mod moves;
 mod notice;
 mod on_ground;
@@ -188,6 +190,9 @@ pub(crate) struct Mob {
     ways: Ways,
     /// Its choices as last scored (`choice`), for Inspect. Not saved.
     scores: Scores,
+    /// The mobs on its level it would fight (rival bands and enemies,
+    /// `foes.rs`), as of the start of this tick. Not saved.
+    foes: Vec<Id>,
 }
 
 /// Stairs a mob has come by: where they are here, and where they lead back to.
@@ -281,6 +286,8 @@ mod doors_tests;
 mod feeling_shown_tests;
 #[cfg(test)]
 mod harmed_tests;
+#[cfg(test)]
+mod mob_fights_tests;
 #[cfg(test)]
 mod quest_mobs_tests;
 #[cfg(test)]
