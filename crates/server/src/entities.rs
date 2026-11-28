@@ -22,6 +22,7 @@ use crate::combat::Fight;
 use crate::storage::SiteId;
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod alert;
 mod chill;
 mod choice;
 mod close_in;
@@ -78,6 +79,7 @@ mod watching;
 mod watching_tests;
 mod wild;
 
+pub(crate) use alert::tell_alerts;
 pub(crate) use chill::chill_mob;
 use choice::{Scores, Ways};
 use crossing::cross;
@@ -197,6 +199,8 @@ pub(crate) struct Mob {
     scores: Scores,
     /// The mobs on its level it would fight, and its prey (`foes::Foes`).
     foes: foes::Foes,
+    /// Unaware, Alert or Aware (`alert.rs`). Not saved.
+    wariness: shared::alertness::Wariness,
 }
 
 /// Stairs a mob has come by: where they are here, and where they lead back to.
@@ -284,6 +288,8 @@ impl Populations {
     }
 }
 
+#[cfg(test)]
+mod alert_tests;
 #[cfg(test)]
 mod dev_mob_tests;
 #[cfg(test)]

@@ -13,6 +13,7 @@ Combat's rules, the same for players and mobs on both sides: what an attack cost
 - `combat/fighter.rs`: `Fighter`, `Swing`, `PRACTICE_PER_BLOW`.
 - `combat/reach.rs`: `Body`, `ARM_PER_QUARTER`, `MM_PER_UNIT`, `arm_reach`, `reach_between`, `distance`, `within`, `in_reach`.
 - `combat/guard.rs`: `Guard` (magic plan PR 12).
+- `combat/critical.rs`: `Critical` (`Unaware`), `of_blow`, `harm`, `critical_harm`, `CRITICAL_TIMES` (mob behaviour plan PR 7).
 - `combat/kick.rs`: Kick (`Fighter::kick`, `kick_harm`, `kick_force`, `kick_skill`) and its constants.
 
 ## Public API
@@ -26,6 +27,7 @@ Combat's rules, the same for players and mobs on both sides: what an attack cost
 - `Weapon::skill` (its own node by name, `combat/melee/<type>/<weapon>`), `attack_skill(kind)` (that, its type's, or `unarmed/<kind>`), `defence_skill()` (`defence/<type>` or `defence/unarmed`).
 - `Guard { defence, blows_done, blows_taken }` per mille (`NONE` all 1000; `of(totals)` from `bonus::Stat::Defence`, `BlowHarm`, `HarmTaken`): what spells on a fighter do to blows. `Fighter::guard`: `defence_power` × its `defence` (an Illusion); `harm` and `kick_harm` × the attacker's `blows_done` (a Curse) × the defender's `blows_taken` (Stoneskin), `Guard::blow`.
 - Kick (owner, 2026-11-09; anyone with legs): `Fighter::kick()` an unarmed attack's cost by agility and the Kick skill (`combat/melee/kick`) × `KICK_COST_PER_MILLE` (2500: more than twice); `kick_harm(defender, shoved, rng)` an unarmed blow by the Kick skill's power × `KICK_HARM_PER_MILLE` (400) if it shoves the target (half a cell, free positions PR 5), twice that if it can't (still less than a punch); `kick_force(rng)` against a thing (a door), the blow with no defence × `KICK_FORCE_PER_MILLE` (2000).
+- Critical hits (mob behaviour plan PR 7): `Critical::of_blow(off_guard)`: a blow on someone caught off guard (`alertness::Wariness::off_guard`) is always one, `Critical::Unaware`; `critical_harm` × `CRITICAL_TIMES` (2). Its own rule, so later criticals (chances by skill, weak spots) add reasons; the server applies it to players' blows and kicks on mobs (`entities/fight.rs` `hit_mob`) and mobs' blows on mobs (`mob_blows.rs`), never to spells, and not yet to blows on players (who have no alertness).
 - Reach by distance (free positions PR 7): `Body { at: Spot, height, size }` (`Body::on(relief, at, size)`: the ground's height from a `relief::Relief`, 0 where flat). `reach_between(attacker, weapon, target)`: the attacker's radius + `arm_reach` (`ARM_PER_QUARTER` 45 units a quarter of size: 180 for Medium, so bare hands just reach a Medium neighbour diagonally, 339 units) + the weapon's `reach` + the target's radius. `distance` between middles in 3D; `within(level, from, to, range)`: that distance at most `range` and a clear line (`dungeon::spots_are_clear`); `in_reach(level, attacker, weapon, target)`. Heal's range uses `within` (`magic`). For Medium against Medium: fists and a dagger reach the next cell (340, 390), a sword 465, a 2 m spear 590 (two cells straight, not two diagonally).
 
 ## Depends on

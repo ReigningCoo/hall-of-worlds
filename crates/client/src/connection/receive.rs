@@ -242,6 +242,7 @@ pub(super) fn receive(
                 | ServerMessage::VisitedGates(_)
                 | ServerMessage::ActionBar(_)
                 | ServerMessage::Sneaking(_)
+                | ServerMessage::MobAlert(_)
                 | ServerMessage::DoorRefused { .. }
                 | ServerMessage::Pick(_)
                 | ServerMessage::VinegarSoon(_)

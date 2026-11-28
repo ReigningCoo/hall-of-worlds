@@ -3,7 +3,7 @@
 //! (`harm_mob`): it remembers the attacker by its id, turns on it or flees,
 //! its band and allies who see it join in, and it may die.
 
-use shared::combat::Fighter;
+use shared::combat::{Critical, Fighter, critical_harm};
 
 use super::fight::MobBlow;
 use super::harmed::{Harmer, harm_mob};
@@ -35,6 +35,8 @@ pub(super) fn strike_mob(world: &mut ServerWorld, place: (SiteId, u32), blow: Mo
     };
     let fighter = Fighter::mob(kind, &attributes, wielded, guard);
     let harm = fighter.harm(&swing, &defender.fighter(), &mut luck(tick, mob, target));
+    // A blow on one caught off guard is a critical.
+    let harm = critical_harm(harm, Critical::of_blow(defender.off_guard()));
     let by = Harmer {
         id: mob,
         position: attacker.position,

@@ -15,7 +15,7 @@ use crate::view3d::{TOKEN_DIAMETER, TokenView, ViewCamera};
 /// The eye's width, in interface pixels.
 const WIDTH: f32 = 30.0;
 /// How high above the token's middle it floats, in world units.
-const ABOVE: f32 = TOKEN_DIAMETER * 2.4;
+const ABOVE: f32 = TOKEN_DIAMETER * 2.1;
 const WHITE: Color = Color::srgb(0.95, 0.95, 0.92);
 const ALERT: Color = Color::srgb(1.0, 0.72, 0.68);
 const DARK: Color = Color::srgb(0.08, 0.06, 0.05);

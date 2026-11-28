@@ -26,6 +26,8 @@ impl Population {
         mob.doing = Doing::Idle;
         mob.target = None;
         mob.pacing = Default::default();
+        // Nothing heard or seen yet, so no turn left over from the level's run.
+        mob.wariness = Default::default();
         mob.energy = Default::default();
         mob.wielded = shared::combat::Wielded::of(&empty);
         mob.speed = Sheet::new(kind).speed(&empty);

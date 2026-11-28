@@ -3,6 +3,7 @@
 //! `docs/context/abilities-skills.md`.
 
 mod cost;
+mod critical;
 mod damage;
 mod fighter;
 mod guard;
@@ -16,6 +17,7 @@ pub use cost::{
     ATTACK_WIND_UP, CANCEL_PENALTY, COST_PER_GRAM_MILLI, DUAL_SAVING, MEDIAN, SKILL_SAVING,
     UNARMED_COST, agility_quickens, attack_cost, skill_percent, weapon_cost, wind_up,
 };
+pub use critical::{CRITICAL_TIMES, Critical, critical_harm};
 pub use damage::{
     ARMOUR_HALF, Blow, EDGE, UNARMED_DAMAGE, blow, metal_factor, off_hand_share, past_defence,
     quality_factor, roll_blow, strength_hits, through_armour, weapon_base,
@@ -30,6 +32,8 @@ pub use reach::{
 pub use weapon::Weapon;
 pub use wielded::Wielded;
 
+#[cfg(test)]
+mod critical_tests;
 #[cfg(test)]
 mod kick_tests;
 #[cfg(test)]

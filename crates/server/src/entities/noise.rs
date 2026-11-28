@@ -11,10 +11,12 @@ use super::{Doing, Mob};
 use crate::ServerWorld;
 use crate::storage::SiteId;
 
-/// A noise this tick, and the sneaking player whose footsteps it is.
+/// A noise this tick, the player whose footsteps it is (`by`), and whether
+/// they sneak (`sneaker`).
 #[derive(Clone, Copy, Debug)]
 pub(super) struct Made {
     pub(super) noise: Noise,
+    pub(super) by: Option<Id>,
     pub(super) sneaker: Option<Id>,
 }
 
@@ -61,6 +63,7 @@ pub(super) fn made_here(
     (kept.into_iter().chain(blows))
         .map(|noise| Made {
             noise,
+            by: None,
             sneaker: None,
         })
         .chain(steps)
@@ -69,8 +72,9 @@ pub(super) fn made_here(
 
 impl Mob {
     /// It listens: each noise is heard or not by the shared rule (noted in
-    /// `overheard`), and at rest it turns to the nearest heard, through walls
-    /// too: then it may see who made it.
+    /// `overheard`), and the nearest heard makes it Alert (`alert.rs`): once
+    /// its reaction is over, at rest, it turns to it, through walls too, and
+    /// may see who made it.
     pub(super) fn listen(
         &mut self,
         level: &Level,
@@ -83,23 +87,27 @@ impl Mob {
             hearing: self.kind.senses().hearing,
             seed: self.id.seed(),
         };
-        let mut nearest: Option<Units> = None;
+        let mut nearest: Option<&Made> = None;
         for (index, made) in made.iter().enumerate() {
             let noise = &made.noise;
             if heard(level, noise, &hearer, tick) {
                 overheard.0[index].0 = true;
                 let nearer = nearest.is_none_or(|was| {
-                    self.spot.distance_squared(noise.at) < self.spot.distance_squared(was)
+                    self.spot.distance_squared(noise.at) < self.spot.distance_squared(was.noise.at)
                 });
                 if nearer {
-                    nearest = Some(noise.at);
+                    nearest = Some(made);
                 }
             } else if chance(level, noise, &hearer) > 0 {
                 overheard.0[index].1 = true;
             }
         }
-        if self.doing == Doing::Idle
-            && let Some(at) = nearest
+        if let Some(made) = nearest {
+            self.wariness
+                .heard(made.noise.at, made.by, tick, self.reaction());
+        }
+        if let Some(at) = self.wariness.turn_due(tick)
+            && self.doing == Doing::Idle
         {
             self.face(at);
         }

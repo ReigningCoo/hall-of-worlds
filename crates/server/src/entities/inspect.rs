@@ -21,6 +21,7 @@ pub(super) fn describe(
             mob.position.0, mob.position.1, mob.home.0, mob.home.1, mob.home_level
         ),
         format!("Doing: {:?}", mob.doing),
+        format!("Alertness: {:?}", mob.wariness.stage()),
         format!(
             "Target: {}",
             mob.target.map_or("none".into(), |id| format!("{id:?}"))
