@@ -169,8 +169,8 @@ pub(crate) fn kill(
 
 /// A mob on this level (`place`, whose own level is `here_index`) has died: it
 /// goes, never to be made again, and if it `leaves` anything (it wasn't
-/// deleted by developer tools) what it had falls where it stood and its killers
-/// count it.
+/// deleted by developer tools or eaten by hunters) what it had falls where it
+/// stood and its killers count it.
 pub(super) fn bury(
     world: &mut ServerWorld,
     place: (SiteId, u32),

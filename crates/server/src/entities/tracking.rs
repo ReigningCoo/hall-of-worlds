@@ -7,6 +7,7 @@ use shared::creature::Acuity;
 use shared::dungeon::{Level, line_is_clear};
 use shared::movement::Step;
 
+use super::hunt::HUNT_LEASH;
 use super::scent::{Mark, Scents, Went};
 use super::territory::{LEASH, is_territorial};
 use super::{Doing, Mob, SETTLING_STEPS, Spot, THINKING_COST, Taken, cells_apart, take_step};
@@ -49,7 +50,14 @@ pub(super) fn track(
         };
         return THINKING_COST;
     }
-    if is_territorial(mob) && cells_apart(mob.home, mob.position) > LEASH {
+    let from_home = cells_apart(mob.home, mob.position);
+    if mob.foes.is_prey(after) {
+        if from_home > HUNT_LEASH {
+            // It got away: the hunt is over.
+            mob.doing = Doing::GoingHome { since: now };
+            return THINKING_COST;
+        }
+    } else if is_territorial(mob) && from_home > LEASH {
         mob.doing = settle;
         return THINKING_COST;
     }

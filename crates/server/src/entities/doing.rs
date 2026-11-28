@@ -49,4 +49,8 @@ pub enum Doing {
         gap: i64,
         since: u64,
     },
+    /// Eating prey it has killed (`hunt.rs`), until this tick; then home.
+    Eating {
+        until: u64,
+    },
 }

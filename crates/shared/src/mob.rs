@@ -27,6 +27,7 @@ mod scent;
 mod trail;
 mod wild;
 mod wild_looks;
+mod wild_prey;
 mod wild_shares;
 pub use chosen::{chosen_spawns, spawn_at};
 #[cfg(test)]

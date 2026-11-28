@@ -89,6 +89,12 @@ pub(super) fn act(
     };
     match mob.doing {
         Doing::Idle => 0,
+        Doing::Eating { until } => {
+            if tick >= until {
+                mob.doing = Doing::GoingHome { since: tick };
+            }
+            THINKING_COST
+        }
         // `run_mobs` sends these to `tracking::track`, which knows the scents.
         Doing::Tracking { .. } => THINKING_COST,
         Doing::Going {
@@ -105,7 +111,13 @@ pub(super) fn act(
                 last_seen: goal,
                 gap,
             };
-            if is_territorial(mob) && cells_apart(mob.home, goal) > LEASH {
+            let prey = mob.foes.is_prey(after);
+            if prey && cells_apart(mob.home, goal) > super::hunt::HUNT_LEASH {
+                // It got away: the hunt is over.
+                mob.doing = Doing::GoingHome { since: tick };
+                return THINKING_COST;
+            }
+            if !prey && is_territorial(mob) && cells_apart(mob.home, goal) > LEASH {
                 // Too far to bother chasing: back to keeping them out.
                 mob.doing = match target {
                     Some(_) => Doing::Guarding {

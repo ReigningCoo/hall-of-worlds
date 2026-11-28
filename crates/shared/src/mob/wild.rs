@@ -5,6 +5,7 @@
 
 use super::herd::{Age, Herd};
 use super::wild_looks::wild_looks;
+use super::wild_prey::{PREY_MEMBERS, prey_near};
 use super::wild_shares::{Around, Form, Resident, shares};
 use super::{Spawn, looks, roll_coins, roll_gear};
 use crate::alignment::Alignment;
@@ -47,7 +48,7 @@ const BAND_ROLL: i64 = 90;
 const SPREAD: i64 = 3;
 
 /// How many places are tried for each.
-const TRIES: i64 = 16;
+pub(super) const TRIES: i64 = 16;
 
 /// What a wild block's land is like at its middle, for who lives there: its
 /// biome, its height above the sea in whole metres (on surfaces that aren't
@@ -96,78 +97,108 @@ pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) ->
         return Vec::new();
     }
     let resident = pick(roll(1), &lives_here);
-    let kind = resident.kind;
     let Some(den) = den(level, resident.place, &roll) else {
         return Vec::new();
     };
-    let stages = Livestock::built_in().by_kind(kind).map(|def| &def.stages);
-    let grown = 1 + roll(100) % MOST_TOGETHER;
-    let young = if stages.is_some() && roll(101) % 100 < YOUNG_PERCENT {
-        1 + roll(102) % MOST_YOUNG
-    } else {
-        0
-    };
-    let herd = Herd { seed, block };
-    // The whole pack or herd is one band.
-    let band = Band(roll(BAND_ROLL));
-    let mut mobs: Vec<Spawn> = Vec::new();
-    for member in 0..(grown + young) as i64 {
-        let own = |what: i64| roll(1000 + member * 100 + what);
-        let age = match young {
-            0 => Age::Any,
-            _ if member < grown as i64 => Age::Grown,
-            _ => Age::Young,
-        };
-        let Some(number) = herd.number(member, age, stages) else {
-            continue;
-        };
-        let spot = (0..TRIES).find_map(|attempt| {
-            let span = (2 * SPREAD + 1) as u64;
-            let x = den.0 + (own(attempt * 2) % span) as i64 - SPREAD;
-            let y = den.1 + (own(attempt * 2 + 1) % span) as i64 - SPREAD;
-            let free = mobs.iter().all(|mob| mob.position != (x, y));
-            (level.contains(x, y) && open(level, x, y) && free).then_some((x, y))
-        });
-        let Some(position) = spot else {
-            continue;
-        };
-        let gender = match Gender::rolled(own(61)) {
-            // A herd with young is led by their mother.
-            _ if young > 0 && member == 0 => Gender::Female,
-            // Nothing gelds wild animals.
-            Gender::Neutral if resident.form == Form::Wild => {
-                [Gender::Male, Gender::Female][(own(63) % 2) as usize]
-            }
-            gender => gender,
-        };
-        let mut appearance = looks(&own, kind, gender).fitted(kind, gender);
-        if resident.form == Form::Wild {
-            appearance = wild_looks(kind, gender, appearance);
-        }
-        mobs.push(Spawn {
-            number,
-            kind,
-            position,
-            appearance,
-            gender,
-            alignment: Alignment::rolled(kind, own(62)),
-            attributes: Attributes::for_kind(
-                kind,
-                gender,
-                &Build::rolled(&mut Seed::new(own(60)).rng()),
-            ),
-            gear: roll_gear(&own, kind),
-            coins: roll_coins(&own, kind),
-            penned: false,
-            band,
-            family: None,
-        });
+    let here = Block { seed, block, level };
+    let mut mobs = here.group(resident, den, 0, &roll);
+    // A pack's prey may live not far off, to be hunted (`wild_prey`).
+    if let Some((prey, at)) = prey_near(resident.kind, den, &lives_here, level, &roll) {
+        mobs.extend(here.group(prey, at, PREY_MEMBERS, &roll));
     }
     mobs
 }
 
+/// The block whose creatures are being made.
+struct Block<'a> {
+    seed: Seed,
+    block: BlockPos,
+    level: &'a Level,
+}
+
+impl Block<'_> {
+    /// A pack or herd of `resident` round `den`, one band, its members
+    /// numbered from `first` among the block's (0 for the block's own, so its
+    /// rolls are as they always were).
+    fn group(
+        &self,
+        resident: Resident,
+        den: (i64, i64),
+        first: i64,
+        roll: &impl Fn(i64) -> u64,
+    ) -> Vec<Spawn> {
+        let (seed, block, level) = (self.seed, self.block, self.level);
+        let kind = resident.kind;
+        let stages = Livestock::built_in().by_kind(kind).map(|def| &def.stages);
+        let grown = 1 + roll(100 + first) % MOST_TOGETHER;
+        let young = if stages.is_some() && roll(101 + first) % 100 < YOUNG_PERCENT {
+            1 + roll(102 + first) % MOST_YOUNG
+        } else {
+            0
+        };
+        let herd = Herd { seed, block };
+        // The whole pack or herd is one band.
+        let band = Band(roll(BAND_ROLL + first));
+        let mut mobs: Vec<Spawn> = Vec::new();
+        for index in 0..(grown + young) as i64 {
+            let member = first + index;
+            let own = |what: i64| roll(1000 + member * 100 + what);
+            let age = match young {
+                0 => Age::Any,
+                _ if index < grown as i64 => Age::Grown,
+                _ => Age::Young,
+            };
+            let Some(number) = herd.number(member, age, stages) else {
+                continue;
+            };
+            let spot = (0..TRIES).find_map(|attempt| {
+                let span = (2 * SPREAD + 1) as u64;
+                let x = den.0 + (own(attempt * 2) % span) as i64 - SPREAD;
+                let y = den.1 + (own(attempt * 2 + 1) % span) as i64 - SPREAD;
+                let free = mobs.iter().all(|mob| mob.position != (x, y));
+                (level.contains(x, y) && open(level, x, y) && free).then_some((x, y))
+            });
+            let Some(position) = spot else {
+                continue;
+            };
+            let gender = match Gender::rolled(own(61)) {
+                // A herd with young is led by their mother.
+                _ if young > 0 && index == 0 => Gender::Female,
+                // Nothing gelds wild animals.
+                Gender::Neutral if resident.form == Form::Wild => {
+                    [Gender::Male, Gender::Female][(own(63) % 2) as usize]
+                }
+                gender => gender,
+            };
+            let mut appearance = looks(&own, kind, gender).fitted(kind, gender);
+            if resident.form == Form::Wild {
+                appearance = wild_looks(kind, gender, appearance);
+            }
+            mobs.push(Spawn {
+                number,
+                kind,
+                position,
+                appearance,
+                gender,
+                alignment: Alignment::rolled(kind, own(62)),
+                attributes: Attributes::for_kind(
+                    kind,
+                    gender,
+                    &Build::rolled(&mut Seed::new(own(60)).rng()),
+                ),
+                gear: roll_gear(&own, kind),
+                coins: roll_coins(&own, kind),
+                penned: false,
+                band,
+                family: None,
+            });
+        }
+        mobs
+    }
+}
+
 /// Whether a cell is open ground a creature may start on.
-fn open(level: &Level, x: i64, y: i64) -> bool {
+pub(super) fn open(level: &Level, x: i64, y: i64) -> bool {
     level.is_walkable(x, y) && matches!(level.cell(x, y), Cell::Ground | Cell::Grass)
 }
 
@@ -190,7 +221,7 @@ fn around(level: &Level) -> Around {
 }
 
 /// The resident a roll lands on among the weights.
-fn pick(rolled: u64, lives_here: &[(Resident, u64)]) -> Resident {
+pub(super) fn pick(rolled: u64, lives_here: &[(Resident, u64)]) -> Resident {
     let total: u64 = lives_here.iter().map(|&(_, share)| share).sum();
     let mut left = rolled % total.max(1);
     lives_here
