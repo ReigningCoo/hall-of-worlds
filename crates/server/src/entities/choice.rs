@@ -18,9 +18,9 @@ mod zigzag;
 pub(super) use choose::{after_harm, choose};
 pub(super) use fire::{fires_by_place, with_fire};
 pub(crate) use option::{Choice, Scored, Scores};
+pub(super) use seen::{Other, friends_seen, others_of};
 #[cfg(test)]
 pub(super) use seen::{Wants, wants};
-pub(super) use seen::{friends_seen, others_of};
 pub(crate) use ways::Ways;
 pub(super) use zigzag::zigzag;
 
