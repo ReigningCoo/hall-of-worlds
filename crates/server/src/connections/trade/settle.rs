@@ -1,5 +1,6 @@
 //! Completing a trade: all of it at once (`shared::trade::complete`), then
-//! what follows from it: the shop's new stock, standing in its town, and
+//! what follows from it: what was bought but didn't fit into the receive box,
+//! the shop's new stock, standing in its town, and
 //! Trading practice for a tip or a haggle (negative for a tip too big).
 
 use bevy::prelude::*;
@@ -40,6 +41,8 @@ pub(super) fn complete(
         }
     };
     client.inventory = done.inventory;
+    let overflowed = !done.received.is_empty();
+    (client.trade.saved.received.items).extend(done.received);
     client.unsaved = true;
     let things = (trade.buying.len() + trade.selling.len()) as u32;
     crate::quests::traded_in(client, terms.town, things);
@@ -64,6 +67,7 @@ pub(super) fn complete(
             items,
         })
         && client.send_sheet(tick)
+        && (!overflowed || tell(client, TradeNews::Received(client.trade.received().clone())))
 }
 
 /// Trading practice for a modest tip or a haggle, and negative practice for

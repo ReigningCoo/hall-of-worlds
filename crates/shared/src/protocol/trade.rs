@@ -8,16 +8,18 @@ use serde::{Deserialize, Serialize};
 use crate::id::Id;
 use crate::site::BuildingKind;
 use crate::trade::{
-    Between, Buy, Offer, Payment, Rates, Received, Refusal, ShopTrade, TradingSetting,
+    Between, BoxPlace, Offer, Payment, Place, Rates, Received, Refusal, ShopTrade, TradingSetting,
 };
 
 /// A change to the open trade, or completing or closing it. Each is answered
 /// with `TradeNews::State`, or `Refused` and the state as it was.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TradeAsk {
-    /// Something from the shop's stock to buy, and where it is to go.
-    Buy(Buy),
-    /// Something being bought put back.
+    /// Something from the shop's stock put in the Buying box at `at`, or
+    /// moved there if it is in it already; with no place (a right-click), in
+    /// the first free one, the box growing if need be (`ShopTrade::buy`).
+    Buy { item: Id, at: Option<BoxPlace> },
+    /// Something in the Buying box put back in the stock.
     Unbuy { item: Id },
     /// Something carried to sell: it stays carried until completed.
     Sell { item: Id },
@@ -33,7 +35,7 @@ pub enum TradeAsk {
     Answer { by: Id, allow: bool },
     /// One thing taken out of the receive box to a place (works with no trade
     /// open): answered with `Received` and the inventory.
-    Take(Buy),
+    Take(Place),
     /// Everything that fits taken out of the receive box.
     TakeAll,
     /// What to pay in copper instead of what is due (negative: to be paid),

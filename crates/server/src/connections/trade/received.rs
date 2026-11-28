@@ -4,7 +4,7 @@
 
 use bevy::prelude::*;
 use shared::protocol::TradeNews;
-use shared::trade::{Buy, TradingSetting};
+use shared::trade::{Place, TradingSetting};
 
 use super::tell;
 use crate::ServerWorld;
@@ -14,7 +14,7 @@ use crate::ids::new_id;
 /// One thing taken out of the receive box to the place `to` says, or (none)
 /// everything that fits. Answered with the box and the inventory. `false` if
 /// the client has gone.
-pub(super) fn take(client: &mut Client, world: &mut ServerWorld, to: Option<Buy>) -> bool {
+pub(super) fn take(client: &mut Client, world: &mut ServerWorld, to: Option<Place>) -> bool {
     let received = &mut client.trade.saved.received;
     let taken = match to {
         Some(to) => usize::from(received.take(&to, &mut client.inventory)),

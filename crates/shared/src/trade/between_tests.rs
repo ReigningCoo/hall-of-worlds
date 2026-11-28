@@ -136,7 +136,7 @@ fn the_receive_box_empties_into_what_is_carried() {
     let (x, y, rotation) = carried
         .first_place_for_new(dagger, Holder::Inventory, Rotation::None)
         .unwrap();
-    let to = Buy {
+    let to = Place {
         item: Id::for_test(1),
         to: Holder::Inventory,
         x,

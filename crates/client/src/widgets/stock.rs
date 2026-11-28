@@ -4,7 +4,7 @@
 use bevy::prelude::*;
 use bevy::ui::UiGlobalTransform;
 use shared::id::Id;
-use shared::item::{Inventory, Item, ItemCategory, Placed, Rotation, Shape};
+use shared::item::{Item, ItemCategory, Placed, Rotation, Shape};
 
 use super::item::{CELL, logical_rect};
 use crate::common::HeldGift;
@@ -90,6 +90,15 @@ impl StockGrid {
             least_rows: rows,
             most_rows: Some(rows),
             ..self
+        }
+    }
+
+    /// Showing exactly this many rows from now on (the Buying box, as the
+    /// server says it grows and shrinks).
+    pub fn set_rows(&mut self, rows: u8) {
+        if (self.least_rows, self.most_rows) != (rows, Some(rows)) {
+            (self.least_rows, self.most_rows) = (rows, Some(rows));
+            self.changed = true;
         }
     }
 
@@ -184,18 +193,17 @@ impl StockGrid {
             .try_insert((StockOf(self.with), shown));
     }
 
-    /// Where this, held over the grid, would land.
+    /// Where this, held over the grid, would land: one of its own, or `from`
+    /// elsewhere (carried, or another grid's).
     pub fn aim(
         &self,
         gift: &HeldGift,
-        carried: &Inventory,
+        from: Option<&Item>,
         node: &ComputedNode,
         transform: &UiGlobalTransform,
     ) -> Option<StockAimAt> {
         let theirs = self.stock.iter().find(|placed| placed.item.id == gift.item);
-        let item = theirs
-            .map(|placed| &placed.item)
-            .or(carried.find(gift.item))?;
+        let item = theirs.map(|placed| &placed.item).or(from)?;
         let shape = item.shape().turned(gift.rotation);
         let wanted = cell_in_grid(gift.corner, node, transform);
         let rest = others(&self.stock, gift.item);

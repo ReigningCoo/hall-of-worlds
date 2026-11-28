@@ -70,14 +70,12 @@ pub struct ItemLook {
 }
 
 /// How an item is marked by a trade (trading plan PR 4): carried and being
-/// sold (a bag in its corner), or being bought and not yet paid for (a solid
-/// background behind it).
+/// sold (a bag in its corner).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ItemMark {
     #[default]
     None,
     Selling,
-    Unpaid,
 }
 
 impl ItemLook {

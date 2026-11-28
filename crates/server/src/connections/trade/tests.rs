@@ -1,9 +1,9 @@
 use shared::id::Id;
-use shared::item::{Holder, Item, Rotation};
+use shared::item::{Item, Rotation};
 use shared::poi::PoiKind;
 use shared::protocol::{ClientMessage, ServerMessage, TradeAsk, TradeEnd, TradeNews};
 use shared::shop::SOLD_KEPT_FOR;
-use shared::trade::{Buy, Payment, Refusal};
+use shared::trade::{BoxPlace, Payment, Refusal};
 
 use crate::connections::tests::TestClient;
 use crate::ids::new_id;
@@ -58,19 +58,9 @@ fn refused(answers: &[ServerMessage]) -> Option<Refusal> {
     })
 }
 
-/// Buying `item` from `stock`, to the first place it fits in the own grid.
-fn buy(test: &TestClient, stock: &[Item], item: Id) -> ClientMessage {
-    let found = stock.iter().find(|one| one.id == item).unwrap();
-    let inventory = &test.client.inventory;
-    let place = inventory.first_place_for_new(found, Holder::Inventory, Rotation::None);
-    let (x, y, rotation) = place.expect("room for it");
-    ClientMessage::Trade(TradeAsk::Buy(Buy {
-        item,
-        to: Holder::Inventory,
-        x,
-        y,
-        rotation,
-    }))
+/// Buying `item`, to the first free place in the Buying box.
+fn buy(item: Id) -> ClientMessage {
+    ClientMessage::Trade(TradeAsk::Buy { item, at: None })
 }
 
 fn trade(ask: TradeAsk) -> ClientMessage {
@@ -85,7 +75,7 @@ fn nothing_is_bought_until_the_trade_is_completed() {
     assert!(matches!(news(&answers)[0], TradeNews::Opened { .. }));
     let item = stock[0].id;
     let coins = test.client.inventory.coins_carried();
-    test.send(&[buy(&test, &stock, item)]);
+    test.send(&[buy(item)]);
     assert!(
         test.client.inventory.find(item).is_none(),
         "still the shop's"
@@ -108,13 +98,10 @@ fn nothing_is_bought_until_the_trade_is_completed() {
 fn walking_away_or_closing_moves_nothing() {
     let (mut test, with, front) = at_a_shop();
     let stock = stock_in(&test.send(&[ClientMessage::OpenTrade { with }])).unwrap();
-    test.send(&[buy(&test, &stock, stock[0].id)]);
+    test.send(&[buy(stock[0].id)]);
     let answers = test.send(&[trade(TradeAsk::Close)]);
     assert_eq!(ended(&answers), Some(TradeEnd::Closed));
-    test.send(&[
-        ClientMessage::OpenTrade { with },
-        buy(&test, &stock, stock[0].id),
-    ]);
+    test.send(&[ClientMessage::OpenTrade { with }, buy(stock[0].id)]);
     (test.client.visit.as_mut().unwrap()).move_for_test((front.0 + 40, front.1));
     let answers = test.send(&[]);
     assert_eq!(ended(&answers), Some(TradeEnd::OutOfReach));
@@ -169,10 +156,7 @@ fn coins_and_haggles_past_the_skill_are_refused() {
     let coin = test.client.inventory.items[0].item.id;
     let answers = test.send(&[trade(TradeAsk::Sell { item: coin })]);
     assert_eq!(refused(&answers), Some(Refusal::NotForSale));
-    test.send(&[
-        buy(&test, &stock, stock[0].id),
-        trade(TradeAsk::Pay(Some(0))),
-    ]);
+    test.send(&[buy(stock[0].id), trade(TradeAsk::Pay(Some(0)))]);
     let answers = test.send(&[trade(TradeAsk::Complete)]);
     assert_eq!(refused(&answers), Some(Refusal::TooShort));
     assert!(test.client.trade.shop.is_some(), "still open");
@@ -187,7 +171,7 @@ fn a_tip_raises_standing_and_a_big_one_unpractises_trading() {
     let Some(TradeNews::Opened { rates, shop, .. }) = news(&answers).first().cloned() else {
         panic!("opened: {answers:?}");
     };
-    test.send(&[buy(&test, &stock, stock[0].id)]);
+    test.send(&[buy(stock[0].id)]);
     let open = test.client.trade.shop.clone().unwrap();
     let totals = open
         .totals(&stock, &test.client.inventory, rates, shop)
@@ -217,7 +201,46 @@ fn nothing_bought_that_cant_be_paid_for() {
     let (mut test, with, _) = at_a_shop();
     let stock = stock_in(&test.send(&[ClientMessage::OpenTrade { with }])).unwrap();
     test.client.inventory.items.clear();
-    let answers = test.send(&[buy(&test, &stock, stock[0].id)]);
+    let answers = test.send(&[buy(stock[0].id)]);
     assert_eq!(refused(&answers), Some(Refusal::CantAfford));
     assert!(test.client.trade.shop.as_ref().unwrap().buying.is_empty());
+}
+
+#[test]
+fn bought_things_lie_in_the_buying_box_where_put() {
+    let (mut test, with, _) = at_a_shop();
+    let stock = stock_in(&test.send(&[ClientMessage::OpenTrade { with }])).unwrap();
+    let (first, second) = (stock[0].id, stock[1].id);
+    let at = |x, y| {
+        Some(BoxPlace {
+            x,
+            y,
+            rotation: Rotation::None,
+        })
+    };
+    test.send(&[trade(TradeAsk::Buy {
+        item: first,
+        at: at(0, 3),
+    })]);
+    // Onto it while there is room elsewhere: refused.
+    let answers = test.send(&[trade(TradeAsk::Buy {
+        item: second,
+        at: at(0, 3),
+    })]);
+    assert_eq!(refused(&answers), Some(Refusal::NoRoom));
+    test.send(&[buy(second)]);
+    let open = test.client.trade.shop.clone().unwrap();
+    assert_eq!(open.buying.len(), 2);
+    assert_eq!((open.buying[0].x, open.buying[0].y), (0, 3));
+    assert_eq!((open.buying[1].x, open.buying[1].y), (0, 0));
+    // Moved within the box, then put back.
+    test.send(&[trade(TradeAsk::Buy {
+        item: first,
+        at: at(4, 0),
+    })]);
+    let open = test.client.trade.shop.clone().unwrap();
+    assert_eq!((open.buying[1].x, open.buying[1].y), (4, 0));
+    test.send(&[trade(TradeAsk::Unbuy { item: first })]);
+    assert_eq!(test.client.trade.shop.as_ref().unwrap().buying.len(), 1);
+    assert!(test.client.inventory.find(first).is_none());
 }

@@ -64,6 +64,8 @@ pub(super) fn show_sides(
     dom.set_flag("trade/received_frame", "hidden", !receiving);
     dom.set_flag("trade/bottom", "hidden", receiving || with_character);
     dom.set_flag("trade/scroll", "hidden", with_character);
+    dom.set_flag("trade/buying_label", "hidden", with_character);
+    dom.set_flag("trade/buying", "hidden", with_character);
     dom.set_flag("trade/theirs", "hidden", !with_character);
     dom.set_flag("trade/lock", "hidden", !with_character);
     dom.set_flag("trade/lock", "disabled", between.is_none());

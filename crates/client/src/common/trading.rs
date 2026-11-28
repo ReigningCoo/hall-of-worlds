@@ -1,14 +1,15 @@
 //! The trade open, as the trade window (`trade`) last heard it from the
 //! server, for the inventory (`inventory`) to draw and check by: what is
 //! being sold (still carried, marked with a bag) and bought (still the shop's,
-//! drawn unpaid where it is to go), and whether more can be afforded; or,
+//! in the window's Buying box, never in the inventory), and whether more can
+//! be afforded; or,
 //! with a player or an NPC, both sides as the server last told them.
 
 use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::Item;
 use shared::site::BuildingKind;
-use shared::trade::{Between, Buy, Rates, Totals, TradingSetting, due, shop_asks};
+use shared::trade::{Between, Offer, Rates, Totals, TradingSetting, due, shop_asks};
 use shared::value::total;
 
 /// Stands for the trade window's own side, as somewhere to let go of what is
@@ -22,6 +23,12 @@ pub fn own_side() -> Id {
 /// from (`StockCell::with`): a stand-in like `own_side`.
 pub fn receive_box() -> Id {
     Id::stand_in(u64::MAX - 2)
+}
+
+/// Stands for the trade window's Buying box, as somewhere stock is let go
+/// to buy it and taken from (`StockCell::with`): a stand-in like `own_side`.
+pub fn buying_box() -> Id {
+    Id::stand_in(u64::MAX - 3)
 }
 
 /// The character's Trading setting (Settings › Gameplay), as the server last
@@ -43,15 +50,16 @@ pub struct Trading {
     pub terms: Option<(Rates, BuildingKind)>,
     /// What is being sold, still carried.
     pub selling: Vec<Id>,
-    /// What is being bought, still the shop's, and where it is to go.
-    pub buying: Vec<(Buy, Item)>,
+    /// What is being bought, still the shop's, and where it lies in the
+    /// Buying box.
+    pub buying: Vec<(Offer, Item)>,
     /// Its sums, as worked out from the above.
     pub totals: Totals,
 }
 
 impl Trading {
     /// Something being bought, by its id.
-    pub fn unpaid(&self, item: Id) -> Option<&(Buy, Item)> {
+    pub fn bought(&self, item: Id) -> Option<&(Offer, Item)> {
         self.buying.iter().find(|(buy, _)| buy.item == item)
     }
 
