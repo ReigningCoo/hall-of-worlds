@@ -182,6 +182,9 @@ pub(crate) fn hit_mob(
         Some(shoved) => by.fighter.kick_harm(&one.fighter(), shoved, &mut rng),
         None => by.fighter.harm(&by.swing, &one.fighter(), &mut rng),
     };
+    // A sneak attack: a blow on one caught off guard.
+    let critical = shared::combat::Critical::of_blow(one.off_guard());
+    let harm = shared::combat::critical_harm(harm, critical);
     let harmer = Harmer {
         id: by.id,
         position: by.position,

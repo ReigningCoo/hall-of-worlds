@@ -72,6 +72,7 @@ impl Mob {
             // The game's own until the server's are set (`run_mobs`).
             ways: super::Ways::of(shared::behaviour::Behaviours::built_in_ref().of(spawn.kind)),
             scores: Default::default(),
+            wariness: Default::default(),
             foes: Default::default(),
         }
     }

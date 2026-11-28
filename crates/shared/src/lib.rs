@@ -7,6 +7,7 @@
 pub mod ability;
 pub mod alchemy;
 pub mod alcohol;
+pub mod alertness;
 pub mod alignment;
 pub mod armour;
 pub mod bar;

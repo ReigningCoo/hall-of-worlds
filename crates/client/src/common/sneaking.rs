@@ -8,8 +8,8 @@ use bevy::prelude::*;
 #[derive(Resource, Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Sneaking(pub bool);
 
-/// Whether a mob is Alert to the player, as the server says: the sneaking eye
-/// opens wide (`sneak_eye`). Nothing sets it until alertness comes (mob
-/// behaviour plan PR 7), which keeps it from the server's word.
+/// Whether a mob is Alert to or Aware of the player, as the server says
+/// (`ServerMessage::MobAlert`, mob behaviour plan PR 7): `sneak_eye` keeps it,
+/// and the eye opens wide.
 #[derive(Resource, Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct MobAlert(pub bool);

@@ -4,6 +4,7 @@
 //! open while a mob is Alert to them (`common::MobAlert`). No markers over
 //! mobs: they would be confused with quest markers (owner).
 
+mod alert;
 mod noticeable;
 mod show;
 
@@ -14,9 +15,11 @@ pub struct SneakEyePlugin;
 
 impl Plugin for SneakEyePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<crate::common::MobAlert>().add_systems(
-            PostUpdate,
-            show::show_eye.after(TransformSystems::Propagate),
-        );
+        app.init_resource::<crate::common::MobAlert>()
+            .add_systems(Update, alert::take_alert)
+            .add_systems(
+                PostUpdate,
+                show::show_eye.after(TransformSystems::Propagate),
+            );
     }
 }

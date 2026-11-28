@@ -1,9 +1,5 @@
 //! What the server sends a client.
 
-use std::collections::BTreeSet;
-
-use serde::{Deserialize, Serialize};
-
 use super::characters::ListedCharacter;
 use super::level::{LevelChunk, LevelInfo, RememberedLevel};
 use super::login::{EmailAddress, LoginMethod, SessionToken};
@@ -20,6 +16,8 @@ use crate::role::{DebugTool, Powers, RoleBadge, ShownRole};
 use crate::sheet::Sheet;
 use crate::vitals::VitalNow;
 use crate::world::WorldTime;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 
 /// From the server to a client.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -270,6 +268,8 @@ pub enum ServerMessage {
     DiscordLink(super::DiscordLink),
     /// Whether the player is sneaking now (`Ability::Sneak`, a toggle): after a change, `false` on joining.
     Sneaking(bool),
+    /// Whether a mob on the level is Alert to or Aware of the player (`shared::alertness`), on a change.
+    MobAlert(bool),
     /// A door asked to open (`DoorAsk::Open`) stays shut, `locked` if locked without its key.
     DoorRefused { x: i64, y: i64, locked: bool },
     /// Everyone in sight who turned this tick without moving (a stretch in `Moves` turns

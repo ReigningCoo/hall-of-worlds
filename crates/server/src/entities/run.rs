@@ -80,6 +80,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                     let feet = someone.footsteps;
                     steps.push(Made {
                         noise: shared::noise::Noise::footsteps(spot.at, feet),
+                        by: Some(spot.id),
                         sneaker: feet.sneaking.then_some(spot.id),
                     });
                 }
@@ -115,6 +116,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             mind_territory(mob, level, &spots, tick);
             mob.ways.set(behaviours.of(mob.kind));
             mob.find_foes(&others, &behaviours);
+            mob.look_round(level, &creatures, tick);
             let (chosen, scores) = choose(
                 mob,
                 level,
@@ -279,6 +281,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
         crate::sites::mob_opened(world, door);
     }
     crate::connections::take_mob_blows(clients, world, blows, tick);
+    super::tell_alerts(clients, world);
 }
 
 /// How far apart on the world map, the nearer way round the planet.

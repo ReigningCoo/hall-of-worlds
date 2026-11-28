@@ -11,7 +11,11 @@ use super::noise::{Made, Overheard};
 use super::tests::{beside_a_mob, player};
 
 fn made(noise: Noise, sneaker: Option<Id>) -> Vec<Made> {
-    vec![Made { noise, sneaker }]
+    vec![Made {
+        noise,
+        by: sneaker,
+        sneaker,
+    }]
 }
 
 /// The mob's level and the mob, to listen.
@@ -24,14 +28,22 @@ fn listen(test: &mut crate::connections::tests::TestClient, made: &[Made], tick:
 }
 
 #[test]
-fn a_mob_at_rest_turns_to_a_blow_it_hears() {
+fn a_mob_at_rest_turns_to_a_blow_it_hears_after_its_reaction() {
     let mut test = beside_a_mob(CreatureKind::Kobold, 3);
     let population = test.world.populations.0.values_mut().next().unwrap();
     population.mobs[0].heading = Heading::EAST;
+    let reaction = population.mobs[0].reaction();
     let blow = Noise::new(Source::Blow, Spot::middle_of(player(&test)));
     listen(&mut test, &made(blow, None), 1);
-    let population = test.world.populations.0.values().next().unwrap();
-    assert_eq!(population.mobs[0].heading, Heading::WEST);
+    let heading = |test: &crate::connections::tests::TestClient| {
+        test.world.populations.0.values().next().unwrap().mobs[0].heading
+    };
+    // Alert, but it hasn't turned yet: a moment first.
+    assert_eq!(heading(&test), Heading::EAST);
+    listen(&mut test, &[], reaction);
+    assert_eq!(heading(&test), Heading::EAST);
+    listen(&mut test, &[], 1 + reaction);
+    assert_eq!(heading(&test), Heading::WEST);
 }
 
 #[test]

@@ -15,6 +15,8 @@ const PACE_TICKS: u64 = 60 * 20;
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Sneak {
     pub(crate) on: bool,
+    /// Last told a mob is Alert to or Aware of them (`entities::tell_alerts`).
+    told_alert: bool,
     /// The ticks of steps within `PACE_TICKS`, oldest first, with the cells each
     /// covered.
     steps: VecDeque<(u64, u32)>,
@@ -62,6 +64,15 @@ impl Client {
             sneak_move_energy(cost, length, self.speed)
         } else {
             cost
+        }
+    }
+
+    /// Tells the client whether a mob is Alert to or Aware of them, if that
+    /// changed (mob behaviour plan PR 7, for the sneaking eye).
+    pub(crate) fn tell_mob_alert(&mut self, alerted: bool) {
+        if self.learning.sneak.told_alert != alerted {
+            self.learning.sneak.told_alert = alerted;
+            self.link.send(&ServerMessage::MobAlert(alerted));
         }
     }
 }

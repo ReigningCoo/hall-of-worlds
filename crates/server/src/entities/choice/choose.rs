@@ -2,12 +2,13 @@
 //! each tick (`choose`), and about whoever has just harmed it (`after_harm`).
 
 use shared::behaviour::{BehaviourDef, Behaviours};
-use shared::dungeon::{Level, line_is_clear};
+use shared::dungeon::Level;
 use shared::sheet::Feeling;
 
+use super::super::alert::in_view;
 use super::super::harmed::Harmer;
 use super::super::timid::is_timid;
-use super::super::{Doing, FRIENDLY_GAP, Mob, SETTLING_STEPS, Spot, cells_apart};
+use super::super::{Doing, FRIENDLY_GAP, Mob, SETTLING_STEPS, Spot};
 use super::fire::near_fire;
 use super::score::{Mind, pick, score};
 use super::seen::{Other, Seen, Wants, friends_seen};
@@ -32,16 +33,9 @@ pub(in super::super) fn choose(
     behaviours: &Behaviours,
     tick: u64,
 ) -> (Option<Doing>, Scores) {
-    let sees_within = mob.kind.senses().sight_range();
     // Only what is in its cone: sneaking up behind works.
-    let cone = mob.cone();
     let seen: Vec<Seen> = (spots.iter())
-        .filter(|spot| {
-            spot.id != mob.id
-                && cells_apart(spot.position, mob.position) <= sees_within
-                && cone.sees(spot.at)
-                && line_is_clear(level, mob.position, spot.position)
-        })
+        .filter(|spot| in_view(mob, level, spot))
         .map(|spot| Seen::of(mob, spot, near_fire(fires, spot.position)))
         .collect();
     if seen.is_empty() {

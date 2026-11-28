@@ -58,8 +58,9 @@ pub(crate) fn harm_mob(
     let left = health_left(&one.vitals, limits, tick);
     let kind = one.kind;
     one.harmed_by.harmed(by.id, tick);
-    // It turns to whoever harmed it.
+    // It turns to whoever harmed it, and knows they are there.
     one.face(shared::spot::Spot::middle_of(by.position));
+    one.noticed(by.id, tick);
     if harm != Points::ZERO {
         world.harmed.push(Harm {
             id: mob,
