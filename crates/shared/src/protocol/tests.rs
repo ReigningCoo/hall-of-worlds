@@ -564,7 +564,16 @@ fn every_message() -> (Vec<ClientMessage>, Vec<ServerMessage>) {
         ServerMessage::GroundGone {
             at: crate::spot::Spot::new(1, -2),
         },
-        ServerMessage::Keepers(vec![(3, Id::for_test(4))]),
+        ServerMessage::Keepers(vec![super::Keeper {
+            building: 3,
+            id: Id::for_test(4),
+            person: crate::story::Person {
+                kind: crate::creature::CreatureKind::Human,
+                gender: crate::gender::Gender::Female,
+                given: "Mara".to_owned(),
+                family: Some("Tull".to_owned()),
+            },
+        }]),
         ServerMessage::WorldChunk(WorldChunk {
             chunk: ChunkPos { x: 1, y: -2 },
             poi: Some(SeenPoi {

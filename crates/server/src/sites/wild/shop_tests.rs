@@ -46,7 +46,7 @@ fn a_town_set_into_the_wilderness_trades_with_its_own_keepers() {
     let (x, y) = position(&test);
     let (building, with) = keepers
         .iter()
-        .copied()
+        .map(|keeper| (keeper.building, keeper.id))
         .min_by_key(|(id, _)| {
             let look = buildings.iter().find(|b| b.id == *id).expect("its look");
             (look.door.0 - x).abs() + (look.door.1 - y).abs()

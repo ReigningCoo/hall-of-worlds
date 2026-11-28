@@ -8,7 +8,7 @@ What the client knows of quests, all from the server (`shared::protocol::QuestNe
 - `quests/book.rs`: `QuestBook` (entries, `dailies`, `tracked`, `ahead`; `followed`), `BossMarks`, `FindMarks`, `done_steps`, `DoorMarkers`, `GateQuests`, `QuestPlanets`.
 - `quests/read.rs`: `read_server` (`Log` replaces the book with its dailies and tracked quest, `Changed` one entry, `Tracked`, `Markers` the doors, `Planets` the gates (those with quests `taken`) and `QuestPlanets`; `Dots` into `LevelDots`; `Bosses` into `BossMarks`, `Finds` into `FindMarks`, `Ahead` into the book; `Escort` into `common::EscortGait`; `Welcome` forgets all).
 - `quests/look.rs`: `MarkLook` (`of(Marker)`, `of_boss(BossSign)` (a red "!", `common::QUEST_RED`, or the quest's "!"), `of_state(kind, QuestState)` for the log, `new(kind, ready)`, `glyph`, `class` (its badge's `span.mark-<colour>`), `colour`, `rgb`): yellow normal, blue daily, orange artifact, grey locked "!" or under way "?" (owner); the colours are `common`'s `QUEST_*`.
-- `quests/words.rs`: `or_partly`, `plain`, `step_lines` (each step with "(done)"), `reward_line`: for `talk` and `quest_log`.
+- `quests/words.rs`: `or_partly`, `plain`, `occupation_id`, `giver_title` ("Mara Tull, baker"; also `trade`'s name for a shop's keeper), `step_lines` (each step with "(done)"), `reward_line`: for `talk`, `quest_log` and `trade`.
 - `quests/dots.rs`: `LevelDots` (the server's `QuestNews::Dots`), `TrackedDots` and `find_tracked_dots` (the followed quest's colour and dots: on the world map each open step's poi or town (a step in a quest's own dungeon: its giver's town), or the giver's town to hand in (`world_chunks`), placed by `KnownPois`; on a level the server's cells), `OpenQuestLog`.
 - `quests/poi_marks.rs`: `QuestPois`, `find_quest_pois` and `marks_of` (each open step's poi or town gets "!" (a quest dungeon's step, the giver's town), a ready quest's giver's town "?", which wins, and the town of a giver whose boss the character has killed or item found (`ahead`) "!" in its kind's colour; the wilds round a town have no poi).
 - `quests/anchors.rs`: where each marker goes in the view: `door_anchors` (each door with a marker, over the middle of the door on its thin wall's outside face, `DOOR_OUT` from the cell's middle as `dungeon_map` draws doors, `OVER_DOOR` cells over the ground), `gate_anchors` (each Hall gate in the stretch whose planet, `GatePlace::address().world().id()`, has quests: "?" if one is ready, else "!", yellow), `poi_anchors` (each poi token shown with a mark), `boss_anchors` (each token with a `BossMarks` sign, by `common::Other`'s id, `OVER_CREATURE` cells over its feet scaled by its kind's size), `find_anchors` (the player's own quest item lying in sight, `OVER_FIND` cells over the ground where it lies).
@@ -34,7 +34,7 @@ What the client knows of quests, all from the server (`shared::protocol::QuestNe
 
 ## Used by
 
-- `talk` (`DoorMarkers`, `QuestBook`, the words), `quest_log` (`QuestBook`, `QuestPlanets`, `MarkLook`, `done_steps`, the words), `minimap` (`QuestPois`, `MarkLook`, `TrackedDots`), `tracked_quest` (`QuestBook`, `MarkLook`, `done_steps`, `or_partly`, `OpenQuestLog`).
+- `talk` (`DoorMarkers`, `QuestBook`, the words), `quest_log` (`QuestBook`, `QuestPlanets`, `MarkLook`, `done_steps`, the words), `minimap` (`QuestPois`, `MarkLook`, `TrackedDots`), `tracked_quest` (`QuestBook`, `MarkLook`, `done_steps`, `or_partly`, `OpenQuestLog`), `trade` (`giver_title`).
 
 ## Notes
 

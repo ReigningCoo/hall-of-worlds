@@ -6,6 +6,7 @@
 use bevy::prelude::*;
 use shared::id::Id;
 use shared::item::Item;
+use shared::protocol::Keeper;
 use std::collections::BTreeMap;
 
 use super::markup::{OWN_COLUMNS, STOCK_COLUMNS};
@@ -30,7 +31,7 @@ pub(super) struct TradeWindow {
     /// It was opened this frame or since: choose the nearest shop.
     pub(super) just_opened: bool,
     /// Who keeps each shop on this level, by building.
-    pub(super) keepers: BTreeMap<u16, Id>,
+    pub(super) keepers: BTreeMap<u16, Keeper>,
     /// Who the dropdown lists: players, shops, NPCs, each nearest first.
     pub(super) shops: Vec<Partner>,
     /// The shop's whole stock, as last heard, things being bought included;

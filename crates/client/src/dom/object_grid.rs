@@ -159,15 +159,17 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
         ..default()
     };
     let gifts = shown.takes_gifts.map(TakesGifts);
-    // A short last row: each cell has the grid's colour, the box none.
     // A side of a trade locked in: slightly darker.
     let colour = match shown.locked {
         true => GRID_COLOUR.darker(0.12),
         false => GRID_COLOUR,
     };
-    let (whole, each) = match shown.cells {
-        None => (colour, Color::NONE),
-        Some(_) => (Color::NONE, colour),
+    // A short last row: the colour is drawn behind the whole rows and the
+    // short one apart, never behind each cell, whose places are fractions
+    // of a pixel at most interface sizes and so leave gaps between them.
+    let whole = match shown.cells {
+        None => colour,
+        Some(_) => Color::NONE,
     };
     let mut made = commands.spawn((node, BackgroundColor(whole), ChildOf(grid)));
     if shown.locked {
@@ -182,13 +184,17 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
     if let Some(gifts) = gifts {
         commands.entity(grid).insert(gifts);
     }
+    if let Some(cells) = shown.cells {
+        for fill in fills(shown.columns, shown.rows, cells) {
+            commands.spawn((fill, BackgroundColor(colour), ChildOf(made)));
+        }
+    }
     for y in 0..shown.rows {
         for x in 0..shown.columns {
             if !shown.has_cell(x as i32, y as i32) {
                 continue;
             }
             let line = (at_cell(x as f32, y as f32), BorderColor::from(GRID_LINE));
-            let line = (line, BackgroundColor(each));
             let mut line = commands.spawn((line, ChildOf(made)));
             if let Some(gifts) = gifts {
                 line.insert(gifts);
@@ -198,6 +204,30 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
     let things = commands.spawn((covering(), ChildOf(made))).id();
     let aim = commands.spawn((covering(), ChildOf(made))).id();
     (made, things, aim)
+}
+
+/// What to colour behind a grid of `columns` by `rows` with only `cells`
+/// cells: its whole rows as one, then the cells of a short last row.
+fn fills(columns: u8, rows: u8, cells: u32) -> Vec<Node> {
+    let columns = u32::from(columns);
+    let cells = cells.min(columns * u32::from(rows));
+    let (whole, rest) = (cells / columns.max(1), cells % columns.max(1));
+    let block = |top: u32, width: u32, height: u32| Node {
+        position_type: PositionType::Absolute,
+        left: px(0.0),
+        top: px(top as f32 * CELL),
+        width: px(width as f32 * CELL),
+        height: px(height as f32 * CELL),
+        ..default()
+    };
+    let mut fills = Vec::new();
+    if whole > 0 {
+        fills.push(block(0, columns, whole));
+    }
+    if rest > 0 {
+        fills.push(block(whole, rest, 1));
+    }
+    fills
 }
 
 fn draw_things(commands: &mut Commands, grid: Entity, layer: Entity, shown: &GridShown) {

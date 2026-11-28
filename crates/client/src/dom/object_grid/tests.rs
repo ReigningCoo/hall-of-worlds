@@ -128,5 +128,18 @@ fn a_short_last_row_draws_only_the_cells_there_are() {
     let grid = app.world_mut().spawn((Node::default(), shown)).id();
     app.update();
     let GridBox(cells) = *app.world().get::<GridBox>(grid).unwrap();
-    assert_eq!(children(&app, cells), 6 + 2);
+    // The colour behind the whole row and the short one, the cells, and
+    // the layers for things and aim.
+    assert_eq!(children(&app, cells), 2 + 6 + 2);
+}
+
+#[test]
+fn a_short_last_row_is_coloured_whole_rows_at_once() {
+    let height = |node: &Node| node.height;
+    let fills = fills(4, 3, 10);
+    assert_eq!(fills.len(), 2);
+    assert_eq!(height(&fills[0]), px(2.0 * CELL));
+    assert_eq!(fills[1].width, px(2.0 * CELL));
+    assert_eq!(fills[1].top, px(2.0 * CELL));
+    assert_eq!(super::fills(4, 2, 8).len(), 1, "no short row");
 }

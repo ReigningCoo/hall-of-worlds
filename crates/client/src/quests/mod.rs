@@ -22,7 +22,7 @@ pub use book::{
 pub use dots::{LevelDots, OpenQuestLog, TrackedDots};
 pub use look::MarkLook;
 pub use poi_marks::QuestPois;
-pub use words::{or_partly, plain, reward_line, step_lines};
+pub use words::{giver_title, occupation_id, or_partly, plain, reward_line, step_lines};
 
 pub struct QuestsPlugin;
 

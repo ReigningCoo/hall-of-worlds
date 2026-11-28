@@ -73,7 +73,7 @@ fn a_shop_only_opens_from_beside_its_door_and_keeps_its_stock() {
 fn a_keeper_stays_and_takes_over_what_a_shop_had() {
     let (mut test, keeper, _) = in_a_village();
     let visit = test.client.visit.as_ref().unwrap();
-    let (id, index) = (visit.id, visit.index);
+    let (id, index, town) = (visit.id, visit.index, *visit.poi().unwrap());
     let building = {
         let level = &test.world.site(id).levels[&index];
         let mut buildings = level.buildings.iter();
@@ -88,8 +88,17 @@ fn a_keeper_stays_and_takes_over_what_a_shop_had() {
         .stock
         .push(old.clone());
     let shops = vec![building];
-    let new = NewKeepers { id, index, shops };
-    assert_eq!(keepers_of(&mut test.world, &new), vec![(building, keeper)]);
+    let new = NewKeepers {
+        id,
+        town: Some(town),
+        index,
+        shops,
+    };
+    let kept = keepers_of(&mut test.world, &new);
+    let ids: Vec<_> = kept.iter().map(|one| (one.building, one.id)).collect();
+    assert_eq!(ids, vec![(building, keeper)]);
+    // Named as their household's first member, the talk panel's giver.
+    assert_eq!(kept[0].person, shared::quest::keeper(&town, building));
     let level = &test.world.site(id).levels[&index];
     assert!(level.buildings[&building].stock.is_empty());
     assert!(level.records[&keeper].carried.contains(&old));

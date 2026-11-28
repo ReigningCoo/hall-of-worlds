@@ -1,11 +1,15 @@
 //! Shopkeepers: who keeps which building, and their side of a trade.
 
 use bevy::prelude::*;
+use shared::creature::CreatureKind;
 use shared::id::Id;
 use shared::item::Item;
-use shared::poi::ChunkPos;
+use shared::poi::{ChunkPos, Poi};
+use shared::protocol::Keeper;
+use shared::quest;
 use shared::shop::sells;
 use shared::site::BuildingKind;
+use shared::story::{Household, Person};
 
 use super::Mirror;
 use super::shop_here::shop_of;
@@ -14,9 +18,9 @@ use crate::connections::Client;
 use crate::ids::new_id;
 use crate::storage::SiteId;
 
-/// Who keeps each of a town level's shops, by building. Each has one for good, made
-/// the first time it is needed.
-pub(super) fn keepers_of(world: &mut ServerWorld, visit: &NewKeepers) -> Vec<(u16, Id)> {
+/// Who keeps each of a town level's shops, by building, and who they are
+/// (`quest::keeper`). Each has one for good, made the first time it is needed.
+pub(super) fn keepers_of(world: &mut ServerWorld, visit: &NewKeepers) -> Vec<Keeper> {
     let saved = world.site_mut(visit.id).levels.entry(visit.index);
     let saved = saved.or_default();
     let shops = visit.shops.iter().map(|&building| {
@@ -25,7 +29,12 @@ pub(super) fn keepers_of(world: &mut ServerWorld, visit: &NewKeepers) -> Vec<(u1
         let old_stock = std::mem::take(&mut save.stock);
         let record = saved.records.entry(keeper).or_default();
         record.carried.extend(old_stock);
-        (building, keeper)
+        let person = visit.town.map(|town| quest::keeper(&town, building));
+        Keeper {
+            building,
+            id: keeper,
+            person: person.unwrap_or_else(|| nobody(building)),
+        }
     });
     shops.collect()
 }
@@ -33,13 +42,15 @@ pub(super) fn keepers_of(world: &mut ServerWorld, visit: &NewKeepers) -> Vec<(u1
 /// A town level, for `keepers_of`.
 pub(super) struct NewKeepers {
     pub(super) id: SiteId,
+    /// The town's poi, whose seed names its keepers.
+    pub(super) town: Option<Poi>,
     pub(super) index: u32,
     pub(super) shops: Vec<u16>,
 }
 
 /// Who keeps the shops of the towns set into a wilderness window (`mirrors`),
 /// by building, made as `keepers_of` does: they are the towns' own.
-pub(super) fn keepers_in_window(world: &mut ServerWorld, mirrors: &[Mirror]) -> Vec<(u16, Id)> {
+pub(super) fn keepers_in_window(world: &mut ServerWorld, mirrors: &[Mirror]) -> Vec<Keeper> {
     let mut keepers = Vec::new();
     for mirror in mirrors {
         let SiteId::Poi(chunk) = mirror.id else {
@@ -55,12 +66,20 @@ pub(super) fn keepers_in_window(world: &mut ServerWorld, mirrors: &[Mirror]) -> 
         }
         let town = NewKeepers {
             id: mirror.id,
+            town: world.pois.in_chunk(chunk),
             index: mirror.index,
             shops,
         };
         keepers.extend(keepers_of(world, &town));
     }
     keepers
+}
+
+/// A keeper of a town whose poi isn't known (never expected): named by a
+/// household of their building alone.
+fn nobody(building: u16) -> Person {
+    let seed = shared::rng::Seed::new(u64::from(building));
+    Household::new(CreatureKind::Human, seed).member(0)
 }
 
 /// Which building on the player's level this is the keeper of, if any.

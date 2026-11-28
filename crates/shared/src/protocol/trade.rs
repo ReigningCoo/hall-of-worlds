@@ -91,3 +91,13 @@ pub enum TradeEnd {
     /// The one asked said no.
     Denied,
 }
+
+/// Who keeps a shop of a town (`ServerMessage::Keepers`): its building (by
+/// `BuildingLook::id`), their id to trade with, and who they are, to be named
+/// as the talk panel names them ("Mara Tull, baker").
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Keeper {
+    pub building: u16,
+    pub id: Id,
+    pub person: crate::story::Person,
+}

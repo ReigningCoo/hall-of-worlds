@@ -90,7 +90,7 @@ pub use server_message::ServerMessage;
 pub use spell_news::SpellNews;
 pub use spellbook_ask::SpellbookAsk;
 pub use strike::Strike;
-pub use trade::{TradeAsk, TradeEnd, TradeNews};
+pub use trade::{Keeper, TradeAsk, TradeEnd, TradeNews};
 pub use tutorial::Tutorial;
 pub use world_chunk::{GateInfo, SeenPoi, WorldChunk, WorldInfo};
 pub use yeast_ask::YeastAsk;

@@ -45,7 +45,7 @@ fn trade(
                 "kind": look.kind.name(),
                 "door": look.door,
                 "front": (look.door.0 + look.faces.0, look.door.1 + look.faces.1),
-                "keeper": keeper.to_string(),
+                "keeper": keeper.id.to_string(),
             }))
         })
         .collect();

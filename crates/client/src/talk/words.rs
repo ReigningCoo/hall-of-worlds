@@ -8,28 +8,7 @@ use shared::quest::Standing;
 use shared::site::BuildingKind;
 use shared::story::Person;
 
-pub(super) use crate::quests::{or_partly, plain};
-
-/// The message naming what the giver of a building of `kind` does, if it has
-/// one ("occupation-potion-shop"): a house's has none.
-pub(super) fn occupation_id(kind: BuildingKind) -> String {
-    let words = kind.name().to_lowercase().replace('\'', "");
-    format!("occupation-{}", words.replace(' ', "-"))
-}
-
-/// "Mara Tull, baker", or just the name for a house.
-pub(super) fn giver_title(lang: &Lang, giver: &Person, kind: BuildingKind) -> String {
-    let name = or_partly(giver.full_name(lang));
-    let id = occupation_id(kind);
-    if !lang.has(&id) {
-        return name;
-    }
-    let occupation = or_partly(lang.render(&id, &Args::new()));
-    let args = Args::new()
-        .name("name", &name)
-        .text("occupation", occupation);
-    or_partly(lang.render("giver-title", &args))
-}
+pub(super) use crate::quests::{giver_title, occupation_id, or_partly, plain};
 
 /// Someone named with what they do, for words with `$name` and
 /// `$occupation`: the message `id`, or `id-house` for a house's giver, who
