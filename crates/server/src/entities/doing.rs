@@ -53,4 +53,19 @@ pub enum Doing {
     Eating {
         until: u64,
     },
+    /// Going to look at where it heard a noise it can't see (`curious.rs`):
+    /// walking from `since` until it can see the cell `at`, then looking until
+    /// `looking` (`Some`), then home. Seeing anyone hands it to its choices.
+    Investigating {
+        at: (i64, i64),
+        since: u64,
+        #[serde(default)]
+        looking: Option<u64>,
+    },
+    /// A timid one stepping away from a noise it heard but can't see
+    /// (`curious.rs`), this many steps more, then home.
+    Shying {
+        from: (i64, i64),
+        steps_left: u8,
+    },
 }

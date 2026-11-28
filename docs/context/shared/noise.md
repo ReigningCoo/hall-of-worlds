@@ -19,7 +19,7 @@ Noise (mob behaviour plan PR 6): a sound at a place with a loudness, muffled by 
 
 ## Used by
 
-- server: `entities/noise.rs` (mobs hearing), `run_mobs` (footsteps), doors and casting (`make_noise`).
+- server: `entities/noise.rs` (mobs hearing), `run_mobs` (footsteps), doors and casting (`make_noise`), `entities/curious.rs` (alarm calls, `Noise::call`).
 - client: `sneak_eye` (how noticeable the player is).
 
 ## Notes

@@ -112,7 +112,11 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 }
                 continue;
             }
-            mob.listen(level, &made, tick, &mut overheard);
+            let at_rest = mob.doing == Doing::Idle;
+            let woke = mob.listen(level, &made, (&others, &*behaviours), tick, &mut overheard);
+            if woke && at_rest {
+                due.insert((mob.energy.ready_at(tick, mob.speed), mob.id));
+            }
             mind_territory(mob, level, &spots, tick);
             mob.ways.set(behaviours.of(mob.kind));
             mob.find_foes(&others, &behaviours);
@@ -130,6 +134,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             }
             if let Some(doing) = chosen {
                 let at_rest = mob.doing == Doing::Idle;
+                // Seeing someone ends looking into a noise: its choices take over.
                 mob.doing = doing;
                 mob.target = doing.target();
                 if at_rest {

@@ -1,7 +1,8 @@
 //! A mob harmed by a player or another mob, by a blow or a spell: it loses the Health,
 //! remembers who did it, does what its standing with them now says, and dies
 //! if that was the last of it, eaten if a hunter killed it (`hunt`). Its band
-//! and allies who see it join in (`defend`).
+//! and allies who see it join in (`defend`); a social one calls out, and its
+//! band who hear come over (`curious`).
 
 use shared::behaviour::Member;
 use shared::creature::CreatureKind;
@@ -11,6 +12,7 @@ use shared::vitals::Points;
 
 use super::Doing;
 use super::choice::{after_harm, friends_seen, others_of};
+use super::curious::call_out;
 use super::defend::rally;
 use super::gear::{bury, record_of};
 use crate::ServerWorld;
@@ -62,6 +64,8 @@ pub(crate) fn harm_mob(
     one.face(shared::spot::Spot::middle_of(by.position));
     one.noticed(by.id, tick);
     if harm != Points::ZERO {
+        // Hurt, a social one calls out: its band who hear come (`curious`).
+        call_out(&mut population.noises, one, &behaviours);
         world.harmed.push(Harm {
             id: mob,
             left,

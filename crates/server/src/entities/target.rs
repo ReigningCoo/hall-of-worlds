@@ -21,13 +21,18 @@ impl Doing {
         }
     }
 
-    /// Whether it has given up fighting: at rest, settling, going home or
-    /// eating. Who
+    /// Whether it has given up fighting: at rest, settling, going home,
+    /// eating, looking into a noise or shying from one. Who
     /// harmed it is forgotten then (`HarmedBy`), so a later fight starts afresh.
     pub(crate) fn gave_up(&self) -> bool {
         matches!(
             self,
-            Self::Idle | Self::Settling { .. } | Self::GoingHome { .. } | Self::Eating { .. }
+            Self::Idle
+                | Self::Settling { .. }
+                | Self::GoingHome { .. }
+                | Self::Eating { .. }
+                | Self::Investigating { .. }
+                | Self::Shying { .. }
         )
     }
 }

@@ -27,6 +27,9 @@ mod chill;
 mod choice;
 mod close_in;
 mod crossing;
+mod curious;
+#[cfg(test)]
+mod curious_tests;
 mod defend;
 #[cfg(test)]
 mod defend_tests;
@@ -257,8 +260,9 @@ pub(crate) struct Population {
     /// Where each player on it was last tick, and how strongly they smell, to
     /// mark the cells they leave.
     last_at: BTreeMap<Id, ((i64, i64), u32)>,
-    /// Noises made since its mobs last ran (doors, spells: `noise::make_noise`).
-    noises: Vec<shared::noise::Noise>,
+    /// Noises made since its mobs last ran (doors, spells: `noise::make_noise`;
+    /// alarm calls, by whom: `curious::call_out`).
+    noises: Vec<noise::Made>,
 }
 
 impl Population {

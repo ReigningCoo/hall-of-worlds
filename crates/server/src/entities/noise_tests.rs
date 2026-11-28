@@ -23,7 +23,8 @@ fn listen(test: &mut crate::connections::tests::TestClient, made: &[Made], tick:
     let population = test.world.populations.0.values_mut().next().unwrap();
     let mut overheard = Overheard::of(made);
     let level = &population.level;
-    population.mobs[0].listen(level, made, tick, &mut overheard);
+    let behaviours = shared::behaviour::Behaviours::built_in_ref();
+    population.mobs[0].listen(level, made, (&[], behaviours), tick, &mut overheard);
     overheard
 }
 
@@ -82,7 +83,8 @@ fn a_noise_made_is_kept_for_the_level_s_mobs() {
     let at = Spot::middle_of(player(&test));
     super::make_noise(&mut test.world, place, Source::Door, at);
     let population = test.world.populations.0.values().next().unwrap();
-    assert_eq!(population.noises, vec![Noise::new(Source::Door, at)]);
+    let kept: Vec<Noise> = population.noises.iter().map(|made| made.noise).collect();
+    assert_eq!(kept, vec![Noise::new(Source::Door, at)]);
     super::tests::run(&mut test, 1);
     let population = test.world.populations.0.values().next().unwrap();
     assert!(population.noises.is_empty());
