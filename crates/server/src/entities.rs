@@ -5,7 +5,6 @@
 //! reconnecting finds the same mobs, and while any mob on it isn't settled, so that
 //! nobody can leave a chasing mob frozen at the stairs for when they come back.
 
-use serde::{Deserialize, Serialize};
 use shared::combat::Wielded;
 use shared::creature::CreatureKind;
 use shared::dungeon::Level;
@@ -24,10 +23,12 @@ use crate::storage::SiteId;
 
 // Split into files (`cargo xtask lint` keeps files small).
 mod chill;
+mod choice;
 mod close_in;
 mod crossing;
 mod dev_gift;
 mod dev_mob;
+mod doing;
 mod doors;
 mod doubling_back;
 mod escortee;
@@ -69,9 +70,11 @@ mod watching_tests;
 mod wild;
 
 pub(crate) use chill::chill_mob;
+use choice::{Scores, Ways};
 use crossing::cross;
 pub(crate) use dev_gift::{give_to_mob, mob_in_sight};
 pub(crate) use dev_mob::dev_mobs;
+pub use doing::Doing;
 pub(crate) use doors::{MobDoors, Opened};
 use doubling_back::Pacing;
 pub(crate) use escortee::{Escortee, escortee_mob, escortee_worn};
@@ -85,7 +88,7 @@ pub(crate) use heal::{heal_mob, mobs_for_spell};
 #[cfg(test)]
 pub(crate) use made::BOSS_NUMBER;
 use moves::{Taken, act, nearest_free, take_step};
-use notice::{Maps, Someone, Spot, cells_apart, everyone_playing, notice};
+use notice::{Maps, Someone, Spot, cells_apart, everyone_playing};
 pub(super) use run::run_mobs;
 use run::world_gap;
 pub(crate) use scent::Scents;
@@ -110,53 +113,6 @@ const SETTLING_STEPS: u8 = 6;
 const HOME_WITHIN: u64 = 1200;
 /// What thinking with nothing to do costs: a straight step's worth.
 const THINKING_COST: u32 = STRAIGHT_COST * SITE_SCALE;
-
-/// What a mob is doing. Anything but `Idle` keeps it, and its level, going.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Doing {
-    /// At rest, and needing no time until something wakes it.
-    Idle,
-    /// Going after someone, stopping this near.
-    Going {
-        after: Id,
-        last_seen: (i64, i64),
-        gap: i64,
-    },
-    /// Going after someone it saw take these stairs.
-    Following {
-        after: Id,
-        stairs: (i64, i64),
-        to_level: u32,
-        arrives: (i64, i64),
-        gap: i64,
-    },
-    /// Keeping away from someone it can see (`timid`). `struck`: it has just
-    /// struck at them, so steps away before it may again.
-    Fleeing {
-        from: Id,
-        #[serde(default)]
-        struck: bool,
-    },
-    /// Wandering from where it lost someone, so as not to wait there.
-    Settling {
-        steps_left: u8,
-    },
-    GoingHome {
-        since: u64,
-    },
-    /// Standing between someone and its home, at its territory's edge.
-    Guarding {
-        against: Id,
-        last_seen: (i64, i64),
-    },
-    /// Following someone's scent, stopping this near once it sees them, by marks
-    /// left at or after `since`.
-    Tracking {
-        after: Id,
-        gap: i64,
-        since: u64,
-    },
-}
 
 /// Something on a level that isn't a player.
 #[derive(Clone, Debug)]
@@ -223,6 +179,12 @@ pub(crate) struct Mob {
     escort: Option<Escortee>,
     /// A kept animal (`Spawn::penned`): never through a gate or over a fence.
     penned: bool,
+    /// Its wild pack or herd (`Spawn::band`): worked out, never saved.
+    band: shared::behaviour::Band,
+    /// How its race gets about (`choice::Ways`), from the server's behaviours.
+    ways: Ways,
+    /// Its choices as last scored (`choice`), for Inspect. Not saved.
+    scores: Scores,
 }
 
 /// Stairs a mob has come by: where they are here, and where they lead back to.
@@ -289,8 +251,13 @@ impl Population {
 }
 
 /// The mobs on the levels in use.
+/// The second is how each race behaves on this server (`BehaviourTable`, its
+/// mods'), which mobs' choices go by.
 #[derive(Debug, Default)]
-pub(crate) struct Populations(pub(crate) BTreeMap<(SiteId, u32), Population>);
+pub(crate) struct Populations(
+    pub(crate) BTreeMap<(SiteId, u32), Population>,
+    pub(crate) std::sync::Arc<shared::behaviour::Behaviours>,
+);
 
 impl Populations {
     /// Forgets a site's: it is being made anew.

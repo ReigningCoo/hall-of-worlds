@@ -68,6 +68,10 @@ impl Mob {
             kept_in: None,
             escort: None,
             penned: spawn.penned,
+            band: spawn.band,
+            // The game's own until the server's are set (`run_mobs`).
+            ways: super::Ways::of(shared::behaviour::Behaviours::built_in_ref().of(spawn.kind)),
+            scores: Default::default(),
         }
     }
 

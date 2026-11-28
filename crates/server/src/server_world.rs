@@ -190,7 +190,7 @@ impl ServerWorld {
             sites: BTreeMap::new(),
             unsaved_sites: Unsaved::default(),
             unreachable_sites: BTreeSet::new(),
-            populations: Populations::default(),
+            populations: Populations(Default::default(), shared.behaviours.clone()),
             litter: default(),
             inn_restocked: default(),
             died: BTreeSet::new(),

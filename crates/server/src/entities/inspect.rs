@@ -44,6 +44,7 @@ pub(super) fn describe(
         ),
         None => "Alignment: none".into(),
     });
+    lines.extend(scores(mob, character));
     lines.push(format!("Speed: {}; scent {}%", mob.speed, mob.scent));
     lines.push(format!("Wields: {:?}", mob.wielded));
     lines.push(format!("Wears: {} things", mob.shown.len()));
@@ -60,5 +61,32 @@ pub(super) fn describe(
     if !notes.is_empty() {
         lines.push(notes.join(", "));
     }
+    lines
+}
+
+/// Its band and its choices as last scored (`choice`), the one chosen marked.
+fn scores(mob: &Mob, character: Option<&CharacterId>) -> Vec<String> {
+    let scores = &mob.scores;
+    let mut lines = vec![format!("Band: {:?}", mob.band)];
+    if scores.options.is_empty() {
+        lines.push("Choices: none scored yet".into());
+        return lines;
+    }
+    let who = |id| match character {
+        Some(character) if character.0 == id => "you".to_string(),
+        _ => format!("{id:?}"),
+    };
+    let options: Vec<String> = (scores.options.iter())
+        .map(|option| {
+            let chosen = match scores.chosen == Some(option.choice) {
+                true => " (chosen)",
+                false => "",
+            };
+            let (name, id) = (option.choice.name(), option.choice.who());
+            format!("{name} {} {}{chosen}", who(id), option.score)
+        })
+        .collect();
+    lines.push(format!("Choices: {}", options.join(", ")));
+    lines.push(format!("Fear: {}", scores.fear));
     lines
 }

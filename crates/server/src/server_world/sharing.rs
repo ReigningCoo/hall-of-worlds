@@ -1,4 +1,5 @@
-//! What every world on a server shares: the clocks, the road thread and the herbs.
+//! What every world on a server shares: the clocks, the road thread, the herbs
+//! and the behaviours.
 
 use std::sync::Arc;
 
@@ -7,14 +8,16 @@ use crate::clock::{ActionClock, ServerClock};
 use crate::roads::RoadWorker;
 
 /// What every world on a server shares: the clocks they go by, the road
-/// thread and the herbs (`crate::herbs`). A world opened on its own (tests) has
-/// its own, with the game's herbs.
+/// thread, the herbs (`crate::herbs`) and how each race behaves
+/// (`crate::behaviours`). A world opened on its own (tests) has its own, with
+/// the game's herbs and behaviours.
 #[derive(Clone)]
 pub(crate) struct Shared {
     pub clock: ServerClock,
     pub action_clock: ActionClock,
     pub roads: Arc<RoadWorker>,
     pub herbs: Arc<shared::herb::Herbs>,
+    pub behaviours: Arc<shared::behaviour::Behaviours>,
 }
 
 impl Shared {
@@ -25,6 +28,7 @@ impl Shared {
             action_clock: ActionClock::new(action_ticks),
             roads: Arc::new(RoadWorker::start()),
             herbs: Arc::new(shared::herb::Herbs::built_in()),
+            behaviours: Default::default(),
         }
     }
 }
@@ -37,6 +41,7 @@ impl ServerWorld {
             action_clock: self.action_clock.clone(),
             roads: self.roads.clone(),
             herbs: self.herbs.clone(),
+            behaviours: self.populations.1.clone(),
         }
     }
 

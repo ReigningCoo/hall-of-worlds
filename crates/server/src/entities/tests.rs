@@ -404,7 +404,8 @@ fn coming_into_its_territory_angers_it_and_it_attacks() {
 
 #[test]
 fn an_angry_territorial_mob_only_chases_near_its_home() {
-    use super::territory::{LEASH, territorial_doing};
+    use super::choice::{Wants, wants};
+    use super::territory::LEASH;
     let test = beside_a_mob(CreatureKind::Lizardfolk, 4);
     let mob = the_mob(&test);
     let spot = |x| Spot {
@@ -415,12 +416,18 @@ fn an_angry_territorial_mob_only_chases_near_its_home() {
         at: shared::spot::Spot::middle_of((mob.home.0 - x, mob.home.1)),
         scent: 100,
     };
-    let near = territorial_doing(&mob, &spot(LEASH), Feeling::Unfriendly);
-    assert!(matches!(near, Some(Doing::Going { .. })));
-    let far = territorial_doing(&mob, &spot(LEASH + 1), Feeling::Unfriendly);
-    assert!(matches!(far, Some(Doing::Guarding { .. })));
+    assert_eq!(
+        wants(&mob, &spot(LEASH), Feeling::Unfriendly),
+        Wants::Attack
+    );
+    assert_eq!(
+        wants(&mob, &spot(LEASH + 1), Feeling::Unfriendly),
+        Wants::Guard
+    );
+    assert_eq!(wants(&mob, &spot(3), Feeling::Neutral), Wants::Guard);
     // Friends are left to its kind's usual welcome.
-    assert_eq!(territorial_doing(&mob, &spot(1), Feeling::Friendly), None);
+    let friend = wants(&mob, &spot(1), Feeling::Friendly);
+    assert!(!matches!(friend, Wants::Guard | Wants::Attack));
 }
 
 #[test]
