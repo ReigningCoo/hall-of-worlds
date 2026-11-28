@@ -14,11 +14,15 @@ use crate::common::{
 };
 
 mod frames;
+#[cfg(target_arch = "wasm32")]
+mod page;
 mod screen;
 mod takes_input;
 use crate::dom::DomInput;
 use crate::dom::{Dom, DrawObjects};
 use frames::keep_frame_rate;
+#[cfg(target_arch = "wasm32")]
+pub use page::{mark as mark_page, starting as page_starting};
 use screen::{bind_screen, spawn_screen, title_node};
 
 /// Built into the program, rather than loaded, to be there on the first frame.
@@ -80,7 +84,8 @@ impl Plugin for LoadingScreenPlugin {
             );
 
         #[cfg(target_arch = "wasm32")]
-        app.add_systems(Update, remove_page_screen.after(update_step));
+        app.add_systems(First, page::mark_first_frame)
+            .add_systems(Update, page::remove_page_screen.after(update_step));
     }
 }
 
@@ -219,22 +224,6 @@ fn fit_title(
     *node = title_node(at_start);
     let valign = if at_start { "top" } else { "middle" };
     dom.set("loading/screen", "valign", valign);
-}
-
-/// Removes the screen in `index.html`, shown during the download, once this one
-/// has certainly been drawn to take its place.
-#[cfg(target_arch = "wasm32")]
-fn remove_page_screen(step: Res<LoadingStep>, mut removed: Local<bool>) {
-    if *removed || *step == LoadingStep::Starting {
-        return;
-    }
-    *removed = true;
-    let screen = web_sys::window()
-        .and_then(|window| window.document())
-        .and_then(|document| document.get_element_by_id("loading"));
-    if let Some(screen) = screen {
-        screen.remove();
-    }
 }
 
 #[cfg(test)]

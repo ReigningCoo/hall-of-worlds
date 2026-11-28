@@ -6,6 +6,7 @@
 mod deltas;
 mod dictionary;
 mod history;
+mod size;
 
 use axum::Router;
 use axum::extract::Request;
@@ -36,6 +37,7 @@ pub struct WebClient {
 /// Serves the web client's files, with deltas from older builds.
 pub(super) fn web_files(web: Arc<WebFiles>) -> Router {
     Router::new()
+        .merge(size::size_route(web.clone()))
         .fallback_service(ServeDir::new(&web.files).precompressed_br())
         .layer(middleware::from_fn_with_state(
             web,

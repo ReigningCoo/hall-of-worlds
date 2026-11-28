@@ -90,6 +90,9 @@ fn asset_folder() -> String {
 }
 
 fn main() {
+    // On the web, the page's loading bar says "Starting..." (and marks when).
+    #[cfg(target_arch = "wasm32")]
+    loading_screen::page_starting();
     let plugins = DefaultPlugins
         .set(WindowPlugin {
             primary_window: Some(Window {
@@ -188,5 +191,7 @@ fn main() {
         server::debug_api::DebugApiPlugin { port_offset: 0 },
     ));
 
+    #[cfg(target_arch = "wasm32")]
+    loading_screen::mark_page("how-app-built");
     app.run();
 }

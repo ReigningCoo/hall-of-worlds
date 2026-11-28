@@ -119,3 +119,33 @@ fn deltas_made_beforehand_are_sent_too() {
     assert!(head.contains("content-encoding: dcz"), "{head}");
     assert_eq!(body, delta);
 }
+
+#[test]
+fn the_page_is_told_the_wasm_s_true_size() {
+    let folder = TestFolder::new();
+    let web = folder.0.clone();
+    let (_, new) = builds();
+    fs::create_dir_all(&web).unwrap();
+    fs::write(web.join(WASM), &new).unwrap();
+    // The brotli copy is smaller, but the answer is the wasm's own size.
+    fs::write(web.join(format!("{WASM}.br")), b"small").unwrap();
+    let client = WebClient {
+        files: web,
+        history: None,
+    };
+    let address = serve_web(Heartbeat::default(), Some(client));
+
+    let mut stream = TcpStream::connect(address).unwrap();
+    write!(
+        stream,
+        "GET /web/_wasm-size HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+    )
+    .unwrap();
+    let mut answer = String::new();
+    stream.read_to_string(&mut answer).unwrap();
+    assert!(answer.starts_with("HTTP/1.1 200"), "{answer}");
+    assert!(
+        answer.ends_with(&format!("{{\"wasm\":\"{WASM}\",\"bytes\":{}}}", new.len())),
+        "{answer}"
+    );
+}

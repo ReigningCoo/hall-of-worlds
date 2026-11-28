@@ -4,8 +4,9 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Hall of Worlds</title>
-        <!-- Tells Trunk to compile the Rust crate to WebAssembly and load it. -->
-        <link data-trunk rel="rust" href="crates/client/Cargo.toml" data-bin="hall-of-worlds" data-wasm-opt="s" />
+        <!-- Tells Trunk to compile the Rust crate to WebAssembly and load it,
+             filling the loading bar as it goes (web/loader.js). -->
+        <link data-trunk rel="rust" href="crates/client/Cargo.toml" data-bin="hall-of-worlds" data-wasm-opt="s" data-initializer="web/loader.js" />
         <link data-trunk rel="copy-dir" href="crates/client/assets" />
         <!-- The HW icon, drawn by `cargo xtask app-icon`. -->
         <link rel="icon" type="image/png" sizes="16x16" href="assets/app_icon/icon-16.png" />
@@ -92,20 +93,39 @@
                 border: 1px solid #edbf61;
                 cursor: pointer;
             }
-            #loading-bar span {
-                animation: 2s step-end infinite;
+            /* The bar fills from the left (web/loader.js) in the game's own
+               colours, and a pale stripe slides along it the whole time. Both
+               move by transform only, so they keep moving while the page's
+               thread is busy compiling and starting the game. */
+            #loading-bar {
+                overflow: hidden;
             }
-            @keyframes dot1 {
-                from { opacity: 0; }
-                25%, to { opacity: 1; }
+            #loading-fill,
+            #loading-stripe {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
             }
-            @keyframes dot2 {
-                from { opacity: 0; }
-                50%, to { opacity: 1; }
+            #loading-fill {
+                background: rgba(237, 191, 97, 0.45);
+                transform: scaleX(0);
+                transform-origin: left;
             }
-            @keyframes dot3 {
-                from { opacity: 0; }
-                75%, to { opacity: 1; }
+            #loading-stripe {
+                width: 25%;
+                background: linear-gradient(90deg, transparent, rgba(242, 235, 217, 0.12), transparent);
+                animation: loading-slide 1.6s linear infinite;
+                will-change: transform;
+            }
+            #loading-bar.failed #loading-stripe {
+                display: none;
+            }
+            #loading-words {
+                position: relative;
+            }
+            @keyframes loading-slide {
+                from { transform: translateX(-100%); }
+                to { transform: translateX(400%); }
             }
         </style>
         <script>
@@ -154,7 +174,7 @@
         <canvas id="game"></canvas>
         <div id="loading">
             <div id="loading-title">Hall of<br />Worlds</div>
-            <div id="loading-bar">Downloading<span style="animation-name: dot1">.</span><span style="animation-name: dot2">.</span><span style="animation-name: dot3">.</span></div>
+            <div id="loading-bar"><div id="loading-fill"></div><div id="loading-stripe"></div><span id="loading-words">Downloading...</span></div>
         </div>
         <div id="ended" hidden>
             <div id="ended-title">Hall of<br />Worlds</div>
