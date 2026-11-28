@@ -53,6 +53,9 @@ mod light_tests;
 mod made;
 mod mob_blows;
 mod moves;
+mod noise;
+#[cfg(test)]
+mod noise_tests;
 mod notice;
 mod on_ground;
 mod population;
@@ -94,6 +97,7 @@ pub(crate) use heal::{heal_mob, mobs_for_spell};
 #[cfg(test)]
 pub(crate) use made::BOSS_NUMBER;
 use moves::{Taken, act, nearest_free, take_step};
+pub(crate) use noise::make_noise;
 use notice::{Maps, Someone, Spot, cells_apart, everyone_playing};
 pub(super) use run::run_mobs;
 use run::world_gap;
@@ -249,6 +253,8 @@ pub(crate) struct Population {
     /// Where each player on it was last tick, and how strongly they smell, to
     /// mark the cells they leave.
     last_at: BTreeMap<Id, ((i64, i64), u32)>,
+    /// Noises made since its mobs last ran (doors, spells: `noise::make_noise`).
+    noises: Vec<shared::noise::Noise>,
 }
 
 impl Population {

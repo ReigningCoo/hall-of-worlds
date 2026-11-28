@@ -5,10 +5,10 @@ use shared::dungeon::line_is_clear;
 use super::choice::{choose, others_of, with_fire};
 use super::doors::{Opened, open_on_the_way, way_level};
 use super::escortee::mind_escort;
-use super::facing::noises;
 use super::fight::{MobBlow, mob_turn};
 use super::foes::with_mobs;
 use super::mob_blows::strike_mob;
+use super::noise::{Made, Overheard, made_here};
 use super::on_ground::on_ground;
 use super::territory::mind_territory;
 use super::tracking::track;
@@ -35,6 +35,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
     let mut blows: Vec<MobBlow> = Vec::new();
     let mut on_mobs = Vec::new();
     let mut opened: Vec<Opened> = Vec::new();
+    let mut unheard = Vec::new();
     for (&place, population) in &mut world.populations.0 {
         let here = || {
             everyone
@@ -63,13 +64,25 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             due,
             scents,
             last_at,
+            noises: kept,
             ..
         } = population;
 
-        // Players leave scent on the cells they step off.
+        // Players leave scent on the cells they step off, and are heard
+        // stepping into another.
+        let mut steps = Vec::new();
         for spot in &spots {
             if let Some((was_at, _)) = last_at.insert(spot.id, (spot.position, spot.scent)) {
                 scents.walked(spot.id, was_at, spot.position, spot.scent, tick);
+                if was_at != spot.position
+                    && let Some(someone) = here().find(|someone| someone.id == spot.id)
+                {
+                    let feet = someone.footsteps;
+                    steps.push(Made {
+                        noise: shared::noise::Noise::footsteps(spot.at, feet),
+                        sneaker: feet.sneaking.then_some(spot.id),
+                    });
+                }
             }
         }
         last_at.retain(|id, _| spots.iter().any(|spot| spot.id == *id));
@@ -77,12 +90,13 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
             scents.sweep(tick);
         }
 
-        // Those at rest turn to fighting they hear.
+        // Those at rest turn to noises they hear.
         let fighting: Vec<_> = here()
             .filter(|someone| someone.fighting)
             .map(|someone| someone.spot)
             .collect();
-        let noises = noises(&fighting, mobs);
+        let made = made_here(std::mem::take(kept), &fighting, mobs, steps);
+        let mut overheard = Overheard::of(&made);
         let fires_here = fires.get(&place).map_or(&[][..], Vec::as_slice);
         // Every mob's choice from where everyone stands now, before any moves.
         let others = others_of(mobs);
@@ -97,7 +111,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 }
                 continue;
             }
-            mob.listen(&noises);
+            mob.listen(level, &made, tick, &mut overheard);
             mind_territory(mob, level, &spots, tick);
             mob.ways.set(behaviours.of(mob.kind));
             mob.find_foes(&others, &behaviours);
@@ -121,6 +135,7 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 }
             }
         }
+        unheard.extend(overheard.unheard(&made));
         // Hunters join their band's hunts or pick one up by scent.
         super::hunt::hunt(mobs, level, (scents, &behaviours), tick, due);
 
@@ -241,6 +256,17 @@ pub(crate) fn run_mobs(clients: &mut [Client], world: &mut ServerWorld) {
                 true => on_mobs.push((place, blow)),
                 false => blows.push(blow),
             }
+        }
+    }
+    // Mobs opening doors are heard next tick.
+    for door in &opened {
+        let at = shared::spot::Spot::middle_of(door.at);
+        super::make_noise(world, door.place, shared::noise::Source::Door, at);
+    }
+    // Sneaking past a mob that could have heard practises Sneaking.
+    for client in clients.iter_mut() {
+        if unheard.contains(&client.entity_id()) {
+            client.practise_unheard(tick);
         }
     }
     for (place, blow) in on_mobs {

@@ -156,6 +156,16 @@ impl Client {
         )
     }
 
+    /// Sneaking past a mob that could have heard but didn't (`shared::noise`):
+    /// practises Sneaking, as a slow step under a wary eye does.
+    pub(crate) fn practise_unheard(&mut self, now: u64) -> bool {
+        let moved = Moved {
+            sneaked: true,
+            ..Moved::default()
+        };
+        self.practise_moving(moved, now)
+    }
+
     /// Practice from a step: Running on the world map, Climbing by its
     /// steepness, Swimming from wading, and Weight Training while carrying more
     /// than half of what can be carried, on any map. The client is sent its

@@ -32,7 +32,8 @@ pub use gear::{
 };
 pub use gear_skills::gear_skills;
 pub use item::{
-    AGILITY_PER_KG, HAIR_SHIRT_WILL, MANA_PER_KG, TOUGHNESS_PER_KG, item_bonuses, quality_factor,
+    AGILITY_PER_KG, HAIR_SHIRT_WILL, MANA_PER_KG, TOUGHNESS_PER_KG, armour_grams, item_bonuses,
+    quality_factor,
 };
 pub use later::{Later, Pending};
 pub use material::{MaterialFactors, armour_material, material_factors};

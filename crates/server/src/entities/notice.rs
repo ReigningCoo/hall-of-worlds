@@ -5,6 +5,7 @@ use shared::creature::{CreatureKind, Size};
 use shared::dungeon::Level;
 use shared::id::Id;
 use shared::mob::scent_strength;
+use shared::noise::Footsteps;
 use shared::pathfinding::DistanceMap;
 use shared::protocol::CharacterId;
 use shared::sheet::Appearance;
@@ -43,6 +44,8 @@ pub(crate) struct Someone {
     pub(super) scent: u32,
     /// The way they face.
     pub(super) heading: shared::facing::Heading,
+    /// What their steps sound like (`noise::Footsteps`, sneaking or not).
+    pub(super) footsteps: Footsteps,
     /// Winding up a blow: a noise mobs near enough hear.
     pub(super) fighting: bool,
     /// How far their light reaches (`Inventory::light_reach`: a lit lantern's
@@ -85,6 +88,11 @@ pub(super) fn everyone_playing(clients: &mut [Client]) -> Vec<Someone> {
                 god_mode: client.god_mode,
                 scent: scent_strength(&client.inventory),
                 heading: client.heading,
+                footsteps: Footsteps::of(
+                    client.sneaking(),
+                    &client.sheet.skills,
+                    &client.inventory.worn,
+                ),
                 fighting: client.winding_up(),
                 light: client.sheet.light_reach(&client.inventory),
                 never_trades: client.never_trades(),

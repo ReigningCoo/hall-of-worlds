@@ -69,6 +69,7 @@ pub mod material;
 pub mod mob;
 pub mod movement;
 pub mod name;
+pub mod noise;
 pub mod pathfinding;
 pub mod place_name;
 pub mod poi;

@@ -83,6 +83,15 @@ fn armour_bonuses(item: &Item) -> Vec<Bonus> {
     ]
 }
 
+/// The own weight of the armour among `worn`, in grams: what footsteps clank
+/// by (`noise::Footsteps`).
+pub fn armour_grams(worn: &[Item]) -> u32 {
+    (worn.iter())
+        .filter(|item| item.kind.category() == ItemCategory::Armour)
+        .map(piece_grams)
+        .sum()
+}
+
 /// One piece's own weight in grams: its form's, or its kind's.
 fn piece_grams(item: &Item) -> u32 {
     item.form

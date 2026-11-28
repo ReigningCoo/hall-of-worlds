@@ -120,6 +120,7 @@ impl ServerWorld {
             empty_since: None,
             scents,
             last_at: BTreeMap::new(),
+            noises: Vec::new(),
         };
         self.populations.0.insert((id, index), population);
     }
