@@ -78,7 +78,10 @@ pub(super) fn hunt(
         .filter_map(|mob| Some((mob.id, mob.member(), mob.position, hunted(mob)?)))
         .collect();
     for mob in mobs.iter_mut() {
-        let free = matches!(mob.doing, Doing::Idle | Doing::Settling { .. });
+        let free = matches!(
+            mob.doing,
+            Doing::Idle | Doing::Settling { .. } | Doing::Investigating { .. }
+        );
         if !free || mob.foes.prey.is_empty() || cells_apart(mob.home, mob.position) > HUNT_LEASH {
             continue;
         }

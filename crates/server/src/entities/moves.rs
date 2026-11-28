@@ -97,6 +97,9 @@ pub(super) fn act(
         }
         // `run_mobs` sends these to `tracking::track`, which knows the scents.
         Doing::Tracking { .. } => THINKING_COST,
+        Doing::Investigating { .. } | Doing::Shying { .. } => {
+            super::curious::look_into(mob, level, maps, tick, taken)
+        }
         Doing::Going {
             after,
             last_seen,
