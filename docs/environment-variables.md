@@ -43,7 +43,7 @@ Without any of these, the server makes a self-signed certificate and keeps it in
 | `HOW_IDLE_MINUTES` | `15` | How many minutes a player may do nothing before being disconnected. `0` never disconnects anyone. |
 | `HOW_STACK_GRAMS_PER_CELL` | `2000` | The most a stack of identical items may weigh, in grams, for each cell it takes up in a bag. |
 | `HOW_STACK_MAX` | `99` | The most items in one stack, however light they are. |
-| `HOW_MODS` | `mods` in `HOW_DATA` | The folder of this server's mods. Herbs added or changed go in `herbs/` there, as `.ron` files each holding a list of herbs written like the game's own; a herb with the same key as one of the game's replaces it. They are read when the server starts, and players are sent them as they join. A file with a mistake is left out, with the reason in the log. |
+| `HOW_MODS` | `mods` in `HOW_DATA` | The folder of this server's mods. Herbs added or changed go in `herbs/` there, as `.ron` files each holding a list of herbs written like the game's own; a herb with the same key as one of the game's replaces it. They are read when the server starts, and players are sent them as they join. How creatures behave can be changed too: `.ron` files in `behaviours/` there, each a list of races' behaviours written like the game's own (`crates/shared/src/behaviour/behaviours.ron`), an entry replacing the game's for its race; these stay on the server. A file with a mistake is left out, with the reason in the log. |
 
 ## Accounts and logging in
 

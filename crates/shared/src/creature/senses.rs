@@ -1,23 +1,7 @@
-//! How a kind of creature takes to others, and how well it senses them, from the
+//! How well a kind of creature senses others, from the
 //! creature research (`docs/context/research-creatures.md`).
 
 use super::CreatureKind;
-
-/// How a kind takes to those it doesn't know, before anything has happened.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Temper {
-    /// Comes over to say hello.
-    Friendly,
-    /// Leaves others alone. The research's "varies" (humans, giants) is this too,
-    /// until creatures of one kind can differ.
-    Neutral,
-    /// Keeps away from anyone it doesn't know.
-    Timid,
-    /// Minds its own patch: guarding it comes later, and until then it is `Neutral`.
-    Territorial,
-    /// Dislikes everyone not its own kind.
-    Hostile,
-}
 
 /// How good one sense is.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -62,21 +46,6 @@ impl Senses {
 }
 
 impl CreatureKind {
-    /// How it takes to those it doesn't know.
-    pub const fn temper(self) -> Temper {
-        use CreatureKind::*;
-        match self {
-            Halfling => Temper::Friendly,
-            Chicken | Duck | Guineafowl | Horse | MuscovyDuck | Pigeon | Quail | Rabbit
-            | Reindeer | Sheep => Temper::Timid,
-            Goose | Lizardfolk | ScorpionMan | Wolf => Temper::Territorial,
-            Drider | Goblin | Kobold | Minotaur | Orc => Temper::Hostile,
-            Alpaca | BactrianCamel | Beggar | Birdfolk | Cattle | Centaur | Coo | Donkey
-            | Dromedary | Dwarf | Elf | Giant | Goat | Human | Llama | Mule | Pig | Turkey
-            | WaterBuffalo | Yak => Temper::Neutral,
-        }
-    }
-
     /// How wide its eyes see ahead, in degrees: the field of view's cone
     /// (`facing::Field`), from the research's "wide field of view" for prey.
     /// About 120° for people; first guesses (owner, 2026-11-12).

@@ -9,6 +9,7 @@
 //! characters (`storage`) and accounts (`accounts`) in its own data folder.
 
 mod accounts;
+mod behaviours;
 mod clock;
 mod combat;
 mod connections;
@@ -23,6 +24,7 @@ mod herbs;
 mod ids;
 mod latency;
 mod lets_encrypt;
+mod mods;
 mod network;
 mod oidc;
 mod quests;
@@ -159,6 +161,7 @@ impl Plugin for ServerPlugin {
             None => Storage::none(),
         };
         let herbs = herbs::load(self.data.as_deref());
+        let behaviours = behaviours::load(self.data.as_deref());
         let worlds = ServerWorlds::start(self.world_seed, storage, herbs)
             .unwrap_or_else(|error| panic!("The server can't open its home world: {error}"));
         let mut roles = match &self.data {
@@ -180,12 +183,13 @@ impl Plugin for ServerPlugin {
         }
         app.insert_resource(worlds)
             .insert_resource(options)
+            .insert_resource(behaviours)
             .init_resource::<ServerName>()
             .insert_resource(Connections::new(
                 accounts::Accounts::new(queue, roles)
                     .unwrap_or_else(|error| panic!("The server can't read its accounts: {error}")),
             ))
-            .add_systems(Startup, announce)
+            .add_systems(Startup, (announce, behaviours::announce))
             .add_systems(Startup, move || announce_claim(claim.as_deref()))
             .add_systems(
                 Update,

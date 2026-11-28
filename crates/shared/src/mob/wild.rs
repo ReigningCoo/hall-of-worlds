@@ -8,6 +8,7 @@ use super::wild_looks::wild_looks;
 use super::wild_shares::{Around, Form, Resident, shares};
 use super::{Spawn, looks, roll_coins, roll_gear};
 use crate::alignment::Alignment;
+use crate::behaviour::Band;
 use crate::climate::Biome;
 use crate::dungeon::{Cell, Level};
 use crate::gender::Gender;
@@ -38,6 +39,9 @@ const YOUNG_PERCENT: u64 = 40;
 
 /// The most young with a herd.
 const MOST_YOUNG: u64 = 2;
+
+/// Which of a block's rolls is its band's number.
+const BAND_ROLL: i64 = 90;
 
 /// How far a pack's members start from its den, in cells each way.
 const SPREAD: i64 = 3;
@@ -104,6 +108,8 @@ pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) ->
         0
     };
     let herd = Herd { seed, block };
+    // The whole pack or herd is one band.
+    let band = Band(roll(BAND_ROLL));
     let mut mobs: Vec<Spawn> = Vec::new();
     for member in 0..(grown + young) as i64 {
         let own = |what: i64| roll(1000 + member * 100 + what);
@@ -153,6 +159,8 @@ pub fn wild_spawns(seed: Seed, block: BlockPos, level: &Level, land: Habitat) ->
             gear: roll_gear(&own, kind),
             coins: roll_coins(&own, kind),
             penned: false,
+            band,
+            family: None,
         });
     }
     mobs

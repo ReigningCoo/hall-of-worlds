@@ -5,6 +5,7 @@ use super::{
     roll_coins, roll_gear,
 };
 use crate::alignment::Alignment;
+use crate::behaviour::Band;
 use crate::creature::CreatureKind;
 use crate::dungeon::Level;
 use crate::gender::Gender;
@@ -73,5 +74,7 @@ pub fn spawn_at(seed: Seed, kind: CreatureKind, number: u32, position: (i64, i64
         gear: roll_gear(&roll, kind),
         coins: roll_coins(&roll, kind),
         penned: false,
+        band: Band::of_site(seed, kind),
+        family: None,
     }
 }

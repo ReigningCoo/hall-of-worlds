@@ -213,3 +213,17 @@ fn peoples_have_an_alignment_and_animals_none() {
     }
     assert!(people > 0 && animals > 0, "{people} {animals}");
 }
+
+#[test]
+fn each_race_on_a_site_is_one_band_on_every_level() {
+    let level = room();
+    let seed = Seed::new(3);
+    let mut mobs = spawns(seed, 0, PoiKind::Crypt, &level, &[]);
+    mobs.extend(spawns(seed, 1, PoiKind::Crypt, &level, &[]));
+    for one in &mobs {
+        assert_eq!(one.family, None);
+        for other in &mobs {
+            assert_eq!(one.band == other.band, one.kind == other.kind);
+        }
+    }
+}
