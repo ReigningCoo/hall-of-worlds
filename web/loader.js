@@ -95,19 +95,52 @@ function between(from, to) {
     return start && end ? Math.round(end.startTime - start.startTime) : null;
 }
 
+/// The game's marks from `main` on, in the order they were reached (which
+/// differs between browsers and builds): how-main, the plugin groups added
+/// (how-bevy-plugins, how-plugins-1 to 4, how-app-built), main returning
+/// (how-wasm-ready), every plugin's finish and cleanup (how-finish-start,
+/// how-finish-done, how-cleanup-done), Startup (how-startup-start,
+/// how-startup-done), how-first-frame, how-first-render and
+/// how-page-screen-removed.
+function steps() {
+    const marks = performance
+        .getEntriesByType("mark")
+        .filter((entry) => entry.name.startsWith("how-") && !entry.name.startsWith("how-download"))
+        .sort((a, b) => a.startTime - b.startTime);
+    const figures = {};
+    for (let i = 1; i < marks.length; i++) {
+        const from = marks[i - 1].name.slice(4);
+        const to = marks[i].name.slice(4);
+        figures[`${from} to ${to}`] = Math.round(marks[i].startTime - marks[i - 1].startTime);
+    }
+    return figures;
+}
+
+/// The longest of the game's first frames while loading (from
+/// `howLoading.frames`, longest first): its number, LoadingStep, ms from its
+/// start to the next frame's, the game's update, drawing, pipelines made;
+/// told after every frame, all in once `framesDone`.
+let longestFrames = null;
+let framesDone = false;
+let screenGone = false;
+
 /// The figures of this load, logged and kept once the game has taken over.
 function measured() {
     const figures = {
         download: between("how-download-start", "how-download-done"),
         compile: between("how-download-done", "how-main"),
-        "main to app built": between("how-main", "how-app-built"),
-        "app built to main returned": between("how-app-built", "how-wasm-ready"),
-        "main returned to first frame": between("how-wasm-ready", "how-first-frame"),
-        "first frame to page screen gone": between("how-first-frame", "how-page-screen-removed"),
         start: between("how-main", "how-page-screen-removed"),
         total: between("how-download-start", "how-page-screen-removed"),
+        steps: steps(),
     };
+    if (longestFrames) figures["longest frames"] = longestFrames;
     return figures;
+}
+
+/// Logs the figures once the page's screen has gone and the game has told
+/// its longest frames (a few seconds later).
+function logWhenDone() {
+    if (screenGone && framesDone) console.info("Loading times (ms):", measured());
 }
 
 function watchForTheGame() {
@@ -116,11 +149,12 @@ function watchForTheGame() {
     new MutationObserver((_, observer) => {
         if (document.getElementById("loading")) return;
         observer.disconnect();
+        screenGone = true;
         const figures = measured();
-        console.info("Loading times (ms):", figures);
         if (figures.download && figures.compile && figures.start) {
             keepTimes({ download: figures.download, compile: figures.compile, start: figures.start });
         }
+        logWhenDone();
     }).observe(screen.parentNode, { childList: true });
 }
 
@@ -131,11 +165,19 @@ export default function initializer() {
     let trueTotal = null;
     let downloaded = false;
 
-    // What the game calls: `stage("starting")` as its `main` begins.
+    // What the game calls: `stage("starting")` as its `main` begins, and
+    // `frames(list, done)` with its longest frames so far after each frame.
     window.howLoading = {
         stage(name) {
             stage(name);
             if (name === "starting") say("Starting...");
+        },
+        frames(list, done) {
+            longestFrames = Array.from(list);
+            if (done && !framesDone) {
+                framesDone = true;
+                logWhenDone();
+            }
         },
         measured,
     };
