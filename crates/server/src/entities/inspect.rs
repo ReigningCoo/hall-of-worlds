@@ -4,6 +4,7 @@ use shared::creature::CreatureKind;
 use shared::protocol::CharacterId;
 
 use super::Mob;
+use super::choice::Choice;
 
 /// What the server knows of `mob`, as seen by a player of `kind` playing
 /// `character`, at action tick `tick`.
@@ -83,8 +84,11 @@ fn scores(mob: &Mob, character: Option<&CharacterId>) -> Vec<String> {
                 true => " (chosen)",
                 false => "",
             };
-            let (name, id) = (option.choice.name(), option.choice.who());
-            format!("{name} {} {}{chosen}", who(id), option.score)
+            let about = match option.choice {
+                Choice::Take(at) => format!("bag at {:?}", at.cell()),
+                _ => option.choice.who().map(who).unwrap_or_default(),
+            };
+            format!("{} {about} {}{chosen}", option.choice.name(), option.score)
         })
         .collect();
     lines.push(format!("Choices: {}", options.join(", ")));

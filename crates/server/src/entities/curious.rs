@@ -62,6 +62,7 @@ impl Mob {
                 | Doing::GoingHome { .. }
                 | Doing::Investigating { .. }
                 | Doing::Shying { .. }
+                | Doing::Taking { .. }
         )
     }
 

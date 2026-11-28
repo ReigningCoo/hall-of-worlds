@@ -100,6 +100,7 @@ pub(super) fn act(
         Doing::Investigating { .. } | Doing::Shying { .. } => {
             super::curious::look_into(mob, level, maps, tick, taken)
         }
+        Doing::Taking { .. } => super::desire::go_take(mob, level, maps, tick, taken),
         Doing::Going {
             after,
             last_seen,

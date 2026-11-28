@@ -10,7 +10,7 @@ use std::collections::BTreeSet;
 use std::time::Instant;
 
 use super::tell::{Seen, tell};
-use super::{KEPT_FOR, Someone, everyone_playing, world_gap};
+use super::{KEPT_FOR, Someone, everyone_playing};
 use crate::ServerWorld;
 use crate::combat::Harm;
 use crate::connections::{Client, Phase};
@@ -193,4 +193,10 @@ fn hall_gap(a: Spot, b: (i64, i64)) -> i64 {
     across
         .min(hall::HALL_LENGTH - across)
         .max((a.1 - b.1).abs())
+}
+
+/// How far apart on the world map, the nearer way round the planet.
+fn world_gap(a: (i64, i64), b: (i64, i64), width: i64) -> i64 {
+    let dx = (a.0 - b.0).rem_euclid(width);
+    dx.min(width - dx).max((a.1 - b.1).abs())
 }

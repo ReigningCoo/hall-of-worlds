@@ -15,6 +15,8 @@ pub(crate) enum Choice {
     Guard(Id),
     /// Keep away from them.
     Flee(Id),
+    /// Go for the bag on the ground here, to take what it wants (`desire.rs`).
+    Take(shared::spot::Spot),
 }
 
 impl Choice {
@@ -32,14 +34,16 @@ impl Choice {
             }
             Doing::Guarding { against, .. } => Some(Self::Guard(against)),
             Doing::Fleeing { from, .. } => Some(Self::Flee(from)),
+            Doing::Taking { at, .. } => Some(Self::Take(at)),
             _ => None,
         }
     }
 
-    /// Who it is about.
-    pub(crate) fn who(self) -> Id {
+    /// Who it is about: nobody for a bag.
+    pub(crate) fn who(self) -> Option<Id> {
         match self {
-            Self::Attack(id) | Self::Approach(id) | Self::Guard(id) | Self::Flee(id) => id,
+            Self::Attack(id) | Self::Approach(id) | Self::Guard(id) | Self::Flee(id) => Some(id),
+            Self::Take(_) => None,
         }
     }
 
@@ -50,11 +54,12 @@ impl Choice {
             Self::Approach(_) => "Approach",
             Self::Guard(_) => "Guard",
             Self::Flee(_) => "Flee",
+            Self::Take(_) => "Take",
         }
     }
 
-    /// What a mob does for it, someone last seen at `at`.
-    pub(crate) fn doing(self, at: (i64, i64)) -> Doing {
+    /// What a mob does for it from `tick`, someone last seen at `at`.
+    pub(crate) fn doing(self, at: (i64, i64), tick: u64) -> Doing {
         match self {
             Self::Attack(after) => Doing::Going {
                 after,
@@ -74,6 +79,7 @@ impl Choice {
                 from,
                 struck: false,
             },
+            Self::Take(at) => Doing::Taking { at, since: tick },
         }
     }
 }

@@ -74,6 +74,7 @@ impl Mob {
             scores: Default::default(),
             wariness: Default::default(),
             foes: Default::default(),
+            passed_over: None,
         }
     }
 

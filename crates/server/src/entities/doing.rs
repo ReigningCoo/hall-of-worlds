@@ -62,6 +62,12 @@ pub enum Doing {
         #[serde(default)]
         looking: Option<u64>,
     },
+    /// Going for a bag on the ground at `at` holding something it wants
+    /// (`desire.rs`), from `since`; in reach, it takes from it and goes home.
+    Taking {
+        at: shared::spot::Spot,
+        since: u64,
+    },
     /// A timid one stepping away from a noise it heard but can't see
     /// (`curious.rs`), this many steps more, then home.
     Shying {

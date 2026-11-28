@@ -174,7 +174,7 @@ fn choices_are_read_from_what_it_is_doing() {
         Choice::Guard(id),
         Choice::Flee(id),
     ] {
-        assert_eq!(Choice::of(&choice.doing((3, 4))), Some(choice));
+        assert_eq!(Choice::of(&choice.doing((3, 4), 0)), Some(choice));
     }
 }
 
