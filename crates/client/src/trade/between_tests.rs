@@ -8,10 +8,11 @@ use shared::protocol::{TradeEnd, TradeNews};
 use shared::sheet::Feeling;
 use shared::spot::Spot;
 use shared::trade::{Between, Offer, Received, Side, TradingSetting};
+use shared::value::{copper_shown, total};
 
 use super::between::{hear_between, placed};
 use super::people::{Seen, people_near};
-use super::show::middle;
+use super::show::sums;
 use super::sides::{Mode, mode};
 use super::state::TradeWindow;
 use crate::common::{TradeSetting, Trading};
@@ -188,7 +189,9 @@ fn each_side_is_placed_where_it_was_put_and_the_middle_says_who_gains() {
         ..Trading::default()
     };
     // What is carried isn't there: only theirs counts.
-    let said = middle(&trading, &Carried(carried), std::slice::from_ref(&theirs));
-    assert!(said.own.starts_with("Yours: worth"));
-    assert!(said.gain.starts_with("You gain"), "{}", said.gain);
+    let said = sums(&trading, &Carried(carried), std::slice::from_ref(&theirs));
+    assert_eq!(said.own, 0);
+    assert_eq!(said.theirs, copper_shown(total(&theirs)));
+    assert!(said.theirs > 0);
+    assert_eq!(said.difference, None, "no coins change hands");
 }

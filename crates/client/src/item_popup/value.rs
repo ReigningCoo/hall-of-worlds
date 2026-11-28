@@ -3,40 +3,14 @@
 //! value, then what one is worth in brackets ("each") when there are more
 //! than one. Values come from `shared::value`, rounded up to copper only
 //! here, as shown. Nothing shows for what is worth nothing (quest items).
+//! The coins themselves are `common`'s (`coin_pieces`, `show_coins`).
 
 use shared::item::Item;
 use shared::lang::{Args, Lang};
-use shared::value::{Coins, copper_shown, each, total};
+use shared::value::{copper_shown, each, total};
 
-use crate::common::written;
+use crate::common::{CoinPiece as Piece, coin_pieces, show_coins, written};
 use crate::dom::Dom;
-
-/// Which coin a picture is.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum Metal {
-    Gold,
-    Silver,
-    Copper,
-}
-
-impl Metal {
-    /// The popup's template for its picture, in its colour, and its count.
-    fn template(self) -> (&'static str, &'static str) {
-        match self {
-            Self::Gold => ("coin_gold", "gold_count"),
-            Self::Silver => ("coin_silver", "silver_count"),
-            Self::Copper => ("coin_copper", "copper_count"),
-        }
-    }
-}
-
-/// One thing along the value's row.
-#[derive(Debug, PartialEq, Eq)]
-pub(super) enum Piece {
-    /// A coin's picture and how many.
-    Coin(Metal, u64),
-    Words(String),
-}
 
 /// What the row shows for the item (a whole stack); nothing when it is
 /// worth nothing.
@@ -55,43 +29,10 @@ pub(super) fn value_pieces(item: &Item, lang: &Lang) -> Vec<Piece> {
     pieces
 }
 
-/// `copper` as coins, leaving out any of none.
-fn coin_pieces(copper: u64) -> Vec<Piece> {
-    let coins = Coins::from_copper(copper);
-    [
-        (Metal::Gold, coins.gold),
-        (Metal::Silver, coins.silver),
-        (Metal::Copper, coins.copper),
-    ]
-    .into_iter()
-    .filter(|&(_, count)| count > 0)
-    .map(|(metal, count)| Piece::Coin(metal, count))
-    .collect()
-}
-
-/// Writes the row into popup `form`'s `value`, a coin a copy of its template
-/// (its picture and count together), hiding it when there is nothing.
+/// Writes the row into popup `form`'s `value`, hiding it when there is
+/// nothing.
 pub(super) fn show_value(dom: &mut Dom, form: &str, pieces: Vec<Piece>) {
-    let into = format!("{form}/value");
-    dom.set_flag(&into, "hidden", pieces.is_empty());
-    dom.empty(&into);
-    let mut at = 0;
-    let words = |dom: &mut Dom, at: &mut usize, text: String| {
-        dom.copy_template(&format!("{form}/value_words"), &into, *at);
-        dom.set_text(&format!("{form}/value_words.{at}"), text);
-        *at += 1;
-    };
-    for piece in pieces {
-        match piece {
-            Piece::Coin(metal, count) => {
-                let (template, count_id) = metal.template();
-                dom.copy_template(&format!("{form}/{template}"), &into, at);
-                dom.set_text(&format!("{form}/{count_id}.{at}"), count.to_string());
-                at += 1;
-            }
-            Piece::Words(text) => words(dom, &mut at, text),
-        }
-    }
+    show_coins(dom, form, "value", 0, pieces);
 }
 
 #[cfg(test)]

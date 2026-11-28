@@ -22,9 +22,10 @@ fn the_icon_has_ink_on_both_arrows() {
 }
 
 use super::markup::{OWN_COLUMNS, STOCK_COLUMNS};
-use super::show::middle;
-use super::words::{coins_words, due_words, ended_words};
+use super::show::{difference_pieces, sums};
+use super::words::{coins_words, ended_words};
 use crate::common::Trading;
+use crate::common::{CoinPiece, Metal};
 use crate::inventory::Carried;
 use bevy::prelude::*;
 use shared::id::Id;
@@ -68,9 +69,26 @@ fn sums_are_written_as_coins_leaving_out_none() {
     assert_eq!(coins_words(0), "nothing");
     assert_eq!(coins_words(5), "5 copper");
     assert_eq!(coins_words(10_005), "1 gold, 5 copper");
-    assert_eq!(due_words(0), "Nothing to pay");
-    assert_eq!(due_words(102), "You pay 1 silver, 2 copper");
-    assert_eq!(due_words(-3), "You receive 3 copper");
+}
+
+#[test]
+fn the_difference_is_always_signed() {
+    let words = |text: &str| CoinPiece::Words(text.to_owned());
+    assert_eq!(
+        difference_pieces(-10_102),
+        [
+            words("(-"),
+            CoinPiece::Coin(Metal::Gold, 1),
+            CoinPiece::Coin(Metal::Silver, 1),
+            CoinPiece::Coin(Metal::Copper, 2),
+            words(")"),
+        ]
+    );
+    assert_eq!(
+        difference_pieces(3),
+        [words("(+"), CoinPiece::Coin(Metal::Copper, 3), words(")")]
+    );
+    assert_eq!(difference_pieces(0), [words("(0)")]);
 }
 
 #[test]
@@ -110,7 +128,7 @@ fn buying_is_afforded_only_while_the_coins_cover_it() {
 }
 
 #[test]
-fn the_middle_says_who_gains() {
+fn the_sums_are_what_the_shop_pays_and_asks() {
     let item = sword(1);
     let rates = Rates::default();
     let asks = shop_asks(total(&item), rates);
@@ -125,13 +143,15 @@ fn the_middle_says_who_gains() {
         },
         ..Trading::default()
     };
-    let words = middle(&trading, &Carried(Inventory::default()), &[]);
-    // Buying at 150%: the shop gains.
-    assert!(words.gain.starts_with("They gain"), "{words:?}");
-    assert!(words.theirs.contains("they ask"), "{words:?}");
-    // Nothing in the trade: nothing said of gains.
-    let idle = middle(&Trading::default(), &Carried(Inventory::default()), &[]);
-    assert!(idle.gain.is_empty());
+    let said = sums(&trading, &Carried(Inventory::default()), &[]);
+    assert_eq!(said.own, 0);
+    assert_eq!(said.theirs, shared::value::copper_shown(asks));
+    // Buying: the player pays, so the difference is negative.
+    assert_eq!(said.difference, Some(-trading.totals.due));
+    assert!(trading.totals.due > 0);
+    // Nothing in the trade: no difference shown.
+    let idle = sums(&Trading::default(), &Carried(Inventory::default()), &[]);
+    assert_eq!(idle.difference, None);
 }
 
 /// Bevy only finds two parameters clashing when a system starts.

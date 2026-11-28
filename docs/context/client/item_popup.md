@@ -19,13 +19,13 @@ An item's popup, wherever items are drawn (grids, clothes, bin, ground, shops, `
 - `item_popup/needs.rs`: `Viewer { attributes, kind }`, `need_lines` ("Needs 110 Strength" and food's kinds, "Dwarves only", "Orcs and goblins only" (`common::kinds_words`), met and unmet against the player's attributes with effects, `Sheet::attributes_without_worn`, and their body's kind (`inventory::Carried`); "Working at 49%" when short; all met before the server has said the attributes). Tests.
 - `item_popup/size.rs`: `size_line` ("Size: Large (you: Medium)", `item.ftl`'s `item-size` and `item-size-name`): kinds that come in sizes and are worn (clothes, armour, footwear, rings; not loose blades or gems), against `common::PlayerSize`; nothing when it is theirs. Tests.
 - `item_popup/recipe.rs`: `recipe_line` (recipes plan PR 3): a recipe scroll's line, `item.ftl`'s `recipe-known` ("Already in your recipe book", by `Sheet::book`) or `recipe-drop-on-self` ("Drop on yourself to add it to your recipe book"), shown with the key lines; `about-recipe` describes the kind.
-- `item_popup/value.rs`: `Metal`, `Piece`, `value_pieces` (trading plan PR 1: a stack's whole value as coins, gold to copper, any of none left out, rounded up only here (`value::copper_shown`); for more than one, `item-value-each-start`, what one is worth, `item-value-each-end`: "3 (1 each)"; nothing for what is worth nothing), `show_value` (a coin a copy of its template: `icon:delapouite/token` in `img.gold`, `img.silver` or `img.copper` touching its count; the brackets `value_words`). Tests.
+- `item_popup/value.rs`: `value_pieces` (trading plan PR 1: a stack's whole value as coins, gold to copper, any of none left out, rounded up only here (`value::copper_shown`); for more than one, `item-value-each-start`, what one is worth, `item-value-each-end`: "3 (1 each)"; nothing for what is worth nothing), `show_value` (through `common::show_coins`, which `trade` shares; a coin a copy of its template: `icon:delapouite/token` in `img.gold`, `img.silver` or `img.copper` touching its count; the brackets `value_words`). Tests.
 - `item_popup/copy.rs`: `CopyId`, `bind_copy` (a `widgets::spawn_copy_button` into `copy_holder`, id `item_popup#<id>/copy`, `Pressable`), `copy_pressed` (`widgets::copy_to_clipboard`, as `debug_info` copies).
 - `item_popup/place.rs`: `keep_on_screen` (moves one past the window's right or bottom edge back in, once laid out).
 
 ## Public API
 
-- `ItemPopupPlugin` only.
+- `ItemPopupPlugin` only. Its coin templates (`coin_gold`, `coin_silver`, `coin_copper`, `value_words`) are copied into `trade`'s markup too, for `common::show_coins`.
 
 ## Depends on
 

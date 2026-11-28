@@ -1,12 +1,15 @@
 //! Holding and letting go in a trade (trading plan PR 4, `common::Trading`):
-//! what is carried let go on the trade window's own side is sold (it stays
-//! carried, marked), and taken off it anywhere else is taken back. What is
+//! what is carried let go on the trade window's own side (Selling) is sold (it
+//! stays carried, marked), and taken off it anywhere else is taken back;
+//! anywhere else in the window it goes back where it was (trading tweaks PR 3). What is
 //! bought lies in the window's Buying box (`common::buying_box`), never in
 //! the inventory: stock let go there is bought (`trade` sends where), and
 //! what is in it let go on the shop's grid is put back. With a player or an
 //! NPC (PR 6), what is let go on the own side is offered where it lands
 //! (`trade` sends that); what is in the receive box is taken out where let
 //! go.
+
+mod quick;
 
 use bevy::prelude::*;
 use shared::item::Inventory;
@@ -20,6 +23,7 @@ use crate::common::{
     GaveItem, HeldOverGifts, HeldStock, Trading, buying_box, own_side, receive_box,
 };
 use crate::connection::ToServer;
+pub(super) use quick::quick_in_trade;
 
 /// Whether something held from `from`'s grid may be let go on `to`'s: back
 /// where it came from, or between a shop's stock and the Buying box.
@@ -55,11 +59,8 @@ pub(super) fn let_go_in_trade(
     let mut send = |ask| {
         to_server.write(ToServer(ClientMessage::Trade(ask)));
     };
-    // Let go on the own side, or the shop's: sold (shown on the own side).
-    let selling = match aim {
-        Target::Someone(to) => to == own_side() || Some(to) == trading.with,
-        _ => false,
-    };
+    // Let go on the own side (Selling): sold, or offered.
+    let selling = aim == Target::Someone(own_side());
     if selling && holding.stock.is_none() {
         // Only whole things: part of a stack would be new.
         let part = holding.group.take().is_some() | holding.counted.take().is_some();
@@ -74,9 +75,10 @@ pub(super) fn let_go_in_trade(
         }
         return true;
     }
-    // Nothing carried goes into the receive box or the Buying box.
-    let boxes = [receive_box(), buying_box()].map(Target::Someone);
-    if boxes.contains(&aim) && holding.stock.is_none() {
+    // Nothing carried goes into the receive box, the Buying box or the
+    // shop's stock: back where it was.
+    let shops = matches!(aim, Target::Someone(to) if is_shops(trading, to));
+    if (shops || aim == Target::Someone(receive_box())) && holding.stock.is_none() {
         return true;
     }
     let Some((with, item)) = holding.stock.clone() else {

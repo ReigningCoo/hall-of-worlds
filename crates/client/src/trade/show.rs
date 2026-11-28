@@ -1,99 +1,82 @@
-//! The middle and the bottom of the window: what each side is worth (its
-//! items' values, `shared::value`) and what the shop pays or asks for it, who
-//! gains by the trade and by how much, what is due at the bottom right, and
-//! Complete trade, which only does anything with something in the trade that
-//! can be paid for. Pressing it completes the trade: all of it or nothing.
+//! The sums under the boxes and the Trade button (trading tweaks PR 3): with
+//! a shop, under Selling what it pays and under Buying what it asks, and
+//! under the Trade button the difference, always signed ("+" when the player
+//! gains coins, "-" when they pay); with a character, each side's worth
+//! (`shared::value`) and no difference. All as coin pictures, right-aligned,
+//! any of none left out (`common::show_coins`). Pressing Trade completes the
+//! trade: all of it or nothing, and only with something in it that can be
+//! paid for.
 
 use bevy::prelude::*;
 use shared::item::Item;
 use shared::protocol::{ClientMessage, TradeAsk};
 use shared::trade::Between;
-use shared::value::{copper_shown, total};
+use shared::value::{FINE_PER_COPPER, copper_shown, total};
 
 use super::state::TradeWindow;
-use super::words::{coins_words, due_words};
-use crate::common::Trading;
+use crate::common::{CoinPiece, Trading, coin_pieces, show_coins};
 use crate::connection::ToServer;
 use crate::dom::{Dom, UiEvent, UiValue};
 use crate::inventory::Carried;
 use crate::widgets::UiId;
 
-/// What the middle says, worked out from the trade.
+/// What the window's sums are, in copper as shown.
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct Middle {
-    pub(super) own: String,
-    pub(super) theirs: String,
-    pub(super) gain: String,
+pub(super) struct Sums {
+    /// Under Selling: what the shop pays, or what the own side is worth.
+    pub(super) own: u64,
+    /// Under Buying: what the shop asks, or what their side is worth.
+    pub(super) theirs: u64,
+    /// Under Trade, with a shop and something in the trade: what the player
+    /// gains in coins (negative: pays).
+    pub(super) difference: Option<i64>,
 }
 
-/// The middle's words: each side's worth and its price, and who gains (the
-/// worth received less the worth given and what is paid).
-pub(super) fn middle(trading: &Trading, carried: &Carried, offered: &[Item]) -> Middle {
+/// The sums, worked out from the trade.
+pub(super) fn sums(trading: &Trading, carried: &Carried, offered: &[Item]) -> Sums {
     if let Some(between) = &trading.between {
-        return between_middle(between, carried, offered);
+        return between_sums(between, carried, offered);
     }
-    let own_worth: u64 = (trading.selling.iter())
-        .filter_map(|&id| carried.0.find(id))
-        .map(total)
-        .sum();
-    let their_worth: u64 = trading.buying.iter().map(|(_, item)| total(item)).sum();
     let totals = trading.totals;
-    let own = format!(
-        "Yours: worth {}; they pay {}",
-        coins_words(copper_shown(own_worth)),
-        coins_words(totals.pays / shared::value::FINE_PER_COPPER),
-    );
-    let theirs = format!(
-        "Theirs: worth {}; they ask {}",
-        coins_words(copper_shown(their_worth)),
-        coins_words(copper_shown(totals.asks)),
-    );
-    // In fine units: what comes in less what goes out, coins included.
-    let paid = totals.due * shared::value::FINE_PER_COPPER as i64;
-    let gain = their_worth as i64 - own_worth as i64 - paid;
-    let gain = match gain {
-        _ if !trading.is_busy() => String::new(),
-        0 => "Neither side gains".to_owned(),
-        gain if gain > 0 => format!("You gain {}", coins_words(copper_shown(gain as u64))),
-        gain => format!(
-            "They gain {}",
-            coins_words(copper_shown(gain.unsigned_abs()))
-        ),
-    };
-    Middle { own, theirs, gain }
+    Sums {
+        // As the server rounds them: what is paid down, what is asked up.
+        own: totals.pays / FINE_PER_COPPER,
+        theirs: copper_shown(totals.asks),
+        difference: trading.is_busy().then_some(-totals.due),
+    }
 }
 
-/// With a character: each side's worth, and who gains (no coins change
-/// hands but what is offered).
-fn between_middle(between: &Between, carried: &Carried, offered: &[Item]) -> Middle {
-    let worth = |side: &shared::trade::Side, items: &[&Item]| -> u64 {
-        let found = side.offers.iter().filter_map(|offer| {
-            let found = items.iter().find(|item| item.id == offer.item);
-            found.map(|item| total(item))
-        });
-        found.sum()
+/// With a character: each side's worth; no coins change hands.
+fn between_sums(between: &Between, carried: &Carried, offered: &[Item]) -> Sums {
+    let worth = |side: &shared::trade::Side, find: &dyn Fn(shared::id::Id) -> Option<u64>| {
+        let found = side.offers.iter().filter_map(|offer| find(offer.item));
+        copper_shown(found.sum())
     };
-    let carried: Vec<&Item> = (between.mine.offers.iter())
-        .filter_map(|offer| carried.0.find(offer.item))
-        .collect();
-    let own_worth = worth(&between.mine, &carried);
-    let their_worth = worth(&between.theirs, &offered.iter().collect::<Vec<_>>());
-    let own = format!("Yours: worth {}", coins_words(copper_shown(own_worth)));
-    let theirs = format!("Theirs: worth {}", coins_words(copper_shown(their_worth)));
-    let gain = match their_worth as i64 - own_worth as i64 {
-        _ if between.mine.offers.is_empty() && between.theirs.offers.is_empty() => String::new(),
-        0 => "Neither side gains".to_owned(),
-        gain if gain > 0 => format!("You gain {}", coins_words(copper_shown(gain as u64))),
-        gain => format!(
-            "They gain {}",
-            coins_words(copper_shown(gain.unsigned_abs()))
-        ),
-    };
-    Middle { own, theirs, gain }
+    let own = worth(&between.mine, &|id| carried.0.find(id).map(total));
+    let find_theirs = |id| offered.iter().find(|item| item.id == id).map(total);
+    Sums {
+        own,
+        theirs: worth(&between.theirs, &find_theirs),
+        difference: None,
+    }
 }
 
-/// Writes the middle and the bottom again when the trade or the window
-/// changes.
+/// The difference as coins, always signed: "(+1 1 1)" gained, "(-1 1 1)"
+/// paid, "(0)" even.
+pub(super) fn difference_pieces(difference: i64) -> Vec<CoinPiece> {
+    let words = |text: &str| CoinPiece::Words(text.to_owned());
+    if difference == 0 {
+        return vec![words("(0)")];
+    }
+    let sign = if difference > 0 { "(+" } else { "(-" };
+    let mut pieces = vec![words(sign)];
+    pieces.extend(coin_pieces(difference.unsigned_abs()));
+    pieces.push(words(")"));
+    pieces
+}
+
+/// Writes the sums again when the trade or the window changes, and enables
+/// Trade only when it can be done.
 pub(super) fn show_middle(
     trading: Res<Trading>,
     carried: Res<Carried>,
@@ -105,26 +88,39 @@ pub(super) fn show_middle(
         return;
     }
     window.dirty = false;
-    let Middle { own, theirs, gain } = middle(&trading, &carried, &window.stock);
-    dom.set_text("trade/own_value", own);
-    dom.set_text("trade/their_value", theirs);
-    dom.set_flag("trade/gain", "hidden", gain.is_empty());
-    dom.set_text("trade/gain", gain);
-    let due = trading.totals.due;
-    let words = match trading.with {
-        Some(_) if trading.terms.is_some() => due_words(due),
-        _ => String::new(),
+    let Sums {
+        own,
+        theirs,
+        difference,
+    } = sums(&trading, &carried, &window.stock);
+    // Only once trading with someone.
+    let with = trading.with.is_some();
+    let pieces = |copper| {
+        if with {
+            coin_pieces(copper)
+        } else {
+            Vec::new()
+        }
     };
-    dom.set_text("trade/due", words);
+    show_coins(&mut dom, "trade", "own_total", 0, pieces(own));
+    show_coins(&mut dom, "trade", "their_total", 100, pieces(theirs));
+    let difference = difference.filter(|_| trading.terms.is_some());
+    show_coins(
+        &mut dom,
+        "trade",
+        "difference",
+        200,
+        difference.map(difference_pieces).unwrap_or_default(),
+    );
     let affordable = trading.totals.affordable(carried.0.coins_carried(), None);
-    let can = trading.with.is_some() && trading.is_busy() && affordable;
+    let can = with && trading.is_busy() && affordable;
     dom.set_flag("trade/complete", "disabled", !can);
     let said = window.said.clone().unwrap_or_default();
     dom.set_flag("trade/said", "hidden", said.is_empty());
     dom.set_text("trade/said", said);
 }
 
-/// Complete trade: the server completes it all or refuses.
+/// Trade: the server completes it all or refuses.
 pub(super) fn press_complete(
     mut events: MessageReader<UiEvent>,
     trading: Res<Trading>,

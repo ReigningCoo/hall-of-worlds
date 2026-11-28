@@ -1,6 +1,6 @@
 //! Holding things, as far as it is the inventory's: what a press picks up
 //! (`press`), what letting go where it is would do (`aim`) and doing that
-//! (`let_go`), and quick moves by right-click (`quick`). Following the pointer, turning and when it is let go are `dom`'s
+//! (`let_go`), and quick moves by right-click (`quick`; in a trade, `trade`'s). Following the pointer, turning and when it is let go are `dom`'s
 //! (`HeldObject`), which runs between `hold_items` and `aim_items`.
 
 mod aim;
@@ -24,12 +24,11 @@ use shared::wear::{Fit, WearRefused};
 
 use super::bag_slots::BagSlotNode;
 use super::body::BodyNode;
-use super::hold::QuickFrom;
 use super::panels::{BinNode, DropNode, GridOwner, ItemCell, OpenGrids};
 use super::split::{PickRow, Split, SplitCell};
 use super::{Carried, HeldBy, Holding};
 use crate::common::{
-    DroppedOnText, GROUND, GameView, GaveItem, HeldOverGifts, HeldOverText, HeldStock, OpenLantern,
+    DroppedOnText, GameView, GaveItem, HeldOverGifts, HeldOverText, HeldStock, OpenLantern,
     SpentEnergy, StockCell, TakesGifts, TakesItemText, TookItem, TouchGesture, UiPointer,
 };
 use crate::connection::ToServer;
@@ -128,7 +127,7 @@ pub(super) fn hold_items(
     // holding, it turns what is held (`dom`).
     if mouse.just_pressed(MouseButton::Right)
         && object.thing().is_none()
-        && let Some(from) = hit.first(|entity| quick_from(entity, &cells.0, &cells.1))
+        && let Some(from) = hit.first(|entity| quick::quick_from(entity, &cells.0, &cells.1))
     {
         mouse.clear_just_pressed(MouseButton::Right);
         holding.quick = Some(from);
@@ -200,20 +199,6 @@ pub(super) fn hold_items(
     }
 }
 
-/// What a right-click on this would move: a carried item, or one on the ground
-/// (never a shop's: that would be buying).
-fn quick_from(
-    entity: Entity,
-    cells: &Query<&ItemCell>,
-    stock_cells: &Query<&StockCell>,
-) -> Option<QuickFrom> {
-    if let Ok(cell) = cells.get(entity) {
-        return Some(QuickFrom::Carried(cell.id));
-    }
-    let cell = stock_cells.get(entity).ok()?;
-    (cell.with == GROUND).then(|| QuickFrom::Ground(Box::new(cell.item.clone())))
-}
-
 /// What letting go of what is held would do, and doing it when `dom` says it
 /// was let go. In `PreUpdate`, after `dom` has moved it.
 #[allow(clippy::too_many_arguments)]
@@ -232,6 +217,8 @@ pub(super) fn aim_items(
     out.on_text.0.set_if_neq(HeldOverText(None));
     if let Some(from) = holding.quick.take()
         && HeldBy::of(&object).is_none()
+        // While trading, into or out of the trade instead (`trade`).
+        && !trade::quick_in_trade(&from, &carried.0, &mut out)
     {
         quick::quick_move(
             from,

@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 
 use super::markup::{OWN_COLUMNS, STOCK_COLUMNS};
 use crate::common::{buying_box, own_side, receive_box};
-use crate::widgets::StockGrid;
+use crate::widgets::{ItemMark, StockGrid};
 
 /// Someone near enough to trade with, as the dropdown lists them: a shop's
 /// keeper, a player or an NPC.
@@ -115,12 +115,18 @@ impl TradeWindow {
 
 /// The own side: 8 × 8 however little is in it.
 fn own_grid() -> StockGrid {
-    StockGrid::new(own_side(), OWN_COLUMNS, &[]).exactly(OWN_COLUMNS)
+    marked(StockGrid::new(own_side(), OWN_COLUMNS, &[]).exactly(OWN_COLUMNS))
 }
 
 /// The Buying box: 8 wide, 4 rows until the server says it has grown.
 fn buying_grid() -> StockGrid {
-    StockGrid::new(buying_box(), OWN_COLUMNS, &[]).exactly(BUYING_ROWS)
+    marked(StockGrid::new(buying_box(), OWN_COLUMNS, &[]).exactly(BUYING_ROWS))
+}
+
+/// Everything on a side of the trade shows the bag (trading tweaks PR 3).
+fn marked(mut grid: StockGrid) -> StockGrid {
+    grid.mark = ItemMark::Selling;
+    grid
 }
 
 /// The receive box: 8 × 8 however little is in it.

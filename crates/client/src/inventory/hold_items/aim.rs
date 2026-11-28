@@ -65,9 +65,11 @@ pub(super) fn aim_at(
         .unwrap_or_default();
     let on_row = on_gifts;
     // Something of theirs can only go back to them (a shop's stock to the
-    // Buying box too, and back).
-    let on_gifts = on_gifts
-        .filter(|&to| from_stock.is_none_or(|from| super::trade::may_go_to(trading, from, to)));
+    // Buying box too, and back); something carried not to a shop's.
+    let on_gifts = on_gifts.filter(|&to| match from_stock {
+        Some(from) => super::trade::may_go_to(trading, from, to),
+        None => !super::trade::is_shops(trading, to),
+    });
     over_gifts.0 = on_gifts.zip(at).map(|(to, at)| HeldGift {
         to,
         item: held.id,

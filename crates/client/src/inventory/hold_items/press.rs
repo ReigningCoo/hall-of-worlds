@@ -1,7 +1,7 @@
 //! Taking this frame's presses on items: a double click on a bag opens it (not
 //! one tied to the belt, unless it is a holder such as a keyring), and on a
 //! lantern its fuel panel (`common::OpenLantern`), two taps on anything else move it to the other side
-//! (`quick`), and a press on anything else picks it up.
+//! (`quick`; in a trade window's grids, in or out of the trade), and a press on anything else picks it up.
 
 use bevy::prelude::*;
 use shared::id::Id;
@@ -122,6 +122,11 @@ pub(super) fn take_presses(
                 let bag = cell.item.kind.def().container.is_some();
                 if again && !bag && cell.with == GROUND {
                     holding.quick = Some(QuickFrom::Ground(Box::new(cell.item.clone())));
+                    *last_press = None;
+                } else if again && cell.with != GROUND {
+                    // In a trade window's grids: into or out of the trade.
+                    let (with, item) = (cell.with, id);
+                    holding.quick = Some(QuickFrom::Stock { with, item });
                     *last_press = None;
                 }
                 continue;

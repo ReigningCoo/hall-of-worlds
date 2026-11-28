@@ -9,7 +9,7 @@
 use bevy::prelude::*;
 use server::debug_api::{AddDebugMethod, BrpResult, Value, json};
 
-use super::show::middle;
+use super::show::sums;
 use super::sides::mode;
 use super::state::TradeWindow;
 use crate::common::{CurrentDungeon, TradeSetting, Trading};
@@ -59,7 +59,7 @@ fn trade(
             })
         })
         .collect();
-    let said = middle(&trading, &carried, &window.stock);
+    let sums = sums(&trading, &carried, &window.stock);
     Ok(json!({
         "open": window.document.is_some(),
         "listed": listed,
@@ -81,7 +81,7 @@ fn trade(
         "pays": trading.totals.pays,
         "due": trading.totals.due,
         "coins": carried.0.coins_carried(),
-        "middle": [said.own, said.theirs, said.gain],
+        "sums": {"own": sums.own, "theirs": sums.theirs, "difference": sums.difference},
         "said": window.said,
         "shops": shops,
     }))

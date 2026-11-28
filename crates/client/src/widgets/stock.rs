@@ -6,7 +6,7 @@ use bevy::ui::UiGlobalTransform;
 use shared::id::Id;
 use shared::item::{Item, ItemCategory, Placed, Rotation, Shape};
 
-use super::item::{CELL, logical_rect};
+use super::item::{CELL, ItemMark, logical_rect};
 use crate::common::HeldGift;
 use crate::dom::{GridAim, GridShown, GridThing};
 
@@ -41,6 +41,8 @@ pub struct StockGrid {
     most_rows: Option<u8>,
     /// Drawn darkened with a solid edge (a side of a trade locked in).
     pub locked: bool,
+    /// How everything in it is marked (a trade's sides: the bag).
+    pub mark: ItemMark,
 }
 
 /// Something given, and where in the grid it was let go.
@@ -72,6 +74,7 @@ impl StockGrid {
             least_rows: 0,
             most_rows: None,
             locked: false,
+            mark: ItemMark::None,
         }
     }
 
@@ -174,7 +177,7 @@ impl StockGrid {
                 dimmed: self
                     .filter
                     .is_some_and(|only| placed.item.top().kind.category() != only),
-                mark: Default::default(),
+                mark: self.mark,
             })
             .collect();
         let shown = GridShown {

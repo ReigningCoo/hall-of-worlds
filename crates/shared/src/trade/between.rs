@@ -84,6 +84,28 @@ impl Side {
         Ok(())
     }
 
+    /// Where `item`, carried, would go on this side put in the first free
+    /// place (along each row from the top left, turned a quarter if it fits
+    /// only so), as a right-click puts it: `None` if it can't go at all.
+    pub fn first_free(&self, item: Id, carried: &Inventory) -> Option<Offer> {
+        carried.find(item)?;
+        let places = (0..SIDE_CELLS).flat_map(|y| (0..SIDE_CELLS).map(move |x| (x, y)));
+        let places: Vec<(u8, u8)> = places.collect();
+        [Rotation::None, Rotation::None.next()]
+            .into_iter()
+            .find_map(|rotation| {
+                places.iter().find_map(|&(x, y)| {
+                    let offer = Offer {
+                        item,
+                        x,
+                        y,
+                        rotation,
+                    };
+                    self.clone().offer(offer, carried).ok().map(|()| offer)
+                })
+            })
+    }
+
     /// `item` taken back off this side, unlocking it if it was there.
     pub fn take_back(&mut self, item: Id) {
         if self.has(item) {

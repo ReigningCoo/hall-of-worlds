@@ -3,6 +3,7 @@ use shared::item::{Item, ItemKind};
 use shared::lang::{Lang, Language};
 
 use super::*;
+use crate::common::Metal;
 
 fn coins(kind: ItemKind, count: u32) -> Item {
     Item {

@@ -6,11 +6,12 @@ use bevy::prelude::*;
 use shared::item::StackLimits;
 
 use super::super::hold::{QuickFrom, quick_target};
+use super::super::panels::ItemCell;
 use super::super::panels::OpenGrids;
 use super::super::{Carried, HeldBy, Holding};
 use super::Outbox;
 use super::let_go::let_go_of;
-use crate::common::{GROUND, GameView, HeldOverGifts, HeldStock};
+use crate::common::{GROUND, GameView, HeldOverGifts, HeldStock, StockCell};
 use crate::dom::Hand;
 
 /// Moves `from` to the other side, if it can go.
@@ -43,11 +44,32 @@ pub(super) fn quick_move(
     holding.counted = None;
     holding.stock = match from {
         QuickFrom::Ground(item) => Some((GROUND, *item)),
-        QuickFrom::Carried(_) => None,
+        // (Nothing in another grid gets this far.)
+        QuickFrom::Carried(_) | QuickFrom::Stock { .. } => None,
     };
     let held = HeldBy {
         item: held,
         by: Hand::Mouse,
     };
     let_go_of(held, aim, holding, carried, gifts, out);
+}
+
+/// What a right-click on this would move: a carried item, one on the ground,
+/// or one in another grid (a trade window's, which only `trade` moves).
+pub(super) fn quick_from(
+    entity: Entity,
+    cells: &Query<&ItemCell>,
+    stock_cells: &Query<&StockCell>,
+) -> Option<QuickFrom> {
+    if let Ok(cell) = cells.get(entity) {
+        return Some(QuickFrom::Carried(cell.id));
+    }
+    let cell = stock_cells.get(entity).ok()?;
+    Some(match cell.with == GROUND {
+        true => QuickFrom::Ground(Box::new(cell.item.clone())),
+        false => QuickFrom::Stock {
+            with: cell.with,
+            item: cell.item.id,
+        },
+    })
 }

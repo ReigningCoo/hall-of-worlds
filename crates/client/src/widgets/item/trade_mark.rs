@@ -1,9 +1,8 @@
 //! How a trade marks an item (trading plan PR 4, `ItemMark`): something
-//! carried that is being sold has a small bag in its bottom left corner,
-//! inside its frame.
+//! carried that is in a trade, and everything on a trade window's sides, has
+//! a small bag in its top left corner, inside its frame (trading tweaks PR 3).
 
 use bevy::prelude::*;
-use shared::item::Shape;
 
 use super::{CELL, ItemMark};
 
@@ -18,15 +17,14 @@ const SIZE: f32 = 14.0;
 pub(super) fn spawn_trade_mark(
     parent: &mut ChildSpawnerCommands,
     mark: ItemMark,
-    shape: Shape,
     corner: (f32, f32),
     edge: f32,
 ) {
     match mark {
         ItemMark::None => {}
         ItemMark::Selling => {
-            let bottom = (corner.1 + shape.height as f32) * CELL - edge;
-            spawn_bag(parent, corner.0 * CELL + edge + 1.0, bottom - SIZE - 1.0);
+            let top = corner.1 * CELL + edge + 1.0;
+            spawn_bag(parent, corner.0 * CELL + edge + 1.0, top);
         }
     }
 }

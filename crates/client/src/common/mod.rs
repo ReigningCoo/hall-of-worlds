@@ -37,6 +37,7 @@ mod bench_ghost;
 mod benches;
 mod bonus_words;
 mod clock;
+mod coins;
 mod creatures;
 mod debug;
 mod difficulty;
@@ -93,6 +94,9 @@ pub use bonus_words::{amount_of, bonus_line, does_words, effect_lines, stat_word
 pub use browser::open_in_browser;
 pub use characters::{CharacterChoice, CharacterSelect, PlayFor, PlayableHere};
 pub use clock::{CropGrowthShift, GameClock, HerbGrowthShift, NIGHT_LIGHT, ServerClock};
+#[cfg(test)]
+pub use coins::Metal;
+pub use coins::{CoinPiece, coin_pieces, show_coins};
 pub use creatures::{
     AbilitiesPage, Attacked, CancelledEnergy, CarryLimit, CharacterRefused, Dressing, EscortGait,
     MakesCharacters, MakingCharacter, Other, PlayerGait, PlayerSize, PlayerSpeed, SkillsPage,

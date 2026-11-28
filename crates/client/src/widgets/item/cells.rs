@@ -110,7 +110,7 @@ pub fn spawn_item_cells<B: Bundle>(
     spawn_count(parent, count, shape, corner, item_edge_width(quality));
     spawn_mixed_mark(parent, mixed, shape, corner, item_edge_width(quality));
     spawn_fuel(parent, fuel, shape, corner, item_edge_width(quality));
-    spawn_trade_mark(parent, mark, shape, corner, item_edge_width(quality));
+    spawn_trade_mark(parent, mark, corner, item_edge_width(quality));
     if dimmed {
         // Last, so over all of it: the grid's colour, mostly hiding it.
         for (x, y) in shape.cells() {

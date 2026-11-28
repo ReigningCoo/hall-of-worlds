@@ -26,7 +26,7 @@ The rules every trade goes by (trading plan PR 3, `docs/context/trading.md`), sh
 - `complete(trade, stock, carried, (rates, kind), trading, limits, made_at, new_id)`: all or nothing, on copies: sold things into the stock, coins paid highest first with change, the shop's coins, then what is bought wherever it fits (`Inventory::give`), in the order bought, the rest in `Completed::received` for the receive box.
 - `Refusal`: `NotStocked`, `NotCarried`, `NotForSale`, `AlreadyIn`, `TooShort`, `CantAfford`, `NoRoom`, `NotHere`, `Nothing` (nothing bought or sold and nothing given: a gift alone, a tip with nothing traded, completes), and for trades with characters `Never`, `Busy`, `Unclaimed` (the receive box isn't empty), `Denied`.
 - `in_reach(a, b)`: two characters within `REACH`.
-- `Side::offer(offer, carried)`: carried, tradeable, not inside (or holding) something else offered, fitting in 8 × 8 beside the rest; moving one already there; any change unlocks the side. `Side::hand_over`: all of it taken out of a copy of the inventory, or nothing.
+- `Side::offer(offer, carried)`: carried, tradeable, not inside (or holding) something else offered, fitting in 8 × 8 beside the rest; moving one already there; any change unlocks the side. `Side::first_free(item, carried)`: the first place along the rows it would be offered at, turned a quarter if only so (the client's right-click, trading tweaks PR 3). `Side::hand_over`: all of it taken out of a copy of the inventory, or nothing.
 - `Received::take` puts one thing where asked (`Inventory::add`); `take_all` gives everything that fits (`Inventory::give`), the rest staying.
 
 ## Depends on
