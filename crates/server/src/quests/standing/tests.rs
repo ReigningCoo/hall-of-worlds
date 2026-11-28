@@ -39,6 +39,6 @@ fn acts_alone_go_no_further_than_known() {
 fn only_beggars_count_gifts() {
     let mut test = crate::connections::tests::TestClient::new();
     let before = test.client.character.quests.standing.clone();
-    gave(&mut test.client, &test.world, CreatureKind::Wolf);
+    gave(&mut test.client, &test.world, CreatureKind::Wolf, 500);
     assert_eq!(test.client.character.quests.standing, before);
 }

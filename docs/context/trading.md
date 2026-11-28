@@ -1,6 +1,6 @@
 # Trading plan
 
-Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisions (2026-11-27), planned in chat local_e08c7143 ("Trading"); this file is now the source for them. Marked **(built)** as each PR lands.
+Trading with shops, NPCs and players, in 7 PRs, all in order, all built. The owner's decisions (2026-11-27), planned in chat local_e08c7143 ("Trading"); this file is now the source for them. Marked **(built)** as each PR lands.
 
 ## Item values (PR 1, built: `shared::value`)
 
@@ -45,7 +45,7 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 ## Other
 
 - The Trading skill, under Social (`social/trading`, built; it was already in the tree). Negative practice (`Skills::unpractise`, built in PR 2): flows up halving as practice does, never below 1 on a known node, the best kept.
-- Beggars (`CreatureKind::Beggar`): the first NPCs in the list; giving them coins (their side empty) raises town standing slightly, by amount, with a daily cap.
+- Beggars (`CreatureKind::Beggar`, in every town): the first NPCs in the list; giving them coins (their side empty) raises town standing slightly, by amount, with a daily cap. As built (PR 7, Claude's figures to balance): a point of standing a 10 copper, at most 3 points a town a UTC day (a fifth of a quest), counting past Known as tips do; by Give Item too; other gifts to a beggar still give the 2 points of a helpful act (the server's `quests/alms.rs`).
 - New characters get 1 gold for testing (to be lowered to a real starting amount; the server's `starting_kit.rs`); the Nearby panel (`inventory/give.rs`) is removed (speaking to and trading with any NPC later). Built in PR 2, with the T key and the trade button opening an empty window (`client: trade`) for PRs 4 and 6 to fill.
 
 ## PRs
@@ -58,4 +58,4 @@ Trading with shops, NPCs and players, in 7 PRs, all in order. The owner's decisi
 | 4 | The window for shops | built |
 | 5 | The server's player and NPC trades: asking, locking in, resets, the setting, the receive box saved | built |
 | 6 | The window for players: sides, toggle, "Asking...", the request popup, the receive box with Take all, the Gameplay setting | built |
-| 7 | Beggars | |
+| 7 | Beggars | built |

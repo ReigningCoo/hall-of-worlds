@@ -6,6 +6,7 @@
 
 mod accept;
 mod ahead;
+mod alms;
 mod arrivals;
 mod ask;
 mod boss_kill;
@@ -41,6 +42,7 @@ mod stage_door;
 mod standing;
 mod turn_in;
 
+pub(crate) use alms::copper_in;
 pub(crate) use ask::answer_quest;
 pub(crate) use bosses::boss_quest;
 pub(crate) use cache::TownQuests;

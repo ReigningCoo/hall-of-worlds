@@ -28,6 +28,10 @@ pub struct QuestBook {
     /// Standing points by town (`quests::standing` turns them into tiers).
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub standing: BTreeMap<ChunkPos, u32>,
+    /// Coins given to each town's beggars today (`quests::alms`), the day's
+    /// standing from them capped; older days are dropped.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub alms: BTreeMap<ChunkPos, Alms>,
     /// Quests whose boss the character killed before taking them (owner):
     /// the giver offers them with that step done. Kept until taken.
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
@@ -54,6 +58,15 @@ pub struct QuestBook {
     /// line ending in it pays an artifact instead.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub set_item: Option<QuestId>,
+}
+
+/// Copper given to a town's beggars on one UTC day (`QuestBook::alms`).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Alms {
+    /// The day (`shared::quest::utc_day`).
+    pub day: i64,
+    /// Copper given that day.
+    pub copper: u64,
 }
 
 /// How far along a quest taken is.

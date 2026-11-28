@@ -1,7 +1,8 @@
 //! Settling a trade with a character once both sides are locked in, all at
 //! once or not at all. Between players, what each offered goes into the
 //! other's receive box (taking no room until taken out). To an NPC, what was
-//! offered is given to it, as Give Item would from a trade's reach.
+//! offered is given to it, as Give Item would from a trade's reach (coins
+//! to a beggar raising standing: `quests::alms`).
 
 use bevy::prelude::*;
 use shared::protocol::{TradeEnd, TradeNews};
@@ -98,8 +99,10 @@ fn to_npc(client: &mut Client, world: &mut ServerWorld) -> Result<(), Refusal> {
         return Err(Refusal::NotCarried);
     }
     for offer in &side.offers {
+        let copper = (client.inventory.find(offer.item)).map_or(0, crate::quests::copper_in);
         match crate::entities::give_within(client, world, (offer.item, dealing.with), NPC_REACH) {
-            Ok(kind) => crate::quests::gave(client, world, kind),
+            // Coins to a beggar raise standing in its town (trading plan PR 7).
+            Ok(kind) => crate::quests::gave(client, world, kind, copper),
             Err(why) => warn!(
                 "{} couldn't hand over {:?}: {why}",
                 client.in_log(),

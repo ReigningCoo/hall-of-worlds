@@ -44,7 +44,7 @@ pub use dungeon_stay::DungeonStay;
 pub use mob_record::{MobRecord, SavedMob};
 #[cfg(test)]
 pub use quest_book::RETAKE_AFTER;
-pub use quest_book::{Ended, EscortAt, Progress, QuestBook};
+pub use quest_book::{Alms, Ended, EscortAt, Progress, QuestBook};
 pub use roads::RoadSave;
 pub use saves::{
     CellMasks, CharacterSave, CharacterWorldSave, DevReturn, KnownPoi, LevelSave, RememberedDoors,
