@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 
 use super::markup::{OWN_COLUMNS, STOCK_COLUMNS};
 use crate::common::{buying_box, own_side, receive_box};
-use crate::widgets::{ItemMark, StockGrid};
+use crate::widgets::StockGrid;
 
 /// Someone near enough to trade with, as the dropdown lists them: a shop's
 /// keeper, a player or an NPC.
@@ -38,7 +38,7 @@ pub(super) struct TradeWindow {
     /// The shop's whole stock, as last heard, things being bought included;
     /// or what a character offers.
     pub(super) stock: Vec<Item>,
-    /// The shop's side (its stock but what is being bought) and the own side
+    /// The shop's side (its whole stock, what is being bought marked) and the own side
     /// (what is being sold), with the grids they are drawn in once built.
     pub(super) theirs: Option<StockGrid>,
     pub(super) own: StockGrid,
@@ -107,26 +107,24 @@ impl TradeWindow {
     /// The shop's grid, for `with`'s stock: a new one for another shop.
     pub(super) fn their_grid(&mut self, with: Id) -> &mut StockGrid {
         if self.theirs.as_ref().is_none_or(|grid| grid.with != with) {
-            self.theirs = Some(StockGrid::new(with, STOCK_COLUMNS, &[]));
+            let mut grid = StockGrid::new(with, STOCK_COLUMNS, &[]);
+            // No empty frames: only what it has (final trade tweaks).
+            grid.only_filled = true;
+            self.theirs = Some(grid);
         }
         self.theirs.as_mut().expect("just made")
     }
 }
 
-/// The own side: 8 × 8 however little is in it.
+/// The own side: 8 × 8 however little is in it. What is in the boxes has
+/// no bag (final trade tweaks): what is outside them in the trade has.
 fn own_grid() -> StockGrid {
-    marked(StockGrid::new(own_side(), OWN_COLUMNS, &[]).exactly(OWN_COLUMNS))
+    StockGrid::new(own_side(), OWN_COLUMNS, &[]).exactly(OWN_COLUMNS)
 }
 
 /// The Buying box: 8 wide, 4 rows until the server says it has grown.
 fn buying_grid() -> StockGrid {
-    marked(StockGrid::new(buying_box(), OWN_COLUMNS, &[]).exactly(BUYING_ROWS))
-}
-
-/// Everything on a side of the trade shows the bag (trading tweaks PR 3).
-fn marked(mut grid: StockGrid) -> StockGrid {
-    grid.mark = ItemMark::Selling;
-    grid
+    StockGrid::new(buying_box(), OWN_COLUMNS, &[]).exactly(BUYING_ROWS)
 }
 
 /// The receive box: 8 × 8 however little is in it.

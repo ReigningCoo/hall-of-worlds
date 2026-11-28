@@ -69,7 +69,9 @@ pub(super) fn pick_up_by_finger(
         }
         return;
     }
-    if let Some(cell) = chain.iter().find_map(|&entity| stock.get(entity).ok()) {
+    let stock = chain.iter().find_map(|&entity| stock.get(entity).ok());
+    // (Not what is already in the trade, its copy in the Buying box.)
+    if let Some(cell) = stock.filter(|cell| !cell.stays) {
         let held = Held {
             id: cell.item.id,
             rotation: cell.rotation,

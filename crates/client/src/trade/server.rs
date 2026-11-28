@@ -5,7 +5,8 @@
 //! `common::Trading`, its sums worked out as the server works them.
 
 use bevy::prelude::*;
-use shared::item::Placed;
+use shared::id::Id;
+use shared::item::{Item, Placed};
 use shared::protocol::{ClientMessage, ServerMessage, TradeEnd, TradeNews};
 use shared::trade::ShopTrade;
 
@@ -43,8 +44,7 @@ pub(super) fn read_server(
                 window.keepers = list.iter().map(|one| (one.building, one.clone())).collect();
             }
             ServerMessage::TradeStock { with, items } => {
-                window.stock.clone_from(items);
-                window.their_grid(*with);
+                heard_stock(&mut window, &trading, *with, items);
                 if window.document.is_none() {
                     // A shop's door was clicked: the window opens on it, with
                     // the inventory to drag into.
@@ -77,7 +77,12 @@ pub(super) fn read_server(
 }
 
 /// One piece of a trade's news.
-fn hear(news: &TradeNews, window: &mut TradeWindow, trading: &mut Trading, carried: &Carried) {
+pub(super) fn hear(
+    news: &TradeNews,
+    window: &mut TradeWindow,
+    trading: &mut Trading,
+    carried: &Carried,
+) {
     match news {
         TradeNews::Opened { with, rates, shop } => {
             *trading = Trading {
@@ -109,13 +114,31 @@ fn hear(news: &TradeNews, window: &mut TradeWindow, trading: &mut Trading, carri
             }
             if Some(*with) == trading.with {
                 *trading = Trading::default();
+                // Completed, the shop's stock keeps its places: what was sold
+                // to it shows in a free one, nothing else moving (final
+                // trade tweaks: laid out afresh, oldest first, the sold thing
+                // jumped to the top and the rest moved, as if it had gone).
+                let kept = match why {
+                    TradeEnd::Completed { .. } => window.theirs.take(),
+                    _ => None,
+                };
                 window.forget_trade();
+                window.theirs = kept;
                 window.said = ended_words(*why);
             }
         }
         // Trades with characters: `between`'s.
         _ => {}
     }
+}
+
+/// What `with` has, as the server says: their grid keeps what is still
+/// there where it was, and what is being bought stays marked.
+pub(super) fn heard_stock(window: &mut TradeWindow, trading: &Trading, with: Id, items: &[Item]) {
+    window.stock = items.to_vec();
+    let grid = window.their_grid(with);
+    grid.heard(items);
+    grid.marked.retain(|&id| trading.bought(id).is_some());
 }
 
 /// The trade as the server holds it: what is bought, with the shop's items.
@@ -130,7 +153,7 @@ fn take_state(trade: &ShopTrade, window: &TradeWindow, trading: &mut Trading) {
 }
 
 /// Works out the trade's sums again, and what each side shows: the shop's
-/// stock but what is being bought, the Buying box where the server says
+/// stock (what is being bought marked with the bag), the Buying box where the server says
 /// things lie in it, and what is being sold as it is carried.
 /// Also when what is carried changes.
 pub(super) fn follow(window: &mut TradeWindow, trading: &mut Trading, carried: &Carried) {
@@ -149,11 +172,12 @@ pub(super) fn follow(window: &mut TradeWindow, trading: &mut Trading, carried: &
         // Refused only while something has gone: the server says so too.
         let totals = trade.totals(&window.stock, &carried.0, rates, shop);
         trading.totals = totals.unwrap_or_default();
-        let theirs: Vec<_> = (window.stock.iter())
-            .filter(|item| trading.bought(item.id).is_none())
-            .cloned()
-            .collect();
-        window.their_grid(with).heard(&theirs);
+        // The whole stock: what is being bought stays, marked, with a copy
+        // in the Buying box (final trade tweaks).
+        let stock = window.stock.clone();
+        let grid = window.their_grid(with);
+        grid.heard(&stock);
+        grid.marked = trading.buying.iter().map(|(_, item)| item.id).collect();
         let bought = trading.buying.iter().map(|(offer, item)| Placed {
             item: item.clone(),
             x: offer.x,

@@ -109,7 +109,7 @@ pub(super) fn note_gifts(
 /// Draws the grids again when what is in them changes, or something is picked
 /// up from them or put back. What is held isn't drawn where it was.
 pub(super) fn draw_grids(
-    held: Res<HeldStock>,
+    (held, trading): (Res<HeldStock>, Res<Trading>),
     mut window: ResMut<TradeWindow>,
     mut commands: Commands,
     (mut drawn_without, mut drawn_empty): (Local<Option<Id>>, Local<Option<Entity>>),
@@ -138,14 +138,17 @@ pub(super) fn draw_grids(
     let Some(holder) = window.their_holder else {
         return;
     };
+    // Something being bought is held from the Buying box: its copy in the
+    // stock stays drawn.
+    let from_stock = held.0.filter(|&id| trading.bought(id).is_none());
     match &mut window.theirs {
         Some(grid) if grid.changed || picked_up => {
             grid.changed = false;
             *drawn_empty = None;
-            grid.show(&mut commands, holder, held.0);
+            grid.show(&mut commands, holder, from_stock);
         }
         Some(_) => {}
-        // No one to trade with: an empty grid.
+        // No one to trade with: no stock, and no empty frames.
         None if *drawn_empty != Some(holder) => {
             *drawn_empty = Some(holder);
             commands
@@ -153,7 +156,7 @@ pub(super) fn draw_grids(
                 .remove::<StockOf>()
                 .try_insert(GridShown {
                     columns: super::markup::STOCK_COLUMNS,
-                    rows: 4,
+                    rows: 0,
                     ..default()
                 });
         }

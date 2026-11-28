@@ -16,11 +16,12 @@ fn with_shop() -> Trading {
 fn a_shops_stock_goes_to_the_buying_box_and_back_only() {
     let trade = with_shop();
     let shop = Id::for_test(99);
-    assert!(may_go_to(&trade, shop, buying_box()));
-    assert!(may_go_to(&trade, buying_box(), shop));
-    assert!(may_go_to(&trade, shop, shop));
-    assert!(!may_go_to(&trade, shop, own_side()));
-    assert!(!may_go_to(&Trading::default(), shop, buying_box()));
+    let item = Id::for_test(5);
+    assert!(may_go_to(&trade, item, (shop, buying_box())));
+    assert!(may_go_to(&trade, item, (buying_box(), shop)));
+    assert!(may_go_to(&trade, item, (shop, shop)));
+    assert!(!may_go_to(&trade, item, (shop, own_side())));
+    assert!(!may_go_to(&Trading::default(), item, (shop, buying_box())));
     // Never into the inventory.
     assert!(is_shops(&trade, shop));
     assert!(is_shops(&trade, buying_box()));
@@ -38,5 +39,24 @@ fn a_characters_side_is_not_a_shop() {
         ..with_shop()
     };
     assert!(!is_shops(&trade, Id::for_test(99)));
-    assert!(!may_go_to(&trade, Id::for_test(99), buying_box()));
+    let item = Id::for_test(5);
+    assert!(!may_go_to(&trade, item, (Id::for_test(99), buying_box())));
+}
+
+#[test]
+fn stock_being_bought_goes_into_the_buying_box_only_once() {
+    let mut trade = with_shop();
+    let shop = Id::for_test(99);
+    let item = shared::item::Item::new(Id::for_test(5), shared::item::ItemKind::Fruit);
+    let offer = shared::trade::Offer {
+        item: item.id,
+        x: 0,
+        y: 0,
+        rotation: shared::item::Rotation::None,
+    };
+    trade.buying.push((offer, item.clone()));
+    // Its copy in the stock stays there; the one in the box moves about.
+    assert!(!may_go_to(&trade, item.id, (shop, buying_box())));
+    assert!(may_go_to(&trade, item.id, (buying_box(), buying_box())));
+    assert!(may_go_to(&trade, item.id, (buying_box(), shop)));
 }

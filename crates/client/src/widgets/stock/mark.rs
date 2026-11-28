@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use super::{StockGridNode, StockOf};
 use crate::common::{StockCell, TakesGifts};
 use crate::dom::{DrawObjects, GridBox, GridShown, ThingCell};
-use crate::widgets::ItemName;
+use crate::widgets::{ItemMark, ItemName};
 
 /// Marks them once the grids have drawn themselves.
 pub(in crate::widgets) fn add(app: &mut App) {
@@ -37,6 +37,7 @@ fn mark_stock(
             item: thing.item.clone(),
             rotation: cell.rotation,
             grip: cell.grip,
+            stays: thing.mark != ItemMark::None,
         };
         let marks = (name, TakesGifts(*with), stock);
         commands.entity(entity).try_insert(marks);

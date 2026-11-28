@@ -2,7 +2,7 @@
 //! trading tweaks PR 3): who to trade with at the top, then the Selling box
 //! (8 × 8: what is sold or offered) on the left with its total in coins under
 //! it, the Trade button (or with a character the Trade toggle) between the
-//! boxes with the difference under it, and on the right the Buying box (a
+//! boxes with the difference and Cancel under it, and on the right the Buying box (a
 //! shop's: 8 wide, what is being bought, dragged there from its stock; or a
 //! character's 8 × 8, seen but not touched) with its total, and under it a
 //! shop's stock (8 wide, in a scroll). Once a trade with a character settles,
@@ -46,6 +46,7 @@ pub(super) static TRADE: Template = html!(
           <span id="difference" class="columns" nowrap valign="middle" hidden/>
           <p fills/>
         </span>
+        <button id="cancel" disabled>Cancel</button>
         <p id="their_lock" max-width="150" hidden>They are ready to trade.</p>
       </div>
       <div id="their_column" class="tight">

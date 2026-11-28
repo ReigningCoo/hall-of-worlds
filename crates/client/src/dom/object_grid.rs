@@ -10,6 +10,9 @@
 use bevy::prelude::*;
 
 use super::Solid;
+
+// Split into files (`cargo xtask lint` keeps files small).
+mod filled;
 use shared::id::Id;
 use shared::item::{Item, Rotation};
 
@@ -59,6 +62,9 @@ pub struct GridShown {
     pub cells: Option<u32>,
     /// Darkened, with a solid edge round it: a side of a trade locked in.
     pub locked: bool,
+    /// Only the cells things are in are drawn, the rest left out (a shop's
+    /// stock): drawn with the things, so the box is clear.
+    pub only_filled: bool,
 }
 
 impl GridShown {
@@ -115,12 +121,14 @@ pub(super) fn draw_object_grids(
                 was.takes_gifts,
                 was.cells,
                 was.locked,
+                was.only_filled,
             ) == (
                 shown.columns,
                 shown.rows,
                 shown.takes_gifts,
                 shown.cells,
                 shown.locked,
+                shown.only_filled,
             )
         });
         let (cells, things, aim) = match (drawn, same_box) {
@@ -167,9 +175,9 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
     // A short last row: the colour is drawn behind the whole rows and the
     // short one apart, never behind each cell, whose places are fractions
     // of a pixel at most interface sizes and so leave gaps between them.
-    let whole = match shown.cells {
-        None => colour,
-        Some(_) => Color::NONE,
+    let whole = match (shown.cells, shown.only_filled) {
+        (None, false) => colour,
+        _ => Color::NONE,
     };
     let mut made = commands.spawn((node, BackgroundColor(whole), ChildOf(grid)));
     if shown.locked {
@@ -191,7 +199,7 @@ fn spawn_box(commands: &mut Commands, grid: Entity, shown: &GridShown) -> (Entit
     }
     for y in 0..shown.rows {
         for x in 0..shown.columns {
-            if !shown.has_cell(x as i32, y as i32) {
+            if shown.only_filled || !shown.has_cell(x as i32, y as i32) {
                 continue;
             }
             let line = (at_cell(x as f32, y as f32), BorderColor::from(GRID_LINE));
@@ -233,6 +241,9 @@ fn fills(columns: u8, rows: u8, cells: u32) -> Vec<Node> {
 fn draw_things(commands: &mut Commands, grid: Entity, layer: Entity, shown: &GridShown) {
     commands.entity(layer).despawn_related::<Children>();
     commands.entity(layer).with_children(|layer| {
+        if shown.only_filled {
+            filled::spawn_filled(layer, shown);
+        }
         for thing in &shown.things {
             let (item, rotation) = (thing.item.id, thing.rotation);
             let look = ItemLook::of(&thing.item)
