@@ -10,6 +10,7 @@ pub mod alcohol;
 pub mod alignment;
 pub mod armour;
 pub mod bar;
+pub mod behaviour;
 pub mod blade;
 pub mod board_game;
 pub mod body;

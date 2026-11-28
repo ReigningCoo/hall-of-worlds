@@ -6,6 +6,7 @@
 //! mob's, Neutral ones looking castrated (oxen, wethers, geldings, capons).
 
 use super::{Habitat, Spawn, spawn_at, spawns};
+use crate::behaviour::Band;
 use crate::climate::Biome;
 use crate::creature::CreatureKind::{self, *};
 use crate::dungeon::{Cell, Level};
@@ -113,6 +114,7 @@ fn choose(
 /// The kept animals in a level's pens and pastures (and by a farm's pond),
 /// numbered from `first`, from their own seed.
 fn kept_spawns(seed: Seed, level: &SiteLevel, land: Habitat, first: u32, farm: bool) -> Vec<Spawn> {
+    let site = seed;
     let seed = seed.derive("kept animals");
     let mut mobs: Vec<Spawn> = Vec::new();
     let mut number = first;
@@ -125,6 +127,8 @@ fn kept_spawns(seed: Seed, level: &SiteLevel, land: Habitat, first: u32, farm: b
             let spawn = spawn_at(seed, kind, number, position);
             mobs.push(Spawn {
                 penned: true,
+                // One band per race on the site, as `spawns` has.
+                band: Band::of_site(site, kind),
                 ..spawn
             });
             number += 1;

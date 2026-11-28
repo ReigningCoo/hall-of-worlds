@@ -171,3 +171,18 @@ fn wild_ids_are_the_same_for_the_same_number_only() {
     assert_ne!(wild_mob_id(seed, 5), wild_mob_id(seed, 6));
     assert_ne!(wild_mob_id(seed, 5), wild_mob_id(Seed::new(8), 5));
 }
+
+#[test]
+fn a_pack_or_herd_is_one_band_and_the_next_another() {
+    let level = open_block();
+    let boreal = land(Biome::BorealForest, 0, 3);
+    let herds: Vec<_> = herds(4, &level, boreal, 40)
+        .into_iter()
+        .filter(|herd| !herd.is_empty())
+        .collect();
+    assert!(herds.len() > 5);
+    for herd in &herds {
+        assert!(herd.iter().all(|mob| mob.band == herd[0].band));
+    }
+    assert_ne!(herds[0][0].band, herds[1][0].band);
+}

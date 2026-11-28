@@ -5,17 +5,19 @@
 use serde::{Deserialize, Serialize};
 
 use crate::alignment::Alignment;
+use crate::behaviour::{Band, Family};
 use crate::creature::CreatureKind;
 use crate::dungeon::{Cell, Level};
 use crate::gender::Gender;
 use crate::id::Id;
-use crate::item::{Drop, ItemKind, Quality, roll_drop};
+use crate::item::{ItemKind, Quality};
 use crate::poi::PoiKind;
 use crate::rng::Seed;
 use crate::sheet::{Appearance, Attributes, Build, Feeling};
 use crate::wear::WornLook;
 
 mod chosen;
+mod gear;
 mod herd;
 mod kept;
 mod looks;
@@ -27,6 +29,9 @@ mod wild;
 mod wild_looks;
 mod wild_shares;
 pub use chosen::{chosen_spawns, spawn_at};
+#[cfg(test)]
+use gear::gear_of;
+use gear::roll_gear;
 pub use kept::site_spawns;
 use looks::looks;
 pub use memory::{
@@ -76,6 +81,11 @@ pub struct Spawn {
     /// A kept animal in a pen or pasture (`site_spawns`): it never goes
     /// through a gate or over a fence.
     pub penned: bool,
+    /// The band it belongs to (`shared::behaviour`): its wild pack or herd, or
+    /// on a site every one of its race there.
+    pub band: Band,
+    /// Its family within the band: reserved, always `None` for now.
+    pub family: Option<Family>,
 }
 
 /// How near someone must be to give something, in cells.
@@ -100,82 +110,6 @@ pub fn who_lives_in(site: PoiKind) -> &'static [(CreatureKind, u64)] {
             (CreatureKind::Lizardfolk, 6),
         ],
     }
-}
-
-/// Where the rolls for a mob's gear start, clear of those for its place and looks.
-const GEAR_ROLLS: i64 = 1000;
-
-/// What a kind of creature may start with: for each chance, in 100, of having
-/// something there, the kinds it could be and how much each weighs. First guesses.
-/// Fruit and vegetables are what it foraged there (`shared::produce`, by the server).
-fn gear_of(kind: CreatureKind) -> &'static [(u64, &'static [(ItemKind, u64)])] {
-    use ItemKind::{
-        Axe, Belt, Boomerang, Boots, Cloak, Dagger, Fruit, FullArmour, Gloves, Hat, Knife,
-        Longsword, Pouch, Sandals, Shirt, Shoes, ShortSword, Socks, Spear, Stone, Sword, Trousers,
-        Vegetable,
-    };
-    match kind {
-        CreatureKind::Beggar => &[
-            (100, &[(Shirt, 1)]),
-            (100, &[(Trousers, 1)]),
-            (50, &[(Shoes, 2), (Sandals, 1), (Socks, 1), (Hat, 1)]),
-            (40, &[(Fruit, 1), (Vegetable, 1), (Stone, 1)]),
-        ],
-        CreatureKind::Giant => &[
-            (100, &[(Trousers, 1)]),
-            (60, &[(Belt, 1), (Boots, 2), (Cloak, 1)]),
-            (20, &[(FullArmour, 1)]),
-            (40, &[(Sword, 2), (Longsword, 1), (Axe, 2), (Spear, 1)]),
-            (30, &[(Stone, 2), (Pouch, 1)]),
-        ],
-        CreatureKind::Kobold => &[
-            (50, &[(Shirt, 1), (Trousers, 1)]),
-            // On their toes, so no boots.
-            (30, &[(Gloves, 1), (Hat, 1)]),
-            (
-                70,
-                &[(Knife, 1), (Dagger, 2), (ShortSword, 1), (Boomerang, 2)],
-            ),
-            (30, &[(Stone, 2), (Fruit, 1), (Vegetable, 1), (Pouch, 1)]),
-        ],
-        CreatureKind::Goblin => &[
-            (50, &[(Shirt, 1), (Trousers, 1)]),
-            (30, &[(Gloves, 1), (Boots, 1), (Hat, 1)]),
-            (70, &[(Knife, 2), (Dagger, 2), (ShortSword, 1)]),
-            (30, &[(Stone, 2), (Fruit, 1), (Vegetable, 1), (Pouch, 1)]),
-        ],
-        CreatureKind::Orc => &[
-            (100, &[(Trousers, 1)]),
-            (60, &[(Belt, 1), (Boots, 2), (Cloak, 1)]),
-            (70, &[(Axe, 2), (Sword, 2), (Spear, 1)]),
-            (30, &[(Stone, 1), (Pouch, 1)]),
-        ],
-        _ => &[],
-    }
-}
-
-/// Rolls a mob's gear, each place on its own so changing one moves no others.
-fn roll_gear(roll: &impl Fn(i64) -> u64, kind: CreatureKind) -> Vec<(ItemKind, Option<Quality>)> {
-    let places = gear_of(kind).iter().zip(GEAR_ROLLS..);
-    places
-        .filter_map(|(&(chance, kinds), place)| {
-            let mut rng = Seed::new(roll(place)).rng();
-            if rng.range_u64(0, 100) >= chance {
-                return None;
-            }
-            let table: Vec<Drop> = Quality::ALL
-                .iter()
-                .flat_map(|&quality| {
-                    kinds.iter().map(move |&(kind, weight)| Drop {
-                        quality,
-                        kind,
-                        weight,
-                    })
-                })
-                .collect();
-            roll_drop(&mut rng, &table)
-        })
-        .collect()
 }
 
 /// The mobs of level `index` of a site. The same every time for the same seed.
@@ -247,6 +181,8 @@ pub fn spawns(
             gear: roll_gear(&roll, kind),
             coins: roll_coins(&roll, kind),
             penned: false,
+            band: Band::of_site(seed, kind),
+            family: None,
         });
     }
     mobs
