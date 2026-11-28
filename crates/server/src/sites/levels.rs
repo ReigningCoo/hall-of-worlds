@@ -244,6 +244,7 @@ pub(super) fn enter_level(
         let shops = shops.filter(|b| !sells(b.look.kind).is_empty());
         let keepers = NewKeepers {
             id: visit.id,
+            town: visit.poi().copied(),
             index,
             shops: shops.map(|b| b.look.id).collect(),
         };

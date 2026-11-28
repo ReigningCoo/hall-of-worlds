@@ -25,6 +25,7 @@ mod parts;
 mod pictures;
 mod popup;
 mod restyle;
+mod slot_edge;
 mod strip;
 mod surfaces;
 mod tag;
@@ -124,6 +125,7 @@ impl Plugin for DomPlugin {
                         objects::show_objects,
                         object_grid::draw_object_grids.in_set(DrawObjects),
                         object_slot::draw_object_slots.in_set(DrawObjects),
+                        slot_edge::fit_slot_edges.in_set(DrawObjects),
                         object_ability::draw_ability_grids.in_set(DrawObjects),
                         object_ability::draw_ability_slots.in_set(DrawObjects),
                     ),

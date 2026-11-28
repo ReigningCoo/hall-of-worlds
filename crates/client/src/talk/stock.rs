@@ -27,7 +27,9 @@ pub(super) fn read_server(
                 keepers.0.clear();
                 close_all(&mut open, &nodes, &mut commands);
             }
-            ServerMessage::Keepers(list) => keepers.0 = list.iter().copied().collect(),
+            ServerMessage::Keepers(list) => {
+                keepers.0 = list.iter().map(|one| (one.building, one.id)).collect();
+            }
             _ => {}
         }
     }

@@ -7,7 +7,7 @@ use crate::creature::CreatureKind;
 use crate::poi::Poi;
 use crate::rng::Seed;
 use crate::site::{BuildingKind, BuildingLook};
-use crate::story::Household;
+use crate::story::{Household, Person};
 
 /// A building giving quests.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -67,4 +67,10 @@ pub(super) fn household(town: &Poi, building: u16) -> Household {
         CreatureKind::Human,
         Seed::new(seed.at(&[i64::from(building)])),
     )
+}
+
+/// Who keeps a building's shop: its household's first member, the giver of
+/// its first quest slot, so the trade window and the talk panel agree.
+pub fn keeper(town: &Poi, building: u16) -> Person {
+    household(town, building).member(0)
 }

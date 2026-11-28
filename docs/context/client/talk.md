@@ -9,12 +9,12 @@ Talking at town doors (owner: no one is inside yet, so the door is the person). 
 - `talk/markup.rs`: `TALK`, the panel (`talk#<key>/...`): the Quests page (`list`, `detail` with `title`, `paras`, `steps_head`, `steps`, `reward` and the Accept, Complete, Enter, Decline and Back buttons, `refused`), and templates `offer` (a quiet button), `hint`, `para`, `step`.
 - `talk/open.rs`: `change_of_mind`, `follow_clicked_door`, `open_on_arrival` (each asks with `ask_at_door`: `QuestAsk::Talk` for the town in `quests::DoorMarkers`, and `OpenTrade` for a shop, answered by the trade window).
 - `talk/spawn.rs`: `open_panel` (spawns a door's document if not open, titled with its building's kind until the giver is known), `close_all`.
-- `talk/stock.rs`: `read_server` (keepers, a new level closing every panel).
+- `talk/stock.rs`: `read_server` (keepers by building, from `ServerMessage::Keepers`, a new level closing every panel).
 - `talk/news.rs`: `read_quest_news`: `QuestNews::Talk` (opens the panel if the giver has anything; the first answer shows Quests if something can be taken or handed in, and a lone one in full), `TurnedIn` (the giver's last words), `Refused`, `Changed`.
 - `talk/input.rs`: `read_events`: a row of the list, Accept and Complete (each followed by asking `Talk` again), Enter (`QuestAsk::Enter`: the panel closes with the new level), Decline and Back.
 - `talk/quests_page.rs`: `show_pages` (when dirty or the quest book changes: the title "Name, occupation" from the first offer's giver, the refusal, then the list or a detail), `Ids`, `story_of`.
 - `talk/detail.rs`: `Detail`, `detail_of` (on offer: story, steps from its asks, return, reward, Accept / Decline, and the player's "I've already dealt with it" (`talk-dealt-with`) when its boss is dead, or "I've already found it" (`talk-found`) when its item was picked up; taken: steps with counts and "(done)", Complete once ready, and while under way with a cellar of the giver's own (not a hidden way down, gone into from the world map) the Enter button with its words (`talk-enter-cellar`, "Enter Cellar"; accepting one goes straight in, owner); handed in: the ending and reward).
-- `talk/words.rs`: `giver_title` (`occupation-<kind>` from `talk.ftl`, none for houses), `hint_text`, `heard_text` ("I heard you helped Mara Tull, the baker", first of an offer's paragraphs), `refusal`; `plain` and `or_partly` are `quests`' (shared with the Quest Log).
+- `talk/words.rs`: `giver_title` and `occupation_id` (`quests`', shared with `trade`: `occupation-<kind>` from `talk.ftl`, none for houses), `hint_text`, `heard_text` ("I heard you helped Mara Tull, the baker", first of an offer's paragraphs), `refusal`; `plain` and `or_partly` are `quests`' (shared with the Quest Log).
 - `talk/close.rs`: `close_on_escape`, `close_when_left`.
 
 ## Public API

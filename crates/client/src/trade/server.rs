@@ -38,7 +38,9 @@ pub(super) fn read_server(
                 window.asked = None;
                 *trading = Trading::default();
             }
-            ServerMessage::Keepers(list) => window.keepers = list.iter().copied().collect(),
+            ServerMessage::Keepers(list) => {
+                window.keepers = list.iter().map(|one| (one.building, one.clone())).collect();
+            }
             ServerMessage::TradeStock { with, items } => {
                 window.stock.clone_from(items);
                 window.their_grid(*with);

@@ -7,16 +7,19 @@
 //! window opening chooses the nearest shop.
 
 use bevy::prelude::*;
-use shared::protocol::ClientMessage;
+use shared::lang::Lang;
+use shared::protocol::{ClientMessage, Keeper};
 use shared::spot::Spot;
 use shared::trade::shop_in_reach;
+use std::collections::BTreeMap;
 
 use super::people::{Seen, numbered, people_near};
 use super::state::{Partner, TradeWindow};
-use crate::common::{CurrentDungeon, HoverName, Other, SpotPosition, Trading};
+use crate::common::{CurrentDungeon, HoverName, Other, SpotPosition, Trading, Wording};
 use crate::connection::ToServer;
 use crate::dom::{Dom, UiEvent, UiValue};
 use crate::player::Player;
+use crate::quests::giver_title;
 use crate::widgets::UiId;
 
 /// What the dropdown last showed: who, which is chosen, and whether it can
@@ -26,25 +29,28 @@ type Shown = (Vec<Partner>, Option<usize>, bool);
 /// The dropdown's words when no one is near enough.
 const NOBODY: &str = "Nobody near enough";
 
-/// The shops in reach of `at`, nearest first, named by their kind (with a
-/// number when two are alike).
+/// The shops in reach of `at`, nearest first, named by their keeper as the
+/// talk panel names them ("Mara Tull, baker"; with a number when two are
+/// alike).
 pub(super) fn shops_near(
     at: Spot,
     dungeon: &CurrentDungeon,
-    keepers: &std::collections::BTreeMap<u16, shared::id::Id>,
+    keepers: &BTreeMap<u16, Keeper>,
+    lang: &Lang,
 ) -> Vec<Partner> {
     let mut near: Vec<_> = (dungeon.buildings.iter())
         .filter_map(|look| {
-            let &keeper = keepers.get(&look.id)?;
+            let keeper = keepers.get(&look.id)?;
             shop_in_reach(at, look.door).then_some((look, keeper))
         })
         .collect();
     near.sort_by_key(|(look, _)| at.distance(Spot::middle_of(look.door)));
     let mut shops: Vec<Partner> = Vec::new();
     for (look, keeper) in near {
-        let name = numbered(&shops, look.kind.name());
+        let name = giver_title(lang, &keeper.person, look.kind);
+        let name = numbered(&shops, &name);
         shops.push(Partner {
-            with: keeper,
+            with: keeper.id,
             name,
             never: false,
         });
@@ -58,7 +64,7 @@ pub(super) fn shops_near(
 pub(super) fn show_shops(
     player: Single<&SpotPosition, With<Player>>,
     others: Query<(&Other, &SpotPosition, &HoverName)>,
-    dungeon: Res<CurrentDungeon>,
+    (dungeon, wording): (Res<CurrentDungeon>, Res<Wording>),
     trading: Res<Trading>,
     mut window: ResMut<TradeWindow>,
     mut to_server: MessageWriter<ToServer>,
@@ -81,7 +87,7 @@ pub(super) fn show_shops(
         })
         .collect();
     let (players, npcs) = people_near(player.0, &seen);
-    let shops = shops_near(player.0, &dungeon, &window.keepers);
+    let shops = shops_near(player.0, &dungeon, &window.keepers, &wording.0);
     if window.just_opened {
         window.just_opened = false;
         let free = trading.with.is_none() && !window.receiving();

@@ -3,7 +3,7 @@
 use super::characters::ListedCharacter;
 use super::level::{LevelChunk, LevelInfo, RememberedLevel};
 use super::login::{EmailAddress, LoginMethod, SessionToken};
-use super::{Landed, OnlineState, Strike, TradeNews, WorldChunk, WorldInfo};
+use super::{Keeper, Landed, OnlineState, Strike, TradeNews, WorldChunk, WorldInfo};
 use crate::ability::{Ability, ActionBar};
 use crate::alignment::Alignment;
 use crate::difficulty::{Difficulties, Difficulty};
@@ -60,7 +60,7 @@ pub enum ServerMessage {
     GroundGone { at: crate::spot::Spot },
     /// Who keeps each shop of a town (`Buildings` comes first), by `BuildingLook::id`.
     /// Never on the map: they stand behind the door.
-    Keepers(Vec<(u16, Id)>),
+    Keepers(Vec<Keeper>),
     /// The player is in the game: the world they are in, its time (worked out
     /// from the server's clock, which reads `server_clock` seconds now),
     /// and where they are on its world map (where they left off). If they
