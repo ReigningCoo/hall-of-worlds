@@ -7,11 +7,12 @@ use axum::routing::get;
 use axum::serve::ListenerExt;
 use bevy::prelude::*;
 use shared::protocol::SOCKET_PATH;
-use std::net::TcpListener;
+use std::net::{SocketAddr, TcpListener};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use super::health::health_routes;
+use super::memlog::{Peer, memlog_routes};
 use super::stats::stats_routes;
 use super::web_files::{WebClient, WebFiles, web_files};
 use super::{CERTIFICATE_PATH, NewConnections, SecurePort, Sockets, TlsListener, WEB_PATH};
@@ -31,7 +32,7 @@ pub(super) fn accept_connections(new: Res<NewConnections>, mut connections: ResM
 
 /// The routes that serve the game: its WebSockets, health and version, the
 /// page players come back to from providers and the certificate if there are
-/// any, and the web client's files under `WEB_PATH`
+/// any, the web page's memory log if it is on (`memlog`), and the web client's files under `WEB_PATH`
 /// (where `/` sends browsers).
 pub(super) fn game_routes(
     web: Option<Arc<WebFiles>>,
@@ -43,7 +44,8 @@ pub(super) fn game_routes(
     let mut router = Router::new()
         .route(SOCKET_PATH, get(upgrade))
         .with_state(sockets)
-        .merge(health);
+        .merge(health)
+        .merge(memlog_routes());
     if let Some(logins) = logins {
         router = router.merge(logins);
     }
@@ -159,7 +161,13 @@ async fn run(
             })
     });
     let result = match (plain, secure) {
-        (Some(plain), None) => axum::serve(plain, game_routes(web, sockets, None)).await,
+        (Some(plain), None) => {
+            axum::serve(
+                plain,
+                with_addresses::<SocketAddr>(game_routes(web, sockets, None)),
+            )
+            .await
+        }
         (plain, Some(secure)) => {
             let port = secure
                 .listener
@@ -172,10 +180,12 @@ async fn run(
                 status_routes(&sockets).fallback(move || use_the_secure_port(port))
             };
             let routes = game_routes(web, sockets, Some(secure.certificates.clone()));
-            let secured = axum::serve(TlsListener::start(secure), routes).into_future();
+            let secured = axum::serve(TlsListener::start(secure), with_addresses::<Peer>(routes))
+                .into_future();
             match plain {
                 Some(plain) => {
-                    let plain = axum::serve(plain, plain_routes).into_future();
+                    let plain = axum::serve(plain, with_addresses::<SocketAddr>(plain_routes))
+                        .into_future();
                     let (plain, secured) = tokio::join!(plain, secured);
                     plain.and(secured)
                 }
@@ -187,4 +197,13 @@ async fn run(
     if let Err(error) = result {
         error!("The web server stopped: {error}");
     }
+}
+
+/// The routes as a service that tells each answer who asked
+/// (`ConnectInfo`: a `SocketAddr` on the plain port, a `Peer` on the secure
+/// one), for the memory log's limit by address.
+fn with_addresses<C>(
+    routes: Router,
+) -> axum::extract::connect_info::IntoMakeServiceWithConnectInfo<Router, C> {
+    routes.into_make_service_with_connect_info::<C>()
 }

@@ -17,6 +17,8 @@ mod frames;
 #[cfg(target_arch = "wasm32")]
 mod page;
 mod screen;
+#[cfg(any(target_arch = "wasm32", test))]
+mod stage;
 mod takes_input;
 use crate::dom::DomInput;
 use crate::dom::{Dom, DrawObjects};
@@ -85,7 +87,8 @@ impl Plugin for LoadingScreenPlugin {
 
         #[cfg(target_arch = "wasm32")]
         app.add_systems(First, page::mark_first_frame)
-            .add_systems(Update, page::remove_page_screen.after(update_step));
+            .add_systems(Update, page::remove_page_screen.after(update_step))
+            .add_systems(Last, page::show_stage);
     }
 }
 

@@ -45,6 +45,12 @@ function keepTimes(times) {
     }
 }
 
+/// The game's stage on the page (`<html data-how-stage>`), for the memory log
+/// (web/memlog.js); the game writes its own once it runs.
+function stage(name) {
+    document.documentElement.dataset.howStage = name;
+}
+
 function say(text) {
     const element = words();
     if (element) element.textContent = text;
@@ -128,6 +134,7 @@ export default function initializer() {
     // What the game calls: `stage("starting")` as its `main` begins.
     window.howLoading = {
         stage(name) {
+            stage(name);
             if (name === "starting") say("Starting...");
         },
         measured,
@@ -137,6 +144,7 @@ export default function initializer() {
         onStart() {
             mark("how-download-start");
             watchForTheGame();
+            stage("download");
             say("Downloading...");
             fetch(new URL("_wasm-size", document.baseURI), { cache: "no-store" })
                 .then((answer) => (answer.ok ? answer.json() : {}))
@@ -153,6 +161,7 @@ export default function initializer() {
             if (total > 0 && current >= total) {
                 downloaded = true;
                 mark("how-download-done");
+                stage("compile");
                 say("Compiling...");
                 if (times) {
                     fillOver(downloadShare, times.compile + times.start);
