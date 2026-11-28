@@ -115,8 +115,13 @@ fn main() {
     #[cfg(not(target_arch = "wasm32"))]
     let plugins = plugins.set(server::log_plugin());
 
+    // Marks between the plugin groups and around plugins' `finish` (web only),
+    // for the page's figures (`web/loader.js`).
     let mut app = App::new();
-    app.add_plugins(plugins).add_plugins((
+    app.add_plugins(loading_screen::StartupMarks::First);
+    app.add_plugins(plugins);
+    loading_screen::mark_page("how-bevy-plugins");
+    app.add_plugins((
         fonts::FontsPlugin,
         common::CommonPlugin,
         connection::ConnectionPlugin,
@@ -133,12 +138,14 @@ fn main() {
         ui::UiPlugin,
         loading_screen::LoadingScreenPlugin,
     ));
+    loading_screen::mark_page("how-plugins-1");
     app.add_plugins((
         dom::DomPlugin,
         plants::PlantsPlugin,
         login::LoginPlugin,
         character_select::CharacterSelectPlugin,
     ));
+    loading_screen::mark_page("how-plugins-2");
     // (Apart: a tuple of plugins can only be so long.)
     app.add_plugins((
         system_menu::SystemMenuPlugin,
@@ -157,6 +164,7 @@ fn main() {
         target::TargetPlugin,
         abilities::AbilitiesPlugin,
     ));
+    loading_screen::mark_page("how-plugins-3");
     app.add_plugins(skills_page::SkillsPagePlugin);
     app.add_plugins(alchemy::AlchemyPlugin);
     app.add_plugins(spell_design::SpellDesignPlugin);
@@ -181,6 +189,7 @@ fn main() {
     app.add_plugins(sound::SoundPlugin);
     app.add_plugins(music::MusicPlugin);
     app.add_plugins(sneak_eye::SneakEyePlugin);
+    loading_screen::mark_page("how-plugins-4");
 
     // Native only: developer tools. (The embedded single-player server is
     // started by `connection`.)
@@ -191,7 +200,7 @@ fn main() {
         server::debug_api::DebugApiPlugin { port_offset: 0 },
     ));
 
-    #[cfg(target_arch = "wasm32")]
+    app.add_plugins(loading_screen::StartupMarks::Last);
     loading_screen::mark_page("how-app-built");
     app.run();
 }

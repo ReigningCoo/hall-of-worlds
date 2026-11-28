@@ -14,6 +14,7 @@ use crate::common::{
 };
 
 mod frames;
+mod marks;
 #[cfg(target_arch = "wasm32")]
 mod page;
 mod screen;
@@ -23,8 +24,9 @@ mod takes_input;
 use crate::dom::DomInput;
 use crate::dom::{Dom, DrawObjects};
 use frames::keep_frame_rate;
+pub use marks::StartupMarks;
 #[cfg(target_arch = "wasm32")]
-pub use page::{mark as mark_page, starting as page_starting};
+pub use page::starting as page_starting;
 use screen::{bind_screen, spawn_screen, title_node};
 
 /// Built into the program, rather than loaded, to be there on the first frame.
@@ -90,6 +92,13 @@ impl Plugin for LoadingScreenPlugin {
             .add_systems(Update, page::remove_page_screen.after(update_step))
             .add_systems(Last, page::show_stage);
     }
+}
+
+/// Marks a moment of the start-up in the browser's timeline
+/// (`performance.mark`), for the page's figures; nothing natively.
+pub fn mark_page(_name: &str) {
+    #[cfg(target_arch = "wasm32")]
+    page::mark(_name);
 }
 
 /// Keeps the screen up whatever happens (dev tools), to look at it.
