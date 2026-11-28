@@ -80,6 +80,21 @@ fn players_and_people_near_enough_are_listed_nearest_first() {
 }
 
 #[test]
+fn beggars_come_first_among_npcs() {
+    let here = Spot::middle_of((0, 0));
+    let all = [
+        seen(1, CreatureKind::Human, 1, false),
+        seen(2, CreatureKind::Beggar, 4, false),
+        seen(3, CreatureKind::Dwarf, 2, false),
+        seen(4, CreatureKind::Beggar, 3, false),
+    ];
+    let (_, npcs) = people_near(here, &all);
+    let ids: Vec<_> = npcs.iter().map(|one| one.with).collect();
+    let order = [4, 2, 1, 3].map(Id::for_test);
+    assert_eq!(ids, order, "beggars nearest first, then the rest");
+}
+
+#[test]
 fn npcs_alike_are_numbered() {
     let here = Spot::middle_of((0, 0));
     let mut one = seen(1, CreatureKind::Human, 1, false);

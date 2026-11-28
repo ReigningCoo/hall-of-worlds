@@ -1,8 +1,9 @@
 //! Who besides shops can be traded with (trading plan PR 6): other players
-//! and NPCs within a trade's reach (`shared::trade::in_reach`), nearest first.
-//! NPCs are the people kinds (those with an alignment) not unfriendly to the
-//! player, as the server judges them; a player set never to trade is listed
-//! greyed out.
+//! and NPCs within a trade's reach (`shared::trade::in_reach`), nearest first,
+//! beggars before other NPCs (trading plan PR 7: giving them coins raises
+//! standing). NPCs are the people kinds (those with an alignment) not
+//! unfriendly to the player, as the server judges them; a player set never to
+//! trade is listed greyed out.
 
 use shared::creature::CreatureKind;
 use shared::id::Id;
@@ -29,8 +30,8 @@ fn trades(seen: &Seen) -> bool {
     seen.kind.alignment_leaning().is_some() && seen.feeling != Feeling::Unfriendly
 }
 
-/// The players and the NPCs within reach of `at`, each nearest first; NPCs
-/// alike numbered as shops are.
+/// The players and the NPCs within reach of `at`, each nearest first (beggars
+/// before other NPCs); NPCs alike numbered as shops are.
 pub(super) fn people_near(at: Spot, seen: &[Seen]) -> (Vec<Partner>, Vec<Partner>) {
     let mut near: Vec<&Seen> = (seen.iter())
         .filter(|seen| in_reach(at, seen.at) && (seen.player || trades(seen)))
@@ -43,8 +44,11 @@ pub(super) fn people_near(at: Spot, seen: &[Seen]) -> (Vec<Partner>, Vec<Partner
             never: seen.never_trades,
         })
         .collect();
+    let mut others: Vec<&&Seen> = near.iter().filter(|seen| !seen.player).collect();
+    // A stable sort: still nearest first within each.
+    others.sort_by_key(|seen| seen.kind != CreatureKind::Beggar);
     let mut npcs: Vec<Partner> = Vec::new();
-    for seen in near.iter().filter(|seen| !seen.player) {
+    for seen in others {
         npcs.push(Partner {
             with: seen.id,
             name: numbered(&npcs, &seen.name),

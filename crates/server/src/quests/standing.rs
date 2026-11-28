@@ -1,12 +1,14 @@
 //! Standing in a town (`shared::quest::Standing`), from points: quests handed
 //! in, and helpful acts round the town: killing hostile creatures near it,
-//! trading at its shops, giving to its beggars. Acts alone make a character
+//! trading at its shops, giving to its beggars (coins by `alms`, past Known). Acts alone make a character
 //! no more than Known. The figures are Claude's, to balance.
 
 use shared::creature::{CreatureKind, Temper};
 use shared::poi::{CHUNK_SIZE, ChunkPos, Poi};
-use shared::quest::{Standing, radius};
+use shared::quest::{Standing, radius, utc_day};
 
+use super::alms;
+use super::clock::unix_now;
 use crate::ServerWorld;
 use crate::connections::Client;
 use crate::storage::{QuestBook, SiteId};
@@ -90,9 +92,11 @@ pub(crate) fn tipped(client: &mut Client, town: ChunkPos, copper: u64) {
     }
 }
 
-/// The character gave something to a creature of `kind`: a beggar's town
-/// (the one they are in, else those reaching them) thinks better of them.
-pub(crate) fn gave(client: &mut Client, world: &ServerWorld, kind: CreatureKind) {
+/// The character gave something worth `copper` in coins (often none) to a
+/// creature of `kind`: a beggar's town (the one they are in, else those
+/// reaching them) thinks better of them, by the coins given (`alms`), else a
+/// little for the gift.
+pub(crate) fn gave(client: &mut Client, world: &ServerWorld, kind: CreatureKind, copper: u64) {
     if kind != CreatureKind::Beggar {
         return;
     }
@@ -100,8 +104,14 @@ pub(crate) fn gave(client: &mut Client, world: &ServerWorld, kind: CreatureKind)
         Some(town) => vec![town],
         None => towns_reaching(world, client.world_position()),
     };
+    let today = utc_day(unix_now());
     for town in towns {
-        if helped(&mut client.character.quests, town, FOR_GIFT) {
+        let book = &mut client.character.quests;
+        let changed = match copper {
+            0 => helped(book, town, FOR_GIFT),
+            _ => alms::give(book, town, today, copper) > 0,
+        };
+        if changed {
             client.unsaved = true;
         }
     }

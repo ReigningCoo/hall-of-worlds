@@ -130,6 +130,7 @@ pub(super) fn answer_items(
         ClientMessage::GiveItem { item, to } => {
             let cost = client.inventory.put_down_cost(item);
             let quest_item = (client.inventory.find(item)).is_some_and(Item::holds_quest_item);
+            let copper = (client.inventory.find(item)).map_or(0, crate::quests::copper_in);
             let tick = world.action_clock.ticks();
             let giving = |after: &mut Inventory| drop(after.hand_over(item));
             let given = if !client.may_take_off(item) {
@@ -144,7 +145,7 @@ pub(super) fn answer_items(
                 Err("shops take things only in a trade")
             } else {
                 (crate::entities::give(client, world, item, to))
-                    .map(|kind| crate::quests::gave(client, world, kind))
+                    .map(|kind| crate::quests::gave(client, world, kind, copper))
             };
             match given {
                 Ok(()) => {
