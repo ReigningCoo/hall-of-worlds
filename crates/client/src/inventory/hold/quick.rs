@@ -14,6 +14,10 @@ pub(in crate::inventory) enum QuickFrom {
     Carried(Id),
     /// Something on the ground (`common::GROUND`'s stock).
     Ground(Box<Item>),
+    /// Something in another grid that isn't carried (a trade window's: its
+    /// sides or a shop's stock), by whose grid it is in: `hold_items::trade`
+    /// moves it in or out of the trade, or nothing happens.
+    Stock { with: Id, item: Id },
 }
 
 /// Why it can't go.
@@ -56,6 +60,7 @@ pub(in crate::inventory) fn quick_target(
     let id = match from {
         QuickFrom::Ground(item) => return Some(into_new(inventory, item, limits)),
         QuickFrom::Carried(id) => *id,
+        QuickFrom::Stock { .. } => return None,
     };
     if inventory.in_bin(id) {
         return None;

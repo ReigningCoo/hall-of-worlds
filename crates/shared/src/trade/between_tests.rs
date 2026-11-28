@@ -159,3 +159,17 @@ fn trading_is_asked_by_default_and_reach_is_five_cells() {
     assert!(in_reach(at, crate::spot::Spot::middle_of((15, 10))));
     assert!(!in_reach(at, crate::spot::Spot::middle_of((16, 10))));
 }
+
+#[test]
+fn the_first_free_place_is_beside_what_is_there() {
+    let carried = carrying(vec![item(ItemKind::Dagger, 1), item(ItemKind::Dagger, 2)]);
+    let shape = carried.find(Id::for_test(1)).unwrap().shape();
+    let mut side = Side::default();
+    let first = side.first_free(Id::for_test(1), &carried).unwrap();
+    assert_eq!((first.x, first.y), (0, 0));
+    side.offer(first, &carried).unwrap();
+    let next = side.first_free(Id::for_test(2), &carried).unwrap();
+    assert_eq!((next.x, next.y), (shape.width, 0));
+    // Nothing not carried has a place.
+    assert_eq!(side.first_free(Id::for_test(9), &carried), None);
+}

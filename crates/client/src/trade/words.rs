@@ -1,11 +1,12 @@
-//! The trade window's words: sums of coins, refusals, and how a trade ended.
+//! The trade window's words: refusals, and how a trade ended (with what was
+//! paid or received in words; the sums are coin pictures, `show`'s).
 
 use shared::protocol::TradeEnd;
 use shared::trade::{Payment, Refusal};
 use shared::value::Coins;
 
-/// Copper as coins in words, none of a coin left out: "1 gold, 5 copper";
-/// "nothing" for none.
+/// Copper as coins in words, for how a trade ended, none of a coin left out:
+/// "1 gold, 5 copper"; "nothing" for none.
 pub(super) fn coins_words(copper: u64) -> String {
     let coins = Coins::from_copper(copper);
     let parts: Vec<String> = [
@@ -20,15 +21,6 @@ pub(super) fn coins_words(copper: u64) -> String {
     match parts.is_empty() {
         true => "nothing".to_owned(),
         false => parts.join(", "),
-    }
-}
-
-/// What the bottom right says of what is due (negative: to be paid).
-pub(super) fn due_words(due: i64) -> String {
-    match due {
-        0 => "Nothing to pay".to_owned(),
-        due if due > 0 => format!("You pay {}", coins_words(due as u64)),
-        due => format!("You receive {}", coins_words(due.unsigned_abs())),
     }
 }
 

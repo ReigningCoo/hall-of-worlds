@@ -1,6 +1,7 @@
 //! How the window is laid out for what it is doing (trading plan PR 6): a
-//! shop's stock and Complete trade; a character's side (seen, not touched)
-//! with the Trade toggle, "Asking..." over it while the one asked hasn't
+//! shop's Buying box and stock with the Trade button; a character's side
+//! (seen, not touched) in the Buying box's place, with the Trade toggle in
+//! the button's, "Asking..." over it while the one asked hasn't
 //! answered; or, once a trade has settled, only the receive box with Take
 //! all. A side locked in is drawn darker with a solid edge.
 
@@ -13,7 +14,7 @@ use super::state::TradeWindow;
 use crate::common::Trading;
 use crate::connection::ToServer;
 use crate::dom::{Dom, GridShown, GridThing, UiEvent, UiValue};
-use crate::widgets::UiId;
+use crate::widgets::{ItemMark, UiId};
 
 /// What the window is showing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -62,9 +63,9 @@ pub(super) fn show_sides(
     let with_character = mode == Mode::Between;
     dom.set_flag("trade/trading", "hidden", receiving);
     dom.set_flag("trade/received_frame", "hidden", !receiving);
-    dom.set_flag("trade/bottom", "hidden", receiving || with_character);
-    dom.set_flag("trade/scroll", "hidden", with_character);
-    dom.set_flag("trade/buying_label", "hidden", with_character);
+    // The Trade toggle where the Trade button is, with a character.
+    dom.set_flag("trade/complete", "hidden", with_character);
+    dom.set_flag("trade/stock_frame", "hidden", with_character);
     dom.set_flag("trade/buying", "hidden", with_character);
     dom.set_flag("trade/theirs", "hidden", !with_character);
     dom.set_flag("trade/lock", "hidden", !with_character);
@@ -97,7 +98,7 @@ pub(super) fn draw_their_side(
                 y: placed.y,
                 rotation: placed.rotation,
                 dimmed: false,
-                mark: Default::default(),
+                mark: ItemMark::Selling,
             })
             .collect()
     });

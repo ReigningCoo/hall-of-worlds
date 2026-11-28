@@ -1,7 +1,8 @@
 //! The trade window (T, or its button at the bottom left): one window for
 //! trading with shops, players and NPCs near enough (trading plan PRs 4 and
-//! 6): who to trade with, the own side, the middle, the shop's stock and
-//! Complete trade, or a character's side and the Trade toggle; the receive
+//! 6, laid out again by trading tweaks PR 3): who to trade with, Selling and
+//! Buying with their totals, the Trade button (or toggle) between them, and
+//! a shop's stock under Buying (or a character's side as Buying); the receive
 //! box; and the requester when another player asks to trade. See
 //! `docs/context/client/trade.md`.
 
