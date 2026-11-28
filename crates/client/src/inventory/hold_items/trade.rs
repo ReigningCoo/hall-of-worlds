@@ -25,12 +25,18 @@ use crate::common::{
 use crate::connection::ToServer;
 pub(super) use quick::quick_in_trade;
 
-/// Whether something held from `from`'s grid may be let go on `to`'s: back
-/// where it came from, or between a shop's stock and the Buying box.
-pub(super) fn may_go_to(trading: &Trading, from: shared::id::Id, to: shared::id::Id) -> bool {
+/// Whether `item`, held from `from`'s grid, may be let go on `to`'s: back
+/// where it came from, or between a shop's stock and the Buying box (never
+/// into the box again while it is being bought).
+pub(super) fn may_go_to(
+    trading: &Trading,
+    item: shared::id::Id,
+    (from, to): (shared::id::Id, shared::id::Id),
+) -> bool {
     let shop = trading.with.filter(|_| trading.between.is_none());
+    let new = trading.bought(item).is_none();
     let swap = shop.is_some_and(|shop| {
-        (from == shop && to == buying_box()) || (from == buying_box() && to == shop)
+        (from == shop && to == buying_box() && new) || (from == buying_box() && to == shop)
     });
     from == to || swap
 }

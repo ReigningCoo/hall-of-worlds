@@ -1,6 +1,8 @@
 //! How a trade marks an item (trading plan PR 4, `ItemMark`): something
-//! carried that is in a trade, and everything on a trade window's sides, has
-//! a small bag in its top left corner, inside its frame (trading tweaks PR 3).
+//! outside a trade window's boxes that is in the trade (carried and sold, or
+//! a shop's stock being bought) has a small bag in its top left corner,
+//! inside its frame, and is darkened by a third (`cells`; final trade
+//! tweaks). What is inside the boxes has none.
 
 use bevy::prelude::*;
 

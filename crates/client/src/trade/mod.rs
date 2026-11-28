@@ -1,7 +1,8 @@
 //! The trade window (T, or its button at the bottom left): one window for
 //! trading with shops, players and NPCs near enough (trading plan PRs 4 and
 //! 6, laid out again by trading tweaks PR 3): who to trade with, Selling and
-//! Buying with their totals, the Trade button (or toggle) between them, and
+//! Buying with their totals, the Trade button (or toggle) between them with
+//! Cancel under it, and
 //! a shop's stock under Buying (or a character's side as Buying); the receive
 //! box; and the requester when another player asks to trade. See
 //! `docs/context/client/trade.md`.
@@ -15,6 +16,7 @@ use crate::player::PlayerSystems;
 mod asked;
 mod between;
 mod button;
+mod cancel;
 #[cfg(all(feature = "debug-api", not(target_arch = "wasm32")))]
 mod debug_api;
 mod grids;
@@ -55,6 +57,8 @@ impl Plugin for TradePlugin {
                     grids::show_aim,
                     show::press_complete,
                     show::show_middle,
+                    cancel::press_cancel,
+                    cancel::show_cancel,
                     sides::press_lock,
                     sides::show_sides,
                     sides::draw_their_side,
@@ -71,5 +75,7 @@ impl Plugin for TradePlugin {
 
 #[cfg(test)]
 mod between_tests;
+#[cfg(test)]
+mod stock_tests;
 #[cfg(test)]
 mod tests;

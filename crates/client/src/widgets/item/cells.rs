@@ -11,12 +11,15 @@ use super::fuel::spawn_fuel;
 use super::mixed::spawn_mixed_mark;
 use super::trade_mark::spawn_trade_mark;
 use super::{
-    CELL, ITEM_LABEL_FONT, ItemLook, PICTURE_PIXELS_PER_CELL, at_cell, item_colour, item_edge,
-    item_edge_width, item_label, item_picture, picture_node, picture_turned,
+    CELL, ITEM_LABEL_FONT, ItemLook, ItemMark, PICTURE_PIXELS_PER_CELL, at_cell, item_colour,
+    item_edge, item_edge_width, item_label, item_picture, picture_node, picture_turned,
 };
 
 /// Over an item filtered out: `GRID_COLOUR`, letting a little of it through.
 const DIMMING: Color = Color::srgba(0.55, 0.46, 0.33, 0.65);
+/// Over something with the bag, in a trade: darker by about a third (final
+/// trade tweaks, owner).
+const IN_TRADE: Color = Color::srgba(0.0, 0.0, 0.0, 0.33);
 
 /// An item's cells, in a parent placing them, with the shape's corner at `corner`.
 /// `on_each` gives what goes on a cell, and on the label if it is the first, from
@@ -110,6 +113,13 @@ pub fn spawn_item_cells<B: Bundle>(
     spawn_count(parent, count, shape, corner, item_edge_width(quality));
     spawn_mixed_mark(parent, mixed, shape, corner, item_edge_width(quality));
     spawn_fuel(parent, fuel, shape, corner, item_edge_width(quality));
+    if mark != ItemMark::None {
+        // Darkened, under the bag.
+        for (x, y) in shape.cells() {
+            let cell = at_cell(corner.0 + x as f32, corner.1 + y as f32);
+            parent.spawn((cell, BackgroundColor(IN_TRADE)));
+        }
+    }
     spawn_trade_mark(parent, mark, corner, item_edge_width(quality));
     if dimmed {
         // Last, so over all of it: the grid's colour, mostly hiding it.

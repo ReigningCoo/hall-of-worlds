@@ -131,6 +131,10 @@ pub(super) fn take_presses(
                 }
                 continue;
             }
+            if cell.stays {
+                // Already in the trade, its copy in the Buying box.
+                continue;
+            }
             let held = Held {
                 id: cell.item.id,
                 rotation: cell.rotation,

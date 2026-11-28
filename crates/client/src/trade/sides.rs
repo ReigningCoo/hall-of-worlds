@@ -98,7 +98,7 @@ pub(super) fn draw_their_side(
                 y: placed.y,
                 rotation: placed.rotation,
                 dimmed: false,
-                mark: ItemMark::Selling,
+                mark: ItemMark::None,
             })
             .collect()
     });

@@ -8,11 +8,14 @@ use shared::item::{Item, ItemCategory, Placed, Rotation, Shape};
 
 use super::item::{CELL, ItemMark, logical_rect};
 use crate::common::HeldGift;
-use crate::dom::{GridAim, GridShown, GridThing};
+use crate::dom::{GridShown, GridThing};
 
 // Split into files (`cargo xtask lint` keeps files small).
+mod aim;
 mod mark;
 mod place;
+
+pub use aim::show_stock_aim;
 
 pub(super) use mark::add;
 
@@ -41,8 +44,12 @@ pub struct StockGrid {
     most_rows: Option<u8>,
     /// Drawn darkened with a solid edge (a side of a trade locked in).
     pub locked: bool,
-    /// How everything in it is marked (a trade's sides: the bag).
-    pub mark: ItemMark,
+    /// What in it is drawn with the bag (`ItemMark::Selling`), darkened: a
+    /// shop's stock being bought (final trade tweaks).
+    pub marked: Vec<Id>,
+    /// Only cells with something in them are drawn (a shop's stock), not
+    /// the empty ones between.
+    pub only_filled: bool,
 }
 
 /// Something given, and where in the grid it was let go.
@@ -74,7 +81,8 @@ impl StockGrid {
             least_rows: 0,
             most_rows: None,
             locked: false,
-            mark: ItemMark::None,
+            marked: Vec::new(),
+            only_filled: false,
         }
     }
 
@@ -107,6 +115,13 @@ impl StockGrid {
 
     pub fn is_empty(&self) -> bool {
         self.stock.is_empty()
+    }
+
+    /// Where this is in it: its top left cell (tests).
+    #[cfg(test)]
+    pub fn place_of(&self, item: Id) -> Option<(u8, u8)> {
+        let placed = self.stock.iter().find(|placed| placed.item.id == item)?;
+        Some((placed.x, placed.y))
     }
 
     /// What is in it.
@@ -177,7 +192,10 @@ impl StockGrid {
                 dimmed: self
                     .filter
                     .is_some_and(|only| placed.item.top().kind.category() != only),
-                mark: self.mark,
+                mark: match self.marked.contains(&placed.item.id) {
+                    true => ItemMark::Selling,
+                    false => ItemMark::None,
+                },
             })
             .collect();
         let shown = GridShown {
@@ -189,6 +207,7 @@ impl StockGrid {
             takes_gifts: Some(self.with),
             cells: None,
             locked: self.locked,
+            only_filled: self.only_filled,
         };
         // (Its holder may have gone this frame with its panel.)
         commands
@@ -212,27 +231,6 @@ impl StockGrid {
         let rest = others(&self.stock, gift.item);
         let at = landing(self.columns, &rest, shape, wanted);
         Some((gift.to, at, shape))
-    }
-}
-
-/// Green where something held would go if let go now, in the grids given.
-pub fn show_stock_aim<'a>(
-    grids: impl Iterator<Item = (&'a StockOf, Mut<'a, GridShown>)>,
-    aim: Option<StockAimAt>,
-) {
-    for (of, mut shown) in grids {
-        let now = aim.filter(|aim| aim.0 == of.0).map(|(_, (x, y), shape)| {
-            let cells = shape.cells();
-            GridAim {
-                cells: cells
-                    .map(|(cell_x, cell_y)| ((x + cell_x) as i32, (y + cell_y) as i32))
-                    .collect(),
-                allowed: true,
-            }
-        });
-        if shown.aim != now {
-            shown.aim = now;
-        }
     }
 }
 

@@ -3,7 +3,8 @@
 //! trade (sold, or offered in the first free place on the own side), or out
 //! of it again if it is in already; something on either side comes out of the
 //! trade; and a shop's stock goes into the Buying box's first free place
-//! (`TradeAsk::Buy` with no place, growing the box). The server says how it
+//! (`TradeAsk::Buy` with no place, growing the box), or out of it again if
+//! it is being bought already (final trade tweaks). The server says how it
 //! stands after; nothing is shown before.
 
 use shared::item::Inventory;
@@ -42,6 +43,12 @@ pub(in crate::inventory::hold_items) fn quick_in_trade(
             Some(TradeAsk::Unsell { item })
         }
         QuickFrom::Stock { with: from, item } if from == buying_box() => {
+            Some(TradeAsk::Unbuy { item })
+        }
+        // Stock already being bought (its copy in the Buying box): back out.
+        QuickFrom::Stock { with: from, item }
+            if from == with && trading.between.is_none() && trading.bought(item).is_some() =>
+        {
             Some(TradeAsk::Unbuy { item })
         }
         QuickFrom::Stock { with: from, item } if from == with && trading.between.is_none() => {

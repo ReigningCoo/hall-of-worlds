@@ -59,6 +59,7 @@ pub(in crate::inventory) fn show_grids(
             takes_gifts: None,
             cells: short_rows(&carried.0, holder, columns, rows),
             locked: false,
+            only_filled: false,
         };
         // (Only when it differs: the grid draws itself again when changed.)
         if *shown != now {

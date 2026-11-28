@@ -59,6 +59,10 @@ pub struct StockCell {
     pub item: shared::item::Item,
     pub rotation: shared::item::Rotation,
     pub grip: (u8, u8),
+    /// Already in the trade (a shop's stock being bought, its copy in the
+    /// Buying box): a press doesn't pick it up, a right-click or two taps
+    /// take it out of the trade.
+    pub stays: bool,
 }
 
 /// What is held that is still someone else's, if anything: not drawn where it was.
